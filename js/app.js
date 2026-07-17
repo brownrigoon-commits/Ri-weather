@@ -164,6 +164,29 @@ async function searchPlaces(q) {
   return res.json();
 }
 
+/* 전체 주소("울산 울주군 웅촌면 웅촌로 1")는 무료 검색기가 못 찾으므로
+   실패 시 번지 제거 → 시군구+도로명 → 도로명만 순으로 단순화해 재시도 */
+async function searchPlacesSmart(q) {
+  let results = await searchPlaces(q);
+  if (results.length) return results;
+
+  const road = q.match(/([가-힣A-Za-z0-9]+(?:대로|로|길)(?:\s?\d+번길)?)/);
+  const tries = [];
+  const noNum = q.replace(/\s*\d+(?:-\d+)?\s*$/, "").trim();
+  if (noNum && noNum !== q) tries.push(noNum);
+  if (road) {
+    const regions = q.match(/[가-힣]+(?:시|군|구)/g) || [];
+    if (regions.length) tries.push(regions[regions.length - 1] + " " + road[1]);
+    tries.push(road[1]);
+  }
+  for (const t of [...new Set(tries)]) {
+    if (!t || t === q) continue;
+    try { results = await searchPlaces(t); } catch { continue; }
+    if (results.length) return results;
+  }
+  return results;
+}
+
 /* 좌표 → 간단한 행정구역 주소 (골프장 DB 항목용) */
 async function reverseGeocode(lat, lon) {
   const url = new URL("https://nominatim.openstreetmap.org/reverse");
@@ -415,7 +438,7 @@ const runSearch = debounce(async (q) => {
 
   /* 2) 지역/주소 검색 (Nominatim) — 도착하면 아래에 추가 */
   let nomi = [];
-  try { nomi = await searchPlaces(q); } catch { /* 지역 검색 실패해도 골프장 결과는 유지 */ }
+  try { nomi = await searchPlacesSmart(q); } catch { /* 지역 검색 실패해도 골프장 결과는 유지 */ }
   if (searchInput.value.trim() !== q) return; // 입력이 바뀌었으면 무시
 
   const isGolfPlace = (r) =>
@@ -435,6 +458,17 @@ const runSearch = debounce(async (q) => {
         lat: parseFloat(r.lat), lon: parseFloat(r.lon), golf: isGolfPlace(r),
       };
     });
+
+  // 같은 도로의 구간 중복 제거 (이름+주소 기준)
+  const seen = new Set();
+  const dedupedAreas = areas.filter((e) => {
+    const key = e.name + "|" + e.addr;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+  areas.length = 0;
+  areas.push(...dedupedAreas);
 
   if (!golf.length && !areas.length) {
     searchStatus.textContent = `'${q}' 검색 결과가 없습니다. 골프장 이름이나 지역명(예: 제주 서귀포)으로 검색해 보세요.`;
