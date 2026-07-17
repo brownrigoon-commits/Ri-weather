@@ -252,11 +252,24 @@ function hideSearchUI() {
   searchStatus.hidden = true;
 }
 
+/* Nominatim 결과의 행정 단위 → 한글 라벨 */
+const ADDR_TYPE_KO = {
+  province: "도", state: "도", city: "시", county: "군", borough: "구",
+  town: "읍·면", village: "리·마을", suburb: "동", neighbourhood: "동네",
+  hamlet: "마을", road: "도로", building: "건물", house: "건물",
+  amenity: "시설", leisure: "시설",
+};
+
 function renderResultItem(entry) {
   const li = document.createElement("li");
+  const tag = entry.golf
+    ? '<span class="r-tag">⛳ 골프장</span>'
+    : `<span class="r-tag r-tag-area">📍 ${entry.typeKo || "지역"}</span>`;
+  const note = entry.centerNote
+    ? ' <span class="r-note">· 해당 지역 중심 기준</span>' : "";
   li.innerHTML = `
-    <div class="r-name">${entry.name}${entry.golf ? '<span class="r-tag">⛳ 골프장</span>' : '<span class="r-tag r-tag-area">📍 지역</span>'}</div>
-    <div class="r-addr">${entry.addr || (entry.golf ? "골프장" : "")}</div>`;
+    <div class="r-name">${entry.name}${tag}</div>
+    <div class="r-addr">${entry.addr || (entry.golf ? "골프장" : "")}${note}</div>`;
   li.addEventListener("click", () => {
     hideSearchUI();
     searchInput.value = "";
@@ -300,8 +313,11 @@ const runSearch = debounce(async (q) => {
     .map((r) => {
       const name = r.name || r.display_name.split(",")[0];
       const addr = r.display_name.split(",").slice(1).map((s) => s.trim()).slice(0, 3).reverse().join(" ");
+      const typeKo = ADDR_TYPE_KO[r.addresstype] || ADDR_TYPE_KO[r.type] || "지역";
+      // 검색어에 번지 등 숫자가 있는데 마을/동 단위로만 매칭된 경우 안내
+      const centerNote = /\d/.test(q) && /리·마을|동|읍·면|마을|동네/.test(typeKo);
       return {
-        id: "osm-" + r.place_id, name, addr,
+        id: "osm-" + r.place_id, name, addr, typeKo, centerNote,
         lat: parseFloat(r.lat), lon: parseFloat(r.lon), golf: isGolfPlace(r),
       };
     });
@@ -564,7 +580,7 @@ function ensureMap(lat, lon) {
     zoomControl: false,
     attributionControl: true,
     scrollWheelZoom: false,
-    maxZoom: 10, minZoom: 5,
+    maxZoom: 15, minZoom: 5, // 확대해서 녹색점(내 위치) 확인 가능
   }).setView([lat, lon], 7);
   // 지명 라벨을 강수 오버레이 위에 올려 지도 가독성 확보
   const labelPane = map.createPane("labels");
@@ -572,10 +588,10 @@ function ensureMap(lat, lon) {
   labelPane.style.pointerEvents = "none";
   L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png", {
     attribution: "&copy; OSM &copy; CARTO",
-    subdomains: "abcd", maxZoom: 10, minZoom: 5,
+    subdomains: "abcd", maxZoom: 15, minZoom: 5,
   }).addTo(map);
   L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}{r}.png", {
-    subdomains: "abcd", maxZoom: 10, minZoom: 5, pane: "labels",
+    subdomains: "abcd", maxZoom: 15, minZoom: 5, pane: "labels",
   }).addTo(map);
   L.control.zoom({ position: "bottomright" }).addTo(map);
 }
@@ -631,7 +647,7 @@ async function initRadar() {
     isNowcast: f.isNowcast,
     // RainViewer 무료 타일은 줌 7까지만 실데이터 제공 → 그 이상은 업스케일
     layer: L.tileLayer(`${host}${f.path}/256/{z}/{x}/{y}/4/1_1.png`, {
-      opacity: 0, zIndex: 200, maxNativeZoom: 7, maxZoom: 10,
+      opacity: 0, zIndex: 200, maxNativeZoom: 7, maxZoom: 15,
     }),
   }));
   rvFrames.forEach((f) => f.layer.addTo(map));
