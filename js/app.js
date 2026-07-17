@@ -93,25 +93,33 @@ async function fetchAir(lat, lon) {
 }
 
 /* 전국 격자(약 0.5°)의 시간별 강수 예보 — 예보 지도 렌더링용 */
-const GRID = {
-  latMin: 33.0, latMax: 39.0,
-  lonMin: 124.5, lonMax: 130.5,
-  step: 0.3,
-};
-GRID.nLat = Math.round((GRID.latMax - GRID.latMin) / GRID.step) + 1; // 21
-GRID.nLon = Math.round((GRID.lonMax - GRID.lonMin) / GRID.step) + 1; // 21
+/* 예보 격자 — 선택한 지점을 중심으로 동적 생성 (해외 골프장도 그대로 동작) */
+const GRID_STEP = 0.3;
+function makeGrid(centerLat, centerLon) {
+  const halfLat = 3.0, halfLon = 3.3; // 선택 지점 중심 약 ±330km 커버
+  const g = {
+    latMin: Math.max(-85, centerLat - halfLat),
+    latMax: Math.min(85, centerLat + halfLat),
+    lonMin: centerLon - halfLon,
+    lonMax: centerLon + halfLon,
+    step: GRID_STEP,
+  };
+  g.nLat = Math.round((g.latMax - g.latMin) / g.step) + 1;
+  g.nLon = Math.round((g.lonMax - g.lonMin) / g.step) + 1;
+  return g;
+}
 
-async function fetchPrecipGrid() {
+async function fetchPrecipGrid(GRID) {
   const lats = [], lons = [];
   // 북→남, 서→동 순서 (캔버스 픽셀 순서와 일치)
   for (let r = 0; r < GRID.nLat; r++) {
     for (let c = 0; c < GRID.nLon; c++) {
-      lats.push((GRID.latMax - r * GRID.step).toFixed(1));
-      lons.push((GRID.lonMin + c * GRID.step).toFixed(1));
+      lats.push((GRID.latMax - r * GRID.step).toFixed(2));
+      lons.push((GRID.lonMin + c * GRID.step).toFixed(2));
     }
   }
-  // 3개 병렬 요청으로 분할해 로딩 시간 단축
-  const chunkSize = Math.ceil(lats.length / 3);
+  // 병렬 요청으로 분할해 로딩 시간 단축
+  const chunkSize = 150;
   const jobs = [];
   for (let i = 0; i < lats.length; i += chunkSize) {
     const url = new URL("https://api.open-meteo.com/v1/forecast");
@@ -710,9 +718,10 @@ function grain(x, y, k) {
 
 async function buildForecastFrames(detailData) {
   $("#radar-updated").textContent = "예보 지도 생성 중...";
+  const GRID = makeGrid(currentCourse.lat, currentCourse.lon); // 골프장 중심 격자
   let grid;
   try {
-    grid = await fetchPrecipGrid();
+    grid = await fetchPrecipGrid(GRID);
   } catch {
     $("#radar-updated").textContent = "예보 지도 로딩 실패";
     return;
@@ -752,9 +761,10 @@ async function buildForecastFrames(detailData) {
     bctx.clearRect(0, 0, W, H);
     bctx.drawImage(small, 0, 0, W, H); // 값 공간에서 보간 → 색 경계가 뭉개지지 않음
 
-    // 픽셀별 색 입히기 + 질감
+    // 픽셀별 색 입히기 + 질감 + 가장자리 페이드(경계가 뚝 잘려 보이지 않게)
     const out = bctx.getImageData(0, 0, W, H);
     const d = out.data;
+    const fadePx = SCALE * 2.5;
     for (let y = 0; y < H; y++) {
       for (let x = 0; x < W; x++) {
         const i = (y * W + x) * 4;
@@ -766,7 +776,9 @@ async function buildForecastFrames(detailData) {
           mm *= 0.78 + g1 * 0.34 + (g2 - 0.5) * 0.18;
         }
         const [r, g, b, a] = precipRGBA(mm);
-        d[i] = r; d[i + 1] = g; d[i + 2] = b; d[i + 3] = a;
+        const edge = Math.min(x, W - 1 - x, y, H - 1 - y);
+        const fade = edge < fadePx ? edge / fadePx : 1;
+        d[i] = r; d[i + 1] = g; d[i + 2] = b; d[i + 3] = Math.round(a * fade);
       }
     }
     bctx.putImageData(out, 0, 0);
