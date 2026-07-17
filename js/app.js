@@ -143,7 +143,7 @@ async function searchPlaces(q) {
   const url = new URL("https://nominatim.openstreetmap.org/search");
   url.search = new URLSearchParams({
     q, format: "jsonv2", "accept-language": "ko",
-    countrycodes: "kr", limit: "8",
+    countrycodes: "kr,jp,cn", limit: "8",
   });
   const res = await fetch(url);
   if (!res.ok) throw new Error("search HTTP " + res.status);
@@ -164,16 +164,25 @@ async function reverseGeocode(lat, lon) {
     .filter(Boolean).join(" ");
 }
 
-/* ---------- 내장 골프장 DB 검색 ---------- */
-/* "울산cc" ↔ "울산컨트리클럽" ↔ "울산CC" 같은 표기 차이를 흡수 */
+/* ---------- 내장 골프장 DB 검색 (한/일/중 다국어) ---------- */
+/* "울산cc" ↔ "울산컨트리클럽", "富士カントリー" ↔ "富士cc" 등 표기 차이 흡수 */
 function normName(s) {
   return s.toLowerCase()
-    .replace(/[\s·.\-()&']/g, "")
+    .replace(/[\s·.\-()&'’,]/g, "")
+    // 한국어
     .replace(/컨트리클럽|칸트리클럽|countryclub/g, "cc")
     .replace(/골프클럽|golfclub/g, "gc")
-    .replace(/골프장|골프리조트|golfresort|golf&resort/g, "");
+    .replace(/골프장|골프리조트|golfresort|golf&resort/g, "")
+    // 일본어
+    .replace(/カントリークラブ|カントリー倶楽部|カンツリー倶楽部|カンツリークラブ/g, "cc")
+    .replace(/ゴルフクラブ|ゴルフ倶楽部/g, "gc")
+    .replace(/ゴルフ場|ゴルフコース|ゴルフパーク|ゴルフ/g, "")
+    // 중국어
+    .replace(/乡村俱乐部|鄉村俱樂部/g, "cc")
+    .replace(/高尔夫俱乐部|高爾夫俱樂部|高尔夫球会|高尔夫球俱乐部/g, "gc")
+    .replace(/高尔夫球场|高爾夫球場|高尔夫练习场|高尔夫/g, "");
 }
-const stripSuffix = (s) => s.replace(/(cc|gc|골프|golf|리조트|resort)+$/g, "");
+const stripSuffix = (s) => s.replace(/(cc|gc|골프|golf|리조트|resort|倶楽部|俱乐部)+$/g, "");
 
 function searchGolfDB(q) {
   if (typeof GOLF_DB === "undefined") return [];
@@ -182,18 +191,25 @@ function searchGolfDB(q) {
   const cq = stripSuffix(nq);
   const scored = [];
   for (const g of GOLF_DB) {
-    if (!g._n) { g._n = normName(g.n); g._c = stripSuffix(g._n); }
+    if (!g._n) {
+      g._n = normName(g.n);
+      g._c = stripSuffix(g._n);
+      g._a = g.a ? normName(g.a) : "";   // 영문/현지어 별칭
+    }
     let score = -1;
     if (g._n === nq) score = 100;
     else if (g._n.includes(nq)) score = 80 - (g._n.length - nq.length);
     else if (cq.length >= 2 && g._c === cq) score = 90;
     else if (cq.length >= 2 && g._c.includes(cq)) score = 60 - (g._c.length - cq.length);
     else if (g._c.length >= 3 && nq.includes(g._c)) score = 40;
+    else if (g._a && g._a.includes(nq)) score = 55 - (g._a.length - nq.length) * 0.1;
     if (score >= 0) scored.push([score, g]);
   }
   scored.sort((a, b) => b[0] - a[0]);
-  return scored.slice(0, 6).map(([, g]) => g);
+  return scored.slice(0, 8).map(([, g]) => g);
 }
+
+const COUNTRY_FLAG = { KR: "🇰🇷", JP: "🇯🇵", CN: "🇨🇳" };
 
 /* PM10/PM2.5 등급 (한국 환경부 기준) */
 function pmGrade(v, isPm25) {
@@ -279,14 +295,16 @@ const ADDR_TYPE_KO = {
 
 function renderResultItem(entry) {
   const li = document.createElement("li");
+  const flag = entry.flag ? entry.flag + " " : "";
   const tag = entry.golf
     ? '<span class="r-tag">⛳ 골프장</span>'
     : `<span class="r-tag r-tag-area">📍 ${entry.typeKo || "지역"}</span>`;
   const note = entry.centerNote
     ? ' <span class="r-note">· 해당 지역 중심 기준</span>' : "";
+  const sub = entry.addr || entry.alias || "";
   li.innerHTML = `
-    <div class="r-name">${entry.name}${tag}</div>
-    <div class="r-addr">${entry.addr || (entry.golf ? "골프장" : "")}${note}</div>`;
+    <div class="r-name">${flag}${entry.name}${tag}</div>
+    ${sub || note ? `<div class="r-addr">${sub}${note}</div>` : ""}`;
   li.addEventListener("click", () => {
     hideSearchUI();
     searchInput.value = "";
@@ -303,6 +321,8 @@ const runSearch = debounce(async (q) => {
   const golf = searchGolfDB(q).map((g) => ({
     id: "gdb-" + g.lat + "," + g.lon,
     name: g.n, addr: "", lat: g.lat, lon: g.lon, golf: true,
+    flag: COUNTRY_FLAG[g.c] || "",
+    alias: g.a ? g.a.split(" ").slice(0, 1)[0] : "",  // 영문명 등 부제 표시
   }));
 
   searchResults.innerHTML = "";
