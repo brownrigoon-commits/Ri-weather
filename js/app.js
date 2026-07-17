@@ -64,6 +64,27 @@ function saveCourses(list) {
 }
 
 /* ---------- API ---------- */
+/* 429(요청 한도) 등 일시적 실패 시 재시도 */
+async function fetchJSON(url, { retries = 2, delay = 1200 } = {}) {
+  for (let attempt = 0; ; attempt++) {
+    let res;
+    try {
+      res = await fetch(url);
+    } catch (e) {
+      if (attempt >= retries) throw e;
+      await new Promise((r) => setTimeout(r, delay * (attempt + 1)));
+      continue;
+    }
+    if (res.ok) return res.json();
+    // 429/503 등은 잠시 후 재시도
+    if ((res.status === 429 || res.status >= 500) && attempt < retries) {
+      await new Promise((r) => setTimeout(r, delay * (attempt + 1)));
+      continue;
+    }
+    throw new Error("HTTP " + res.status);
+  }
+}
+
 async function fetchForecast(lat, lon) {
   const url = new URL("https://api.open-meteo.com/v1/forecast");
   url.search = new URLSearchParams({
@@ -75,9 +96,7 @@ async function fetchForecast(lat, lon) {
     timezone: "Asia/Seoul",
     forecast_days: "3",
   });
-  const res = await fetch(url);
-  if (!res.ok) throw new Error("forecast HTTP " + res.status);
-  return res.json();
+  return fetchJSON(url, { retries: 3, delay: 1500 }); // 메인 날씨는 반드시 성공하도록
 }
 
 async function fetchAir(lat, lon) {
@@ -87,16 +106,14 @@ async function fetchAir(lat, lon) {
     current: "pm10,pm2_5",
     timezone: "Asia/Seoul",
   });
-  const res = await fetch(url);
-  if (!res.ok) throw new Error("air HTTP " + res.status);
-  return res.json();
+  return fetchJSON(url, { retries: 1 });
 }
 
 /* 전국 격자(약 0.5°)의 시간별 강수 예보 — 예보 지도 렌더링용 */
 /* 예보 격자 — 선택한 지점을 중심으로 동적 생성 (해외 골프장도 그대로 동작) */
-const GRID_STEP = 0.3;
+const GRID_STEP = 0.5; // 약 55km 간격 — API 요청량을 줄여 한도(429) 회피
 function makeGrid(centerLat, centerLon) {
-  const halfLat = 3.0, halfLon = 3.3; // 선택 지점 중심 약 ±330km 커버
+  const halfLat = 3.0, halfLon = 3.5; // 선택 지점 중심 약 ±350km 커버
   const g = {
     latMin: Math.max(-85, centerLat - halfLat),
     latMax: Math.min(85, centerLat + halfLat),
@@ -118,8 +135,8 @@ async function fetchPrecipGrid(GRID) {
       lons.push((GRID.lonMin + c * GRID.step).toFixed(2));
     }
   }
-  // 병렬 요청으로 분할해 로딩 시간 단축
-  const chunkSize = 150;
+  // 병렬 요청으로 분할 (429 시 재시도 포함)
+  const chunkSize = 120;
   const jobs = [];
   for (let i = 0; i < lats.length; i += chunkSize) {
     const url = new URL("https://api.open-meteo.com/v1/forecast");
@@ -130,10 +147,7 @@ async function fetchPrecipGrid(GRID) {
       timezone: "Asia/Seoul",
       forecast_days: "3",
     });
-    jobs.push(fetch(url).then((r) => {
-      if (!r.ok) throw new Error("grid HTTP " + r.status);
-      return r.json();
-    }));
+    jobs.push(fetchJSON(url, { retries: 2, delay: 1500 }));
   }
   const parts = await Promise.all(jobs);
   return parts.flatMap((p) => (Array.isArray(p) ? p : [p]));
@@ -164,6 +178,56 @@ async function reverseGeocode(lat, lon) {
     .filter(Boolean).join(" ");
 }
 
+/* 한글(일본어 가타카나 표기) → 일본어 로마자
+   예: "히츠지가오카" → "hitsujigaoka", "삿포로" → "sapporo"
+   Korean 관광 일정표의 일본 골프장 한글 표기를 영문명과 매칭하기 위함 */
+const KANA_ROMAJI = {
+  "아":"a","이":"i","우":"u","에":"e","오":"o",
+  "카":"ka","키":"ki","쿠":"ku","케":"ke","코":"ko","가":"ga","기":"gi","구":"gu","게":"ge","고":"go",
+  "사":"sa","시":"shi","스":"su","세":"se","소":"so","자":"za","지":"ji","즈":"zu","제":"ze","조":"zo",
+  "타":"ta","치":"chi","츠":"tsu","테":"te","토":"to","다":"da","디":"di","두":"du","데":"de","도":"do",
+  "나":"na","니":"ni","누":"nu","네":"ne","노":"no",
+  "하":"ha","히":"hi","후":"fu","헤":"he","호":"ho","바":"ba","비":"bi","부":"bu","베":"be","보":"bo","파":"pa","피":"pi","푸":"pu","페":"pe","포":"po",
+  "마":"ma","미":"mi","무":"mu","메":"me","모":"mo",
+  "야":"ya","유":"yu","요":"yo",
+  "라":"ra","리":"ri","루":"ru","레":"re","로":"ro",
+  "와":"wa","워":"wo","응":"n","은":"n",
+  "캬":"kya","큐":"kyu","쿄":"kyo","갸":"gya","규":"gyu","교":"gyo",
+  "샤":"sha","슈":"shu","쇼":"sho","쟈":"ja","쥬":"ju","죠":"jo","자":"za",
+  "챠":"cha","츄":"chu","쵸":"cho","냐":"nya","뉴":"nyu","뇨":"nyo",
+  "햐":"hya","휴":"hyu","효":"hyo","뱌":"bya","뷰":"byu","뵤":"byo","퍄":"pya","퓨":"pyu","표":"pyo",
+  "먀":"mya","뮤":"myu","묘":"myo","랴":"rya","류":"ryu","료":"ryo","쓰":"tsu","쯔":"tsu",
+  // 외래어 표기용 (ㅡ 모음) — 신치토세, 클라크 등
+  "크":"ku","트":"to","프":"pu","드":"do","그":"gu","브":"bu","르":"ru","므":"mu","흐":"fu","츠":"tsu","즈":"zu","스":"su",
+};
+const N_FINALS = [4, 16, 21];                        // ㄴ ㅁ ㅇ → ん(n)
+const GEMINATE_FINALS = [1, 2, 7, 17, 19, 20, 22, 23, 24, 25, 26]; // ㄱㄷㅂㅅ… → 촉음(다음 자음 겹침)
+function hangulToRomaji(s) {
+  let out = "", geminate = false;
+  for (const ch of s) {
+    let r = KANA_ROMAJI[ch] || null;
+    let fin = 0;
+    if (r === null) {
+      const code = ch.charCodeAt(0);
+      if (code >= 0xAC00 && code <= 0xD7A3) {
+        const idx = code - 0xAC00;
+        fin = idx % 28;
+        r = KANA_ROMAJI[String.fromCharCode(0xAC00 + (idx - fin))] || null; // 종성 제거 후 조회
+      }
+    }
+    if (r) {
+      if (geminate) { out += r[0]; geminate = false; } // 촉음: 다음 자음 겹침
+      out += r;
+      if (N_FINALS.includes(fin)) out += "n";
+      else if (GEMINATE_FINALS.includes(fin)) geminate = true;
+    } else if (/[a-z0-9]/i.test(ch)) {
+      out += ch.toLowerCase();
+      geminate = false;
+    }
+  }
+  return out;
+}
+
 /* ---------- 내장 골프장 DB 검색 (한/일/중 다국어) ---------- */
 /* "울산cc" ↔ "울산컨트리클럽", "富士カントリー" ↔ "富士cc" 등 표기 차이 흡수 */
 function normName(s) {
@@ -184,17 +248,23 @@ function normName(s) {
 }
 const stripSuffix = (s) => s.replace(/(cc|gc|골프|golf|리조트|resort|倶楽部|俱乐部)+$/g, "");
 
+const onlyLetters = (s) => (s || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+
 function searchGolfDB(q) {
   if (typeof GOLF_DB === "undefined") return [];
   const nq = normName(q);
   if (nq.length < 2) return [];
   const cq = stripSuffix(nq);
+  // 한글 발음 → 일본어 로마자 (일본 골프장 영문명 매칭용)
+  const hasHangul = /[가-힣]/.test(q);
+  const rq = hasHangul ? onlyLetters(hangulToRomaji(stripSuffix(q.toLowerCase().replace(/[\s·.\-()&'’,]/g, "")))) : "";
   const scored = [];
   for (const g of GOLF_DB) {
     if (!g._n) {
       g._n = normName(g.n);
       g._c = stripSuffix(g._n);
-      g._a = g.a ? normName(g.a) : "";   // 영문/현지어 별칭
+      g._a = g.a ? normName(g.a) : "";   // 별칭(정규화)
+      g._en = onlyLetters(g.a);          // 영문 별칭(로마자 매칭용)
     }
     let score = -1;
     if (g._n === nq) score = 100;
@@ -203,6 +273,13 @@ function searchGolfDB(q) {
     else if (cq.length >= 2 && g._c.includes(cq)) score = 60 - (g._c.length - cq.length);
     else if (g._c.length >= 3 && nq.includes(g._c)) score = 40;
     else if (g._a && g._a.includes(nq)) score = 55 - (g._a.length - nq.length) * 0.1;
+    else if (rq.length >= 4 && g._en) {
+      // 발음 표기 차이 흡수: 뒷글자를 조금씩 줄여가며 매칭 (엘름→erun vs elm 등)
+      for (const cut of [0, 2, 4]) {
+        const sub = rq.slice(0, rq.length - cut);
+        if (sub.length >= (cut === 0 ? 4 : 6) && g._en.includes(sub)) { score = 50 - cut * 3; break; }
+      }
+    }
     if (score >= 0) scored.push([score, g]);
   }
   scored.sort((a, b) => b[0] - a[0]);
@@ -608,6 +685,28 @@ let precipChipMarker = null;
 const slider = $("#radar-slider");
 const playBtn = $("#radar-play");
 
+/* 주요 도시 라벨 (현지 언어) — 지도에 한글/일본어/중국어로 표시 */
+const CITY_LABELS = [
+  // 한국
+  ["서울", 37.566, 126.978], ["인천", 37.456, 126.705], ["수원", 37.263, 127.029],
+  ["춘천", 37.881, 127.730], ["강릉", 37.752, 128.876], ["대전", 36.351, 127.385],
+  ["청주", 36.642, 127.489], ["천안", 36.815, 127.114], ["전주", 35.824, 127.148],
+  ["광주", 35.160, 126.851], ["목포", 34.812, 126.392], ["여수", 34.760, 127.662],
+  ["대구", 35.872, 128.601], ["안동", 36.568, 128.730], ["포항", 36.019, 129.343],
+  ["부산", 35.180, 129.076], ["울산", 35.538, 129.311], ["창원", 35.228, 128.681],
+  ["제주", 33.500, 126.531], ["원주", 37.342, 127.920],
+  // 일본
+  ["東京", 35.690, 139.692], ["大阪", 34.694, 135.502], ["名古屋", 35.181, 136.907],
+  ["札幌", 43.062, 141.354], ["福岡", 33.590, 130.402], ["仙台", 38.268, 140.872],
+  ["広島", 34.386, 132.456], ["京都", 35.012, 135.768], ["新潟", 37.916, 139.036],
+  ["那覇", 26.212, 127.681], ["鹿児島", 31.560, 130.558],
+  // 중국
+  ["北京", 39.905, 116.407], ["上海", 31.230, 121.474], ["广州", 23.129, 113.264],
+  ["深圳", 22.543, 114.058], ["成都", 30.573, 104.067], ["杭州", 30.274, 120.155],
+  ["南京", 32.060, 118.796], ["青岛", 36.067, 120.383], ["大连", 38.914, 121.615],
+  ["天津", 39.343, 117.361], ["武汉", 30.593, 114.305], ["西安", 34.342, 108.940],
+];
+
 function ensureMap(lat, lon) {
   if (map) {
     map.setView([lat, lon], 7);
@@ -619,17 +718,21 @@ function ensureMap(lat, lon) {
     scrollWheelZoom: false,
     maxZoom: 15, minZoom: 5, // 확대해서 녹색점(내 위치) 확인 가능
   }).setView([lat, lon], 7);
-  // 지명 라벨을 강수 오버레이 위에 올려 지도 가독성 확보
-  const labelPane = map.createPane("labels");
-  labelPane.style.zIndex = 450;
-  labelPane.style.pointerEvents = "none";
+  // 라벨 없는 다크 지도 (영문 지명 제거)
   L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png", {
     attribution: "&copy; OSM &copy; CARTO",
     subdomains: "abcd", maxZoom: 15, minZoom: 5,
   }).addTo(map);
-  L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}{r}.png", {
-    subdomains: "abcd", maxZoom: 15, minZoom: 5, pane: "labels",
-  }).addTo(map);
+  // 현지 언어 도시 라벨을 강수 오버레이 위에 표시
+  const labelPane = map.createPane("labels");
+  labelPane.style.zIndex = 450;
+  labelPane.style.pointerEvents = "none";
+  CITY_LABELS.forEach(([name, la, lo]) => {
+    L.marker([la, lo], {
+      pane: "labels", interactive: false,
+      icon: L.divIcon({ className: "city-label", html: `<span>${name}</span>`, iconSize: [0, 0] }),
+    }).addTo(map);
+  });
   L.control.zoom({ position: "bottomright" }).addTo(map);
 }
 
@@ -736,16 +839,25 @@ function grain(x, y, k) {
   return (((h ^ (h >> 16)) >>> 0) % 1000) / 1000; // 0~1
 }
 
+const gridCache = new Map(); // 같은 지점 재방문 시 API 재호출 방지
+
 async function buildForecastFrames(detailData) {
   $("#radar-updated").textContent = "예보 지도 생성 중...";
   const GRID = makeGrid(currentCourse.lat, currentCourse.lon); // 골프장 중심 격자
-  let grid;
-  try {
-    grid = await fetchPrecipGrid(GRID);
-  } catch {
-    $("#radar-updated").textContent = "예보 지도 로딩 실패";
-    return;
+  const cacheKey = currentCourse.lat.toFixed(2) + "," + currentCourse.lon.toFixed(2);
+  const openedFor = currentCourse;
+  let grid = gridCache.get(cacheKey);
+  if (!grid) {
+    try {
+      grid = await fetchPrecipGrid(GRID);
+      gridCache.set(cacheKey, grid);
+      if (gridCache.size > 12) gridCache.delete(gridCache.keys().next().value);
+    } catch {
+      $("#radar-updated").textContent = "예보 지도는 잠시 후 다시 시도됩니다";
+      return;
+    }
   }
+  if (currentCourse !== openedFor) return; // 그 사이 다른 골프장으로 이동했으면 중단
   if (!Array.isArray(grid)) grid = [grid];
 
   // 상세 예보의 시작 시각과 격자 데이터의 시간축 정렬
