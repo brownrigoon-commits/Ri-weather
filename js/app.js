@@ -95,11 +95,11 @@ async function fetchAir(lat, lon) {
 /* 전국 격자(약 0.5°)의 시간별 강수 예보 — 예보 지도 렌더링용 */
 const GRID = {
   latMin: 33.0, latMax: 39.0,
-  lonMin: 124.4, lonMax: 130.4,
-  step: 0.4,
+  lonMin: 124.5, lonMax: 130.5,
+  step: 0.3,
 };
-GRID.nLat = Math.round((GRID.latMax - GRID.latMin) / GRID.step) + 1; // 13
-GRID.nLon = Math.round((GRID.lonMax - GRID.lonMin) / GRID.step) + 1; // 13
+GRID.nLat = Math.round((GRID.latMax - GRID.latMin) / GRID.step) + 1; // 21
+GRID.nLon = Math.round((GRID.lonMax - GRID.lonMin) / GRID.step) + 1; // 21
 
 async function fetchPrecipGrid() {
   const lats = [], lons = [];
@@ -110,16 +110,25 @@ async function fetchPrecipGrid() {
       lons.push((GRID.lonMin + c * GRID.step).toFixed(1));
     }
   }
-  const url = new URL("https://api.open-meteo.com/v1/forecast");
-  url.search = new URLSearchParams({
-    latitude: lats.join(","), longitude: lons.join(","),
-    hourly: "precipitation",
-    timezone: "Asia/Seoul",
-    forecast_days: "3",
-  });
-  const res = await fetch(url);
-  if (!res.ok) throw new Error("grid HTTP " + res.status);
-  return res.json();
+  // 3개 병렬 요청으로 분할해 로딩 시간 단축
+  const chunkSize = Math.ceil(lats.length / 3);
+  const jobs = [];
+  for (let i = 0; i < lats.length; i += chunkSize) {
+    const url = new URL("https://api.open-meteo.com/v1/forecast");
+    url.search = new URLSearchParams({
+      latitude: lats.slice(i, i + chunkSize).join(","),
+      longitude: lons.slice(i, i + chunkSize).join(","),
+      hourly: "precipitation",
+      timezone: "Asia/Seoul",
+      forecast_days: "3",
+    });
+    jobs.push(fetch(url).then((r) => {
+      if (!r.ok) throw new Error("grid HTTP " + r.status);
+      return r.json();
+    }));
+  }
+  const parts = await Promise.all(jobs);
+  return parts.flatMap((p) => (Array.isArray(p) ? p : [p]));
 }
 
 async function searchPlaces(q) {
@@ -656,12 +665,47 @@ async function initRadar() {
 }
 
 /* ---------- 예보 지도 (Open-Meteo 격자 → 캔버스) ---------- */
+/* 레이더풍 연속 색상 팔레트 — mm/h 값을 부드러운 그라데이션으로 */
+const PALETTE = [
+  // [mm, r, g, b, a]
+  [0.1, 140, 225, 165, 110],
+  [0.5,  90, 205, 130, 150],
+  [1.0,  70, 190, 110, 165],
+  [2.0, 200, 220, 100, 175],
+  [3.0, 247, 226, 107, 182],
+  [5.0, 245, 190,  85, 190],
+  [7.0, 242, 153,  74, 198],
+  [10,  238, 115,  80, 205],
+  [14,  235,  87,  87, 212],
+  [20,  185,  50,  95, 218],
+  [30,  140,  35, 110, 224],
+];
 function precipRGBA(mm) {
   if (mm < 0.1) return [0, 0, 0, 0];
-  if (mm < 1)   return [136, 226, 161, 150]; // 약
-  if (mm < 4)   return [247, 226, 107, 170]; // 중
-  if (mm < 10)  return [242, 153, 74, 185];  // 강
-  return [235, 87, 87, 200];                 // 매우강
+  if (mm >= PALETTE[PALETTE.length - 1][0]) return PALETTE[PALETTE.length - 1].slice(1);
+  let lo = PALETTE[0];
+  if (mm <= lo[0]) return lo.slice(1);
+  for (let i = 1; i < PALETTE.length; i++) {
+    const hi = PALETTE[i];
+    if (mm <= hi[0]) {
+      const t = (mm - lo[0]) / (hi[0] - lo[0]);
+      return [0, 1, 2, 3].map((k) => Math.round(lo[k + 1] + (hi[k + 1] - lo[k + 1]) * t));
+    }
+    lo = hi;
+  }
+  return lo.slice(1);
+}
+
+/* 값 인코딩: mm를 √스케일로 0~255에 담아 약한 비의 디테일 보존 */
+const VMAX = 30;
+const encodeMm = (mm) => Math.round(Math.sqrt(Math.min(mm, VMAX) / VMAX) * 255);
+const decodeMm = (v) => Math.pow(v / 255, 2) * VMAX;
+
+/* 결정적 의사난수 — 레이더 특유의 입자 질감용 */
+function grain(x, y, k) {
+  let h = (x * 374761393 + y * 668265263 + k * 69069) | 0;
+  h = (h ^ (h >> 13)) * 1274126177 | 0;
+  return (((h ^ (h >> 16)) >>> 0) % 1000) / 1000; // 0~1
 }
 
 async function buildForecastFrames(detailData) {
@@ -681,27 +725,52 @@ async function buildForecastFrames(detailData) {
   if (gStart < 0) gStart = 0;
   const nFrames = Math.min(grid[0].hourly.time.length - gStart, fc.times.length - fc.startIdx);
 
+  /* 1) 값(mm)을 저해상도 캔버스에 넣고 → 2) 부드럽게 확대 → 3) 픽셀별로
+     레이더풍 연속 팔레트 + 입자 질감을 입혀 실황 레이더 느낌으로 렌더링 */
   const small = document.createElement("canvas");
   small.width = GRID.nLon; small.height = GRID.nLat;
   const sctx = small.getContext("2d");
+  const SCALE = 16;
+  const W = GRID.nLon * SCALE, H = GRID.nLat * SCALE;
   const big = document.createElement("canvas");
-  big.width = GRID.nLon * 36; big.height = GRID.nLat * 36;
+  big.width = W; big.height = H;
   const bctx = big.getContext("2d");
   bctx.imageSmoothingEnabled = true;
   bctx.imageSmoothingQuality = "high";
 
   fcFrames = [];
   for (let k = 0; k < nFrames; k++) {
+    // 값 인코딩 (R 채널, √스케일)
     const img = sctx.createImageData(GRID.nLon, GRID.nLat);
     for (let p = 0; p < grid.length; p++) {
       const mm = grid[p].hourly.precipitation[gStart + k] ?? 0;
-      const [r, g, b, a] = precipRGBA(mm);
-      img.data[p * 4] = r; img.data[p * 4 + 1] = g;
-      img.data[p * 4 + 2] = b; img.data[p * 4 + 3] = a;
+      const v = encodeMm(mm);
+      img.data[p * 4] = v; img.data[p * 4 + 1] = 0;
+      img.data[p * 4 + 2] = 0; img.data[p * 4 + 3] = 255;
     }
     sctx.putImageData(img, 0, 0);
-    bctx.clearRect(0, 0, big.width, big.height);
-    bctx.drawImage(small, 0, 0, big.width, big.height);
+    bctx.clearRect(0, 0, W, H);
+    bctx.drawImage(small, 0, 0, W, H); // 값 공간에서 보간 → 색 경계가 뭉개지지 않음
+
+    // 픽셀별 색 입히기 + 질감
+    const out = bctx.getImageData(0, 0, W, H);
+    const d = out.data;
+    for (let y = 0; y < H; y++) {
+      for (let x = 0; x < W; x++) {
+        const i = (y * W + x) * 4;
+        let mm = decodeMm(d[i]);
+        if (mm >= 0.05) {
+          // 강수량에 비례한 미세 요철 — 실황 레이더의 입자감 재현
+          const g1 = grain(x >> 1, y >> 1, k);         // 굵은 입자
+          const g2 = grain(x, y, k * 7 + 3);           // 고운 입자
+          mm *= 0.78 + g1 * 0.34 + (g2 - 0.5) * 0.18;
+        }
+        const [r, g, b, a] = precipRGBA(mm);
+        d[i] = r; d[i + 1] = g; d[i + 2] = b; d[i + 3] = a;
+      }
+    }
+    bctx.putImageData(out, 0, 0);
+
     const hourIdx = fc.startIdx + k;
     fcFrames.push({
       time: fc.times[hourIdx],
@@ -714,7 +783,7 @@ async function buildForecastFrames(detailData) {
   const half = GRID.step / 2;
   const bounds = [[GRID.latMin - half, GRID.lonMin - half], [GRID.latMax + half, GRID.lonMax + half]];
   if (fcOverlay) map.removeLayer(fcOverlay);
-  fcOverlay = L.imageOverlay(fcFrames[0].url, bounds, { opacity: 0.58, zIndex: 210 });
+  fcOverlay = L.imageOverlay(fcFrames[0].url, bounds, { opacity: 0.68, zIndex: 210 });
 
   if (mapMode === "fc") setMode("fc");
 }
