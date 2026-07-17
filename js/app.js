@@ -826,3 +826,8 @@ playBtn.addEventListener("click", () => {
 
 /* ---------- 시작 ---------- */
 renderHome();
+
+/* PWA 서비스 워커 (HTTPS 또는 localhost에서만 동작) */
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("sw.js").catch(() => {});
+}
