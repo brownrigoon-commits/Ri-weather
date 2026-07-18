@@ -321,6 +321,40 @@ function searchGolfDB(q) {
 
 const COUNTRY_FLAG = { KR: "🇰🇷", JP: "🇯🇵", CN: "🇨🇳" };
 
+/* ---------- 골프 기준 한 줄 평가 ---------- */
+function evalPrecip(mmh) {
+  if (mmh < 0.1) return ["비 걱정 없어요", "grade-good"];
+  if (mmh < 0.5) return ["이슬비 — 라운딩 가능, 우비 챙기세요", "grade-normal"];
+  if (mmh < 3)   return ["우산·우비 필수, 그린이 느려져요", "grade-bad"];
+  if (mmh < 8)   return ["라운딩이 힘든 비예요", "grade-worst"];
+  return ["폭우 — 라운딩 불가 수준", "grade-worst"];
+}
+function evalHumidity(rh) {
+  if (rh < 40) return ["건조 — 공이 잘 날아가요", "grade-good"];
+  if (rh < 65) return ["쾌적한 라운딩 습도예요", "grade-good"];
+  if (rh < 80) return ["약간 습해요 — 수건 챙기세요", "grade-normal"];
+  if (rh < 90) return ["습해서 땀이 잘 안 말라요", "grade-bad"];
+  return ["매우 습함 — 그립 미끄러짐 주의", "grade-worst"];
+}
+function evalWind(ms) {
+  if (ms < 2) return ["바람 영향 거의 없어요", "grade-good"];
+  if (ms < 4) return ["약풍 — 반 클럽 정도 영향", "grade-good"];
+  if (ms < 6) return ["한 클럽 더 잡으세요", "grade-normal"];
+  if (ms < 9) return ["강풍 — 두 클럽 이상 봐야 해요", "grade-bad"];
+  return ["매우 강한 바람 — 라운딩 힘들어요", "grade-worst"];
+}
+function evalVis(km) {
+  if (km >= 10) return ["시야 좋음 — 공 끝까지 보여요", "grade-good"];
+  if (km >= 5)  return ["약간 뿌옇지만 지장 없어요", "grade-normal"];
+  if (km >= 2)  return ["연무 — 공 찾기 어려울 수 있어요", "grade-bad"];
+  return ["짙은 안개 — 낙하지점이 안 보여요", "grade-worst"];
+}
+function setEval(id, [text, cls]) {
+  const el = $(id);
+  el.textContent = text;
+  el.className = "metric-eval " + cls;
+}
+
 /* PM10/PM2.5 등급 (한국 환경부 기준) */
 function pmGrade(v, isPm25) {
   const t = isPm25 ? [15, 35, 75] : [30, 80, 150];
@@ -686,20 +720,24 @@ function renderDetail(d, air) {
   /* 지표 카드 */
   const todayPrecip = d.daily.precipitation_sum[0];
   $("#m-precip").innerHTML = `${cur.precipitation ?? 0}<small> mm/h</small>`;
+  setEval("#m-precip-eval", evalPrecip(cur.precipitation ?? 0));
   $("#m-precip-sub").textContent = `오늘 예상 누적 ${todayPrecip ?? 0}mm`;
 
   const curIdx = Math.max(0, startIdx);
   $("#m-humidity").innerHTML = `${cur.relative_humidity_2m}<small> %</small>`;
+  setEval("#m-humidity-eval", evalHumidity(cur.relative_humidity_2m));
   $("#m-humidity-sub").textContent = `이슬점 ${Math.round(d.hourly.dew_point_2m[curIdx])}° · 체감 ${Math.round(cur.apparent_temperature)}°`;
 
   const ws = Math.round(cur.wind_speed_10m * 10) / 10;
   const gust = Math.round(cur.wind_gusts_10m * 10) / 10;
   $("#m-wind").innerHTML = `${ws}<small> m/s</small>`;
+  setEval("#m-wind-eval", evalWind(ws));
   $("#m-wind-arrow").style.transform = `rotate(${(cur.wind_direction_10m + 180) % 360}deg)`;
   $("#m-wind-sub").textContent = `${windDirKo(cur.wind_direction_10m)}풍 · 돌풍 ${gust}m/s`;
 
   const visKm = d.hourly.visibility[curIdx] / 1000;
   $("#m-vis").innerHTML = `${visKm >= 10 ? Math.round(visKm) : visKm.toFixed(1)}<small> km</small>`;
+  setEval("#m-vis-eval", evalVis(visKm));
   if (air && air.current) {
     const [g10, c10] = pmGrade(air.current.pm10, false);
     const [g25, c25] = pmGrade(air.current.pm2_5, true);
