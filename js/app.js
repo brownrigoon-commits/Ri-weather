@@ -286,17 +286,27 @@ function searchGolfDB(q) {
     if (!g._n) {
       g._n = normName(g.n);
       g._c = stripSuffix(g._n);
+      g._k = g.k ? normName(g.k) : "";   // 한글 표기명
+      g._kc = g._k ? stripSuffix(g._k) : "";
       g._a = g.a ? normName(g.a) : "";   // 별칭(정규화)
       g._en = onlyLetters(g.a);          // 영문 별칭(로마자 매칭용)
     }
     let score = -1;
+    // 한글 표기명 매칭 (일본/중국 골프장을 한글로 검색)
+    if (g._k) {
+      if (g._k === nq) score = 100;
+      else if (g._k.includes(nq)) score = 82 - (g._k.length - nq.length);
+      else if (cq.length >= 2 && g._kc === cq) score = 92;
+      else if (cq.length >= 2 && g._kc.includes(cq)) score = 62 - (g._kc.length - cq.length);
+    }
+    if (score >= 60) { scored.push([score, g]); continue; }
     if (g._n === nq) score = 100;
     else if (g._n.includes(nq)) score = 80 - (g._n.length - nq.length);
     else if (cq.length >= 2 && g._c === cq) score = 90;
-    else if (cq.length >= 2 && g._c.includes(cq)) score = 60 - (g._c.length - cq.length);
-    else if (g._c.length >= 3 && nq.includes(g._c)) score = 40;
-    else if (g._a && g._a.includes(nq)) score = 55 - (g._a.length - nq.length) * 0.1;
-    else if (rq.length >= 4 && g._en) {
+    else if (cq.length >= 2 && g._c.includes(cq)) score = Math.max(score, 60 - (g._c.length - cq.length));
+    else if (g._c.length >= 3 && nq.includes(g._c)) score = Math.max(score, 40);
+    else if (g._a && g._a.includes(nq)) score = Math.max(score, 55 - (g._a.length - nq.length) * 0.1);
+    else if (score < 0 && rq.length >= 4 && g._en) {
       // 발음 표기 차이 흡수: 뒷글자를 조금씩 줄여가며 매칭 (엘름→erun vs elm 등)
       for (const cut of [0, 2, 4]) {
         const sub = rq.slice(0, rq.length - cut);
@@ -417,12 +427,13 @@ function renderResultItem(entry) {
 const runSearch = debounce(async (q) => {
   if (q.length < 2) { hideSearchUI(); return; }
 
-  /* 1) 내장 골프장 DB — 즉시 표시 */
+  /* 1) 내장 골프장 DB — 즉시 표시 (한글 표기명 우선) */
   const golf = searchGolfDB(q).map((g) => ({
     id: "gdb-" + g.lat + "," + g.lon,
-    name: g.n, addr: "", lat: g.lat, lon: g.lon, golf: true,
+    name: g.k || g.n,                       // 한국어 우선
+    addr: "", lat: g.lat, lon: g.lon, golf: true,
     flag: COUNTRY_FLAG[g.c] || "",
-    alias: g.a ? g.a.split(" ").slice(0, 1)[0] : "",  // 영문명 등 부제 표시
+    alias: g.k ? g.n : (g.a ? g.a.split(" ")[0] : ""),  // 부제: 현지어 원어명
   }));
 
   searchResults.innerHTML = "";
@@ -571,7 +582,11 @@ async function openDetail(course) {
   try {
     data = await fetchForecast(course.lat, course.lon);
   } catch (e) {
-    $("#summary-text").textContent = "날씨 데이터를 불러오지 못했습니다. 네트워크를 확인해 주세요.";
+    $("#hero-desc").textContent = "일시적으로 불러오지 못했습니다";
+    $("#summary-text").innerHTML =
+      '날씨 데이터를 일시적으로 불러오지 못했습니다.<br>' +
+      '<button class="retry-btn" id="btn-retry">다시 시도</button>';
+    $("#btn-retry").addEventListener("click", () => openDetail(course));
     return;
   }
   renderDetail(data, await airP);
@@ -729,16 +744,16 @@ const CITY_LABELS = [
   ["대구", 35.872, 128.601], ["안동", 36.568, 128.730], ["포항", 36.019, 129.343],
   ["부산", 35.180, 129.076], ["울산", 35.538, 129.311], ["창원", 35.228, 128.681],
   ["제주", 33.500, 126.531], ["원주", 37.342, 127.920],
-  // 일본
-  ["東京", 35.690, 139.692], ["大阪", 34.694, 135.502], ["名古屋", 35.181, 136.907],
-  ["札幌", 43.062, 141.354], ["福岡", 33.590, 130.402], ["仙台", 38.268, 140.872],
-  ["広島", 34.386, 132.456], ["京都", 35.012, 135.768], ["新潟", 37.916, 139.036],
-  ["那覇", 26.212, 127.681], ["鹿児島", 31.560, 130.558],
-  // 중국
-  ["北京", 39.905, 116.407], ["上海", 31.230, 121.474], ["广州", 23.129, 113.264],
-  ["深圳", 22.543, 114.058], ["成都", 30.573, 104.067], ["杭州", 30.274, 120.155],
-  ["南京", 32.060, 118.796], ["青岛", 36.067, 120.383], ["大连", 38.914, 121.615],
-  ["天津", 39.343, 117.361], ["武汉", 30.593, 114.305], ["西安", 34.342, 108.940],
+  // 일본 (한글 표기)
+  ["도쿄", 35.690, 139.692], ["오사카", 34.694, 135.502], ["나고야", 35.181, 136.907],
+  ["삿포로", 43.062, 141.354], ["후쿠오카", 33.590, 130.402], ["센다이", 38.268, 140.872],
+  ["히로시마", 34.386, 132.456], ["교토", 35.012, 135.768], ["니가타", 37.916, 139.036],
+  ["나하", 26.212, 127.681], ["가고시마", 31.560, 130.558], ["치토세", 42.821, 141.652],
+  // 중국 (한글 표기)
+  ["베이징", 39.905, 116.407], ["상하이", 31.230, 121.474], ["광저우", 23.129, 113.264],
+  ["선전", 22.543, 114.058], ["청두", 30.573, 104.067], ["항저우", 30.274, 120.155],
+  ["난징", 32.060, 118.796], ["칭다오", 36.067, 120.383], ["다롄", 38.914, 121.615],
+  ["톈진", 39.343, 117.361], ["우한", 30.593, 114.305], ["시안", 34.342, 108.940],
 ];
 
 function ensureMap(lat, lon) {
