@@ -1750,8 +1750,10 @@ function resetScoreForm() {
   $("#sf-course").value = currentCourse ? currentCourse.name : "";
   $("#sf-score").value = ""; $("#sf-memo").value = "";
   $("#sf-front").value = ""; $("#sf-back").value = "";
-  // 티 기본값: 최근 사용한 티 (처음엔 화이트) — 여성 유저는 한 번 레드 선택하면 계속 레드
-  $("#sf-tee").value = localStorage.getItem("riweather.tee") || "화이트";
+  // 티 기본값: 남성=화이트, 여성=레이디 (최초 1회 선택)
+  const defTee = localStorage.getItem("riweather.defaultTee");
+  $("#sf-tee").value = defTee || "화이트";
+  $("#tee-default").hidden = !!defTee;
   ["#sf-f1", "#sf-f2", "#sf-f3", "#sf-f4"].forEach((s) => { $(s).value = ""; });
   holeInputs.forEach((i) => { i.value = ""; });
   $("#holes-grid").hidden = true; $("#hg-sum").textContent = "";
@@ -1769,6 +1771,15 @@ $("#sf-cancel").addEventListener("click", () => { $("#score-form").hidden = true
 $("#sf-time-unknown").addEventListener("change", (e) => {
   $("#sf-time").disabled = e.target.checked;
   if (e.target.checked) $("#sf-time").value = "";
+});
+
+/* 기본 티 최초 설정 (남성=화이트 / 여성=레이디) */
+document.querySelectorAll("#tee-default .ocr-chip").forEach((b) => {
+  b.addEventListener("click", () => {
+    localStorage.setItem("riweather.defaultTee", b.dataset.tee);
+    $("#sf-tee").value = b.dataset.tee;
+    $("#tee-default").hidden = true;
+  });
 });
 
 /* ---------- 홀별 스코어 입력 (파 대비) ---------- */
@@ -1954,7 +1965,7 @@ function autofillFromOcr(text) {
   // 티: "White Tee" 등 인식
   const teeM = text.match(/(white|red|blue|black|gold|yellow|lady)\s*tee/i);
   if (teeM) {
-    const teeMap = { white: "화이트", red: "레드", blue: "블루", black: "블랙", gold: "골드", yellow: "옐로우", lady: "레드" };
+    const teeMap = { white: "화이트", red: "레드", blue: "블루", black: "블랙", gold: "골드", yellow: "옐로우", lady: "레이디" };
     $("#sf-tee").value = teeMap[teeM[1].toLowerCase()] || "";
     filled.push("티");
   }
@@ -2138,7 +2149,6 @@ $("#score-form").addEventListener("submit", async (e) => {
       };
     } catch { /* 날씨 없이 저장 */ }
   }
-  if (rec.tee) localStorage.setItem("riweather.tee", rec.tee); // 다음부터 기본 티로
   let list = loadScores();
   if (editingId) list = list.map((x) => (x.id === editingId ? rec : x));
   else list.unshift(rec);
