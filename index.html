@@ -241,16 +241,54 @@
       <button id="score-add-btn" class="hdr-btn" aria-label="기록 추가">＋</button>
     </header>
 
+    <!-- 통계: 평균 스코어 · 핸디 · 목표 -->
+    <section class="card score-stats" id="score-stats" hidden>
+      <div class="year-tabs" id="year-tabs"></div>
+      <div class="stat-row">
+        <div class="stat-box">
+          <span class="stat-label">평균 스코어</span>
+          <b class="stat-value" id="st-avg">-</b>
+          <span class="stat-sub" id="st-rounds"></span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-label">추정 핸디</span>
+          <b class="stat-value" id="st-handi">-</b>
+          <span class="stat-sub">베스트 라운드 기준</span>
+        </div>
+        <div class="stat-box" id="goal-box">
+          <span class="stat-label">목표 핸디 ✏️</span>
+          <b class="stat-value" id="st-goal">-</b>
+          <span class="stat-sub" id="st-gap"></span>
+        </div>
+      </div>
+    </section>
+
     <form id="score-form" class="card score-form" hidden>
-      <div class="card-title"><span class="ic">✏️</span> 라운딩 기록 추가</div>
+      <div class="card-title"><span class="ic">✏️</span> <span id="sf-title">라운딩 기록 추가</span></div>
+
+      <div class="sf-photo-row">
+        <label class="sf-photo-btn">📷 스코어보드 사진으로 입력 (AI 인식)
+          <input type="file" id="sf-photo" accept="image/*" hidden>
+        </label>
+        <img id="sf-photo-preview" class="sf-photo-preview" hidden alt="스코어보드">
+      </div>
+      <div id="ocr-status" class="ocr-status" hidden></div>
+      <div id="ocr-chips" class="ocr-chips" hidden></div>
+
       <label>날짜 <input type="date" id="sf-date" required></label>
+      <label>티업 시간
+        <div class="sf-time-row">
+          <input type="time" id="sf-time">
+          <label class="sf-check"><input type="checkbox" id="sf-time-unknown"> 기억 안 남</label>
+        </div>
+      </label>
       <label>골프장 <input type="text" id="sf-course" required></label>
       <label>총 타수 <input type="number" id="sf-score" min="50" max="180" placeholder="예: 85" required></label>
       <label>동반자 <input type="text" id="sf-friends" placeholder="예: 김프로, 박부장"></label>
       <label>메모 <input type="text" id="sf-memo" placeholder="예: 드라이버 좋았음"></label>
       <div class="sf-actions">
         <button type="button" class="sf-cancel" id="sf-cancel">취소</button>
-        <button type="submit" class="sf-save">저장 (그날 날씨 자동 기록)</button>
+        <button type="submit" class="sf-save" id="sf-save-btn">저장 (그날 날씨 자동 기록)</button>
       </div>
     </form>
 

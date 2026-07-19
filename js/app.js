@@ -563,7 +563,9 @@ function pushView(name) {
   showOnly(name);
   history.pushState({ depth: viewStack.length }, "");
 }
+let lastPopAt = 0;
 window.addEventListener("popstate", () => {
+  lastPopAt = Date.now();
   if (viewStack.length > 1) {
     viewStack.pop();
     showOnly(viewStack[viewStack.length - 1]);
@@ -574,7 +576,8 @@ function goBack() {
 }
 document.querySelectorAll(".btn-back-any").forEach((b) => b.addEventListener("click", goBack));
 
-/* 왼쪽 끝 → 오른쪽 스와이프 = 뒤로가기 */
+/* 왼쪽 끝 → 오른쪽 스와이프 = 뒤로가기
+   (Safari가 자체적으로 뒤로가기를 처리한 직후에는 중복 실행 방지 → 한 번에 한 화면씩) */
 let swipeStart = null;
 document.addEventListener("touchstart", (e) => {
   const t = e.touches[0];
@@ -583,8 +586,13 @@ document.addEventListener("touchstart", (e) => {
 document.addEventListener("touchend", (e) => {
   if (!swipeStart) return;
   const t = e.changedTouches[0];
-  if (t.clientX - swipeStart.x > 70 && Math.abs(t.clientY - swipeStart.y) < 90) goBack();
+  const isSwipe = t.clientX - swipeStart.x > 70 && Math.abs(t.clientY - swipeStart.y) < 90;
   swipeStart = null;
+  if (!isSwipe) return;
+  // 브라우저(사파리 등)가 이미 이 제스처로 뒤로가기를 실행했다면 우리는 건너뜀
+  setTimeout(() => {
+    if (Date.now() - lastPopAt > 600) goBack();
+  }, 350);
 }, { passive: true });
 
 /* ---------- 저장(★) — 상세/허브 공용 ---------- */
@@ -1494,7 +1502,7 @@ async function openFoodView() {
   if (!data) {
     try {
       data = await overpassQuery(
-        `[out:json][timeout:25];(node["amenity"~"restaurant|fast_food"]["name"](around:5000,${course.lat},${course.lon});way["amenity"~"restaurant|fast_food"]["name"](around:5000,${course.lat},${course.lon}););out center tags 60;`);
+        `[out:json][timeout:25];(node["amenity"~"restaurant|fast_food"]["name"](around:5000,${course.lat},${course.lon});way["amenity"~"restaurant|fast_food"]["name"](around:5000,${course.lat},${course.lon}););out center meta 80;`);
       foodCache.set(key, data);
     } catch {
       listEl.innerHTML = "";
@@ -1506,13 +1514,24 @@ async function openFoodView() {
   if (currentCourse !== course || viewStack[viewStack.length - 1] !== "food") return;
 
   const region = (course.addr || "").split(" ").slice(0, 2).join(" ");
+  const now = Date.now();
   const items = (data.elements || [])
     .map((e) => {
       const lat = e.lat ?? e.center?.lat, lon = e.lon ?? e.center?.lon;
-      if (lat == null) return null;
-      return { name: e.tags.name, tags: e.tags, dist: distM([course.lat, course.lon], [lat, lon]) };
+      if (lat == null || !e.tags || !e.tags.name) return null;
+      const t = e.tags;
+      // 신뢰도 필터: 폐업 표시 제외, 오래 방치된 데이터 제외
+      if (t["disused:amenity"] || t.disused === "yes" || /폐업|closed/i.test(t.name)) return null;
+      const ageYears = e.timestamp ? (now - Date.parse(e.timestamp)) / 3.156e10 : 99;
+      const verified = !!(t.phone || t["contact:phone"] || t.opening_hours || t.website);
+      if (ageYears > 5 && !verified) return null; // 5년 넘게 확인 안 된 곳은 숨김
+      return {
+        name: t.name, tags: t, lat, lon, verified,
+        dist: distM([course.lat, course.lon], [lat, lon]),
+      };
     })
     .filter(Boolean)
+    .sort((a, b) => (b.verified - a.verified) || (a.dist - b.dist)) // 검증 정보 있는 곳 우선
     .sort((a, b) => a.dist - b.dist)
     .slice(0, 25);
 
@@ -1548,12 +1567,16 @@ async function openFoodView() {
       </div>
       <div class="fi-detail">
         ${addr ? "📍 " + addr + "<br>" : ""}
-        ${it.tags.phone ? "📞 " + it.tags.phone + "<br>" : ""}
+        ${it.tags.phone || it.tags["contact:phone"] ? "📞 " + (it.tags.phone || it.tags["contact:phone"]) + "<br>" : ""}
         ${it.tags.opening_hours ? "🕐 " + it.tags.opening_hours + "<br>" : ""}
-        골프장에서 <b>${km}</b> 거리
+        골프장에서 <b>${km}</b> 거리 · <span class="fi-verify">방문 전 아래에서 영업 여부를 확인하세요</span>
         <div class="fi-links">
-          <a class="kakao" target="_blank" rel="noopener" href="https://map.kakao.com/link/search/${encodeURIComponent(it.name)}">카카오맵 (사진·메뉴)</a>
+          <a class="kakao" target="_blank" rel="noopener" href="https://map.kakao.com/link/search/${encodeURIComponent(it.name)}">카카오맵 (영업·사진)</a>
           <a class="naver" target="_blank" rel="noopener" href="https://search.naver.com/search.naver?query=${encodeURIComponent(region + " " + it.name)}">네이버 검색</a>
+        </div>
+        <div class="fi-links">
+          <a class="kakaonavi" href="kakaonavi://navigate?name=${encodeURIComponent(it.name)}&x=${it.lon}&y=${it.lat}&coord_type=wgs84">🚗 카카오내비</a>
+          <a class="tmapnavi" href="tmap://route?goalname=${encodeURIComponent(it.name)}&goaly=${it.lat}&goalx=${it.lon}">🚗 T맵</a>
         </div>
       </div>`;
     div.querySelector(".fi-row").addEventListener("click", () => div.classList.toggle("open"));
@@ -1565,33 +1588,124 @@ async function openFoodView() {
  * MY스코어 — 라운딩 기록 + 그날 날씨 자동 저장
  * ========================================================= */
 const SCORE_KEY = "riweather.scores.v1";
+const GOAL_KEY = "riweather.goalhandi.v1";
 const loadScores = () => { try { return JSON.parse(localStorage.getItem(SCORE_KEY)) || []; } catch { return []; } };
 const saveScores = (l) => localStorage.setItem(SCORE_KEY, JSON.stringify(l));
 
+let editingId = null;       // 수정 중인 기록 id
+let selectedYear = "전체";
+let photoThumb = null;      // 첨부 사진 (압축본)
+
 function openScoreView() {
   pushView("score");
+  resetScoreForm();
   $("#score-form").hidden = true;
-  $("#sf-date").value = new Date().toISOString().slice(0, 10);
-  $("#sf-course").value = currentCourse ? currentCourse.name : "";
   renderScores();
 }
+function resetScoreForm() {
+  editingId = null;
+  photoThumb = null;
+  $("#sf-title").textContent = "라운딩 기록 추가";
+  $("#sf-date").value = new Date().toISOString().slice(0, 10);
+  $("#sf-time").value = ""; $("#sf-time-unknown").checked = false; $("#sf-time").disabled = false;
+  $("#sf-course").value = currentCourse ? currentCourse.name : "";
+  $("#sf-score").value = ""; $("#sf-friends").value = ""; $("#sf-memo").value = "";
+  $("#sf-photo-preview").hidden = true;
+  $("#ocr-status").hidden = true; $("#ocr-chips").hidden = true;
+}
 $("#score-add-btn").addEventListener("click", () => {
-  $("#score-form").hidden = !$("#score-form").hidden;
+  const f = $("#score-form");
+  if (f.hidden) { resetScoreForm(); f.hidden = false; }
+  else f.hidden = true;
 });
 $("#sf-cancel").addEventListener("click", () => { $("#score-form").hidden = true; });
+$("#sf-time-unknown").addEventListener("change", (e) => {
+  $("#sf-time").disabled = e.target.checked;
+  if (e.target.checked) $("#sf-time").value = "";
+});
+
+/* ---------- 스코어보드 사진 AI 인식 ---------- */
+let ocrWorkerP = null;
+function getOcrWorker() {
+  if (!ocrWorkerP) {
+    ocrWorkerP = new Promise((resolve, reject) => {
+      const s = document.createElement("script");
+      s.src = "https://unpkg.com/tesseract.js@5.1.1/dist/tesseract.min.js";
+      s.onload = () => resolve(Tesseract.createWorker("eng"));
+      s.onerror = reject;
+      document.head.appendChild(s);
+    }).then((p) => p);
+  }
+  return ocrWorkerP;
+}
+
+$("#sf-photo").addEventListener("change", async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  // 미리보기 + 저장용 압축본
+  const img = new Image();
+  const url = URL.createObjectURL(file);
+  img.onload = async () => {
+    const cv = document.createElement("canvas");
+    const scale = Math.min(1, 900 / img.width);
+    cv.width = img.width * scale; cv.height = img.height * scale;
+    cv.getContext("2d").drawImage(img, 0, 0, cv.width, cv.height);
+    photoThumb = cv.toDataURL("image/jpeg", 0.6);
+    const prev = $("#sf-photo-preview");
+    prev.src = photoThumb; prev.hidden = false;
+    URL.revokeObjectURL(url);
+
+    // AI 숫자 인식
+    const st = $("#ocr-status");
+    st.hidden = false;
+    st.textContent = "🤖 AI가 스코어보드를 읽는 중... (10~20초)";
+    try {
+      const worker = await getOcrWorker();
+      const { data } = await worker.recognize(photoThumb);
+      const nums = [...new Set((data.text.match(/\d{2,3}/g) || [])
+        .map(Number).filter((n) => n >= 55 && n <= 150))];
+      if (nums.length) {
+        st.textContent = "✅ 인식된 스코어 후보 — 본인 총타수를 탭하세요";
+        const chips = $("#ocr-chips");
+        chips.innerHTML = '<span class="chip-label"></span>';
+        nums.sort((a, b) => a - b).slice(0, 8).forEach((n) => {
+          const b = document.createElement("button");
+          b.type = "button"; b.className = "ocr-chip"; b.textContent = n + "타";
+          b.addEventListener("click", () => { $("#sf-score").value = n; });
+          chips.appendChild(b);
+        });
+        chips.hidden = false;
+      } else {
+        st.textContent = "숫자를 인식하지 못했어요 — 아래에 직접 입력해 주세요 (사진은 기록에 첨부됩니다)";
+      }
+    } catch {
+      st.textContent = "AI 인식 실패 — 직접 입력해 주세요 (사진은 기록에 첨부됩니다)";
+    }
+  };
+  img.src = url;
+});
 
 $("#score-form").addEventListener("submit", async (e) => {
   e.preventDefault();
+  const btn = $("#sf-save-btn");
+  btn.disabled = true; btn.textContent = "저장 중...";
   const rec = {
-    id: Date.now(),
+    id: editingId || Date.now(),
     date: $("#sf-date").value,
+    teeTime: $("#sf-time-unknown").checked ? "" : $("#sf-time").value,
     course: $("#sf-course").value.trim(),
     score: parseInt($("#sf-score").value),
     friends: $("#sf-friends").value.trim(),
     memo: $("#sf-memo").value.trim(),
   };
-  // 그날 날씨 자동 기록 (현재 열린 골프장 좌표 기준)
-  if (currentCourse) {
+  const prev = editingId ? loadScores().find((x) => x.id === editingId) : null;
+  if (photoThumb) rec.photo = photoThumb;
+  else if (prev?.photo) rec.photo = prev.photo;
+
+  // 그날 날씨 자동 기록 (날짜가 안 바뀌었으면 기존 날씨 유지)
+  if (prev && prev.date === rec.date && prev.wx) {
+    rec.wx = prev.wx;
+  } else if (currentCourse) {
     try {
       const url = new URL("https://api.open-meteo.com/v1/forecast");
       url.search = new URLSearchParams({
@@ -1610,19 +1724,80 @@ $("#score-form").addEventListener("submit", async (e) => {
       };
     } catch { /* 날씨 없이 저장 */ }
   }
-  const list = loadScores();
-  list.unshift(rec);
-  saveScores(list);
+  let list = loadScores();
+  if (editingId) list = list.map((x) => (x.id === editingId ? rec : x));
+  else list.unshift(rec);
+  try { saveScores(list); }
+  catch {
+    // 용량 초과 시 사진 없이 저장
+    delete rec.photo;
+    if (editingId) list = loadScores().map((x) => (x.id === editingId ? rec : x));
+    else { list = loadScores(); list.unshift(rec); }
+    saveScores(list);
+    alert("저장 공간이 부족해 사진 없이 저장했습니다.");
+  }
+  btn.disabled = false; btn.textContent = "저장 (그날 날씨 자동 기록)";
   $("#score-form").hidden = true;
-  $("#sf-score").value = ""; $("#sf-friends").value = ""; $("#sf-memo").value = "";
+  renderScores();
+});
+
+/* ---------- 통계: 평균·핸디·목표 ---------- */
+function calcStats(records) {
+  if (!records.length) return null;
+  const avg = records.reduce((s, r) => s + r.score, 0) / records.length;
+  // 추정 핸디: 최근 20라운드 중 베스트 8 평균 - 72 (라운드가 적으면 베스트 절반)
+  const recent = [...records].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 20);
+  const nBest = Math.max(1, Math.min(8, Math.ceil(recent.length / 2)));
+  const best = recent.map((r) => r.score).sort((a, b) => a - b).slice(0, nBest);
+  const handi = Math.max(0, best.reduce((s, v) => s + v, 0) / best.length - 72);
+  return { avg: Math.round(avg * 10) / 10, handi: Math.round(handi * 10) / 10, n: records.length };
+}
+
+function renderStats(all) {
+  const box = $("#score-stats");
+  if (!all.length) { box.hidden = true; return; }
+  box.hidden = false;
+
+  const years = [...new Set(all.map((r) => r.date.slice(0, 4)))].sort((a, b) => b - a);
+  if (selectedYear !== "전체" && !years.includes(selectedYear)) selectedYear = "전체";
+  const tabs = $("#year-tabs");
+  tabs.innerHTML = "";
+  ["전체", ...years].forEach((y) => {
+    const b = document.createElement("button");
+    b.className = "year-tab" + (selectedYear === y ? " active" : "");
+    b.textContent = y === "전체" ? "전체" : y + "년";
+    b.addEventListener("click", () => { selectedYear = y; renderScores(); });
+    tabs.appendChild(b);
+  });
+
+  const filtered = selectedYear === "전체" ? all : all.filter((r) => r.date.startsWith(selectedYear));
+  const st = calcStats(filtered);
+  $("#st-avg").textContent = st ? st.avg : "-";
+  $("#st-rounds").textContent = st ? `${selectedYear === "전체" ? "전체" : selectedYear + "년"} ${st.n}라운드` : "";
+  $("#st-handi").textContent = st ? st.handi : "-";
+
+  const goal = localStorage.getItem(GOAL_KEY);
+  $("#st-goal").textContent = goal ?? "설정";
+  $("#st-gap").textContent = goal && st ? `현재와 ${Math.round((st.handi - goal) * 10) / 10}타 차이` : "탭해서 설정";
+  return filtered;
+}
+$("#goal-box").addEventListener("click", () => {
+  const cur = localStorage.getItem(GOAL_KEY) || "";
+  const v = prompt("최종 목표 핸디를 입력하세요 (예: 3)", cur);
+  if (v === null) return;
+  const n = parseFloat(v);
+  if (isNaN(n) || n < 0 || n > 54) { alert("0~54 사이 숫자로 입력해 주세요."); return; }
+  localStorage.setItem(GOAL_KEY, String(n));
   renderScores();
 });
 
 function renderScores() {
-  const list = loadScores();
+  const all = loadScores();
+  const filtered = renderStats(all) || [];
   const el = $("#score-list");
   el.innerHTML = "";
-  $("#score-empty").hidden = list.length > 0;
+  $("#score-empty").hidden = all.length > 0;
+  const list = selectedYear === "전체" ? all : filtered;
   list.forEach((r) => {
     const div = document.createElement("div");
     div.className = "score-item";
@@ -1634,21 +1809,38 @@ function renderScores() {
            <span>🌬 최대 ${r.wx.wind}m/s</span>
          </div>` : "";
     div.innerHTML = `
+      <button class="si-edit" aria-label="수정">✏️</button>
       <button class="si-del" aria-label="삭제">✕</button>
       <div class="si-top">
         <div>
           <div class="si-course">${r.course}</div>
-          <div class="si-date">${r.date}</div>
+          <div class="si-date">${r.date}${r.teeTime ? " · ⛳ " + r.teeTime + " 티업" : ""}</div>
         </div>
         <div class="si-score">${r.score}<small>타</small></div>
       </div>
       ${r.friends ? `<div class="si-friends">👥 ${r.friends}</div>` : ""}
       ${r.memo ? `<div class="si-memo">"${r.memo}"</div>` : ""}
-      ${wx}`;
+      ${wx}
+      ${r.photo ? `<img class="si-photo" src="${r.photo}" alt="스코어보드">` : ""}`;
     div.querySelector(".si-del").addEventListener("click", () => {
       if (!confirm(`${r.date} ${r.course} 기록을 삭제할까요?`)) return;
       saveScores(loadScores().filter((x) => x.id !== r.id));
       renderScores();
+    });
+    div.querySelector(".si-edit").addEventListener("click", () => {
+      resetScoreForm();
+      editingId = r.id;
+      $("#sf-title").textContent = "기록 수정";
+      $("#sf-date").value = r.date;
+      if (r.teeTime) { $("#sf-time").value = r.teeTime; }
+      else { $("#sf-time-unknown").checked = true; $("#sf-time").disabled = true; }
+      $("#sf-course").value = r.course;
+      $("#sf-score").value = r.score;
+      $("#sf-friends").value = r.friends || "";
+      $("#sf-memo").value = r.memo || "";
+      if (r.photo) { $("#sf-photo-preview").src = r.photo; $("#sf-photo-preview").hidden = false; }
+      $("#score-form").hidden = false;
+      window.scrollTo(0, 0);
     });
     el.appendChild(div);
   });
