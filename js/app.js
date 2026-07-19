@@ -1778,11 +1778,30 @@ function getOcrWorker() {
   return ocrWorkerP;
 }
 
+/* OCR용 이미지 전처리: 확대 + 흑백 + 대비 강화 (인식률 향상) */
+function preprocessForOcr(img) {
+  const scale = Math.min(2, 1500 / img.width);
+  const cv = document.createElement("canvas");
+  cv.width = Math.round(img.width * scale);
+  cv.height = Math.round(img.height * scale);
+  const ctx = cv.getContext("2d");
+  ctx.drawImage(img, 0, 0, cv.width, cv.height);
+  const d = ctx.getImageData(0, 0, cv.width, cv.height);
+  const p = d.data;
+  for (let i = 0; i < p.length; i += 4) {
+    const g = p[i] * 0.3 + p[i + 1] * 0.59 + p[i + 2] * 0.11;
+    const v = Math.max(0, Math.min(255, (g - 128) * 1.6 + 140));
+    p[i] = p[i + 1] = p[i + 2] = v;
+  }
+  ctx.putImageData(d, 0, 0);
+  return cv;
+}
+
 /* OCR 텍스트에서 날짜·시간·골프장·스코어를 추출해 폼에 자동 입력 */
 function autofillFromOcr(text) {
   const filled = [];
 
-  const dm = text.match(/(20\d{2})[.\-\/년\s]{1,2}(\d{1,2})[.\-\/월\s]{1,2}(\d{1,2})/);
+  const dm = text.match(/(20\d{2})[.,\-\/년\s]{1,3}(\d{1,2})[.,\-\/월\s]{1,3}(\d{1,2})/);
   if (dm) {
     $("#sf-date").value = `${dm[1]}-${dm[2].padStart(2, "0")}-${dm[3].padStart(2, "0")}`;
     filled.push("날짜");
@@ -1794,18 +1813,21 @@ function autofillFromOcr(text) {
     filled.push("티업시간");
   }
 
-  // 골프장명: 각 줄을 내장 DB에서 검색해 매칭
+  // 골프장명: 각 줄을 내장 DB에서 검색해 매칭 (이름이 실제로 겹칠 때만 인정)
   let matchedClub = null;
   for (const line of text.split("\n")) {
+    if (line.includes(",")) continue; // 동반자 목록 줄 제외
     const t = line.trim().replace(/[^가-힣A-Za-z0-9 ]/g, "");
     if (t.length < 2 || t.length > 14 || !/[가-힣]/.test(t)) continue;
     const hit = searchGolfDB(t);
-    if (hit.length) {
-      matchedClub = hit[0];
-      $("#sf-course").value = matchedClub.k || matchedClub.n;
-      filled.push("골프장");
-      break;
-    }
+    if (!hit.length) continue;
+    const nq = normName(t);
+    const hn = normName(hit[0].k || hit[0].n);
+    if (!hn.includes(nq) && !nq.includes(stripSuffix(hn))) continue; // 발음 유사 등 약한 매칭 거부
+    matchedClub = hit[0];
+    $("#sf-course").value = matchedClub.k || matchedClub.n;
+    filled.push("골프장");
+    break;
   }
 
   // 전·후반 코스명
@@ -1827,27 +1849,64 @@ function autofillFromOcr(text) {
     $("#sf-front").value = seen[0]; $("#sf-back").value = seen[1];
     filled.push("코스");
   } else {
-    // ② "남, 동" / "EAST · WEST" 형태의 줄에서 직접 추출
-    const cm = text.match(/^\s*([가-힣A-Z]{1,6})\s*[,·\/\-]\s*([가-힣A-Z]{1,6})\s*$/m);
-    if (cm && !/^\d+$/.test(cm[1]) && !/^\d+$/.test(cm[2])) {
+    // ② "남, 동" / "East, West" 형태의 줄에서 직접 추출
+    const BAD = /^(putt|gir|fwhit|par|hole|tee|white|red|blue|black|total)$/i;
+    const cm = text.match(/^\s*([A-Za-z가-힣]{1,8})\s*[,·\/\-]\s*([A-Za-z가-힣]{1,8})\s*$/mi);
+    if (cm && !BAD.test(cm[1]) && !BAD.test(cm[2])) {
       $("#sf-front").value = cm[1]; $("#sf-back").value = cm[2];
       filled.push("코스");
     }
   }
 
-  // 총타수: ①전·후반 합계(28~60) 두 개의 합이 55~150이면 그 값 ②아니면 55~150 숫자 후보
-  const nums = (text.match(/\d{2,3}/g) || []).map(Number);
-  const halves = nums.filter((n) => n >= 28 && n <= 60);
-  const totals = new Set(nums.filter((n) => n >= 55 && n <= 150));
-  let best = null;
-  for (let i = 0; i < halves.length && !best; i++) {
-    for (let j = i + 1; j < halves.length; j++) {
-      const s = halves[i] + halves[j];
-      if (totals.has(s)) { best = s; break; } // 예: 43+45=88이 사진에 함께 있으면 확정
+  // 동반자: "이성민, 고**, 송**, 이**" 형태 줄
+  for (const line of text.split("\n")) {
+    const toks = line.split(/[,，]/).map((s) => s.trim().replace(/\s/g, "")).filter(Boolean);
+    if (toks.length >= 2 && toks.length <= 5 &&
+        toks.every((t) => /^[가-힣]{1,4}[*＊x]{0,3}$/.test(t))) {
+      toks.slice(0, 4).forEach((t, i) => { $("#sf-f" + (i + 1)).value = t; });
+      filled.push("동반자");
+      break;
     }
   }
-  if (best) { $("#sf-score").value = best; filled.push("총타수 " + best); }
-  return { filled, candidates: best ? [] : [...totals].sort((a, b) => a - b).slice(0, 8) };
+
+  // 홀별 점수 줄: "1 1 0 0 0 0 0 0 1 39" ×2 → 홀 그리드 자동 입력 (36+합=끝값으로 검증)
+  const rows = [];
+  for (const line of text.split("\n")) {
+    const nums = (line.match(/-?\d+/g) || []).map(Number);
+    if (nums.length < 10) continue;
+    const nine = nums.slice(0, 9);
+    const tot = nums[nums.length - 1];
+    if (!nine.every((n) => n >= -4 && n <= 9) || tot < 27 || tot > 60) continue;
+    const verified = 36 + nine.reduce((s, v) => s + v, 0) === tot;
+    rows.push({ nine, verified });
+    if (rows.length === 2) break;
+  }
+  let holesFilled = false;
+  if (rows.length === 2 && rows.every((r) => r.verified)) {
+    rows[0].nine.concat(rows[1].nine).forEach((v, i) => { holeInputs[i].value = v; });
+    $("#holes-grid").hidden = false;
+    updateHoleSum(); // 총타수까지 자동 계산
+    holesFilled = true;
+    filled.push("홀별 스코어·총타수 " + $("#sf-score").value);
+  }
+
+  // 총타수: ①홀별 인식 완료 시 그 값 ②전·후반 합계 교차검증 ③후보 제시
+  let best = holesFilled ? parseInt($("#sf-score").value) : null;
+  const nums = (text.match(/\d{2,3}/g) || []).map(Number);
+  if (!best) {
+    const halves = nums.filter((n) => n >= 28 && n <= 60);
+    const totals = new Set(nums.filter((n) => n >= 55 && n <= 150));
+    for (let i = 0; i < halves.length && !best; i++) {
+      for (let j = i + 1; j < halves.length; j++) {
+        const s = halves[i] + halves[j];
+        if (totals.has(s)) { best = s; break; } // 예: 39+35=74가 사진에 함께 있으면 확정
+      }
+    }
+    if (best) { $("#sf-score").value = best; filled.push("총타수 " + best); }
+  }
+  const candidates = best ? [] :
+    [...new Set(nums.filter((n) => n >= 55 && n <= 150))].sort((a, b) => a - b).slice(0, 8);
+  return { filled, candidates };
 }
 
 $("#sf-photo").addEventListener("change", async (e) => {
@@ -1872,7 +1931,7 @@ $("#sf-photo").addEventListener("change", async (e) => {
     st.textContent = "🤖 AI가 스코어보드를 읽는 중... (10~20초)";
     try {
       const worker = await getOcrWorker();
-      const { data } = await worker.recognize(photoThumb);
+      const { data } = await worker.recognize(preprocessForOcr(img));
       const { filled, candidates } = autofillFromOcr(data.text);
       syncCourseSelectUI();
       if (filled.length) {
@@ -2012,6 +2071,97 @@ $("#goal-box").addEventListener("click", () => {
   renderScores();
 });
 
+/* ---------- 기록 공유: 카드 이미지 생성 → 공유/저장 ---------- */
+async function shareScoreCard(r) {
+  const W = 720, H = 900;
+  const cv = document.createElement("canvas");
+  cv.width = W; cv.height = H;
+  const x = cv.getContext("2d");
+
+  // 배경
+  const bg = x.createLinearGradient(0, 0, 0, H);
+  bg.addColorStop(0, "#4a5a6c"); bg.addColorStop(1, "#2c3744");
+  x.fillStyle = bg; x.fillRect(0, 0, W, H);
+
+  x.textAlign = "center"; x.fillStyle = "#fff";
+  x.font = "700 44px -apple-system, 'Malgun Gothic', sans-serif";
+  x.fillText(r.course, W / 2, 110);
+  x.fillStyle = "rgba(255,255,255,0.65)";
+  x.font = "400 26px -apple-system, sans-serif";
+  const sub = r.date + (r.teeTime ? " · " + r.teeTime + " 티업" : "") + (r.tee ? " · " + r.tee + "티" : "");
+  x.fillText(sub, W / 2, 155);
+  if (r.front || r.back) {
+    x.fillText((r.front || "전반") + " · " + (r.back || "후반"), W / 2, 192);
+  }
+
+  // 대형 스코어
+  x.fillStyle = "#fff";
+  x.font = "200 190px -apple-system, sans-serif";
+  x.fillText(String(r.score), W / 2, 400);
+  x.font = "400 34px -apple-system, sans-serif";
+  x.fillStyle = "#34d399";
+  x.fillText("타", W / 2 + 130, 395);
+
+  // 홀별 표
+  let y = 470;
+  if (r.holes) {
+    const cell = (W - 120) / 10;
+    [[r.holes.slice(0, 9), r.front || "전반"], [r.holes.slice(9), r.back || "후반"]].forEach(([nine, label]) => {
+      x.fillStyle = "rgba(0,0,0,0.25)";
+      x.fillRect(60, y, W - 120, 54);
+      x.font = "600 20px -apple-system, sans-serif";
+      x.fillStyle = "rgba(255,255,255,0.6)";
+      x.textAlign = "left";
+      x.fillText(label.slice(0, 4), 70, y + 34);
+      x.textAlign = "center";
+      nine.forEach((v, i) => {
+        x.fillStyle = v > 0 ? "#ff9c9c" : v < 0 ? "#7fd4ff" : "#fff";
+        x.fillText(v == null ? "·" : v > 0 ? "+" + v : String(v), 130 + cell * i + cell / 2, y + 34);
+      });
+      const t = 36 + nine.reduce((s, v) => s + (v || 0), 0);
+      x.fillStyle = "#34d399";
+      x.font = "700 24px -apple-system, sans-serif";
+      x.fillText(String(t), W - 85, y + 35);
+      y += 62;
+    });
+    y += 20;
+  }
+
+  // 그날 날씨
+  if (r.wx) {
+    x.fillStyle = "rgba(255,255,255,0.75)";
+    x.font = "400 26px -apple-system, sans-serif";
+    x.fillText(`${wmoDesc(r.wx.code)} · ${r.wx.tmin}~${r.wx.tmax}° · 비 ${r.wx.rain}mm · 바람 ${r.wx.wind}m/s`, W / 2, y + 30);
+    y += 70;
+  }
+  if (r.friends) {
+    x.fillStyle = "rgba(255,255,255,0.55)";
+    x.font = "400 24px -apple-system, sans-serif";
+    x.fillText("함께한 사람 · " + r.friends, W / 2, y + 30);
+  }
+
+  // 워터마크
+  x.fillStyle = "#34d399";
+  x.font = "700 26px -apple-system, sans-serif";
+  x.fillText("⛳ Ri-Weather", W / 2, H - 50);
+
+  return new Promise((resolve) => {
+    cv.toBlob(async (blob) => {
+      const file = new File([blob], `score-${r.date}.png`, { type: "image/png" });
+      try {
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          await navigator.share({ files: [file], title: `${r.course} ${r.score}타` });
+          resolve(true); return;
+        }
+      } catch { /* 공유 취소 등 */ }
+      // 폴백: 새 탭에 이미지 표시 (길게 눌러 저장)
+      const url = URL.createObjectURL(blob);
+      window.open(url, "_blank");
+      resolve(false);
+    }, "image/png");
+  });
+}
+
 /* 스코어카드 표 (홀별 입력이 있는 기록) — 스마트스코어 스타일 */
 function scorecardHtml(r) {
   const f = r.holes.slice(0, 9), b = r.holes.slice(9);
@@ -2058,9 +2208,11 @@ function renderScores() {
       ${r.photo ? `<img class="si-photo" src="${r.photo}" alt="스코어보드">` : ""}
       <div class="si-actions">
         <button class="si-edit2">✏️ 수정</button>
-        ${r.photo ? '<button class="si-photo-toggle">📷 사진 보기</button>' : ""}
+        <button class="si-share">📤 공유·저장</button>
+        ${r.photo ? '<button class="si-photo-toggle">📷 사진</button>' : ""}
         <button class="si-del2">🗑 삭제</button>
       </div>`;
+    div.querySelector(".si-share").addEventListener("click", () => shareScoreCard(r));
     div.querySelector(".si-del2").addEventListener("click", () => {
       if (!confirm(`${r.date} ${r.course} 기록을 삭제할까요?`)) return;
       saveScores(loadScores().filter((x) => x.id !== r.id));
