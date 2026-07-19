@@ -1630,12 +1630,27 @@ let editingId = null;       // 수정 중인 기록 id
 let selectedYear = "전체";
 let photoThumb = null;      // 첨부 사진 (압축본)
 
+/* DB에 없는 구장 직접 등록 (공식 주소 기준 좌표) */
+const EXTRA_CLUBS = [
+  { n: "자유로CC",      lat: 38.0246, lon: 126.8988, c: "KR" },
+  { n: "포천 힐마루CC", lat: 38.0061, lon: 127.2445, c: "KR", a: "Hillmaru" },
+  { n: "푸른솔포천GC",  lat: 37.8360, lon: 127.1919, c: "KR", a: "Purunsol" },
+  { n: "라싸CC",        lat: 38.0388, lon: 127.3659, c: "KR", a: "Lassa" },
+  { n: "클럽72",        lat: 37.4795, lon: 126.4702, c: "KR", a: "Club72" },
+];
+if (typeof GOLF_DB !== "undefined") GOLF_DB.push(...EXTRA_CLUBS);
+
 /* 전용 코스명 DB — 확인된 구장은 여기서 우선 조회 (공식 정보 기준) */
 const CLUB_COURSES = [
   { match: "파주cc",   lat: 37.8431, lon: 126.9040, courses: ["EAST", "WEST"] },
   { match: "타이거",   lat: 37.9240, lon: 126.8920, courses: ["가온", "누리"] },
   { match: "필로스",   lat: 37.9382, lon: 127.3312, courses: ["동", "서", "남"] },
   { match: "스카이72", lat: 37.4514, lon: 126.4824, courses: ["하늘", "오션", "레이크", "클래식"] },
+  { match: "클럽72",   lat: 37.4795, lon: 126.4702, courses: ["오션", "레이크", "클래식", "하늘"] },
+  { match: "자유로",   lat: 38.0246, lon: 126.8988, courses: ["대한", "민국", "통일"] },
+  { match: "힐마루",   lat: 38.0061, lon: 127.2445, courses: ["시그니처A", "시그니처B", "브리즈", "선샤인", "네스트"] },
+  { match: "푸른솔",   lat: 37.8360, lon: 127.1919, courses: ["마운틴", "레이크", "밸리"] },
+  { match: "라싸",     lat: 38.0388, lon: 127.3659, courses: ["레이크", "밸리", "마운틴"] },
 ];
 
 /* 선택한 골프장 주변(3km)의 DB 항목에서 코스명(하늘/바다/EAST...)을 자동 추출 */
@@ -1905,11 +1920,14 @@ function autofillFromOcr(text) {
     $("#sf-front").value = seen[0]; $("#sf-back").value = seen[1];
     filled.push("코스");
   } else {
-    // ② "남, 동" / "East, West" 형태의 줄에서 직접 추출
+    // ② "남, 동" / "East, West" / "망무봉 OUT, 망무봉 IN" 형태의 줄에서 직접 추출
     const BAD = /^(putt|gir|fwhit|par|hole|tee|white|red|blue|black|total)$/i;
-    const cm = text.match(/^\s*([A-Za-z가-힣]{1,8})\s*[,·\/\-]\s*([A-Za-z가-힣]{1,8})\s*$/mi);
-    if (cm && !BAD.test(cm[1]) && !BAD.test(cm[2])) {
-      $("#sf-front").value = cm[1]; $("#sf-back").value = cm[2];
+    // 주의: \s는 줄바꿈까지 매칭하므로 공백/탭만 허용 (같은 줄 안에서만 코스 추출)
+    const seg = "[A-Za-z가-힣0-9]{1,10}(?: [A-Za-z가-힣0-9]{1,8})?";
+    const cm = text.match(new RegExp(`^[ \\t]*(${seg})[ \\t]*[,·/][ \\t]*(${seg})[ \\t]*$`, "m"));
+    if (cm && !BAD.test(cm[1].trim()) && !BAD.test(cm[2].trim()) &&
+        !/^\d+$/.test(cm[1]) && !/^\d+$/.test(cm[2])) {
+      $("#sf-front").value = cm[1].trim(); $("#sf-back").value = cm[2].trim();
       filled.push("코스");
     }
   }
@@ -1970,6 +1988,15 @@ function autofillFromOcr(text) {
       holesFilled = true;
       filled.push("홀별 스코어·총타수 " + $("#sf-score").value);
     }
+  } else if (rows.length === 1 && rows[0].verified) {
+    // 9홀 라운드 (후반 없음)
+    rows[0].nine.forEach((v, i) => { holeInputs[i].value = v; });
+    const t9 = 36 + rows[0].nine.reduce((s, v) => s + v, 0);
+    $("#holes-grid").hidden = false;
+    $("#sf-score").value = t9;
+    $("#hg-sum").textContent = `9홀 라운드 · 합계 ${t9}타`;
+    holesFilled = true;
+    filled.push("9홀 스코어 " + t9);
   }
 
   // 총타수: ①홀별 인식 완료 시 그 값 ②전·후반 합계 교차검증 ③후보 제시
@@ -2110,6 +2137,9 @@ $("#score-form").addEventListener("submit", async (e) => {
 
 /* ---------- 통계: 평균·핸디·목표 ---------- */
 function calcStats(records) {
+  // 9홀 라운드(55타 미만)는 평균·핸디 계산에서 제외 (왜곡 방지)
+  const full = records.filter((r) => r.score >= 55);
+  if (full.length) records = full;
   if (!records.length) return null;
   const avg = records.reduce((s, r) => s + r.score, 0) / records.length;
   // 추정 핸디: 최근 20라운드 중 베스트 8 평균 - 72 (라운드가 적으면 베스트 절반)
@@ -2253,13 +2283,15 @@ async function shareScoreCard(r) {
 function scorecardHtml(r) {
   const f = r.holes.slice(0, 9), b = r.holes.slice(9);
   const sum = (a) => a.reduce((s, x) => s + (x || 0), 0);
+  const empty = (a) => a.every((x) => x == null);
   const cell = (v) =>
     `<span class="sc-c${v > 0 ? " over" : v < 0 ? " under" : ""}">${v == null ? "·" : v > 0 ? "+" + v : v}</span>`;
   const head = Array.from({ length: 9 }, (_, i) => `<span>${i + 1}</span>`).join("");
+  const rowT = (a) => (empty(a) ? "-" : 36 + sum(a)); // 9홀 라운드의 빈 후반은 "-"
   return `<div class="sc-table">
     <div class="sc-head"><span>HOLE</span>${head}<span>T</span></div>
-    <div class="sc-row"><span>${r.front || "전반"}</span>${f.map(cell).join("")}<span class="sc-t">${36 + sum(f)}</span></div>
-    <div class="sc-row"><span>${r.back || "후반"}</span>${b.map(cell).join("")}<span class="sc-t">${36 + sum(b)}</span></div>
+    <div class="sc-row"><span>${r.front || "전반"}</span>${f.map(cell).join("")}<span class="sc-t">${rowT(f)}</span></div>
+    <div class="sc-row"><span>${r.back || "후반"}</span>${b.map(cell).join("")}<span class="sc-t">${rowT(b)}</span></div>
   </div>`;
 }
 
