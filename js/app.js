@@ -1794,35 +1794,75 @@ function getOcrWorker() {
   return ocrWorkerP;
 }
 
-/* OCR용 이미지 전처리: 확대 + 흑백 + 대비 강화 (인식률 향상) */
-function preprocessForOcr(img) {
+/* OCR용 이미지 전처리 3종: 일반 대비, 흰 글자용(반전), 진한 글자용
+   — 사진 배경 위 흰 글씨(스마트스코어 캡처)와 박스 속 검은 숫자를 모두 커버 */
+function ocrVariants(img) {
   const scale = Math.min(2, 1500 / img.width);
-  const cv = document.createElement("canvas");
-  cv.width = Math.round(img.width * scale);
-  cv.height = Math.round(img.height * scale);
-  const ctx = cv.getContext("2d");
-  ctx.drawImage(img, 0, 0, cv.width, cv.height);
-  const d = ctx.getImageData(0, 0, cv.width, cv.height);
-  const p = d.data;
-  for (let i = 0; i < p.length; i += 4) {
-    const g = p[i] * 0.3 + p[i + 1] * 0.59 + p[i + 2] * 0.11;
-    const v = Math.max(0, Math.min(255, (g - 128) * 1.6 + 140));
-    p[i] = p[i + 1] = p[i + 2] = v;
-  }
-  ctx.putImageData(d, 0, 0);
-  return cv;
+  const W = Math.round(img.width * scale), H = Math.round(img.height * scale);
+  const base = document.createElement("canvas");
+  base.width = W; base.height = H;
+  base.getContext("2d").drawImage(img, 0, 0, W, H);
+  const src = base.getContext("2d").getImageData(0, 0, W, H);
+
+  const make = (fn) => {
+    const c = document.createElement("canvas");
+    c.width = W; c.height = H;
+    const d = new ImageData(new Uint8ClampedArray(src.data), W, H);
+    const p = d.data;
+    for (let i = 0; i < p.length; i += 4) {
+      const g = p[i] * 0.3 + p[i + 1] * 0.59 + p[i + 2] * 0.11;
+      const v = fn(g);
+      p[i] = p[i + 1] = p[i + 2] = v;
+    }
+    c.getContext("2d").putImageData(d, 0, 0);
+    return c;
+  };
+  return [
+    make((g) => Math.max(0, Math.min(255, (g - 128) * 1.6 + 140))), // 일반
+    make((g) => (g > 238 ? 0 : 255)),                                // 흰 글자 → 검정
+    make((g) => (g < 90 ? 0 : 255)),                                 // 진한 글자 강조
+  ];
 }
 
 /* OCR 텍스트에서 날짜·시간·골프장·스코어를 추출해 폼에 자동 입력 */
 function autofillFromOcr(text) {
   const filled = [];
+  const textLines = text.split("\n");
+  const dateRe = /(20\d{2})[.,\-\/년\s]{1,3}(\d{1,2})[.,\-\/월\s]{1,3}(\d{1,2})/;
+  const timeRe = /([01]?\d|2[0-3])\s?:\s?([0-5]\d)/;
 
-  const dm = text.match(/(20\d{2})[.,\-\/년\s]{1,3}(\d{1,2})[.,\-\/월\s]{1,3}(\d{1,2})/);
+  let dateLineIdx = -1, dm = null;
+  for (let i = 0; i < textLines.length; i++) {
+    const m = textLines[i].match(dateRe);
+    if (m) { dm = m; dateLineIdx = i; break; }
+    // OCR이 구분점을 숫자로 붙여 읽은 경우: "2026.07416" → 07/16 복원
+    const b = textLines[i].match(/(20\d{2})\D{0,2}(\d{4,5})(?=\D|$)/);
+    if (b) {
+      const digits = b[2];
+      const mm = digits.slice(0, 2), dd = digits.slice(-2);
+      if (+mm >= 1 && +mm <= 12 && +dd >= 1 && +dd <= 31) {
+        dm = [null, b[1], mm, dd]; dateLineIdx = i; break;
+      }
+    }
+  }
   if (dm) {
     $("#sf-date").value = `${dm[1]}-${dm[2].padStart(2, "0")}-${dm[3].padStart(2, "0")}`;
     filled.push("날짜");
   }
-  const tm = text.match(/([01]?\d|2[0-3]):([0-5]\d)/);
+  // 티업시간: 날짜와 같은/인접 줄의 시간만 우선 인정 (상태바 시계 오인 방지)
+  let tm = null;
+  if (dateLineIdx >= 0) {
+    for (const j of [dateLineIdx, dateLineIdx + 1, dateLineIdx - 1]) {
+      const m = (textLines[j] || "").match(timeRe);
+      if (m) { tm = m; break; }
+    }
+  }
+  if (!tm) {
+    for (let i = 2; i < textLines.length; i++) { // 첫 두 줄(상태바 영역) 제외
+      const m = textLines[i].match(timeRe);
+      if (m && +m[1] >= 5 && +m[1] <= 21) { tm = m; break; }
+    }
+  }
   if (tm) {
     $("#sf-time").value = `${tm[1].padStart(2, "0")}:${tm[2]}`;
     $("#sf-time-unknown").checked = false; $("#sf-time").disabled = false;
@@ -1887,25 +1927,49 @@ function autofillFromOcr(text) {
     }
   }
 
-  // 홀별 점수 줄: "1 1 0 0 0 0 0 0 1 39" ×2 → 홀 그리드 자동 입력 (36+합=끝값으로 검증)
+  // 홀별 점수 줄 → 홀 그리드 자동 입력
+  // OCR 오류 복원: "11"처럼 붙은 숫자는 한 자리씩 분리, o/O는 0으로
+  const allTotals = new Set((text.match(/\d{2,3}/g) || []).map(Number).filter((n) => n >= 55 && n <= 150));
+  function parseHoleRow(line) {
+    const toks = line.replace(/[oO]/g, "0").match(/-\d|\d+/g);
+    if (!toks) return null;
+    const vals = [];
+    let rowTotal = null;
+    for (const t of toks) {
+      if (t.startsWith("-")) { vals.push(parseInt(t)); continue; }
+      if (t.length === 1) { vals.push(parseInt(t)); continue; }
+      const n = parseInt(t);
+      if (n >= 27 && n <= 60 && vals.length >= 8) { rowTotal = n; break; } // 행 끝 합계
+      for (const ch of t) vals.push(parseInt(ch)); // 붙은 한 자리 숫자 분리
+    }
+    if (vals.length !== 9 || !vals.every((v) => v >= -4 && v <= 9)) return null;
+    if (rowTotal !== null && 36 + vals.reduce((s, v) => s + v, 0) !== rowTotal) return null;
+    return { nine: vals, verified: rowTotal !== null };
+  }
   const rows = [];
-  for (const line of text.split("\n")) {
-    const nums = (line.match(/-?\d+/g) || []).map(Number);
-    if (nums.length < 10) continue;
-    const nine = nums.slice(0, 9);
-    const tot = nums[nums.length - 1];
-    if (!nine.every((n) => n >= -4 && n <= 9) || tot < 27 || tot > 60) continue;
-    const verified = 36 + nine.reduce((s, v) => s + v, 0) === tot;
-    rows.push({ nine, verified });
+  const rowSeen = new Set();
+  for (const line of textLines) {
+    if ((line.match(/\d/g) || []).length < 8) continue;
+    const r = parseHoleRow(line);
+    if (!r) continue;
+    const key = r.nine.join(",");
+    if (rowSeen.has(key)) continue; // 다중 인식 병합 시 중복 제거
+    rowSeen.add(key);
+    rows.push(r);
     if (rows.length === 2) break;
   }
   let holesFilled = false;
-  if (rows.length === 2 && rows.every((r) => r.verified)) {
-    rows[0].nine.concat(rows[1].nine).forEach((v, i) => { holeInputs[i].value = v; });
-    $("#holes-grid").hidden = false;
-    updateHoleSum(); // 총타수까지 자동 계산
-    holesFilled = true;
-    filled.push("홀별 스코어·총타수 " + $("#sf-score").value);
+  if (rows.length === 2) {
+    const sumAll = rows[0].nine.concat(rows[1].nine).reduce((s, v) => s + v, 0);
+    // 행별 합계로 검증됐거나, 72+18홀 합계가 사진 속 총점과 일치하면 채택
+    const ok = rows.every((r) => r.verified) || allTotals.has(72 + sumAll);
+    if (ok) {
+      rows[0].nine.concat(rows[1].nine).forEach((v, i) => { holeInputs[i].value = v; });
+      $("#holes-grid").hidden = false;
+      updateHoleSum(); // 총타수까지 자동 계산
+      holesFilled = true;
+      filled.push("홀별 스코어·총타수 " + $("#sf-score").value);
+    }
   }
 
   // 총타수: ①홀별 인식 완료 시 그 값 ②전·후반 합계 교차검증 ③후보 제시
@@ -1923,7 +1987,7 @@ function autofillFromOcr(text) {
     if (best) { $("#sf-score").value = best; filled.push("총타수 " + best); }
   }
   const candidates = best ? [] :
-    [...new Set(nums.filter((n) => n >= 55 && n <= 150))].sort((a, b) => a - b).slice(0, 8);
+    [...new Set(nums.filter((n) => n >= 60 && n <= 130))].sort((a, b) => a - b).slice(0, 6);
   return { filled, candidates };
 }
 
@@ -1943,14 +2007,19 @@ $("#sf-photo").addEventListener("change", async (e) => {
     prev.src = photoThumb; prev.hidden = false;
     URL.revokeObjectURL(url);
 
-    // AI 숫자 인식
+    // AI 숫자 인식 — 3가지 전처리로 각각 읽어 결과 병합 (흰 글자·검은 숫자 모두 커버)
     const st = $("#ocr-status");
     st.hidden = false;
-    st.textContent = "🤖 AI가 스코어보드를 읽는 중... (10~20초)";
     try {
       const worker = await getOcrWorker();
-      const { data } = await worker.recognize(preprocessForOcr(img));
-      const { filled, candidates } = autofillFromOcr(data.text);
+      const vars = ocrVariants(img);
+      let mergedText = "";
+      for (let i = 0; i < vars.length; i++) {
+        st.textContent = `🤖 AI가 스코어보드를 읽는 중... (${i + 1}/${vars.length})`;
+        const { data } = await worker.recognize(vars[i]);
+        mergedText += "\n" + data.text;
+      }
+      const { filled, candidates } = autofillFromOcr(mergedText);
       syncCourseSelectUI();
       if (filled.length) {
         st.textContent = `✅ AI 자동 입력: ${filled.join(" · ")} — 확인 후 틀린 부분만 고쳐주세요`;
