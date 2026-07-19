@@ -1794,22 +1794,44 @@ function autofillFromOcr(text) {
   }
 
   // 골프장명: 각 줄을 내장 DB에서 검색해 매칭
+  let matchedClub = null;
   for (const line of text.split("\n")) {
     const t = line.trim().replace(/[^가-힣A-Za-z0-9 ]/g, "");
     if (t.length < 2 || t.length > 14 || !/[가-힣]/.test(t)) continue;
     const hit = searchGolfDB(t);
     if (hit.length) {
-      $("#sf-course").value = hit[0].k || hit[0].n;
+      matchedClub = hit[0];
+      $("#sf-course").value = matchedClub.k || matchedClub.n;
       filled.push("골프장");
       break;
     }
   }
 
-  // 전·후반 코스명 ("남, 동" / "EAST, WEST" 형태 줄)
-  const cm = text.match(/^\s*([가-힣A-Z]{1,6})\s*[,·]\s*([가-힣A-Z]{1,6})\s*$/m);
-  if (cm && !/^\d+$/.test(cm[1])) {
-    $("#sf-front").value = cm[1]; $("#sf-back").value = cm[2];
+  // 전·후반 코스명
+  // ① 그 구장의 알려진 코스명이 사진 속에 있으면 등장 순서대로 전반→후반
+  const knownNames = matchedClub
+    ? findCourseNames({ name: matchedClub.k || matchedClub.n, lat: matchedClub.lat, lon: matchedClub.lon })
+    : courseNameList;
+  const findIdx = (n) => {
+    if (n.length === 1) {
+      const m = text.match(new RegExp(`(?:^|[^가-힣])(${n})(?:[^가-힣]|$)`, "m"));
+      return m ? m.index : -1;
+    }
+    return text.indexOf(n);
+  };
+  const seen = (knownNames || [])
+    .map((n) => [findIdx(n), n]).filter(([i]) => i >= 0)
+    .sort((a, b) => a[0] - b[0]).map(([, n]) => n);
+  if (seen.length >= 2) {
+    $("#sf-front").value = seen[0]; $("#sf-back").value = seen[1];
     filled.push("코스");
+  } else {
+    // ② "남, 동" / "EAST · WEST" 형태의 줄에서 직접 추출
+    const cm = text.match(/^\s*([가-힣A-Z]{1,6})\s*[,·\/\-]\s*([가-힣A-Z]{1,6})\s*$/m);
+    if (cm && !/^\d+$/.test(cm[1]) && !/^\d+$/.test(cm[2])) {
+      $("#sf-front").value = cm[1]; $("#sf-back").value = cm[2];
+      filled.push("코스");
+    }
   }
 
   // 총타수: ①전·후반 합계(28~60) 두 개의 합이 55~150이면 그 값 ②아니면 55~150 숫자 후보
