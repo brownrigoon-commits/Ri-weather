@@ -4,8 +4,9 @@
  * ========================================================= */
 "use strict";
 
-const APP_VER = "v24"; // 배포 버전 (홈 화면 배지에 표시)
+const APP_VER = "v25"; // 배포 버전 (홈 화면 배지에 표시)
 const STORAGE_KEY = "riweather.courses.v1";
+const GEM_KEY = "riweather.gemini"; // 정밀 인식(비전 AI) 키 저장소
 
 /* ---------- WMO 날씨 코드 → 설명/아이콘 ---------- */
 const WMO = {
@@ -1774,6 +1775,27 @@ $("#sf-time-unknown").addEventListener("change", (e) => {
   if (e.target.checked) $("#sf-time").value = "";
 });
 
+/* 정밀 인식(비전 AI) 키 설정 */
+function refreshAiKeyBtn() {
+  const btn = $("#ai-key-btn");
+  const on = !!localStorage.getItem(GEM_KEY);
+  btn.textContent = on ? "🔑 정밀 인식 ON" : "🔑 정밀 인식 켜기";
+  btn.style.color = on ? "#34d399" : "";
+  btn.style.borderColor = on ? "#34d399" : "";
+}
+$("#ai-key-btn").addEventListener("click", () => {
+  const cur = localStorage.getItem(GEM_KEY) || "";
+  const v = prompt(
+    "정밀 AI 인식용 무료 키를 입력하세요.\n\n발급 방법 (2분):\n1) aistudio.google.com/apikey 접속\n2) 구글 로그인 → 'API 키 만들기'\n3) 생성된 키 복사 후 여기에 붙여넣기\n\n(비우고 확인하면 정밀 인식이 꺼집니다)",
+    cur);
+  if (v === null) return;
+  const t = v.trim();
+  if (t) localStorage.setItem(GEM_KEY, t);
+  else localStorage.removeItem(GEM_KEY);
+  refreshAiKeyBtn();
+});
+refreshAiKeyBtn();
+
 /* 기본 티 최초 설정 (남성=화이트 / 여성=레이디) */
 document.querySelectorAll("#tee-default .ocr-chip").forEach((b) => {
   b.addEventListener("click", () => {
@@ -1869,6 +1891,99 @@ function ocrVariants(img) {
     make((g) => (g < otsu ? 0 : 255)),                               // Otsu 이진화 (표 숫자)
     make((g) => (g > 238 ? 0 : 255)),                                // 흰 글자 → 검정
   ];
+}
+
+/* ---------- 정밀 AI 인식 (Google Gemini 비전, 무료 키) ---------- */
+async function geminiRecognize(dataUrl) {
+  const key = localStorage.getItem(GEM_KEY);
+  if (!key) return null;
+  const b64 = dataUrl.split(",")[1];
+  const prompt = `골프 스코어보드 사진입니다. 아래 JSON 형식으로만 답하세요(설명·마크다운 금지):
+{"date":"YYYY-MM-DD 또는 null","teeTime":"HH:MM(24시간) 또는 null","club":"골프장명 또는 null","front":"전반 코스명 또는 null","back":"후반 코스명 또는 null","tee":"화이트|레드|블루|블랙|레이디 또는 null","companions":["본인 외 동반자 이름들"],"players":[{"name":"이름","total":합계숫자,"holes":[홀별 파 대비 상대타수 숫자 배열]}]}
+규칙: 공유카드(1명)면 players 1명, 카트 태블릿(여러 명)이면 전원 포함. holes는 -1=버디, 0=파, 1=보기 형식으로 표에 보이는 순서대로. 확실하지 않은 값은 null.`;
+  const body = {
+    contents: [{ parts: [{ text: prompt }, { inline_data: { mime_type: "image/jpeg", data: b64 } }] }],
+    generationConfig: { temperature: 0 },
+  };
+  const r = await fetch(
+    "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=" + encodeURIComponent(key),
+    { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+  if (!r.ok) throw new Error("gemini HTTP " + r.status);
+  const j = await r.json();
+  const txt = j.candidates?.[0]?.content?.parts?.[0]?.text || "";
+  const m = txt.match(/\{[\s\S]*\}/);
+  return m ? JSON.parse(m[0]) : null;
+}
+
+/* 정밀 AI 결과를 폼에 적용 */
+function applyGeminiResult(g) {
+  const filled = [];
+  if (g.date && /^\d{4}-\d{2}-\d{2}$/.test(g.date)) { $("#sf-date").value = g.date; filled.push("날짜"); }
+  if (g.teeTime && /^\d{1,2}:\d{2}$/.test(g.teeTime)) {
+    $("#sf-time").value = g.teeTime.padStart(5, "0");
+    $("#sf-time-unknown").checked = false; $("#sf-time").disabled = false;
+    filled.push("티업시간");
+  }
+  if (g.club) {
+    const hit = searchGolfDB(g.club);
+    $("#sf-course").value = hit.length ? (hit[0].k || hit[0].n) : g.club;
+    filled.push("골프장");
+  }
+  if (g.front) $("#sf-front").value = g.front;
+  if (g.back) $("#sf-back").value = g.back;
+  if (g.front || g.back) filled.push("코스");
+  if (g.tee) { $("#sf-tee").value = g.tee; filled.push("티"); }
+  if (Array.isArray(g.companions) && g.companions.length) {
+    g.companions.slice(0, 4).forEach((n, i) => { $("#sf-f" + (i + 1)).value = String(n); });
+    filled.push("동반자");
+  }
+  let cartPlayers = null;
+  const ps = (g.players || []).filter((p) => p && typeof p.total === "number");
+  if (ps.length > 1) {
+    cartPlayers = ps.map((p) => ({
+      name: p.name || "?", total: p.total,
+      holes: (Array.isArray(p.holes) ? p.holes : []).slice(0, 18).map((v) => (typeof v === "number" ? v : null)),
+    }));
+  } else if (ps.length === 1) {
+    const p = ps[0];
+    if (Array.isArray(p.holes) && p.holes.length >= 9) {
+      holeInputs.forEach((h, i) => { h.value = i < p.holes.length && typeof p.holes[i] === "number" ? p.holes[i] : ""; });
+      $("#holes-grid").hidden = false;
+      if (p.holes.length >= 18) updateHoleSum();
+      else { $("#sf-score").value = p.total; $("#hg-sum").textContent = `${p.holes.length}홀 인식 · 합계 ${p.total}타`; }
+      filled.push("홀별 스코어");
+    }
+    if (p.total) { $("#sf-score").value = p.total; filled.push("총타수 " + p.total); }
+  }
+  syncCourseSelectUI();
+  return { filled, cartPlayers };
+}
+
+/* 여러 명 인식 시 본인 선택 칩 (기본·정밀 인식 공용) */
+function renderCartChips(cartPlayers) {
+  const chips = $("#ocr-chips");
+  chips.innerHTML = '<span class="chip-label">인식된 플레이어 (본인 선택 시 나머지는 동반자로 입력)</span>';
+  cartPlayers.forEach((p) => {
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "ocr-chip";
+    b.textContent = `${p.name} · ${p.total}타`;
+    b.addEventListener("click", () => {
+      holeInputs.forEach((h, i) => {
+        h.value = i < p.holes.length && p.holes[i] != null ? p.holes[i] : "";
+      });
+      $("#holes-grid").hidden = false;
+      $("#sf-score").value = p.total;
+      const nFilled = p.holes.filter((v) => v != null).length;
+      $("#hg-sum").textContent = nFilled < 18 ? `${nFilled}홀 인식 · 합계 ${p.total}타` : "";
+      [1, 2, 3, 4].forEach((i) => { $("#sf-f" + i).value = ""; });
+      cartPlayers.filter((x) => x !== p).slice(0, 4)
+        .forEach((x, i) => { $("#sf-f" + (i + 1)).value = x.name; });
+      chips.querySelectorAll(".ocr-chip").forEach((c) => c.classList.remove("active"));
+      b.classList.add("active");
+    });
+    chips.appendChild(b);
+  });
+  chips.hidden = false;
 }
 
 /* 사진 상단 띠(동반자·날짜·시간 영역)만 잘라 3배 확대 — 흰 글자 정밀 인식용 */
@@ -2186,9 +2301,32 @@ $("#sf-photo").addEventListener("change", async (e) => {
     prev.src = photoThumb; prev.hidden = false;
     URL.revokeObjectURL(url);
 
-    // AI 숫자 인식 — 3가지 전처리로 각각 읽어 결과 병합 (흰 글자·검은 숫자 모두 커버)
     const st = $("#ocr-status");
     st.hidden = false;
+
+    // ① 정밀 AI(비전) 인식 — 키가 설정돼 있으면 우선 사용 (사진 전체를 통째로 이해)
+    if (localStorage.getItem(GEM_KEY)) {
+      st.textContent = "🤖 정밀 AI가 사진을 분석 중... (2~5초)";
+      try {
+        const g = await geminiRecognize(photoThumb);
+        if (g) {
+          const { filled, cartPlayers } = applyGeminiResult(g);
+          if (cartPlayers && cartPlayers.length) {
+            st.textContent = "✅ 정밀 AI 인식 완료 — 아래에서 본인 이름을 탭하세요";
+            renderCartChips(cartPlayers);
+          } else if (filled.length) {
+            st.textContent = `✅ 정밀 AI 자동 입력: ${filled.join(" · ")} — 확인 후 저장하세요`;
+          } else {
+            st.textContent = "정밀 AI가 스코어보드를 찾지 못했어요 — 직접 입력해 주세요";
+          }
+          return; // 정밀 인식 성공 시 기본 인식 생략
+        }
+      } catch (e) {
+        st.textContent = "정밀 AI 연결 실패 — 기본 인식으로 전환합니다";
+      }
+    }
+
+    // ② 기본 인식 — 3가지 전처리로 각각 읽어 결과 병합 (흰 글자·검은 숫자 모두 커버)
     try {
       const worker = await getOcrWorker();
       const vars = ocrVariants(img);
@@ -2222,27 +2360,7 @@ $("#sf-photo").addEventListener("change", async (e) => {
       if (cartPlayers && cartPlayers.length) {
         // 카트 태블릿: 여러 명 중 본인 선택
         st.textContent = "✅ 카트 스코어보드 인식 — 아래에서 본인 이름을 탭하세요";
-        const chips = $("#ocr-chips");
-        chips.innerHTML = '<span class="chip-label">인식된 플레이어 (본인 선택 시 나머지는 동반자로 입력)</span>';
-        cartPlayers.forEach((p) => {
-          const b = document.createElement("button");
-          b.type = "button"; b.className = "ocr-chip";
-          b.textContent = `${p.name} · ${p.total}타`;
-          b.addEventListener("click", () => {
-            holeInputs.forEach((h, i) => { h.value = i < p.holes.length ? p.holes[i] : ""; });
-            $("#holes-grid").hidden = false;
-            $("#sf-score").value = p.total;
-            $("#hg-sum").textContent =
-              p.holes.length < 18 ? `${p.holes.length}홀 인식 · 합계 ${p.total}타` : "";
-            [1, 2, 3, 4].forEach((i) => { $("#sf-f" + i).value = ""; });
-            cartPlayers.filter((x) => x !== p).slice(0, 4)
-              .forEach((x, i) => { $("#sf-f" + (i + 1)).value = x.name; });
-            chips.querySelectorAll(".ocr-chip").forEach((c) => c.classList.remove("active"));
-            b.classList.add("active");
-          });
-          chips.appendChild(b);
-        });
-        chips.hidden = false;
+        renderCartChips(cartPlayers);
       } else if (filled.length) {
         st.textContent = `✅ AI 자동 입력: ${filled.join(" · ")} — 확인 후 틀린 부분만 고쳐주세요`;
       } else {
