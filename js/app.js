@@ -738,13 +738,17 @@ function updateDistCard(course) {
 
 async function renderDist(course, el) {
   const straight = distM(userPos, [course.lat, course.lon]);
-  const naviUrl = `https://map.kakao.com/link/to/${encodeURIComponent(course.name)},${course.lat},${course.lon}`;
+  const kakaoUrl = `https://map.kakao.com/link/to/${encodeURIComponent(course.name)},${course.lat},${course.lon}`;
+  const tmapUrl = `tmap://route?goalname=${encodeURIComponent(course.name)}&goaly=${course.lat}&goalx=${course.lon}`;
   const show = (km, mins, approx) => {
     el.innerHTML = `
       <div class="dist-main">🚗 내 위치에서 <b>${km}km</b> · 차로 약 <b>${mins}</b>
         <small>${approx ? "직선거리 기준 추정" : "실제 도로 경로 기준"}</small>
       </div>
-      <a class="dist-nav" href="${naviUrl}" target="_blank" rel="noopener">길찾기</a>`;
+      <div class="dist-navs">
+        <a class="dist-nav kakao" href="${kakaoUrl}" target="_blank" rel="noopener">카카오맵</a>
+        <a class="dist-nav tmap" href="${tmapUrl}">T맵</a>
+      </div>`;
   };
   const key = userPos[0].toFixed(3) + "|" + course.lat.toFixed(4) + "," + course.lon.toFixed(4);
   const cached = routeCache.get(key);
