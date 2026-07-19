@@ -4,7 +4,7 @@
  * ========================================================= */
 "use strict";
 
-const APP_VER = "v30"; // 배포 버전 (홈 화면 배지에 표시)
+const APP_VER = "v31"; // 배포 버전 (홈 화면 배지에 표시)
 const STORAGE_KEY = "riweather.courses.v1";
 const GEM_KEY = "riweather.gemini"; // 정밀 인식(비전 AI) 개인 키 저장소
 // 기본 제공 키 (무료 한도 공유) — 개인 키를 설정하면 그 키가 우선됩니다
@@ -2569,10 +2569,10 @@ async function shareScoreCard(r) {
       if (nine.every((v) => v == null)) return; // 9홀 라운드의 빈 후반 생략
       x.fillStyle = "rgba(0,0,0,0.25)";
       x.fillRect(50, y, W - 100, 54);
-      x.font = "600 20px -apple-system, sans-serif";
+      x.font = "600 18px -apple-system, sans-serif";
       x.fillStyle = "rgba(255,255,255,0.6)";
       x.textAlign = "left";
-      x.fillText(label.slice(0, 5), 62, y + 34);
+      x.fillText(label, 60, y + 33, 100); // 폭 초과 시 자동 압축 (망무봉 OUT 등)
       x.textAlign = "center";
       x.font = "600 22px -apple-system, sans-serif";
       nine.forEach((v, i) => {
