@@ -1898,6 +1898,43 @@ function autofillFromOcr(text) {
     filled.push("티업시간");
   }
 
+  // ---- 카트 태블릿(스마트스코어) 사진 감지: "4/8 5/3 3/7..." 파 행이 있으면 표 형식 파싱 ----
+  const parLineIdx = textLines.findIndex((l) => (l.match(/\d\s*\/\s*\d/g) || []).length >= 5);
+  if (parLineIdx >= 0) {
+    const pars = (textLines[parLineIdx].match(/(\d)\s*\/\s*\d/g) || []).map((s) => parseInt(s));
+    const parTotal9 = pars.slice(0, 9).reduce((s, v) => s + v, 0) || 36;
+    const players = [];
+    for (const line of textLines) {
+      const nm = line.match(/^[^가-힣\n]{0,4}([가-힣]{2,4})[^\d\-]*(-?\d.*)$/);
+      if (!nm || /번호입력|스코어|리더보드|홀맵/.test(line)) continue;
+      const nums = (nm[2].match(/-?\d+/g) || []).map(Number);
+      if (nums.length < 5) continue;
+      const total = nums[nums.length - 1];
+      const back = nums[nums.length - 2];
+      const front = nums[nums.length - 3];
+      if (total < 27 || total > 160) continue;
+      const holes = nums.slice(0, nums.length - 3).filter((n) => n >= -4 && n <= 9).slice(0, 9);
+      if (!holes.length) continue;
+      const hs = holes.reduce((s, v) => s + v, 0);
+      const playedPar = pars.slice(0, holes.length).reduce((s, v) => s + v, 0) || 36;
+      // 검증: 홀합=전반(또는 후반), 합계=파합+타수 (치는 중이면 플레이한 홀 파만)
+      const sumOk = hs === front || hs === back;
+      const totOk = [playedPar + front + back, parTotal9 + front + back, 72 + front + back].includes(total);
+      if (sumOk && totOk && !players.some((p) => p.name === nm[1])) {
+        players.push({ name: nm[1], holes, total });
+      }
+    }
+    if (players.length) {
+      // 코스명: 파 행 위쪽의 "힐 ^" / "스프링^" 헤더
+      for (let i = Math.max(0, parLineIdx - 3); i <= parLineIdx; i++) {
+        const h = textLines[i].match(/^\s*([가-힣]{1,5})[\s.…]*[\^▲]/);
+        if (h) { $("#sf-front").value = h[1]; filled.push("코스(" + h[1] + ")"); break; }
+      }
+      filled.push(`카트 스코어보드 · ${players.length}명 인식`);
+      return { filled, candidates: [], cartPlayers: players };
+    }
+  }
+
   // 골프장명: 각 줄을 내장 DB에서 검색해 매칭 (이름이 실제로 겹칠 때만 인정)
   let matchedClub = null;
   for (const line of text.split("\n")) {
@@ -2078,9 +2115,33 @@ $("#sf-photo").addEventListener("change", async (e) => {
         const { data } = await worker.recognize(vars[i]);
         mergedText += "\n" + cardRegion(data.text);
       }
-      const { filled, candidates } = autofillFromOcr(mergedText);
+      const { filled, candidates, cartPlayers } = autofillFromOcr(mergedText);
       syncCourseSelectUI();
-      if (filled.length) {
+      if (cartPlayers && cartPlayers.length) {
+        // 카트 태블릿: 여러 명 중 본인 선택
+        st.textContent = "✅ 카트 스코어보드 인식 — 아래에서 본인 이름을 탭하세요";
+        const chips = $("#ocr-chips");
+        chips.innerHTML = '<span class="chip-label">인식된 플레이어 (본인 선택 시 나머지는 동반자로 입력)</span>';
+        cartPlayers.forEach((p) => {
+          const b = document.createElement("button");
+          b.type = "button"; b.className = "ocr-chip";
+          b.textContent = `${p.name} · ${p.total}타`;
+          b.addEventListener("click", () => {
+            holeInputs.forEach((h, i) => { h.value = i < p.holes.length ? p.holes[i] : ""; });
+            $("#holes-grid").hidden = false;
+            $("#sf-score").value = p.total;
+            $("#hg-sum").textContent =
+              p.holes.length < 18 ? `${p.holes.length}홀 인식 · 합계 ${p.total}타` : "";
+            [1, 2, 3, 4].forEach((i) => { $("#sf-f" + i).value = ""; });
+            cartPlayers.filter((x) => x !== p).slice(0, 4)
+              .forEach((x, i) => { $("#sf-f" + (i + 1)).value = x.name; });
+            chips.querySelectorAll(".ocr-chip").forEach((c) => c.classList.remove("active"));
+            b.classList.add("active");
+          });
+          chips.appendChild(b);
+        });
+        chips.hidden = false;
+      } else if (filled.length) {
         st.textContent = `✅ AI 자동 입력: ${filled.join(" · ")} — 확인 후 틀린 부분만 고쳐주세요`;
       } else {
         st.textContent = "자동 인식이 어려운 사진이에요 — 직접 입력해 주세요 (사진은 기록에 첨부됩니다)";
