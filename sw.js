@@ -1,5 +1,5 @@
 /* Ri-Weather 서비스 워커 — 앱 뼈대는 캐시, 날씨 데이터는 항상 네트워크 */
-const CACHE = "riweather-v6";
+const CACHE = "riweather-v7";
 const CORE = [
   "./",
   "./index.html",
@@ -28,7 +28,7 @@ self.addEventListener("fetch", (e) => {
   if (e.request.method !== "GET" || url.origin !== location.origin) return; // API/타일은 항상 네트워크
   // 같은 출처 정적 파일: 네트워크 우선, 실패 시 캐시 (오프라인에서도 앱 껍데기 열림)
   e.respondWith(
-    fetch(e.request)
+    fetch(e.request, { cache: "no-cache" }) // 항상 서버 재검증 → 업데이트 즉시 반영
       .then((res) => {
         const copy = res.clone();
         caches.open(CACHE).then((c) => c.put(e.request, copy));

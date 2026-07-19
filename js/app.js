@@ -738,7 +738,7 @@ function updateDistCard(course) {
 
 async function renderDist(course, el) {
   const straight = distM(userPos, [course.lat, course.lon]);
-  const kakaoUrl = `https://map.kakao.com/link/to/${encodeURIComponent(course.name)},${course.lat},${course.lon}`;
+  const kakaoUrl = `kakaonavi://navigate?name=${encodeURIComponent(course.name)}&x=${course.lon}&y=${course.lat}&coord_type=wgs84`;
   const tmapUrl = `tmap://route?goalname=${encodeURIComponent(course.name)}&goaly=${course.lat}&goalx=${course.lon}`;
   const show = (km, mins, approx) => {
     el.innerHTML = `
@@ -746,7 +746,7 @@ async function renderDist(course, el) {
         <small>${approx ? "직선거리 기준 추정" : "실제 도로 경로 기준"}</small>
       </div>
       <div class="dist-navs">
-        <a class="dist-nav kakao" href="${kakaoUrl}" target="_blank" rel="noopener">카카오맵</a>
+        <a class="dist-nav kakao" href="${kakaoUrl}">카카오내비</a>
         <a class="dist-nav tmap" href="${tmapUrl}">T맵</a>
       </div>`;
   };
