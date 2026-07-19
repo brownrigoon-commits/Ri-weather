@@ -4,9 +4,12 @@
  * ========================================================= */
 "use strict";
 
-const APP_VER = "v26"; // 배포 버전 (홈 화면 배지에 표시)
+const APP_VER = "v27"; // 배포 버전 (홈 화면 배지에 표시)
 const STORAGE_KEY = "riweather.courses.v1";
-const GEM_KEY = "riweather.gemini"; // 정밀 인식(비전 AI) 키 저장소
+const GEM_KEY = "riweather.gemini"; // 정밀 인식(비전 AI) 개인 키 저장소
+// 기본 제공 키 (무료 한도 공유) — 개인 키를 설정하면 그 키가 우선됩니다
+const EMBED_GEM_B64 = "QVEuQWI4Uk42S29NMXN6VU9DbnE3UUpCQUc2b1FtUU1hMnc5RnpONnF3WnlVUG43WjdHMXc=";
+const getGemKey = () => localStorage.getItem(GEM_KEY) || atob(EMBED_GEM_B64);
 
 /* ---------- WMO 날씨 코드 → 설명/아이콘 ---------- */
 const WMO = {
@@ -1778,15 +1781,15 @@ $("#sf-time-unknown").addEventListener("change", (e) => {
 /* 정밀 인식(비전 AI) 키 설정 */
 function refreshAiKeyBtn() {
   const btn = $("#ai-key-btn");
-  const on = !!localStorage.getItem(GEM_KEY);
-  btn.textContent = on ? "🔑 정밀 인식 ON" : "🔑 정밀 인식 켜기";
-  btn.style.color = on ? "#34d399" : "";
-  btn.style.borderColor = on ? "#34d399" : "";
+  const personal = !!localStorage.getItem(GEM_KEY);
+  btn.textContent = personal ? "🔑 정밀 인식 ON (내 키)" : "🔑 정밀 인식 ON";
+  btn.style.color = "#34d399";
+  btn.style.borderColor = "#34d399";
 }
 $("#ai-key-btn").addEventListener("click", () => {
   const cur = localStorage.getItem(GEM_KEY) || "";
   const v = prompt(
-    "정밀 AI 인식용 무료 키를 입력하세요.\n\n발급 방법 (2분):\n1) aistudio.google.com/apikey 접속\n2) 구글 로그인 → 'API 키 만들기'\n3) 생성된 키 복사 후 여기에 붙여넣기\n\n(비우고 확인하면 정밀 인식이 꺼집니다)",
+    "정밀 AI 인식은 기본으로 켜져 있습니다 (공용 무료 한도 사용).\n\n본인 전용 키를 쓰려면 여기에 입력하세요:\n1) aistudio.google.com/apikey 접속\n2) 구글 로그인 → 'API 키 만들기'\n3) 키 복사 후 붙여넣기\n\n(비우고 확인하면 공용 키로 돌아갑니다)",
     cur);
   if (v === null) return;
   const t = v.trim();
@@ -1895,7 +1898,7 @@ function ocrVariants(img) {
 
 /* ---------- 정밀 AI 인식 (Google Gemini 비전, 무료 키) ---------- */
 async function geminiRecognize(dataUrl) {
-  const key = localStorage.getItem(GEM_KEY);
+  const key = getGemKey();
   if (!key) return null;
   const b64 = dataUrl.split(",")[1];
   const prompt = `골프 스코어보드 사진입니다. 아래 JSON 형식으로만 답하세요(설명·마크다운 금지):
@@ -2313,8 +2316,8 @@ $("#sf-photo").addEventListener("change", async (e) => {
     const st = $("#ocr-status");
     st.hidden = false;
 
-    // ① 정밀 AI(비전) 인식 — 키가 설정돼 있으면 우선 사용 (사진 전체를 통째로 이해)
-    if (localStorage.getItem(GEM_KEY)) {
+    // ① 정밀 AI(비전) 인식 — 기본 제공 (개인 키 설정 시 개인 키 우선)
+    if (getGemKey()) {
       st.textContent = "🤖 정밀 AI가 사진을 분석 중... (2~5초)";
       try {
         const g = await geminiRecognize(photoThumb);
