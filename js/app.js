@@ -673,6 +673,7 @@ async function openDetail(course) {
   $("#hourly-scroll").innerHTML = "";
   $("#precip-scroll").innerHTML = "";
 
+  updateDistCard(course);      // 내 위치 → 골프장 거리/이동시간
   resetMapState(course);
   initRadar();                 // 실황 레이더 프레임 로드 (백그라운드)
   const airP = fetchAir(course.lat, course.lon).catch(() => null);
@@ -690,6 +691,84 @@ async function openDetail(course) {
   }
   renderDetail(data, await airP);
   buildForecastFrames(data);   // 예보 지도 프레임 생성 (기본 모드)
+}
+
+/* ---------- 내 위치 → 골프장 거리·이동시간 ---------- */
+let userPos = null, userPosAt = 0;
+const routeCache = new Map();
+
+function fmtDrive(sec) {
+  const m = Math.round(sec / 60);
+  return m < 60 ? `${m}분` : `${Math.floor(m / 60)}시간 ${m % 60}분`;
+}
+
+function updateDistCard(course) {
+  const el = $("#dist-content");
+  const fresh = userPos && Date.now() - userPosAt < 300000; // 5분 캐시
+  if (fresh) { renderDist(course, el); return; }
+  // 권한이 이미 허용돼 있으면 자동, 아니면 버튼으로 요청
+  const ask = () => {
+    el.innerHTML = '<span class="dist-loading">📍 내 위치 확인 중...</span>';
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        userPos = [pos.coords.latitude, pos.coords.longitude];
+        userPosAt = Date.now();
+        if (currentCourse === course) renderDist(course, el);
+      },
+      () => {
+        el.innerHTML = '<button class="dist-btn">📍 위치 권한이 꺼져 있어요 — 다시 시도</button>';
+        el.querySelector(".dist-btn").addEventListener("click", ask);
+      },
+      { timeout: 9000, maximumAge: 300000 }
+    );
+  };
+  if (!("geolocation" in navigator)) { el.innerHTML = ""; return; }
+  if (navigator.permissions?.query) {
+    navigator.permissions.query({ name: "geolocation" })
+      .then((p) => {
+        if (p.state === "granted") ask();
+        else {
+          el.innerHTML = '<button class="dist-btn">📍 내 위치에서 거리·이동시간 보기</button>';
+          el.querySelector(".dist-btn").addEventListener("click", ask);
+        }
+      })
+      .catch(ask);
+  } else { ask(); }
+}
+
+async function renderDist(course, el) {
+  const straight = distM(userPos, [course.lat, course.lon]);
+  const naviUrl = `https://map.kakao.com/link/to/${encodeURIComponent(course.name)},${course.lat},${course.lon}`;
+  const show = (km, mins, approx) => {
+    el.innerHTML = `
+      <div class="dist-main">🚗 내 위치에서 <b>${km}km</b> · 차로 약 <b>${mins}</b>
+        <small>${approx ? "직선거리 기준 추정" : "실제 도로 경로 기준"}</small>
+      </div>
+      <a class="dist-nav" href="${naviUrl}" target="_blank" rel="noopener">길찾기</a>`;
+  };
+  const key = userPos[0].toFixed(3) + "|" + course.lat.toFixed(4) + "," + course.lon.toFixed(4);
+  const cached = routeCache.get(key);
+  if (cached) { show(cached.km, cached.mins, cached.approx); return; }
+
+  el.innerHTML = '<span class="dist-loading">🚗 이동 시간 계산 중...</span>';
+  try {
+    const r = await fetch(
+      `https://router.project-osrm.org/route/v1/driving/${userPos[1]},${userPos[0]};${course.lon},${course.lat}?overview=false`);
+    const j = await r.json();
+    if (j.routes && j.routes[0]) {
+      const km = (j.routes[0].distance / 1000).toFixed(j.routes[0].distance < 99500 ? 1 : 0);
+      const mins = fmtDrive(j.routes[0].duration * 1.15); // 실주행 보정
+      routeCache.set(key, { km, mins, approx: false });
+      show(km, mins, false);
+      return;
+    }
+    throw new Error("no route");
+  } catch {
+    const km = (straight * 1.35 / 1000).toFixed(1); // 도로 우회 계수
+    const mins = fmtDrive((straight * 1.35) / 1000 / 70 * 3600); // 평균 70km/h
+    routeCache.set(key, { km, mins, approx: true });
+    show(km, mins, true);
+  }
 }
 
 /* 상세 데이터 중 지도/동기화에 필요한 것 */
