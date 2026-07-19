@@ -4,7 +4,7 @@
  * ========================================================= */
 "use strict";
 
-const APP_VER = "v25"; // 배포 버전 (홈 화면 배지에 표시)
+const APP_VER = "v26"; // 배포 버전 (홈 화면 배지에 표시)
 const STORAGE_KEY = "riweather.courses.v1";
 const GEM_KEY = "riweather.gemini"; // 정밀 인식(비전 AI) 키 저장소
 
@@ -1905,14 +1905,23 @@ async function geminiRecognize(dataUrl) {
     contents: [{ parts: [{ text: prompt }, { inline_data: { mime_type: "image/jpeg", data: b64 } }] }],
     generationConfig: { temperature: 0 },
   };
-  const r = await fetch(
-    "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=" + encodeURIComponent(key),
-    { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
-  if (!r.ok) throw new Error("gemini HTTP " + r.status);
-  const j = await r.json();
-  const txt = j.candidates?.[0]?.content?.parts?.[0]?.text || "";
-  const m = txt.match(/\{[\s\S]*\}/);
-  return m ? JSON.parse(m[0]) : null;
+  // 모델은 시기에 따라 바뀌므로 최신 별칭 순으로 시도
+  const models = ["gemini-flash-latest", "gemini-flash-lite-latest", "gemini-2.5-flash", "gemini-2.0-flash"];
+  let lastErr = null;
+  for (const model of models) {
+    try {
+      const r = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=` + encodeURIComponent(key),
+        { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+      if (!r.ok) { lastErr = new Error("HTTP " + r.status); continue; }
+      const j = await r.json();
+      const txt = j.candidates?.[0]?.content?.parts?.[0]?.text || "";
+      const m = txt.match(/\{[\s\S]*\}/);
+      if (m) return JSON.parse(m[0]);
+      lastErr = new Error("응답 형식 오류");
+    } catch (e) { lastErr = e; }
+  }
+  throw lastErr || new Error("gemini fail");
 }
 
 /* 정밀 AI 결과를 폼에 적용 */
