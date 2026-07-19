@@ -1630,9 +1630,25 @@ let editingId = null;       // 수정 중인 기록 id
 let selectedYear = "전체";
 let photoThumb = null;      // 첨부 사진 (압축본)
 
+/* 전용 코스명 DB — 확인된 구장은 여기서 우선 조회 (공식 정보 기준) */
+const CLUB_COURSES = [
+  { match: "파주cc",   lat: 37.8431, lon: 126.9040, courses: ["EAST", "WEST"] },
+  { match: "타이거",   lat: 37.9240, lon: 126.8920, courses: ["가온", "누리"] },
+  { match: "필로스",   lat: 37.9382, lon: 127.3312, courses: ["동", "서", "남"] },
+  { match: "스카이72", lat: 37.4514, lon: 126.4824, courses: ["하늘", "오션", "레이크", "클래식"] },
+];
+
 /* 선택한 골프장 주변(3km)의 DB 항목에서 코스명(하늘/바다/EAST...)을 자동 추출 */
 function findCourseNames(course) {
-  if (typeof GOLF_DB === "undefined" || !course) return [];
+  if (!course) return [];
+  // 1) 전용 DB 우선 (이름 일치 또는 3km 이내)
+  const nc = normName(course.name || "");
+  for (const c of CLUB_COURSES) {
+    if (nc.includes(c.match) || distM([c.lat, c.lon], [course.lat, course.lon]) < 3000) {
+      return [...c.courses];
+    }
+  }
+  if (typeof GOLF_DB === "undefined") return [];
   const names = new Set();
   const myPrefix = normName(course.name).slice(0, 3);
   for (const g of GOLF_DB) {
@@ -1858,11 +1874,13 @@ function autofillFromOcr(text) {
     }
   }
 
-  // 동반자: "이성민, 고**, 송**, 이**" 형태 줄
+  // 동반자: "이성민, 고**, 송**, 이**" 형태 줄 (코스명으로만 이뤄진 줄은 제외)
+  const knownSet = new Set(knownNames || []);
   for (const line of text.split("\n")) {
     const toks = line.split(/[,，]/).map((s) => s.trim().replace(/\s/g, "")).filter(Boolean);
     if (toks.length >= 2 && toks.length <= 5 &&
-        toks.every((t) => /^[가-힣]{1,4}[*＊x]{0,3}$/.test(t))) {
+        toks.every((t) => /^[가-힣]{1,4}[*＊x]{0,3}$/.test(t)) &&
+        !toks.every((t) => knownSet.has(t))) {
       toks.slice(0, 4).forEach((t, i) => { $("#sf-f" + (i + 1)).value = t; });
       filled.push("동반자");
       break;
