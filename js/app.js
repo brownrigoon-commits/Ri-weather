@@ -1899,29 +1899,39 @@ function autofillFromOcr(text) {
   }
 
   // ---- 카트 태블릿(스마트스코어) 사진 감지: "4/8 5/3 3/7..." 파 행이 있으면 표 형식 파싱 ----
-  const parLineIdx = textLines.findIndex((l) => (l.match(/\d\s*\/\s*\d/g) || []).length >= 5);
-  if (parLineIdx >= 0) {
+  // 다중 인식본 중 가장 온전하게 읽힌 파 행 선택
+  let parLineIdx = -1, parBest = 0;
+  textLines.forEach((l, i) => {
+    const c = (l.match(/\d\s*\/\s*\d/g) || []).length;
+    if (c > parBest) { parBest = c; parLineIdx = i; }
+  });
+  if (parBest >= 5) {
     const pars = (textLines[parLineIdx].match(/(\d)\s*\/\s*\d/g) || []).map((s) => parseInt(s));
-    const parTotal9 = pars.slice(0, 9).reduce((s, v) => s + v, 0) || 36;
+    const parTotal9 = pars.length === 9 ? pars.reduce((s, v) => s + v, 0) : 36;
     const players = [];
     for (const line of textLines) {
       const nm = line.match(/^[^가-힣\n]{0,4}([가-힣]{2,4})[^\d\-]*(-?\d.*)$/);
       if (!nm || /번호입력|스코어|리더보드|홀맵/.test(line)) continue;
       const nums = (nm[2].match(/-?\d+/g) || []).map(Number);
       if (nums.length < 5) continue;
-      const total = nums[nums.length - 1];
-      const back = nums[nums.length - 2];
-      const front = nums[nums.length - 3];
-      if (total < 27 || total > 160) continue;
-      const holes = nums.slice(0, nums.length - 3).filter((n) => n >= -4 && n <= 9).slice(0, 9);
-      if (!holes.length) continue;
-      const hs = holes.reduce((s, v) => s + v, 0);
-      const playedPar = pars.slice(0, holes.length).reduce((s, v) => s + v, 0) || 36;
-      // 검증: 홀합=전반(또는 후반), 합계=파합+타수 (치는 중이면 플레이한 홀 파만)
-      const sumOk = hs === front || hs === back;
-      const totOk = [playedPar + front + back, parTotal9 + front + back, 72 + front + back].includes(total);
-      if (sumOk && totOk && !players.some((p) => p.name === nm[1])) {
-        players.push({ name: nm[1], holes, total });
+      // 열 구성이 (전반/후반/합계) 또는 (전반/합계)로 달라짐 → 둘 다 시도해 검증 통과하는 쪽 채택
+      const L = nums.length;
+      const attempts = [
+        { holes: nums.slice(0, L - 3), front: nums[L - 3], back: nums[L - 2], total: nums[L - 1] },
+        { holes: nums.slice(0, L - 2), front: nums[L - 2], back: 0, total: nums[L - 1] },
+      ];
+      for (const a of attempts) {
+        if (a.total < 27 || a.total > 160) continue;
+        const holes = a.holes.filter((n) => n >= -4 && n <= 9).slice(0, 9);
+        if (!holes.length) continue;
+        const hs = holes.reduce((s, v) => s + v, 0);
+        const playedPar = pars.slice(0, holes.length).reduce((s, v) => s + v, 0) || 36;
+        const sumOk = hs === a.front || hs === a.back;
+        const totOk = [playedPar + a.front + a.back, parTotal9 + a.front + a.back, 72 + a.front + a.back].includes(a.total);
+        if (sumOk && totOk && !players.some((p) => p.name === nm[1])) {
+          players.push({ name: nm[1], holes, total: a.total });
+          break;
+        }
       }
     }
     if (players.length) {
