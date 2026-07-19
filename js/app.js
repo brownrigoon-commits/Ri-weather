@@ -4,7 +4,7 @@
  * ========================================================= */
 "use strict";
 
-const APP_VER = "v27"; // 배포 버전 (홈 화면 배지에 표시)
+const APP_VER = "v28"; // 배포 버전 (홈 화면 배지에 표시)
 const STORAGE_KEY = "riweather.courses.v1";
 const GEM_KEY = "riweather.gemini"; // 정밀 인식(비전 AI) 개인 키 저장소
 // 기본 제공 키 (무료 한도 공유) — 개인 키를 설정하면 그 키가 우선됩니다
@@ -1634,6 +1634,7 @@ const saveScores = (l) => localStorage.setItem(SCORE_KEY, JSON.stringify(l));
 let editingId = null;       // 수정 중인 기록 id
 let selectedYear = "전체";
 let photoThumb = null;      // 첨부 사진 (압축본)
+let parsedPars = null;      // 사진에서 인식된 홀별 파 (스코어판 표시용)
 
 /* DB에 없는 구장 직접 등록 (공식 주소 기준 좌표) */
 const EXTRA_CLUBS = [
@@ -1749,6 +1750,7 @@ function openScoreView() {
 function resetScoreForm() {
   editingId = null;
   photoThumb = null;
+  parsedPars = null;
   $("#sf-title").textContent = "라운딩 기록 추가";
   $("#sf-date").value = new Date().toISOString().slice(0, 10);
   $("#sf-time").value = ""; $("#sf-time-unknown").checked = false; $("#sf-time").disabled = false;
@@ -1902,7 +1904,7 @@ async function geminiRecognize(dataUrl) {
   if (!key) return null;
   const b64 = dataUrl.split(",")[1];
   const prompt = `골프 스코어보드 사진입니다. 아래 JSON 형식으로만 답하세요(설명·마크다운 금지):
-{"date":"YYYY-MM-DD 또는 null","teeTime":"HH:MM(24시간) 또는 null","club":"골프장명 또는 null","front":"전반 코스명 또는 null","back":"후반 코스명 또는 null","tee":"화이트|레드|블루|블랙|레이디 또는 null","companions":["본인 외 동반자 이름들"],"players":[{"name":"이름","total":합계숫자,"holes":[홀별 파 대비 상대타수 숫자 배열]}]}
+{"date":"YYYY-MM-DD 또는 null","teeTime":"HH:MM(24시간) 또는 null","club":"골프장명 또는 null","front":"전반 코스명 또는 null","back":"후반 코스명 또는 null","tee":"화이트|레드|블루|블랙|레이디 또는 null","companions":["본인 외 동반자 이름들"],"pars":[홀별 파(3~5) 배열, 표에 보일 때만] 또는 null,"players":[{"name":"이름","total":합계숫자,"holes":[홀별 파 대비 상대타수 숫자 배열]}]}
 규칙: 공유카드(1명)면 players 1명, 카트 태블릿(여러 명)이면 전원 포함. holes는 -1=버디, 0=파, 1=보기 형식으로 표에 보이는 순서대로. 확실하지 않은 값은 null.`;
   const body = {
     contents: [{ parts: [{ text: prompt }, { inline_data: { mime_type: "image/jpeg", data: b64 } }] }],
@@ -1948,6 +1950,9 @@ function applyGeminiResult(g) {
   if (Array.isArray(g.companions) && g.companions.length) {
     g.companions.slice(0, 4).forEach((n, i) => { $("#sf-f" + (i + 1)).value = String(n); });
     filled.push("동반자");
+  }
+  if (Array.isArray(g.pars) && g.pars.length >= 9) {
+    parsedPars = g.pars.slice(0, 18).filter((p) => p >= 3 && p <= 6);
   }
   let cartPlayers = null;
   const ps = (g.players || []).filter((p) => p && typeof p.total === "number");
@@ -2137,6 +2142,7 @@ function autofillFromOcr(text) {
         const h = textLines[i].match(/^\s*([가-힣]{1,5})[\s.…]*[\^▲]/);
         if (h) { $("#sf-front").value = h[1]; filled.push("코스(" + h[1] + ")"); break; }
       }
+      if (pars.length >= 5) parsedPars = pars.slice(0, 9); // 스코어판 PAR 줄 표시용
       filled.push(`카트 스코어보드 · ${players.length}명 인식`);
       return { filled, candidates: [], cartPlayers: players };
     }
@@ -2421,6 +2427,8 @@ $("#score-form").addEventListener("submit", async (e) => {
   const hv = holeVals();
   if (hv.some((x) => x !== null)) rec.holes = hv;
   const prev = editingId ? loadScores().find((x) => x.id === editingId) : null;
+  if (parsedPars && parsedPars.length) rec.pars = parsedPars;
+  else if (prev?.pars) rec.pars = prev.pars;
   if (photoThumb) rec.photo = photoThumb;
   else if (prev?.photo) rec.photo = prev.photo;
 
@@ -2609,18 +2617,33 @@ async function shareScoreCard(r) {
 }
 
 /* 스코어카드 표 (홀별 입력이 있는 기록) — 스마트스코어 스타일 */
+/* 스마트스코어 스타일 블루 스코어판 */
 function scorecardHtml(r) {
   const f = r.holes.slice(0, 9), b = r.holes.slice(9);
+  const pf = (r.pars || []).slice(0, 9), pb = (r.pars || []).slice(9, 18);
   const sum = (a) => a.reduce((s, x) => s + (x || 0), 0);
   const empty = (a) => a.every((x) => x == null);
-  const cell = (v) =>
-    `<span class="sc-c${v > 0 ? " over" : v < 0 ? " under" : ""}">${v == null ? "·" : v > 0 ? "+" + v : v}</span>`;
-  const head = Array.from({ length: 9 }, (_, i) => `<span>${i + 1}</span>`).join("");
-  const rowT = (a) => (empty(a) ? "-" : 36 + sum(a)); // 9홀 라운드의 빈 후반은 "-"
-  return `<div class="sc-table">
-    <div class="sc-head"><span>HOLE</span>${head}<span>T</span></div>
-    <div class="sc-row"><span>${r.front || "전반"}</span>${f.map(cell).join("")}<span class="sc-t">${rowT(f)}</span></div>
-    <div class="sc-row"><span>${r.back || "후반"}</span>${b.map(cell).join("")}<span class="sc-t">${rowT(b)}</span></div>
+  const holeHead = Array.from({ length: 9 }, (_, i) => `<span>${i + 1}</span>`).join("");
+
+  const block = (nine, pars) => {
+    if (empty(nine)) return ""; // 9홀 라운드의 빈 후반은 표 생략
+    const parT = pars.length === 9 ? pars.reduce((s, v) => s + v, 0) : 36;
+    const scoreT = parT + sum(nine);
+    const parRow = pars.length === 9
+      ? `<div class="sb-row sb-par"><span>PAR</span>${pars.map((p) => `<span>${p}</span>`).join("")}<span>${parT}</span></div>`
+      : "";
+    return `<div class="sb-table">
+      <div class="sb-row sb-head"><span>HOLE</span>${holeHead}<span>T</span></div>
+      ${parRow}
+      <div class="sb-row sb-score"><span>●</span>${nine.map((v) => `<span>${v == null ? "-" : v}</span>`).join("")}<span class="sb-t">${scoreT}</span></div>
+    </div>`;
+  };
+
+  return `<div class="sb-card">
+    <div class="sb-top"><span class="sb-name">${r.course}</span><span class="sb-total">${r.score}</span></div>
+    ${r.front || r.back ? `<div class="sb-courses">⚑ ${r.front || "전반"} - ${r.back || "후반"}</div>` : ""}
+    ${block(f, pf)}
+    ${block(b, pb)}
   </div>`;
 }
 
@@ -2647,7 +2670,7 @@ function renderScores() {
           <div class="si-course">${r.course}</div>
           <div class="si-date">${r.date}${r.teeTime ? " · ⛳ " + r.teeTime + " 티업" : ""}${r.tee ? " · " + r.tee + "티" : ""}</div>
         </div>
-        <div class="si-score">${r.score}<small>타</small></div>
+        ${r.holes ? "" : `<div class="si-score">${r.score}<small>타</small></div>`}
       </div>
       ${r.friends ? `<div class="si-friends">👥 ${r.friends}</div>` : ""}
       ${r.memo ? `<div class="si-memo">"${r.memo}"</div>` : ""}
