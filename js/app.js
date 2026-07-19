@@ -1684,6 +1684,7 @@ function setupCourseSelects() {
       };
     } else {
       sel.hidden = true; inp.hidden = false;
+      if (!inp.value) inp.value = idx === 0 ? "전반" : "후반"; // 코스명 미확인 시 기본값
     }
   });
 }
