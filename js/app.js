@@ -1630,6 +1630,47 @@ let editingId = null;       // 수정 중인 기록 id
 let selectedYear = "전체";
 let photoThumb = null;      // 첨부 사진 (압축본)
 
+/* 선택한 골프장 주변(3km)의 DB 항목에서 코스명(하늘/바다/EAST...)을 자동 추출 */
+function findCourseNames(course) {
+  if (typeof GOLF_DB === "undefined" || !course) return [];
+  const names = new Set();
+  const myPrefix = normName(course.name).slice(0, 3);
+  for (const g of GOLF_DB) {
+    if (Math.abs(g.lat - course.lat) > 0.06 || Math.abs(g.lon - course.lon) > 0.08) continue;
+    const d = distM([g.lat, g.lon], [course.lat, course.lon]);
+    // 1.5km 이내면 같은 구장으로 간주, 6km까지는 이름 앞부분이 같아야 인정
+    const samePrefix = myPrefix.length >= 2 && normName(g.k || g.n).startsWith(myPrefix);
+    if (d > 6000 || (d > 1500 && !samePrefix)) continue;
+    const nm = (g.k || g.n).replace(/\s*\(.*?\)\s*/g, " ");
+    const m = nm.match(/([가-힣A-Za-z0-9]{1,10})\s*코스\s*$/);
+    if (m && !/^(골프|퍼블릭|골프장)$/.test(m[1])) names.add(m[1]);
+  }
+  return [...names];
+}
+
+function renderCourseNameChips() {
+  const box = $("#course-name-chips");
+  const dl = $("#course-names-dl");
+  box.hidden = true; box.innerHTML = ""; dl.innerHTML = "";
+  const names = findCourseNames(currentCourse);
+  if (!names.length) return;
+  box.innerHTML = '<span class="chip-label">이 골프장의 코스 — 탭하면 전반→후반 순서로 입력됩니다</span>';
+  names.forEach((n) => {
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "ocr-chip"; b.textContent = n;
+    b.addEventListener("click", () => {
+      if (!$("#sf-front").value) $("#sf-front").value = n;
+      else if (!$("#sf-back").value) $("#sf-back").value = n;
+      else { $("#sf-front").value = n; $("#sf-back").value = ""; }
+    });
+    box.appendChild(b);
+    const opt = document.createElement("option");
+    opt.value = n;
+    dl.appendChild(opt);
+  });
+  box.hidden = false;
+}
+
 function openScoreView() {
   pushView("score");
   resetScoreForm();
@@ -1650,6 +1691,7 @@ function resetScoreForm() {
   $("#holes-grid").hidden = true; $("#hg-sum").textContent = "";
   $("#sf-photo-preview").hidden = true;
   $("#ocr-status").hidden = true; $("#ocr-chips").hidden = true;
+  renderCourseNameChips();
 }
 $("#score-add-btn").addEventListener("click", () => {
   const f = $("#score-form");
