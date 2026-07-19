@@ -1690,6 +1690,7 @@ function resetScoreForm() {
   holeInputs.forEach((i) => { i.value = ""; });
   $("#holes-grid").hidden = true; $("#hg-sum").textContent = "";
   $("#sf-photo-preview").hidden = true;
+  $("#sf-photo").value = "";
   $("#ocr-status").hidden = true; $("#ocr-chips").hidden = true;
   renderCourseNameChips();
 }
@@ -1737,12 +1738,62 @@ function getOcrWorker() {
     ocrWorkerP = new Promise((resolve, reject) => {
       const s = document.createElement("script");
       s.src = "https://unpkg.com/tesseract.js@5.1.1/dist/tesseract.min.js";
-      s.onload = () => resolve(Tesseract.createWorker("eng"));
+      s.onload = () => resolve(Tesseract.createWorker("kor+eng")); // 골프장명(한글)까지 인식
       s.onerror = reject;
       document.head.appendChild(s);
     }).then((p) => p);
   }
   return ocrWorkerP;
+}
+
+/* OCR 텍스트에서 날짜·시간·골프장·스코어를 추출해 폼에 자동 입력 */
+function autofillFromOcr(text) {
+  const filled = [];
+
+  const dm = text.match(/(20\d{2})[.\-\/년\s]{1,2}(\d{1,2})[.\-\/월\s]{1,2}(\d{1,2})/);
+  if (dm) {
+    $("#sf-date").value = `${dm[1]}-${dm[2].padStart(2, "0")}-${dm[3].padStart(2, "0")}`;
+    filled.push("날짜");
+  }
+  const tm = text.match(/([01]?\d|2[0-3]):([0-5]\d)/);
+  if (tm) {
+    $("#sf-time").value = `${tm[1].padStart(2, "0")}:${tm[2]}`;
+    $("#sf-time-unknown").checked = false; $("#sf-time").disabled = false;
+    filled.push("티업시간");
+  }
+
+  // 골프장명: 각 줄을 내장 DB에서 검색해 매칭
+  for (const line of text.split("\n")) {
+    const t = line.trim().replace(/[^가-힣A-Za-z0-9 ]/g, "");
+    if (t.length < 2 || t.length > 14 || !/[가-힣]/.test(t)) continue;
+    const hit = searchGolfDB(t);
+    if (hit.length) {
+      $("#sf-course").value = hit[0].k || hit[0].n;
+      filled.push("골프장");
+      break;
+    }
+  }
+
+  // 전·후반 코스명 ("남, 동" / "EAST, WEST" 형태 줄)
+  const cm = text.match(/^\s*([가-힣A-Z]{1,6})\s*[,·]\s*([가-힣A-Z]{1,6})\s*$/m);
+  if (cm && !/^\d+$/.test(cm[1])) {
+    $("#sf-front").value = cm[1]; $("#sf-back").value = cm[2];
+    filled.push("코스");
+  }
+
+  // 총타수: ①전·후반 합계(28~60) 두 개의 합이 55~150이면 그 값 ②아니면 55~150 숫자 후보
+  const nums = (text.match(/\d{2,3}/g) || []).map(Number);
+  const halves = nums.filter((n) => n >= 28 && n <= 60);
+  const totals = new Set(nums.filter((n) => n >= 55 && n <= 150));
+  let best = null;
+  for (let i = 0; i < halves.length && !best; i++) {
+    for (let j = i + 1; j < halves.length; j++) {
+      const s = halves[i] + halves[j];
+      if (totals.has(s)) { best = s; break; } // 예: 43+45=88이 사진에 함께 있으면 확정
+    }
+  }
+  if (best) { $("#sf-score").value = best; filled.push("총타수 " + best); }
+  return { filled, candidates: best ? [] : [...totals].sort((a, b) => a - b).slice(0, 8) };
 }
 
 $("#sf-photo").addEventListener("change", async (e) => {
@@ -1768,21 +1819,23 @@ $("#sf-photo").addEventListener("change", async (e) => {
     try {
       const worker = await getOcrWorker();
       const { data } = await worker.recognize(photoThumb);
-      const nums = [...new Set((data.text.match(/\d{2,3}/g) || [])
-        .map(Number).filter((n) => n >= 55 && n <= 150))];
-      if (nums.length) {
-        st.textContent = "✅ 인식된 스코어 후보 — 본인 총타수를 탭하세요";
+      const { filled, candidates } = autofillFromOcr(data.text);
+      if (filled.length) {
+        st.textContent = `✅ AI 자동 입력: ${filled.join(" · ")} — 확인 후 틀린 부분만 고쳐주세요`;
+      } else {
+        st.textContent = "자동 인식이 어려운 사진이에요 — 직접 입력해 주세요 (사진은 기록에 첨부됩니다)";
+      }
+      if (candidates.length) {
+        st.textContent += " / 총타수는 아래에서 탭하세요";
         const chips = $("#ocr-chips");
-        chips.innerHTML = '<span class="chip-label"></span>';
-        nums.sort((a, b) => a - b).slice(0, 8).forEach((n) => {
+        chips.innerHTML = '<span class="chip-label">인식된 총타수 후보</span>';
+        candidates.forEach((n) => {
           const b = document.createElement("button");
           b.type = "button"; b.className = "ocr-chip"; b.textContent = n + "타";
           b.addEventListener("click", () => { $("#sf-score").value = n; });
           chips.appendChild(b);
         });
         chips.hidden = false;
-      } else {
-        st.textContent = "숫자를 인식하지 못했어요 — 아래에 직접 입력해 주세요 (사진은 기록에 첨부됩니다)";
       }
     } catch {
       st.textContent = "AI 인식 실패 — 직접 입력해 주세요 (사진은 기록에 첨부됩니다)";
@@ -1849,6 +1902,7 @@ $("#score-form").addEventListener("submit", async (e) => {
     alert("저장 공간이 부족해 사진 없이 저장했습니다.");
   }
   btn.disabled = false; btn.textContent = "저장 (그날 날씨 자동 기록)";
+  resetScoreForm(); // 첨부 사진·입력값 정리
   $("#score-form").hidden = true;
   renderScores();
 });
@@ -1935,8 +1989,6 @@ function renderScores() {
            <span>🌬 최대 ${r.wx.wind}m/s</span>
          </div>` : "";
     div.innerHTML = `
-      <button class="si-edit" aria-label="수정">✏️</button>
-      <button class="si-del" aria-label="삭제">✕</button>
       <div class="si-top">
         <div>
           <div class="si-course">${r.course}</div>
@@ -1948,13 +2000,23 @@ function renderScores() {
       ${r.memo ? `<div class="si-memo">"${r.memo}"</div>` : ""}
       ${r.holes ? scorecardHtml(r) : ""}
       ${wx}
-      ${r.photo ? `<img class="si-photo" src="${r.photo}" alt="스코어보드">` : ""}`;
-    div.querySelector(".si-del").addEventListener("click", () => {
+      ${r.photo ? `<img class="si-photo" src="${r.photo}" alt="스코어보드">` : ""}
+      <div class="si-actions">
+        <button class="si-edit2">✏️ 수정</button>
+        ${r.photo ? '<button class="si-photo-toggle">📷 사진 보기</button>' : ""}
+        <button class="si-del2">🗑 삭제</button>
+      </div>`;
+    div.querySelector(".si-del2").addEventListener("click", () => {
       if (!confirm(`${r.date} ${r.course} 기록을 삭제할까요?`)) return;
       saveScores(loadScores().filter((x) => x.id !== r.id));
       renderScores();
     });
-    div.querySelector(".si-edit").addEventListener("click", () => {
+    const pt = div.querySelector(".si-photo-toggle");
+    if (pt) pt.addEventListener("click", () => {
+      const open = div.classList.toggle("show-photo");
+      pt.textContent = open ? "📷 사진 접기" : "📷 사진 보기";
+    });
+    div.querySelector(".si-edit2").addEventListener("click", () => {
       resetScoreForm();
       editingId = r.id;
       $("#sf-title").textContent = "기록 수정";

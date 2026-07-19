@@ -15,7 +15,9 @@
 
 * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
-html, body { height: 100%; }
+html, body { height: 100%; overflow-x: hidden; } /* 가로 밀림 방지 */
+.view { overflow-x: hidden; }
+input, select { min-width: 0; }
 
 body {
   font-family: "Pretendard", -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo",
@@ -530,7 +532,8 @@ body {
   background: rgba(52,211,153,0.08); color: var(--accent);
   font-size: 13px; font-weight: 700; cursor: pointer;
 }
-.sf-photo-preview { width: 100%; border-radius: 12px; margin-top: 10px; }
+.sf-photo-preview { width: 100%; max-height: 180px; object-fit: cover; border-radius: 12px; margin-top: 10px; }
+#sf-photo { display: none !important; } /* 네이티브 파일 UI 숨김 */
 .ocr-status { font-size: 12px; color: var(--text-dim); margin-bottom: 10px; }
 .ocr-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
 .ocr-chips .chip-label { font-size: 12px; color: var(--text-dim); width: 100%; }
@@ -548,11 +551,6 @@ body {
 }
 .sf-check input { width: auto !important; margin: 0 !important; }
 .si-photo { width: 100%; border-radius: 10px; margin-top: 10px; }
-.si-edit {
-  position: absolute; top: 10px; right: 36px;
-  background: none; border: none; color: var(--text-faint);
-  font-size: 13px; cursor: pointer; padding: 4px;
-}
 
 /* ===== MY스코어 ===== */
 .score-form label { display: block; font-size: 13px; color: var(--text-dim); margin-bottom: 10px; }
@@ -629,11 +627,19 @@ body {
   font-size: 11px; background: rgba(0,0,0,0.22); border-radius: 8px;
   padding: 3px 8px; color: var(--text-dim);
 }
-.si-del {
-  position: absolute; top: 10px; right: 10px;
-  background: none; border: none; color: var(--text-faint);
-  font-size: 13px; cursor: pointer; padding: 4px;
+.si-actions {
+  display: flex; gap: 8px; margin-top: 12px;
+  padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.08);
 }
+.si-actions button {
+  flex: 1; padding: 8px; border-radius: 10px;
+  border: 1px solid var(--line); background: rgba(0,0,0,0.15);
+  color: var(--text-dim); font-size: 12px; font-weight: 600;
+  cursor: pointer; font-family: inherit;
+}
+.si-actions .si-del2:active { border-color: var(--danger); color: var(--danger); }
+.si-photo { display: none; }
+.score-item.show-photo .si-photo { display: block; }
 .si-memo { font-size: 12px; color: var(--text-dim); margin-top: 6px; font-style: italic; }
 
 .credits {
