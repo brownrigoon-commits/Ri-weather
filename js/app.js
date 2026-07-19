@@ -1648,27 +1648,58 @@ function findCourseNames(course) {
   return [...names];
 }
 
+let courseNameList = [];
+
 function renderCourseNameChips() {
   const box = $("#course-name-chips");
   const dl = $("#course-names-dl");
   box.hidden = true; box.innerHTML = ""; dl.innerHTML = "";
-  const names = findCourseNames(currentCourse);
-  if (!names.length) return;
-  box.innerHTML = '<span class="chip-label">이 골프장의 코스 — 탭하면 전반→후반 순서로 입력됩니다</span>';
-  names.forEach((n) => {
-    const b = document.createElement("button");
-    b.type = "button"; b.className = "ocr-chip"; b.textContent = n;
-    b.addEventListener("click", () => {
-      if (!$("#sf-front").value) $("#sf-front").value = n;
-      else if (!$("#sf-back").value) $("#sf-back").value = n;
-      else { $("#sf-front").value = n; $("#sf-back").value = ""; }
-    });
-    box.appendChild(b);
+  courseNameList = findCourseNames(currentCourse);
+  courseNameList.forEach((n) => {
     const opt = document.createElement("option");
     opt.value = n;
     dl.appendChild(opt);
   });
-  box.hidden = false;
+  setupCourseSelects();
+}
+
+/* 코스명이 2개면(18홀) 전반·후반 자동 입력, 3개 이상이면(27·36홀) 선택 목록 표시 */
+function setupCourseSelects() {
+  const names = courseNameList;
+  [["#sf-front-sel", "#sf-front"], ["#sf-back-sel", "#sf-back"]].forEach(([selId, inpId], idx) => {
+    const sel = $(selId), inp = $(inpId);
+    if (names.length >= 2) {
+      sel.innerHTML =
+        '<option value="">코스 선택 ▾</option>' +
+        names.map((n) => `<option value="${n}">${n}</option>`).join("") +
+        '<option value="__direct">직접 입력...</option>';
+      sel.hidden = false; inp.hidden = true;
+      if (names.length === 2) { sel.value = names[idx]; inp.value = names[idx]; } // 18홀: 자동 입력
+      sel.onchange = () => {
+        if (sel.value === "__direct") {
+          sel.hidden = true; inp.hidden = false; inp.value = ""; inp.focus();
+        } else {
+          inp.value = sel.value;
+        }
+      };
+    } else {
+      sel.hidden = true; inp.hidden = false;
+    }
+  });
+}
+
+/* 입력값(수정/AI인식)을 선택 목록 UI에 반영 */
+function syncCourseSelectUI() {
+  [["#sf-front-sel", "#sf-front"], ["#sf-back-sel", "#sf-back"]].forEach(([selId, inpId]) => {
+    const sel = $(selId), inp = $(inpId);
+    if (sel.hidden && courseNameList.length >= 2 && !inp.value) return;
+    if (courseNameList.length < 2) return;
+    if (inp.value && courseNameList.includes(inp.value)) {
+      sel.value = inp.value; sel.hidden = false; inp.hidden = true;
+    } else if (inp.value) {
+      sel.hidden = true; inp.hidden = false; // 목록에 없는 값 → 직접 입력 표시
+    }
+  });
 }
 
 function openScoreView() {
@@ -1820,6 +1851,7 @@ $("#sf-photo").addEventListener("change", async (e) => {
       const worker = await getOcrWorker();
       const { data } = await worker.recognize(photoThumb);
       const { filled, candidates } = autofillFromOcr(data.text);
+      syncCourseSelectUI();
       if (filled.length) {
         st.textContent = `✅ AI 자동 입력: ${filled.join(" · ")} — 확인 후 틀린 부분만 고쳐주세요`;
       } else {
@@ -2025,6 +2057,7 @@ function renderScores() {
       else { $("#sf-time-unknown").checked = true; $("#sf-time").disabled = true; }
       $("#sf-course").value = r.course;
       $("#sf-front").value = r.front || ""; $("#sf-back").value = r.back || "";
+      syncCourseSelectUI();
       $("#sf-tee").value = r.tee || "";
       $("#sf-score").value = r.score;
       const fr = (r.friends || "").split(",").map((s) => s.trim());
