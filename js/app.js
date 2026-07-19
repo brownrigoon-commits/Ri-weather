@@ -647,6 +647,7 @@ function openHub(course) {
       `<b>${Math.round(d.current.temperature_2m)}°</b> ${wmoDesc(d.current.weather_code)}` +
       ` · 최고 ${Math.round(d.daily.temperature_2m_max[0])}° 최저 ${Math.round(d.daily.temperature_2m_min[0])}°`;
   }).catch(() => {});
+  prefetchFood(course); // 맛집 메뉴를 누르기 전에 미리 로딩 → 즉시 표시
 
   pushView("hub");
 }
@@ -746,7 +747,8 @@ function updateDistCard(course) {
 
 async function renderDist(course, el) {
   const straight = distM(userPos, [course.lat, course.lon]);
-  const kakaoUrl = `kakaonavi://navigate?name=${encodeURIComponent(course.name)}&x=${course.lon}&y=${course.lat}&coord_type=wgs84`;
+  // 카카오맵 앱의 길안내를 직접 실행 (키 불필요 · 웹 중간 페이지 없음)
+  const kakaoUrl = `kakaomap://route?ep=${course.lat},${course.lon}&by=CAR`;
   const tmapUrl = `tmap://route?goalname=${encodeURIComponent(course.name)}&goaly=${course.lat}&goalx=${course.lon}`;
   const show = (km, mins, approx) => {
     el.innerHTML = `
@@ -1304,21 +1306,22 @@ const OVERPASS_EPS = [
   "https://overpass.kumi.systems/api/interpreter",
 ];
 async function overpassQuery(q) {
-  for (const ep of OVERPASS_EPS) {
+  // 두 서버에 동시에 요청해서 먼저 응답하는 쪽을 사용 (속도 최우선)
+  const jobs = OVERPASS_EPS.map((ep) => {
     const ctrl = new AbortController();
-    const timer = setTimeout(() => ctrl.abort(), 20000); // 서버별 20초 제한
-    try {
-      const r = await fetch(ep, {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: "data=" + encodeURIComponent(q),
-        signal: ctrl.signal,
-      });
+    const timer = setTimeout(() => ctrl.abort(), 18000);
+    return fetch(ep, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: "data=" + encodeURIComponent(q),
+      signal: ctrl.signal,
+    }).then(async (r) => {
       clearTimeout(timer);
-      if (r.ok) return await r.json();
-    } catch { clearTimeout(timer); /* 다음 서버 시도 */ }
-  }
-  throw new Error("overpass fail");
+      if (!r.ok) throw new Error("HTTP " + r.status);
+      return r.json();
+    }).catch((e) => { clearTimeout(timer); throw e; });
+  });
+  return Promise.any(jobs).catch(() => { throw new Error("overpass fail"); });
 }
 
 const distM = (a, b) => {
@@ -1487,31 +1490,62 @@ const cuisineInfo = (c) => {
   return CUISINE_KO[k] || [k, "🍴"];
 };
 const foodCache = new Map();
+const FOOD_LS = "riweather.food.";
+
+/* 식당 데이터: 메모리 → 폰 저장(7일) → 서버 순으로 확인 (재방문 시 즉시 표시) */
+async function fetchFoodData(course) {
+  const key = course.lat.toFixed(3) + "," + course.lon.toFixed(3);
+  if (foodCache.has(key)) return foodCache.get(key);
+  try {
+    const c = JSON.parse(localStorage.getItem(FOOD_LS + key) || "null");
+    if (c && Date.now() - c.t < 7 * 864e5) { foodCache.set(key, c.d); return c.d; }
+  } catch { /* 캐시 손상 시 무시 */ }
+  const raw = await overpassQuery(
+    `[out:json][timeout:25];(node["amenity"~"restaurant|fast_food"]["name"](around:5000,${course.lat},${course.lon});way["amenity"~"restaurant|fast_food"]["name"](around:5000,${course.lat},${course.lon}););out center meta 80;`);
+  const d = {
+    elements: (raw.elements || []).map((e) => ({
+      lat: e.lat, lon: e.lon, center: e.center, tags: e.tags, timestamp: e.timestamp,
+    })),
+  };
+  foodCache.set(key, d);
+  try { localStorage.setItem(FOOD_LS + key, JSON.stringify({ t: Date.now(), d })); } catch {}
+  return d;
+}
+function prefetchFood(course) { fetchFoodData(course).catch(() => {}); }
+
+// 맛집 화면이 오류 상태로 보이는 중에 앱으로 돌아오면 자동 재시도
+document.addEventListener("visibilitychange", () => {
+  if (!document.hidden && viewStack[viewStack.length - 1] === "food" && !$("#food-note").hidden) {
+    openFoodView();
+  }
+});
 
 async function openFoodView() {
   const course = currentCourse;
-  pushView("food");
+  if (viewStack[viewStack.length - 1] !== "food") pushView("food");
   $("#food-title").textContent = "주변맛집";
   $("#food-desc").textContent = `${course.name} 주변 5km 이내 식당`;
   const listEl = $("#food-list");
   listEl.innerHTML = '<p class="loading-line">주변 식당을 찾는 중...</p>';
   $("#food-note").hidden = true;
 
-  const key = course.lat.toFixed(3) + "," + course.lon.toFixed(3);
-  let data = foodCache.get(key);
-  if (!data) {
-    try {
-      data = await overpassQuery(
-        `[out:json][timeout:25];(node["amenity"~"restaurant|fast_food"]["name"](around:5000,${course.lat},${course.lon});way["amenity"~"restaurant|fast_food"]["name"](around:5000,${course.lat},${course.lon}););out center meta 80;`);
-      foodCache.set(key, data);
-    } catch {
-      listEl.innerHTML = "";
-      $("#food-note").textContent = "식당 데이터 서버가 혼잡합니다. 잠시 후 다시 열어주세요.";
-      $("#food-note").hidden = false;
-      return;
-    }
+  let data;
+  try {
+    data = await fetchFoodData(course);
+  } catch {
+    listEl.innerHTML = "";
+    const note = $("#food-note");
+    note.innerHTML = "식당 데이터 서버가 혼잡합니다.<br>";
+    const b = document.createElement("button");
+    b.className = "retry-btn";
+    b.textContent = "다시 시도";
+    b.addEventListener("click", () => openFoodView());
+    note.appendChild(b);
+    note.hidden = false;
+    return;
   }
   if (currentCourse !== course || viewStack[viewStack.length - 1] !== "food") return;
+  $("#food-note").hidden = true;
 
   const region = (course.addr || "").split(" ").slice(0, 2).join(" ");
   const now = Date.now();
@@ -1571,11 +1605,11 @@ async function openFoodView() {
         ${it.tags.opening_hours ? "🕐 " + it.tags.opening_hours + "<br>" : ""}
         골프장에서 <b>${km}</b> 거리 · <span class="fi-verify">방문 전 아래에서 영업 여부를 확인하세요</span>
         <div class="fi-links">
-          <a class="kakao" target="_blank" rel="noopener" href="https://map.kakao.com/link/search/${encodeURIComponent(it.name)}">카카오맵 (영업·사진)</a>
+          <a class="kakao" href="kakaomap://search?q=${encodeURIComponent(it.name)}&p=${it.lat},${it.lon}">카카오맵 (영업·사진)</a>
           <a class="naver" target="_blank" rel="noopener" href="https://search.naver.com/search.naver?query=${encodeURIComponent(region + " " + it.name)}">네이버 검색</a>
         </div>
         <div class="fi-links">
-          <a class="kakaonavi" href="kakaonavi://navigate?name=${encodeURIComponent(it.name)}&x=${it.lon}&y=${it.lat}&coord_type=wgs84">🚗 카카오내비</a>
+          <a class="kakaonavi" href="kakaomap://route?ep=${it.lat},${it.lon}&by=CAR">🚗 카카오 길안내</a>
           <a class="tmapnavi" href="tmap://route?goalname=${encodeURIComponent(it.name)}&goaly=${it.lat}&goalx=${it.lon}">🚗 T맵</a>
         </div>
       </div>`;
@@ -1609,7 +1643,11 @@ function resetScoreForm() {
   $("#sf-date").value = new Date().toISOString().slice(0, 10);
   $("#sf-time").value = ""; $("#sf-time-unknown").checked = false; $("#sf-time").disabled = false;
   $("#sf-course").value = currentCourse ? currentCourse.name : "";
-  $("#sf-score").value = ""; $("#sf-friends").value = ""; $("#sf-memo").value = "";
+  $("#sf-score").value = ""; $("#sf-memo").value = "";
+  $("#sf-front").value = ""; $("#sf-back").value = ""; $("#sf-tee").value = "";
+  ["#sf-f1", "#sf-f2", "#sf-f3", "#sf-f4"].forEach((s) => { $(s).value = ""; });
+  holeInputs.forEach((i) => { i.value = ""; });
+  $("#holes-grid").hidden = true; $("#hg-sum").textContent = "";
   $("#sf-photo-preview").hidden = true;
   $("#ocr-status").hidden = true; $("#ocr-chips").hidden = true;
 }
@@ -1623,6 +1661,32 @@ $("#sf-time-unknown").addEventListener("change", (e) => {
   $("#sf-time").disabled = e.target.checked;
   if (e.target.checked) $("#sf-time").value = "";
 });
+
+/* ---------- 홀별 스코어 입력 (파 대비) ---------- */
+const holeInputs = [];
+["#hg-front", "#hg-back"].forEach((sel, half) => {
+  const row = $(sel);
+  for (let i = 0; i < 9; i++) {
+    const inp = document.createElement("input");
+    inp.type = "number"; inp.step = "1"; inp.min = "-4"; inp.max = "9";
+    inp.placeholder = String(half * 9 + i + 1);
+    inp.addEventListener("input", updateHoleSum);
+    row.appendChild(inp);
+    holeInputs.push(inp);
+  }
+});
+$("#holes-toggle").addEventListener("click", () => {
+  $("#holes-grid").hidden = !$("#holes-grid").hidden;
+});
+const holeVals = () => holeInputs.map((i) => (i.value === "" ? null : parseInt(i.value)));
+function updateHoleSum() {
+  const v = holeVals();
+  if (!v.some((x) => x !== null)) { $("#hg-sum").textContent = ""; return; }
+  const sum = (a) => a.reduce((s, x) => s + (x || 0), 0);
+  const f = sum(v.slice(0, 9)), b = sum(v.slice(9));
+  $("#sf-score").value = 72 + f + b;
+  $("#hg-sum").textContent = `전반 ${36 + f} · 후반 ${36 + b} · 합계 ${72 + f + b}타`;
+}
 
 /* ---------- 스코어보드 사진 AI 인식 ---------- */
 let ocrWorkerP = null;
@@ -1694,10 +1758,16 @@ $("#score-form").addEventListener("submit", async (e) => {
     date: $("#sf-date").value,
     teeTime: $("#sf-time-unknown").checked ? "" : $("#sf-time").value,
     course: $("#sf-course").value.trim(),
+    front: $("#sf-front").value.trim(),
+    back: $("#sf-back").value.trim(),
+    tee: $("#sf-tee").value,
     score: parseInt($("#sf-score").value),
-    friends: $("#sf-friends").value.trim(),
+    friends: ["#sf-f1", "#sf-f2", "#sf-f3", "#sf-f4"]
+      .map((s) => $(s).value.trim()).filter(Boolean).join(", "),
     memo: $("#sf-memo").value.trim(),
   };
+  const hv = holeVals();
+  if (hv.some((x) => x !== null)) rec.holes = hv;
   const prev = editingId ? loadScores().find((x) => x.id === editingId) : null;
   if (photoThumb) rec.photo = photoThumb;
   else if (prev?.photo) rec.photo = prev.photo;
@@ -1791,6 +1861,20 @@ $("#goal-box").addEventListener("click", () => {
   renderScores();
 });
 
+/* 스코어카드 표 (홀별 입력이 있는 기록) — 스마트스코어 스타일 */
+function scorecardHtml(r) {
+  const f = r.holes.slice(0, 9), b = r.holes.slice(9);
+  const sum = (a) => a.reduce((s, x) => s + (x || 0), 0);
+  const cell = (v) =>
+    `<span class="sc-c${v > 0 ? " over" : v < 0 ? " under" : ""}">${v == null ? "·" : v > 0 ? "+" + v : v}</span>`;
+  const head = Array.from({ length: 9 }, (_, i) => `<span>${i + 1}</span>`).join("");
+  return `<div class="sc-table">
+    <div class="sc-head"><span>HOLE</span>${head}<span>T</span></div>
+    <div class="sc-row"><span>${r.front || "전반"}</span>${f.map(cell).join("")}<span class="sc-t">${36 + sum(f)}</span></div>
+    <div class="sc-row"><span>${r.back || "후반"}</span>${b.map(cell).join("")}<span class="sc-t">${36 + sum(b)}</span></div>
+  </div>`;
+}
+
 function renderScores() {
   const all = loadScores();
   const filtered = renderStats(all) || [];
@@ -1814,12 +1898,13 @@ function renderScores() {
       <div class="si-top">
         <div>
           <div class="si-course">${r.course}</div>
-          <div class="si-date">${r.date}${r.teeTime ? " · ⛳ " + r.teeTime + " 티업" : ""}</div>
+          <div class="si-date">${r.date}${r.teeTime ? " · ⛳ " + r.teeTime + " 티업" : ""}${r.tee ? " · " + r.tee + "티" : ""}</div>
         </div>
         <div class="si-score">${r.score}<small>타</small></div>
       </div>
       ${r.friends ? `<div class="si-friends">👥 ${r.friends}</div>` : ""}
       ${r.memo ? `<div class="si-memo">"${r.memo}"</div>` : ""}
+      ${r.holes ? scorecardHtml(r) : ""}
       ${wx}
       ${r.photo ? `<img class="si-photo" src="${r.photo}" alt="스코어보드">` : ""}`;
     div.querySelector(".si-del").addEventListener("click", () => {
@@ -1835,8 +1920,16 @@ function renderScores() {
       if (r.teeTime) { $("#sf-time").value = r.teeTime; }
       else { $("#sf-time-unknown").checked = true; $("#sf-time").disabled = true; }
       $("#sf-course").value = r.course;
+      $("#sf-front").value = r.front || ""; $("#sf-back").value = r.back || "";
+      $("#sf-tee").value = r.tee || "";
       $("#sf-score").value = r.score;
-      $("#sf-friends").value = r.friends || "";
+      const fr = (r.friends || "").split(",").map((s) => s.trim());
+      ["#sf-f1", "#sf-f2", "#sf-f3", "#sf-f4"].forEach((s, i) => { $(s).value = fr[i] || ""; });
+      if (r.holes) {
+        r.holes.forEach((v, i) => { holeInputs[i].value = v == null ? "" : v; });
+        $("#holes-grid").hidden = false;
+        updateHoleSum();
+      }
       $("#sf-memo").value = r.memo || "";
       if (r.photo) { $("#sf-photo-preview").src = r.photo; $("#sf-photo-preview").hidden = false; }
       $("#score-form").hidden = false;
