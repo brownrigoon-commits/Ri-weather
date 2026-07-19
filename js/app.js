@@ -4,7 +4,7 @@
  * ========================================================= */
 "use strict";
 
-const APP_VER = "v31"; // 배포 버전 (홈 화면 배지에 표시)
+const APP_VER = "v32"; // 배포 버전 (홈 화면 배지에 표시)
 const STORAGE_KEY = "riweather.courses.v1";
 const GEM_KEY = "riweather.gemini"; // 정밀 인식(비전 AI) 개인 키 저장소
 // 기본 제공 키 (무료 한도 공유) — 개인 키를 설정하면 그 키가 우선됩니다
@@ -2599,7 +2599,20 @@ async function shareScoreCard(r) {
   if (r.friends) {
     x.fillStyle = "rgba(255,255,255,0.55)";
     x.font = "400 24px -apple-system, sans-serif";
-    x.fillText("함께한 사람 · " + r.friends, W / 2, y + 30);
+    x.fillText("함께한 사람 · " + r.friends, W / 2, y + 30, W - 100);
+    y += 52;
+  }
+  if (r.memo) {
+    x.fillStyle = "rgba(255,255,255,0.75)";
+    x.font = "italic 400 25px -apple-system, sans-serif";
+    const memo = `“ ${r.memo} ”`;
+    const MAXC = 26;
+    if (memo.length <= MAXC) {
+      x.fillText(memo, W / 2, y + 34, W - 90);
+    } else { // 긴 메모는 2줄로
+      x.fillText(memo.slice(0, MAXC), W / 2, y + 34, W - 90);
+      x.fillText(memo.slice(MAXC, MAXC * 2) + (memo.length > MAXC * 2 ? "…" : ""), W / 2, y + 66, W - 90);
+    }
   }
 
   // 워터마크
