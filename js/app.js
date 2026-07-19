@@ -4,7 +4,7 @@
  * ========================================================= */
 "use strict";
 
-const APP_VER = "v32"; // 배포 버전 (홈 화면 배지에 표시)
+const APP_VER = "v33"; // 배포 버전 (홈 화면 배지에 표시)
 const STORAGE_KEY = "riweather.courses.v1";
 const GEM_KEY = "riweather.gemini"; // 정밀 인식(비전 AI) 개인 키 저장소
 // 기본 제공 키 (무료 한도 공유) — 개인 키를 설정하면 그 키가 우선됩니다
@@ -1337,8 +1337,103 @@ const distM = (a, b) => {
 const lineLen = (pts) => pts.slice(1).reduce((s, p, i) => s + distM(pts[i], p), 0);
 const bearing = (a, b) => Math.atan2(b[1] - a[1], b[0] - a[0]) * 180 / Math.PI;
 
+/* 홀 라인 위 특정 거리 지점의 좌표 (티샷 낙하지점 계산용) */
+function pointAtDist(line, d) {
+  let acc = 0;
+  for (let i = 1; i < line.length; i++) {
+    const seg = distM(line[i - 1], line[i]);
+    if (acc + seg >= d) {
+      const t = (d - acc) / seg;
+      return [line[i - 1][0] + (line[i][0] - line[i - 1][0]) * t,
+              line[i - 1][1] + (line[i][1] - line[i - 1][1]) * t];
+    }
+    acc += seg;
+  }
+  return line[line.length - 1];
+}
+/* 진행 방향 기준 지점의 좌/우 판별 (외적 부호) */
+function sideOfPlay(from, to, pt) {
+  const cross = (to[1] - from[1]) * (pt[0] - from[0]) - (to[0] - from[0]) * (pt[1] - from[1]);
+  return cross > 0 ? "좌측" : "우측";
+}
+
+/* 플레이어 프로필 (구질·비거리) */
+const PROFILE_KEY = "riweather.profile";
+function loadProfile() {
+  try { return JSON.parse(localStorage.getItem(PROFILE_KEY)) || {}; } catch { return {}; }
+}
+function saveProfile(p) { localStorage.setItem(PROFILE_KEY, JSON.stringify(p)); }
+
 let courseMap = null, courseLayers = [], holeLayers = [], courseHoles = [], courseHazards = [];
 const courseCache = new Map();
+let aiHoleCtx = null;        // AI 캐디용 현재 홀 정보
+let lastHoleSelect = null;   // 프로필 변경 시 공략 재계산용
+
+/* 구질·비거리 기반 맞춤 공략 텍스트 */
+function buildHoleStrategy(h, bunkers, waters) {
+  const prof = loadProfile();
+  const shape = prof.shape || "스트레이트";
+  const tee = h.line[0], green = h.line[h.line.length - 1];
+  const mid = h.line[Math.floor(h.line.length / 2)];
+  const turn = ((bearing(mid, green) - bearing(tee, mid) + 540) % 360) - 180;
+  const shapeBend = { 슬라이스: "우", 페이드: "우", 드로우: "좌", 훅: "좌" }[shape] || null;
+
+  let txt = `파${h.par} · 약 ${h.len}m`;
+  const bendDir = Math.abs(turn) > 28 ? (turn > 0 ? "우" : "좌") : null;
+  if (bendDir) {
+    txt += ` · ${bendDir}측 도그레그.\n`;
+    if (shapeBend === bendDir) {
+      txt += `${shape} 구질과 꺾임 방향이 같아 유리한 홀 — 코너를 따라 자연스럽게 태우세요.\n`;
+    } else if (shapeBend) {
+      txt += `${shape} 구질과 반대로 꺾이는 홀 — 코너 공략 욕심 내지 말고 바깥쪽 안전 라인으로 가세요.\n`;
+    }
+  } else {
+    txt += " · 직선 홀.\n";
+  }
+
+  if (h.par >= 4) {
+    const drv = Math.min(prof.dist || 200, Math.round(h.len * 0.85));
+    const land = pointAtDist(h.line, drv);
+    const L = [], R = [];
+    bunkers.forEach((b) => { if (distM(b, land) < 65) (sideOfPlay(tee, green, b) === "좌측" ? L : R).push("벙커"); });
+    waters.forEach((w) => { if (distM(w, land) < 85) (sideOfPlay(tee, green, w) === "좌측" ? L : R).push("워터해저드"); });
+    txt += `\n🚩 티샷 (내 비거리 ${drv}m 낙하지점 기준): `;
+    const uniq = (a) => [...new Set(a)].join("·");
+    if (L.length && R.length) {
+      txt += `양쪽에 위험(좌 ${uniq(L)} / 우 ${uniq(R)}) — 드라이버 대신 우드로 짧게 끊어가는 게 확률적으로 안전합니다.`;
+    } else if (L.length || R.length) {
+      const danger = L.length ? "좌측" : "우측";
+      const aim = L.length ? "우측" : "좌측";
+      const hz = uniq(L.length ? L : R);
+      txt += `${danger}에 ${hz}. `;
+      const risky = (danger === "우측" && (shape === "슬라이스" || shape === "페이드")) ||
+                    (danger === "좌측" && (shape === "훅" || shape === "드로우"));
+      if (risky) txt += `${shape} 구질이라 특히 조심 — ${aim} 러프 라인을 보고 치면 휘어 들어와도 페어웨이에 남습니다.`;
+      else txt += `${aim} 절반을 조준하면 안전합니다.`;
+    } else {
+      txt += shapeBend
+        ? `낙하지점 주변 큰 위험 없음 — ${shapeBend === "우" ? "좌측" : "우측"} 가장자리를 보고 치면 ${shape}가 중앙으로 들어옵니다.`
+        : "낙하지점 주변 큰 위험 없음 — 페어웨이 센터 조준.";
+    }
+    const remain = Math.max(0, h.len - drv);
+    if (remain > 30) txt += `\n\n⛳ 세컨: 남은 약 ${remain}m.`;
+  } else {
+    txt += `\n🚩 티샷: 그린까지 ${h.len}m — 핀보다 그린 중앙을 보세요.`;
+  }
+
+  // 그린 주변 벙커 (앞/좌/우)
+  const gb = bunkers.filter((b) => distM(b, green) < 38);
+  if (gb.length) {
+    const tags = [...new Set(gb.map((b) =>
+      distM(b, tee) < distM(green, tee) - 10 ? "앞" : sideOfPlay(tee, green, b)))];
+    txt += ` 그린 ${tags.join("·")}에 벙커`;
+    if (tags.includes("앞")) txt += " — 짧으면 잡히니 반 클럽 길게 보세요.";
+    else txt += ` — ${tags[0] === "좌측" ? "우측" : "좌측"} 절반이 안전합니다.`;
+  } else if (h.par >= 4) {
+    txt += " 그린 주변 벙커 없음 — 핀을 직접 노려도 됩니다.";
+  }
+  return txt;
+}
 
 function ensureCourseMap(lat, lon) {
   if (courseMap) { courseMap.setView([lat, lon], 16); return; }
@@ -1455,29 +1550,114 @@ async function openCourseView() {
     holeLayers.push(L.marker(green, { icon: L.divIcon({ className: "", html: "⛳", iconSize: [20, 20], iconAnchor: [10, 18] }), interactive: false }).addTo(courseMap));
     courseMap.fitBounds(L.latLngBounds(h.line).pad(0.25));
 
-    // 공략 요약 자동 생성
-    const nearLine = (pt) => h.line.some((v) => distM(v, pt) < 70);
-    const nb = bunkers.filter(nearLine).length;
-    const nw = waters.filter(nearLine).length;
-    const mid = h.line[Math.floor(h.line.length / 2)];
-    const turn = ((bearing(mid, green) - bearing(tee, mid) + 540) % 360) - 180;
-    let txt = `파${h.par} · 약 ${h.len}m. `;
-    if (Math.abs(turn) > 28) {
-      txt += `${turn > 0 ? "오른쪽" : "왼쪽"} 도그레그 홀입니다 — 티샷은 코너 ${turn > 0 ? "왼쪽" : "오른쪽"} 페어웨이를 노리세요. `;
-    } else {
-      txt += "비교적 직선 홀 — 페어웨이 센터를 공략하세요. ";
-    }
-    if (nw) txt += `워터해저드가 ${nw}곳 걸려 있어 무리한 공략보다 안전한 레이업을 고려하세요. `;
-    if (nb) txt += `벙커 ${nb}개가 배치되어 있습니다 — 지도의 노란 구역을 피해 가세요.`;
-    if (!nw && !nb) txt += "큰 해저드는 없는 홀입니다.";
+    // 내 구질·비거리 기반 맞춤 공략 생성
+    aiHoleCtx = { h, bunkers, waters, courseName: course.name };
+    lastHoleSelect = () => selectHole(i);
+    $("#ai-strategy").hidden = true; $("#ai-strategy").textContent = "";
     $("#hole-detail-title").textContent = `${h.ref}번홀 공략` + (h.name ? ` · ${h.name}` : "");
-    $("#hole-strategy").textContent = txt;
+    $("#hole-strategy").textContent = buildHoleStrategy(h, bunkers, waters);
     $("#hole-video").href = "https://www.youtube.com/results?search_query=" +
       encodeURIComponent(`${course.name} ${h.ref}번홀 공략`);
     $("#hole-detail-card").hidden = false;
   }
   selectHole(0);
 }
+
+/* ---------- AI 캐디: 홀 위성사진 + 정밀 AI 공략 ---------- */
+const lon2tx = (lon, z) => (lon + 180) / 360 * Math.pow(2, z);
+const lat2ty = (lat, z) => {
+  const r = lat * Math.PI / 180;
+  return (1 - Math.log(Math.tan(r) + 1 / Math.cos(r)) / Math.PI) / 2 * Math.pow(2, z);
+};
+
+/* 홀 영역 위성 타일을 합성해 티(노랑)·그린(빨강) 표시된 이미지 생성 */
+async function holeSatelliteDataUrl(h) {
+  const lats = h.line.map((p) => p[0]), lons = h.line.map((p) => p[1]);
+  const dLat = Math.max(Math.max(...lats) - Math.min(...lats), 0.0008);
+  const dLon = Math.max(Math.max(...lons) - Math.min(...lons), 0.0008);
+  const bb = {
+    latMin: Math.min(...lats) - dLat * 0.2, latMax: Math.max(...lats) + dLat * 0.2,
+    lonMin: Math.min(...lons) - dLon * 0.2, lonMax: Math.max(...lons) + dLon * 0.2,
+  };
+  let z = 18, tx0, tx1, ty0, ty1;
+  while (z > 14) {
+    tx0 = Math.floor(lon2tx(bb.lonMin, z)); tx1 = Math.floor(lon2tx(bb.lonMax, z));
+    ty0 = Math.floor(lat2ty(bb.latMax, z)); ty1 = Math.floor(lat2ty(bb.latMin, z));
+    if (tx1 - tx0 < 4 && ty1 - ty0 < 4) break;
+    z--;
+  }
+  const cv = document.createElement("canvas");
+  cv.width = (tx1 - tx0 + 1) * 256; cv.height = (ty1 - ty0 + 1) * 256;
+  const ctx = cv.getContext("2d");
+  const jobs = [];
+  for (let tx = tx0; tx <= tx1; tx++) {
+    for (let ty = ty0; ty <= ty1; ty++) {
+      jobs.push(fetch(`https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/${z}/${ty}/${tx}`)
+        .then((r) => r.blob()).then(createImageBitmap)
+        .then((bmp) => ctx.drawImage(bmp, (tx - tx0) * 256, (ty - ty0) * 256)));
+    }
+  }
+  await Promise.all(jobs);
+  const px = (p) => [(lon2tx(p[1], z) - tx0) * 256, (lat2ty(p[0], z) - ty0) * 256];
+  // 홀 라인 + 티/그린 마커
+  ctx.strokeStyle = "rgba(255,255,255,0.9)"; ctx.lineWidth = 3; ctx.setLineDash([10, 8]);
+  ctx.beginPath();
+  h.line.forEach((p, i) => { const [X, Y] = px(p); i ? ctx.lineTo(X, Y) : ctx.moveTo(X, Y); });
+  ctx.stroke(); ctx.setLineDash([]);
+  const dot = (p, color) => {
+    const [X, Y] = px(p);
+    ctx.fillStyle = color; ctx.strokeStyle = "#fff"; ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.arc(X, Y, 11, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+  };
+  dot(h.line[0], "#ffd60a");
+  dot(h.line[h.line.length - 1], "#ff3b30");
+  return cv.toDataURL("image/jpeg", 0.85);
+}
+
+async function aiCaddie() {
+  if (!aiHoleCtx) return;
+  const btn = $("#ai-strategy-btn"), out = $("#ai-strategy");
+  btn.disabled = true; btn.textContent = "🤖 AI 캐디가 홀을 분석 중... (3~8초)";
+  const { h, bunkers, waters, courseName } = aiHoleCtx;
+  const prof = loadProfile();
+  const facts = `${courseName} ${h.ref}번홀, 파${h.par}, 길이 약 ${h.len}m, 홀 주변 벙커 ${bunkers.length}개·워터해저드 ${waters.length}곳. 플레이어: 구질 ${prof.shape || "스트레이트"}, 드라이버 평균 ${prof.dist || 200}m.`;
+  const basePrompt =
+    `당신은 투어 경력의 친절한 한국인 캐디입니다. ${facts}\n` +
+    `첨부된 위성사진이 이 홀입니다 (흰 점선=홀 진행선, 노란 점=티잉구역, 빨간 점=그린).\n` +
+    `사진에서 실제로 보이는 지형(페어웨이 폭·모양, 해저드 위치, 도그레그)과 플레이어의 구질·비거리를 근거로 ` +
+    `①티샷 조준점 ②세컨샷 ③그린 주변 순서로 4~6문장 존댓말 조언을 하세요. ` +
+    `사진으로 확인할 수 없는 것(그린 경사, 잔디 상태 등)은 절대 지어내지 마세요.`;
+  try {
+    let parts;
+    try {
+      const img = await holeSatelliteDataUrl(h);
+      parts = [{ text: basePrompt }, { inline_data: { mime_type: "image/jpeg", data: img.split(",")[1] } }];
+    } catch {
+      parts = [{ text: basePrompt.replace(/첨부된 위성사진.*?\n/, "위성사진 없이 위 정보만으로 조언하세요.\n") }];
+    }
+    const text = await geminiGenerate(parts, 0.4);
+    out.textContent = text.trim();
+    out.hidden = false;
+  } catch (e) {
+    out.textContent = "AI 캐디 연결에 실패했습니다. 잠시 후 다시 시도해 주세요.";
+    out.hidden = false;
+  }
+  btn.disabled = false; btn.textContent = "🤖 AI 캐디 상세 공략 보기";
+}
+$("#ai-strategy-btn").addEventListener("click", aiCaddie);
+
+/* 내 플레이 정보 (구질·비거리) 초기화·저장 */
+(function initProfile() {
+  const p = loadProfile();
+  if (p.shape) $("#pf-shape").value = p.shape;
+  if (p.dist) $("#pf-dist").value = p.dist;
+  const save = () => {
+    saveProfile({ shape: $("#pf-shape").value, dist: parseInt($("#pf-dist").value) || null });
+    if (lastHoleSelect) lastHoleSelect(); // 열려 있는 홀 공략 즉시 재계산
+  };
+  $("#pf-shape").addEventListener("change", save);
+  $("#pf-dist").addEventListener("change", save);
+})();
 
 /* =========================================================
  * 주변맛집 — OSM 식당 + 카카오/네이버 연결
@@ -2001,6 +2181,28 @@ function renderCartChips(cartPlayers) {
     chips.appendChild(b);
   });
   chips.hidden = false;
+}
+
+/* 범용 정밀 AI 텍스트 생성 (AI 캐디 등) */
+async function geminiGenerate(parts, temperature = 0.3) {
+  const key = getGemKey();
+  if (!key) throw new Error("no key");
+  const body = { contents: [{ parts }], generationConfig: { temperature } };
+  const models = ["gemini-flash-latest", "gemini-flash-lite-latest"];
+  let lastErr = null;
+  for (const model of models) {
+    try {
+      const r = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=` + encodeURIComponent(key),
+        { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+      if (!r.ok) { lastErr = new Error("HTTP " + r.status); continue; }
+      const j = await r.json();
+      const t = j.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (t) return t;
+      lastErr = new Error("빈 응답");
+    } catch (e) { lastErr = e; }
+  }
+  throw lastErr || new Error("gemini fail");
 }
 
 /* 사진 상단 띠(동반자·날짜·시간 영역)만 잘라 3배 확대 — 흰 글자 정밀 인식용 */
