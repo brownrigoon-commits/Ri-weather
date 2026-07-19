@@ -1826,12 +1826,29 @@ function getOcrWorker() {
 /* OCR용 이미지 전처리 3종: 일반 대비, 흰 글자용(반전), 진한 글자용
    — 사진 배경 위 흰 글씨(스마트스코어 캡처)와 박스 속 검은 숫자를 모두 커버 */
 function ocrVariants(img) {
-  const scale = Math.min(2, 1500 / img.width);
+  const scale = Math.min(2.2, 2000 / img.width); // 해상도 상향 (실사진 작은 숫자 대응)
   const W = Math.round(img.width * scale), H = Math.round(img.height * scale);
   const base = document.createElement("canvas");
   base.width = W; base.height = H;
   base.getContext("2d").drawImage(img, 0, 0, W, H);
   const src = base.getContext("2d").getImageData(0, 0, W, H);
+
+  // Otsu 자동 임계값: 사진마다 밝기가 달라도 최적 이진화 지점을 계산
+  const hist = new Array(256).fill(0);
+  for (let i = 0; i < src.data.length; i += 16) { // 1/4 샘플링
+    hist[Math.round(src.data[i] * 0.3 + src.data[i + 1] * 0.59 + src.data[i + 2] * 0.11)]++;
+  }
+  const totalPx = hist.reduce((s, v) => s + v, 0);
+  let sumAll = 0; for (let t = 0; t < 256; t++) sumAll += t * hist[t];
+  let sumB = 0, wB = 0, otsu = 128, maxVar = 0;
+  for (let t = 0; t < 256; t++) {
+    wB += hist[t]; if (!wB) continue;
+    const wF = totalPx - wB; if (!wF) break;
+    sumB += t * hist[t];
+    const mB = sumB / wB, mF = (sumAll - sumB) / wF;
+    const v = wB * wF * (mB - mF) * (mB - mF);
+    if (v > maxVar) { maxVar = v; otsu = t; }
+  }
 
   const make = (fn) => {
     const c = document.createElement("canvas");
@@ -1847,9 +1864,9 @@ function ocrVariants(img) {
     return c;
   };
   return [
-    make((g) => Math.max(0, Math.min(255, (g - 128) * 1.6 + 140))), // 일반
+    make((g) => Math.max(0, Math.min(255, (g - 128) * 1.6 + 140))), // 일반 대비 강화
+    make((g) => (g < otsu ? 0 : 255)),                               // Otsu 이진화 (표 숫자)
     make((g) => (g > 238 ? 0 : 255)),                                // 흰 글자 → 검정
-    make((g) => (g < 90 ? 0 : 255)),                                 // 진한 글자 강조
   ];
 }
 
@@ -2023,36 +2040,46 @@ function autofillFromOcr(text) {
   function parseHoleRow(line) {
     const toks = line.replace(/[oO]/g, "0").match(/-\d|\d+/g);
     if (!toks) return null;
-    const vals = [];
-    let rowTotal = null;
-    for (const t of toks) {
-      if (t.startsWith("-")) { vals.push(parseInt(t)); continue; }
-      if (t.length === 1) { vals.push(parseInt(t)); continue; }
-      const n = parseInt(t);
-      if (n >= 27 && n <= 60 && vals.length >= 8) { rowTotal = n; break; } // 행 끝 합계
-      for (const ch of t) vals.push(parseInt(ch)); // 붙은 한 자리 숫자 분리
-    }
-    if (vals.length !== 9 || !vals.every((v) => v >= -4 && v <= 9)) return null;
-    if (rowTotal !== null && 36 + vals.reduce((s, v) => s + v, 0) !== rowTotal) return null;
-    return { nine: vals, verified: rowTotal !== null };
+    const build = (collapseDouble) => {
+      const vals = [];
+      let rowTotal = null;
+      for (const t of toks) {
+        if (t.startsWith("-")) { vals.push(parseInt(t)); continue; }
+        if (t.length === 1) { vals.push(parseInt(t)); continue; }
+        const n = parseInt(t);
+        if (n >= 27 && n <= 60 && vals.length >= 8) { rowTotal = n; break; } // 행 끝 합계
+        // OCR이 글자를 겹쳐 읽은 경우("22"=2) 복원 시도
+        if (collapseDouble && t.length === 2 && t[0] === t[1]) { vals.push(parseInt(t[0])); continue; }
+        for (const ch of t) vals.push(parseInt(ch)); // 붙은 한 자리 숫자 분리
+      }
+      if (vals.length !== 9 || !vals.every((v) => v >= -4 && v <= 9)) return null;
+      if (rowTotal !== null && 36 + vals.reduce((s, v) => s + v, 0) !== rowTotal) return null;
+      return { nine: vals, verified: rowTotal !== null };
+    };
+    return build(false) || build(true);
   }
   const rows = [];
   const rowSeen = new Set();
-  for (const line of textLines) {
-    if ((line.match(/\d/g) || []).length < 8) continue;
+  textLines.forEach((line, li) => {
+    if (rows.length >= 2) return;
+    if ((line.match(/\d/g) || []).length < 8) return;
     const r = parseHoleRow(line);
-    if (!r) continue;
+    if (!r) return;
     const key = r.nine.join(",");
-    if (rowSeen.has(key)) continue; // 다중 인식 병합 시 중복 제거
+    if (rowSeen.has(key)) return; // 다중 인식 병합 시 중복 제거
     rowSeen.add(key);
+    r.li = li;
     rows.push(r);
-    if (rows.length === 2) break;
-  }
+  });
   let holesFilled = false;
   if (rows.length === 2) {
     const sumAll = rows[0].nine.concat(rows[1].nine).reduce((s, v) => s + v, 0);
-    // 행별 합계로 검증됐거나, 72+18홀 합계가 사진 속 총점과 일치하면 채택
-    const ok = rows.every((r) => r.verified) || allTotals.has(72 + sumAll);
+    const half1 = rows[0].nine.reduce((s, v) => s + v, 0), half2 = rows[1].nine.reduce((s, v) => s + v, 0);
+    // 채택 조건: ①행별 합계 검증 통과 ②72+18홀 합=사진 속 총점
+    // ③합계가 안 읽혔어도 인접한 두 줄이 모두 정상 범위의 9칸이면 스코어카드로 인정
+    const adjacentOk = Math.abs(rows[0].li - rows[1].li) <= 2 &&
+      half1 >= -9 && half1 <= 24 && half2 >= -9 && half2 <= 24;
+    const ok = rows.every((r) => r.verified) || allTotals.has(72 + sumAll) || adjacentOk;
     if (ok) {
       rows[0].nine.concat(rows[1].nine).forEach((v, i) => { holeInputs[i].value = v; });
       $("#holes-grid").hidden = false;
@@ -2125,6 +2152,10 @@ $("#sf-photo").addEventListener("change", async (e) => {
         const { data } = await worker.recognize(vars[i]);
         mergedText += "\n" + cardRegion(data.text);
       }
+      // "인식 원문 보기" — 어떤 글자가 읽혔는지 사용자가 직접 확인 가능
+      const rawEl = $("#ocr-raw");
+      rawEl.textContent = mergedText.split("\n").filter((l) => l.trim()).join("\n");
+      rawEl.classList.remove("show");
       const { filled, candidates, cartPlayers } = autofillFromOcr(mergedText);
       syncCourseSelectUI();
       if (cartPlayers && cartPlayers.length) {
@@ -2156,6 +2187,10 @@ $("#sf-photo").addEventListener("change", async (e) => {
       } else {
         st.textContent = "자동 인식이 어려운 사진이에요 — 직접 입력해 주세요 (사진은 기록에 첨부됩니다)";
       }
+      const rawBtn = document.createElement("button");
+      rawBtn.type = "button"; rawBtn.className = "ocr-raw-btn"; rawBtn.textContent = "🔍 인식 원문";
+      rawBtn.addEventListener("click", () => $("#ocr-raw").classList.toggle("show"));
+      st.appendChild(rawBtn);
       if (candidates.length) {
         st.textContent += " / 총타수는 아래에서 탭하세요";
         const chips = $("#ocr-chips");
