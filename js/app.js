@@ -4,6 +4,7 @@
  * ========================================================= */
 "use strict";
 
+const APP_VER = "v24"; // 배포 버전 (홈 화면 배지에 표시)
 const STORAGE_KEY = "riweather.courses.v1";
 
 /* ---------- WMO 날씨 코드 → 설명/아이콘 ---------- */
@@ -1870,6 +1871,58 @@ function ocrVariants(img) {
   ];
 }
 
+/* 사진 상단 띠(동반자·날짜·시간 영역)만 잘라 3배 확대 — 흰 글자 정밀 인식용 */
+function topStripVariants(img) {
+  const W = img.width, H = img.height;
+  const stripH = Math.round(H * 0.17);
+  const scale = Math.min(3, 2200 / W);
+  const base = document.createElement("canvas");
+  base.width = Math.round(W * scale); base.height = Math.round(stripH * scale);
+  base.getContext("2d").drawImage(img, 0, 0, W, stripH, 0, 0, base.width, base.height);
+  const src = base.getContext("2d").getImageData(0, 0, base.width, base.height);
+  // 스트립 내 밝은 글자 임계값 (상위 밝기 클러스터)
+  let maxG = 0;
+  for (let i = 0; i < src.data.length; i += 16) {
+    const g = src.data[i] * 0.3 + src.data[i + 1] * 0.59 + src.data[i + 2] * 0.11;
+    if (g > maxG) maxG = g;
+  }
+  const th = Math.max(200, maxG - 45);
+  const make = (fn, despeckle) => {
+    const c = document.createElement("canvas");
+    c.width = base.width; c.height = base.height;
+    const d = new ImageData(new Uint8ClampedArray(src.data), base.width, base.height);
+    const p = d.data;
+    for (let i = 0; i < p.length; i += 4) {
+      const g = p[i] * 0.3 + p[i + 1] * 0.59 + p[i + 2] * 0.11;
+      const v = fn(g);
+      p[i] = p[i + 1] = p[i + 2] = v;
+    }
+    if (despeckle) {
+      // 고립된 검은 점(반사광·노이즈) 제거 — 2회 반복으로 작은 덩어리까지 정리
+      const Wp = base.width, Hp = base.height;
+      for (let pass = 0; pass < 2; pass++) {
+        const isBlack = new Uint8Array(Wp * Hp);
+        for (let i = 0; i < Wp * Hp; i++) isBlack[i] = p[i * 4] < 128 ? 1 : 0;
+        for (let y = 1; y < Hp - 1; y++) {
+          for (let x = 1; x < Wp - 1; x++) {
+            const i = y * Wp + x;
+            if (!isBlack[i]) continue;
+            const n = isBlack[i - 1] + isBlack[i + 1] + isBlack[i - Wp] + isBlack[i + Wp] +
+                      isBlack[i - Wp - 1] + isBlack[i - Wp + 1] + isBlack[i + Wp - 1] + isBlack[i + Wp + 1];
+            if (n < 3) { const j = i * 4; p[j] = p[j + 1] = p[j + 2] = 255; }
+          }
+        }
+      }
+    }
+    c.getContext("2d").putImageData(d, 0, 0);
+    return c;
+  };
+  return [
+    make((g) => (g > th ? 0 : 255), true),                            // 밝은 글자 → 검정 + 점 제거
+    make((g) => Math.max(0, Math.min(255, (g - 128) * 1.8 + 150))),   // 대비 강화
+  ];
+}
+
 /* OCR 텍스트에서 날짜·시간·골프장·스코어를 추출해 폼에 자동 입력 */
 function autofillFromOcr(text) {
   const filled = [];
@@ -2148,10 +2201,18 @@ $("#sf-photo").addEventListener("change", async (e) => {
       };
       let mergedText = "";
       for (let i = 0; i < vars.length; i++) {
-        st.textContent = `🤖 AI가 스코어보드를 읽는 중... (${i + 1}/${vars.length})`;
+        st.textContent = `🤖 AI가 스코어보드를 읽는 중... (${i + 1}/4)`;
         const { data } = await worker.recognize(vars[i]);
         mergedText += "\n" + cardRegion(data.text);
       }
+      // 상단 띠(동반자·날짜·시간) 정밀 재인식 — 결과를 앞쪽에 배치해 우선 사용
+      st.textContent = "🤖 AI가 스코어보드를 읽는 중... (4/4)";
+      try {
+        for (const sv of topStripVariants(img)) {
+          const { data } = await worker.recognize(sv);
+          mergedText = data.text + "\n" + mergedText;
+        }
+      } catch { /* 스트립 인식 실패해도 본문 인식 결과 사용 */ }
       // "인식 원문 보기" — 어떤 글자가 읽혔는지 사용자가 직접 확인 가능
       const rawEl = $("#ocr-raw");
       rawEl.textContent = mergedText.split("\n").filter((l) => l.trim()).join("\n");
@@ -2520,6 +2581,7 @@ function renderScores() {
 })();
 
 /* ---------- 시작 ---------- */
+document.querySelector(".beta-badge").textContent = "Ri-Weather BETA " + APP_VER;
 renderHome();
 
 /* PWA 서비스 워커 (HTTPS 또는 localhost에서만 동작) */
