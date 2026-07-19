@@ -1651,6 +1651,7 @@ const CLUB_COURSES = [
   { match: "힐마루",   lat: 38.0061, lon: 127.2445, courses: ["시그니처A", "시그니처B", "브리즈", "선샤인", "네스트"] },
   { match: "푸른솔",   lat: 37.8360, lon: 127.1919, courses: ["마운틴", "레이크", "밸리"] },
   { match: "라싸",     lat: 38.0388, lon: 127.3659, courses: ["레이크", "밸리", "마운틴"] },
+  { match: "몽베르",   lat: 38.0826, lon: 127.3061, courses: ["망무봉 OUT", "망무봉 IN", "쁘렝땅", "에떼", "오똔", "이베르"] },
 ];
 
 /* 선택한 골프장 주변(3km)의 DB 항목에서 코스명(하늘/바다/EAST...)을 자동 추출 */
@@ -1748,7 +1749,9 @@ function resetScoreForm() {
   $("#sf-time").value = ""; $("#sf-time-unknown").checked = false; $("#sf-time").disabled = false;
   $("#sf-course").value = currentCourse ? currentCourse.name : "";
   $("#sf-score").value = ""; $("#sf-memo").value = "";
-  $("#sf-front").value = ""; $("#sf-back").value = ""; $("#sf-tee").value = "";
+  $("#sf-front").value = ""; $("#sf-back").value = "";
+  // 티 기본값: 최근 사용한 티 (처음엔 화이트) — 여성 유저는 한 번 레드 선택하면 계속 레드
+  $("#sf-tee").value = localStorage.getItem("riweather.tee") || "화이트";
   ["#sf-f1", "#sf-f2", "#sf-f3", "#sf-f4"].forEach((s) => { $(s).value = ""; });
   holeInputs.forEach((i) => { i.value = ""; });
   $("#holes-grid").hidden = true; $("#hg-sum").textContent = "";
@@ -1932,17 +1935,28 @@ function autofillFromOcr(text) {
     }
   }
 
-  // 동반자: "이성민, 고**, 송**, 이**" 형태 줄 (코스명으로만 이뤄진 줄은 제외)
+  // 동반자: "이성민, 박**, 조**, 이**" 형태 줄 (마스킹 별표가 잡음으로 읽혀도 허용)
   const knownSet = new Set(knownNames || []);
-  for (const line of text.split("\n")) {
+  for (const line of textLines) {
     const toks = line.split(/[,，]/).map((s) => s.trim().replace(/\s/g, "")).filter(Boolean);
-    if (toks.length >= 2 && toks.length <= 5 &&
-        toks.every((t) => /^[가-힣]{1,4}[*＊x]{0,3}$/.test(t)) &&
-        !toks.every((t) => knownSet.has(t))) {
-      toks.slice(0, 4).forEach((t, i) => { $("#sf-f" + (i + 1)).value = t; });
+    if (toks.length < 2 || toks.length > 5) continue;
+    const names = toks.map((t) => {
+      const m = t.match(/^([가-힣]{1,4})[^가-힣]{0,4}$/); // 뒤에 붙은 **·잡음 허용
+      return m ? m[1] + (m[0].length > m[1].length ? "**" : "") : null;
+    });
+    if (names.every(Boolean) && !toks.every((t) => knownSet.has(t))) {
+      names.slice(0, 4).forEach((t, i) => { $("#sf-f" + (i + 1)).value = t; });
       filled.push("동반자");
       break;
     }
+  }
+
+  // 티: "White Tee" 등 인식
+  const teeM = text.match(/(white|red|blue|black|gold|yellow|lady)\s*tee/i);
+  if (teeM) {
+    const teeMap = { white: "화이트", red: "레드", blue: "블루", black: "블랙", gold: "골드", yellow: "옐로우", lady: "레드" };
+    $("#sf-tee").value = teeMap[teeM[1].toLowerCase()] || "";
+    filled.push("티");
   }
 
   // 홀별 점수 줄 → 홀 그리드 자동 입력
@@ -2040,11 +2054,18 @@ $("#sf-photo").addEventListener("change", async (e) => {
     try {
       const worker = await getOcrWorker();
       const vars = ocrVariants(img);
+      // 캡처 하단의 광고 배너 영역은 잘라내고 스코어 카드 부분만 사용
+      const cardRegion = (t) => {
+        const lines = t.split("\n");
+        const idx = lines.findIndex((l) =>
+          /(인스타|공유하기|스코어저장|골프예약|부킹|PICK|이달의|핫딜|Click)/i.test(l));
+        return idx > 4 ? lines.slice(0, idx).join("\n") : t;
+      };
       let mergedText = "";
       for (let i = 0; i < vars.length; i++) {
         st.textContent = `🤖 AI가 스코어보드를 읽는 중... (${i + 1}/${vars.length})`;
         const { data } = await worker.recognize(vars[i]);
-        mergedText += "\n" + data.text;
+        mergedText += "\n" + cardRegion(data.text);
       }
       const { filled, candidates } = autofillFromOcr(mergedText);
       syncCourseSelectUI();
@@ -2117,6 +2138,7 @@ $("#score-form").addEventListener("submit", async (e) => {
       };
     } catch { /* 날씨 없이 저장 */ }
   }
+  if (rec.tee) localStorage.setItem("riweather.tee", rec.tee); // 다음부터 기본 티로
   let list = loadScores();
   if (editingId) list = list.map((x) => (x.id === editingId ? rec : x));
   else list.unshift(rec);
