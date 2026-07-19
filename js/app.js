@@ -400,7 +400,7 @@ function renderHome() {
         <span class="cc-desc">불러오는 중...</span>
         <span class="cc-minmax"></span>
       </div>`;
-    card.addEventListener("click", () => openDetail(c));
+    card.addEventListener("click", () => openHub(c));
     card.querySelector(".cc-del").addEventListener("click", (e) => {
       e.stopPropagation();
       if (!confirm(`'${c.name}'을(를) 목록에서 삭제할까요?`)) return;
@@ -453,7 +453,7 @@ function renderResultItem(entry) {
     hideSearchUI();
     searchInput.value = "";
     searchClear.hidden = true;
-    openDetail({ id: entry.id, name: entry.name, addr: entry.addr || "", lat: entry.lat, lon: entry.lon });
+    openHub({ id: entry.id, name: entry.name, addr: entry.addr || "", lat: entry.lat, lon: entry.lon });
   });
   return li;
 }
@@ -545,18 +545,62 @@ document.addEventListener("click", (e) => {
  * ========================================================= */
 let currentCourse = null;
 
+/* ---------- 화면 전환 (뒤로가기 스택 + 스와이프) ---------- */
+const VIEWS = {
+  home: homeView, hub: $("#hub-view"), detail: detailView,
+  course: $("#course-view"), food: $("#food-view"), score: $("#score-view"),
+};
+let viewStack = ["home"];
+
+function showOnly(name) {
+  for (const k in VIEWS) VIEWS[k].hidden = k !== name;
+  window.scrollTo(0, 0);
+  if (name !== "detail") stopPlay();
+  if (name === "home") renderHome();
+}
+function pushView(name) {
+  viewStack.push(name);
+  showOnly(name);
+  history.pushState({ depth: viewStack.length }, "");
+}
+window.addEventListener("popstate", () => {
+  if (viewStack.length > 1) {
+    viewStack.pop();
+    showOnly(viewStack[viewStack.length - 1]);
+  }
+});
+function goBack() {
+  if (viewStack.length > 1) history.back();
+}
+document.querySelectorAll(".btn-back-any").forEach((b) => b.addEventListener("click", goBack));
+
+/* 왼쪽 끝 → 오른쪽 스와이프 = 뒤로가기 */
+let swipeStart = null;
+document.addEventListener("touchstart", (e) => {
+  const t = e.touches[0];
+  swipeStart = t.clientX < 30 ? { x: t.clientX, y: t.clientY } : null;
+}, { passive: true });
+document.addEventListener("touchend", (e) => {
+  if (!swipeStart) return;
+  const t = e.changedTouches[0];
+  if (t.clientX - swipeStart.x > 70 && Math.abs(t.clientY - swipeStart.y) < 90) goBack();
+  swipeStart = null;
+}, { passive: true });
+
+/* ---------- 저장(★) — 상세/허브 공용 ---------- */
 function isSaved(id) {
   return loadCourses().some((c) => c.id === id);
 }
-
-function updateSaveBtn() {
-  const btn = $("#btn-save");
-  const saved = isSaved(currentCourse.id);
-  btn.textContent = saved ? "★" : "☆";
-  btn.classList.toggle("saved", saved);
+function refreshStars() {
+  const saved = currentCourse && isSaved(currentCourse.id);
+  ["#btn-save", "#hub-save"].forEach((sel) => {
+    const btn = $(sel);
+    btn.textContent = saved ? "★" : "☆";
+    btn.classList.toggle("saved", saved);
+  });
 }
-
-$("#btn-save").addEventListener("click", () => {
+function updateSaveBtn() { refreshStars(); }
+function toggleSave() {
   const list = loadCourses();
   if (isSaved(currentCourse.id)) {
     saveCourses(list.filter((c) => c.id !== currentCourse.id));
@@ -564,14 +608,49 @@ $("#btn-save").addEventListener("click", () => {
     list.push(currentCourse);
     saveCourses(list);
   }
-  updateSaveBtn();
-});
+  refreshStars();
+}
+$("#btn-save").addEventListener("click", toggleSave);
+$("#hub-save").addEventListener("click", toggleSave);
+$("#btn-back").addEventListener("click", goBack);
 
-$("#btn-back").addEventListener("click", () => {
-  detailView.hidden = true;
-  homeView.hidden = false;
-  stopPlay();
-  renderHome();
+/* ---------- 허브 (4개 메뉴) ---------- */
+function openHub(course) {
+  currentCourse = course;
+  $("#hub-name").textContent = course.name;
+  $("#hub-title-mini").textContent = course.name;
+  $("#hub-addr").textContent = course.addr || "";
+  $("#hub-now").textContent = "";
+  refreshStars();
+
+  if (!course.addr) {
+    reverseGeocode(course.lat, course.lon).then((addr) => {
+      if (currentCourse !== course || !addr) return;
+      course.addr = addr;
+      $("#hub-addr").textContent = addr;
+      const list = loadCourses();
+      const saved = list.find((c) => c.id === course.id);
+      if (saved && !saved.addr) { saved.addr = addr; saveCourses(list); }
+    }).catch(() => {});
+  }
+  fetchForecast(course.lat, course.lon).then((d) => {
+    if (currentCourse !== course) return;
+    $("#hub-now").innerHTML =
+      `<b>${Math.round(d.current.temperature_2m)}°</b> ${wmoDesc(d.current.weather_code)}` +
+      ` · 최고 ${Math.round(d.daily.temperature_2m_max[0])}° 최저 ${Math.round(d.daily.temperature_2m_min[0])}°`;
+  }).catch(() => {});
+
+  pushView("hub");
+}
+
+document.querySelectorAll(".hub-item").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    const m = btn.dataset.menu;
+    if (m === "weather") openDetail(currentCourse);
+    else if (m === "course") openCourseView();
+    else if (m === "food") openFoodView();
+    else if (m === "score") openScoreView();
+  });
 });
 
 // 스크롤 시 상단 미니 타이틀 표시
@@ -581,26 +660,12 @@ window.addEventListener("scroll", () => {
 
 async function openDetail(course) {
   currentCourse = course;
-  homeView.hidden = true;
-  detailView.hidden = false;
-  window.scrollTo(0, 0);
-  updateSaveBtn();
+  if (viewStack[viewStack.length - 1] !== "detail") pushView("detail"); // 재시도 시 중복 방지
+  refreshStars();
 
   $("#hero-name").textContent = course.name;
   $("#detail-title-mini").textContent = course.name;
   $("#hero-addr").textContent = course.addr || "";
-
-  // 내장 DB 골프장은 주소가 없으므로 지역명을 뒤에서 채움
-  if (!course.addr) {
-    reverseGeocode(course.lat, course.lon).then((addr) => {
-      if (currentCourse !== course || !addr) return;
-      course.addr = addr;
-      $("#hero-addr").textContent = addr;
-      const list = loadCourses();
-      const saved = list.find((c) => c.id === course.id);
-      if (saved && !saved.addr) { saved.addr = addr; saveCourses(list); }
-    }).catch(() => {});
-  }
   $("#hero-temp").textContent = "--°";
   $("#hero-desc").textContent = "불러오는 중...";
   $("#hero-minmax").textContent = "";
@@ -1139,6 +1204,383 @@ playBtn.addEventListener("click", () => {
     else showRvFrame((rvActive + 1) % rvFrames.length);
   }, mapMode === "fc" ? 800 : 650);
 });
+
+/* =========================================================
+ * 코스공략 — OSM 골프 데이터 + 위성지도
+ * ========================================================= */
+const OVERPASS_EPS = [
+  "https://overpass-api.de/api/interpreter",
+  "https://overpass.kumi.systems/api/interpreter",
+];
+async function overpassQuery(q) {
+  for (const ep of OVERPASS_EPS) {
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 20000); // 서버별 20초 제한
+    try {
+      const r = await fetch(ep, {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: "data=" + encodeURIComponent(q),
+        signal: ctrl.signal,
+      });
+      clearTimeout(timer);
+      if (r.ok) return await r.json();
+    } catch { clearTimeout(timer); /* 다음 서버 시도 */ }
+  }
+  throw new Error("overpass fail");
+}
+
+const distM = (a, b) => {
+  const R = 6371000, dLa = (b[0] - a[0]) * Math.PI / 180, dLo = (b[1] - a[1]) * Math.PI / 180;
+  const x = Math.sin(dLa / 2) ** 2 + Math.cos(a[0] * Math.PI / 180) * Math.cos(b[0] * Math.PI / 180) * Math.sin(dLo / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(x));
+};
+const lineLen = (pts) => pts.slice(1).reduce((s, p, i) => s + distM(pts[i], p), 0);
+const bearing = (a, b) => Math.atan2(b[1] - a[1], b[0] - a[0]) * 180 / Math.PI;
+
+let courseMap = null, courseLayers = [], holeLayers = [], courseHoles = [], courseHazards = [];
+const courseCache = new Map();
+
+function ensureCourseMap(lat, lon) {
+  if (courseMap) { courseMap.setView([lat, lon], 16); return; }
+  courseMap = L.map("course-map", {
+    zoomControl: true, attributionControl: true, scrollWheelZoom: false,
+  }).setView([lat, lon], 16);
+  L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}", {
+    attribution: "&copy; Esri", maxZoom: 19,
+  }).addTo(courseMap);
+}
+function clearCourseLayers() {
+  [...courseLayers, ...holeLayers].forEach((l) => courseMap.removeLayer(l));
+  courseLayers = []; holeLayers = [];
+}
+
+async function openCourseView() {
+  const course = currentCourse;
+  pushView("course");
+  $("#course-title").textContent = course.name;
+  $("#course-status").textContent = "코스 데이터 불러오는 중...";
+  $("#hole-list-card").hidden = true;
+  $("#hole-detail-card").hidden = true;
+  $("#course-note").hidden = true;
+  ensureCourseMap(course.lat, course.lon);
+  clearCourseLayers();
+  setTimeout(() => courseMap.invalidateSize(), 60);
+
+  const key = course.lat.toFixed(4) + "," + course.lon.toFixed(4);
+  let data = courseCache.get(key);
+  if (!data) {
+    try {
+      data = await overpassQuery(
+        `[out:json][timeout:25];way["golf"~"hole|green|tee|fairway|bunker|water_hazard|lateral_water_hazard"](around:1500,${course.lat},${course.lon});out geom;`);
+      courseCache.set(key, data);
+    } catch {
+      $("#course-status").textContent = "";
+      $("#course-note").textContent = "코스 데이터 서버가 혼잡합니다. 잠시 후 다시 열어주세요.";
+      $("#course-note").hidden = false;
+      return;
+    }
+  }
+  if (currentCourse !== course || viewStack[viewStack.length - 1] !== "course") return;
+
+  const ways = (data.elements || []).filter((e) => e.geometry && e.geometry.length > 1);
+  const pts = (w) => w.geometry.map((g) => [g.lat, g.lon]);
+  const centroid = (w) => {
+    const p = pts(w);
+    return [p.reduce((s, x) => s + x[0], 0) / p.length, p.reduce((s, x) => s + x[1], 0) / p.length];
+  };
+
+  // 배경 요소 그리기
+  const styleMap = [
+    ["fairway", { color: "#7ac943", weight: 1, fillColor: "#7ac943", fillOpacity: 0.18 }],
+    ["green",   { color: "#b9f6ca", weight: 1, fillColor: "#b9f6ca", fillOpacity: 0.35 }],
+    ["tee",     { color: "#fff59d", weight: 1, fillColor: "#fff59d", fillOpacity: 0.4 }],
+    ["bunker",  { color: "#ffe082", weight: 1, fillColor: "#ffd54f", fillOpacity: 0.55 }],
+  ];
+  for (const [kind, style] of styleMap) {
+    ways.filter((w) => w.tags.golf === kind).forEach((w) => {
+      courseLayers.push(L.polygon(pts(w), style).addTo(courseMap));
+    });
+  }
+  courseHazards = ways.filter((w) => /water_hazard/.test(w.tags.golf || ""));
+  courseHazards.forEach((w) => {
+    courseLayers.push(L.polygon(pts(w), { color: "#4fc3f7", weight: 1, fillColor: "#29b6f6", fillOpacity: 0.5 }).addTo(courseMap));
+  });
+  const bunkers = ways.filter((w) => w.tags.golf === "bunker").map(centroid);
+  const waters = courseHazards.map(centroid);
+
+  courseHoles = ways.filter((w) => w.tags.golf === "hole")
+    .map((w) => ({
+      ref: w.tags.ref || "?", par: parseInt(w.tags.par) || 0,
+      name: w.tags.name || "", line: pts(w),
+    }))
+    .sort((a, b) => (parseInt(a.ref) || 99) - (parseInt(b.ref) || 99));
+
+  if (!courseHoles.length) {
+    $("#course-status").textContent = "위성 전경";
+    $("#course-note").innerHTML =
+      "이 골프장은 아직 홀별 상세 데이터가 지도에 등록되지 않았습니다.<br>위성 지도로 코스 전경을 확인하실 수 있어요.";
+    $("#course-note").hidden = false;
+    return;
+  }
+
+  // 홀 라인 + 그리드
+  const allBounds = L.latLngBounds(courseHoles.flatMap((h) => h.line));
+  courseHoles.forEach((h) => {
+    courseLayers.push(L.polyline(h.line, { color: "#ffffff", weight: 2, dashArray: "6 6", opacity: 0.85 }).addTo(courseMap));
+  });
+  courseMap.fitBounds(allBounds.pad(0.08));
+  $("#course-status").textContent = courseHoles.length + "개 홀 등록됨";
+
+  const grid = $("#hole-grid");
+  grid.innerHTML = "";
+  courseHoles.forEach((h, i) => {
+    h.len = Math.round(lineLen(h.line));
+    if (!h.par) h.par = h.len < 230 ? 3 : h.len < 430 ? 4 : 5;
+    const b = document.createElement("button");
+    b.className = "hole-btn";
+    b.innerHTML = `${h.ref}<small>파${h.par}</small>`;
+    b.addEventListener("click", () => selectHole(i));
+    grid.appendChild(b);
+  });
+  $("#hole-list-card").hidden = false;
+
+  function selectHole(i) {
+    const h = courseHoles[i];
+    grid.querySelectorAll(".hole-btn").forEach((b, j) => b.classList.toggle("active", j === i));
+    holeLayers.forEach((l) => courseMap.removeLayer(l));
+    holeLayers = [];
+    holeLayers.push(L.polyline(h.line, { color: "#34d399", weight: 4, opacity: 0.95 }).addTo(courseMap));
+    const tee = h.line[0], green = h.line[h.line.length - 1];
+    holeLayers.push(L.marker(tee, { icon: L.divIcon({ className: "", html: '<div class="course-dot" style="background:#fff59d"></div>', iconSize: [16, 16], iconAnchor: [8, 8] }), interactive: false }).addTo(courseMap));
+    holeLayers.push(L.marker(green, { icon: L.divIcon({ className: "", html: "⛳", iconSize: [20, 20], iconAnchor: [10, 18] }), interactive: false }).addTo(courseMap));
+    courseMap.fitBounds(L.latLngBounds(h.line).pad(0.25));
+
+    // 공략 요약 자동 생성
+    const nearLine = (pt) => h.line.some((v) => distM(v, pt) < 70);
+    const nb = bunkers.filter(nearLine).length;
+    const nw = waters.filter(nearLine).length;
+    const mid = h.line[Math.floor(h.line.length / 2)];
+    const turn = ((bearing(mid, green) - bearing(tee, mid) + 540) % 360) - 180;
+    let txt = `파${h.par} · 약 ${h.len}m. `;
+    if (Math.abs(turn) > 28) {
+      txt += `${turn > 0 ? "오른쪽" : "왼쪽"} 도그레그 홀입니다 — 티샷은 코너 ${turn > 0 ? "왼쪽" : "오른쪽"} 페어웨이를 노리세요. `;
+    } else {
+      txt += "비교적 직선 홀 — 페어웨이 센터를 공략하세요. ";
+    }
+    if (nw) txt += `워터해저드가 ${nw}곳 걸려 있어 무리한 공략보다 안전한 레이업을 고려하세요. `;
+    if (nb) txt += `벙커 ${nb}개가 배치되어 있습니다 — 지도의 노란 구역을 피해 가세요.`;
+    if (!nw && !nb) txt += "큰 해저드는 없는 홀입니다.";
+    $("#hole-detail-title").textContent = `${h.ref}번홀 공략` + (h.name ? ` · ${h.name}` : "");
+    $("#hole-strategy").textContent = txt;
+    $("#hole-video").href = "https://www.youtube.com/results?search_query=" +
+      encodeURIComponent(`${course.name} ${h.ref}번홀 공략`);
+    $("#hole-detail-card").hidden = false;
+  }
+  selectHole(0);
+}
+
+/* =========================================================
+ * 주변맛집 — OSM 식당 + 카카오/네이버 연결
+ * ========================================================= */
+const CUISINE_KO = {
+  korean: ["한식", "🍚"], chicken: ["치킨", "🍗"], japanese: ["일식", "🍣"],
+  sushi: ["초밥", "🍣"], chinese: ["중식", "🥟"], pizza: ["피자", "🍕"],
+  burger: ["햄버거", "🍔"], seafood: ["해산물", "🦐"], barbecue: ["고기구이", "🥩"],
+  noodle: ["국수", "🍜"], ramen: ["라멘", "🍜"], asian: ["아시아", "🍛"],
+  italian: ["양식", "🍝"], western: ["양식", "🍴"], coffee_shop: ["카페", "☕"],
+};
+const cuisineInfo = (c) => {
+  if (!c) return ["식당", "🍴"];
+  const k = c.split(";")[0].trim().toLowerCase();
+  return CUISINE_KO[k] || [k, "🍴"];
+};
+const foodCache = new Map();
+
+async function openFoodView() {
+  const course = currentCourse;
+  pushView("food");
+  $("#food-title").textContent = "주변맛집";
+  $("#food-desc").textContent = `${course.name} 주변 5km 이내 식당`;
+  const listEl = $("#food-list");
+  listEl.innerHTML = '<p class="loading-line">주변 식당을 찾는 중...</p>';
+  $("#food-note").hidden = true;
+
+  const key = course.lat.toFixed(3) + "," + course.lon.toFixed(3);
+  let data = foodCache.get(key);
+  if (!data) {
+    try {
+      data = await overpassQuery(
+        `[out:json][timeout:25];(node["amenity"~"restaurant|fast_food"]["name"](around:5000,${course.lat},${course.lon});way["amenity"~"restaurant|fast_food"]["name"](around:5000,${course.lat},${course.lon}););out center tags 60;`);
+      foodCache.set(key, data);
+    } catch {
+      listEl.innerHTML = "";
+      $("#food-note").textContent = "식당 데이터 서버가 혼잡합니다. 잠시 후 다시 열어주세요.";
+      $("#food-note").hidden = false;
+      return;
+    }
+  }
+  if (currentCourse !== course || viewStack[viewStack.length - 1] !== "food") return;
+
+  const region = (course.addr || "").split(" ").slice(0, 2).join(" ");
+  const items = (data.elements || [])
+    .map((e) => {
+      const lat = e.lat ?? e.center?.lat, lon = e.lon ?? e.center?.lon;
+      if (lat == null) return null;
+      return { name: e.tags.name, tags: e.tags, dist: distM([course.lat, course.lon], [lat, lon]) };
+    })
+    .filter(Boolean)
+    .sort((a, b) => a.dist - b.dist)
+    .slice(0, 25);
+
+  listEl.innerHTML = "";
+  if (!items.length) {
+    $("#food-note").innerHTML = "주변 5km 안에 등록된 식당 데이터가 없습니다.<br>아래 버튼으로 카카오맵에서 바로 찾아보세요.";
+    $("#food-note").hidden = false;
+    const a = document.createElement("a");
+    a.className = "video-btn";
+    a.style.margin = "0 4px";
+    a.target = "_blank"; a.rel = "noopener";
+    a.textContent = "🗺 카카오맵에서 주변 맛집 검색";
+    a.href = "https://map.kakao.com/link/search/" + encodeURIComponent(region + " 맛집");
+    listEl.appendChild(a);
+    return;
+  }
+
+  items.forEach((it) => {
+    const [cuiKo, emoji] = cuisineInfo(it.tags.cuisine);
+    const km = it.dist < 950 ? Math.round(it.dist) + "m" : (it.dist / 1000).toFixed(1) + "km";
+    const addr = it.tags["addr:full"] ||
+      [it.tags["addr:city"], it.tags["addr:district"], it.tags["addr:street"], it.tags["addr:housenumber"]].filter(Boolean).join(" ");
+    const div = document.createElement("div");
+    div.className = "food-item";
+    div.innerHTML = `
+      <div class="fi-row">
+        <span class="fi-emoji">${emoji}</span>
+        <div style="flex:1;min-width:0">
+          <div class="fi-name">${it.name}</div>
+          <div class="fi-sub">${cuiKo}</div>
+        </div>
+        <span class="fi-dist">${km}</span>
+      </div>
+      <div class="fi-detail">
+        ${addr ? "📍 " + addr + "<br>" : ""}
+        ${it.tags.phone ? "📞 " + it.tags.phone + "<br>" : ""}
+        ${it.tags.opening_hours ? "🕐 " + it.tags.opening_hours + "<br>" : ""}
+        골프장에서 <b>${km}</b> 거리
+        <div class="fi-links">
+          <a class="kakao" target="_blank" rel="noopener" href="https://map.kakao.com/link/search/${encodeURIComponent(it.name)}">카카오맵 (사진·메뉴)</a>
+          <a class="naver" target="_blank" rel="noopener" href="https://search.naver.com/search.naver?query=${encodeURIComponent(region + " " + it.name)}">네이버 검색</a>
+        </div>
+      </div>`;
+    div.querySelector(".fi-row").addEventListener("click", () => div.classList.toggle("open"));
+    listEl.appendChild(div);
+  });
+}
+
+/* =========================================================
+ * MY스코어 — 라운딩 기록 + 그날 날씨 자동 저장
+ * ========================================================= */
+const SCORE_KEY = "riweather.scores.v1";
+const loadScores = () => { try { return JSON.parse(localStorage.getItem(SCORE_KEY)) || []; } catch { return []; } };
+const saveScores = (l) => localStorage.setItem(SCORE_KEY, JSON.stringify(l));
+
+function openScoreView() {
+  pushView("score");
+  $("#score-form").hidden = true;
+  $("#sf-date").value = new Date().toISOString().slice(0, 10);
+  $("#sf-course").value = currentCourse ? currentCourse.name : "";
+  renderScores();
+}
+$("#score-add-btn").addEventListener("click", () => {
+  $("#score-form").hidden = !$("#score-form").hidden;
+});
+$("#sf-cancel").addEventListener("click", () => { $("#score-form").hidden = true; });
+
+$("#score-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const rec = {
+    id: Date.now(),
+    date: $("#sf-date").value,
+    course: $("#sf-course").value.trim(),
+    score: parseInt($("#sf-score").value),
+    friends: $("#sf-friends").value.trim(),
+    memo: $("#sf-memo").value.trim(),
+  };
+  // 그날 날씨 자동 기록 (현재 열린 골프장 좌표 기준)
+  if (currentCourse) {
+    try {
+      const url = new URL("https://api.open-meteo.com/v1/forecast");
+      url.search = new URLSearchParams({
+        latitude: currentCourse.lat, longitude: currentCourse.lon,
+        daily: "temperature_2m_max,temperature_2m_min,precipitation_sum,wind_speed_10m_max,weather_code",
+        wind_speed_unit: "ms", timezone: "Asia/Seoul",
+        start_date: rec.date, end_date: rec.date,
+      });
+      const d = await fetchJSON(url, { retries: 1 });
+      rec.wx = {
+        code: d.daily.weather_code[0],
+        tmax: Math.round(d.daily.temperature_2m_max[0]),
+        tmin: Math.round(d.daily.temperature_2m_min[0]),
+        rain: d.daily.precipitation_sum[0],
+        wind: Math.round(d.daily.wind_speed_10m_max[0] * 10) / 10,
+      };
+    } catch { /* 날씨 없이 저장 */ }
+  }
+  const list = loadScores();
+  list.unshift(rec);
+  saveScores(list);
+  $("#score-form").hidden = true;
+  $("#sf-score").value = ""; $("#sf-friends").value = ""; $("#sf-memo").value = "";
+  renderScores();
+});
+
+function renderScores() {
+  const list = loadScores();
+  const el = $("#score-list");
+  el.innerHTML = "";
+  $("#score-empty").hidden = list.length > 0;
+  list.forEach((r) => {
+    const div = document.createElement("div");
+    div.className = "score-item";
+    const wx = r.wx
+      ? `<div class="si-wx">
+           <span>${wmoIcon(r.wx.code)} ${wmoDesc(r.wx.code)}</span>
+           <span>🌡 ${r.wx.tmin}~${r.wx.tmax}°</span>
+           <span>🌧 ${r.wx.rain}mm</span>
+           <span>🌬 최대 ${r.wx.wind}m/s</span>
+         </div>` : "";
+    div.innerHTML = `
+      <button class="si-del" aria-label="삭제">✕</button>
+      <div class="si-top">
+        <div>
+          <div class="si-course">${r.course}</div>
+          <div class="si-date">${r.date}</div>
+        </div>
+        <div class="si-score">${r.score}<small>타</small></div>
+      </div>
+      ${r.friends ? `<div class="si-friends">👥 ${r.friends}</div>` : ""}
+      ${r.memo ? `<div class="si-memo">"${r.memo}"</div>` : ""}
+      ${wx}`;
+    div.querySelector(".si-del").addEventListener("click", () => {
+      if (!confirm(`${r.date} ${r.course} 기록을 삭제할까요?`)) return;
+      saveScores(loadScores().filter((x) => x.id !== r.id));
+      renderScores();
+    });
+    el.appendChild(div);
+  });
+}
+
+/* ---------- 홈 화면 설치 안내 ---------- */
+(function () {
+  const dismissed = localStorage.getItem("riweather.ig.dismissed");
+  const standalone = matchMedia("(display-mode: standalone)").matches || navigator.standalone;
+  if (!dismissed && !standalone) $("#install-guide").hidden = false;
+  $("#ig-close").addEventListener("click", () => {
+    $("#install-guide").hidden = true;
+    localStorage.setItem("riweather.ig.dismissed", "1");
+  });
+})();
 
 /* ---------- 시작 ---------- */
 renderHome();

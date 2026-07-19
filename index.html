@@ -44,6 +44,15 @@
 
     <section id="course-list" class="course-list"></section>
 
+    <div id="install-guide" class="install-guide" hidden>
+      <button class="ig-close" id="ig-close">✕</button>
+      <div class="ig-title">📲 홈 화면에 설치하고 앱처럼 쓰세요</div>
+      <div class="ig-steps">
+        <div><b>아이폰</b> Safari 공유버튼(⬆️) → "홈 화면에 추가"</div>
+        <div><b>안드로이드</b> Chrome 메뉴(⋮) → "홈 화면에 추가"</div>
+      </div>
+    </div>
+
     <div id="empty-state" class="empty-state" hidden>
       <div class="empty-icon">⛳️</div>
       <p><strong>저장된 골프장이 없습니다</strong></p>
@@ -152,6 +161,99 @@
         데이터: Open-Meteo · RainViewer · OpenStreetMap<br>
         Ri-Weather 베타 — 참고용이며 실제 기상 정보와 다를 수 있습니다.
       </footer>
+    </div>
+  </main>
+
+  <!-- ================= 허브 (4개 메뉴) ================= -->
+  <main id="hub-view" class="view" hidden>
+    <header class="detail-header">
+      <button class="hdr-btn btn-back-any" aria-label="뒤로">‹</button>
+      <div class="hdr-title show" id="hub-title-mini"></div>
+      <button id="hub-save" class="hdr-btn star" aria-label="저장">☆</button>
+    </header>
+    <div class="hub-head">
+      <div class="hub-name" id="hub-name">-</div>
+      <div class="hub-addr" id="hub-addr"></div>
+      <div class="hub-now" id="hub-now"></div>
+    </div>
+    <nav class="hub-menu">
+      <button class="hub-item" data-menu="weather">
+        <span class="hub-ic">🌤️</span><b>날씨</b><span>시간별 예보 · 비구름 지도</span>
+      </button>
+      <button class="hub-item" data-menu="course">
+        <span class="hub-ic">🗺️</span><b>코스공략</b><span>홀별 지도 · 공략 요약</span>
+      </button>
+      <button class="hub-item" data-menu="food">
+        <span class="hub-ic">🍚</span><b>주변맛집</b><span>가까운 식당 찾기</span>
+      </button>
+      <button class="hub-item" data-menu="score">
+        <span class="hub-ic">🏌️</span><b>MY스코어</b><span>라운딩 기록 + 그날 날씨</span>
+      </button>
+    </nav>
+    <p class="hub-tip">💡 화면 왼쪽 끝에서 오른쪽으로 쓸면 뒤로 갑니다</p>
+  </main>
+
+  <!-- ================= 코스공략 ================= -->
+  <main id="course-view" class="view" hidden>
+    <header class="detail-header">
+      <button class="hdr-btn btn-back-any" aria-label="뒤로">‹</button>
+      <div class="hdr-title show" id="course-title"></div>
+      <span class="hdr-btn" style="visibility:hidden"></span>
+    </header>
+    <section class="card radar-card">
+      <div class="card-title"><span class="ic">🛰️</span> 코스 지도 <small id="course-status"></small></div>
+      <div class="map-wrap"><div id="course-map"></div></div>
+    </section>
+    <section class="card" id="hole-list-card" hidden>
+      <div class="card-title"><span class="ic">⛳</span> 홀 선택</div>
+      <div class="hole-grid" id="hole-grid"></div>
+    </section>
+    <section class="card" id="hole-detail-card" hidden>
+      <div class="card-title"><span class="ic">🎯</span> <span id="hole-detail-title">공략</span></div>
+      <p class="hole-strategy" id="hole-strategy"></p>
+      <a class="video-btn" id="hole-video" target="_blank" rel="noopener">▶ 이 홀 공략 영상 찾기 (YouTube)</a>
+    </section>
+    <p class="course-note" id="course-note" hidden></p>
+  </main>
+
+  <!-- ================= 주변맛집 ================= -->
+  <main id="food-view" class="view" hidden>
+    <header class="detail-header">
+      <button class="hdr-btn btn-back-any" aria-label="뒤로">‹</button>
+      <div class="hdr-title show" id="food-title"></div>
+      <span class="hdr-btn" style="visibility:hidden"></span>
+    </header>
+    <p class="food-desc" id="food-desc">골프장 주변 5km 이내 식당</p>
+    <div id="food-list" class="food-list"></div>
+    <p class="course-note" id="food-note" hidden></p>
+  </main>
+
+  <!-- ================= MY스코어 ================= -->
+  <main id="score-view" class="view" hidden>
+    <header class="detail-header">
+      <button class="hdr-btn btn-back-any" aria-label="뒤로">‹</button>
+      <div class="hdr-title show">MY스코어</div>
+      <button id="score-add-btn" class="hdr-btn" aria-label="기록 추가">＋</button>
+    </header>
+
+    <form id="score-form" class="card score-form" hidden>
+      <div class="card-title"><span class="ic">✏️</span> 라운딩 기록 추가</div>
+      <label>날짜 <input type="date" id="sf-date" required></label>
+      <label>골프장 <input type="text" id="sf-course" required></label>
+      <label>총 타수 <input type="number" id="sf-score" min="50" max="180" placeholder="예: 85" required></label>
+      <label>동반자 <input type="text" id="sf-friends" placeholder="예: 김프로, 박부장"></label>
+      <label>메모 <input type="text" id="sf-memo" placeholder="예: 드라이버 좋았음"></label>
+      <div class="sf-actions">
+        <button type="button" class="sf-cancel" id="sf-cancel">취소</button>
+        <button type="submit" class="sf-save">저장 (그날 날씨 자동 기록)</button>
+      </div>
+    </form>
+
+    <div id="score-list" class="score-list"></div>
+    <div id="score-empty" class="empty-state" hidden>
+      <div class="empty-icon">🏌️</div>
+      <p><strong>아직 기록이 없습니다</strong></p>
+      <p>우측 상단 ＋ 버튼으로 라운딩을 기록해 보세요.<br>그날의 날씨·바람이 자동으로 함께 저장됩니다.</p>
     </div>
   </main>
 
