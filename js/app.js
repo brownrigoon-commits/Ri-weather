@@ -4,7 +4,7 @@
  * ========================================================= */
 "use strict";
 
-const APP_VER = "v29"; // 배포 버전 (홈 화면 배지에 표시)
+const APP_VER = "v30"; // 배포 버전 (홈 화면 배지에 표시)
 const STORAGE_KEY = "riweather.courses.v1";
 const GEM_KEY = "riweather.gemini"; // 정밀 인식(비전 AI) 개인 키 저장소
 // 기본 제공 키 (무료 한도 공유) — 개인 키를 설정하면 그 키가 우선됩니다
@@ -2556,26 +2556,34 @@ async function shareScoreCard(r) {
   x.fillStyle = "#34d399";
   x.fillText("타", W / 2 + 130, 395);
 
-  // 홀별 표
+  // 홀별 표 (라벨 | 1~9홀 | 합계 — 겹침 없는 고정 칼럼)
   let y = 470;
   if (r.holes) {
-    const cell = (W - 120) / 10;
-    [[r.holes.slice(0, 9), r.front || "전반"], [r.holes.slice(9), r.back || "후반"]].forEach(([nine, label]) => {
+    const cellsX0 = 165, cellsX1 = W - 150; // 홀 숫자 영역
+    const cell = (cellsX1 - cellsX0) / 9;
+    const rows = [
+      [r.holes.slice(0, 9), (r.pars || []).slice(0, 9), r.front || "전반"],
+      [r.holes.slice(9), (r.pars || []).slice(9, 18), r.back || "후반"],
+    ];
+    rows.forEach(([nine, pars, label]) => {
+      if (nine.every((v) => v == null)) return; // 9홀 라운드의 빈 후반 생략
       x.fillStyle = "rgba(0,0,0,0.25)";
-      x.fillRect(60, y, W - 120, 54);
+      x.fillRect(50, y, W - 100, 54);
       x.font = "600 20px -apple-system, sans-serif";
       x.fillStyle = "rgba(255,255,255,0.6)";
       x.textAlign = "left";
-      x.fillText(label.slice(0, 4), 70, y + 34);
+      x.fillText(label.slice(0, 5), 62, y + 34);
       x.textAlign = "center";
+      x.font = "600 22px -apple-system, sans-serif";
       nine.forEach((v, i) => {
         x.fillStyle = v > 0 ? "#ff9c9c" : v < 0 ? "#7fd4ff" : "#fff";
-        x.fillText(v == null ? "·" : v > 0 ? "+" + v : String(v), 130 + cell * i + cell / 2, y + 34);
+        x.fillText(v == null ? "·" : v > 0 ? "+" + v : String(v), cellsX0 + cell * i + cell / 2, y + 34);
       });
-      const t = 36 + nine.reduce((s, v) => s + (v || 0), 0);
+      const parT = pars.length === 9 ? pars.reduce((s, v) => s + v, 0) : 36;
+      const t = parT + nine.reduce((s, v) => s + (v || 0), 0);
       x.fillStyle = "#34d399";
-      x.font = "700 24px -apple-system, sans-serif";
-      x.fillText(String(t), W - 85, y + 35);
+      x.font = "800 26px -apple-system, sans-serif";
+      x.fillText(String(t), W - 92, y + 35);
       y += 62;
     });
     y += 20;
