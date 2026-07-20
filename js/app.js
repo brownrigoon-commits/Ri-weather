@@ -4,7 +4,7 @@
  * ========================================================= */
 "use strict";
 
-const APP_VER = "v43"; // 배포 버전 (홈 화면 배지에 표시)
+const APP_VER = "v44"; // 배포 버전 (홈 화면 배지에 표시)
 const STORAGE_KEY = "riweather.courses.v1";
 const GEM_KEY = "riweather.gemini"; // 정밀 인식(비전 AI) 개인 키 저장소
 // 기본 제공 키 (무료 한도 공유) — 개인 키를 설정하면 그 키가 우선됩니다
@@ -1591,6 +1591,7 @@ async function openCourseView() {
     $("#hole-strategy").hidden = false;
     $("#hole-strategy").textContent = buildHoleStrategy(h, bunkers, waters) +
       (h.tip ? "\n\n💡 코스 공략 포인트: " + h.tip : "");
+    $("#hole-video").hidden = false;
     $("#hole-video").href = "https://www.youtube.com/results?search_query=" +
       encodeURIComponent(`${course.name} ${h.ref}번홀 공략`);
     $("#hole-detail-card").hidden = false;
@@ -1632,14 +1633,19 @@ function renderImgCourse(course, db) {
     img.hidden = false;
     $("#hole-img-src").textContent = "홀맵 출처: " + db.source;
     $("#hole-img-src").hidden = false;
-    $("#hole-strategy").textContent = "";
-    $("#hole-strategy").hidden = true;
+    if (h.tip) {
+      $("#hole-strategy").hidden = false;
+      const safeTip = h.tip.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+      $("#hole-strategy").innerHTML = "<b>⛳ 공식 코스공략 TIP</b><br>" + safeTip;
+    } else {
+      $("#hole-strategy").textContent = "";
+      $("#hole-strategy").hidden = true;
+    }
     $("#ai-strategy").hidden = true;
     $("#ai-strategy").textContent = "";
     aiHoleCtx = { imgHole: h, courseName: course.name };
     lastHoleSelect = () => sel(i);
-    $("#hole-video").href = "https://www.youtube.com/results?search_query=" +
-      encodeURIComponent(`${course.name} ${h.cname} ${h.no}번홀 공략`);
+    $("#hole-video").hidden = true; // 홀별 영상 선별 불가 — 신뢰 문제로 미표시
     $("#hole-detail-card").hidden = false;
   }
   sel(0);
@@ -1824,7 +1830,8 @@ async function aiCaddie() {
       const data = await imgToB64($("#hole-img"));
       const prompt =
         `당신은 투어 경력의 친절한 한국인 캐디입니다. 첨부 이미지는 ${aiHoleCtx.courseName} ${hh.cname}코스 ${hh.no}번홀(파${hh.par})의 공식 홀맵입니다. ` +
-        `홀맵에는 홀 모양, 벙커·해저드 위치, 그린까지 거리선(50/100/150M), 티별 거리표, 코스공략 TIP이 표시되어 있습니다. ` +
+        `홀맵에는 홀 모양, 벙커·해저드 위치, 그린까지 거리선(50/100/150M)이 표시되어 있습니다. ` +
+        (hh.tip ? `골프장 공식 공략 TIP: "${hh.tip}" ` : "") +
         `플레이어: 구질 ${prof2.shape || "스트레이트"}, 드라이버 평균 ${prof2.dist || 200}m. ` +
         `가장 중요한 것은 구질 맞춤입니다 — 이 플레이어의 구질(${prof2.shape || "스트레이트"})이 이 홀에서 유리한지 불리한지 판단하고, ` +
         `구질을 감안한 구체적인 조준점(예: 슬라이스면 좌측 OO를 보고)과 위험 구역 회피법을 반드시 포함하세요. ` +
