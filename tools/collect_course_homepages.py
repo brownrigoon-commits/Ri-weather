@@ -160,8 +160,17 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--limit", type=int, default=0)
     ap.add_argument("--only", type=str, default="")
+    ap.add_argument("--seeds", type=str, default="", help="추가 시드 JSON (find_missing_homepages 결과)")
     args = ap.parse_args()
-    clubs = load_clubs()
+    if args.seeds:
+        raw = json.load(open(args.seeds, encoding="utf-8"))
+        clubs = {}
+        for name, v in raw.items():
+            url = v.get("url") if isinstance(v, dict) else v
+            if url:
+                clubs[name] = norm_url(url)
+    else:
+        clubs = load_clubs()
     items = list(clubs.items())
     if args.only:
         keys = [k.strip() for k in args.only.split(",")]
