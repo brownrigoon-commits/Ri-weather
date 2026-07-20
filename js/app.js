@@ -4,7 +4,7 @@
  * ========================================================= */
 "use strict";
 
-const APP_VER = "v47"; // 배포 버전 (홈 화면 배지에 표시)
+const APP_VER = "v48"; // 배포 버전 (홈 화면 배지에 표시)
 const STORAGE_KEY = "riweather.courses.v1";
 const GEM_KEY = "riweather.gemini"; // 정밀 인식(비전 AI) 개인 키 저장소
 // 기본 제공 키 (무료 한도 공유) — 개인 키를 설정하면 그 키가 우선됩니다
@@ -1633,10 +1633,18 @@ function renderImgCourse(course, db) {
     img.hidden = false;
     $("#hole-img-src").textContent = "홀맵 출처: " + db.source;
     $("#hole-img-src").hidden = false;
+    let infoHtml = "";
+    if (h.dist) {
+      const row = (g, a) => `<b>${g}그린</b> 백 ${a[0]} · 레귤러 ${a[1]} · 프론트 ${a[2]} · 레이디 ${a[3]}m`;
+      infoHtml += `<b>📏 티별 거리</b><br>${row("L", h.dist.L)}<br>${row("R", h.dist.R)}<br><br>`;
+    }
     if (h.tip) {
-      $("#hole-strategy").hidden = false;
       const safeTip = h.tip.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-      $("#hole-strategy").innerHTML = "<b>⛳ 공식 코스공략 TIP</b><br>" + safeTip;
+      infoHtml += "<b>⛳ 공식 코스공략 TIP</b><br>" + safeTip;
+    }
+    if (infoHtml) {
+      $("#hole-strategy").hidden = false;
+      $("#hole-strategy").innerHTML = infoHtml;
     } else {
       $("#hole-strategy").textContent = "";
       $("#hole-strategy").hidden = true;
@@ -1834,6 +1842,7 @@ async function aiCaddie() {
       const prompt =
         `당신은 투어 경력의 친절한 한국인 캐디입니다. 첨부 이미지는 ${aiHoleCtx.courseName} ${hh.cname}코스 ${hh.no}번홀(파${hh.par})의 공식 홀맵입니다. ` +
         `홀맵에는 홀 모양, 벙커·해저드 위치, 그린까지 거리선(50/100/150M)이 표시되어 있습니다. ` +
+        (hh.dist ? `티별 거리(m): L그린 백${hh.dist.L[0]}/레귤러${hh.dist.L[1]}/프론트${hh.dist.L[2]}/레이디${hh.dist.L[3]}, R그린 백${hh.dist.R[0]}/레귤러${hh.dist.R[1]}/프론트${hh.dist.R[2]}/레이디${hh.dist.R[3]}. ` : "") +
         (hh.tip ? `골프장 공식 공략 TIP: "${hh.tip}" ` : "") +
         `플레이어: 구질 ${prof2.shape || "스트레이트"}, 드라이버 평균 ${prof2.dist || 200}m. ` +
         `가장 중요한 것은 구질 맞춤입니다 — 이 플레이어의 구질(${prof2.shape || "스트레이트"})이 이 홀에서 유리한지 불리한지 판단하고, ` +
