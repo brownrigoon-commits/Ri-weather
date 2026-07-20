@@ -4,7 +4,7 @@
  * ========================================================= */
 "use strict";
 
-const APP_VER = "v44"; // 배포 버전 (홈 화면 배지에 표시)
+const APP_VER = "v45"; // 배포 버전 (홈 화면 배지에 표시)
 const STORAGE_KEY = "riweather.courses.v1";
 const GEM_KEY = "riweather.gemini"; // 정밀 인식(비전 AI) 개인 키 저장소
 // 기본 제공 키 (무료 한도 공유) — 개인 키를 설정하면 그 키가 우선됩니다
@@ -1657,7 +1657,10 @@ async function imgToB64(imgEl) {
   const cv = document.createElement("canvas");
   cv.width = imgEl.naturalWidth;
   cv.height = imgEl.naturalHeight;
-  cv.getContext("2d").drawImage(imgEl, 0, 0);
+  const c2 = cv.getContext("2d");
+  c2.fillStyle = "#fff";               // 투명 배경 → 흰색 (AI 분석용)
+  c2.fillRect(0, 0, cv.width, cv.height);
+  c2.drawImage(imgEl, 0, 0);
   return cv.toDataURL("image/jpeg", 0.85).split(",")[1];
 }
 
