@@ -1,7 +1,33 @@
-/* Ri-Weather 공식 홀맵 이미지 DB
- * 홀 그림·공략 TIP: 각 골프장 공식 홈페이지 (출처 표기), 거리: 골프존 실측 프론트티 기준.
- */
+/* Ri-Weather 공식 홀맵 이미지 DB — 각 골프장 공식 홈페이지 원문 (출처 표기) */
 const HOLEIMG_DB = {
+  "몽베르CC": {
+    source: "몽베르CC 공식 홈페이지",
+    sourceUrl: "https://montvertcc.com/public/swp/courseData",
+    courses: [
+      { name: "망무봉 OUT", holes: [
+        { no: 1, par: 5, img: "holeimg/montvert/course_out-1-0.png", tip: "스타트 홀로써 평탄한 편이나, 티샷시 좌측 자연림과 우측 O.B를 주의해서 공략 슬라이스에 유의해야한다.", len: 355, hdcp: 9 },
+        { no: 2, par: 4, img: "holeimg/montvert/course_out-2-0.png", tip: "티샷 시 내리막을 감안하여 1클럽정도 짧게 잡아야 하며, 그린이 크고 길고 (35m)가운데가 깊고 우측으로 경사가 있어 정교한 랜딩 지점 설정이 중요하다. 슬라이스에 유의해야 한다.", len: 366, hdcp: 18 },
+        { no: 3, par: 5, img: "holeimg/montvert/course_out-3-0.png", tip: "좌측으로 10도 정도 기울어진 브라인드홀, 평탄한 홀이나 욕심은 금물. 각처에 도사리고 있는 마운드 등 방해물이 많은 코스로 정확한 샷이 요구되며, 그린 앞 좌측 벙커를 주의해야한다.", len: 543, hdcp: 7 },
+        { no: 4, par: 3, img: "holeimg/montvert/course_out-4-0.png", tip: "실제보다 그린 좌측으로 공이 많이가는 착시 현상에 유의해야한다. 그린 주변이 어려워 정확한 티샷이 요구된다.", len: 170, hdcp: 9 },
+        { no: 5, par: 4, img: "holeimg/montvert/course_out-5-0.png", tip: "핸디캡 1번홀로서 비교적 긴 거리의 미들홀이다. 세컨샷 지점이 보이지 않은 깜깜이 홀. 장타자의경우,그린주변 좌우에 벙커를 피하기 위한 정확한 샷이 요구된다.", len: 405, hdcp: 1 },
+        { no: 6, par: 3, img: "holeimg/montvert/course_out-6-0.png", tip: "그린 주위가 좁고 2단 그린으로 그린 공략점에 주의가 필요하다.", len: 180, hdcp: 17 },
+        { no: 7, par: 4, img: "holeimg/montvert/course_out-7-0.png", tip: "전형적인 전략홀로 거리는 짧으나 티샷시 드라이버는 다소위험. 우드나 아이언 등의 정확한클럽 선택이 필요하며 슬라이스에 유의해야한다.", len: 316, hdcp: 2 },
+        { no: 8, par: 4, img: "holeimg/montvert/course_out-8-0.png", tip: "슬라이스가 잘 나오는 홀. 페어웨이가 좁고 업,다운이 심해 정확한 티샷이 요구된다. 그린 좌측으로 급경사이므로 우측을 공략하는 것이 유리하다.", len: 359, hdcp: 12 },
+        { no: 9, par: 5, img: "holeimg/montvert/course_out-9-0.png", tip: "한국전쟁시 마을주민이 대피하던 동굴이 현존하는 홀이다. 그린 앞 좌우에 2개의벙커가 위치. 그린 주위가 좁고 2단 그린으로 그린 공략점에 주의해야 한다.", len: 477, hdcp: 12 },
+      ]},
+      { name: "망무봉 IN", holes: [
+        { no: 1, par: 4, img: "holeimg/montvert/course_in-1-0.png", tip: "2단 페어웨이에 업다운이 심하고 내리막 경사에 유의해야 한다. 탑 그린에 뒤가 낮아 온 그린 후에도 그린 뒤쪽까지 흘러갈 수 있으니 짧게 공략해야 한다.", len: 401, hdcp: 3 },
+        { no: 2, par: 4, img: "holeimg/montvert/course_in-2-0.png", tip: "페어웨이 끝을 가로지르는 실개천이 있어 전략을 필요로 하는 홀이다. 세컨 샷은 우측 워터 헤저드에 유의하며 그린은 센터가 높고 앞뒤로 내리막 경사에 주의해야 한다", len: 335, hdcp: 10 },
+        { no: 3, par: 3, img: "holeimg/montvert/course_in-3-0.png", tip: "비교적 짧은 숏 홀이나 좌측 워터 헤저드를 끼고 그린 뒤의 여유가 없어 긴 타구에 유의해야 한다. 그린은 가운데가 높고 앞뒤가 낮아 3퍼팅에 유의해야 한다.", len: 185, hdcp: 15 },
+        { no: 4, par: 5, img: "holeimg/montvert/course_in-4-0.png", tip: "거리가 짧은 롱홀이다. 심한 좌도그렉홀로 이글, 버디를 노릴만 하나 초보자에겐 역경이 될 수 있는 기복이 심한 페아웨이에 오르막으로써 희비가 교차되는 홀이다.", len: 403, hdcp: 4 },
+        { no: 5, par: 4, img: "holeimg/montvert/course_in-5-0.png", tip: "좌측 바위산과 우측 협곡 사이에 위치한 페어웨이가 비교적 좁아 정확한 티샷이 요구된다. 그린 앞 좌측 벙커와 워터 해저드를 유의하고 그린 주변과 뒤가 좁아 정교한 샷이 요구된다.", len: 350, hdcp: 13 },
+        { no: 6, par: 5, img: "holeimg/montvert/course_in-6-0.png", tip: "탁 트인 시야와 넓은 페어웨이에 오랜만에 마음껏 드라이브 솜씨를 발휘하는 롱게스트 홀로 페어웨이 중앙 약간 좌측을 공략하는 것이 세컨 샷에 유리하며, 무난히 파를 잡을 수 있는 홀이다.", len: 493, hdcp: 14 },
+        { no: 7, par: 3, img: "holeimg/montvert/course_in-7-0.png", tip: "생각보다는 거리가 있는 홀이다. 그린 좌측 벙커 및 급경사에 유의해야 한다.", len: 188, hdcp: 16 },
+        { no: 8, par: 4, img: "holeimg/montvert/course_in-8-0.png", tip: "티샷 시 페어웨이 좌측 넓은 공간을 공략하는 것이 좋으며 다소 무난한 홀이다.", len: 365, hdcp: 8 },
+        { no: 9, par: 4, img: "holeimg/montvert/course_in-9-0.png", tip: "내리막 홀로 슬라이스에 유의하고 그린 공략 시 우측에 벙커가 있고 여유가 없으므로 장타에 유의해야 한다.", len: 345, hdcp: 6 },
+      ]},
+    ],
+  },
   "서서울CC": {
     source: "서서울CC(H1클럽) 공식 홈페이지",
     sourceUrl: "https://www.h1club.co.kr/html/course.asp",
