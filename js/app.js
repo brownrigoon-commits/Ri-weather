@@ -4,7 +4,7 @@
  * ========================================================= */
 "use strict";
 
-const APP_VER = "v37"; // 배포 버전 (홈 화면 배지에 표시)
+const APP_VER = "v38"; // 배포 버전 (홈 화면 배지에 표시)
 const STORAGE_KEY = "riweather.courses.v1";
 const GEM_KEY = "riweather.gemini"; // 정밀 인식(비전 AI) 개인 키 저장소
 // 기본 제공 키 (무료 한도 공유) — 개인 키를 설정하면 그 키가 우선됩니다
@@ -1432,6 +1432,22 @@ function buildHoleStrategy(h, bunkers, waters) {
   } else if (h.par >= 4) {
     txt += " 그린 주변 벙커 없음 — 핀을 직접 노려도 됩니다.";
   }
+
+  // 그린 흐름 — 주변 지형 고도 데이터 기반 추정
+  if (h.gf) {
+    const D2A = { 북: 0, 북동: 45, 동: 90, 남동: 135, 남: 180, 남서: 225, 서: 270, 북서: 315 };
+    const app = bearing(h.line[h.line.length - 2], green);
+    const rel = ((D2A[h.gf.high] - app) % 360 + 360) % 360;
+    txt += `\n\n⛳ 그린 공략 (지형 기반 추정): ${h.gf.high}쪽이 높아 ${h.gf.low}쪽으로 흐르는 그린입니다. `;
+    if (rel < 60 || rel > 300) {
+      txt += "뒤가 높은 '받아주는' 그린 — 핀을 직접 노려도 되고, 짧게 남아도 오르막 퍼트라 부담이 없습니다.";
+    } else if (rel > 120 && rel < 240) {
+      txt += "앞이 높고 뒤로 흐르는 그린 — 길면 뒤로 굴러 내려가니 반 클럽 짧게 가는 게 확률적으로 안전합니다.";
+    } else {
+      const side = rel <= 120 ? "우측" : "좌측";
+      txt += `${side}이 높은 옆 경사 — ${side}을 보고 치면 경사를 타고 핀 쪽으로 흘러내립니다. 미스는 낮은 쪽이 오르막 퍼트를 남겨 안전합니다.`;
+    }
+  }
   return txt;
 }
 
@@ -1506,7 +1522,7 @@ async function openCourseView() {
   const waters = courseHazards.map(centroid);
 
   courseHoles = builtin
-    ? builtin.map((h) => ({ ref: String(h.ref), par: h.par || 0, name: h.name || "", line: h.line, len: h.len || 0, tip: h.tip || "" }))
+    ? builtin.map((h) => ({ ref: String(h.ref), par: h.par || 0, name: h.name || "", line: h.line, len: h.len || 0, tip: h.tip || "", gf: h.gf || null }))
     : ways.filter((w) => w.tags.golf === "hole")
         .map((w) => ({
           ref: w.tags.ref || "?", par: parseInt(w.tags.par) || 0,
