@@ -4,7 +4,7 @@
  * ========================================================= */
 "use strict";
 
-const APP_VER = "v41"; // 배포 버전 (홈 화면 배지에 표시)
+const APP_VER = "v42"; // 배포 버전 (홈 화면 배지에 표시)
 const STORAGE_KEY = "riweather.courses.v1";
 const GEM_KEY = "riweather.gemini"; // 정밀 인식(비전 AI) 개인 키 저장소
 // 기본 제공 키 (무료 한도 공유) — 개인 키를 설정하면 그 키가 우선됩니다
@@ -1464,6 +1464,13 @@ async function openCourseView() {
   clearCourseLayers();
   setTimeout(() => courseMap.invalidateSize(), 60);
 
+  // 공식 홀맵 이미지가 있는 구장: 홈페이지 홀맵 그대로 표시 + AI 캐디
+  const imgdb = (typeof HOLEIMG_DB !== "undefined" && HOLEIMG_DB[course.name]) || null;
+  if (imgdb) { renderImgCourse(course, imgdb); return; }
+  $("#course-map-card").hidden = false;
+  $("#hole-img").hidden = true;
+  $("#hole-img-src").hidden = true;
+
   // 내장 홀DB(위성 분석 제작)가 있으면 서버 조회 없이 바로 사용
   const builtin = (typeof HOLES_DB !== "undefined" && HOLES_DB[course.name]) || null;
   const key = course.lat.toFixed(4) + "," + course.lon.toFixed(4);
@@ -1588,6 +1595,64 @@ async function openCourseView() {
     $("#hole-detail-card").hidden = false;
   }
   selectHole(0);
+}
+
+/* ---------- 공식 홀맵 이미지 모드 (홈페이지 홀맵 그대로 + AI 캐디) ---------- */
+function renderImgCourse(course, db) {
+  $("#course-map-card").hidden = true;
+  $("#course-status").textContent = "";
+  $("#course-note").hidden = true;
+  $("#hole-canvas").hidden = true;
+  $("#hole-canvas-loading").hidden = true;
+
+  const grid = $("#hole-grid");
+  grid.innerHTML = "";
+  const flat = [];
+  db.courses.forEach((c) => c.holes.forEach((h) => flat.push({ ...h, cname: c.name })));
+  flat.forEach((h, i) => {
+    const b = document.createElement("button");
+    b.className = "hole-btn";
+    b.innerHTML = `${h.no}<small>파${h.par}</small>`;
+    b.title = h.cname;
+    b.addEventListener("click", () => sel(i));
+    grid.appendChild(b);
+  });
+  // 코스 이름 구분 라벨
+  $("#hole-list-card").querySelector(".card-title").innerHTML =
+    `<span class="ic">⛳</span> 홀 선택 <small>${db.courses.map((c) => c.name).join(" → ")} 순서</small>`;
+  $("#hole-list-card").hidden = false;
+
+  function sel(i) {
+    const h = flat[i];
+    grid.querySelectorAll(".hole-btn").forEach((b, j) => b.classList.toggle("active", j === i));
+    $("#hole-detail-title").textContent = `${h.cname} ${h.no}번홀 공략`;
+    const img = $("#hole-img");
+    img.src = h.img;
+    img.hidden = false;
+    $("#hole-img-src").textContent = "홀맵 출처: " + db.source;
+    $("#hole-img-src").hidden = false;
+    $("#hole-strategy").textContent =
+      `파${h.par} · 프론트티 기준 약 ${h.len}m. 위 공식 홀맵에서 벙커·해저드 위치와 티별 거리를 확인하세요. ` +
+      `아래 AI 캐디 버튼을 누르면 내 구질·비거리에 맞춘 상세 공략을 만들어 드립니다.`;
+    $("#ai-strategy").hidden = true;
+    $("#ai-strategy").textContent = "";
+    aiHoleCtx = { imgHole: h, courseName: course.name };
+    lastHoleSelect = () => sel(i);
+    $("#hole-video").href = "https://www.youtube.com/results?search_query=" +
+      encodeURIComponent(`${course.name} ${h.cname} ${h.no}번홀 공략`);
+    $("#hole-detail-card").hidden = false;
+  }
+  sel(0);
+}
+
+/* 로컬(같은 출처) 이미지 → base64 (AI 캐디 전송용) */
+async function imgToB64(imgEl) {
+  if (!imgEl.complete) await imgEl.decode();
+  const cv = document.createElement("canvas");
+  cv.width = imgEl.naturalWidth;
+  cv.height = imgEl.naturalHeight;
+  cv.getContext("2d").drawImage(imgEl, 0, 0);
+  return cv.toDataURL("image/jpeg", 0.85).split(",")[1];
 }
 
 /* ---------- AI 캐디: 홀 위성사진 + 정밀 AI 공략 ---------- */
@@ -1750,6 +1815,31 @@ async function aiCaddie() {
   if (!aiHoleCtx) return;
   const btn = $("#ai-strategy-btn"), out = $("#ai-strategy");
   btn.disabled = true; btn.textContent = "🤖 AI 캐디가 홀을 분석 중... (3~8초)";
+
+  // 공식 홀맵 이미지 모드
+  if (aiHoleCtx.imgHole) {
+    const hh = aiHoleCtx.imgHole;
+    const prof2 = loadProfile();
+    try {
+      const data = await imgToB64($("#hole-img"));
+      const prompt =
+        `당신은 투어 경력의 친절한 한국인 캐디입니다. 첨부 이미지는 ${aiHoleCtx.courseName} ${hh.cname}코스 ${hh.no}번홀(파${hh.par})의 공식 홀맵입니다. ` +
+        `홀맵에는 홀 모양, 벙커·해저드 위치, 그린까지 거리선(50/100/150M), 티별 거리표, 코스공략 TIP이 표시되어 있습니다. ` +
+        `플레이어: 구질 ${prof2.shape || "스트레이트"}, 드라이버 평균 ${prof2.dist || 200}m. ` +
+        `홀맵에 실제로 표시된 정보와 플레이어의 구질·비거리를 근거로 ①티샷 조준점과 클럽 ②세컨샷 ③그린 주변 순서로 4~6문장, 친근한 존댓말로 조언하세요. ` +
+        `홀맵에서 확인할 수 없는 정보(그린 경사, 잔디 상태 등)는 절대 지어내지 마세요.`;
+      const text = await geminiGenerate(
+        [{ text: prompt }, { inline_data: { mime_type: "image/jpeg", data } }], 0.4);
+      out.textContent = text.trim();
+      out.hidden = false;
+    } catch (e) {
+      out.textContent = "AI 캐디 연결에 실패했습니다. 잠시 후 다시 시도해 주세요.";
+      out.hidden = false;
+    }
+    btn.disabled = false; btn.textContent = "🤖 AI 캐디 상세 공략 보기";
+    return;
+  }
+
   const { h, bunkers, waters, courseName } = aiHoleCtx;
   const prof = loadProfile();
   const facts = `${courseName} ${h.ref}번홀, 파${h.par}, 길이 약 ${h.len}m, 홀 주변 벙커 ${bunkers.length}개·워터해저드 ${waters.length}곳. 플레이어: 구질 ${prof.shape || "스트레이트"}, 드라이버 평균 ${prof.dist || 200}m.`;
