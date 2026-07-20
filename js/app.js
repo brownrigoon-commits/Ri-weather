@@ -4,7 +4,7 @@
  * ========================================================= */
 "use strict";
 
-const APP_VER = "v39"; // 배포 버전 (홈 화면 배지에 표시)
+const APP_VER = "v40"; // 배포 버전 (홈 화면 배지에 표시)
 const STORAGE_KEY = "riweather.courses.v1";
 const GEM_KEY = "riweather.gemini"; // 정밀 인식(비전 AI) 개인 키 저장소
 // 기본 제공 키 (무료 한도 공유) — 개인 키를 설정하면 그 키가 우선됩니다
@@ -1525,10 +1525,22 @@ async function openCourseView() {
     return;
   }
 
-  // 홀 라인 + 그리드
+  // 전체 화면: 점선 대신 네이버 지도식 홀 번호 마커 (코스별 색 구분)
   const allBounds = L.latLngBounds(courseHoles.flatMap((h) => h.line));
-  courseHoles.forEach((h) => {
-    courseLayers.push(L.polyline(h.line, { color: "#ffffff", weight: 2, dashArray: "6 6", opacity: 0.85 }).addTo(courseMap));
+  const NINE_COLORS = ["#16a34a", "#2563eb", "#d97706", "#9333ea"];
+  const nineNames = [...new Set(courseHoles.map((h) => h.name))];
+  courseHoles.forEach((h, i) => {
+    const color = NINE_COLORS[nineNames.indexOf(h.name) % NINE_COLORS.length];
+    const g = h.line[h.line.length - 1];
+    const mk = L.marker(g, {
+      icon: L.divIcon({
+        className: "",
+        html: `<div class="hole-num-dot" style="background:${color}">${h.ref}</div>`,
+        iconSize: [26, 26], iconAnchor: [13, 13],
+      }),
+    });
+    mk.on("click", () => selectHole(i));
+    courseLayers.push(mk.addTo(courseMap));
   });
   courseMap.fitBounds(allBounds.pad(0.08));
   $("#course-status").textContent = courseHoles.length + "개 홀 등록됨";
@@ -1555,11 +1567,14 @@ async function openCourseView() {
     grid.querySelectorAll(".hole-btn").forEach((b, j) => b.classList.toggle("active", j === i));
     holeLayers.forEach((l) => courseMap.removeLayer(l));
     holeLayers = [];
-    holeLayers.push(L.polyline(h.line, { color: "#34d399", weight: 4, opacity: 0.95 }).addTo(courseMap));
+    // 선택한 홀만 선명하게: 어두운 외곽선 + 밝은 라인
+    holeLayers.push(L.polyline(h.line, { color: "#08130c", weight: 9, opacity: 0.7, lineCap: "round" }).addTo(courseMap));
+    holeLayers.push(L.polyline(h.line, { color: "#4ade80", weight: 4, opacity: 1, lineCap: "round" }).addTo(courseMap));
     const tee = h.line[0], green = h.line[h.line.length - 1];
     holeLayers.push(L.marker(tee, { icon: L.divIcon({ className: "", html: '<div class="course-dot" style="background:#fff59d"></div>', iconSize: [16, 16], iconAnchor: [8, 8] }), interactive: false }).addTo(courseMap));
-    holeLayers.push(L.marker(green, { icon: L.divIcon({ className: "", html: "⛳", iconSize: [20, 20], iconAnchor: [10, 18] }), interactive: false }).addTo(courseMap));
-    courseMap.fitBounds(L.latLngBounds(h.line).pad(0.25));
+    holeLayers.push(L.marker(green, { icon: L.divIcon({ className: "", html: "⛳", iconSize: [22, 22], iconAnchor: [11, 20] }), interactive: false }).addTo(courseMap));
+    // 지도는 전체 코스 뷰 유지 — 홀 상세는 아래 세로 홀 뷰(캔버스)로 표시
+    renderHoleCanvas(h, course.name + "|" + h.name + h.ref);
 
     // 내 구질·비거리 기반 맞춤 공략 생성
     aiHoleCtx = { h, bunkers, waters, courseName: course.name };
@@ -1581,6 +1596,111 @@ const lat2ty = (lat, z) => {
   const r = lat * Math.PI / 180;
   return (1 - Math.log(Math.tan(r) + 1 / Math.cos(r)) / Math.PI) / 2 * Math.pow(2, z);
 };
+
+/* ---------- 홀 세로 뷰: 위성사진을 홀 방향으로 회전 (아래=티, 위=그린) ---------- */
+const holeCanvasCache = new Map();
+let holeCanvasToken = 0;
+async function renderHoleCanvas(h, cacheKey) {
+  const cv = $("#hole-canvas"), loading = $("#hole-canvas-loading");
+  const token = ++holeCanvasToken;
+  const cached = holeCanvasCache.get(cacheKey);
+  if (cached) {
+    cv.width = cached.w; cv.height = cached.h;
+    cv.getContext("2d").drawImage(cached.img, 0, 0);
+    cv.hidden = false; loading.hidden = true;
+    return;
+  }
+  cv.hidden = true; loading.hidden = false;
+  try {
+    const tee = h.line[0], green = h.line[h.line.length - 1];
+    const lat0 = tee[0], lon0 = tee[1];
+    const mLat = 111320, mLon = 111320 * Math.cos(lat0 * Math.PI / 180);
+    const toM = (p) => [(p[1] - lon0) * mLon, (p[0] - lat0) * mLat]; // 티 기준 [동,북] m
+    const [gE, gN] = toM(green);
+    const A = Math.atan2(gE, gN), cosA = Math.cos(A), sinA = Math.sin(A);
+    const rot = (E, N) => [E * cosA - N * sinA, E * sinA + N * cosA];   // X'=좌우, Y'=티→그린
+    const inv = (x, y) => [x * cosA + y * sinA, -x * sinA + y * cosA];
+    const rpts = h.line.map((p) => rot(...toM(p)));
+    let minX = 0, maxX = 0, maxY = 0;
+    rpts.forEach(([x, y]) => { minX = Math.min(minX, x); maxX = Math.max(maxX, x); maxY = Math.max(maxY, y); });
+    const rx0 = minX - 70, rx1 = maxX + 70, ry0 = -45, ry1 = maxY + 60;
+    const rectW = rx1 - rx0, rectH = ry1 - ry0;
+    const scale = Math.min(720 / rectW, 1500 / rectH);
+    const W = Math.round(rectW * scale), H = Math.round(rectH * scale);
+
+    // 회전 사각형이 덮는 지리 범위 → 위성 타일 합성
+    const corners = [[rx0, ry0], [rx1, ry0], [rx0, ry1], [rx1, ry1]].map(([x, y]) => inv(x, y));
+    const lats = corners.map(([E, N]) => lat0 + N / mLat);
+    const lons = corners.map(([E, N]) => lon0 + E / mLon);
+    const z = 18;
+    const tx0 = Math.floor(lon2tx(Math.min(...lons), z)), tx1 = Math.floor(lon2tx(Math.max(...lons), z));
+    const ty0 = Math.floor(lat2ty(Math.max(...lats), z)), ty1 = Math.floor(lat2ty(Math.min(...lats), z));
+    const off = document.createElement("canvas");
+    off.width = (tx1 - tx0 + 1) * 256; off.height = (ty1 - ty0 + 1) * 256;
+    const octx = off.getContext("2d");
+    const jobs = [];
+    for (let tx = tx0; tx <= tx1; tx++) {
+      for (let ty = ty0; ty <= ty1; ty++) {
+        jobs.push(fetch(`https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/${z}/${ty}/${tx}`)
+          .then((r) => r.blob()).then(createImageBitmap)
+          .then((b) => octx.drawImage(b, (tx - tx0) * 256, (ty - ty0) * 256)).catch(() => {}));
+      }
+    }
+    await Promise.all(jobs);
+    if (token !== holeCanvasToken) return; // 다른 홀로 이동함
+
+    cv.width = W; cv.height = H;
+    const ctx = cv.getContext("2d");
+    const dx = (x) => (x - rx0) * scale;
+    const dy = (y) => H - (y - ry0) * scale;
+    // 위성 배경 (회전)
+    const mPerTilePx = 40075016.686 * Math.cos(lat0 * Math.PI / 180) / Math.pow(2, z) / 256;
+    const lonLeft = tx0 / Math.pow(2, z) * 360 - 180;
+    const nTop = Math.PI - 2 * Math.PI * ty0 / Math.pow(2, z);
+    const latTop = 180 / Math.PI * Math.atan(Math.sinh(nTop));
+    const E_left = (lonLeft - lon0) * mLon, N_top = (latTop - lat0) * mLat;
+    ctx.save();
+    ctx.translate(dx(0), dy(0));
+    ctx.scale(scale, -scale);
+    ctx.transform(cosA, sinA, -sinA, cosA, 0, 0);
+    ctx.translate(E_left, N_top);
+    ctx.scale(mPerTilePx, -mPerTilePx);
+    ctx.drawImage(off, 0, 0);
+    ctx.restore();
+
+    // 그린까지 거리 링 (100/150/200m)
+    const [gx2, gy2] = rpts[rpts.length - 1];
+    ctx.save();
+    ctx.strokeStyle = "rgba(255,255,255,0.55)"; ctx.setLineDash([8, 8]); ctx.lineWidth = 2;
+    ctx.fillStyle = "rgba(255,255,255,0.9)"; ctx.font = "bold 20px sans-serif";
+    [100, 150, 200].forEach((r) => {
+      if (h.len > r + 25) {
+        ctx.beginPath();
+        ctx.arc(dx(gx2), dy(gy2), r * scale, Math.PI * 0.35, Math.PI * 0.65);
+        ctx.stroke();
+        ctx.fillText(String(r), dx(gx2) - 14, dy(gy2) + r * scale - 8);
+      }
+    });
+    ctx.restore();
+
+    // 공략 라인 + 티/그린
+    ctx.lineCap = "round"; ctx.lineJoin = "round";
+    ctx.beginPath();
+    rpts.forEach(([x, y], i) => (i ? ctx.lineTo(dx(x), dy(y)) : ctx.moveTo(dx(x), dy(y))));
+    ctx.strokeStyle = "rgba(5,20,10,0.7)"; ctx.lineWidth = 10; ctx.stroke();
+    ctx.strokeStyle = "#4ade80"; ctx.lineWidth = 4.5; ctx.stroke();
+    ctx.beginPath(); ctx.arc(dx(0), dy(0), 10, 0, Math.PI * 2);
+    ctx.fillStyle = "#fff59d"; ctx.fill(); ctx.strokeStyle = "#333"; ctx.lineWidth = 3; ctx.stroke();
+    ctx.font = "30px sans-serif"; ctx.fillText("⛳", dx(gx2) - 15, dy(gy2) + 8);
+
+    const img = await createImageBitmap(cv);
+    holeCanvasCache.set(cacheKey, { img, w: W, h: H });
+    if (token !== holeCanvasToken) return;
+    cv.hidden = false; loading.hidden = true;
+  } catch (e) {
+    if (token === holeCanvasToken) { loading.textContent = "위성 이미지를 불러오지 못했습니다"; }
+  }
+}
 
 /* 홀 영역 위성 타일을 합성해 티(노랑)·그린(빨강) 표시된 이미지 생성 */
 async function holeSatelliteDataUrl(h) {
