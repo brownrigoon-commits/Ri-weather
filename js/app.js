@@ -4,7 +4,7 @@
  * ========================================================= */
 "use strict";
 
-const APP_VER = "v48"; // 배포 버전 (홈 화면 배지에 표시)
+const APP_VER = "v49"; // 배포 버전 (홈 화면 배지에 표시)
 const STORAGE_KEY = "riweather.courses.v1";
 const GEM_KEY = "riweather.gemini"; // 정밀 인식(비전 AI) 개인 키 저장소
 // 기본 제공 키 (무료 한도 공유) — 개인 키를 설정하면 그 키가 우선됩니다
@@ -1610,18 +1610,23 @@ function renderImgCourse(course, db) {
   const grid = $("#hole-grid");
   grid.innerHTML = "";
   const flat = [];
-  db.courses.forEach((c) => c.holes.forEach((h) => flat.push({ ...h, cname: c.name })));
-  flat.forEach((h, i) => {
-    const b = document.createElement("button");
-    b.className = "hole-btn";
-    b.innerHTML = `${h.no}<small>파${h.par}</small>`;
-    b.title = h.cname;
-    b.addEventListener("click", () => sel(i));
-    grid.appendChild(b);
+  db.courses.forEach((c) => {
+    const label = document.createElement("div");
+    label.className = "hole-course-label";
+    label.textContent = c.name + " 코스";
+    grid.appendChild(label);
+    c.holes.forEach((h) => {
+      const i = flat.length;
+      flat.push({ ...h, cname: c.name });
+      const b = document.createElement("button");
+      b.className = "hole-btn";
+      b.innerHTML = `${h.no}<small>파${h.par}</small>`;
+      b.addEventListener("click", () => sel(i));
+      grid.appendChild(b);
+    });
   });
-  // 코스 이름 구분 라벨
   $("#hole-list-card").querySelector(".card-title").innerHTML =
-    `<span class="ic">⛳</span> 홀 선택 <small>${db.courses.map((c) => c.name).join(" → ")} 순서</small>`;
+    `<span class="ic">⛳</span> 홀 선택`;
   $("#hole-list-card").hidden = false;
 
   function sel(i) {
