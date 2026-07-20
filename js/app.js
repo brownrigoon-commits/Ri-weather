@@ -4,7 +4,7 @@
  * ========================================================= */
 "use strict";
 
-const APP_VER = "v35"; // 배포 버전 (홈 화면 배지에 표시)
+const APP_VER = "v36"; // 배포 버전 (홈 화면 배지에 표시)
 const STORAGE_KEY = "riweather.courses.v1";
 const GEM_KEY = "riweather.gemini"; // 정밀 인식(비전 AI) 개인 키 저장소
 // 기본 제공 키 (무료 한도 공유) — 개인 키를 설정하면 그 키가 우선됩니다
@@ -1506,7 +1506,7 @@ async function openCourseView() {
   const waters = courseHazards.map(centroid);
 
   courseHoles = builtin
-    ? builtin.map((h) => ({ ref: String(h.ref), par: h.par || 0, name: h.name || "", line: h.line }))
+    ? builtin.map((h) => ({ ref: String(h.ref), par: h.par || 0, name: h.name || "", line: h.line, len: h.len || 0, tip: h.tip || "" }))
     : ways.filter((w) => w.tags.golf === "hole")
         .map((w) => ({
           ref: w.tags.ref || "?", par: parseInt(w.tags.par) || 0,
@@ -1537,7 +1537,7 @@ async function openCourseView() {
   const grid = $("#hole-grid");
   grid.innerHTML = "";
   courseHoles.forEach((h, i) => {
-    h.len = Math.round(lineLen(h.line));
+    if (!h.len) h.len = Math.round(lineLen(h.line)); // 공식 거리가 있으면 유지
     if (!h.par) h.par = h.len < 230 ? 3 : h.len < 430 ? 4 : 5;
     const b = document.createElement("button");
     b.className = "hole-btn";
@@ -1563,7 +1563,8 @@ async function openCourseView() {
     lastHoleSelect = () => selectHole(i);
     $("#ai-strategy").hidden = true; $("#ai-strategy").textContent = "";
     $("#hole-detail-title").textContent = `${h.ref}번홀 공략` + (h.name ? ` · ${h.name}` : "");
-    $("#hole-strategy").textContent = buildHoleStrategy(h, bunkers, waters);
+    $("#hole-strategy").textContent = buildHoleStrategy(h, bunkers, waters) +
+      (h.tip ? "\n\n💡 코스 공략 포인트: " + h.tip : "");
     $("#hole-video").href = "https://www.youtube.com/results?search_query=" +
       encodeURIComponent(`${course.name} ${h.ref}번홀 공략`);
     $("#hole-detail-card").hidden = false;
