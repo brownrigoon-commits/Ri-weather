@@ -41,8 +41,12 @@ with open(OUT, "w", encoding="utf-8", newline="\n") as w:
                 if h.get("dist"):
                     parts.append(f'dist: {{ L: {h["dist"]["L"]}, R: {h["dist"]["R"]} }}')
                 if h.get("tees"):
-                    tj = ", ".join(f'{{ name: {js_str(t["name"])}, m: {t["m"]} }}' for t in h["tees"])
+                    def tee_m(v):
+                        return str(v) if isinstance(v, int) else js_str(v)
+                    tj = ", ".join(f'{{ name: {js_str(t["name"])}, m: {tee_m(t["m"])} }}' for t in h["tees"])
                     parts.append(f"tees: [{tj}]")
+                if h.get("green"):
+                    parts.append(f'green: {js_str(h["green"])}')
                 if h.get("len"):
                     parts.append(f'len: {h["len"]}')
                 if h.get("hdcp"):

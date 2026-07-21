@@ -66,7 +66,8 @@ def git(*args):
         print("git 실패:", " ".join(args), r.stderr[:300]); sys.exit(1)
     return r.stdout
 git("add", "holeimg", "coursedata/homepages", "coursedata/workfiles",
-    "tools", "js/holeimgdb.js", "js/app.js", "sw.js", "index.html", "css/style.css")
+    "tools", "js/holeimgdb.js", "js/golfdb.js", "js/holesdb.js",
+    "js/app.js", "sw.js", "index.html", "css/style.css")
 git("commit", "-m", msg + f" (v{new})\n\nCo-Authored-By: Claude Fable 5 <noreply@anthropic.com>")
 git("push")
 print(f"배포 완료: v{new} → GitHub Pages 반영까지 1~2분")

@@ -4,7 +4,7 @@
  * ========================================================= */
 "use strict";
 
-const APP_VER = "v57"; // 배포 버전 (홈 화면 배지에 표시)
+const APP_VER = "v58"; // 배포 버전 (홈 화면 배지에 표시)
 const STORAGE_KEY = "riweather.courses.v1";
 const GEM_KEY = "riweather.gemini"; // 정밀 인식(비전 AI) 개인 키 저장소
 // 기본 제공 키 (무료 한도 공유) — 개인 키를 설정하면 그 키가 우선됩니다
@@ -1640,6 +1640,12 @@ function renderImgCourse(course, db) {
     img.hidden = false;
     $("#hole-img-src").textContent = "홀맵 출처: " + db.source;
     $("#hole-img-src").hidden = false;
+    if (h.green) {
+      $("#hole-green-img").src = h.green;
+      $("#hole-green-wrap").hidden = false;
+    } else {
+      $("#hole-green-wrap").hidden = true;
+    }
     let infoHtml = "";
     if (h.dist) {
       const row = (g, a) => `<b>${g}그린</b> 백 ${a[0]} · 레귤러 ${a[1]} · 프론트 ${a[2]} · 레이디 ${a[3]}m`;
