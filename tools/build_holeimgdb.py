@@ -10,7 +10,12 @@ HP = os.path.join(ROOT, "coursedata", "homepages")
 OUT = os.path.join(ROOT, "js", "holeimgdb.js")
 
 def js_str(s):
-    return '"' + str(s).replace("\\", "\\\\").replace('"', '\\"').replace("\n", " ").strip() + '"'
+    s = str(s)
+    s = s.replace("\\", "\\\\")
+    s = s.replace('"', '\\"')
+    s = s.replace("\r", " ")
+    s = s.replace("\n", " ")
+    return '"' + s.strip() + '"'
 
 entries = []
 for f in sorted(glob.glob(os.path.join(HP, "*", "parsed.json"))):
@@ -19,7 +24,7 @@ for f in sorted(glob.glob(os.path.join(HP, "*", "parsed.json"))):
     total = sum(len(c["holes"]) for c in d["courses"])
     print(f'{d["course"]}: {total}홀 ({", ".join(c["name"] for c in d["courses"])})')
 
-with open(OUT, "w", encoding="utf-8") as w:
+with open(OUT, "w", encoding="utf-8", newline="\n") as w:
     w.write("/* Ri-Weather 공식 홀맵 이미지 DB — 각 골프장 공식 홈페이지 원문 (출처 표기) */\n")
     w.write("const HOLEIMG_DB = {\n")
     for d in entries:
