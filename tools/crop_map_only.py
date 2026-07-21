@@ -20,7 +20,9 @@ THRESH = 16
 SCALE = 4
 PAD = 8
 
-def crop_map(path, outpath, x0_ratio=0.42):
+def crop_map(path, outpath, x0_ratio=0.42, keep="largest"):
+    """keep="largest": 가장 큰 덩어리(지도)만 남김 (카드형 원본용)
+    keep="all": 모든 내용 유지, 여백만 크롭 (지도 단독 원본에 범례 등이 붙은 경우)"""
     img = Image.open(path).convert("RGB")
     w, h = img.size
     region = img.crop((int(w * x0_ratio), 0, w, h))
@@ -30,6 +32,14 @@ def crop_map(path, outpath, x0_ratio=0.42):
     bg = tuple(sum(c[i] for c in corners) // 4 for i in range(3))
     diff = ImageChops.difference(region, Image.new("RGB", region.size, bg)).convert("L")
     mask = diff.point(lambda p: 255 if p > THRESH else 0)
+    if keep == "all":
+        bbox = mask.getbbox()
+        if not bbox:
+            raise ValueError("내용 없음")
+        box = (max(0, bbox[0] - PAD), max(0, bbox[1] - PAD),
+               min(rw, bbox[2] + PAD), min(rh, bbox[3] + PAD))
+        out = region.crop(box)
+        return _finish(out, bg, outpath)
     # 1/4 축소 후 연결성분 분석 (BFS, 8방향)
     sw, sh = rw // SCALE, rh // SCALE
     small = mask.resize((sw, sh), Image.BILINEAR).point(lambda p: 1 if p > 48 else 0)
@@ -66,11 +76,14 @@ def crop_map(path, outpath, x0_ratio=0.42):
     for (cx, cy) in best[1]:
         cp[cx, cy] = 255
     comp = comp.filter(ImageFilter.MaxFilter(3))          # 1칸 팽창(부드러운 가장자리 보존)
-    keep = comp.resize((rw, rh), Image.BILINEAR).point(lambda p: 255 if p > 32 else 0)
-    region = Image.composite(region, Image.new("RGB", region.size, bg), keep)
+    keepmask = comp.resize((rw, rh), Image.BILINEAR).point(lambda p: 255 if p > 32 else 0)
+    region = Image.composite(region, Image.new("RGB", region.size, bg), keepmask)
     box = (max(0, x1 * SCALE - PAD), max(0, y1 * SCALE - PAD),
            min(rw, (x2 + 1) * SCALE + PAD), min(rh, (y2 + 1) * SCALE + PAD))
     out = region.crop(box)
+    return _finish(out, bg, outpath)
+
+def _finish(out, bg, outpath):
     # 배경색 → 흰색 정규화 (미색 카드 대응, 흰 카드는 사실상 무변화)
     if any(c < 250 for c in bg):
         lut = []
@@ -78,11 +91,16 @@ def crop_map(path, outpath, x0_ratio=0.42):
             scale = 255.0 / max(1, bg[ch])
             lut += [min(255, int(v * scale + 0.5)) for v in range(256)]
         out = out.point(lut)
-    r = TARGET_H / out.height          # 세로 620 고정
+    r = TARGET_H / out.height          # 세로 600 고정
     if out.width * r > MAX_W:          # 가로가 넘치면 가로 상한에 맞춤
         r = MAX_W / out.width
     out = out.resize((max(1, int(out.width * r)), max(1, int(out.height * r))), Image.LANCZOS)
-    out.save(outpath, quality=90)
+    ext = os.path.splitext(outpath)[1].lower()
+    if ext in (".jpg", ".jpeg"):
+        out = out.convert("RGB")
+        out.save(outpath, quality=90)
+    else:
+        out.save(outpath)
     return out.size
 
 def main():
