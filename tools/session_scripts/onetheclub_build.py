@@ -32,10 +32,20 @@ CONFIG = {
         "db명": None,  # 골프DB에 스카이72 바다/하늘 두 항목으로 존재 → 별도 매핑
         "dir": "club72",
         "source": "클럽72 공식 홈페이지(원더클럽)",
-        "courses": [("ocean", "오션"), ("sky", "하늘"), ("lake", "레이크"), ("classic", "클래식"), ("dunes", "듄스")],
+        "courses": [
+            ("ocean", "오션 OUT"), ("ocean_2", "오션 IN"),
+            ("sky", "하늘 OUT"), ("sky_2", "하늘 IN"),
+            ("lake", "레이크 OUT"), ("lake_2", "레이크 IN"),
+            ("classic", "클래식 OUT"), ("classic_2", "클래식 IN"),
+            ("dunes", "듄스"),
+        ],
         "img": "/static/pc/@company/club72/images/sub/course/{slug}-{n}.png",
         "img_override": {
             "sky": "/static/pc/@company/club72/images/sub/course/sky-{n}-1.png",
+            "sky_2": "/static/pc/@company/club72/images/sub/course/sky-{n9}-1.png",
+            "ocean_2": "/static/pc/@company/club72/images/sub/course/ocean-{n9}.png",
+            "lake_2": "/static/pc/@company/club72/images/sub/course/lake-{n9}.png",
+            "classic_2": "/static/pc/@company/club72/images/sub/course/classic-{n9}.png",
             "dunes": "/static/pc/@company/club72/images/sub/course/dunes-{n}-1.png",
         },
     },
@@ -113,7 +123,7 @@ def build(club):
                 errors.append(f"{slug}{n}: 파 이상 {par}")
                 continue
             pattern = cfg.get("img_override", {}).get(slug, cfg["img"])
-            url = BASE + pattern.format(slug=slug, n=n)
+            url = BASE + pattern.format(slug=slug, n=n, n9=n + 9)
             ext = os.path.splitext(url)[1]
             raw = os.path.join(imgdir, f"_raw_{slug}{n}{ext}")
             out = os.path.join(imgdir, f"{slug}{n}.jpg")
