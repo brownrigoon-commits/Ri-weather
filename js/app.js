@@ -4,7 +4,7 @@
  * ========================================================= */
 "use strict";
 
-const APP_VER = "v59"; // 배포 버전 (홈 화면 배지에 표시)
+const APP_VER = "v60"; // 배포 버전 (홈 화면 배지에 표시)
 const STORAGE_KEY = "riweather.courses.v1";
 const GEM_KEY = "riweather.gemini"; // 정밀 인식(비전 AI) 개인 키 저장소
 // 기본 제공 키 (무료 한도 공유) — 개인 키를 설정하면 그 키가 우선됩니다
@@ -1907,6 +1907,42 @@ async function aiCaddie() {
   btn.disabled = false; btn.textContent = "🤖 AI 캐디 상세 공략 보기";
 }
 $("#ai-strategy-btn").addEventListener("click", aiCaddie);
+
+/* 앱 공유 버튼 — 모든 화면 공통 */
+(function initAppShare() {
+  const APP_URL = "https://brownrigoon-commits.github.io/Ri-weather/";
+  const btn = $("#app-share-btn"), toast = $("#app-share-toast");
+  if (!btn) return;
+  let toastTimer = null;
+  btn.addEventListener("click", async () => {
+    const data = {
+      title: "Ri-Weather 골프장 날씨",
+      text: "골프장 날씨·홀별 코스공략·AI캐디까지 한 번에 — Ri-Weather",
+      url: APP_URL,
+    };
+    try {
+      if (navigator.share) {
+        await navigator.share(data);
+        return;
+      }
+    } catch (e) {
+      if (e && e.name === "AbortError") return; // 사용자가 공유창 닫음
+    }
+    try {
+      await navigator.clipboard.writeText(APP_URL);
+    } catch (e) {
+      const ta = document.createElement("textarea");
+      ta.value = APP_URL;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand("copy");
+      ta.remove();
+    }
+    toast.hidden = false;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { toast.hidden = true; }, 2500);
+  });
+})();
 
 /* 내 플레이 정보 (구질·비거리) 초기화·저장 */
 (function initProfile() {
