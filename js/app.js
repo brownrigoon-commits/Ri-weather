@@ -4,7 +4,7 @@
  * ========================================================= */
 "use strict";
 
-const APP_VER = "v64"; // 배포 버전 (홈 화면 배지에 표시)
+const APP_VER = "v65"; // 배포 버전 (홈 화면 배지에 표시)
 const STORAGE_KEY = "riweather.courses.v1";
 const GEM_KEY = "riweather.gemini"; // 정밀 인식(비전 AI) 개인 키 저장소
 // 기본 제공 키 (무료 한도 공유) — 개인 키를 설정하면 그 키가 우선됩니다
@@ -2000,6 +2000,71 @@ async function fetchFoodData(course) {
 }
 function prefetchFood(course) { fetchFoodData(course).catch(() => {}); }
 
+/* ---------- 카카오 로컬/이미지 API (맛집 목록·사진) ---------- */
+const KAKAO_KEY_LS = "riweather.kakaokey";
+const EMBED_KAKAO_B64 = "";   // 공용 키 (발급 후 base64로 채움)
+const getKakaoKey = () => localStorage.getItem(KAKAO_KEY_LS) ||
+  (EMBED_KAKAO_B64 ? atob(EMBED_KAKAO_B64) : "");
+
+async function kakaoApi(url) {
+  const key = getKakaoKey();
+  if (!key) throw new Error("no-kakao-key");
+  const r = await fetch(url, { headers: { Authorization: "KakaoAK " + key } });
+  if (!r.ok) throw new Error("kakao " + r.status);
+  return r.json();
+}
+
+/* 골프장 주변 음식점 (카카오맵 등록 기준, 가까운 순) */
+const kakaoFoodCache = new Map();
+async function fetchKakaoFood(course) {
+  const ck = course.lat.toFixed(3) + "," + course.lon.toFixed(3);
+  if (kakaoFoodCache.has(ck)) return kakaoFoodCache.get(ck);
+  const out = [];
+  for (let page = 1; page <= 3; page++) {
+    const j = await kakaoApi("https://dapi.kakao.com/v2/local/search/category.json" +
+      `?category_group_code=FD6&x=${course.lon}&y=${course.lat}&radius=5000&sort=distance&page=${page}&size=15`);
+    (j.documents || []).forEach((d) => out.push({
+      name: d.place_name,
+      cat: (d.category_name || "").split(">").pop().trim(),
+      phone: d.phone || "",
+      addr: d.road_address_name || d.address_name || "",
+      lat: parseFloat(d.y), lon: parseFloat(d.x),
+      dist: parseInt(d.distance) || 0,
+      url: d.place_url || "",
+    }));
+    if (j.meta && j.meta.is_end) break;
+  }
+  out.sort((a, b) => a.dist - b.dist);
+  kakaoFoodCache.set(ck, out);
+  return out;
+}
+
+/* 식당 사진 (카카오 이미지 검색) */
+const foodImgCache = new Map();
+async function fetchFoodImages(name, region) {
+  const q = (region ? region + " " : "") + name;
+  if (foodImgCache.has(q)) return foodImgCache.get(q);
+  const j = await kakaoApi("https://dapi.kakao.com/v2/search/image?sort=accuracy&size=8&query=" +
+    encodeURIComponent(q));
+  const imgs = (j.documents || []).map((d) => d.thumbnail_url).filter(Boolean);
+  foodImgCache.set(q, imgs);
+  return imgs;
+}
+
+const catEmoji = (cat) => {
+  const s = cat || "";
+  if (/한식|백반|국밥|찌개|한정식|해장/.test(s)) return "🍚";
+  if (/고기|삼겹|갈비|곱창|족발|보쌈/.test(s)) return "🥩";
+  if (/치킨|닭/.test(s)) return "🍗";
+  if (/일식|초밥|스시|돈까스|라멘/.test(s)) return "🍣";
+  if (/중식|중국|짜장|짬뽕/.test(s)) return "🥢";
+  if (/양식|파스타|스테이크|피자/.test(s)) return "🍝";
+  if (/횟집|회|해물|조개|장어|물회/.test(s)) return "🐟";
+  if (/분식|김밥|떡볶이|만두|국수|칼국수/.test(s)) return "🍜";
+  if (/카페|커피|디저트|베이커리|빵/.test(s)) return "☕";
+  return "🍴";
+};
+
 // 맛집 화면이 오류 상태로 보이는 중에 앱으로 돌아오면 자동 재시도
 document.addEventListener("visibilitychange", () => {
   if (!document.hidden && viewStack[viewStack.length - 1] === "food" && !$("#food-note").hidden) {
@@ -2015,6 +2080,18 @@ async function openFoodView() {
   const listEl = $("#food-list");
   listEl.innerHTML = '<p class="loading-line">주변 식당을 찾는 중...</p>';
   $("#food-note").hidden = true;
+
+  const region = (course.addr || "").split(" ").slice(0, 2).join(" ");
+  // 1순위: 카카오맵 등록 맛집 (가까운 순 · 사진/전화 제공)
+  if (getKakaoKey()) {
+    try {
+      const list = await fetchKakaoFood(course);
+      if (currentCourse !== course || viewStack[viewStack.length - 1] !== "food") return;
+      if (list.length) { renderFoodList(list, region, true); return; }
+    } catch (e) {
+      if (String(e.message).indexOf("kakao") === 0) console.warn("kakao food:", e.message);
+    }
+  }
 
   let data;
   try {
@@ -2034,16 +2111,6 @@ async function openFoodView() {
   if (currentCourse !== course || viewStack[viewStack.length - 1] !== "food") return;
   $("#food-note").hidden = true;
 
-  const region = (course.addr || "").split(" ").slice(0, 2).join(" ");
-  // 전체 맛집은 카카오/네이버가 최신·완전 — 항상 상단에 크게 노출 (OSM은 시골 커버리지가 부족)
-  const portalHtml =
-    `<div class="food-portal">` +
-    `<div class="food-portal-title">🍽 ${course.name} 주변 맛집 전체 보기</div>` +
-    `<div class="food-portal-sub">아래 지도앱에서 영업중·평점·사진까지 최신 정보로 확인하세요</div>` +
-    `<div class="food-portal-btns">` +
-    `<a class="fp-btn kakao" target="_blank" rel="noopener" href="https://map.kakao.com/link/search/${encodeURIComponent(course.name + " 맛집")}">카카오맵</a>` +
-    `<a class="fp-btn naver" target="_blank" rel="noopener" href="https://map.naver.com/p/search/${encodeURIComponent(course.name + " 맛집")}">네이버지도</a>` +
-    `</div></div>`;
   const now = Date.now();
   const items = (data.elements || [])
     .map((e) => {
@@ -2065,50 +2132,77 @@ async function openFoodView() {
     .sort((a, b) => a.dist - b.dist)
     .slice(0, 25);
 
-  listEl.innerHTML = portalHtml;
-  if (!items.length) {
+  const list = items.map((it) => {
+    const [cuiKo] = cuisineInfo(it.tags.cuisine);
+    return {
+      name: it.name, cat: cuiKo,
+      phone: it.tags.phone || it.tags["contact:phone"] || "",
+      addr: it.tags["addr:full"] ||
+        [it.tags["addr:city"], it.tags["addr:district"], it.tags["addr:street"], it.tags["addr:housenumber"]].filter(Boolean).join(" "),
+      lat: it.lat, lon: it.lon, dist: Math.round(it.dist),
+    };
+  });
+  renderFoodList(list, region, false);
+}
+
+/* 맛집 목록 렌더링 — 클릭하면 사진·전화·내비 (가까운 순) */
+function renderFoodList(list, region, fromKakao) {
+  const listEl = $("#food-list");
+  listEl.innerHTML = "";
+  if (!list.length) {
     const p = document.createElement("p");
     p.className = "food-osm-empty";
-    p.textContent = "지도(OpenStreetMap)에 등록된 식당이 아직 없어, 위 지도앱에서 확인해 주세요.";
+    p.textContent = "주변 5km 안에 등록된 식당을 찾지 못했습니다.";
     listEl.appendChild(p);
     return;
   }
   const sub = document.createElement("p");
   sub.className = "food-osm-sub";
-  sub.textContent = "▼ 지도에 등록된 가까운 식당 (참고용 · 방문 전 영업 확인)";
+  sub.textContent = fromKakao
+    ? "가까운 순 · 이름을 누르면 사진이 열립니다"
+    : "가까운 순 (지도 등록 기준) · 이름을 누르면 상세가 열립니다";
   listEl.appendChild(sub);
 
-  items.forEach((it) => {
-    const [cuiKo, emoji] = cuisineInfo(it.tags.cuisine);
-    const km = it.dist < 950 ? Math.round(it.dist) + "m" : (it.dist / 1000).toFixed(1) + "km";
-    const addr = it.tags["addr:full"] ||
-      [it.tags["addr:city"], it.tags["addr:district"], it.tags["addr:street"], it.tags["addr:housenumber"]].filter(Boolean).join(" ");
+  list.forEach((it) => {
+    const km = it.dist < 950 ? it.dist + "m" : (it.dist / 1000).toFixed(1) + "km";
+    const tel = (it.phone || "").replace(/[^0-9+]/g, "");
     const div = document.createElement("div");
     div.className = "food-item";
     div.innerHTML = `
       <div class="fi-row">
-        <span class="fi-emoji">${emoji}</span>
+        <span class="fi-emoji">${catEmoji(it.cat)}</span>
         <div style="flex:1;min-width:0">
           <div class="fi-name">${it.name}</div>
-          <div class="fi-sub">${cuiKo}</div>
+          <div class="fi-sub">${it.cat || "식당"}</div>
         </div>
         <span class="fi-dist">${km}</span>
       </div>
       <div class="fi-detail">
-        ${addr ? "📍 " + addr + "<br>" : ""}
-        ${it.tags.phone || it.tags["contact:phone"] ? "📞 " + (it.tags.phone || it.tags["contact:phone"]) + "<br>" : ""}
-        ${it.tags.opening_hours ? "🕐 " + it.tags.opening_hours + "<br>" : ""}
-        골프장에서 <b>${km}</b> 거리 · <span class="fi-verify">방문 전 아래에서 영업 여부를 확인하세요</span>
+        <div class="fi-photos" hidden></div>
+        ${it.addr ? '<div class="fi-addr">📍 ' + it.addr + "</div>" : ""}
+        ${tel ? `<a class="fi-phone" href="tel:${tel}">📞 ${it.phone} <span>— 눌러서 영업 확인</span></a>` : ""}
         <div class="fi-links">
-          <a class="kakao" href="kakaomap://search?q=${encodeURIComponent(it.name)}&p=${it.lat},${it.lon}">카카오맵 (영업·사진)</a>
-          <a class="naver" target="_blank" rel="noopener" href="https://search.naver.com/search.naver?query=${encodeURIComponent(region + " " + it.name)}">네이버 검색</a>
-        </div>
-        <div class="fi-links">
-          <a class="kakaonavi" href="kakaomap://route?ep=${it.lat},${it.lon}&by=CAR">🚗 카카오 길안내</a>
+          <a class="kakaonavi" href="kakaomap://route?ep=${it.lat},${it.lon}&by=CAR">🚗 카카오내비</a>
           <a class="tmapnavi" href="tmap://route?goalname=${encodeURIComponent(it.name)}&goaly=${it.lat}&goalx=${it.lon}">🚗 T맵</a>
         </div>
       </div>`;
-    div.querySelector(".fi-row").addEventListener("click", () => div.classList.toggle("open"));
+    const photos = div.querySelector(".fi-photos");
+    let loaded = false;
+    div.querySelector(".fi-row").addEventListener("click", async () => {
+      div.classList.toggle("open");
+      if (!div.classList.contains("open") || loaded || !getKakaoKey()) return;
+      loaded = true;
+      photos.hidden = false;
+      photos.innerHTML = '<div class="fi-photo-loading">사진 불러오는 중...</div>';
+      try {
+        const imgs = await fetchFoodImages(it.name, region);
+        photos.innerHTML = imgs.length
+          ? imgs.map((u) => `<img src="${u}" alt="${it.name}" loading="lazy">`).join("")
+          : '<div class="fi-photo-loading">등록된 사진이 없습니다</div>';
+      } catch {
+        photos.innerHTML = '<div class="fi-photo-loading">사진을 불러오지 못했습니다</div>';
+      }
+    });
     listEl.appendChild(div);
   });
 }
