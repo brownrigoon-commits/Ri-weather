@@ -1,0 +1,274 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="user-scalable=yes, initial-scale=0.3, maximum-scale=1.0, minimum-scale=0.1, width=device-width" />
+<meta name="title" content="진양밸리">
+<meta name="author" content="진양밸리">
+<meta name="Keywords" content="진양밸리, 진양밸리CC, ">
+<meta name="description" content="진양밸리, 진양밸리CC, ">
+<meta name="copyright" content="All Contents Copyright©chinyangValley">
+<meta name="format-detection" content="telephone=no, address=no, email=no"/>
+<meta property="og:type" content="mobile">
+<meta property="og:title" content="진양밸리, 진양밸리CC">
+<meta property="og:description" content="진양밸리, 진양밸리CC">
+<meta property="og:url" content="">
+<title>진양밸리</title>
+<link rel="stylesheet" type="text/css" href="/css/import.css">
+<link rel="stylesheet" type="text/css" href="/css/content.css?v=6">
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+<script type="text/javascript" src="/js/common.js"></script>
+<script>
+	$(document).ready(function() {
+		checkMobile();
+		
+		initHeader();
+	});
+
+	function initHeader() {
+		var msNum = "";
+
+		if(msNum == "") {
+			$("#memContainer").hide();
+			$("#nonMemContainer").show();
+		} else {
+			$("#memContainer").show();
+			$("#nonMemContainer").hide();
+		}
+	}
+
+	function checkMobile() {
+		var mobileKeyWords = new Array('iPhone', 'iPod', 'iPad', 'BlackBerry', 'Android', 'Windows CE', 'MOT', 'SAMSUNG', 'SonyEricsson');
+
+		for (var word in mobileKeyWords) {
+			if ( navigator.userAgent.match(mobileKeyWords[word]) != null ) {
+				location.href = "/mobile/index.asp";
+				break;
+			}
+		}
+	}
+
+	function doLogout() {
+		var sUrl = "/controller/MemberController.asp";
+		var params = {};
+
+		params["method"] = "doLogout";
+
+		mAjax(sUrl, params, "POST", true, function(data) {
+			if(data.resultCode == "0000") {
+				alert("로그아웃 되었습니다.");
+
+				location.href = "/index.asp";
+			}
+		});
+	}
+</script>
+</head>
+
+
+<body>
+
+	<div id="header">
+		<div class="headerBox">
+			<div class="topBox">
+				<!--<a href="" class="topBtn"><img src="../images/topIcon3.png" alt="인스타그램"> </a>
+				<a href="" class="topBtn"><img src="../images/topIcon2.png" alt="트위터"> </a>
+				<a href="" class="topBtn"><img src="../images/topIcon1.png" alt="페이스북"> </a>-->
+				<div id="memContainer">
+					<a href="/member/modify.asp" class="topBtn login">회원정보수정</a>
+						<a href="javascript:doLogout()" class="topBtn join">로그아웃</a>
+				</div>
+				<div id="nonMemContainer">
+					<a href="/member/join01.asp" class="topBtn join">회원가입</a>
+					<a href="/member/login.asp" class="topBtn login">로그인</a>
+				</div>
+			</div>
+		</div>
+		<div id="gnb">
+			<a class="logoBox" href="/index.asp">
+				<img src="../images/logo.png" alt="">
+			</a>
+			<div class="gnbList">
+				<li><a href="/club/intro.asp">클럽안내</a></li>
+				<li><a href="/reservation/reservation.asp">인터넷예약</a></li>
+				<li><a href="/membership/deposit.asp">회원서비스</a></li>
+				<li><a href="/course/courseIntro.asp">코스안내</a></li>
+				<li><a href="/guide/charge.asp">이용안내</a></li>
+				<li><a href="/board/list.asp?type=1">정보안내</a></li>
+			</div>
+			<!--<div class="gnbTotal">
+				<img src="../images/menu.png" alt="">
+			</div>-->
+		</div>
+			<div id="scrollmenuwrap">
+        <div id="scrollmenu">
+            <div class="menuBox">
+                <div class="menu">
+                    <div class="subMenu">
+                        <ul>
+                            <li><a href="/club/intro.asp">인사말</a></li>
+                            <li><a href="/club/history.asp">연혁</a></li>
+                            <li><a href="/club/ci.asp">CI소개</a></li>
+                            <li><a href="/club/location.asp">오시는길</a></li>
+                            <li><a href="/club/facility.asp">부대시설</a></li>
+                        </ul>
+                    </div>
+                    <div class="subMenu">
+                        <ul>
+                            <li><a href="/reservation/reserGuide.asp">예약안내</a></li>
+                            <li><a href="/reservation/reservation.asp">실시간예약</a></li>
+                            <li><a href="/reservation/reserCheck.asp">예약확인/취소</a></li>
+                            <li><a href="/reservation/breakCont.asp">위약처리규정</a></li>
+                            <li><a href="/board/list.asp?type=5">조인게시판</a></li>
+                        </ul>
+                    </div>
+                    <div class="subMenu">
+                        <ul>
+                            <li><a href="/membership/deposit.asp">위약예치금안내</a></li>
+                            <li><a href="/membership/score.asp">스코어</a></li>
+                            <li><a href="/membership/break.asp">위약현황</a></li>
+                        </ul>
+                    </div>
+                    <div class="subMenu">
+                        <ul>
+                            <li><a href="/course/courseIntro.asp">코스안내</a></li>
+                            <li><a href="/course/courseData.asp">코스제원</a></li>
+                            <li><a href="/course/h1.asp">코스공략</a></li>
+                        </ul>
+                    </div>
+                    <div class="subMenu">
+                        <ul>
+                            <li><a href="/guide/charge.asp">이용요금</a></li>
+                            <li><a href="/member/terms.asp">이용약관</a></li>
+                            <li><a href="/member/policy.asp">개인정보취급방침</a></li>
+                        </ul>
+                    </div>
+                    <div class="subMenu">
+                        <ul>
+							<li><a href="/board/list.asp?type=1">공지사항</a></li>
+							<li><a href="/board/list.asp?type=2">명예의전당</a></li>
+							<li><a href="/board/list.asp?type=3">고객의소리</a></li>
+							<li><a href="/board/list.asp?type=4">포토갤러리</a></li>
+							
+							<li><a href="http://www.weather.go.kr/weather/forecast/timeseries.jsp?searchType=SETINFO&setinfoCode=4377035000" target="_blank">날씨정보</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+	</div>
+	
+	<!-- 이 부분은 index에서만 안 보이면 됨. 서브 페이지에서만 필요 -->
+	<div class="middleBg"></div>
+	
+
+<script src="/js/jquery.preloaders.js"></script>
+<script src="/js/tools.js"></script>
+<script src="/js/globals.js"></script>
+
+
+
+	<!-- 컨텐츠 시작 -->
+	<div id="wrap">
+
+		<!-- 중간 메뉴 -->
+		<ul class="lnbTab">
+			<li class="on"><a href="/course/courseIntro.asp">코스안내</a></li>
+			<li class=""><a href="/course/courseData.asp">코스제원</a></li>
+			<li class=""><a href="/course/h1.asp">코스공략</a></li>
+			<!-- <li class=""><a href="/course/hi1.asp">코스공략</a></li> -->
+		</ul>
+		 
+		<div class="contents">
+		  <!-- subTitle -->
+		  <ul class="subTitle">
+			<li class="title">코스안내</li>
+			<li class="tree"> <img src="/images/home_btn.png" alt="집모양"> HOME &gt; 코스안내 &gt; <b>코스안내</b></li>
+		  </ul>
+		  <div class="subLine"></div>
+		  <!-- subTitle End --> 
+
+		  <div class="contPage">
+			<div class="courseIntro">
+				<table>
+					<tr>
+						<td><img src="images/course01.jpg" alt="" width="660" height="672" usemap="#Map" border="0"/></td>
+					</tr>
+				</table>	
+			</div>	
+		  </div>
+		  
+
+		</div><!-- contents End--> 
+	  
+	</div>	<!-- wrap 끝 --> 
+	<map name="Map">
+		<area shape="rect" coords="261,206,279,224" href="h1.asp">
+		<area shape="rect" coords="161,197,179,215" href="h2.asp">
+		<area shape="rect" coords="116,281,134,299" href="h3.asp">
+		<area shape="rect" coords="131,369,149,387" href="h4.asp">
+		<area shape="rect" coords="76,321,94,339" href="h5.asp">
+		<area shape="rect" coords="100,230,118,248" href="h6.asp">
+		<area shape="rect" coords="115,198,133,216" href="h7.asp">
+		<area shape="rect" coords="183,159,201,177" href="h8.asp">
+		<area shape="rect" coords="295,197,313,215" href="h9.asp">
+		<area shape="rect" coords="232,215,250,233" href="c1.asp">
+		<area shape="rect" coords="143,261,161,279" href="c2.asp">
+		<area shape="rect" coords="223,279,241,297" href="c3.asp">
+		<area shape="rect" coords="207,296,225,314" href="c4.asp">
+		<area shape="rect" coords="159,353,177,371" href="c5.asp">
+		<area shape="rect" coords="207,353,225,371" href="c6.asp">
+		<area shape="rect" coords="261,313,279,331" href="c7.asp">
+		<area shape="rect" coords="199,260,217,278" href="c8.asp">
+		<area shape="rect" coords="279,252,297,270" href="c9.asp">
+		<area shape="rect" coords="450,264,468,282" href="v1.asp">
+		<area shape="rect" coords="536,345,554,363" href="v2.asp">
+		<area shape="rect" coords="432,338,450,356" href="v3.asp">
+		<area shape="rect" coords="366,313,384,331" href="v4.asp">
+		<area shape="rect" coords="330,345,348,363" href="v5.asp">
+		<area shape="rect" coords="321,296,339,314" href="v6.asp">
+		<area shape="rect" coords="392,296,410,314" href="v7.asp">
+		<area shape="rect" coords="482,337,500,355" href="v8.asp">
+		<area shape="rect" coords="382,255,400,273" href="v9.asp">
+		<area shape="rect" coords="62,171,173,193" href="h1.asp">
+		<area shape="rect" coords="432,230,542,250" href="v1.asp">
+		<area shape="rect" coords="239,371,349,393" href="c1.asp">
+	</map>
+
+
+
+<!-- footer 영역 -->
+		<div id="footerWrap">
+			<div class="termsBox">
+				<div class="terms">
+						<a href="/member/terms.asp">이용약관</a><span> l </span>
+						<a href="/member/policy.asp" class="bold" style="color:#d03939;">개인정보처리방침</a><span> l </span>
+				</div>
+			</div>
+			<div class="footerBox">
+				<div class="footer">
+					<img src="../images/f_Logo.png" alt="로고" class="footerLogo">
+					<p class="infoBox">	
+						충청북도 음성군 삼성면 금일로 1195 &nbsp;&nbsp;&nbsp; TEL : 043.880.8000  |  FAX : 043.880.8003 <br>
+						사업자 등록번호621-81-45690  |  통신판매신고 제 2010-충북음성군-19호 <br>
+						<a href="https://www.ftc.go.kr/www/biz/bizCommList.do?key=5375" target="_blank">사업자 등록확인</a> |  개인정보 관리책임자:김성환 043-880-8501 <br>
+						COPYRIGHT ⓒ CHINYANGVALLEY.CO.KR ALL RIGHT RESERVED.
+					</p>
+					<!--<div class="snsBox">
+							<a href=""><img src="../images/ft_face.png" alt="페이스북 연결"></a>
+							<a href=""><img src="../images/ft_twt.png" alt="트위터 연결"></a>
+							<a href=""><img src="../images/ft_insta.png" alt="인스타그램 연결"></a>
+					</div>-->	
+				</div>
+				<p id="topArrow" style="margin: auto; width: 50px; display: block;"><a href="#top"><span></span></a></p>
+			</div>
+		</div>
+
+
+
+</body>
+</html>

@@ -1,0 +1,518 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="user-scalable=yes, initial-scale=0.3, maximum-scale=1.0, minimum-scale=0.1, width=device-width" />
+<meta name="title" content="화성GC">
+<meta name="author" content="화성GC">
+<meta name="Keywords" content="화성GC, 화성골프클럽, ">
+<meta namve="description" content="화성GC, 화성골프클럽, ">
+<meta name="copyright" content="All Contents Copyright©pineBeach">
+<meta name="format-detection" content="telephone=no, address=no, email=no"/>
+<meta property="og:type" content="mobile">
+<meta property="og:title" content="화성GC, 화성골프클럽">
+<meta property="og:description" content="화성GC, 화성골프클럽">
+<meta property="og:url" content="">
+<title>화성GC</title>
+<link rel="stylesheet" type="text/css" href="/css/import.css?v=2">
+<link rel="stylesheet" type="text/css" href="/css/content.css?v=5">
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+<script type="text/javascript" src="/js/common.js"></script>
+<script src="/js/jquery.preloaders.js"></script>
+<script src="/js/tools.js"></script>
+<script src="/js/globals.js"></script>
+<script>
+
+	  var mDate = "";
+	  var mCos = "";
+	  var mYear, mMonth;
+	  var rowData;
+
+	  $(document).ready(function() {
+		getMainNotice();
+	  });
+
+	function getMainNotice() {
+		var sUrl = "/controller/BoardController.asp";
+		var params = {};
+
+		params["method"] = "getBoardList";
+
+		params["coDiv"]    = globals.coDiv;
+		params["type"]     = "1";
+		params["startCnt"] = 0;
+		params["pageCnt"]  = 1;
+
+		mAjax(sUrl, params, "POST", false, function(data) {
+			if(data.resultCode == "0000") {
+			
+				var rows = data.rows;
+
+			    for(i=0; i<rows.length; i++) {
+					var noticeType = rows[i].TYPE;
+					var noticeIdx = rows[i].IDX;
+					var noticeSeq = rows[i].SEQ;
+					var title = rows[i].TITLE;
+					var inputDate = rows[i].INPUT_DATETIME;
+				    var notice = "";
+
+				    notice += " <li class='title'><a href='/board/view.asp?type={0}&idx={1}&seq={2}'>'{3}'</a></li>	";
+				    notice += " <li class='date'>{4}</li>	";
+
+				    notice = String.format(notice, noticeType, noticeIdx, noticeSeq, title, inputDate);
+
+				    $("#mainNotice").empty().append(notice);
+			    }
+			} else {
+				alert(data.resultMessage);
+			}
+		});
+	}
+
+	function doLogout() {
+		var sUrl = "/controller/MemberController.asp";
+		var params = {};
+
+		params["method"] = "doLogout";
+
+		mAjax(sUrl, params, "POST", true, function(data) {
+			if(data.resultCode == "0000") {
+				alert("로그아웃 되었습니다.");
+
+				location.href = "/index.asp";
+			}
+		});
+	}
+</script>
+	    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-BQL7LDDG92"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+    
+      gtag('config', 'G-BQL7LDDG92');
+    </script>
+</head>
+<body>
+	<div id="headerBg">
+	</div>
+	<div id="header">
+		
+		<div class="headerBox">
+			<div class="navi">
+				<div class="logoBox">
+					<a href="../index.asp"><img src="../images/subLogo.png" alt="화성GC 로고"></a>
+				</div>		
+			
+				<div class="gnbBox">
+					<div class="gnbList">
+						<li><a href="/reservation/reservation.asp">예약서비스</a></li>							
+						<li><a href="/board/list.asp?type=1">새로운소식</a></li>
+						<li><a href="/customer/location.asp">고객센터</a></li>
+						<li><a href="/course/intro.asp">코스정보</a></li>
+						<li><a href="/club/intro.asp">클럽소개</a></li>
+						<li><a href="/driving/intro.asp">골프연습장</a></li>
+						<li><a href="/reservation/reserCheck.asp">MY화성GC</a></li>
+					</div>
+				</div>
+			</div>
+			<ul class="rightBtn">
+
+				<li><a href="/member/join01.asp" class="memBtn"><img src="/images/main/memBtn01.png" alt="회원가입"></a></li>
+				<li><a href="/member/login.asp" class="memBtn"><img src="/images/main/memBtn02.png" alt="로그인"></a></li>
+
+			</ul>
+			<div class="siteAll"><div class="toggleMenu"><span></span></div></div>
+		</div>
+
+		
+	
+		<!--메뉴-->
+			<div id="menu">
+	<div class="main-nav">
+		<img src="/images/subLogo2.png" alt="화성GC 로고" class="hambergerLogo">
+		<ul class="titleBox">
+			<li><a class="title" href="/reservation/reservation.asp">예약서비스</a></li>
+			<li><a href="/reservation/reservation.asp">실시간예약</a></li>
+			<li><a href="/reservation/joinList.asp">조인예약</a></li>
+			<li><a href="/reservation/fee.asp">이용요금</a></li>
+		</ul>
+		<ul class="titleBox">
+			<li><a class="title" href="/board/list.asp?type=1">새로운소식</a></li>
+			<li><a href="/board/list.asp?type=1">공지사항</a></li>
+			<li><a href="/board/list.asp?type=2">이벤트</a></li>
+		</ul>
+		<ul class="titleBox">
+			<li><a class="title" href="/customer/location.asp">고객센터</a></li>
+			<li><a href="/customer/location.asp">찾아오시는길</a></li>
+			<li><a href="/customer/contact.asp">주요연락처</a></li>
+			<li><a href="/customer/guide.asp">예약이용안내</a></li>
+			<li><a href="/customer/local.asp">로컬룰</a></li>
+			<li><a href="/board/list.asp?type=5">고객의소리</a></li>
+		</ul>
+		<ul class="titleBox">
+			<li><a class="title" href="/course/intro.asp">코스정보</a></li>
+			<li><a href="/course/intro.asp">코스정보</a></li>
+			<li><a href="/course/course.asp">코스 자세히보기</a></li>
+		</ul>
+		<ul class="titleBox">
+			<li><a class="title" href="/club/intro.asp">클럽소개</a></li>
+			<li><a href="/club/intro.asp">인사말</a></li>
+			<li><a href="/club/fac01.asp">주요시설</a></li>
+			<li><a href="/board/list.asp?type=3">사진갤러리</a></li>
+			<li><a href="/club/terms.asp">이용약관</a></li>
+			<li><a href="/club/policy.asp">개인정보취급방침</a></li>
+		</ul>
+		<ul class="titleBox">
+			<li><a class="title" href="/driving/intro.asp">골프연습장</a></li>
+			<li><a href="/driving/intro.asp">연습장소개</a></li>
+			<li><a href="/driving/top.asp">탑트레이서</a></li>
+			<li><a href="/driving/charge.asp">이용요금</a></li>
+			<li><a href="/driving/pro.asp">소속 프로소개</a></li>
+			<li><a href="/driving/golfstudio.asp">골프 스튜디오 소개</a></li>
+			<li><a href="javascript:alert('작업중입니다.')">주니어골프아카데미</a></li>
+		</ul>
+		<ul class="titleBox">
+			<li><a class="title" href="/reservation/reserCheck.asp">MY화성GC</a></li>
+			<li><a href="/reservation/reserCheck.asp">MY화성GC</a></li>
+			<li><a href="/mypage/coupon.asp">쿠폰함</a></li>
+			<li><a href="/mypage/score.asp">스코어카드</a></li>
+			<li><a href="/mypage/modify.asp">개인정보수정</a></li>
+		</ul>
+	</div>
+</div>
+
+
+<!--
+<div id="menu">
+	<div class="main-nav">
+		<img src="../images/subLogo2.png" alt="화성GC 로고" class="hambergerLogo">
+		<ul class="titleBox">
+			<li><a class="title" href="">예약서비스</a></li>
+			<li><a href="/reservation/reservation.asp">실시간예약</a></li>
+			<li><a href="/reservation/joinList.asp">조인예약</a></li>
+			<li><a href="/reservation/fee.asp">이용요금</a></li>
+		</ul>
+		<ul class="titleBox">
+			<li><a class="title" href="/board/notice.asp">새로운소식</a></li>
+			<li><a href="/board/notice.asp">공지사항</a></li>
+			<li><a href="/board/event.asp">이벤트</a></li>
+		</ul>
+		<ul class="titleBox">
+			<li><a class="title" href="/customer/location.asp">고객센터</a></li>
+			<li><a href="/customer/location.asp">찾아오시는길</a></li>
+			<li><a href="/customer/contact.asp">주요연락처</a></li>
+			<li><a href="/customer/guide.asp">예약이용안내</a></li>
+			<li><a href="/customer/local.asp">로컬룰</a></li>
+			<li><a href="/board/customer.asp">고객의소리</a></li>
+			<li><a href="/board/board.asp">자료실</a></li>
+			<li><a href="/board/hall.asp">역대홀인원</a></li>
+		</ul>
+		<ul class="titleBox">
+			<li><a class="title" href="/course/intro.asp">코스정보</a></li>
+			<li><a href="/course/intro.asp">코스 자세히보기</a></li>
+		</ul>
+		<ul class="titleBox">
+			<li><a class="title" href="/club/intro.asp">클럽소개</a></li>
+			<li><a href="/club/intro.asp">인사말</a></li>
+			<li><a href="/fac/facilty.asp">주요시설</a></li>
+			<li><a href="/club/gallery.asp">사진갤러리</a></li>
+			<li><a href="/member/terms.asp">이용약관</a></li>
+			<li><a href="/member/policy.asp">개인정보취급방침</a></li>
+		</ul>
+		<ul class="titleBox">
+			<li><a class="title" href="/practice/practice.asp">골프연습장</a></li>
+			<li><a href="/practice/practice.asp">연습장소개</a></li>
+			<li><a href="/practice/top.asp">탑트레이서</a></li>
+			<li><a href="/practice/fee.asp">이용요금</a></li>
+			<li><a href="/practice/pro.asp">소속 프로소개</a></li>
+			<li><a href="/practice/junior.asp">주니어골프아카데미</a></li>
+		</ul>
+		<ul class="titleBox">
+			<li><a class="title" href="/reservation/reserCheck.asp">MY화성GC</a></li>
+			<li><a href="/reservation/reserCheck.asp">MY화성GC</a></li>
+			<li><a href="/mypage/benefit.asp">고객혜택사항</a></li>
+			<li><a href="/mypage/coupon.asp">쿠폰함</a></li>
+			<li><a href="/mypage/score.asp">스코어카드</a></li>
+			<li><a href="/mypage/ranking.asp">랭킹존</a></li>
+			<li><a href="/mypage/modify.asp">개인정보수정</a></li>
+		</ul>
+	</div>
+</div>
+
+-->
+	</div>
+	
+	<!-- 컨텐츠 시작 -->
+	<div id="wrap">
+		<!-- floatingArea -->
+		<div id="floatingArea">
+
+			<script>
+
+  var bigMenu, midMenu;
+  var bigMenus = {
+	"reservation" : "예약서비스",
+    "board" : "새로운소식",
+	"customer" : "고객센터",
+	"course" : "코스정보",
+	"club" : "클럽소개",
+    "driving" : "골프연습장",
+	"mypage" : "MY화성GC"
+  }
+
+  var midMenus = {
+	"reservation" : {
+	  "/reservation/reservation.asp" : ["실시간예약", true],
+      "/reservation/joinList.asp" : ["조인예약", true],
+      "/reservation/joinCal.asp" : ["조인예약", false],
+      "/reservation/joinView.asp" : ["조인예약", false],
+      "/reservation/joinWrite.asp" : ["조인예약", false],
+      "/reservation/fee.asp" : ["이용요금", true]
+    },
+	"board" : {
+      "/board/list.asp?type=1" : ["공지사항", true],
+      "/board/list.asp?type=2" : ["이벤트", true],
+      "/board/view.asp?type=1" : ["공지사항", false],
+      "/board/view.asp?type=2" : ["이벤트", false]
+    },
+	 "customer" : {
+	  "/customer/location.asp" : ["찾아오시는길", true],
+      "/customer/contact.asp" : ["주요연락처", true],
+      "/customer/guide.asp" : ["예약이용안내", true],
+      "/customer/local.asp" : ["로컬룰", true],
+      "/board/list.asp?type=5" : ["고객의소리", true],
+      "/board/view.asp?type=5" : ["고객의소리", false]
+    },
+    "course" : {
+      "/course/intro.asp" : ["코스정보", true],
+      "/course/course.asp" : ["코스 자세히보기", true]
+    },
+	 "club" : {
+      "/club/intro.asp" : ["인사말", true],
+      "/club/fac01.asp" : ["주요시설", true],
+      "/board/list.asp?type=3" : ["사진갤러리", true],
+      "/board/view.asp?type=3" : ["사진갤러리", false],
+      "/club/terms.asp" : ["이용약관", true],
+      "/club/policy.asp" : ["개인정보처리방침", true],
+	  "/club/policy02.asp" : ["영상정보처리기기운영", true],
+	  "/member/email.asp" : ["이메일무단수집거부", true]
+    },
+	"driving" : {
+	  "/driving/intro.asp" : ["연습장소개", true],
+      "/driving/top.asp" : ["탑트레이서", true],
+      "/driving/charge.asp" : ["이용요금", true],
+      "/driving/pro.asp" : ["소속 프로소개", true],
+	  "/driving/golfstudio.asp": ["골프 스튜디오 소개", true],
+      "#" : ["주니어골프아카데미", true]
+    },
+	  "mypage" : {
+	  "/member/login.asp" : ["로그인", false],
+	  "/member/join01.asp" : ["회원가입", false],
+	  "/member/join02.asp" : ["회원가입", false],
+	  "/member/join03.asp" : ["회원가입", false],
+	  "/member/withdraw.asp" : ["회원탈퇴", false],
+	  "/member/find.asp" : ["아이디/비밀번호찾기", false],
+	  "/reservation/reserCheck.asp" : ["MY화성GC", true],
+      "/mypage/coupon.asp" : ["쿠폰함", true],
+      "/mypage/score.asp" : ["스코어카드", true],
+      "/member/modify.asp" : ["개인정보수정", true]      
+    }
+  }
+
+	$(document).ready(function() {
+		initMenus();
+	});
+
+	function initMenus() {
+		var url = window.location.href;
+
+		for(var key in midMenus) {
+			for(var page in midMenus[key]) {
+				if(url.indexOf(page) > 0) {
+					$("#categori").html(bigMenus[key]);
+					$("#categori2").html(midMenus[key][page][0]);
+					$(".selectedMenu").html(midMenus[key][page][0]);
+					bigMenu = key;
+					midMenu = page;
+					break;
+				}
+			}
+
+			if(bigMenu != null && bigMenu != "") {
+				break;
+			}
+		}
+
+		$("#categoriSelect2").empty();
+
+		for(var key in midMenus[bigMenu]) {
+			if(midMenus[bigMenu][key][1]){
+				$("#categoriSelect2").append(String.format("<li><a href='{0}'>{1}</a></li>", key, midMenus[bigMenu][key][0]));
+			}
+		}
+
+		for(var key in midMenus) {
+			for(var page in midMenus[key]) {
+				$("#categoriSelect").append(String.format("<li><a href='{0}'>{1}</a></li>", page, bigMenus[key]));
+				break;
+			}
+		}
+	}
+</script>
+			<div class="navbarWrap">
+				<div class="navTab">
+					<ul class="navbarBox">
+						<li class="homeBox"><img src="../images/home.png" alt="메인으로"></li>
+						<li class="categoriBox">
+							<div class="categori select-arrow" id="categori">예약안내</div>
+							<ul class="categoriSelect" id="categoriSelect">
+							</ul>
+						</li>
+						<li class="categoriBox">
+							<div class="categori select-arrow" id="categori2">실시간예약</div>
+							<ul class="categoriSelect" id="categoriSelect2" >
+							</ul>
+						</li>
+						<li class="selectedMenu">실시간예약</li>
+					</ul>
+				</div>
+			</div>
+
+				
+
+			<!-- content -->
+			<div class="contents" style="padding-bottom:0;margin-bottom:30px;">
+			  <!-- subTitle -->			  
+				<div class="contTitleBox">
+				  <p class="title">코스개요</p>
+				  <img src="../images/titleBar.png" alt="검정바" class="titleBar">
+				</div>
+			  <!-- subTitle End -->
+
+			  <ul class="courseTab">
+				<li><a class="on" href="/course/intro.asp">코스개요</a></li>
+				<li><a class="" href="/course/course.asp">코스정보</a></li>
+			  </ul>
+
+			  <div class="commonDot"> 화성GC 코스개요</div>
+
+				<div class="courseTxt">
+						<span class="big">자연과 하나된 아름다운 레이아웃</span> 
+						총 9홀  |  총전장 : 3,106 YARD <br>
+						기대와 설레임, 만족과 갈등을 드리는 최고의 코스 화성골프클럽에서 도전하세요.
+				</div>
+			</div><!-- contents End-->
+
+			<!--<div class="imgArea">
+				<div class="img"><img src="../images/courseIntroTxt.png" alt="파인비치코스"></div>
+			</div>-->
+
+			<div class="contents">
+				<img src="../images/course/courseImg.jpg" alt="">
+
+				<div class="courseDataTable">
+					<div class="dataTitle">Course</div>
+					<ul class="dataListTitle title">
+						<li>HOLE</li>
+						<li>1</li>
+						<li>2</li>
+						<li>3</li>
+						<li>4</li>
+						<li>5</li>
+						<li>6</li>
+						<li>7</li>
+						<li>8</li>
+						<li>9</li>
+						<li>TOTAL</li>
+					</ul>					
+					<ul class="dataListTitle">
+						<li>YARD</li>
+						<li>487</li>
+						<li>156</li>
+						<li>410</li>
+						<li>306</li>
+						<li>419</li>
+						<li>345</li>
+						<li>471</li>
+						<li>160</li>
+						<li>352</li>
+						<li>3,106</li>
+					</ul>					
+					<ul class="dataListTitle blackData">
+						<li>PAR</li>
+						<li>5</li>
+						<li>3</li>
+						<li>4</li>
+						<li>4</li>
+						<li>4</li>
+						<li>4</li>
+						<li>4</li>
+						<li>3</li>
+						<li>4</li>
+						<li>35</li>
+					</ul>
+				</div>
+
+
+			</div><!-- contents End -->
+		</div><!-- floating_menu End -->
+	</div>	<!-- wrap End -->
+
+<!-- footer 영역 -->
+		<div id="footerWrap">
+			<div class="footerCont">
+				<p class="titleTxt" data-scroll="toggle(.fromTopIn, .fromTopOut)">NOTICE</p>
+
+				<div class="infoListBox">
+					<div class="noticeBox">
+						<ul class="notice" id="mainNotice">
+						</ul>
+
+						<div class="noticeMore">
+							<a href="/board/list.asp?type=1" class="list">NEWS <img src="/images/p_notice.png" alt=""></a>
+						</div>
+					</div>
+
+					<div class="infoBox right">
+						<p class="title">대표전화</p>
+						<p class="text txt1">031-369-8900<span class="miniTxt">평일:09:00 ~ 18:00</span></p>
+					</div>
+					<a href="/board/list.asp?type=2" class="infoBox">
+						<p class="title">이벤트 안내</p>
+						<p class="text">항상 새로운 이벤트로 <br>고객을 즐겁게</p>
+					</a>
+					</ul>
+				</div>
+			</div>
+
+			<div id="mainFooterWrap">
+				<div class="footerBox">
+					<div class="termsBox">
+						<div class="terms">
+							<a href="/club/terms.asp" class="termsLink">이용약관</a><span> l </span>
+							<a href="/club/policy.asp" class="termsLink">개인정보처리방침</a><span> l </span>
+							<a href="/club/policy02.asp" class="termsLink">영상정보처리기기운영</a><span> l </span>
+							<!-- <a href="/member/legalNotice.asp" class="termsLink">법적고지</a><span> l </span> -->
+							<a href="/member/email.asp" class="termsLink">이메일무단수집거부</a>
+						</div>
+					</div>
+					<div class="footer">
+						<img src="../images/f_Logo.png" alt="로고" class="footerLogo">
+						<div class="infoBox">
+							<p>경기도 화성시 남양읍 화성로 1393-27<br>
+							TEL : 031-369-8900 / FAX : 031-369-8902
+							</p>
+							<p>사업자등록번호:124-86-03520 / 통신판매업 신고번호 : 제2023-화성남양-0036호
+								</p>
+							<p>COPYRIGHT(C)2014 HWASEONG GOLF ALL RIGHT RESERVED.</p>
+						</div>
+					</div>
+					<p id="topArrow" style="margin: auto; width: 50px; display: block; z-index: 100;"><a href="#top"><span></span></a></p>
+				</div>
+			</div>
+</body>
+</html>

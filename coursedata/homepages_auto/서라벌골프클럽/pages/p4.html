@@ -1,0 +1,1047 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+    <head>
+        <title>서라벌 GC</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+        <script src="/js/jquery.min.js"></script>
+        <script src="/js/utils/ajax.js"></script>
+        <script src="/js/utils/date.js"></script>
+        <script src="/js/utils/popup.js"></script>
+        <script src="/js/utils/string.js"></script>
+        <script src="/js/utils/template.js"></script>
+        <script src="/js/utils/common.js"></script>
+        <script src="/js/jquery.preloaders.js"></script>
+        <script src="/js/const.js"></script>
+        <script src="/pc/js/view.js"></script>
+        <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+        <!-- Basic set-->
+        <link rel="stylesheet" href="/pc/css/import.css">
+        <!-- Swiper -->
+        <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css"/>
+        <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
+        <!-- slick -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.9.0/slick.min.js"></script>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.9.0/slick.min.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.9.0/slick-theme.min.css">
+        <!-- AOS -->
+        <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+        <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+
+        <!-- Only main -->
+        <script type="text/javascript" src="/pc/js/main.js"></script>
+        <link rel="stylesheet" href="/pc/css/main.css?v=3">
+
+        <!-- Only content -->
+        <link rel="stylesheet" href="/pc/css/content.css?v=3">
+    </head>
+
+
+<body>
+<a href="/reservation/main" title="예약하기" class="main-reser-btn">예약하기</a>
+
+    
+    <!-- Header -->
+    <header id="header" class="header">
+        <div class="header-wrap-pc">
+            <div class="inner clear">
+                <div class="main-login-wrap">
+                    <div class="login-box">
+                        <div class="login-area">
+                            <!-- 로그인 전 후 보이는 아이콘 -->
+                            <ul class="login-icon">
+                                <li style="display: none">
+                                    <a href="/member/login" title="로그인">
+                                        <img src="/pc/images/main/login_icon.svg" alt="로그인">로그인
+                                    </a>
+                                </li>
+                                <li style="display: none">
+                                    <a href="/member/join" title="회원가입">
+                                        <img src="/pc/images/main/join_icon.svg" alt="회원가입">회원가입
+                                    </a>
+                                </li>
+                                <li style="display: none">
+                                    <a href="javascript:void(0)" title="로그아웃">
+                                        <img src="/pc/images/main/logout_icon.svg" alt="로그아웃">로그아웃
+                                    </a>
+                                </li>
+                                <li style="display: none">
+                                    <a href="/member/mypage" title="마이페이지">
+                                        <img src="/pc/images/main/mypage_icon.svg" alt="마이페이지">마이페이지
+                                    </a>
+                                </li>
+                            </ul>
+                            <script>
+                                if (isLoggedIn()) {
+                                    $("#header").find("ul.login-icon > li").eq(2).show();
+                                    $("#header").find("ul.login-icon > li").eq(2).on("click", function () {
+                                        ajax.logout().then(() => {
+                                            alert("로그아웃 되었습니다.");
+                                            location.href = "/index";
+                                        }).catch(() => {
+                                        });
+                                    });
+                                    $("#header").find("ul.login-icon > li").eq(3).show();
+                                } else {
+                                    $("#header").find("ul.login-icon > li").eq(0).show();
+                                    $("#header").find("ul.login-icon > li").eq(1).show();
+                                }
+                            </script>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="hd-gnb">
+                    <div class="gnb-bg"></div>
+                    <ul class="depth01">
+                        <li class="depth01-list">
+                            <a class="depth01-link" href="/club/club-info" title="클럽소개">
+                                <span>클럽소개</span>
+                            </a>
+                            <ul class="depth02">
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/club/club-info" title="서라벌GC">
+                                        <span>서라벌GC</span>
+                                    </a>
+                                </li>
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/club/greeting" title="인사말">
+                                        <span>인사말</span>
+                                    </a>
+                                </li>
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/club/map" title="오시는길">
+                                        <span>오시는길</span>
+                                    </a>
+                                </li>
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/board/gallery-list" title="갤러리">
+                                        <span>갤러리</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="depth01-list">
+                            <a class="depth01-link" href="/course/course-Info" title="코스소개">
+                                <span>코스소개</span>
+                            </a>
+                            <ul class="depth02">
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/course/course-Info" title="코스소개">
+                                        <span>코스소개</span>
+                                    </a>
+                                </li>
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/course/concept" title="코스설계">
+                                        <span>코스설계</span>
+                                    </a>
+                                </li>
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/course/data" title="코스제원">
+                                        <span>코스제원</span>
+                                    </a>
+                                </li>
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/course/attack" title="코스공략도">
+                                        <span>코스공략도</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="depth01-list">
+                            <a class="depth01-link" href="/facil/clubhouse" title="부대시설">
+                                <span>부대시설</span>
+                            </a>
+                            <ul class="depth02">
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/facil/clubhouse" title="클럽하우스">
+                                        <span>클럽하우스</span>
+                                    </a>
+                                </li>
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/facil/restaurant" title="레스토랑">
+                                        <span>레스토랑</span>
+                                    </a>
+                                </li>
+<!--                                <li class="depth02-list">-->
+<!--                                    <a class="depth02-link" href="/facil/snack" title="그늘집">-->
+<!--                                        <span>그늘집</span>-->
+<!--                                    </a>-->
+<!--                                </li>-->
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/facil/start" title="스타트하우스">
+                                        <span>스타트하우스</span>
+                                    </a>
+                                </li>
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/facil/locker" title="락카(파우더룸)">
+                                        <span>락카(파우더룸)</span>
+                                    </a>
+                                </li>
+<!--                                <li class="depth02-list">-->
+<!--                                    <a class="depth02-link" href="/facil/shop" title="프로샵">-->
+<!--                                        <span>프로샵</span>-->
+<!--                                    </a>-->
+<!--                                </li>-->
+                            </ul>
+                        </li>
+                       <!-- <li class="depth01-list">
+                            <a class="depth01-link" href="/facil/clunhouse" title="부대시설">
+                                <span>부대시설</span>
+                            </a>
+                            <ul class="depth02">
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/facil/clubhouse" title="클럽하우스">
+                                        <span>클럽하우스</span>
+                                    </a>
+                                </li>
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/facil/restaurant" title="레스토랑">
+                                        <span>레스토랑</span>
+                                    </a>
+                                </li>
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/facil/start" title="스타트하우스">
+                                        <span>스타트하우스</span>
+                                    </a>
+                                </li>
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/facil/sauna" title="사우나">
+                                        <span>사우나</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>-->
+                        <li class="depth01-list">
+                            <a class="depth01-link logo" href="/index" title="메인페이지">
+                                <span></span>
+                            </a>
+                            <ul class="depth02">
+                                <li class="depth02-list"></li>
+                            </ul>
+                        </li>
+                        <li class="depth01-list">
+                            <a class="depth01-link" href="/reservation/main" title="예약서비스">
+                                <span>예약서비스</span>
+                            </a>
+                            <ul class="depth02">
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/reservation/main" title="실시간예약">
+                                        <span>실시간예약</span>
+                                    </a>
+                                </li>
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/reservation/check" title="예약확인/취소">
+                                        <span>예약확인/취소</span>
+                                    </a>
+                                </li>
+                                <!--<li class="depth02-list">
+                                    <a class="depth02-link" href="javascript:alert('준비중입니다.')" title="조인게시판">
+                                        <span>조인게시판</span>
+                                    </a>
+                                </li>-->
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/reservation/mypage" title="내장현황">
+                                        <span>내장현황</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="depth01-list">
+                            <a class="depth01-link" href="/guide/guide" title="예약안내">
+                                <span>예약안내</span>
+                            </a>
+                            <ul class="depth02">
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/guide/guide" title="이용안내">
+                                        <span>이용안내</span>
+                                    </a>
+                                </li>
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/guide/reser-guide" title="예약가이드">
+                                        <span>예약가이드</span>
+                                    </a>
+                                </li>
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/guide/penalty" title="퇴장규정">
+                                        <span>퇴장규정</span>
+                                    </a>
+                                    </a>
+                                </li>
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/guide/manner" title="매너에티켓">
+                                        <span>매너에티켓</span>
+                                    </a>
+                                </li>
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/guide/rule" title="rule">
+                                        <span>로컬룰</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+
+                        <li class="depth01-list">
+                            <a class="depth01-link" href="/board/news" title="고객센터">
+                                <span>고객센터</span>
+                            </a>
+                            <ul class="depth02">
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/board/news" title="공지사항">
+                                        <span>공지사항</span>
+                                    </a>
+                                </li>
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/board/voc-list" title="고객의소리">
+                                        <span>고객의소리</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <script>
+        // main-tab
+        function courseTab(idx) {
+            for (i = 0; i < 7; i++) {
+                if (i == idx) {
+                    $("#cos_tab" + i).addClass("current");
+                    $("#cos_con" + i).show();
+                    $("#cos_name" + i).show();
+                } else {
+                    $("#cos_tab" + i).removeClass("current");
+                    $("#cos_con" + i).hide();
+                    $("#cos_name" + i).hide();
+                }
+            }
+        }
+    </script>
+    <!-- content-->
+    <div id="basic-wrap">
+        <div class="basic-bg">
+            <div class="club-bg"></div>
+        </div>
+        <p class="top-tit">
+            코스소개
+            <span>course info</span>
+        </p>
+
+        <div class="basic-con">
+            <ul class="basic-tab01 wp70">
+                <li class="">
+                    <a href="/course/course-Info" title="코스소개">코스소개</a>
+                </li>
+                <li class="">
+                    <a href="/course/concept" title="코스설계">코스설계</a>
+                </li>
+                <li class="">
+                    <a href="/course/data" title="코스제원">코스제원</a>
+                </li>
+                <li class="on">
+                    <a href="/course/attack" title="코스공략도">코스공략도</a>
+                </li>
+            </ul>
+            <div class="about-content-box">
+                <div class="about">
+                    <h4 class="tab-content current" id="cos_name1">힐코스</h4>
+                    <h4 class="tab-content" id="cos_name2">레이크코스</h4>
+                    <h4 class="tab-content" id="cos_name3">마운틴코스</h4>
+                    <h4 class="tab-content" id="cos_name4">밸리코스</h4>
+                    <h4 class="tab-content" id="cos_name5">파인코스</h4>
+                </div>
+                <div class="course-area">
+                    <p class="tit">특징이 차별화된 홀들이 서로 조화를 이루면서도<br>
+                        각각 독립성을 유지하여 플레이어가 최상의 조건으로 플레이 할 수 있는 서라벌 골프클럽의 코스</p>
+
+                    <ul class="attack-tab">
+                        <li id="cos_tab1"class="current">
+                            <a href="javascript:courseTab(1)" title="힐코스">힐코스</a>
+                        </li>
+                        <li id="cos_tab2">
+                            <a href="javascript:courseTab(2)" title="레이크코스">레이크코스</a>
+                        </li>
+                        <li id="cos_tab3">
+                            <a href="javascript:courseTab(3)" title="마운틴코스">마운틴코스</a>
+                        </li>
+                        <li id="cos_tab4">
+                            <a href="javascript:courseTab(4)" title="밸리코스">밸리코스</a>
+                        </li>
+                        <li id="cos_tab5">
+                            <a href="javascript:courseTab(5)" title="파인코스">파인코스</a>
+                        </li>
+                    </ul>
+                    <!-- 힐코스 -->
+                    <div id="cos_con1" class="tab-content current">
+                        <ul class="attack-thum">
+                            <li class="box">
+                                <div>
+                                    <img src="/pc/images/course/hill_01.png" alt="힐1" class="cos-img">
+                                    <p class="par">1 Hole<span>PAR 4</span></p>
+                                    <ul class="distance">
+                                        <li class="blue">351m</li>
+                                        <li class="wht">338m</li>
+                                        <li class="red">297m</li>
+                                    </ul>
+                                    <p class="description">내리막 홀이면서 티에 서면 그린까지 잘 보이며 거리가 길지 않아 쉽게 투온을 할수 있으나 그린 앞에 벙커가 있어 길게 치는 것이 좋다.</p>
+                                </div>
+                            </li>
+                            <li class="box">
+                                <div>
+                                    <img src="/pc/images/course/hill_02.png" alt="힐2" class="cos-img">
+                                    <p class="par">2 Hole<span>PAR 5</span></p>
+                                    <ul class="distance">
+                                        <li class="blue">484m</li>
+                                        <li class="wht">441m</li>
+                                        <li class="red">397m</li>
+                                    </ul>
+                                    <p class="description">티에서 건너 치는 홀로 티샷의 방향에 따라 거리차가 많이 난다.
+                                        최대한 페어웨이 우측방향으로 하면 가장 좋고 그린은 좌측 방향으로 열려 있으므로 우측으로 직접 공략하는 것 보다는 좌측방향이 좋다.</p>
+                                </div>
+                            </li>
+                            <li class="box">
+                                <div>
+                                    <img src="/pc/images/course/hill_03.png" alt="힐3" class="cos-img">
+                                    <p class="par">3 Hole<span>PAR 3</span></p>
+                                    <ul class="distance">
+                                        <li class="blue">172m</li>
+                                        <li class="wht">155m</li>
+                                        <li class="red">104m</li>
+                                    </ul>
+                                    <p class="description">그린의 우측에 암벽과 긴 벙커로 둘러 싸여있어 부담스러운 홀이나 그린이 약간 오르막에 위치하므로 짧은 것 보다는 길게 치는 것이 훨씬 낫다.</p>
+                                </div>
+                            </li>
+                            <li class="box">
+                                <div>
+                                    <img src="/pc/images/course/hill_04.png" alt="힐4" class="cos-img">
+                                    <p class="par">4 Hole<span>PAR 4</span></p>
+                                    <ul class="distance">
+                                        <li class="blue">413m</li>
+                                        <li class="wht">365m</li>
+                                        <li class="red">297m</li>
+                                    </ul>
+                                    <p class="description">오르막이면서 거리가 긴 파4홀로 그린의 바닥이 보이지않고 투 온을 하기가 어려운 홀이다.
+                                        티샷은 최대한 좌측 페어웨이 쪽으로 보내야만 그린 방향이 좋아진다. 세컨샷도 약간 길게친는 것이 좋다.</p>
+                                </div>
+                            </li>
+                            <li class="box">
+                                <div>
+                                    <img src="/pc/images/course/hill_05.png" alt="힐5" class="cos-img">
+                                    <p class="par">5 Hole<span>PAR 5</span></p>
+                                    <ul class="distance">
+                                        <li class="blue">504m</li>
+                                        <li class="wht">456m</li>
+                                        <li class="red">375m</li>
+                                    </ul>
+                                    <p class="description">티에서면 그린까지 한눈에 다 보이므로 짧아 보이지만 페어웨이 중간 지점부터 그린까지 다시 오르막이고 그린 앞쪽에 벙커들이 있어 투 온이 쉽지 않은 홀이다.
+                                        티샷은 좌측 헤어웨이 쪽으로 보내고 세컨샷도 그린의 좌측 방향으로 들어가면 편안하다.</p>
+                                </div>
+                            </li>
+                            <li class="box">
+                                <div>
+                                    <img src="/pc/images/course/hill_06.png" alt="힐6" class="cos-img">
+                                    <p class="par">6 Hole<span>PAR 3</span></p>
+                                    <ul class="distance">
+                                        <li class="blue">182m</li>
+                                        <li class="wht">152m</li>
+                                        <li class="red">106m</li>
+                                    </ul>
+                                    <p class="description">힐 코스 중 가장 높은 상단부에 위치하여 전체코스가 한눈에 펼쳐지는 홀이다. 그린은 자연봉우리 위에 앉혀 있어 산위에 떠있는 홀처럼 보이고 그린 앞의 벙커가 뒤쪽의 한 그루의 소나무가 어우러진 홀이다.</p>
+                                </div>
+                            </li>
+                            <li class="box">
+                                <div>
+                                    <img src="/pc/images/course/hill_07.png" alt="힐7" class="cos-img">
+                                    <p class="par">7 Hole<span>PAR 4</span></p>
+                                    <ul class="distance">
+                                        <li class="blue">339m</li>
+                                        <li class="wht">293m</li>
+                                        <li class="red">233m</li>
+                                    </ul>
+                                    <p class="description">약간 오르막 파4홀로 거리는 짧지만 그린 좌우의 벙커들이있어 그린의 중앙으로 정확하게 들어가야 한다.
+                                        티샷은 약간 우측 페어웨이 쪽으로 하는 것이 좋다.</p>
+                                </div>
+                            </li>
+                            <li class="box">
+                                <div>
+                                    <img src="/pc/images/course/hill_08.png" alt="힐8" class="cos-img">
+                                    <p class="par">8 Hole<span>PAR 4</span></p>
+                                    <ul class="distance">
+                                        <li class="blue">381m</li>
+                                        <li class="wht">357m</li>
+                                        <li class="red">308m</li>
+                                    </ul>
+                                    <p class="description">내리막 홀로 페어웨이는 2단으로 되어있어 페어웨이 우측의 벙커 방향으로 보내면 그린까지 편안하게 갈수 있고 좌측으로 약간 가로 질러 가면 거리의 이득은 보나 그린 앞의 벙커가 막고 있어 어프로치가 편하지는 않다.</p>
+                                </div>
+                            </li>
+                            <li class="box">
+                                <div>
+                                    <img src="/pc/images/course/hill_09.png" alt="힐9" class="cos-img">
+                                    <p class="par">9 Hole<span>PAR 4</span></p>
+                                    <ul class="distance">
+                                        <li class="blue">412m</li>
+                                        <li class="wht">371m</li>
+                                        <li class="red">305m</li>
+                                    </ul>
+                                    <p class="description">내리막 홀로 넓은 헤어웨이가 펼쳐지고 그린의 우측 뒤쪽으로 암벽을 자연 그대로 살아있어 그린을 받쳐주고 있다.
+                                        티샷은 페어웨이의 우측보다는 좌측으로 하도록 유도하고 있으며 그린은 정면으로 열려 있으나 그린의 우측방향이 좀 더 안전하게 공략할 수 있도록 하였다.</p>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                    <!-- 레이크코스 -->
+                    <div id="cos_con2" class="tab-content">
+                        <ul class="attack-thum">
+                            <li class="box">
+                                <div>
+                                    <img src="/pc/images/course/lake_01.png" alt="레이크1" class="cos-img">
+                                    <p class="par">1 Hole<span>PAR 4</span></p>
+                                    <ul class="distance">
+                                        <li class="blue">386m</li>
+                                        <li class="wht">371m</li>
+                                        <li class="red">331m</li>
+                                    </ul>
+                                    <p class="description">내리막 첫 홀로서 티에 서면 시원스럽게 패어웨이, 연못, 대형벙커, 그린이 한눈에 들어오는아름다운 코스이다.
+                                        티에서는 호쾌한 티샷을 할 수 있도록 넓고 편안하게 조성되어 있고 그린은 연못의 벙커를 따라있고 티샷은 우측 페어웨이 방향이면 좋다.</p>
+                                </div>
+                            </li>
+                            <li class="box">
+                                <div>
+                                    <img src="/pc/images/course/lake_02.png" alt="레이크2" class="cos-img">
+                                    <p class="par">2 Hole<span>PAR 4</span></p>
+                                    <ul class="distance">
+                                        <li class="blue">515m</li>
+                                        <li class="wht">443m</li>
+                                        <li class="red">389m</li>
+                                    </ul>
+                                    <p class="description">파4홀이면서 투 온이 어렵지 않은 홀이다. 페어웨이 티샷 랜딩지점까지 내리막 홀이고 그린까지는 거의 수평이라 그린의 바닥을 잘 읽을 수 있다.
+                                        티샷은 페어웨이 좌측보다는 약간 우측 방향으로 하면페어웨이 가운데로 들어 올수 있고 방향이 좋고 장타자라면 쉽게 투 온을 할 수 있다.</p>
+                                </div>
+                            </li>
+                            <li class="box">
+                                <div>
+                                    <img src="/pc/images/course/lake_03.png" alt="레이크3" class="cos-img">
+                                    <p class="par">3 Hole<span>PAR 3</span></p>
+                                    <ul class="distance">
+                                        <li class="blue">168m</li>
+                                        <li class="wht">145m</li>
+                                        <li class="red">111m</li>
+                                    </ul>
+                                    <p class="description">연못과 계류가 하나의 연못을 끼고 좌우에 함께 있는 홀이다. 우측에 대형 연못이 있고 약간 오르막이지만 넓은 페어웨이와 벙커, 그린이 한눈에 보이는 홀이다.
+                                        페어웨이의 우측 벙커와 좌측 벙커는 물론이고 그린의 앞쪽 우측벙커가 계류를 따라 티에서 잘보이고 티샷은 우측페어웨이 쪽이 좋다.</p>
+                                </div>
+                            </li>
+                            <li class="box">
+                                <div>
+                                    <img src="/pc/images/course/lake_04.png" alt="레이크4" class="cos-img">
+                                    <p class="par">4 Hole<span>PAR 5</span></p>
+                                    <ul class="distance">
+                                        <li class="blue">424m</li>
+                                        <li class="wht">403m</li>
+                                        <li class="red">331m</li>
+                                    </ul>
+                                    <p class="description">내리막 홀로 우측의 계류와 연못이 아름답게 펼쳐지고 반도형으로 이루어진 그린은 연못위에 떠있는 것 같아 보인다.
+                                        페어웨이에 벙커들이 포진하고 있으나 페어웨이가 넓기 때문에 큰 어려움은 없고 세컨샷을 할때는 반도형 그린이라서 정확한 샷을 요구한다.</p>
+                                </div>
+                            </li>
+                            <li class="box">
+                                <div>
+                                    <img src="/pc/images/course/lake_05.png" alt="레이크5" class="cos-img">
+                                    <p class="par">5 Hole<span>PAR 3</span></p>
+                                    <ul class="distance">
+                                        <li class="blue">156m</li>
+                                        <li class="wht">134m</li>
+                                        <li class="red">109m</li>
+                                    </ul>
+                                    <p class="description">그린 뒤쪽이 들여 있어 그린 바닥이 다 보이지만 좌측의 연못과 벙커가 있어 심리적 부담감이 큰 홀이다.
+                                        좌측 방향보다는 약간 우측방향으로 들어가는 것이 더 좋다.</p>
+                                </div>
+                            </li>
+                            <li class="box">
+                                <div>
+                                    <img src="/pc/images/course/lake_06.png" alt="레이크6" class="cos-img">
+                                    <p class="par">6 Hole<span>PAR 4</span></p>
+                                    <ul class="distance">
+                                        <li class="blue">359m</li>
+                                        <li class="wht">338m</li>
+                                        <li class="red">311m</li>
+                                    </ul>
+                                    <p class="description">티에 서면 그린이 한눈에 보이고 거리가 짧아 쉽게 투 온을 할 수 있을 것 같지만 막상 티샷은 내리막이기는 하지만 연못을 건너가야 하는 부담감이 있고 세컨샷 또한 그린까지 약간 오르막 홀로서 투 온을 하기가 어려운 홀이다.
+                                        그린의 좌측방향이 어프로치를 하는 데는 편안하다</p>
+                                </div>
+                            </li>
+                            <li class="box">
+                                <div>
+                                    <img src="/pc/images/course/lake_07.png" alt="레이크7" class="cos-img">
+                                    <p class="par">7 Hole<span>PAR 4</span></p>
+                                    <ul class="distance">
+                                        <li class="blue">407m</li>
+                                        <li class="wht">352m</li>
+                                        <li class="red">311m</li>
+                                    </ul>
+                                    <p class="description">티에 서면 그린이 가까워 보이나 실제 제 거리를 다 봐야 한다.
+                                        계류를 건너애 하고 그린 앞의 벙커와 그린 뒤쪽에 벙커가 있으므로 오히려 정확한 거리감이 요구한다. 짧은 것 보다는 긴 것이 낫다.</p>
+                                </div>
+                            </li>
+                            <li class="box">
+                                <div>
+                                    <img src="/pc/images/course/lake_08.png" alt="레이크8" class="cos-img">
+                                    <p class="par">8 Hole<span>PAR 5</span></p>
+                                    <ul class="distance">
+                                        <li class="blue">515m</li>
+                                        <li class="wht">492m</li>
+                                        <li class="red">427m</li>
+                                    </ul>
+                                    <p class="description">가장 긴 오르막 홀로서 그린의 방향이 약간 좌측으로 꺾여 있어 쓰리 온이 어려운 홀이다.
+                                        티샷과 세컨샷은 좌측방향으로 하면 거리에 이득을 볼수있으나 좌측엔 벙커 등이 있어 쉽지 않다.
+                                        그린은 2단 그린으로 되어 있어 약간 길게 치면 좋다.</p>
+                                </div>
+                            </li>
+                            <li class="box">
+                                <div>
+                                    <img src="/pc/images/course/lake_09.png" alt="레이크9" class="cos-img">
+                                    <p class="par">9 Hole<span>PAR 4</span></p>
+                                    <ul class="distance">
+                                        <li class="blue">382m</li>
+                                        <li class="wht">359m</li>
+                                        <li class="red">316m</li>
+                                    </ul>
+                                    <p class="description">거리도 길면서 오르막 홀로 쉽지 않은 홀이다.
+                                        티샷은 우측보다는 약간 좌측 페어웨이 쪽으로 보내면좋고 세컨샷에서 그린이 잘 보이지 않지만 짧게 치는 것보다는 길게 치는 것이 좋다.</p>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                    <!-- 마운틴코스 -->
+                    <div id="cos_con3" class="tab-content">
+                        <ul class="attack-thum">
+                            <li class="box">
+                                <div>
+                                    <img src="/pc/images/course/moun_01.png" alt="마운틴1" class="cos-img">
+                                    <p class="par">1 Hole<span>PAR 4</span></p>
+                                    <ul class="distance">
+                                        <li class="blue">361m</li>
+                                        <li class="wht">335m</li>
+                                        <li class="red">282m</li>
+                                    </ul>
+                                    <p class="description">티에 서면 우측 페어웨이 벙커가 한눈에 들어오고 그린까지 잘 보인다. 그린이 잘 보여 거리가 가까워 보이지만 실제 제 거리를 다 보아야 한다.
+                                        티샷은 최대한 좌측 페어웨이 쪽으로 보내야 그린에 더 가까워진다.</p>
+                                </div>
+                            </li>
+                            <li class="box">
+                                <div>
+                                    <img src="/pc/images/course/moun_02.png" alt="마운틴2" class="cos-img">
+                                    <p class="par">2 Hole<span>PAR 4</span></p>
+                                    <ul class="distance">
+                                        <li class="blue">348m</li>
+                                        <li class="wht">330m</li>
+                                        <li class="red">281m</li>
+                                    </ul>
+                                    <p class="description">내리막 홀로 그린 바닥까지 홀이 보이는 편안한 홀이다. 페어웨이 우측은 기존 수림대가 있고 좌측은 벙커들이 있어 티샷은 정중앙으로 하면 가장 좋다.</p>
+                                </div>
+                            </li>
+                            <li class="box">
+                                <div>
+                                    <img src="/pc/images/course/moun_03.png" alt="마운틴3" class="cos-img">
+                                    <p class="par">3 Hole<span>PAR 3</span></p>
+                                    <ul class="distance">
+                                        <li class="blue">155m</li>
+                                        <li class="wht">132m</li>
+                                        <li class="red">109m</li>
+                                    </ul>
+                                    <p class="description">좌측 계곡을 건너가는 홀로 그린의 우측과 뒤쪽의 거대한 자연수림대가 배경을 이루고 있는 아름다운 par3홀이다.
+                                        그린의 중심방향으로 앞쪽과 뒤쪽에 벙커를 배치하여 정확한 티샷을 요구지만 그린의 폭이 넓기 때문에편안하게 플레이를 할 수 있다.</p>
+                                </div>
+                            </li>
+                            <li class="box">
+                                <div>
+                                    <img src="/pc/images/course/moun_04.png" alt="마운틴4" class="cos-img">
+                                    <p class="par">4 Hole<span>PAR 5</span></p>
+                                    <ul class="distance">
+                                        <li class="blue">497m</li>
+                                        <li class="wht">477m</li>
+                                        <li class="red">423m</li>
+                                    </ul>
+                                    <p class="description">약간 오르막 홀이면서 그린이 좌측으로 꺾인 홀로 티샷은 우측 페어웨이 벙커 방향으로 하고 세컨샷 또는 우측 페어웨이방향으로 하면 그린과 평행한 방향으로 들어갈 수 있다.
+                                        그린의 좌측은 벙커가 있으므로 어프로치도 우측 방향이 더 좋다.</p>
+                                </div>
+                            </li>
+                            <li class="box">
+                                <div>
+                                    <img src="/pc/images/course/moun_05.png" alt="마운틴5" class="cos-img">
+                                    <p class="par">5 Hole<span>PAR 4</span></p>
+                                    <ul class="distance">
+                                        <li class="blue">416m</li>
+                                        <li class="wht">387m</li>
+                                        <li class="red">341m</li>
+                                    </ul>
+                                    <p class="description">내리막 홀로서 티에 서면 그린은 보이지 않으나 넓은 페어웨이가 펼쳐지면서 좌측의 넓은 페어웨이 벙커가 방향을 제시해주고 호쾌한 드라이버 티샷을 할수 있는 시원스러운 홀이다.
+                                        세컨샷 지점에서는 그린의 바닥 언듈레이션을 다 읽을 수 있으므로 마음 놓고 그린을 향해 공략할 수 있다.</p>
+                                </div>
+                            </li>
+                            <li class="box">
+                                <div>
+                                    <img src="/pc/images/course/moun_06.png" alt="마운틴6" class="cos-img">
+                                    <p class="par">6 Hole<span>PAR 3</span></p>
+                                    <ul class="distance">
+                                        <li class="blue">177m</li>
+                                        <li class="wht">160m</li>
+                                        <li class="red">142m</li>
+                                    </ul>
+                                    <p class="description">내리막 파3홀로 그린의 바닥을 다 읽을 수 있는 홀이다.
+                                        연못을 넘겨야 하므로 약간 길게 치는 것이 좋으나 너무 길면 그린의 뒤쪽의 벙커가 있으므로 조심해야 한다.</p>
+                                </div>
+                            </li>
+                            <li class="box">
+                                <div>
+                                    <img src="/pc/images/course/moun_07.png" alt="마운틴7" class="cos-img">
+                                    <p class="par">7 Hole<span>PAR 5</span></p>
+                                    <ul class="distance">
+                                        <li class="blue">496m</li>
+                                        <li class="wht">469m</li>
+                                        <li class="red">374m</li>
+                                    </ul>
+                                    <p class="description">오르막 홀로 페어웨이 좌측의 벙커가 있어 일반 단 타자는 페어웨이 우측으로 공을 보내고 장타자라면 좌측 벙커 쪽으로 보낼수 잇으나 약간 오르막홀이라는 것을 잊지 말아야 한다.
+                                        그린의 바닥은 보이지 않으나 그린 앞의 벙커가 있어약간 우측으로 가면 편안하다.</p>
+                                </div>
+                            </li>
+                            <li class="box">
+                                <div>
+                                    <img src="/pc/images/course/moun_08.png" alt="마운틴8" class="cos-img">
+                                    <p class="par">8 Hole<span>PAR 4</span></p>
+                                    <ul class="distance">
+                                        <li class="blue">364m</li>
+                                        <li class="wht">342m</li>
+                                        <li class="red">267m</li>
+                                    </ul>
+                                    <p class="description">약간 오르막 홀로 페어웨이 시작점의 벙커가 있어 티샷을 할 때 건너 치는 것과 같은 감을 준다. 페어웨이 좌측의 벙커 쪽으로 치면 가장 유리하고 그린의 우측은 벙커가 있어 좌측 그린 방향쪽으로 공을 보내는 것이 좋다.</p>
+                                </div>
+                            </li>
+                            <li class="box">
+                                <div>
+                                    <img src="/pc/images/course/moun_09.png" alt="마운틴9" class="cos-img">
+                                    <p class="par">9 Hole<span>PAR 4</span></p>
+                                    <ul class="distance">
+                                        <li class="blue">361m</li>
+                                        <li class="wht">335m</li>
+                                        <li class="red">282m</li>
+                                    </ul>
+                                    <p class="description">티에 서면 우측 페어웨이 벙커가 한눈에 들어오고 그린까지 잘 보인다.
+                                        그린이 잘 보여 거리가 가까워 보이지만 실제 제 거리를 다 보아야 한다.
+                                        티샷은 최대한 좌측 페어웨이 쪽으로 보내야 그린에 더 가까워진다.</p>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                    <!-- 밸리코스 -->
+                    <div id="cos_con4" class="tab-content">
+                        <ul class="attack-thum">
+                            <li class="box">
+                                <div>
+                                    <img src="/pc/images/course/valley_01.png" alt="밸리1" class="cos-img">
+                                    <p class="par">1 Hole<span>PAR 4</span></p>
+                                    <ul class="distance">
+                                        <li class="blue">379m</li>
+                                        <li class="wht">358m</li>
+                                        <li class="red">285m</li>
+                                    </ul>
+                                    <p class="description">내리막 홀로 페어웨이 우측의 벙커 방향으로 공을 치면 그린까지는 편안한 내리막이고 페어웨이 좌측으로 가면 법면 슬로프에 걸린 벙커가 있어 부담스럽다.
+                                        그린은 페어웨이 우측방향으로 열려있어 우측으로 돌아가면 좋다.</p>
+                                </div>
+                            </li>
+                            <li class="box">
+                                <div>
+                                    <img src="/pc/images/course/valley_02.png" alt="밸리2" class="cos-img">
+                                    <p class="par">2 Hole<span>PAR 4</span></p>
+                                    <ul class="distance">
+                                        <li class="blue">299m</li>
+                                        <li class="wht">277m</li>
+                                        <li class="red">246m</li>
+                                    </ul>
+                                    <p class="description">페어웨이는 2단으로 되어있고 우측 단으로 가면 편안하게 그린으로 들어갈 수 있고 좌측 아랫단으로 가면 그린의 방향이 좋지 못하므로 우측으로 티샷을 해야 한다.</p>
+                                </div>
+                            </li>
+                            <li class="box">
+                                <div>
+                                    <img src="/pc/images/course/valley_03.png" alt="밸리3" class="cos-img">
+                                    <p class="par">3 Hole<span>PAR 3</span></p>
+                                    <ul class="distance">
+                                        <li class="blue">195m</li>
+                                        <li class="wht">187m</li>
+                                        <li class="red">168m</li>
+                                    </ul>
+                                    <p class="description">티샷은 넓고 깊은 계곡을 가로질러야 하고 티샷은 좌측보다는 약간 우측 방향으로 향해 주면 좋다. 그린의 좌측은 벙커가 있으므로 그린의 우측으로 티샷을 하면 좋다.</p>
+                                </div>
+                            </li>
+                            <li class="box">
+                                <div>
+                                    <img src="/pc/images/course/valley_04.png" alt="밸리4" class="cos-img">
+                                    <p class="par">4 Hole<span>PAR 5</span></p>
+                                    <ul class="distance">
+                                        <li class="blue">510m</li>
+                                        <li class="wht">477m</li>
+                                        <li class="red">411m</li>
+                                    </ul>
+                                    <p class="description">왼쪽으로 꺾인 도그레그홀로 티에서 그린을 볼 수 없지만 티샷은 페어웨이 우측의 벙커 방향으로 하면 좋다.
+                                        세컨샷은 그린의 앞쪽 좌측 벙커 방향으로 하면 편안하게 쓰리 온을 할 수 있고 투 온을 노린다면 그린 좌측의 벙커들을 가로 질러야 한다.</p>
+                                </div>
+                            </li>
+                            <li class="box">
+                                <div>
+                                    <img src="/pc/images/course/valley_05.png" alt="밸리5" class="cos-img">
+                                    <p class="par">5 Hole<span>PAR 4</span></p>
+                                    <ul class="distance">
+                                        <li class="blue">308m</li>
+                                        <li class="wht">274m</li>
+                                        <li class="red">218m</li>
+                                    </ul>
+                                    <p class="description">티샷은 계곡을 건너 쳐야 하고 약간 짧지만 오르막 홀이다.
+                                        티샷은 페어웨이 좌측으로 보내면 좋다.
+                                        그린의 바닥은 보이지 않으나 그린의 우측은 벙커가있으므로 그린의 약간 좌측 방향으로 치면 좋다.</p>
+                                </div>
+                            </li>
+                            <li class="box">
+                                <div>
+                                    <img src="/pc/images/course/valley_06.png" alt="밸리6" class="cos-img">
+                                    <p class="par">6 Hole<span>PAR 5</span></p>
+                                    <ul class="distance">
+                                        <li class="blue">430m</li>
+                                        <li class="wht">442m</li>
+                                        <li class="red">400m</li>
+                                    </ul>
+                                    <p class="description">티에서 페어웨이까지 계곡을 건너야 하는 내리막 홀로 세컨샷 지점에 가야 그린을 볼 수 있다.티샷은 좌측보다는 우측이 유리하지만 우측에 벙커가 있으므로 조심해야 하고 세컨샷 지점부터 그린까지 약간 굽은 홀로 우측의 슬라이스를 조심해야 한다.</p>
+                                </div>
+                            </li>
+                            <li class="box">
+                                <div>
+                                    <img src="/pc/images/course/valley_07.png" alt="밸리7" class="cos-img">
+                                    <p class="par">7 Hole<span>PAR 4</span></p>
+                                    <ul class="distance">
+                                        <li class="blue">421m</li>
+                                        <li class="wht">345m</li>
+                                        <li class="red">291m</li>
+                                    </ul>
+                                    <p class="description">티에서 그린의 위치가 보이지 않으나 페어웨이의 랜딩지점은 잘 보이므로 최대한 좌측 페어웨이 쪽으로 쳐야 거리에서 이득을 볼 수 있다.
+                                        그린은 길어서 핀의 위치에 따라 정확한 온을 시켜야 쓰리퍼팅을 하지 않는다.</p>
+                                </div>
+                            </li>
+                            <li class="box">
+                                <div>
+                                    <img src="/pc/images/course/valley_08.png" alt="밸리8" class="cos-img">
+                                    <p class="par">8 Hole<span>PAR 3</span></p>
+                                    <ul class="distance">
+                                        <li class="blue">163m</li>
+                                        <li class="wht">147m</li>
+                                        <li class="red">126m</li>
+                                    </ul>
+                                    <p class="description">티샷은 기존 자연림을 건너 쳐야 하지만 그린의 주변은 넓고 그린의 바닥을  볼 수 있어 크게 부담스럽지 않은 홀이다.
+                                        티그라운드의 방향보다 샷은 약간 좌측 방향으로 하는 것이 좋다.</p>
+                                </div>
+                            </li>
+                            <li class="box">
+                                <div>
+                                    <img src="/pc/images/course/valley_09.png" alt="밸리9" class="cos-img">
+                                    <p class="par">9 Hole<span>PAR 4</span></p>
+                                    <ul class="distance">
+                                        <li class="blue">317m</li>
+                                        <li class="wht">290m</li>
+                                        <li class="red">254m</li>
+                                    </ul>
+                                    <p class="description">마지막 내리막 홀로 티에서 그린까지 시원스럽게 펼쳐지지만 그린이 약간 좌측에서 우측으로 돌아가 있어 우측방향보다는 좌측방향으로 공략해야 하는 홀이다.
+                                        좌측 벙커 방향 쪽으로 보내면 세컨샷 하기에 좋은 위치이다.</p>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                    <!-- 파인코스 -->
+                    <div id="cos_con5" class="tab-content">
+                        <ul class="attack-thum">
+                            <li class="box">
+                                <div>
+                                    <img src="/pc/images/course/pine_01.png" alt="파인1" class="cos-img">
+                                    <p class="par">1 Hole<span>PAR 5</span></p>
+                                    <ul class="distance">
+                                        <li class="blue">495m</li>
+                                        <li class="wht">450m</li>
+                                        <li class="red">400m</li>
+                                    </ul>
+                                    <p class="description">내리막 파5홀로 티샷에서 페어웨이까지 내리막이지만 페어웨이부터 그린까지는 평지에 가까운 편안한 홀이다.
+                                        티샷은 페어웨이 우측 레이크를 보고 치면 그린까지 공략이 쉽고 장타자라면 투온을 할수 있는 도전적인 홀이다.</p>
+                                </div>
+                            </li>
+                            <li class="box">
+                                <div>
+                                    <img src="/pc/images/course/pine_02.png" alt="파인2" class="cos-img">
+                                    <p class="par">2 Hole<span>PAR 4</span></p>
+                                    <ul class="distance">
+                                        <li class="blue">435m</li>
+                                        <li class="wht">390m</li>
+                                        <li class="red">335m</li>
+                                    </ul>
+                                    <p class="description">긴 파4홀로 티에서면 앞에 레이크가 한눈에 보이고 좌측 카트로를 따라 그린까지 심어진 홍가시나무가 인상적으로 보인다.
+                                        티샷은 우측으로 하면 넓은 페어웨이에 안착할수 있고 그린이 잘 보이지만 거리에 대한 부담감이 상당히 큰 홀이다.</p>
+                                </div>
+                            </li>
+                            <li class="box">
+                                <div>
+                                    <img src="/pc/images/course/pine_03.png" alt="파인3" class="cos-img">
+                                    <p class="par">3 Hole<span>PAR 3</span></p>
+                                    <ul class="distance">
+                                        <li class="blue">240m</li>
+                                        <li class="wht">185m</li>
+                                        <li class="red">135m</li>
+                                    </ul>
+                                    <p class="description">리기다 소나무림이 인상적인 240M 긴 파3 홀로 티샷은 거리에 부담감도 있지만 백티에서 170M 를 캐리로 계곡을 넘겨야 하는 부담감이 동시에 있는 홀이다
+                                        화이트티나 레드티에서는  그린앞의 페어웨이가 상당히 넓게 조성되어 있어 계곡에 대한 부담감이 크지 않다.
+                                        티샷은 그린 좌측 암벽쪽으로 하는 것이 좋다.</p>
+                                </div>
+                            </li>
+                            <li class="box">
+                                <div>
+                                    <img src="/pc/images/course/pine_04.png" alt="파인4" class="cos-img">
+                                    <p class="par">4 Hole<span>PAR 4</span></p>
+                                    <ul class="distance">
+                                        <li class="blue">410m</li>
+                                        <li class="wht">355m</li>
+                                        <li class="red">310m</li>
+                                    </ul>
+                                    <p class="description">티샷은 깊은 계곡은 아니지만 건너쳐야 하는 홀로 우측의 페어웨이쪽으로 공략하면 넓은 잔디 사면이 있고 투온 공략이 좀더 쉬워진다.
+                                        그린주변에 벙커가 많이 있어 보이지만 그린을 공략하는 난도를 높이는 것보다는 심미적인 기능이 더 큰 벙커들이다.</p>
+                                </div>
+                            </li>
+                            <li class="box">
+                                <div>
+                                    <img src="/pc/images/course/pine_05.png" alt="파인5" class="cos-img">
+                                    <p class="par">5 Hole<span>PAR 4</span></p>
+                                    <ul class="distance">
+                                        <li class="blue">330m</li>
+                                        <li class="wht">305m</li>
+                                        <li class="red">250m</li>
+                                    </ul>
+                                    <p class="description">길지 않은 파4홀이지만 티샷은 페어웨이 우측벙커를 피해 좌측으로 하면 좋고 그린이 약간 좌측으로 있어 그린공략이 까다로운 홀이다.
+                                        그린 공략시 길게 치는것보다는 짧게 치는것이 유리하다.</p>
+                                </div>
+                            </li>
+                            <li class="box">
+                                <div>
+                                    <img src="/pc/images/course/pine_06.png" alt="파인6" class="cos-img">
+                                    <p class="par">6 Hole<span>PAR 3</span></p>
+                                    <ul class="distance">
+                                        <li class="blue">135m</li>
+                                        <li class="wht">110m</li>
+                                        <li class="red">85m</li>
+                                    </ul>
+                                    <p class="description">암반위에 있는 티하우스에서 주변 경치를 감상할수 있는 뷰맛집을 지난 나타나는 파3홀로 그린은 좌우로 길게 되어 있어 거리가 길지는 않지만 그린공략이 까다로운 홀이다.
+                                        또한 그린앞의 우측은 길고 깊은 벙커가 위협적으로 보이는 홀로 공략은 그린 중심보다 좌측이나 약간 길게 치는 것이 좋다.</p>
+                                </div>
+                            </li>
+                            <li class="box">
+                                <div>
+                                    <img src="/pc/images/course/pine_07.png" alt="파인7" class="cos-img">
+                                    <p class="par">7 Hole<span>PAR 4</span></p>
+                                    <ul class="distance">
+                                        <li class="blue">355m</li>
+                                        <li class="wht">335m</li>
+                                        <li class="red">280m</li>
+                                    </ul>
+                                    <p class="description">티샷은 아름다운 계류가 있는 계곡을 건너쳐야 하는 약간 우측 도그레그 홀로 페어웨이 좌측 벙커쪽으로 티샷을 하는 것이 그린 공략에 유리하다.
+                                        그린 좌우의 벙커가 있지만 그린 중앙이 열려 있어 약간 오르막 홀이지만 그린 공략은 무난하다.</p>
+                                </div>
+                            </li>
+                            <li class="box">
+                                <div>
+                                    <img src="/pc/images/course/pine_08.png" alt="파인8" class="cos-img">
+                                    <p class="par">8 Hole<span>PAR 4</span></p>
+                                    <ul class="distance">
+                                        <li class="blue">340m</li>
+                                        <li class="wht">325m</li>
+                                        <li class="red">255m</li>
+                                    </ul>
+                                    <p class="description">티에 서면 넓은 페어웨이가 한눈에 편안하게 펼쳐지고 타샷의 묘미를 높이는 레이크가 있어 더욱 도전심을 불러 일으키는 홀이다.
+                                        마음껏 티샷을 할수 있는 넓은 페어웨이와 그린과도 잘 어울어진 자연수림대가 있어 더욱 아름다운 홀이다.</p>
+                                </div>
+                            </li>
+                            <li class="box">
+                                <div>
+                                    <img src="/pc/images/course/pine_09.png" alt="파인9" class="cos-img">
+                                    <p class="par">9 Hole<span>PAR 5</span></p>
+                                    <ul class="distance">
+                                        <li class="blue">505m</li>
+                                        <li class="wht">480m</li>
+                                        <li class="red">410m</li>
+                                    </ul>
+                                    <p class="description">약간 우측으로 돌아가는 홀로 타샷은 페어웨이 좌측 벙커를 보고 하면 편안하게 계곡을 건너갈수 있다.
+                                        세컨샷은 그린의 좌측 끝은 보고하면 넓은 페어웨이에 안착할수 있고 투온 도전도 가능한 홀이다.
+                                    </p>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- //content-->
+
+</body>
+
+
+
+    <footer>
+        <div class="footer-top">
+            <button id="top-btn"><img src="/pc/images/main/top_btn.svg" alt="화살표">TOP</button>
+            <ul>
+                <li>
+                    <a href="/club/map" title="오시는길">오시는길</a>
+                </li>
+                <li>
+                    <a href="/policy/policy" title="이용약관">이용약관</a>
+                </li>
+                <li class="on">
+                    <a href="/policy/privacy" title="개인정보취급방침">개인정보취급방침</a>
+                </li>
+            </ul>
+        </div>
+        <div class="footer-con">
+            <div class="top-con">
+                <h4>서라벌 골프클럽</h4>
+                <p class="address">경북 경주시 외동읍 내외로 577-189
+                    Tel. 054-773-7000 Fax. 054-773-7006</p>
+                <img src="/pc/images/main/footer_logo.svg" alt="서라벌로고">
+            </div>
+            <div class="btm-con">
+                <ul>
+                    <Li>
+                        서라벌 골프클럽 대표 김광세<br>
+                        사업자등록번호 505-81-04359 통신판매업신고번호 제2009-경북경주-00076
+                    </Li>
+                    <li>Copyright © 2024 The Seorabol Golf Club. All Rights Reserved</li>
+                </ul>
+
+                <div class="family-area">
+                    <div class="family-site">
+                        <a href="javascript:void(0);" class="family-site-btn">
+                            <span>패밀리 사이트 바로가기</span>
+                        </a>
+                        <div class="family-box">
+                            <ul>
+                                <li>
+                                    <a href="https://www.grace-cc.co.kr/index" target="_blank" title="그레이스컨트리클럽">그레이스컨트리클럽</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+</html>
+
+
+
+

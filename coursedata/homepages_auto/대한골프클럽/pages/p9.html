@@ -1,0 +1,3252 @@
+
+
+
+
+
+
+
+
+
+
+<!doctype html>
+<html>
+<head>
+<title>KGA - 대한골프협회</title>
+<meta property="og:image" content="/resources/web/images/kga_logo_800_400.png"/>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="keywords" content="" />
+<meta name="description" content="" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<link rel="shortcut icon" href="/resources/web/images/kga_favicon.png">
+<link rel="stylesheet" type="text/css" href="/resources/web/css/bootstrap.css">
+<link href="/resources/web/css/style.css?ver=20250709" rel="stylesheet" type="text/css">
+<link href="/resources/web/css/swiper-bundle.min.css" rel="stylesheet" type="text/css" />
+<link href="/resources/web/css/bootstrap-datepicker3.css" rel="stylesheet" type="text/css">
+<link href="/resources/web/css/cnpsCustom.css?ver=20250709" rel="stylesheet" type="text/css">
+<script src="/resources/web/js/jquery.min.js"></script>
+<script src="/resources/web/js/bootstrap.js"></script>
+<script src="/resources/web/js/custom.js?ver=20250711"></script>
+<script src="/resources/web/js/swiper-bundle.min.js"></script>
+<script src="/resources/web/js/bootstrap-datepicker.js"></script>
+<script src="/resources/web/js/bootstrap-datepicker.ko.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
+
+<!--차트 js -->
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js"></script>
+</head>
+
+
+
+
+
+
+
+
+
+
+
+	
+		
+	
+	
+
+
+<script>
+var engPageYn = "N";
+var cookieLang = "KOR";
+
+//링크로 영문페이지 전달하고 싶은 요구로 인한 수정
+var locationUrl = new URL(window.location.href);
+var locationParams = locationUrl.searchParams;
+var paramLang = locationParams.get("lang");
+locationParams.delete("lang");
+
+if ((paramLang == "ENG" && cookieLang != "ENG") || (paramLang == "KOR" && cookieLang != "KOR")) {
+	window.history.replaceState({}, '', locationUrl.pathname + (locationParams.toString() ? '?' + locationParams.toString() : '') + locationUrl.hash);
+	$.cookie("KGA_WEB_LANG", paramLang, { path : '/' });
+	window.location.reload();
+}
+
+$(document).ready(function() {
+	
+	
+	if("" != "") {
+		var favoritList = JSON.parse("");
+		checkFavorit(favoritList);
+	}
+	
+	$(".chageLang a").off("click").click(function() {
+		var lang = $(this).data("lang");
+		$.cookie("KGA_WEB_LANG", lang, { path : '/' });
+		window.location.reload();
+	});
+	
+	$(".onlyNumber").off("keypress").keypress(function(e){
+		if(e.which != 8 && isNaN(String.fromCharCode(e.which))){
+			e.preventDefault(); //stop character from entering input
+		}
+	});
+	
+	$(".favPlayer").off("click").click(function() {
+		if("" == "") {
+			$(this).prop("checked", false);
+			if(confirm("즐겨찾기 기능은 로그인 후 이용가능합니다.\n로그인 페이지로 이동 하겠습니까?")) {
+				$("#naviLogin").trigger("click");
+			}
+			return;
+		}
+		
+		addFavorit($(this).data("playercode"));
+	});
+	
+	$(".orderTable th").off("click").click(function() {
+		if($(this).is('.sort-asc') == false && $(this).is('.sort-desc') == false) {
+			return;
+		}
+		var column = $(this).index();
+		if ($(this).is('.sort-asc')) {
+			$(this).removeClass('sort-asc');
+			$(this).addClass('sort-desc');
+			sortdir = -1;
+		} else {
+			$(this).addClass('sort-asc');
+			$(this).removeClass('sort-desc');
+			sortdir = 1;
+		}
+
+		$target = $(this).closest("table");
+		
+		$target.find("th").removeClass('active');
+		$(this).addClass('active');
+
+		$target.find("tr").each(function() {
+			$(this).find("td:eq(" + column + ")").addClass('active');
+			$(this).find("td:eq(" + column + ")").siblings().removeClass('active');
+		});
+
+		var sortUnderParFlag = $(this).hasClass('sortUnderPar');
+		var sortUpDownFlag = $(this).hasClass('sortUpDown');
+		var sortSameRankFlag = $(this).hasClass('sortSameRank');
+		var sortNationFlag = $(this).hasClass('sortNation');
+		
+		var rec = $target.find('tbody>tr').get();
+		rec.sort(function(a, b) {
+			var val1 = $(a).children('td').eq(column).text().toUpperCase().trim();
+			var val2 = $(b).children('td').eq(column).text().toUpperCase().trim();
+			
+			if(sortNationFlag) {
+				val1 = $(a).children('td').eq(column).find("span").attr("style");
+				val2 = $(b).children('td').eq(column).find("span").attr("style");
+			}
+			
+			if(sortUnderParFlag) {
+				if(val1 == "E") val1 = "0";
+				if(val2 == "E") val2 = "0";
+			}
+			
+			if(sortUpDownFlag) {
+				if(val1 == "-") val1 = "0";
+				if(val2 == "-") val2 = "0";
+				
+				if($(a).children('td').eq(column).find("span").hasClass('tb-rank-dn')) {
+					val1 = "-"+val1;
+				}
+				if($(b).children('td').eq(column).find("span").hasClass('tb-rank-dn')) {
+					val2 = "-"+val2;
+				}
+			}
+			
+			if(sortSameRankFlag) {
+				val1 = val1.replace("T","")
+				val2 = val2.replace("T","")
+			}
+			
+			if(val1 == "") val1 = 9999*sortdir;
+			if(val2 == "") val2 = 9999*sortdir;
+
+			var num1 = parseFloat(val1);
+			var num2 = parseFloat(val2);
+
+			if (!isNaN(num1) && !isNaN(num2)) {
+				return (num1 < num2) ? -sortdir : (num1 > num2) ? sortdir : 0;
+			}
+
+			return (val1 < val2) ? -sortdir : (val1 > val2) ? sortdir : 0;
+		});
+
+		$.each(rec, function(index, row) {
+			$target.find("tbody").append(row);
+		});
+	});
+});
+
+
+
+function setComboSelectBirth() {
+	var todayYear = (new Date()).getFullYear();
+	var startYear = "";
+	if(startYear == "" || startYear == undefined) {
+		startYear = todayYear - 20;
+	}else {
+		startYear = todayYear - $("select.comboBirthYear").data("diffyear");
+	}
+	
+	for (var y = startYear; y <= todayYear; y++) {
+		$('.comboBirthYear').append($('<option>', {value: y,text: y}));
+	}
+	
+	for (var m = 1; m <= 12; m++) {
+		$('.comboBirthMonth').append($('<option>', {value: m, text: m}));
+	}
+	
+	$('.comboBirthYear, .comboBirthMonth').on('change', function() {
+		var year = $('.comboBirthYear').val();
+		var month = $('.comboBirthMonth').val();
+		var daysInMonth = new Date(year, month, 0).getDate();
+		var $selectDay = $('.comboBirthDay');
+
+		$selectDay.empty();
+
+		for (var d = 1; d <= daysInMonth; d++) {
+			$selectDay.append($('<option>', {value: d, text: d}));
+		}
+	});
+	
+	$('.selectYear, .selectMonth').trigger('change');
+}
+
+function downLoadFile(fileUrl, fileRename){
+	var form = $('<form></form>');
+	form.attr('action', "/fileDownload");
+	form.attr('method', 'post');
+	form.attr('target', '_self');
+	form.appendTo('body');
+	form.find("input[name=fileUrl]").remove();
+	form.append($("<input/>", {type:'hidden',name:'fileUrl', value:fileUrl}));
+	form.append($("<input/>", {type:'hidden',name:'fileRename', value:fileRename}));
+	form.submit();
+}
+
+function downLoadFileZip(fileListJson, zipFileName){
+	var form = $('<form></form>');
+	form.attr('action', "/fileDownloadZip");
+	form.attr('method', 'post');
+	form.attr('target', '_self');
+	form.appendTo('body');
+	form.find("input[name=fileUrl]").remove();
+	form.append($("<input/>", {type:'hidden',name:'fileListJson', value:fileListJson}));
+	form.append($("<input/>", {type:'hidden',name:'zipFileName', value:zipFileName}));
+	form.submit();
+}
+
+function preventHistoryBack() {
+	history.pushState(null, document.title, location.href);
+	window.addEventListener('popstate', function(event) {
+		history.go(1);
+	});
+}
+
+function addFavorit(playerCode) {
+	$.ajax({
+		url : "/ajax/web/mergeFavorit",
+		type : "POST",
+		data : {
+			playerCode : playerCode
+		},
+		datatype : "json",
+		async: false,
+		success : function(res, status, xhr) {
+			var resultCode = res.resultCode;
+			
+			if(resultCode == "-1") {
+				alert("로그인정보가 없습니다.");
+				location.reload();
+				return;
+			}
+			
+			var favList = res.favList;
+			checkFavorit(favList);
+			
+		},
+		error : function(request, status, error) {
+			//alert(error);
+		}
+	}).fail(function(errObj) {
+		try {
+			console.error(errObj);
+		} catch (e) {
+		}
+	}); //ajax
+}
+
+function checkFavorit(favList) {
+	var intArray = favList.map(function(numString) {
+		return parseInt(numString);
+	});
+	
+	var rowToShow = [];
+	
+	$(".favPlayer").each(function() {
+		if ($.inArray($(this).data("playercode"), intArray) == -1) {
+			$(this).prop("checked",false);
+			$(this).closest(".favRow").hide();
+		} else {
+			$(this).prop("checked",true);
+			if ($(this).closest(".favRow").length > 0) {
+				rowToShow.push($(this).closest(".favRow"));
+			}
+		}
+	});
+	
+	$(rowToShow).each(function() {
+		$(this).show();
+	});
+	
+	if (rowToShow.length == 0) {
+		$("#favDiv").hide();
+	} else {
+		$("#favDiv").show();
+	}
+	
+	favoritInPage();
+}
+
+// 즐겨찾기 후 페이지 마다 다른 필요
+// 동작을 위함 함수 제거하면 안됨
+function favoritInPage() {
+	
+}
+
+function parseTimeString(timeString) {
+	var parts = timeString.split(":");
+	if (parts.length !== 2) {
+		return null;
+	}
+
+	var hours = parseInt(parts[0], 10);
+	var minutes = parseInt(parts[1], 10);
+
+	if (isNaN(hours) || isNaN(minutes)) {
+		return null;
+	}
+
+	return new Date(0, 0, 0, hours, minutes);
+}
+
+$.fn.validEmail = function (msg_error = '') {
+	let is_valid = true;
+	this.each(function(k, o) {
+	let pattern_email = /^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]+$/;
+	pattern_email = new RegExp(pattern_email);
+	let email = $(o).val();
+	if (email == '') {
+		return true;
+	}
+	if (pattern_email.test(email) == false) {
+		alert(msg_error);
+		$(o).focus();
+		return is_valid = false;
+	}
+	});
+	return is_valid;
+}
+
+function weekIndexToNameJs(idx, shortYN, lang){
+	var str = "";
+	
+	if(lang == "ENG") {
+		if(idx == "0")
+			if(shortYN == "Y") str = "Sun"; else str = "Sunday";
+		if(idx == "1")
+			if(shortYN == "Y") str = "Mon"; else str = "Monday";
+		if(idx == "2")
+			if(shortYN == "Y") str = "Tue"; else str = "Tuesday";
+		if(idx == "3")
+			if(shortYN == "Y") str = "Wed"; else str = "Wednesday";
+		if(idx == "4")
+			if(shortYN == "Y") str = "Thu"; else str = "Thursday";
+		if(idx == "5")
+			if(shortYN == "Y") str = "Fri"; else str = "Friday";
+		if(idx == "6")
+			if(shortYN == "Y") str = "Sat"; else str = "Saturday";
+	} else {
+		if(idx == "0")
+			if(shortYN == "Y") str = "일"; else str = "일요일";
+		if(idx == "1")
+			if(shortYN == "Y") str = "월"; else str = "월요일";
+		if(idx == "2")
+			if(shortYN == "Y") str = "화"; else str = "화요일";
+		if(idx == "3")
+			if(shortYN == "Y") str = "수"; else str = "수요일";
+		if(idx == "4")
+			if(shortYN == "Y") str = "목"; else str = "목요일";
+		if(idx == "5")
+			if(shortYN == "Y") str = "금"; else str = "금요일";
+		if(idx == "6")
+			if(shortYN == "Y") str = "토"; else str = "토요일";
+	}
+	
+	return str;
+}
+
+function langStringJs(language, korString, engString) {
+	var str = "";
+	
+	if (language == "KOR") {
+		str = korString;
+	} else if (language == "ENG") {
+		if(engString == null || engString == "") {
+			str = korString;
+		} else {
+			str = engString;
+		}
+	} else {
+		str = korString;
+	}
+	
+	if(str == null) str= "";
+	
+	return str;
+}
+
+//action 에 대한 한글 이름
+function actionToName(action) {
+	if (action == "save") {
+		action = "저장";
+	} else if (action == "delete") {
+		action = "삭제";
+	} else if (action == "insert") {
+		action = "입력";
+	} else if (action == "update") {
+		action = "수정";
+	} else if (action == "apply") {
+		action = "신청";
+	}  else {
+		action = "실행";
+	}
+	
+	return action;
+}
+
+function setCnpsSticky() {
+	$(".cnpsStickyTable").each(function() {
+		var table = $(this);
+		var leftWidth = 0;
+		table.find("th.cnpsSticky").each(function() {
+			var leftPosition = leftWidth + 'px';
+			var index = $(this).index();
+
+			$(this).css({
+				'position': 'sticky',
+				'left': leftWidth,
+				'z-index': 1
+			});
+			
+			table.find("tr").each(function() {
+				$(this).find("td:eq("+index+")").css({
+					'position': 'sticky',
+					'left': leftWidth,
+					'z-index': 1
+				});
+			});
+
+			leftWidth += $(this).outerWidth(true)-1;
+		});
+	});
+}
+
+function setCnpsSticky() {
+	$(".cnpsStickyTable").each(function() {
+		var table = $(this);
+		var leftWidth = 0;
+		table.find("th.cnpsSticky").each(function() {
+			var leftPosition = leftWidth + 'px';
+			var index = $(this).index();
+
+			$(this).css({
+				'position': 'sticky',
+				'left': leftWidth,
+				'z-index': 1
+			});
+			
+			table.find("tr").each(function() {
+				$(this).find("td:eq("+index+")").css({
+					'position': 'sticky',
+					'left': leftWidth,
+					'z-index': 1
+				});
+			});
+
+			leftWidth += $(this).outerWidth(true)-1;
+		});
+	});
+}
+
+function setCnpsStickyOther(className) {
+	var leftWidth = 0;
+	$("."+className).find("th.cnpsSticky").each(function() {
+		var leftPosition = leftWidth + 'px';
+		var index = $(this).index();
+
+		$(this).css({
+			'position': 'sticky',
+			'left': leftWidth,
+			'z-index': 1
+		});
+		
+		$("."+className).find("tr").each(function() {
+			$(this).find("td:eq("+index+")").css({
+				'position': 'sticky',
+				'left': leftWidth,
+				'z-index': 1
+			});
+		});
+
+		leftWidth += $(this).outerWidth(true)-1;
+	});
+}
+
+function checkActionResult(result) {
+	returnFlag = true;
+	
+	if (result == "-1") {
+		alert("오류입니다.")
+		returnFlag = false;
+	} else if (result == "-99") {
+		alert("로그인 세션이 없습니다.");
+		location.href="/admin/login";
+		returnFlag = false;
+	}
+	
+	return returnFlag;
+}
+
+function isMobile() {
+	var userAgent = navigator.userAgent.toLowerCase();
+	
+	var mobileDevices = [
+		'android', 'iphone', 'ipad', 'ipod', 'blackberry', 'windows phone', 'opera mini', 'iemobile'
+	];
+	
+	for (var i = 0; i < mobileDevices.length; i++) {
+		if (userAgent.indexOf(mobileDevices[i]) > -1) {
+			return true;  // 모바일 기기
+		}
+	}
+	
+	return false;  // PC
+}
+
+//3자리 콤마 추가
+function addCommasToNumber(number) {
+	var parts = number.toString().split(".");
+	parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+	return parts.join(".");
+}
+</script>
+
+<body>
+	<header class="site-header">
+		
+
+
+
+
+
+<script type="text/javascript">
+$(document).ready(function() {
+	$("#naviLogin").click(function() {
+		var form = $('<form></form>');
+		form.attr('action', "/web/login");
+		form.attr('method', 'post');
+		form.appendTo('body');
+		form.find("input[name=returnURL]").remove();
+		form.append($("<input/>", {type:'hidden',name:'returnURL', value:"/web/golfCourse/memberProgram?target=marketing"}));
+		form.submit();
+	});
+	
+	$("#naviMobileLogin").click(function() {
+		var form = $('<form></form>');
+		form.attr('action', "/web/login");
+		form.attr('method', 'post');
+		form.appendTo('body');
+		form.find("input[name=returnURL]").remove();
+		form.append($("<input/>", {type:'hidden',name:'returnURL', value:"/web/golfCourse/memberProgram?target=marketing"}));
+		form.submit();
+	});
+	
+	$("#naviLogout").click(function() {
+		var form = $('<form></form>');
+		form.attr('action', "/web/logout");
+		form.attr('method', 'post');
+		form.appendTo('body');
+		form.find("input[name=returnURL]").remove();
+		form.append($("<input/>", {type:'hidden',name:'returnURL', value:"/web/golfCourse/memberProgram?target=marketing"}));
+		form.submit();
+	});
+	
+	$("#naviMobileLogout").click(function() {
+		var form = $('<form></form>');
+		form.attr('action', "/web/logout");
+		form.attr('method', 'post');
+		form.appendTo('body');
+		form.find("input[name=returnURL]").remove();
+		form.append($("<input/>", {type:'hidden',name:'returnURL', value:"/web/golfCourse/memberProgram?target=marketing"}));
+		form.submit();
+	});
+})
+</script>
+<style>
+	.main-logo {
+		position: absolute;left: calc(50% - 113px);
+	}
+	@media (max-width: 992px) {
+		.main-logo {
+			position: absolute;
+			left: calc(50% - 44px);
+		}
+		
+		.moremenu-list ul.sns {
+			background-color: #FFF;
+			padding: 0.25rem 1rem 0.25rem 0.5rem;
+			border-radius: 2rem;
+			font-weight: 900;
+		}
+	
+		@media (max-width: 992px) {
+			.moremenu-list ul.sns li {
+				padding: 0.5rem 0.5rem;
+			}
+		}
+		
+		@media (max-width: 992px) {
+			.moremenu-list ul.lang li {
+				padding: 0.5rem 1.5rem;
+			}
+		}
+	}
+</style>
+<div class="main-menu">
+	<div class="container">
+		<nav class="navbar">
+			<!-- collapse menu -->
+			<button class="navbar-toggler collapsed" type="button"
+				data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown"
+				aria-controls="navbarNavDropdown" aria-expanded="false"
+				aria-label="Toggle navigation" style="pointer-events: none;">
+				<div id="navi-icon" class="closed" style="pointer-events: auto;">
+					<span class="navi-icon-line"></span>
+					<span class="navi-icon-line"></span>
+					<span class="navi-icon-line"></span>
+				</div>
+			</button>
+			<!-- search -->
+			<!-- <div class="navbar-search">
+				<form class="d-flex">
+					<input class="form-control form-control-search"
+						list="datalistOptions" id="menusearch" type="search"
+						placeholder="Search KGA" aria-label="Search"> <label
+						class="icon-search" for="menusearch"><span><img
+							src="/resources/web/images/menu-search.svg"></span></label>
+					<datalist id="datalistOptions">
+						<option value=""></option>
+					</datalist>
+				</form>
+			</div> -->
+			<!-- main logo -->
+			<div class="main-logo">
+				<a href="/web/main/index"><img src="/resources/web/images/logo.svg" alt=""></a>
+			</div>
+			<!-- right nav -->
+			<ul class="navbar-right">
+				
+					<li class="nav-item pc-only">
+						<button onclick="location.href='/web/about/history'" class="btn btn-darkblue fw-bolder border-0 rounded-0" style="min-width: 114px;">
+						ABOUT KGA
+						</button>
+					</li>
+					<li class="nav-item">
+						
+							
+								<button id="naviLogin" class="btn btn-gold btn-login fw-bolder border-0 rounded-0" style="min-width: 96px;">LOG IN</button>
+							
+							
+						
+					</li>
+				
+				<li class="nav-item dropdown pc-only">
+					<a class="nav-link dropdown-toggle text-darkblue fw-bolder" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false">
+						KOR
+					</a>
+					<ul class="aPointer dropdown-menu chageLang">
+						<li><a class="dropdown-item fw-bolder active" data-lang="KOR">KOR</a></li>
+						<li><a class="dropdown-item fw-bolder " data-lang="ENG">ENG</a></li>
+					</ul>
+				</li>
+				
+					<li class="nav-item pc-only">
+						<button class="btn fw-bolder text-orange" onclick="location.href='/web/shop/productList'">SHOP</button>
+					</li>
+				
+				<li class="nav-item dropdown pc-only">
+					<a class="nav-link dropdown-toggle dropdown-share d-after-none" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false"><img src="/resources/web/images/sns-share.svg"></a>
+					<ul class="dropdown-menu dropdown-sns">
+						<li style="width: 25%;"><a class="dropdown-item" href="https://www.facebook.com/koreagolfassociation" target="_blank"><img src="/resources/web/images/sns-facebook.svg"></a></li>
+						<li style="width: 25%;"><a class="dropdown-item" href="https://www.instagram.com/kgagolf_official" target="_blank"><img src="/resources/web/images/sns-insta.svg"></a></li>
+						<li style="width: 25%;"><a class="dropdown-item" href="https://www.youtube.com/@대한골프협회-u6q" target="_blank"><img src="/resources/web/images/sns-youtube.svg"></a></li>
+						<li style="width: 25%;"><a class="dropdown-item" href="https://blog.naver.com/koreagolfassociation" target="_blank"><img src="/resources/web/images/sns-naver.svg"></a></li>
+					</ul>
+				</li>
+			</ul>
+		</nav>
+	</div>
+
+	<!-- collapse menu -->
+	<div class="collapse" id="navbarNavDropdown">
+		<div class="nav-fullwidth">
+			<div class="header-title">
+				<div class="container">
+					<a href="/web/main/index">HOME</a>
+				</div>
+			</div>
+
+			<!--*********************************** PC용 전체메뉴 ***********************************-->
+			<div class="pc-only">
+				<div class="container">
+					<div class="row">
+						<div class="col">
+							<a href="/web/elite/schedule" class="cat-title">전문체육 </a>
+							<ul>
+								<li>
+									<span class="form-check form-check-like">
+										
+									</span>
+									<a href="/web/elite/schedule">대회일정</a>
+								</li>
+								<li>
+									<span class="form-check form-check-like">
+										
+									</span>
+									<a href="/web/elite/player">선수</a>
+								</li>
+								<li>
+									<span class="form-check form-check-like">
+										
+									</span>
+									<a href="/web/elite/record">기록</a>
+								</li>
+							</ul>
+						</div>
+						
+							<div class="col">
+								<a href="/web/life/schedule" class="cat-title">생활체육</a>
+								<ul>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/life/schedule">대회일정</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/life/player">선수</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/life/lesson">강습사업</a>
+									</li>
+									
+								</ul>
+							</div>
+							<div class="col">
+								<a href="/web/golfRule/rule" class="cat-title">골프규칙</a>
+								<ul>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/golfRule/rule">골프규칙</a></li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/golfRule/news">골프규칙소식</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/golfRule/faq">FAQ</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/golfRule/seminar">룰 세미나</a>
+									</li>
+								</ul>
+							</div>
+							<div class="col">
+								<a href="/web/nationalTeam/nationalTeam" class="cat-title">국가대표</a>
+								<ul>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/nationalTeam/nationalTeam">국가대표 선수 현황</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/nationalTeam/schedule">국제대회 일정</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/nationalTeam/photo">사진</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/nationalTeam/board">게시판</a>
+									</li>
+								</ul>
+							</div>
+						
+						<div class="col">
+							<a href="/web/kgaRanking/home" class="cat-title">KGA랭킹</a>
+							<ul>
+								<li>
+									<span class="form-check form-check-like">
+										
+									</span>
+									<a href="/web/kgaRanking/home">랭킹홈</a>
+								</li>
+								<li>
+									<span class="form-check form-check-like">
+										
+									</span>
+									<a href="/web/kgaRanking/player">선수별</a>
+								</li>
+								<li>
+									<span class="form-check form-check-like">
+										
+									</span>
+									<a href="/web/kgaRanking/tour">대회별</a>
+								</li>
+								<li>
+									<span class="form-check form-check-like">
+										
+									</span>
+									<a href="/web/kgaRanking/junior">주니어랭킹</a>
+								</li>
+							</ul>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col">
+							<a href="/web/handicap/apply/notice" class="cat-title">핸디캡</a>
+							<ul>
+								<li>
+									<span class="form-check form-check-like">
+										
+									</span>
+									<a href="/web/handicap/apply/notice">핸디캡신청</a>
+								</li>
+								
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/handicap/calculator">코스핸디캡™계산기</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/handicap/system/home">월드핸디캡시스템™</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/handicap/video">동영상</a>
+									</li>
+								
+							</ul>
+						</div>
+						
+							<div class="col">
+								<a href="/web/office/home" class="cat-title">행정</a>
+								<ul>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/office/home">행정홈</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/office/signup">경기인 등록</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/office/numberCheck">개인번호 / 선수번호 확인</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/office/transfer">소속변경(이적)</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/office/certificate">증명서</a>
+									</li>
+								</ul>
+							</div>
+							<div class="col">
+								<a href="/web/notice/notice" class="cat-title">공지사항</a>
+							</div>
+							<div class="col">
+								<a href="/web/media/news" class="cat-title">미디어</a>
+								<ul>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/media/news">보도자료</a>
+									</li>
+									<!-- <li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/media/photo">사진</a>
+									</li> -->
+									<!-- <li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="javascript:alert('준비중 입니다.');">동영상</a>
+									</li> -->
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/media/pressCheck">PRESS</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/media/golfIndicator">골프지표</a>
+									</li>
+								</ul>
+							</div>
+							<div class="col">
+								<a href="/web/golfCourse/memberRole" class="cat-title">회원사골프장</a>
+								<ul>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/golfCourse/memberRole">회원사 역할</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/golfCourse/memberProgram">회원사 프로그램</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/golfCourse/golfCourse">회원사골프장 현황</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/golfCourse/holeInOne">홀인원 현황</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/golfCourse/news">회원사골프장 소식</a>
+									</li>
+									<!-- <li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/golfCourse/certificate">홀인원 인증서</a>
+									</li> -->
+									<!-- <li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/golfCourse/championship">클럽 챔피언십</a>
+									</li> -->
+								</ul>
+							</div>
+						
+					</div>
+				</div>
+				<!-- .container -->
+				<div class="header-moremenu">
+					<div class="moremenu-title">
+						<div class="container">MORE KGA</div>
+					</div>
+					<div class="moremenu-list">
+						<div class="container">
+							<div class="d-flex justify-content-between align-items-center">
+								<ul class="list">
+									
+										<li style="min-width: 180px;"><a href="/web/about/history">ABOUT KGA</a></li>
+										<li style="min-width: 140px;"><a href="/web/shop/productList">SHOP</a></li>
+										
+											
+												<li style="min-width: 140px;"><a href="/web/login">LOGIN</a></li>
+											
+											
+										
+									
+									<li style="min-width: 37px;"><a class="dropdown-item" href="https://www.facebook.com/koreagolfassociation" target="_blank"><img src="/resources/web/images/sns-facebook.svg"></a></li>
+									<li style="min-width: 37px;"><a class="dropdown-item" href="https://www.instagram.com/kgagolf_official" target="_blank"><img src="/resources/web/images/sns-insta.svg"></a></li>
+									<li style="min-width: 37px;"><a class="dropdown-item" href="https://www.youtube.com/@대한골프협회-u6q" target="_blank"><img src="/resources/web/images/sns-youtube.svg"></a></li>
+									<li style="min-width: 37px;"><a class="dropdown-item" href="https://sports.news.naver.com/golf/club/postList?expertId=602" target="_blank"><img src="/resources/web/images/sns-naver.svg"></a></li>
+								</ul>
+								<ul class="lang aPointer chageLang">
+									<li>언어</li>
+									<li class="ps-0">ㅣ</li>
+									<li class="active"><a data-lang="KOR">KOR</a></li>
+									<li class="" style="padding-right: 0px;"><a data-lang="ENG">ENG</a></li>
+								</ul>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- end PC용 전체메뉴 -->
+
+			<!--*********************************** 모바일용 전체메뉴 ***********************************-->
+			<div class="mc-only">
+				<!-- 모바일전체 탭메뉴 -->
+				<div class="nav flex-column nav-fullwidth-mc">
+					<button class="btn nav-link dropdown">
+						<details>
+							<summary>전문체육</summary>
+							<ul>
+								<li>
+									<span class="form-check form-check-like">
+										
+									</span>
+									<a href="/web/elite/schedule">대회일정</a>
+								</li>
+								
+								<li>
+									<span class="form-check form-check-like">
+										
+									</span>
+									<a href="/web/elite/player">선수</a>
+								</li>
+								<li>
+									<span class="form-check form-check-like">
+										
+									</span>
+									<a href="/web/elite/record">기록</a>
+								</li>
+							</ul>
+						</details>
+					</button>
+					
+						<button class="btn nav-link dropdown">
+							<details>
+								<summary>생활체육</summary>
+								<ul>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/life/schedule">대회일정</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/life/player">선수</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/life/lesson">강습사업</a>
+									</li>
+								</ul>
+							</details>
+						</button>
+						<button class="btn nav-link dropdown">
+							<details>
+								<summary>골프규칙</summary>
+								<ul>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/golfRule/rule">골프규칙</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/golfRule/news">골프규칙소식</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/golfRule/faq">FAQ</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/golfRule/seminar">룰 세미나</a>
+									</li>
+								</ul>
+							</details>
+						</button>
+						<button class="btn nav-link dropdown">
+							<details>
+								<summary>국가대표</summary>
+								<ul>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/nationalTeam/nationalTeam">국가대표 선수 현황</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/nationalTeam/schedule">국제대회 일정</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/nationalTeam/photo">사진</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/nationalTeam/board">게시판</a>
+									</li>
+								</ul>
+							</details>
+						</button>
+					
+					<button class="btn nav-link dropdown">
+						<details>
+							<summary>KGA랭킹</summary>
+							<ul>
+								<li>
+									<span class="form-check form-check-like">
+										
+									</span>
+									<a href="/web/kgaRanking/home">랭킹홈</a>
+								</li>
+								<li>
+									<span class="form-check form-check-like">
+										
+									</span>
+									<a href="/web/kgaRanking/player">선수별</a>
+								</li>
+								<li>
+									<span class="form-check form-check-like">
+										
+									</span>
+									<a href="/web/kgaRanking/tour">대회별</a>
+								</li>
+								<li>
+									<span class="form-check form-check-like">
+										
+									</span>
+									<a href="/web/kgaRanking/junior">주니어랭킹</a>
+								</li>
+							</ul>
+						</details>
+					</button>
+					<button class="btn nav-link dropdown">
+						<details>
+							<summary>핸디캡</summary>
+							<ul>
+								<li>
+									<span class="form-check form-check-like">
+										
+									</span>
+									<a href="/web/handicap/apply/notice">핸디캡신청</a>
+								</li>
+								
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/handicap/calculator">코스핸디캡™계산기</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/handicap/system/home">월드핸디캡시스템™</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/handicap/video">동영상</a>
+									</li>
+								
+							</ul>
+						</details>
+					</button>
+					
+						<button class="btn nav-link dropdown">
+							<details>
+								<summary>행정</summary>
+								<ul>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/office/home">행정홈</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/office/signup">경기인 등록</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/office/numberCheck">개인번호 / 선수번호 확인</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/office/transfer">소속변경(이적)</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/office/certificate">증명서</a>
+									</li>
+								</ul>
+							</details>
+						</button>
+						<button class="btn nav-link dropdown">
+							<details>
+								<summary>공지사항</summary>
+								<ul>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/notice/notice">공지사항</a>
+									</li>
+								</ul>
+							</details>
+						</button>
+						<button class="btn nav-link dropdown">
+							<details>
+								<summary>미디어</summary>
+								<ul>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/media/news">보도자료 </a>
+									</li>
+									<!-- <li>
+										<span class="form-check form-check-like">
+										</span>
+										<a href="/web/media/photo">사진</a>
+									</li> -->
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/media/pressCheck">PRESS</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/media/golfIndicator">골프지표</a>
+									</li>
+								</ul>
+							</details>
+						</button>
+						<button class="btn nav-link dropdown">
+							<details>
+								<summary>회원사골프장</summary>
+								<ul>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/golfCourse/memberRole">회원사 역할</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/golfCourse/memberProgram">회원사 프로그램</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/golfCourse/golfCourse">회원사골프장 현황</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/golfCourse/holeInOne">홀인원 현황</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/golfCourse/news">회원사골프장 소식</a>
+									</li>
+									<!-- <li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/golfCourse/certificate">홀인원 인증서</a>
+									</li> -->
+									<!-- <li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/golfCourse/championshipSchedule">클럽 챔피언십</a>
+									</li> -->
+								</ul>
+							</details>
+						</button>
+					
+					<div class="header-moremenu mt-0">
+						<div class="moremenu-title">
+							<div class="container">MORE KGA</div>
+						</div>
+						<div class="moremenu-list">
+							<div class="container">
+								<ul class="list">
+									
+										<li>
+											<span class="form-check form-check-like">
+												
+											</span>
+											<a href="/web/about/history">ABOUT KGA</a>
+										</li>
+										<li>
+											<span class="form-check form-check-like">
+												
+											</span>
+											<a href="/web/shop/productList">SHOP</a>
+										</li>
+										
+										<li>
+											<span class="form-check form-check-like">
+											</span>
+											
+												
+													<a id="naviMobileLogin" href="/web/login">LOGIN</a>
+												
+												
+											
+										</li>
+									
+								</ul>
+								<ul class="sns">
+									<li style="width: 24%;"><a class="dropdown-item" href="https://www.facebook.com/koreagolfassociation" target="_blank"><img src="/resources/web/images/sns-facebook.svg"></a></li>
+									<li style="width: 24%;"><a class="dropdown-item" href="https://www.instagram.com/kgagolf_official" target="_blank"><img src="/resources/web/images/sns-insta.svg"></a></li>
+									<li style="width: 24%;"><a class="dropdown-item" href="https://www.youtube.com/@대한골프협회-u6q" target="_blank"><img src="/resources/web/images/sns-youtube.svg"></a></li>
+									<li style="width: 24%;"><a class="dropdown-item" href="https://sports.news.naver.com/golf/club/postList?expertId=602" target="_blank"><img src="/resources/web/images/sns-naver.svg"></a></li>
+								</ul>
+								<ul class="lang aPointer chageLang">
+									<li>언어</li>
+									<li class="ps-0">ㅣ</li>
+									<li class="active"><a data-lang="KOR">KOR</a></li>
+									<li class="" style="padding-right: 0px;"><a data-lang="ENG">ENG</a></li>
+								</ul>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- .nav-fullwidthmc -->
+			</div>
+			<!-- end 모바일용 전체메뉴 -->
+
+		</div>
+		<!-- .nav-fullwidth -->
+
+	</div>
+
+</div>
+<!-- end .main-menu -->
+	</header>
+	<script type="text/javascript">
+		$(document).ready(function() {
+			var width = document.documentElement.clientWidth;
+			if($("#headermenu a").hasClass("active") === true) {
+				document.getElementById("headermenu").scrollLeft += ($("#headermenu a.active").closest("li").offset().left-(width/2));
+			}
+			
+			if($(".nav-postmenu a").hasClass("active") === true) {
+				$(".nav-postmenu").closest(".scroll").scrollLeft($(".nav-postmenu a.active").closest("li").offset().left-(width/2));
+			}
+			
+		});
+
+	</script>
+	<!-- end .site-header -->
+	<!----------------------------------------- // section headermenu -------------------------------------------->
+	<section id="headermenu" class="section-headermenu">
+		<div class="container">
+			<ul class="nav nav-headermenu">
+				<li class="nav-item"><a class="nav-link " href="/web/elite/schedule">전문체육</a></li>
+				
+				
+					<li class="nav-item"><a class="nav-link " href="/web/life/schedule">생활체육</a></li>
+					<li class="nav-item"><a class="nav-link " href="/web/golfRule/rule">골프규칙</a></li>
+					<li class="nav-item"><a class="nav-link " href="/web/nationalTeam/nationalTeam">국가대표</a></li>
+				
+				
+				<li class="nav-item"><a class="nav-link " href="/web/kgaRanking/home">KGA랭킹</a></li>
+				<li class="nav-item"><a class="nav-link " href="/web/handicap/apply/notice">핸디캡</a></li>
+				
+				
+					<li class="nav-item"><a class="nav-link " href="/web/office/home">행정</a></li>
+					<li class="nav-item"><a class="nav-link " href="/web/notice/notice">공지사항</a></li>
+					<li class="nav-item"><a class="nav-link " href="/web/media/news">미디어</a></li>
+					<li class="nav-item"><a class="nav-link active" href="/web/golfCourse/memberRole">회원사골프장</a></li>
+				
+			</ul>
+		</div>
+	</section>
+
+<!----------------------------------------- // section postmenu -------------------------------------------->
+
+<section class="section-postmenu pb-0">
+	<div class="container">
+		<div class="title-group">
+			<div class="title">회원사골프장</div>
+		</div>
+	</div>
+	<div class="container">
+		<div class="scroll">
+			<ul class="nav nav-postmenu">
+				<li class="nav-item">
+					<a class="nav-link " href="/web/golfCourse/memberRole">회원사 역할</a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link active" href="/web/golfCourse/memberProgram">회원사 프로그램</a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link " href="/web/golfCourse/golfCourse">회원 골프장 현황</a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link " href="/web/golfCourse/holeInOne">홀인원 현황</a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link " href="/web/golfCourse/news">회원사골프장 소식</a>
+				</li>
+				
+				
+			</ul>
+		</div>
+	</div>
+</section>
+
+
+<script type="text/javascript">
+$(document).ready(function() {
+	const urlParams = new URLSearchParams(window.location.search);
+    const target = urlParams.get('target');
+
+    if (target) {
+        const $targetEl = $('#' + target);
+
+        // 해당 ID의 요소가 존재하면 스크롤 이동
+        if ($targetEl.length) {
+            $('html, body').animate({
+                scrollTop: $targetEl.offset().top
+            }, 500); // 500ms 동안 부드럽게 스크롤
+        }
+    }
+});
+</script>
+
+<style>
+.comingsoon .card-golfprogram::after {
+    /* background: rgb(112, 112, 112, 0.75); */
+}
+.comingsoon .card-golfprogram::after {
+    position: absolute;
+    top: 0;
+    left: 0;
+    content: "";
+    width: 100%;
+    height: 100%;
+    /* background: rgb(255, 255, 255, 0.5); */
+}
+
+.comingsoon .card-golfprogram::before {
+    position: absolute;
+    top: 55%;
+    left: 50%;
+    content: "준비중";
+    width: 112px;
+    height: 50px;
+    line-height: 50px;
+    margin-left: -56px;
+    text-align: center;
+    background: #000;
+    color: #FFF;
+    font-size: 1.5rem;
+    border-radius: 2rem;
+    z-index: 1;
+}
+</style>
+<style>
+ li.noAfter::after {
+    background: unset
+}
+.kakao_channel {
+    padding: 0rem 1.25rem 1rem !important;
+}
+.kakao_channel .step-thumb {
+    margin: 1.5rem 0 1rem;
+}
+</style>
+
+
+<!----------------------------------------- // header section -------------------------------------------->
+
+<section id="marketing" class="section-area py-4">
+	<div class="container">
+		<h6 class="my-2 text-blue">회원사 골프장 운영상에 직/간접적으로 도움이 되는 </h6>
+		<h2>경영지원 프로그램</h2>
+	</div>
+</section>
+
+
+<!----------------------------------------- // content section -------------------------------------------->
+
+<section class="section-area" style="background: linear-gradient( #D5EBF6, #FAFAFA);">
+	<div class="container">
+		<br>
+		<div class="row">
+			<div class="col-12 col-md-6 col-lg-3">
+				<a href="#" data-bs-toggle="modal" data-bs-target="#ratingModal">
+					<div class="card card-golfprogram">
+						<div class="card-header text-blue">측정 서비스</div>
+						<div class="card-body">
+							<h3 class="title">코스 레이팅 / <br>슬로프 레이팅</h3>
+							<p class="text-blue">주요 서비스 살펴보기</p>
+						</div>
+						<div class="card-footer">
+							<img src="/resources/web/images/icon-golfprogram-arrow.svg">
+							<img src="/resources/web/images/btn-more-circleplus.svg">
+						</div>
+					</div>
+				</a>
+			</div>
+			<div class="col-12 col-md-6 col-lg-3">
+				<a href="" data-bs-toggle="modal" data-bs-target="#visitinglessonModal">
+					<div class="card card-golfprogram darkblue">
+						<div class="card-header text-blue">방문 교육 서비스</div>
+						<div class="card-body">
+							<h3 class="title">골프 룰 / 규칙<br>&nbsp;</h3>
+							<p class="text-blue">프로그램 이용 문의<br>(회원관리팀 031-540-5724/5734)</p>
+						</div>
+						<div class="card-footer">
+							<img src="/resources/web/images/icon-golfprogram-flag.svg">
+							<img src="/resources/web/images/btn-more-circleplus.svg">
+						</div>
+					</div>
+				</a>
+			</div>
+			<div class="col-12 col-md-6 col-lg-3">
+				<a href="#" data-bs-toggle="modal" data-bs-target="#certificateModal">
+					<div class="card card-golfprogram">
+						<div class="card-header text-blue">공인 인증서 발급 서비스</div>
+						<div class="card-body">
+							<h3 class="title">홀인원 / <br>알바트로스</h3>
+							<p class="text-blue">주요 서비스 살펴보기</p>
+						</div>
+						<div class="card-footer">
+							<img src="/resources/web/images/icon-golfprogram-book.svg">
+							<img src="/resources/web/images/btn-more-circleplus.svg">
+						</div>
+					</div>
+				</a>
+			</div>
+			<div class="col-12 col-md-6 col-lg-3">
+				<a href="" data-bs-toggle="modal" data-bs-target="#flowerModal">
+					<div class="card card-golfprogram darkblue">
+						<div class="card-header text-blue">화환 발송 서비스</div>
+						<div class="card-body">
+							<h3 class="title">회원사 임원 경조사, <br>대회 개최 축하</h3>
+							<p class="text-blue">프로그램 이용 문의<br>(회원관리팀 031-540-5724/5734)</p>
+						</div>
+						<div class="card-footer">
+							<img src="/resources/web/images/icon-golfprogram-flower.svg">
+							<img src="/resources/web/images/btn-more-circleplus.svg">
+						</div>
+					</div>
+				</a>
+			</div>
+			<div class="col-12 col-md-6 col-lg-3">
+				<a href="" data-bs-toggle="modal" data-bs-target="#competenceModal">
+					<div class="card card-golfprogram darkblue">
+						<div class="card-header text-blue">교육 세미나</div>
+						<div class="card-body">
+							<h3 class="title">회원사 임직원 초청 <br>직무역량강화 </h3>
+							<p class="text-blue">프로그램 이용 문의<br>(회원관리팀 031-540-5724/5734)</p>
+						</div>
+						<div class="card-footer">
+							<img src="/resources/web/images/icon-golfprogram-human.svg">
+							<img src="/resources/web/images/btn-more-circleplus.svg">
+						</div>
+					</div>
+				</a>
+			</div>
+			<div class="col-12 col-md-6 col-lg-3">
+				<a href="" data-bs-toggle="modal" data-bs-target="#topempliyeeModal">
+					<div class="card card-golfprogram">
+						<div class="card-header text-blue">표창 및 포상</div>
+						<div class="card-body">
+							<h3 class="title">회원사 우수 직원 <br>&nbsp;</h3>
+							<p class="text-blue">프로그램 이용 문의<br>(회원관리팀 031-540-5724/5734)</p>
+						</div>
+						<div class="card-footer">
+							<img src="/resources/web/images/icon-golfprogram-badge.svg">
+							<img src="/resources/web/images/btn-more-circleplus.svg">
+						</div>
+					</div>
+				</a>
+			</div>
+			<div class="col-12 col-md-6 col-lg-3">
+				<a href="" data-bs-toggle="modal" data-bs-target="#uniformModal">
+					<div class="card card-golfprogram darkblue">
+						<div class="card-header text-blue">유니폼 제공 서비스</div>
+						<div class="card-body">
+							<h3 class="title">KGA 공식 <br>유니폼 제공</h3>
+							<p class="text-blue">주요 서비스 살펴보기</p>
+						</div>
+						<div class="card-footer">
+							<img src="/resources/web/images/icon-golfprogram-uniform.svg">
+							<img src="/resources/web/images/btn-more-circleplus.svg">
+						</div>
+					</div>
+				</a>
+			</div>
+			<div class="col-12 col-md-6 col-lg-3">
+				<a href="" data-bs-toggle="modal" data-bs-target="#taxinvoiceModal">
+					<div class="card card-golfprogram">
+						<div class="card-header text-blue">계산서 발행</div>
+						<div class="card-body">
+							<h3 class="title">출연 회비 전액 <br>계산서 발행</h3>
+							<p class="text-blue">프로그램 이용 문의<br>(회원관리팀 031-540-5724/5734)</p>
+						</div>
+						<div class="card-footer">
+							<img src="/resources/web/images/icon-golfprogram-bill.svg">
+							<img src="/resources/web/images/btn-more-circleplus.svg">
+						</div>
+					</div>
+				</a>
+			</div>
+		</div>
+	</div>
+</section>
+
+
+<!----------------------------------------- // header section -------------------------------------------->
+
+<section id="coalition" class="section-area py-4">
+	<div class="container">
+		<h6 class="my-2 text-blue">회원사 골프장 마케팅/홍보 서비스 프로그램</h6>
+		<h2>마케팅/ 홍보지원 프로그램</h2>
+	</div>
+</section>
+
+
+<!----------------------------------------- // content section -------------------------------------------->
+
+<section class="section-area" style="background: linear-gradient( #D5EBF6, #FAFAFA);">
+	<div class="container">
+		<br>
+		<div class="row">
+			<div class="col-12 col-md-6 col-lg-3">
+				<a href="#" data-bs-toggle="modal" data-bs-target="#newsclippingModal">
+					<div class="card card-golfprogram green">
+						<div class="card-body">
+							<h3 class="title">골프규칙, 골프산업지표<br>등의 정보 전송 서비스</h3>
+							<p class="text-dark">주요 서비스 살펴보기</p>
+						</div>
+						<div class="card-footer">
+							<img src="/resources/web/images/icon-golfprogram-airplane.svg">
+							<img src="/resources/web/images/btn-more-circleplus.svg">
+						</div>
+					</div>
+				</a>
+			</div>
+			<div class="col-12 col-md-6 col-lg-3">
+				<a href="" data-bs-toggle="modal" data-bs-target="#articleModal">
+					<div class="card card-golfprogram orange">
+						<div class="card-body">
+							<h3 class="title">회원사별 기획 기사, <br>칼럼 기사 보도 지원</h3>
+							<p class="text-orange">주요 서비스 살펴보기</p>
+						</div>
+						<div class="card-footer">
+							<img src="/resources/web/images/icon-golfprogram-video.svg">
+							<img src="/resources/web/images/btn-more-circleplus.svg">
+						</div>
+					</div>
+				</a>
+			</div>
+			<!-- <div class="col-12 col-md-6 col-lg-3">
+				<a href="" data-bs-toggle="modal" data-bs-target="#competitionModal">
+					<div class="card card-golfprogram green">
+						<div class="card-body">
+							<h3 class="title">회원사 골프 선수권 대회 <br>출전권</h3>
+							<p class="text-orange">주요 서비스 살펴보기</p>
+						</div>
+						<div class="card-footer">
+							<img src="/resources/web/images/icon-golfprogram-orangeflag.svg">
+							<img src="/resources/web/images/btn-more-circleplus.svg">
+						</div>
+					</div>
+				</a>
+			</div> -->
+			<div class="col-12 col-md-6 col-lg-3">
+				<a href="" data-bs-toggle="modal" data-bs-target="#supportModal">
+					<div class="card card-golfprogram green">
+						<div class="card-body">
+							<h3 class="title">KGA 레프리 파견 및 <br>클럽 챔피언전 지원</h3>
+							<p class="text-orange">프로그램 이용 문의<br>(회원관리팀 031-540-5724/5734)</p>
+						</div>
+						<div class="card-footer">
+							<img src="/resources/web/images/icon-golfprogram-orangeflag.svg">
+							<img src="/resources/web/images/btn-more-circleplus.svg">
+						</div>
+					</div>
+				</a>
+			</div>
+			<div class="col-12 col-md-6 col-lg-3">
+				<a href="" data-bs-toggle="modal" data-bs-target="#guidebookModal">
+					<div class="card card-golfprogram orange">
+						<div class="card-body">
+							<h3 class="title">협회 발행 책자 및 <br>포스터 발송 서비스</h3>
+							<p class="text-orange">프로그램 이용 문의<br>(회원관리팀 031-540-5724/5734)</p>
+						</div>
+						<div class="card-footer">
+							<img src="/resources/web/images/icon-golfprogram-document.svg">
+							<img src="/resources/web/images/btn-more-circleplus.svg">
+						</div>
+					</div>
+				</a>
+			</div>
+			<div class="col-12 col-md-6 col-lg-3">
+				<a href="" onclick="event.preventDefault();">
+					<div class="card card-golfprogram green">
+						<div class="card-body">
+							<h3 class="title">아마추어 선수 대회 개최 <br>골프장 승인 및 추천권</h3>
+							<p class="text-dark">프로그램 이용 문의<br>(회원관리팀 031-540-5724/5734)</p>
+						</div>
+						<div class="card-footer">
+							<img src="/resources/web/images/icon-golfprogram-mail.svg">
+							<!-- <img src="/resources/web/images/btn-more-circleplus.svg"> -->
+						</div>
+					</div>
+				</a>
+			</div>
+			<div class="col-12 col-md-6 col-lg-3">
+				<a href="" data-bs-toggle="modal" data-bs-target="#companynewsModal">
+					<div class="card card-golfprogram orange">
+						<div class="card-body">
+							<h3 class="title">회원사 소식 알림, <br>노출 서비스</h3>
+							<p class="text-orange">주요 서비스 살펴보기</p>
+						</div>
+						<div class="card-footer">
+							<img src="/resources/web/images/icon-golfprogram-alarm.svg">
+							<img src="/resources/web/images/btn-more-circleplus.svg">
+						</div>
+					</div>
+				</a>
+			</div>
+		</div>  
+	</div>
+</section>
+
+
+<!----------------------------------------- // header section -------------------------------------------->
+
+<section id="program" class="section-area py-4">
+	<div class="container">
+		<div class="row">
+			<div class="col-12 col-lg-6">
+				<h6 class="my-2 text-blue">기업 제휴 연계 서비스</h6>
+				<h2>할인 제휴 컨텐츠 발굴 연계 서비스 프로그램</h2>
+			</div>
+			<div class="col-12 col-lg-6 text-end">
+				<!-- <br>
+				<button class="btn btn-lg btn-yellow rounded-pill fw-sb">지원 서비스 신청하기</button> -->
+			</div>
+		</div>
+	</div>
+</section>
+
+
+<!----------------------------------------- // content section -------------------------------------------->
+
+<section class="section-area" style="background: linear-gradient( #D5EBF6, #FAFAFA);">
+	<div class="container">
+		<br>
+		<h3 class="mb-5">
+			대한골프협회는 회원사 임직원을 대상으로 <br>
+			엄선 된 제휴사들과의 할인, 프로모션 업무협약을 통해 <br>
+			회원사의 경영비용 절감과 회원복지를 위한 제휴 프로그램를 제공합니다.
+		</h3>
+		<div class="row">
+			<div class="col-12 col-md-6 col-lg-3">
+				<a href="https://kgamembership.ezwel.com/cuser/login/loginForm.ez" target="_blank">
+					<div class="card card-serviceprogram">
+						<div class="card-body">
+							<h3 class="title">회원사 임직원 전용 <br>폐쇄몰</h3>
+						</div>
+						<div class="card-footer">
+							<img src="/resources/web/images/icon-golfprogram-pin.svg">
+						</div>
+					</div>
+				</a>
+			</div>
+			<div class="col-12 col-md-6 col-lg-3">
+				<a href="" onclick="window.open('/infor/client/대한골프협회 안내문_2026.jpg')">
+					<div class="card card-serviceprogram green">
+						<div class="card-body">
+							<h3 class="title">회원사 임직원<br>건강검진</h3>
+							<p class="text-blue">- 한국건강관리협회</p>
+						</div>
+						<div class="card-footer">
+							<img src="/resources/web/images/icon-golfprogram-pin.svg">
+						</div>
+					</div>
+				</a>
+			</div>
+			<!-- <div class="col-12 col-md-6 col-lg-3">
+				<a href="" class="comingsoon" onclick="event.preventDefault();"> 준비중 클래스명 comingsoon
+					<div class="card card-serviceprogram">
+						<div class="card-body">
+							<h3 class="title">회원사 임직원 전용 <br>교육기관 할인 제휴</h3>
+							<p class="text-blue">Ex) 파고다 어학원, 파고다 SCS, <br>한국능률협회 등</p>
+						</div>
+						<div class="card-footer">
+							<img src="/resources/web/images/icon-golfprogram-education.svg">
+						</div>
+					</div>
+				</a>
+			</div> -->
+			<div class="col-12 col-md-6 col-lg-3">
+				<a href="" class="comingsoon" onclick="event.preventDefault();"> <!-- 준비중 클래스명 comingsoon -->
+					<div class="card card-serviceprogram">
+						<div class="card-body">
+							<h3 class="title">회원사 임직원 전용 <br>여행업/숙박업 할인 제휴</h3>
+							<p class="text-blue">Ex) 서울, 수도권 내 호텔, <br>리조트 등</p>
+						</div>
+						<div class="card-footer">
+							<img src="/resources/web/images/icon-golfprogram-education.svg">
+						</div>
+					</div>
+				</a>
+			</div>
+			<div class="col-12 col-md-6 col-lg-3">
+				<a href="" class="comingsoon" onclick="event.preventDefault();"> <!-- 준비중 클래스명 comingsoon -->
+					<div class="card card-serviceprogram green"> <!-- yellow -->
+						<div class="card-body">
+							<h3 class="title">세차&발렛주차, 보험, <br>태양광 시설, 렌터카, <br>F&B 등의 기업 연계</h3>
+						</div>
+						<div class="card-footer">
+							<img src="/resources/web/images/icon-golfprogram-etc.svg">
+						</div>
+					</div>
+				</a>
+			</div>
+		</div>
+		<br><br><br>  
+	</div>
+</section>
+
+
+<script>
+	if(cookieLang == "ENG" && engPageYn == "N") {
+		alert("해당 페이지는 영문 제공하지 않습니다.");
+		location.href = "/web/main/index";
+	}
+</script>
+<!----------------------------------------- // copyright section -------------------------------------------->
+
+<section class="section-area section-sponsor">
+<div class="container">
+	<div class="swiper sponsor-swiper swiper-initialized swiper-horizontal swiper-free-mode swiper-watch-progress swiper-backface-hidden">
+		<div class="swiper-wrapper" id="swiper-wrapper-cc3e9f4126e89cb3" aria-live="off" style="transition-duration: 0ms; transform: translate3d(-426.333px, 0px, 0px); transition-delay: 0ms;">
+			<div class="swiper-slide" role="group" aria-label="1 / 8" style="width: 193.167px; margin-right: 20px;"><a href="https://www.kspo.or.kr/kspo/main/main.do" target="_blank"><img src="/resources/web/images/sponsor/sponsor-01.png?ver=20240910"></a></div>
+			<div class="swiper-slide swiper-slide-prev" role="group" aria-label="2 / 8" style="width: 193.167px; margin-right: 20px;"><a href="https://www.k-sec.or.kr" target="_blank"><img src="/resources/web/images/sponsor/sponsor-02.png?ver=20240910"></a></div>
+			<div class="swiper-slide swiper-slide-visible swiper-slide-active" role="group" aria-label="3 / 8" style="width: 193.167px; margin-right: 20px;"><a href="https://portal.sports.or.kr/main.do" target="_blank"><img src="/resources/web/images/sponsor/sponsor-03.png?ver=20240910" width="70%"></a></div>
+			<div class="swiper-slide swiper-slide-visible swiper-slide-fully-visible swiper-slide-next" role="group" aria-label="4 / 8" style="width: 193.167px; margin-right: 20px;"><a href="https://www.cspep.or.kr/web/main/main" target="_blank"><img src="/resources/web/images/sponsor/sponsor-04.png?ver=20240910"></a></div>
+			<div class="swiper-slide swiper-slide-visible swiper-slide-fully-visible" role="group" aria-label="5 / 8" style="width: 193.167px; margin-right: 20px;"><a href="https://welfare.sports.or.kr" target="_blank"><img src="/resources/web/images/sponsor/sponsor-05.png?ver=20240910"></a></div>
+			<div class="swiper-slide swiper-slide-visible swiper-slide-fully-visible" role="group" aria-label="6 / 8" style="width: 193.167px; margin-right: 20px;"><a href="https://www.kada-ad.or.kr" target="_blank"><img src="/resources/web/images/sponsor/sponsor-06.png?ver=20240910"></a></div>
+			<div class="swiper-slide swiper-slide-visible swiper-slide-fully-visible" role="group" aria-label="6 / 8" style="width: 193.167px; margin-right: 20px;"><a href="https://www.kigepe.or.kr/kor/index.do" target="_blank"><img src="/resources/web/images/sponsor/sponsor-07.png?ver=20240910"></a></div>
+		</div>
+	<span class="swiper-notification" aria-live="assertive" aria-atomic="true"></span></div>
+
+	<!-- Initialize Swiper -->
+	<script>
+		var swiper = new Swiper(".sponsor-swiper", {
+			slidesPerView: 4,
+			spaceBetween: 5,
+			slidesPerGroup : 4,
+			freeMode: true,
+			watchSlidesProgress: true,
+			observer: true,
+			observeParents: true,
+			breakpoints: {
+				1600: {
+				slidesPerView: 6,
+				spaceBetween: 20,
+				slidesPerGroup : 6,
+				},
+			},
+			autoplay: {
+				delay: 4000,
+			},
+		});
+	</script>
+
+</div> <!-- end .container -->
+</section>
+
+<!----------------------------------------- // copyright section -------------------------------------------->
+<section class="section-area section-copyright">
+	<div class="container">
+		<div class="footer-logo">
+			<img src="/resources/web/images/footer-logo.svg">
+		</div>
+		<div class="footer-menu">
+			<ul>
+				<li><a href="/footerTerms">KGA 이용약관</a></li>
+				<li><a href="/footerPrivate">개인정보처리방침</a></li>
+			</ul>
+		</div>
+		<div class="footer-copyright">
+			<p>Copyright ⓒ KGA All Right Reserved. </p>
+			<p>
+				
+					
+						10881 경기도 파주시 회동길 174 (문발동) | Tel. (031)-540-5700 | FAX (0507)-883-2300<br>
+						174, Hoedong-gil, Paju-si, Gyeonggi-do, 10881, Rep. of KOREA
+					
+					
+				
+			</p>
+		</div>
+	</div> <!-- end .container -->
+</section> <!-- end .section-copyright -->
+
+
+<span itemscope="" itemtype="http://schema.org/Organization">
+	<link itemprop="url" href="https://kgagolf.or.kr">
+	<a itemprop="sameAs" href="https://www.facebook.com/koreagolfassociation"></a>
+	<a itemprop="sameAs" href="https://www.instagram.com/kgagolf_official"></a>
+	<a itemprop="sameAs" href="https://www.youtube.com/@대한골프협회-u6q"></a>
+	<a itemprop="sameAs" href="https://blog.naver.com/koreagolfassociation"></a>
+</span>
+
+
+</body>
+</html>
+
+<!----------------------------------------- // modal section -------------------------------------------->
+
+
+
+<!-- 지원 프로그램 : 골프 룰/규칙 방문 교육 서비스 -->
+<div class="modal fade" id="visitinglessonModal" tabindex="-1" aria-labelledby="visitinglessonModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-xl">
+		<div class="modal-content bg-white">
+			<div class="modal-header border-0">
+				<h5 class="modal-title">&nbsp;</h5>
+				<button type="button" class="btn-close btn-dark" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+				<h2 class="fw-sb text-navy">골프 룰/규칙 방문 교육 서비스</h2>
+				<div class="my-3"><img src="/resources/web/images/logo.svg"></div>
+				<br>
+				<div class="entry rounded-10" style="background: linear-gradient( #c8caf2, #e3e4fd, #c8caf2);">
+					<div style="background: url(/resources/web/images/main-backgroundlogo.svg) no-repeat center;">
+						<h2 class="text-navy text-center mb-5">제대로 된 골프 룰, 골프 규칙을 알고 싶으신가요</h2>
+						<h5 class="lh-base text-center">
+							대한골프협회는 회원사 골프장의 임직원과 캐디를 대상으로 골프 룰과 골프 규칙 교육 프로그램을 제공합니다.<br>
+							고객이 신뢰하는 골프장! 골프장의 품격이 달라집니다.
+						</h5>
+						<div class="text-end">
+							<!-- <button class="btn btn-lg btn-yellow rounded-pill fw-sb">계산서 발행</button> -->
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="modal-body modal-servicedetail" style="background: url(/resources/web/images/modal-program-bgpattern.png) no-repeat center right;">
+				<h2 class="text-navy fw-sb text-decoration-underline pt-5">골프룰 / 골프규칙 교육 서비스란?</h2>
+				<br>
+				<h5 class="lh-base text-navy">
+					R&A와 USGA에서 발간하여 4년마다 재정되는 골프룰과 골프규칙 중 현장에서 자주 사용되는 기본적인 내용으로 재구성하여<br>
+					회원사 골프장 임직원과 매니저(캐디)들이 이해하기 쉽도록 25가지의 골프 규칙과 규칙 용어, 코스 셋업 등의 내용으로<br>
+					2시간 분량의 골프규칙 Lv1. 약식 교육과정
+				</h5>
+				<br>
+				<div class="text-end">
+					<!-- <button class="btn btn-lg btn-yellow rounded-pill fw-sb">지원 서비스 신청하기</button> -->
+				</div>
+				<br>
+			</div>
+			<div class="modal-body modal-servicedetail">
+				<br>
+				<h3 class="text-white text-center my-3">회원사(정회원) 신청 절차</h3>
+				<br><br class="pc-only">
+				<ul class="ul-programstep">
+					<li>
+						<label><img src="/resources/web/images/modal-program-num01.svg"></label>
+						<div class="step-thumb"><img src="/resources/web/images/modal-program-step01.svg"></div>
+						<h6 class="step-title">회원사 전용 <br>페이지 로그인</h6>
+					</li>
+					<li>
+						<label><img src="/resources/web/images/modal-program-num02.svg"></label>
+						<div class="step-thumb"><img src="/resources/web/images/modal-program-step02.svg"></div>
+						<h6 class="step-title">연간 교육 스케쥴 <br>현황표 확인</h6>
+					</li>
+					<li>
+						<label><img src="/resources/web/images/modal-program-num03.svg"></label>
+						<div class="step-thumb"><img src="/resources/web/images/modal-program-step03.svg"></div>
+						<h6 class="step-title">교육 신청 가능 <br>일정 확인</h6>
+					</li>
+					<li>
+						<label><img src="/resources/web/images/modal-program-num04.svg"></label>
+						<div class="step-thumb"><img src="/resources/web/images/modal-program-step05.svg"></div>
+						<h6 class="step-title pt-3">교육 신청 접수</h6>
+					</li>
+				</ul>
+				<br><br>
+				<h3 class="text-white text-center my-3">비회원사(준회원) 신청 절차</h3>
+				<br><br class="pc-only">
+				<ul class="ul-programstep">
+					<li>
+						<label><img src="/resources/web/images/modal-program-num01.svg"></label>
+						<div class="step-thumb"><img src="/resources/web/images/modal-program-step01.svg"></div>
+						<h6 class="step-title">교육 신청 문의 및<br>담당자 통화</h6>
+					</li>
+					<li>
+						<label><img src="/resources/web/images/modal-program-num02.svg"></label>
+						<div class="step-thumb"><img src="/resources/web/images/modal-program-step02.svg"></div>
+						<h6 class="step-title">교육신청 가능<br>일정 확인</h6>
+					</li>
+					<li>
+						<label><img src="/resources/web/images/modal-program-num03.svg"></label>
+						<div class="step-thumb"><img src="/resources/web/images/modal-program-step03.svg"></div>
+						<h6 class="step-title">비용 결제 문의</h6>
+					</li>
+					<li>
+						<label><img src="/resources/web/images/modal-program-num04.svg"></label>
+						<div class="step-thumb"><img src="/resources/web/images/modal-program-step05.svg"></div>
+						<h6 class="step-title">교육 신청 접수 및<br>담당자 통화</h6>
+					</li>
+				</ul>
+				<br><br><br><br><br>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- 지원 프로그램 : 경조사 화환 발송서비스 -->
+<div class="modal fade" id="flowerModal" tabindex="-1" aria-labelledby="flowerModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-xl">
+		<div class="modal-content bg-white">
+			<div class="modal-header border-0">
+				<h5 class="modal-title">&nbsp;</h5>
+				<button type="button" class="btn-close btn-dark" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+				<h2 class="fw-sb text-navy">회원사 임원 경조사, 대회 개최 축하 화환 발송 서비스</h2>
+				<div class="my-3"><img src="/resources/web/images/logo.svg"></div>
+				<br>
+				<div class="entry rounded-10" style="background: linear-gradient( #c8caf2, #e3e4fd, #c8caf2);">
+					<div style="background: url(/resources/web/images/main-backgroundlogo.svg) no-repeat center;">
+						<h2 class="text-navy mb-5">회원사 임원 경조사 및 대회 개최 화환 발송 서비스란?</h2>
+						<h5 class="lh-base">
+							회원사 골프장 임원 경조사, 영전 및 골프 대회, 대형 행사 개최 시<br>
+							대한골프협회명으로 축하화환, 근조화환 등을 발송 해 드립니다.
+						</h5>
+						<div class="text-end">
+							<!-- <button class="btn btn-lg btn-yellow rounded-pill fw-sb">지원 서비스 신청하기</button> -->
+						</div>
+					</div>
+				</div>
+				<br>
+				<h5 class="text-navy text-center">기쁜 날에도, 슬픈 날에도 대한골프협회는 언제나 회원사 여러분 가까이에 있습니다!</h5>
+			</div>
+			<div class="modal-body modal-servicedetail">
+				<br>
+				<h3 class="text-white text-center my-3">신청 절차</h3>
+				<br><br class="pc-only">
+				<ul class="ul-programstep">
+					<li>
+						<label><img src="/resources/web/images/modal-program-num01.svg"></label>
+						<div class="step-thumb"><img src="/resources/web/images/modal-program-step01.svg"></div>
+						<h6 class="step-title">회원사 전용 <br>페이지 로그인</h6>
+					</li>
+					<li>
+						<label><img src="/resources/web/images/modal-program-num02.svg"></label>
+						<div class="step-thumb"><img src="/resources/web/images/modal-program-step02.svg"></div>
+						<h6 class="step-title">화환 발송 신청서<br>작성 및 신청</h6>
+					</li>
+					<li>
+						<label><img src="/resources/web/images/modal-program-num03.svg"></label>
+						<div class="step-thumb"><img src="/resources/web/images/modal-program-step03.svg"></div>
+						<h6 class="step-title">검토/승인 및<br>발송 일자 확인</h6>
+					</li>
+				</ul>
+				<br><br><br><br><br>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- 지원 프로그램 : 직무역량강화 -->
+<div class="modal fade" id="competenceModal" tabindex="-1" aria-labelledby="competenceModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-xl">
+		<div class="modal-content bg-white">
+			<div class="modal-header border-0">
+				<h5 class="modal-title">&nbsp;</h5>
+				<button type="button" class="btn-close btn-dark" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+				<h2 class="fw-sb text-navy">회원사 임직원 초청 직무역량강화</h2>
+				<div class="mt-3"><img src="/resources/web/images/logo.svg"></div>
+				<br>
+				<div class="entry rounded-10" style="background: #C1DCF6;">
+					<div style="background: url(/resources/web/images/main-backgroundlogo.svg) no-repeat center right;">
+						<h2 class="text-navy">회원사의 경쟁력은<br>임직원들의 역량에서 시작됩니다!</h2>
+						<br><br>
+						<h5 class="lh-base">
+							본 회는 골프 시장의 유동적인 시장 환경에 대한 발 빠른 대처와 각 회원사의 경쟁력 강화를 위한 세미나를 제공합니다.<br>
+							회원사만을 위한 직무역량 강화 교육 프로그램으로 직원들의 잠재력을 끌어올리고 조직력을 강화하세요.
+						</h5>
+					</div>
+				</div>
+			</div>
+			<div class="modal-body modal-servicedetail" style="background: url(/resources/web/images/modal-program-bgpattern.png) no-repeat center right;">
+				<h2 class="text-navy fw-sb text-decoration-underline pt-5">회원사 임직원 역량강화 교육서비스란?</h2>
+				<br>
+				<h5 class="lh-base">
+					회원사 골프장의 조직력 강화를 위해 매년 12월초 각 회원사의 우수 직원을 초청하여 직무역량강화 교육을 실시합니다.<br class="pc-only">
+					교육 프로그램은 국내 최고 수준의 전문 강사를 초청하여 C/S교육, 리더십 교육, 조직력 강화 교육, 언론, 미디어 홍보 교육 등의 커리큘럼으로 구성됩니다.
+				</h5>
+				<div class="text-end">
+					<!-- <button class="btn btn-lg btn-yellow rounded-pill fw-sb">지원 서비스 신청하기</button> -->
+				</div>
+				<br>
+			</div>
+			<div class="modal-body modal-servicedetail">
+				<br>
+				<h3 class="text-white text-center my-3">신청 절차</h3>
+				<br><br class="pc-only">
+				<ul class="ul-programstep">
+					<li>
+						<label><img src="/resources/web/images/modal-program-num01.svg"></label>
+						<div class="step-thumb"><img src="/resources/web/images/modal-program-step01.svg"></div>
+						<h6 class="step-title">회원사 전용 <br>페이지 로그인</h6>
+					</li>
+					<li>
+						<label><img src="/resources/web/images/modal-program-num02.svg"></label>
+						<div class="step-thumb"><img src="/resources/web/images/modal-program-step02.svg"></div>
+						<h6 class="step-title">임직원 역량강화 <br>세미나 신청 접수</h6>
+					</li>
+					<li>
+						<label><img src="/resources/web/images/modal-program-num03.svg"></label>
+						<div class="step-thumb"><img src="/resources/web/images/modal-program-step03.svg"></div>
+						<h6 class="step-title">검토/승인 및<br>발송 일자 확인</h6>
+					</li>
+				</ul>
+				<br><br><br><br><br>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- 지원 프로그램 : 회원사 우수 직원 -->
+<div class="modal fade" id="topempliyeeModal" tabindex="-1" aria-labelledby="topempliyeeModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-xl">
+		<div class="modal-content bg-white">
+			<div class="modal-header border-0">
+				<h5 class="modal-title">&nbsp;</h5>
+				<button type="button" class="btn-close btn-dark" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+				<h2 class="fw-sb text-navy">회원사 우수 직원 표창</h2>
+				<br>
+				<div class="entry rounded-10" style="background: linear-gradient( #c8caf2, #e3e4fd, #c8caf2);">
+					<div style="background: url(/resources/web/images/main-backgroundlogo.svg) no-repeat center;">
+						<div class="mt-3"><img src="/resources/web/images/logo.svg"></div>
+						<br><br>
+						<h2 class="text-navy text-end">당신의 열정과 노력에 감사드립니다.</h2>
+						<h5 class="lh-base text-end">
+							대한골프협회는 각 회원사의 성장을 축하하며 골프 산업의 질적 성장과 함께 조직의 고객 만족, 서비스 혁신, 팀워크 개선 등<br>
+							다양한 분야에서 모범이 되는 우수 직원을 시상합니다.
+						</h5>
+					</div>
+				</div>
+			</div>
+			<div class="modal-body modal-servicedetail" style="background: url(/resources/web/images/modal-program-bgpattern.png) no-repeat center right;">
+				<h2 class="text-navy fw-sb text-decoration-underline pt-5">회원사 우수 직원 표창이란?</h2>
+				<br>
+				<h5 class="lh-base">
+					매년 각 회원사의 성장을 위해 노력한 회원사 직원 1명을 선정, 각 회원사로부터 추천을 받아<br class="pc-only">
+					대한골프협회명으로 표창장과 공로패, 부상과 함께 직원의 공로를 축하해 주는 프로그램
+				</h5>
+				<div class="text-end">
+					<!-- <button class="btn btn-lg btn-yellow rounded-pill fw-sb">지원 서비스 신청하기</button> -->
+				</div>
+				<br>
+			</div>
+			<div class="modal-body modal-servicedetail">
+				<br>
+				<h3 class="text-white text-center my-3">신청 절차</h3>
+				<br><br class="pc-only">
+				<ul class="ul-programstep">
+					<li>
+						<label><img src="/resources/web/images/modal-program-num01.svg"></label>
+						<div class="step-thumb"><img src="/resources/web/images/modal-program-step01.svg"></div>
+						<h6 class="step-title">회원사 전용 <br>페이지 로그인</h6>
+					</li>
+					<li>
+						<label><img src="/resources/web/images/modal-program-num02.svg"></label>
+						<div class="step-thumb"><img src="/resources/web/images/modal-program-step02.svg"></div>
+						<h6 class="step-title">회원사 우수 직원 선발 <br>신청 접수</h6>
+					</li>
+					<li>
+						<label><img src="/resources/web/images/modal-program-num03.svg"></label>
+						<div class="step-thumb"><img src="/resources/web/images/modal-program-step03.svg"></div>
+						<h6 class="step-title">검토/승인 및<br>발송 일자 확인</h6>
+					</li>
+				</ul>
+				<br><br><br><br><br>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- 지원 프로그램 : 출연 회비 계산서 발행 -->
+<div class="modal fade" id="taxinvoiceModal" tabindex="-1" aria-labelledby="taxinvoiceModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-xl">
+		<div class="modal-content bg-white">
+			<div class="modal-header border-0">
+				<h5 class="modal-title">&nbsp;</h5>
+				<button type="button" class="btn-close btn-dark" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+				<h2 class="fw-sb text-navy">출연 회비 계산서 발행</h2>
+				<div class="my-3"><img src="/resources/web/images/logo.svg"></div>
+				<br>
+				<div class="entry rounded-10" style="background: linear-gradient( #c8caf2, #e3e4fd, #c8caf2);">
+					<div style="background: url(/resources/web/images/main-backgroundlogo.svg) no-repeat center;">
+						<h2 class="text-navy mb-5">출연 회비 계산서 발행</h2>
+						<h5 class="lh-base">
+							나눔의 가치는 곧 기업의 가치입니다.<br>
+							회비로, 기부로 한국골프발전에 빛을 더하는 대한골프협회 회원사 임직원분들께 감사를 드립니다.
+						</h5>
+						<div class="text-end">
+							<!-- <button class="btn btn-lg btn-yellow rounded-pill fw-sb">계산서 발행</button> -->
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="modal-body modal-servicedetail" style="background: url(/resources/web/images/modal-program-bgpattern.png) no-repeat center right;">
+				<h5 class="lh-base text-navy">
+					한국 골프의 발전을 위한 든든한 토대를 만들어 주는<br>
+					회원사의 출연 회비 전역에 대해 <strong>매입 계산서</strong>를 발행해 드립니다.
+				</h5>
+				<div class="text-end">
+					<!-- <button class="btn btn-lg btn-yellow rounded-pill fw-sb">지원 서비스 신청하기</button> -->
+				</div>
+				<br>
+			</div>
+			<div class="modal-body modal-servicedetail">
+				<br>
+				<h3 class="text-white text-center my-3">신청 절차</h3>
+				<br><br class="pc-only">
+				<ul class="ul-programstep">
+					<li>
+						<label><img src="/resources/web/images/modal-program-num01.svg"></label>
+						<div class="step-thumb"><img src="/resources/web/images/modal-program-step01.svg"></div>
+						<h6 class="step-title">회원사 전용 <br>페이지 로그인</h6>
+					</li>
+					<li>
+						<label><img src="/resources/web/images/modal-program-num02.svg"></label>
+						<div class="step-thumb"><img src="/resources/web/images/modal-program-step02.svg"></div>
+						<h6 class="step-title">회비납부 신청</h6>
+					</li>
+					<li>
+						<label><img src="/resources/web/images/modal-program-num03.svg"></label>
+						<div class="step-thumb"><img src="/resources/web/images/modal-program-step03.svg"></div>
+						<h6 class="step-title">당월 내장객<br>현황 접수</h6>
+					</li>
+					<li>
+						<label><img src="/resources/web/images/modal-program-num04.svg"></label>
+						<div class="step-thumb"><img src="/resources/web/images/modal-program-step04.svg"></div>
+						<h6 class="step-title">승인 확인 및<br>계산서 발행</h6>
+					</li>
+				</ul>
+				<br><br><br><br><br>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- 지원 프로그램 : 클럽 대회 운영 지원 -->
+<div class="modal fade" id="supportModal" tabindex="-1" aria-labelledby="supportModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-xl">
+		<div class="modal-content bg-white">
+			<div class="modal-header p-0 border-0" style="background: url(/resources/web/images/modal-program-bgsupport.jpg) no-repeat center; background-size: cover;">
+				<div class="container-fluid">
+					<div class="entry">
+						<div class="m-auto fillter-white" style="width: 80px;"><img src="/resources/web/images/logo-sm.svg"></div>
+						<br><br><br><br><br><br>
+						<h1 class="fw-sb text-white mb-3">클럽 대회 운영 지원</h1>
+						<h4 class="text-white">
+							대한골프협회는 회원사 골프장에서 개최되는 골프대회의 <br class="pc-only">
+							진행을 위해 KGA 소속의 <strong>전문 레프리 파견과 회원사</strong><br class="pc-only">
+							<strong>주최/주관의 클럽 대회</strong> 운영을 지원합니다
+						</h4>
+						<br>
+					</div>
+				</div>
+				<button type="button" class="btn-close btn-dark" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body" style="background: url(/resources/web/images/modal-program-bgpattern.png) no-repeat center right; background-size: cover;">
+				<div class="row">
+					<div class="col-12 col-lg-7">
+						<br>
+						<div class="mb-3"><img src="/resources/web/images/logo-content.svg"></div>
+						<h4 class="mb-3">
+							이는 대회 개최에 있어 올바른 규칙 적용을 통한 대회의 공신력을 확보하고 <br class="pc-only">대회 참가자 간의 분쟁을 예방할 수 있습니다.
+							클럽챔피언전 대회를 개최하는 88, 남서울, 뉴서울, 서울/한양, 샌드파인, 용원, 클럽나인브릿지, 핀크스, 헤슬리나인브릿지 등
+							다수 명문 골프장에서 <strong>만족도가 매우 높습니다.</strong>
+						</h4>
+						
+					</div>
+					<div class="col-12 col-lg-5">
+						<div class="text-end my-3">
+							<img src="/resources/web/images/modal-program-supportimg.png">
+						</div>
+						<div class="text-end">
+							<!-- <button class="btn btn-lg btn-yellow rounded-pill fw-sb">지원 서비스 신청하기</button> -->
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="modal-body modal-servicedetail">
+				<br><br>
+				<h3 class="text-white text-center my-3">신청 절차</h3>
+				<br>
+				<ul class="ul-programstep">
+					<li>
+						<label><img src="/resources/web/images/modal-program-num01.svg"></label>
+						<div class="step-thumb"><img src="/resources/web/images/modal-program-step01.svg"></div>
+						<h6 class="step-title">회원사 전용 <br>페이지 로그인</h6>
+					</li>
+					<li>
+						<label><img src="/resources/web/images/modal-program-num02.svg"></label>
+						<div class="step-thumb"><img src="/resources/web/images/modal-program-step02.svg"></div>
+						<h6 class="step-title">레프리 파견<br>신청 접수</h6>
+					</li>
+					<li>
+						<label><img src="/resources/web/images/modal-program-num03.svg"></label>
+						<div class="step-thumb"><img src="/resources/web/images/modal-program-step03.svg"></div>
+						<h6 class="step-title">요청 일정 및 <br>레프리 풀 확인</h6>
+					</li>
+				</ul>
+				<br><br><br><br><br>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- 지원 프로그램 : 책자 및 포스터발송 -->
+<div class="modal fade" id="guidebookModal" tabindex="-1" aria-labelledby="guidebookModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-xl">
+		<div class="modal-content bg-white">
+			<div class="modal-header p-0 border-0" style="background: url(/resources/web/images/modal-program-guidebook.jpg) no-repeat center right; background-size: cover;">
+				<div class="container-fluid">
+					<div class="entry">
+						<br><br><br><br><br>
+						<div class="my-3" style="max-width: 80px;"><img src="/resources/web/images/logo.svg"></div>
+						<h1 class="fw-sb text-white">협회 발행 책자 및<br>포스터 발송 서비스</h1>
+					</div>
+				</div>
+				<button type="button" class="btn-close btn-dark" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body" style="background: url(/resources/web/images/modal-program-bgpattern.png) no-repeat center right;">
+				<h4 class="mb-3">
+					- 국내 골프 시장의 동향과 데이터를 한눈에 파악할 수 있는 한국골프지표<br>
+					- 현장에서 고객들이 가장 궁금해 하는 규칙을 알기 쉽게 정리한 포스터<br>
+					- 골프에 대한 전문 지식을 담은 필독 자료로 4년에 한번씩 재정되는 R&A 골프규칙 가이드
+				</h4>
+				<div class="text-end">
+					<!-- <button class="btn btn-lg btn-yellow rounded-pill fw-sb">지원 서비스 신청하기</button> -->
+				</div>
+			</div>
+			<div class="modal-body modal-servicedetail">
+				<br><br>
+				<h3 class="text-white text-center my-3">신청 절차</h3>
+				<br><br>
+				<ul class="ul-programstep">
+					<li>
+						<label><img src="/resources/web/images/modal-program-num01.svg"></label>
+						<div class="step-thumb"><img src="/resources/web/images/modal-program-step01.svg"></div>
+						<h6 class="step-title">회원사 전용 <br>페이지 로그인</h6>
+					</li>
+					<li>
+						<label><img src="/resources/web/images/modal-program-num02.svg"></label>
+						<div class="step-thumb"><img src="/resources/web/images/modal-program-step02.svg"></div>
+						<h6 class="step-title">발행물 신청 접수</h6>
+					</li>
+					<li>
+						<label><img src="/resources/web/images/modal-program-num03.svg"></label>
+						<div class="step-thumb"><img src="/resources/web/images/modal-program-step03.svg"></div>
+						<h6 class="step-title">신청 완료 및 <br>확인 문자 발송</h6>
+					</li>
+				</ul>
+				<br><br><br><br><br>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+
+<!-- 지원 프로그램 : 뉴스 클리핑 -->
+<div class="modal fade" id="newsclippingModal" tabindex="-1" aria-labelledby="newsclippingModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-xl">
+		<div class="modal-content bg-white">
+			<div class="modal-header border-0">
+				<h5 class="modal-title">&nbsp;</h5>
+				<button type="button" class="btn-close btn-dark" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+				<h2 class="fw-sb text-navy">골프규칙, 골프산업지표 정보 발송 서비스</h2>
+				<div class="my-3"><img src="/resources/web/images/logo.svg"></div>
+				<div class="entry rounded-10" style="background: linear-gradient( #c8caf2, #e3e4fd, #c8caf2);">
+					<div style="background: url(/resources/web/images/main-backgroundlogo.svg) no-repeat center center;">
+						<h4 class="text-navy">대한골프협회에서 알기 쉽게 만든 퀴즈형 골프규칙, 골프산업지표와 협회 소식을<br/>
+							카카오채널을 통해 정기적으로 받아보실 수 있습니다.</h4>
+						<br><br>
+						<h5 class="lh-base">
+							정확한 골프규칙의 이해는 고객의 신뢰를 만들고 골프장의 품격을 완성합니다.<br/>
+							성공적인 골프 비즈니스는 유익한 정보에서부터 시작됩니다.
+						</h5>
+						<br><br>
+						<div class="text-end">
+							<!-- <button class="btn btn-lg btn-yellow rounded-pill fw-sb">지원 서비스 신청하기</button> -->
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="modal-body modal-servicedetail">
+				<h3 class="text-white text-center my-3">서비스 주요 내용</h3>
+				<div class="card rounded-20" style="box-shadow: 0px 16px 0px #3746D6;">
+					<div class="card-body my-3">
+						<div class="row text-center">
+							<div class="col-12 col-lg-4">
+								<div class="border-lg-end">
+									<h5 class="text-navy">
+										현장에서 자주 쓰는
+										<br/>주요 골프규칙 발송
+									</h5>
+								</div>
+								<hr class="mc-only bg-gray">
+							</div>
+							<div class="col-12 col-lg-4">
+								<div class="border-lg-end">
+									<h5 class="text-navy">
+										골프 비즈니스를 위한
+										<br/>골프산업 지표 발송
+									</h5>
+								</div>
+								<hr class="mc-only bg-gray">
+							</div>
+							<div class="col-12 col-lg-4">
+								<div class="">
+									<h5 class="text-navy">
+										회원사 지원 프로그램
+										<br/>안내 및 협회 소식
+									</h5>
+								</div>
+							</div>
+						</div>
+					</div> <!-- end .card-body -->
+				</div>
+				<br><br>
+				<h3 class="text-white text-center my-3">신청 절차</h3>
+				<br><br><br><br><br>
+			</div>
+			<div class="modal-body">
+				<ul class="ul-programstep" style="margin-top: -130px;">
+					<li>
+						<label><img src="/resources/web/images/modal-program-num01.svg"></label>
+						<div class="step-thumb"><img src="/resources/web/images/modal-program-step01.svg"></div>
+						<h6 class="step-title">대한골프협회 <br>회원사 가입</h6>
+					</li>
+					<li>
+						<label><img src="/resources/web/images/modal-program-num02.svg"></label>
+						<div class="step-thumb"><img src="/resources/web/images/modal-program-step02.svg"></div>
+						<h6 class="step-title">
+							대한골프협회<br/>
+							회원사 전용<br/>
+							카카오 채널<br/>
+							친구 신청
+						</h6>
+					</li>
+					<li class="noAfter">
+						<label><img src="/resources/web/images/modal-program-num03.svg"></label>
+						<div class="step-thumb"><img src="/resources/web/images/modal-program-step03.svg"></div>
+						<h6 class="step-title">
+							신청자 대상<br/>
+							채널 문자 발송
+						</h6>
+					</li>
+					<li class="kakao_channel">
+						<div class="step-thumb"><img src="/resources/common/program/kakao_channel.png"></div>
+						<h6 class="step-title">
+							회원사 전용 채널<br/>
+							신청하기
+						</h6>
+					</li>
+				</ul>
+				<br><br>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+<!-- 지원 프로그램 : 칼럼 기사 보도 -->
+<div class="modal fade" id="articleModal" tabindex="-1" aria-labelledby="articleModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-xl">
+		<div class="modal-content bg-white">
+			<div class="modal-header border-0">
+				<h5 class="modal-title">&nbsp;</h5>
+				<button type="button" class="btn-close btn-dark" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+				<h2 class="fw-sb text-navy">회원사 기획기사 보도 지원 서비스</h2>
+				<div class="my-3"><img src="/resources/web/images/logo.svg"></div>
+				<div class="entry rounded-10" style="background: linear-gradient( #c7f0f2, #e3fcfd, #c7f0f2);">
+					<div style="background: url(/resources/web/images/main-backgroundlogo.svg) no-repeat center center;">
+						<h4 class="text-navy">회원사별 기획기사, 칼럼(골프장 탐방/대표이사 인터뷰) 기사 보도 지원</h4>
+						<br><br>
+						<h5 class="fw-sb mb-3">“회원사의 가치를 높이는 맞춤형 미디어 지원 서비스를 시작합니다”</h5>
+						<h5 class="lh-base">
+							브랜드와 스토리를 널리 알릴 수 있는 기획기사 및 칼럼보도 지원서비스를 새롭게 선보입니다.<br>
+							협회는 회원사 골프장의 개성과 매력을 돋보이게 하고, <br class="pc-only">
+							골프 문화 발전에 기여하기 위해 특별한 홍보 콘텐츠를 기획하고 제작 합니다.<br>
+							이 모든 서비스는 협회가 직접 기획, 제작, 보도까지 지원하며, <br class="pc-only">
+							회원사만을 위한 특별한 혜택으로 진행됩니다.
+						</h5>
+						<br><br>
+						<div class="text-end">
+							<!-- <button class="btn btn-lg btn-yellow rounded-pill fw-sb">지원 서비스 신청하기</button> -->
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="modal-body modal-servicedetail">
+				<h3 class="text-white text-center my-3">서비스 주요 내용</h3>
+				<br>
+				<div class="row">
+					<div class="col-12 col-lg-4">
+						<div class="card rounded-20 p-3 box-shadow mb-3">
+							<div class="card-header bg-transparent border-0">
+								<h4 class="">골프장 탐방 기사 지원</h4>
+								<hr class="hr-gradientgreen">
+							</div>
+							<div class="card-body mb-3">
+								<h5>회원사 골프장의 차별화된 특징과 우수성을 조명한 탐방 콘텐츠로 고객의 관심과 호응을 끌어냅니다.</h5>
+							</div>
+							<div class="card-footer text-center">
+								<img src="/resources/web/images/icon-golfprogram-alarm-lg.svg">
+							</div>
+						</div>
+					</div>
+					<div class="col-12 col-lg-4">
+						<div class="card rounded-20 p-3 box-shadow mb-3">
+							<div class="card-header bg-transparent border-0">
+								<h4 class="">대표이사 인터뷰 보도 지원</h4>
+								<hr class="hr-gradientgreen">
+							</div>
+							<div class="card-body mb-3">
+								<h5>골프장 운영의 철학과 비전을 생생히 전달할 수 있는 깊이 있는 인터뷰 기사로 신뢰도를 높입니다.</h5>
+							</div>
+							<div class="card-footer text-center">
+								<img src="/resources/web/images/icon-golfprogram-interview.svg">
+							</div>
+						</div>
+					</div>
+					<div class="col-12 col-lg-4">
+						<div class="card rounded-20 p-3 box-shadow mb-3">
+							<div class="card-header bg-transparent border-0">
+								<h4 class="">기획 칼럼 보도 지원</h4>
+								<hr class="hr-gradientgreen">
+							</div>
+							<div class="card-body mb-3">
+								<h5>골프장 운영, 환경, 서비스 등 다양한 주제에 대해 회원사의 강점을 돋보이게 하는 맞춤형 칼럼 제공</h5>
+							</div>
+							<div class="card-footer text-center">
+								<img src="/resources/web/images/icon-golfprogram-target.svg">
+							</div>
+						</div>
+					</div>
+				</div>
+				<br><br>
+				<h3 class="text-white text-center my-3">신청 절차</h3>
+				<br><br><br><br><br>
+			</div>
+			<div class="modal-body">
+				<ul class="ul-programstep" style="margin-top: -130px;">
+					<li>
+						<label><img src="/resources/web/images/modal-program-num01.svg"></label>
+						<div class="step-thumb"><img src="/resources/web/images/modal-program-step01.svg"></div>
+						<h6 class="step-title">대한골프협회 <br>회원 가입</h6>
+					</li>
+					<li>
+						<label><img src="/resources/web/images/modal-program-num02.svg"></label>
+						<div class="step-thumb"><img src="/resources/web/images/modal-program-step02.svg"></div>
+						<h6 class="step-title">로그인 및 기획기사, <br>칼럼 기사 보도 지원신청<br>(연1회/택1)</h6>
+					</li>
+					<li>
+						<label><img src="/resources/web/images/modal-program-num03.svg"></label>
+						<div class="step-thumb"><img src="/resources/web/images/modal-program-step03.svg"></div>
+						<h6 class="step-title">기획기사 및 칼럼<br>원고 접수완료 및 <br>담당자 유선 안내</h6>
+					</li>
+					<li>
+						<label><img src="/resources/web/images/modal-program-num04.svg"></label>
+						<div class="step-thumb"><img src="/resources/web/images/modal-program-step04.svg"></div>
+						<h6 class="step-title">작성 원고 확인 및<br>기사 릴리즈</h6>
+					</li>
+				</ul>
+				<br><br>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+<!-- 지원 프로그램 : 회원사 소식 -->
+<div class="modal fade" id="companynewsModal" tabindex="-1" aria-labelledby="companynewsModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-xl">
+		<div class="modal-content bg-white">
+			<div class="modal-header border-0">
+				<h5 class="modal-title">&nbsp;</h5>
+				<button type="button" class="btn-close btn-dark" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+				<h2 class="fw-sb text-navy">회원사 소식 알림, 노출 서비스</h2>
+				<div class="my-3"><img src="/resources/web/images/logo.svg"></div>
+				<div class="entry rounded-10" style="background: linear-gradient( #c8caf2, #e3e4fd, #c8caf2);">
+					<div style="background: url(/resources/web/images/main-backgroundlogo.svg) no-repeat center center;">
+						<h4 class="text-navy">회원사 소식 알림, 노출 서비스</h4>
+						<br><br>
+						<h5 class="fw-sb mb-3">“회원사 소식을 더욱 빠르고 알릴 수 있는 기회를 제공합니다”</h5>
+						<h5 class="lh-base">
+							협회 홈페이지를 통해 회원사 여러분의 소중한 소식을 알려 드리는 <br class="pc-only">
+							회원사 소식 알림 및 노출 서비스를 새롭게 시작합니다.<br>
+							회원사의 다양한 활동과 소식을 공유하여 홍보 효과를 극대화하고,  <br class="pc-only">
+							더 많은 고객과 업계 관계자들에게 도달 할 수 있는 창구를 마련했습니다.
+						</h5>
+						<br><br>
+						<div class="text-end">
+							<!-- <button class="btn btn-lg btn-yellow rounded-pill fw-sb">지원 서비스 신청하기</button> -->
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="modal-body modal-servicedetail">
+				<h3 class="text-white text-center my-3">서비스 주요 내용</h3>
+				<br>
+				<div class="row match-height">
+					<div class="col-12 col-lg-4">
+						<div class="card rounded-20 p-3 box-shadow mb-3">
+							<div class="card-header bg-transparent border-0">
+								<h4 class="">회원사 소식 알림</h4>
+								<hr class="hr-gradientgreen">
+							</div>
+							<div class="card-body mb-3">
+								<h5>협회 홈페이지에 회원사의 최신 소식, 이벤트, 프로모션, 공지사항 등을 실시간으로 게시하여 홍보 지원</h5>
+							</div>
+							<div class="card-footer text-center">
+								<img src="/resources/web/images/icon-golfprogram-alarm-lg.svg">
+							</div>
+						</div>
+					</div>
+					<div class="col-12 col-lg-4">
+						<div class="card rounded-20 p-3 box-shadow mb-3">
+							<div class="card-header bg-transparent border-0">
+								<h4 class="">공지 노출 서비스</h4>
+								<hr class="hr-gradientgreen">
+							</div>
+							<div class="card-body mb-3">
+								<h5>회원사 소식을 배치하여 방문자들의 관심을 끌 수 있는 우선 노출 기회 제공</h5>
+							</div>
+							<div class="card-footer text-center">
+								<img src="/resources/web/images/icon-golfprogram-interview.svg">
+							</div>
+						</div>
+					</div>
+					<div class="col-12 col-lg-4">
+						<div class="card rounded-20 p-3 box-shadow mb-3">
+							<div class="card-header bg-transparent border-0">
+								<h4 class="">업계 네트워크 강화</h4>
+								<hr class="hr-gradientgreen">
+							</div>
+							<div class="card-body mb-3">
+								<h5>회원사 간 소통과 협력을 촉진하는 정보 공유의 허브로 활용</h5>
+							</div>
+							<div class="card-footer text-center">
+								<img src="/resources/web/images/icon-golfprogram-target.svg">
+							</div>
+						</div>
+					</div>
+				</div>
+				<br><br>
+				<h3 class="text-white text-center my-3">신청 절차</h3>
+				<br><br><br><br><br>
+			</div>
+			<div class="modal-body">
+				<ul class="ul-programstep" style="margin-top: -130px;">
+					<li>
+						<label><img src="/resources/web/images/modal-program-num01.svg"></label>
+						<div class="step-thumb"><img src="/resources/web/images/modal-program-step01.svg"></div>
+						<h6 class="step-title">대한골프협회 <br>회원 가입</h6>
+					</li>
+					<li>
+						<label><img src="/resources/web/images/modal-program-num02.svg"></label>
+						<div class="step-thumb"><img src="/resources/web/images/modal-program-step02.svg"></div>
+						<h6 class="step-title">로그인 및 <br>홈페이지 소식 게재 <br>서비스 신청</h6>
+					</li>
+					<li>
+						<label><img src="/resources/web/images/modal-program-num03.svg"></label>
+						<div class="step-thumb"><img src="/resources/web/images/modal-program-step03.svg"></div>
+						<h6 class="step-title">게재 내용 접수</h6>
+					</li>
+					<li>
+						<label><img src="/resources/web/images/modal-program-num04.svg"></label>
+						<div class="step-thumb"><img src="/resources/web/images/modal-program-step04.svg"></div>
+						<h6 class="step-title">접수 확인 및 <br>홈페이지 노출</h6>
+					</li>
+					<li>
+						<label><img src="/resources/web/images/modal-program-num05.svg"></label>
+						<div class="step-thumb"><img src="/resources/web/images/modal-program-step05.svg"></div>
+						<h6 class="step-title">뉴스 클리핑 <br>수신자 알림 문자 발송</h6>
+					</li>
+				</ul>
+				<br><br>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+
+<!-- 지원 프로그램 : 유니폼 -->
+<div class="modal fade" id="uniformModal" tabindex="-1" aria-labelledby="uniformModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-xl">
+		<div class="modal-content bg-white">
+			<div class="modal-header p-0 border-0" style="background: url(/resources/web/images/modal-program-bguniform.jpg) no-repeat center right; background-size: cover;">
+				<div class="container-fluid">
+					<div class="entry">
+						<div class="row">
+							<div class="col-12">
+								<br><br><br><br><br class="pc-only"><br class="pc-only">
+								<h3 class="badge bg-white text-dark rounded-pill mb-3">KGA 공식 유니폼 제공 서비스</h3>
+							</div>
+							<div class="col-12 col-lg-7">
+								<h1 class="fw-sb text-white">KGA, <br>공식 유니폼 제공</h1>
+							</div>
+							<div class="col-12 col-lg-5">
+								<br><br>
+								<h5 class="text-white">매년 각 회원사에게 협회에서 자체 제작한 공식 유니폼을 <br class="pc-only">하절기/동절절기 2회에 걸쳐 제공하는 프로그램입니다.</h5>
+							</div>
+						</div>
+					</div>
+				</div>
+				<button type="button" class="btn-close btn-dark" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body" style="background: url(/resources/web/images/modal-program-bgpattern.png) no-repeat center right;">
+				<div class="row">
+					<div class="col-12 col-lg-7">
+						<h4 class="mb-3">
+							“대한골프협회와 함께하면 <span class="text-through fw-sb">더 특별</span>해집니다.”<br>
+							회원사에게는 대한골프협회 공식 유니폼과 <br class="pc-only">
+							협회 기념품을 제공합니다.
+						</h4>
+						<div class="text-end">
+							<!-- <button class="btn btn-lg btn-yellow rounded-pill fw-sb">지원 서비스 신청하기</button> -->
+						</div>
+					</div>
+					<div class="col-12 col-lg-5">
+						<div class="text-center my-3">
+							<img src="/resources/web/images/logo.svg">
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="modal-body modal-servicedetail">
+				<br><br>
+				<h3 class="text-white text-center my-3">신청 절차</h3>
+				<br><br><br><br><br>
+			</div>
+			<div class="modal-body">
+				<ul class="ul-programstep" style="margin-top: -130px;">
+					<li>
+						<label><img src="/resources/web/images/modal-program-num01.svg"></label>
+						<div class="step-thumb"><img src="/resources/web/images/modal-program-step01.svg"></div>
+						<h6 class="step-title">대한골프협회 <br>회원 가입</h6>
+					</li>
+					<li>
+						<label><img src="/resources/web/images/modal-program-num02.svg"></label>
+						<div class="step-thumb"><img src="/resources/web/images/modal-program-step02.svg"></div>
+						<h6 class="step-title">회원사 전용 페이지 <br>로그인</h6>
+					</li>
+					<li>
+						<label><img src="/resources/web/images/modal-program-num03.svg"></label>
+						<div class="step-thumb"><img src="/resources/web/images/modal-program-step03.svg"></div>
+						<h6 class="step-title">유니폼 신청 접수</h6>
+					</li>
+					<li>
+						<label><img src="/resources/web/images/modal-program-num04.svg"></label>
+						<div class="step-thumb"><img src="/resources/web/images/modal-program-step05.svg"></div>
+						<h6 class="step-title">유니폼 신청 확인 및 발송</h6>
+					</li>
+				</ul>
+				<br><br>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+<!-- 지원 프로그램 : 인증서 발급 서비스 -->
+<div class="modal fade" id="certificateModal" tabindex="-1" aria-labelledby="certificateModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-xl">
+		<div class="modal-content bg-white">
+			<div class="modal-header border-0">
+				<h5 class="modal-title">&nbsp;</h5>
+				<button type="button" class="btn-close btn-dark" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+				<h2 class="fw-sb text-navy">홀인원 / 알바트로스 / 에이지슈트 공인 인증서 발급 서비스</h2>
+				<br>
+				<div class="entry rounded-10" style="background: #C1DCF6;">
+					<div style="background: url(/resources/web/images/main-backgroundlogo.svg) no-repeat center center;">
+						<h4 class="text-navy" style="line-height: 0;"><span class="fs-1 mx-2" style="font-size: 3rem !important;">&nbsp;•&nbsp;&nbsp;• </span></h4>
+						<h4 class="text-navy"><span class="fs-1 me-1 fw-sb" style="font-size: 3rem !important;">기적</span>같은 샷, 대한골프협회가 기록을 인증해 드립니다.</h4>
+						<br><br>
+						<div class="row">
+							<div class="col-12 col-lg-8">
+								<h5 class="lh-base">
+									대한골프협회 회원사 골프장 내장객 대상 홀인원, 알바트로스, 에이지슈트 기록자에게
+									본 협회명의 공인 인증서 발급과 무료로 발송 해주는 프로그램으로 연간 3,000여명의 회원사 고객님들과 대한골프협회가 함께 합니다.
+								</h5>
+							</div>
+							<div class="col-12 col-lg-4 text-end">
+								<div class="mt-3"><img src="/resources/web/images/logo.svg"></div>
+							</div>
+						</div> 
+					</div>
+				</div>
+				<br>
+				<div class="text-end">
+					<button class="btn btn-lg btn-yellow rounded-pill fw-sb" onclick="window.open('https://gclient.kgagolf.or.kr')">지원 서비스 신청하기</button>
+				</div>
+				<br>
+			</div>
+			<div class="modal-body modal-servicedetail">
+				<br>
+				<h3 class="text-white text-center my-3">신청 절차</h3>
+				<br><br class="pc-only">
+				<ul class="ul-programstep">
+					<li>
+						<label><img src="/resources/web/images/modal-program-num01.svg"></label>
+						<div class="step-thumb"><img src="/resources/web/images/modal-program-step01.svg"></div>
+						<h6 class="step-title">대한골프협회 <br>회원 가입</h6>
+					</li>
+					<li>
+						<label><img src="/resources/web/images/modal-program-num02.svg"></label>
+						<div class="step-thumb"><img src="/resources/web/images/modal-program-step02.svg"></div>
+						<h6 class="step-title">로그인 및 홀인원 <br>공인 인증서 발급 신청</h6>
+					</li>
+					<li>
+						<label><img src="/resources/web/images/modal-program-num03.svg"></label>
+						<div class="step-thumb"><img src="/resources/web/images/modal-program-step03.svg"></div>
+						<h6 class="step-title">접수 / 승인 완료 후 <br class="pc-only">해당 <br class="mc-only">기록자에게 <br class="pc-only">문자 혹은 이메일 발송</h6>
+					</li>
+				</ul>
+				<br><br>
+				<h3 class="text-white text-center my-3">홀인원 현황</h3>
+				<br><br><br><br><br>
+			</div>
+			<div class="modal-body" style="margin-top: -140px;">
+				<div class="card rounded-20" style="box-shadow: 0px 16px 0px #3746D6;">
+					<div class="card-body my-3">
+						<div class="row g-0 text-center">
+							<div class="col-12 col-lg-4">
+								<h4 class="my-3">홀인원 인증서 누적 발급 수</h4>
+								<div class="border-lg-end">
+									<div class="m-2"><img src="/resources/web/images/modal-icon-holeinone01.svg"></div>
+									<div class="p-3 m-3">
+										<h1 class="text-navy fw-sb">46,603</h1>
+									</div>
+								</div>
+								<hr class="mc-only bg-gray">
+							</div>
+							<div class="col-12 col-lg-4">
+								<h4 class="my-3">최다 누적 홀인원 기록 회원사</h4>
+								<div class="border-lg-end">
+									<div class="m-2"><img src="/resources/web/images/modal-icon-holeinone02.svg"></div>
+									<div class="p-3 m-3" style="background-color: #F2F3FF;">
+										<h1 class="text-navy fw-sb">아시아나 2,046회</h1>
+									</div>
+								</div>
+							</div>
+							<div class="col-12 col-lg-4">
+								<h4 class="my-3">2026년 회원사 홀인원 기록 TOP10</h4>
+								<div class="">
+									<div class="m-2"><img src="/resources/web/images/modal-icon-holeinone03.svg"></div>
+									<div class="p-3 m-3">
+										<button onclick="location.href='/web/golfCourse/holeInOne'" class="btn btn-kgamember rounded-pill my-3" style="min-width: 180px;">회원사 확인하기</button>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div> <!-- end .card-body -->
+				</div>
+				<br><br>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+<!-- 지원 프로그램 : 레이팅 신청 서비스 -->
+<div class="modal fade" id="ratingModal" tabindex="-1" aria-labelledby="ratingModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-xl">
+		<div class="modal-content bg-white">
+			<div class="modal-header p-0 border-0" style="background: url(/resources/web/images/modal-program-bgrating.jpg) no-repeat center right; background-size: cover;">
+				<div class="container-fluid">
+					<div class="entry">
+						<div class="row">
+							<div class="col-12">
+								<br><br><br><br><br class="pc-only"><br class="pc-only">
+								<h3 class="badge bg-white text-dark rounded-pill mb-3">코스레이팅 / 슬로프 레이팅 측정 서비스</h3>
+							</div>
+							<div class="col-12 col-lg-6">
+								<h1 class="fw-sb text-white">코스레이팅, <br>슬로프레이팅이란?</h1>
+							</div>
+							<div class="col-12 col-lg-6">
+								<br><br>
+								<h5 class="text-white">골프장 코스의 난이도를 티별로 측정한 경기장(체육 시설물)으로서 <br class="pc-only">본 회가 공인하고 골퍼가 핸디캡을 산정할 수 있도록 지원합니다. </h5>
+							</div>
+						</div>
+					</div>
+				</div>
+				<button type="button" class="btn-close btn-dark" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body" style="background: url(/resources/web/images/modal-program-bgpattern.png) no-repeat center right;">
+				<div class="row">
+					<div class="col-12 col-lg-7">
+						<h4 class="mb-3">
+							한국 골프장 코스레이팅 시행은 R&A와 USGA의 승인을 받아 <br class="pc-only">
+							<span class="text-through fw-sb">대한골프협회만</span>이 공인 사업에 대한 독점권을 보유하고 있습니다. <br>
+							코스레이팅 유효기간은 신규 측정 5년, 재측정 10년이며 <br class="pc-only">
+							기간 만료된 회원사 골프장은 무상으로 레이팅을 재측정 해 드립니다.<br>
+						</h4>
+						<div class="text-end">
+							<!-- <button class="btn btn-lg btn-yellow rounded-pill fw-sb">지원 서비스 신청하기</button> -->
+						</div>
+					</div>
+					<div class="col-12 col-lg-5">
+						<div class="text-center my-3">
+							<img src="/resources/web/images/logo.svg">
+							<br><br>
+							<img src="/resources/web/images/logo_RNA.png">
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="modal-body modal-servicedetail">
+				<br>
+				<h3 class="text-white text-center my-3">신청 절차</h3>
+				<br><br class="pc-only">
+				<ul class="ul-programstep">
+					<li>
+						<label><img src="/resources/web/images/modal-program-num01.svg"></label>
+						<div class="step-thumb"><img src="/resources/web/images/modal-program-step01.svg"></div>
+						<h6 class="step-title">대한골프협회 <br>회원 가입</h6>
+					</li>
+					<li>
+						<label><img src="/resources/web/images/modal-program-num02.svg"></label>
+						<div class="step-thumb"><img src="/resources/web/images/modal-program-step02.svg"></div>
+						<h6 class="step-title">로그인 및 코스레이팅 <br>신청 접수</h6>
+					</li>
+					<li>
+						<label><img src="/resources/web/images/modal-program-num03.svg"></label>
+						<div class="step-thumb"><img src="/resources/web/images/modal-program-step03.svg"></div>
+						<h6 class="step-title">담당자 유선 상담 후 <br>코스 레이팅 일정 조율 및 확정</h6>
+					</li>
+					<li>
+						<label><img src="/resources/web/images/modal-program-num04.svg"></label>
+						<div class="step-thumb"><img src="/resources/web/images/modal-program-step04.svg"></div>
+						<h6 class="step-title">레이팅 사전 자료 협조 <br>(티별 거리, 티별 고도차)</h6>
+					</li>
+					<li>
+						<label><img src="/resources/web/images/modal-program-num05.svg"></label>
+						<div class="step-thumb"><img src="/resources/web/images/modal-program-step06.svg"></div>
+						<h6 class="step-title">레이팅 시행<br>: 2~3명 코스레이터 파견<br>(18홀 기준 4시간 소요)</h6>
+					</li>
+				</ul>
+				<br><br>
+				<h3 class="text-white text-center my-3">회원 골프장 현황</h3>
+				<br><br><br><br><br>
+			</div>
+			<div class="modal-body" style="margin-top: -140px;">
+				<div class="card rounded-20" style="box-shadow: 0px 16px 0px #3746D6;">
+					<div class="card-body my-3">
+						<div class="row text-center">
+							<div class="col-12 col-lg-4">
+								<h4 class="my-3">코스레이팅 인증 골프장</h4>
+								<div class="border-lg-end">
+									<div class="m-2"><img src="/resources/web/images/modal-icon-holeinone02.svg"></div>
+									<div class="p-3 m-3">
+										<h1 class="text-navy fw-bolder">274</h1>
+									</div>
+								</div>
+								<hr class="mc-only bg-gray">
+							</div>
+							<div class="col-12 col-lg-4">
+								<h4 class="my-3">공인 핸디캡 발급 골퍼수</h4>
+								<div class="border-lg-end">
+									<div class="m-2"><img src="/resources/web/images/modal-icon-holeinone01.svg"></div>
+									<div class="p-3 m-3">
+										<h1 class="text-navy fw-bolder">113,529</h1>
+									</div>
+								</div>
+								<hr class="mc-only bg-gray">
+							</div>
+							<div class="col-12 col-lg-4">
+								<h4 class="my-3">코스레이팅 예약 현황</h4>
+								<div class="">
+									<div class="m-2"><img src="/resources/web/images/modal-icon-holeinone03.svg"></div>
+									<div class="p-3 m-3">
+										<button class="btn btn-kgamember rounded-pill my-3" style="min-width: 180px;"><!-- 연간 스케쥴 확인하기 -->준비중</button>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div> <!-- end .card-body -->
+				</div>
+				<br><br>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+<!-- 지원 프로그램 : 대회 출전권 -->
+<div class="modal fade" id="competitionModal" tabindex="-1" aria-labelledby="competitionModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-xl">
+		<div class="modal-content bg-white">
+			<div class="modal-header border-0">
+				<h5 class="modal-title">&nbsp;</h5>
+				<button type="button" class="btn-close btn-dark" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+				<h2 class="fw-sb text-navy">회원사 골프 선수권 대회 출전권</h2>
+				<div class="my-3"><img src="/resources/web/images/logo.svg"></div>
+				<div class="entry rounded-10" style="background: linear-gradient( #c8caf2, #e3e4fd, #c8caf2);">
+					<div style="background: url(/resources/web/images/main-backgroundlogo.svg) no-repeat center center;">
+						<div class="row">
+							<div class="col-12 col-lg-8">
+								<h4 class="text-navy" style="line-height: 0;font-size: 3rem !important;"><span class="fs-1 mx-2"> • &nbsp; • </span></h4>
+								<h4 class="text-navy">
+								<span class="me-1 fw-sb" style="font-size: 3.4rem;">56</span>년 전통의 역사와 영광!
+								</h4>
+							</div>
+							<div class="col-12 col-lg-4">
+								<div class="text-end">
+									<!-- <button class="btn btn-lg btn-yellow rounded-pill fw-sb">지원 서비스 신청하기</button> -->
+								</div>
+							</div>
+						</div>
+						<br><br>
+						<h5 class="lh-base">
+							1968년 ‘한국골프협회장배’로 출범, 한국아마추어선수권과 한국오픈에 이어 <br>
+							대한민국 골프 역사에서 세번째로 오래된 대회!<br>
+							회원사와 함께 전통과 명예가 있는 이 특별한 대회에 회원사의 자랑스러운 이름으로 <br>
+							한국골프역사를 함께 만들어 갑니다.
+						</h5>
+						<br><br>
+					</div>
+				</div>
+				<br>
+				<div class="entry rounded-10" style="background: linear-gradient( #c8caf2, #e3e4fd, #c8caf2);">
+					<h4 class="text-navy">회원사 골프 선수권 대회란?</h4>
+					<br>
+					<div class="row">
+						<div class="col-12 col-lg-8">
+							<h5 class="lh-base">
+								회원사간의 개인, 팀대항전 대회로 매년 각 회원사 선수단을 초청하여 매년8~9월 대회를 진행하며 우승팀에게는 우승기와 순회배 그리고 각종 부상을 시상합니다.
+								<br/>또한 당해 년도 단체 우승 회원사는 차기 년도 대회 개최지 우선권을 확보할 수 있습니다.
+							</h5>
+							<br><br>
+						</div>
+						<div class="col-12 col-lg-4">
+							<div class="text-end">
+								<img src="/resources/web/images/modal-program-competition.svg">
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="modal-body modal-servicedetail">
+				<br>
+				<h3 class="text-white text-center my-3">신청 절차</h3>
+				<br><br class="pc-only">
+				<ul class="ul-programstep">
+					<li>
+						<label><img src="/resources/web/images/modal-program-num01.svg"></label>
+						<div class="step-thumb"><img src="/resources/web/images/modal-program-step01.svg"></div>
+						<h6 class="step-title">대한골프협회 <br>회원 가입</h6>
+					</li>
+					<li>
+						<label><img src="/resources/web/images/modal-program-num02.svg"></label>
+						<div class="step-thumb"><img src="/resources/web/images/modal-program-step02.svg"></div>
+						<h6 class="step-title">로그인 및 회원사 <br>골프선수권대회 참가신청</h6>
+					</li>
+					<li>
+						<label><img src="/resources/web/images/modal-program-num03.svg"></label>
+						<div class="step-thumb"><img src="/resources/web/images/modal-program-step03.svg"></div>
+						<h6 class="step-title">접수 등록 및 <br class="mc-only">참가 승인</h6>
+					</li>
+				</ul>
+				<br><br>
+				<h3 class="text-white text-center my-3">회원 골프장 현황</h3>
+				<br><br><br><br><br>
+			</div>
+			<div class="modal-body" style="margin-top: -140px;">
+				<div class="card rounded-20" style="box-shadow: 0px 16px 0px #3746D6;">
+					<div class="card-body my-3">
+						<div class="row g-0 text-center">
+							<div class="col-12 col-lg-4">
+								<div class="d-flex align-items-center justify-content-center mb-3" style="height: 60px;">
+									<span class="me-3"><img src="/resources/web/images/modal-program-iconmedal.svg"></span>
+									<h5 class="my-2">최다 우승 회원사</h5>
+								</div>
+								<div class="border-lg-end">
+									<div class="p-3 m-3" style="background-color: #F2F3FF;">
+										<h2 class="text-navy fw-sb">
+											
+											
+											
+											
+											
+											
+											
+												뉴코리아
+												
+												
+												
+												
+												
+												
+												
+											
+											(6회)
+										</h2>
+									</div>
+								</div>
+							</div>
+							<div class="col-12 col-lg-4">
+								<div class="d-flex align-items-center justify-content-center mb-3" style="height: 60px;">
+									<span class="me-3"><img src="/resources/web/images/modal-program-iconwinner.svg"></span>
+									<h5 class="my-2">2025년 우승 회원사 <br class="pc-only">및 우승 선수</h5>
+								</div>
+								<div class="border-lg-end">
+									<div class="p-3 m-3" style="background-color: #F2F3FF;">
+										<h2 class="text-navy fw-sb">김천포도 , 신인식</h2>
+									</div>
+								</div>
+							</div>
+							<div class="col-12 col-lg-4">
+								<h5 class="pc-only" style="height: 60px;">&nbsp;</h5>
+								<div class="m-3">
+									<button class="btn btn-kgamember rounded-20 mb-3" style="min-width: 260px;"
+										onclick="location.href='/web/elite/tour/tourInfo?tournamentCode=1673'"
+									>
+										<div class="d-flex align-items-center justify-content-center">
+											<span class="fs-5 lh-sm me-3">역대 대회정보 <br>알아보기</span>
+											<span><img src="/resources/web/images/modal-program-iconplus.svg"></span>
+										</div>
+									</button>
+								</div>
+							</div>
+						</div>
+					</div> <!-- end .card-body -->
+				</div>
+				<br><br>
+			</div>
+		</div>
+	</div>
+</div>

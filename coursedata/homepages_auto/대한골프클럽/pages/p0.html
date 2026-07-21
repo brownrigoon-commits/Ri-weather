@@ -1,0 +1,4929 @@
+
+
+
+
+
+
+
+<!doctype html>
+<html>
+<head>
+<title>KGA - 대한골프협회</title>
+<meta property="og:image" content="/resources/web/images/kga_logo_800_400.png"/>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="keywords" content="" />
+<meta name="description" content="" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<link rel="shortcut icon" href="/resources/web/images/kga_favicon.png">
+<link rel="stylesheet" type="text/css" href="/resources/web/css/bootstrap.css">
+<link href="/resources/web/css/style.css?ver=20250709" rel="stylesheet" type="text/css">
+<link href="/resources/web/css/swiper-bundle.min.css" rel="stylesheet" type="text/css" />
+<link href="/resources/web/css/bootstrap-datepicker3.css" rel="stylesheet" type="text/css">
+<link href="/resources/web/css/cnpsCustom.css?ver=20250709" rel="stylesheet" type="text/css">
+<script src="/resources/web/js/jquery.min.js"></script>
+<script src="/resources/web/js/bootstrap.js"></script>
+<script src="/resources/web/js/custom.js?ver=20250711"></script>
+<script src="/resources/web/js/swiper-bundle.min.js"></script>
+<script src="/resources/web/js/bootstrap-datepicker.js"></script>
+<script src="/resources/web/js/bootstrap-datepicker.ko.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
+
+<!--차트 js -->
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js"></script>
+</head>
+
+
+
+
+
+
+
+
+
+
+
+	
+		
+	
+	
+
+
+<script>
+var engPageYn = "N";
+var cookieLang = "KOR";
+
+//링크로 영문페이지 전달하고 싶은 요구로 인한 수정
+var locationUrl = new URL(window.location.href);
+var locationParams = locationUrl.searchParams;
+var paramLang = locationParams.get("lang");
+locationParams.delete("lang");
+
+if ((paramLang == "ENG" && cookieLang != "ENG") || (paramLang == "KOR" && cookieLang != "KOR")) {
+	window.history.replaceState({}, '', locationUrl.pathname + (locationParams.toString() ? '?' + locationParams.toString() : '') + locationUrl.hash);
+	$.cookie("KGA_WEB_LANG", paramLang, { path : '/' });
+	window.location.reload();
+}
+
+$(document).ready(function() {
+	
+	
+	if("" != "") {
+		var favoritList = JSON.parse("");
+		checkFavorit(favoritList);
+	}
+	
+	$(".chageLang a").off("click").click(function() {
+		var lang = $(this).data("lang");
+		$.cookie("KGA_WEB_LANG", lang, { path : '/' });
+		window.location.reload();
+	});
+	
+	$(".onlyNumber").off("keypress").keypress(function(e){
+		if(e.which != 8 && isNaN(String.fromCharCode(e.which))){
+			e.preventDefault(); //stop character from entering input
+		}
+	});
+	
+	$(".favPlayer").off("click").click(function() {
+		if("" == "") {
+			$(this).prop("checked", false);
+			if(confirm("즐겨찾기 기능은 로그인 후 이용가능합니다.\n로그인 페이지로 이동 하겠습니까?")) {
+				$("#naviLogin").trigger("click");
+			}
+			return;
+		}
+		
+		addFavorit($(this).data("playercode"));
+	});
+	
+	$(".orderTable th").off("click").click(function() {
+		if($(this).is('.sort-asc') == false && $(this).is('.sort-desc') == false) {
+			return;
+		}
+		var column = $(this).index();
+		if ($(this).is('.sort-asc')) {
+			$(this).removeClass('sort-asc');
+			$(this).addClass('sort-desc');
+			sortdir = -1;
+		} else {
+			$(this).addClass('sort-asc');
+			$(this).removeClass('sort-desc');
+			sortdir = 1;
+		}
+
+		$target = $(this).closest("table");
+		
+		$target.find("th").removeClass('active');
+		$(this).addClass('active');
+
+		$target.find("tr").each(function() {
+			$(this).find("td:eq(" + column + ")").addClass('active');
+			$(this).find("td:eq(" + column + ")").siblings().removeClass('active');
+		});
+
+		var sortUnderParFlag = $(this).hasClass('sortUnderPar');
+		var sortUpDownFlag = $(this).hasClass('sortUpDown');
+		var sortSameRankFlag = $(this).hasClass('sortSameRank');
+		var sortNationFlag = $(this).hasClass('sortNation');
+		
+		var rec = $target.find('tbody>tr').get();
+		rec.sort(function(a, b) {
+			var val1 = $(a).children('td').eq(column).text().toUpperCase().trim();
+			var val2 = $(b).children('td').eq(column).text().toUpperCase().trim();
+			
+			if(sortNationFlag) {
+				val1 = $(a).children('td').eq(column).find("span").attr("style");
+				val2 = $(b).children('td').eq(column).find("span").attr("style");
+			}
+			
+			if(sortUnderParFlag) {
+				if(val1 == "E") val1 = "0";
+				if(val2 == "E") val2 = "0";
+			}
+			
+			if(sortUpDownFlag) {
+				if(val1 == "-") val1 = "0";
+				if(val2 == "-") val2 = "0";
+				
+				if($(a).children('td').eq(column).find("span").hasClass('tb-rank-dn')) {
+					val1 = "-"+val1;
+				}
+				if($(b).children('td').eq(column).find("span").hasClass('tb-rank-dn')) {
+					val2 = "-"+val2;
+				}
+			}
+			
+			if(sortSameRankFlag) {
+				val1 = val1.replace("T","")
+				val2 = val2.replace("T","")
+			}
+			
+			if(val1 == "") val1 = 9999*sortdir;
+			if(val2 == "") val2 = 9999*sortdir;
+
+			var num1 = parseFloat(val1);
+			var num2 = parseFloat(val2);
+
+			if (!isNaN(num1) && !isNaN(num2)) {
+				return (num1 < num2) ? -sortdir : (num1 > num2) ? sortdir : 0;
+			}
+
+			return (val1 < val2) ? -sortdir : (val1 > val2) ? sortdir : 0;
+		});
+
+		$.each(rec, function(index, row) {
+			$target.find("tbody").append(row);
+		});
+	});
+});
+
+
+
+function setComboSelectBirth() {
+	var todayYear = (new Date()).getFullYear();
+	var startYear = "";
+	if(startYear == "" || startYear == undefined) {
+		startYear = todayYear - 20;
+	}else {
+		startYear = todayYear - $("select.comboBirthYear").data("diffyear");
+	}
+	
+	for (var y = startYear; y <= todayYear; y++) {
+		$('.comboBirthYear').append($('<option>', {value: y,text: y}));
+	}
+	
+	for (var m = 1; m <= 12; m++) {
+		$('.comboBirthMonth').append($('<option>', {value: m, text: m}));
+	}
+	
+	$('.comboBirthYear, .comboBirthMonth').on('change', function() {
+		var year = $('.comboBirthYear').val();
+		var month = $('.comboBirthMonth').val();
+		var daysInMonth = new Date(year, month, 0).getDate();
+		var $selectDay = $('.comboBirthDay');
+
+		$selectDay.empty();
+
+		for (var d = 1; d <= daysInMonth; d++) {
+			$selectDay.append($('<option>', {value: d, text: d}));
+		}
+	});
+	
+	$('.selectYear, .selectMonth').trigger('change');
+}
+
+function downLoadFile(fileUrl, fileRename){
+	var form = $('<form></form>');
+	form.attr('action', "/fileDownload");
+	form.attr('method', 'post');
+	form.attr('target', '_self');
+	form.appendTo('body');
+	form.find("input[name=fileUrl]").remove();
+	form.append($("<input/>", {type:'hidden',name:'fileUrl', value:fileUrl}));
+	form.append($("<input/>", {type:'hidden',name:'fileRename', value:fileRename}));
+	form.submit();
+}
+
+function downLoadFileZip(fileListJson, zipFileName){
+	var form = $('<form></form>');
+	form.attr('action', "/fileDownloadZip");
+	form.attr('method', 'post');
+	form.attr('target', '_self');
+	form.appendTo('body');
+	form.find("input[name=fileUrl]").remove();
+	form.append($("<input/>", {type:'hidden',name:'fileListJson', value:fileListJson}));
+	form.append($("<input/>", {type:'hidden',name:'zipFileName', value:zipFileName}));
+	form.submit();
+}
+
+function preventHistoryBack() {
+	history.pushState(null, document.title, location.href);
+	window.addEventListener('popstate', function(event) {
+		history.go(1);
+	});
+}
+
+function addFavorit(playerCode) {
+	$.ajax({
+		url : "/ajax/web/mergeFavorit",
+		type : "POST",
+		data : {
+			playerCode : playerCode
+		},
+		datatype : "json",
+		async: false,
+		success : function(res, status, xhr) {
+			var resultCode = res.resultCode;
+			
+			if(resultCode == "-1") {
+				alert("로그인정보가 없습니다.");
+				location.reload();
+				return;
+			}
+			
+			var favList = res.favList;
+			checkFavorit(favList);
+			
+		},
+		error : function(request, status, error) {
+			//alert(error);
+		}
+	}).fail(function(errObj) {
+		try {
+			console.error(errObj);
+		} catch (e) {
+		}
+	}); //ajax
+}
+
+function checkFavorit(favList) {
+	var intArray = favList.map(function(numString) {
+		return parseInt(numString);
+	});
+	
+	var rowToShow = [];
+	
+	$(".favPlayer").each(function() {
+		if ($.inArray($(this).data("playercode"), intArray) == -1) {
+			$(this).prop("checked",false);
+			$(this).closest(".favRow").hide();
+		} else {
+			$(this).prop("checked",true);
+			if ($(this).closest(".favRow").length > 0) {
+				rowToShow.push($(this).closest(".favRow"));
+			}
+		}
+	});
+	
+	$(rowToShow).each(function() {
+		$(this).show();
+	});
+	
+	if (rowToShow.length == 0) {
+		$("#favDiv").hide();
+	} else {
+		$("#favDiv").show();
+	}
+	
+	favoritInPage();
+}
+
+// 즐겨찾기 후 페이지 마다 다른 필요
+// 동작을 위함 함수 제거하면 안됨
+function favoritInPage() {
+	
+}
+
+function parseTimeString(timeString) {
+	var parts = timeString.split(":");
+	if (parts.length !== 2) {
+		return null;
+	}
+
+	var hours = parseInt(parts[0], 10);
+	var minutes = parseInt(parts[1], 10);
+
+	if (isNaN(hours) || isNaN(minutes)) {
+		return null;
+	}
+
+	return new Date(0, 0, 0, hours, minutes);
+}
+
+$.fn.validEmail = function (msg_error = '') {
+	let is_valid = true;
+	this.each(function(k, o) {
+	let pattern_email = /^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]+$/;
+	pattern_email = new RegExp(pattern_email);
+	let email = $(o).val();
+	if (email == '') {
+		return true;
+	}
+	if (pattern_email.test(email) == false) {
+		alert(msg_error);
+		$(o).focus();
+		return is_valid = false;
+	}
+	});
+	return is_valid;
+}
+
+function weekIndexToNameJs(idx, shortYN, lang){
+	var str = "";
+	
+	if(lang == "ENG") {
+		if(idx == "0")
+			if(shortYN == "Y") str = "Sun"; else str = "Sunday";
+		if(idx == "1")
+			if(shortYN == "Y") str = "Mon"; else str = "Monday";
+		if(idx == "2")
+			if(shortYN == "Y") str = "Tue"; else str = "Tuesday";
+		if(idx == "3")
+			if(shortYN == "Y") str = "Wed"; else str = "Wednesday";
+		if(idx == "4")
+			if(shortYN == "Y") str = "Thu"; else str = "Thursday";
+		if(idx == "5")
+			if(shortYN == "Y") str = "Fri"; else str = "Friday";
+		if(idx == "6")
+			if(shortYN == "Y") str = "Sat"; else str = "Saturday";
+	} else {
+		if(idx == "0")
+			if(shortYN == "Y") str = "일"; else str = "일요일";
+		if(idx == "1")
+			if(shortYN == "Y") str = "월"; else str = "월요일";
+		if(idx == "2")
+			if(shortYN == "Y") str = "화"; else str = "화요일";
+		if(idx == "3")
+			if(shortYN == "Y") str = "수"; else str = "수요일";
+		if(idx == "4")
+			if(shortYN == "Y") str = "목"; else str = "목요일";
+		if(idx == "5")
+			if(shortYN == "Y") str = "금"; else str = "금요일";
+		if(idx == "6")
+			if(shortYN == "Y") str = "토"; else str = "토요일";
+	}
+	
+	return str;
+}
+
+function langStringJs(language, korString, engString) {
+	var str = "";
+	
+	if (language == "KOR") {
+		str = korString;
+	} else if (language == "ENG") {
+		if(engString == null || engString == "") {
+			str = korString;
+		} else {
+			str = engString;
+		}
+	} else {
+		str = korString;
+	}
+	
+	if(str == null) str= "";
+	
+	return str;
+}
+
+//action 에 대한 한글 이름
+function actionToName(action) {
+	if (action == "save") {
+		action = "저장";
+	} else if (action == "delete") {
+		action = "삭제";
+	} else if (action == "insert") {
+		action = "입력";
+	} else if (action == "update") {
+		action = "수정";
+	} else if (action == "apply") {
+		action = "신청";
+	}  else {
+		action = "실행";
+	}
+	
+	return action;
+}
+
+function setCnpsSticky() {
+	$(".cnpsStickyTable").each(function() {
+		var table = $(this);
+		var leftWidth = 0;
+		table.find("th.cnpsSticky").each(function() {
+			var leftPosition = leftWidth + 'px';
+			var index = $(this).index();
+
+			$(this).css({
+				'position': 'sticky',
+				'left': leftWidth,
+				'z-index': 1
+			});
+			
+			table.find("tr").each(function() {
+				$(this).find("td:eq("+index+")").css({
+					'position': 'sticky',
+					'left': leftWidth,
+					'z-index': 1
+				});
+			});
+
+			leftWidth += $(this).outerWidth(true)-1;
+		});
+	});
+}
+
+function setCnpsSticky() {
+	$(".cnpsStickyTable").each(function() {
+		var table = $(this);
+		var leftWidth = 0;
+		table.find("th.cnpsSticky").each(function() {
+			var leftPosition = leftWidth + 'px';
+			var index = $(this).index();
+
+			$(this).css({
+				'position': 'sticky',
+				'left': leftWidth,
+				'z-index': 1
+			});
+			
+			table.find("tr").each(function() {
+				$(this).find("td:eq("+index+")").css({
+					'position': 'sticky',
+					'left': leftWidth,
+					'z-index': 1
+				});
+			});
+
+			leftWidth += $(this).outerWidth(true)-1;
+		});
+	});
+}
+
+function setCnpsStickyOther(className) {
+	var leftWidth = 0;
+	$("."+className).find("th.cnpsSticky").each(function() {
+		var leftPosition = leftWidth + 'px';
+		var index = $(this).index();
+
+		$(this).css({
+			'position': 'sticky',
+			'left': leftWidth,
+			'z-index': 1
+		});
+		
+		$("."+className).find("tr").each(function() {
+			$(this).find("td:eq("+index+")").css({
+				'position': 'sticky',
+				'left': leftWidth,
+				'z-index': 1
+			});
+		});
+
+		leftWidth += $(this).outerWidth(true)-1;
+	});
+}
+
+function checkActionResult(result) {
+	returnFlag = true;
+	
+	if (result == "-1") {
+		alert("오류입니다.")
+		returnFlag = false;
+	} else if (result == "-99") {
+		alert("로그인 세션이 없습니다.");
+		location.href="/admin/login";
+		returnFlag = false;
+	}
+	
+	return returnFlag;
+}
+
+function isMobile() {
+	var userAgent = navigator.userAgent.toLowerCase();
+	
+	var mobileDevices = [
+		'android', 'iphone', 'ipad', 'ipod', 'blackberry', 'windows phone', 'opera mini', 'iemobile'
+	];
+	
+	for (var i = 0; i < mobileDevices.length; i++) {
+		if (userAgent.indexOf(mobileDevices[i]) > -1) {
+			return true;  // 모바일 기기
+		}
+	}
+	
+	return false;  // PC
+}
+
+//3자리 콤마 추가
+function addCommasToNumber(number) {
+	var parts = number.toString().split(".");
+	parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+	return parts.join(".");
+}
+</script>
+
+
+<body class="home banner-on"> <!-- 메인페이지인 경우 home, 상단배너 있는 경우 banner-on -->
+
+<header class="site-header">
+	
+	<!-- 진행중 대회 팝업 -->
+	
+
+
+
+
+
+
+
+
+
+
+
+	
+		
+	
+	
+
+
+<script>
+var engPageYn = "N";
+var cookieLang = "KOR";
+
+//링크로 영문페이지 전달하고 싶은 요구로 인한 수정
+var locationUrl = new URL(window.location.href);
+var locationParams = locationUrl.searchParams;
+var paramLang = locationParams.get("lang");
+locationParams.delete("lang");
+
+if ((paramLang == "ENG" && cookieLang != "ENG") || (paramLang == "KOR" && cookieLang != "KOR")) {
+	window.history.replaceState({}, '', locationUrl.pathname + (locationParams.toString() ? '?' + locationParams.toString() : '') + locationUrl.hash);
+	$.cookie("KGA_WEB_LANG", paramLang, { path : '/' });
+	window.location.reload();
+}
+
+$(document).ready(function() {
+	
+	
+	if("" != "") {
+		var favoritList = JSON.parse("");
+		checkFavorit(favoritList);
+	}
+	
+	$(".chageLang a").off("click").click(function() {
+		var lang = $(this).data("lang");
+		$.cookie("KGA_WEB_LANG", lang, { path : '/' });
+		window.location.reload();
+	});
+	
+	$(".onlyNumber").off("keypress").keypress(function(e){
+		if(e.which != 8 && isNaN(String.fromCharCode(e.which))){
+			e.preventDefault(); //stop character from entering input
+		}
+	});
+	
+	$(".favPlayer").off("click").click(function() {
+		if("" == "") {
+			$(this).prop("checked", false);
+			if(confirm("즐겨찾기 기능은 로그인 후 이용가능합니다.\n로그인 페이지로 이동 하겠습니까?")) {
+				$("#naviLogin").trigger("click");
+			}
+			return;
+		}
+		
+		addFavorit($(this).data("playercode"));
+	});
+	
+	$(".orderTable th").off("click").click(function() {
+		if($(this).is('.sort-asc') == false && $(this).is('.sort-desc') == false) {
+			return;
+		}
+		var column = $(this).index();
+		if ($(this).is('.sort-asc')) {
+			$(this).removeClass('sort-asc');
+			$(this).addClass('sort-desc');
+			sortdir = -1;
+		} else {
+			$(this).addClass('sort-asc');
+			$(this).removeClass('sort-desc');
+			sortdir = 1;
+		}
+
+		$target = $(this).closest("table");
+		
+		$target.find("th").removeClass('active');
+		$(this).addClass('active');
+
+		$target.find("tr").each(function() {
+			$(this).find("td:eq(" + column + ")").addClass('active');
+			$(this).find("td:eq(" + column + ")").siblings().removeClass('active');
+		});
+
+		var sortUnderParFlag = $(this).hasClass('sortUnderPar');
+		var sortUpDownFlag = $(this).hasClass('sortUpDown');
+		var sortSameRankFlag = $(this).hasClass('sortSameRank');
+		var sortNationFlag = $(this).hasClass('sortNation');
+		
+		var rec = $target.find('tbody>tr').get();
+		rec.sort(function(a, b) {
+			var val1 = $(a).children('td').eq(column).text().toUpperCase().trim();
+			var val2 = $(b).children('td').eq(column).text().toUpperCase().trim();
+			
+			if(sortNationFlag) {
+				val1 = $(a).children('td').eq(column).find("span").attr("style");
+				val2 = $(b).children('td').eq(column).find("span").attr("style");
+			}
+			
+			if(sortUnderParFlag) {
+				if(val1 == "E") val1 = "0";
+				if(val2 == "E") val2 = "0";
+			}
+			
+			if(sortUpDownFlag) {
+				if(val1 == "-") val1 = "0";
+				if(val2 == "-") val2 = "0";
+				
+				if($(a).children('td').eq(column).find("span").hasClass('tb-rank-dn')) {
+					val1 = "-"+val1;
+				}
+				if($(b).children('td').eq(column).find("span").hasClass('tb-rank-dn')) {
+					val2 = "-"+val2;
+				}
+			}
+			
+			if(sortSameRankFlag) {
+				val1 = val1.replace("T","")
+				val2 = val2.replace("T","")
+			}
+			
+			if(val1 == "") val1 = 9999*sortdir;
+			if(val2 == "") val2 = 9999*sortdir;
+
+			var num1 = parseFloat(val1);
+			var num2 = parseFloat(val2);
+
+			if (!isNaN(num1) && !isNaN(num2)) {
+				return (num1 < num2) ? -sortdir : (num1 > num2) ? sortdir : 0;
+			}
+
+			return (val1 < val2) ? -sortdir : (val1 > val2) ? sortdir : 0;
+		});
+
+		$.each(rec, function(index, row) {
+			$target.find("tbody").append(row);
+		});
+	});
+});
+
+
+
+function setComboSelectBirth() {
+	var todayYear = (new Date()).getFullYear();
+	var startYear = "";
+	if(startYear == "" || startYear == undefined) {
+		startYear = todayYear - 20;
+	}else {
+		startYear = todayYear - $("select.comboBirthYear").data("diffyear");
+	}
+	
+	for (var y = startYear; y <= todayYear; y++) {
+		$('.comboBirthYear').append($('<option>', {value: y,text: y}));
+	}
+	
+	for (var m = 1; m <= 12; m++) {
+		$('.comboBirthMonth').append($('<option>', {value: m, text: m}));
+	}
+	
+	$('.comboBirthYear, .comboBirthMonth').on('change', function() {
+		var year = $('.comboBirthYear').val();
+		var month = $('.comboBirthMonth').val();
+		var daysInMonth = new Date(year, month, 0).getDate();
+		var $selectDay = $('.comboBirthDay');
+
+		$selectDay.empty();
+
+		for (var d = 1; d <= daysInMonth; d++) {
+			$selectDay.append($('<option>', {value: d, text: d}));
+		}
+	});
+	
+	$('.selectYear, .selectMonth').trigger('change');
+}
+
+function downLoadFile(fileUrl, fileRename){
+	var form = $('<form></form>');
+	form.attr('action', "/fileDownload");
+	form.attr('method', 'post');
+	form.attr('target', '_self');
+	form.appendTo('body');
+	form.find("input[name=fileUrl]").remove();
+	form.append($("<input/>", {type:'hidden',name:'fileUrl', value:fileUrl}));
+	form.append($("<input/>", {type:'hidden',name:'fileRename', value:fileRename}));
+	form.submit();
+}
+
+function downLoadFileZip(fileListJson, zipFileName){
+	var form = $('<form></form>');
+	form.attr('action', "/fileDownloadZip");
+	form.attr('method', 'post');
+	form.attr('target', '_self');
+	form.appendTo('body');
+	form.find("input[name=fileUrl]").remove();
+	form.append($("<input/>", {type:'hidden',name:'fileListJson', value:fileListJson}));
+	form.append($("<input/>", {type:'hidden',name:'zipFileName', value:zipFileName}));
+	form.submit();
+}
+
+function preventHistoryBack() {
+	history.pushState(null, document.title, location.href);
+	window.addEventListener('popstate', function(event) {
+		history.go(1);
+	});
+}
+
+function addFavorit(playerCode) {
+	$.ajax({
+		url : "/ajax/web/mergeFavorit",
+		type : "POST",
+		data : {
+			playerCode : playerCode
+		},
+		datatype : "json",
+		async: false,
+		success : function(res, status, xhr) {
+			var resultCode = res.resultCode;
+			
+			if(resultCode == "-1") {
+				alert("로그인정보가 없습니다.");
+				location.reload();
+				return;
+			}
+			
+			var favList = res.favList;
+			checkFavorit(favList);
+			
+		},
+		error : function(request, status, error) {
+			//alert(error);
+		}
+	}).fail(function(errObj) {
+		try {
+			console.error(errObj);
+		} catch (e) {
+		}
+	}); //ajax
+}
+
+function checkFavorit(favList) {
+	var intArray = favList.map(function(numString) {
+		return parseInt(numString);
+	});
+	
+	var rowToShow = [];
+	
+	$(".favPlayer").each(function() {
+		if ($.inArray($(this).data("playercode"), intArray) == -1) {
+			$(this).prop("checked",false);
+			$(this).closest(".favRow").hide();
+		} else {
+			$(this).prop("checked",true);
+			if ($(this).closest(".favRow").length > 0) {
+				rowToShow.push($(this).closest(".favRow"));
+			}
+		}
+	});
+	
+	$(rowToShow).each(function() {
+		$(this).show();
+	});
+	
+	if (rowToShow.length == 0) {
+		$("#favDiv").hide();
+	} else {
+		$("#favDiv").show();
+	}
+	
+	favoritInPage();
+}
+
+// 즐겨찾기 후 페이지 마다 다른 필요
+// 동작을 위함 함수 제거하면 안됨
+function favoritInPage() {
+	
+}
+
+function parseTimeString(timeString) {
+	var parts = timeString.split(":");
+	if (parts.length !== 2) {
+		return null;
+	}
+
+	var hours = parseInt(parts[0], 10);
+	var minutes = parseInt(parts[1], 10);
+
+	if (isNaN(hours) || isNaN(minutes)) {
+		return null;
+	}
+
+	return new Date(0, 0, 0, hours, minutes);
+}
+
+$.fn.validEmail = function (msg_error = '') {
+	let is_valid = true;
+	this.each(function(k, o) {
+	let pattern_email = /^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]+$/;
+	pattern_email = new RegExp(pattern_email);
+	let email = $(o).val();
+	if (email == '') {
+		return true;
+	}
+	if (pattern_email.test(email) == false) {
+		alert(msg_error);
+		$(o).focus();
+		return is_valid = false;
+	}
+	});
+	return is_valid;
+}
+
+function weekIndexToNameJs(idx, shortYN, lang){
+	var str = "";
+	
+	if(lang == "ENG") {
+		if(idx == "0")
+			if(shortYN == "Y") str = "Sun"; else str = "Sunday";
+		if(idx == "1")
+			if(shortYN == "Y") str = "Mon"; else str = "Monday";
+		if(idx == "2")
+			if(shortYN == "Y") str = "Tue"; else str = "Tuesday";
+		if(idx == "3")
+			if(shortYN == "Y") str = "Wed"; else str = "Wednesday";
+		if(idx == "4")
+			if(shortYN == "Y") str = "Thu"; else str = "Thursday";
+		if(idx == "5")
+			if(shortYN == "Y") str = "Fri"; else str = "Friday";
+		if(idx == "6")
+			if(shortYN == "Y") str = "Sat"; else str = "Saturday";
+	} else {
+		if(idx == "0")
+			if(shortYN == "Y") str = "일"; else str = "일요일";
+		if(idx == "1")
+			if(shortYN == "Y") str = "월"; else str = "월요일";
+		if(idx == "2")
+			if(shortYN == "Y") str = "화"; else str = "화요일";
+		if(idx == "3")
+			if(shortYN == "Y") str = "수"; else str = "수요일";
+		if(idx == "4")
+			if(shortYN == "Y") str = "목"; else str = "목요일";
+		if(idx == "5")
+			if(shortYN == "Y") str = "금"; else str = "금요일";
+		if(idx == "6")
+			if(shortYN == "Y") str = "토"; else str = "토요일";
+	}
+	
+	return str;
+}
+
+function langStringJs(language, korString, engString) {
+	var str = "";
+	
+	if (language == "KOR") {
+		str = korString;
+	} else if (language == "ENG") {
+		if(engString == null || engString == "") {
+			str = korString;
+		} else {
+			str = engString;
+		}
+	} else {
+		str = korString;
+	}
+	
+	if(str == null) str= "";
+	
+	return str;
+}
+
+//action 에 대한 한글 이름
+function actionToName(action) {
+	if (action == "save") {
+		action = "저장";
+	} else if (action == "delete") {
+		action = "삭제";
+	} else if (action == "insert") {
+		action = "입력";
+	} else if (action == "update") {
+		action = "수정";
+	} else if (action == "apply") {
+		action = "신청";
+	}  else {
+		action = "실행";
+	}
+	
+	return action;
+}
+
+function setCnpsSticky() {
+	$(".cnpsStickyTable").each(function() {
+		var table = $(this);
+		var leftWidth = 0;
+		table.find("th.cnpsSticky").each(function() {
+			var leftPosition = leftWidth + 'px';
+			var index = $(this).index();
+
+			$(this).css({
+				'position': 'sticky',
+				'left': leftWidth,
+				'z-index': 1
+			});
+			
+			table.find("tr").each(function() {
+				$(this).find("td:eq("+index+")").css({
+					'position': 'sticky',
+					'left': leftWidth,
+					'z-index': 1
+				});
+			});
+
+			leftWidth += $(this).outerWidth(true)-1;
+		});
+	});
+}
+
+function setCnpsSticky() {
+	$(".cnpsStickyTable").each(function() {
+		var table = $(this);
+		var leftWidth = 0;
+		table.find("th.cnpsSticky").each(function() {
+			var leftPosition = leftWidth + 'px';
+			var index = $(this).index();
+
+			$(this).css({
+				'position': 'sticky',
+				'left': leftWidth,
+				'z-index': 1
+			});
+			
+			table.find("tr").each(function() {
+				$(this).find("td:eq("+index+")").css({
+					'position': 'sticky',
+					'left': leftWidth,
+					'z-index': 1
+				});
+			});
+
+			leftWidth += $(this).outerWidth(true)-1;
+		});
+	});
+}
+
+function setCnpsStickyOther(className) {
+	var leftWidth = 0;
+	$("."+className).find("th.cnpsSticky").each(function() {
+		var leftPosition = leftWidth + 'px';
+		var index = $(this).index();
+
+		$(this).css({
+			'position': 'sticky',
+			'left': leftWidth,
+			'z-index': 1
+		});
+		
+		$("."+className).find("tr").each(function() {
+			$(this).find("td:eq("+index+")").css({
+				'position': 'sticky',
+				'left': leftWidth,
+				'z-index': 1
+			});
+		});
+
+		leftWidth += $(this).outerWidth(true)-1;
+	});
+}
+
+function checkActionResult(result) {
+	returnFlag = true;
+	
+	if (result == "-1") {
+		alert("오류입니다.")
+		returnFlag = false;
+	} else if (result == "-99") {
+		alert("로그인 세션이 없습니다.");
+		location.href="/admin/login";
+		returnFlag = false;
+	}
+	
+	return returnFlag;
+}
+
+function isMobile() {
+	var userAgent = navigator.userAgent.toLowerCase();
+	
+	var mobileDevices = [
+		'android', 'iphone', 'ipad', 'ipod', 'blackberry', 'windows phone', 'opera mini', 'iemobile'
+	];
+	
+	for (var i = 0; i < mobileDevices.length; i++) {
+		if (userAgent.indexOf(mobileDevices[i]) > -1) {
+			return true;  // 모바일 기기
+		}
+	}
+	
+	return false;  // PC
+}
+
+//3자리 콤마 추가
+function addCommasToNumber(number) {
+	var parts = number.toString().split(".");
+	parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+	return parts.join(".");
+}
+</script>
+
+<style>
+	.swiper-horizontal>.swiper-pagination-bullets, .swiper-pagination-bullets.swiper-pagination-horizontal, .swiper-pagination-custom, .swiper-pagination-fraction {
+    bottom: var(--swiper-pagination-bottom, 0px);
+    top: var(--swiper-pagination-top, auto);
+    left: 0;
+    width: 100%;
+    margin-top: 20px;
+    }
+</style>
+<script>
+	$(document).ready(function() {
+		
+		const allDetails = document.querySelectorAll("[id=ingGameInfo]");
+		allDetails.forEach((details) => {
+			details.addEventListener("toggle", (e) => {
+				if (details.open) {
+					allDetails.forEach((details) => {
+						details.open = true;
+						
+					})
+				}
+				else {
+					allDetails.forEach((details) => {
+						details.open = false;
+						
+					})
+				}
+			})
+		});
+		
+		
+		$("[id=ingGameInfo] summary").click(function() {
+			
+			
+			if($(this).closest("details").attr("open") == "open") {
+				
+				$("[id=ingGameInfo] summary").each(function(){
+					//$(this).css("margin-bottom","20px");
+					var $el = $(this).closest("details");
+					$el.find("[id=openState]").html($el.find("[id=closeState]").html());
+				});
+				
+			} else {
+				
+				$("[id=ingGameInfo] summary").each(function(){
+					//$(this).css("margin-bottom","0px");	
+					var $el = $(this).closest("details");
+					$el.find("[id=openState]").html("");
+				});
+				
+			}
+		});
+		
+		$("[id=openState]").click(function(e) {
+			e.preventDefault();
+			e.stopPropagation();
+			return false;
+		});
+	})
+	
+	function liveText(state){
+		
+		alert(state);
+	}
+</script>
+
+
+
+
+<!------------------------------------------------- slidebanner ------------------------------------------------>
+	<div class="swiper topbanner-swiper">
+		<div class="swiper-wrapper">
+			
+			
+			<div class="slidebanner swiper-slide">
+				<details id="ingGameInfo" open>
+					<summary class="slidebanner-title">
+						<div class="container">
+							<div class="row justify-content-center align-items-center">
+								<div id="openSpace" class="col-0 col-lg-2"></div>
+								<div id="openTitle"  class="col-12 col-lg-8 ">
+									<h2 class="text-center">블루원배 제43회 한국주니어골프선수권대회</h2>
+								</div>
+								<div id="openState" class="col-0 col-lg-2 text-end pc-only">
+									
+								</div>
+							</div>
+						</div>
+					</summary>
+					<div class="slidebanner-content">
+						<div class="container">
+							<!-- PC용 요약정보 -->
+							<div class="pc-only">
+								<div class="row justify-content-center">
+									<div class="col-6 col-md-auto text-center">
+										<span class="badge badge-bluelabel rounded-10 me-2">일정</span>
+										<span class="text-blue fw-sb">
+											
+											
+											
+											
+											2026. 7. 22
+											.(수)
+											 ~
+											7. 24
+											.(금)
+										</span>
+									</div>
+									<div class="col-6 col-md-auto text-center">
+										<span class="badge badge-bluelabel rounded-10">장소</span>
+										<span class="text-blue fw-sb">
+											블루원용인
+										</span>
+										<span class="badge badge-bluelabel rounded-10 ms-3">코스</span>
+										<span class="text-blue fw-sb">
+											
+												
+												
+													서, 
+													중
+												
+											
+										</span>
+									</div>
+								</div>
+							</div>
+							<!-- MC용 요약정보 -->
+							<div class="mc-only">
+								<div class="row justify-content-center">
+									<div class="text-blue text-center fw-bold">
+										2026. 7. 22
+										.(수)
+										 ~
+										7. 24
+										.(금)
+										  |  
+										  
+												
+												
+													  블루원용인
+													 / 서 (OUT)
+													 , 중 (IN)<br>
+												
+											
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="slidebanner-linkmenu">
+							<div class="container">
+								<div class="row justify-content-center align-items-center">
+									<div class="col-0 col-lg-2"></div>
+									<div class="col-8 col-lg-8">
+										
+										
+										<ul class="nav nav-vbar justify-content-center">
+											<li class="nav-item">
+											<a class="nav-link fw-bold active" aria-current="page" href="/web/elite/tour/notice?tournamentCode=1739">공지사항</a>
+											</li>
+											<li class="nav-item">
+											<a class="nav-link fw-bold active" aria-current="page" href="/web/elite/tour/tourInfo?tournamentCode=1739">대회정보</a>
+											</li>
+											
+												
+												
+												
+												
+												
+													<li class="nav-item">
+														<a class="nav-link fw-bold" href="/web/elite/tour/group?tournamentCode=1739">조편성</a>
+													</li>
+												
+											
+											
+												
+												
+												
+													<li class="nav-item">
+														<a class="nav-link fw-bold" href="/web/elite/record/tour/result?tournamentCode=1739">성적</a>
+													</li>
+												
+											
+											
+										</ul>
+									</div>
+									<div id="closeState" class="col-4 col-lg-2 text-end">
+										<span class="badge badge-md fw-bold bg-white text-darkblue rounded-20 px-2">
+											
+												
+												
+												
+													
+														D-1
+													
+													
+													공식연습
+												
+												
+											
+										</span>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</details>
+			</div>
+			
+		</div>
+		<div class="swiper-pagination topbanner-pagination"></div>
+	</div>
+	
+	<script>
+	var topSwiper = new Swiper(".topbanner-swiper", {
+		pagination: {
+		el: ".topbanner-pagination",
+			clickable: true,
+		},
+		observer: true,
+		observeParents: true,
+	});
+	</script>
+	
+	<!------------------------------------------------- end .slidebanner ------------------------------------------------->
+
+	
+	
+
+
+
+
+
+<script type="text/javascript">
+$(document).ready(function() {
+	$("#naviLogin").click(function() {
+		var form = $('<form></form>');
+		form.attr('action', "/web/login");
+		form.attr('method', 'post');
+		form.appendTo('body');
+		form.find("input[name=returnURL]").remove();
+		form.append($("<input/>", {type:'hidden',name:'returnURL', value:"/web/main/index"}));
+		form.submit();
+	});
+	
+	$("#naviMobileLogin").click(function() {
+		var form = $('<form></form>');
+		form.attr('action', "/web/login");
+		form.attr('method', 'post');
+		form.appendTo('body');
+		form.find("input[name=returnURL]").remove();
+		form.append($("<input/>", {type:'hidden',name:'returnURL', value:"/web/main/index"}));
+		form.submit();
+	});
+	
+	$("#naviLogout").click(function() {
+		var form = $('<form></form>');
+		form.attr('action', "/web/logout");
+		form.attr('method', 'post');
+		form.appendTo('body');
+		form.find("input[name=returnURL]").remove();
+		form.append($("<input/>", {type:'hidden',name:'returnURL', value:"/web/main/index"}));
+		form.submit();
+	});
+	
+	$("#naviMobileLogout").click(function() {
+		var form = $('<form></form>');
+		form.attr('action', "/web/logout");
+		form.attr('method', 'post');
+		form.appendTo('body');
+		form.find("input[name=returnURL]").remove();
+		form.append($("<input/>", {type:'hidden',name:'returnURL', value:"/web/main/index"}));
+		form.submit();
+	});
+})
+</script>
+<style>
+	.main-logo {
+		position: absolute;left: calc(50% - 113px);
+	}
+	@media (max-width: 992px) {
+		.main-logo {
+			position: absolute;
+			left: calc(50% - 44px);
+		}
+		
+		.moremenu-list ul.sns {
+			background-color: #FFF;
+			padding: 0.25rem 1rem 0.25rem 0.5rem;
+			border-radius: 2rem;
+			font-weight: 900;
+		}
+	
+		@media (max-width: 992px) {
+			.moremenu-list ul.sns li {
+				padding: 0.5rem 0.5rem;
+			}
+		}
+		
+		@media (max-width: 992px) {
+			.moremenu-list ul.lang li {
+				padding: 0.5rem 1.5rem;
+			}
+		}
+	}
+</style>
+<div class="main-menu">
+	<div class="container">
+		<nav class="navbar">
+			<!-- collapse menu -->
+			<button class="navbar-toggler collapsed" type="button"
+				data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown"
+				aria-controls="navbarNavDropdown" aria-expanded="false"
+				aria-label="Toggle navigation" style="pointer-events: none;">
+				<div id="navi-icon" class="closed" style="pointer-events: auto;">
+					<span class="navi-icon-line"></span>
+					<span class="navi-icon-line"></span>
+					<span class="navi-icon-line"></span>
+				</div>
+			</button>
+			<!-- search -->
+			<!-- <div class="navbar-search">
+				<form class="d-flex">
+					<input class="form-control form-control-search"
+						list="datalistOptions" id="menusearch" type="search"
+						placeholder="Search KGA" aria-label="Search"> <label
+						class="icon-search" for="menusearch"><span><img
+							src="/resources/web/images/menu-search.svg"></span></label>
+					<datalist id="datalistOptions">
+						<option value=""></option>
+					</datalist>
+				</form>
+			</div> -->
+			<!-- main logo -->
+			<div class="main-logo">
+				<a href="/web/main/index"><img src="/resources/web/images/logo.svg" alt=""></a>
+			</div>
+			<!-- right nav -->
+			<ul class="navbar-right">
+				
+					<li class="nav-item pc-only">
+						<button onclick="location.href='/web/about/history'" class="btn btn-darkblue fw-bolder border-0 rounded-0" style="min-width: 114px;">
+						ABOUT KGA
+						</button>
+					</li>
+					<li class="nav-item">
+						
+							
+								<button id="naviLogin" class="btn btn-gold btn-login fw-bolder border-0 rounded-0" style="min-width: 96px;">LOG IN</button>
+							
+							
+						
+					</li>
+				
+				<li class="nav-item dropdown pc-only">
+					<a class="nav-link dropdown-toggle text-darkblue fw-bolder" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false">
+						KOR
+					</a>
+					<ul class="aPointer dropdown-menu chageLang">
+						<li><a class="dropdown-item fw-bolder active" data-lang="KOR">KOR</a></li>
+						<li><a class="dropdown-item fw-bolder " data-lang="ENG">ENG</a></li>
+					</ul>
+				</li>
+				
+					<li class="nav-item pc-only">
+						<button class="btn fw-bolder text-orange" onclick="location.href='/web/shop/productList'">SHOP</button>
+					</li>
+				
+				<li class="nav-item dropdown pc-only">
+					<a class="nav-link dropdown-toggle dropdown-share d-after-none" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false"><img src="/resources/web/images/sns-share.svg"></a>
+					<ul class="dropdown-menu dropdown-sns">
+						<li style="width: 25%;"><a class="dropdown-item" href="https://www.facebook.com/koreagolfassociation" target="_blank"><img src="/resources/web/images/sns-facebook.svg"></a></li>
+						<li style="width: 25%;"><a class="dropdown-item" href="https://www.instagram.com/kgagolf_official" target="_blank"><img src="/resources/web/images/sns-insta.svg"></a></li>
+						<li style="width: 25%;"><a class="dropdown-item" href="https://www.youtube.com/@대한골프협회-u6q" target="_blank"><img src="/resources/web/images/sns-youtube.svg"></a></li>
+						<li style="width: 25%;"><a class="dropdown-item" href="https://blog.naver.com/koreagolfassociation" target="_blank"><img src="/resources/web/images/sns-naver.svg"></a></li>
+					</ul>
+				</li>
+			</ul>
+		</nav>
+	</div>
+
+	<!-- collapse menu -->
+	<div class="collapse" id="navbarNavDropdown">
+		<div class="nav-fullwidth">
+			<div class="header-title">
+				<div class="container">
+					<a href="/web/main/index">HOME</a>
+				</div>
+			</div>
+
+			<!--*********************************** PC용 전체메뉴 ***********************************-->
+			<div class="pc-only">
+				<div class="container">
+					<div class="row">
+						<div class="col">
+							<a href="/web/elite/schedule" class="cat-title">전문체육 </a>
+							<ul>
+								<li>
+									<span class="form-check form-check-like">
+										
+									</span>
+									<a href="/web/elite/schedule">대회일정</a>
+								</li>
+								<li>
+									<span class="form-check form-check-like">
+										
+									</span>
+									<a href="/web/elite/player">선수</a>
+								</li>
+								<li>
+									<span class="form-check form-check-like">
+										
+									</span>
+									<a href="/web/elite/record">기록</a>
+								</li>
+							</ul>
+						</div>
+						
+							<div class="col">
+								<a href="/web/life/schedule" class="cat-title">생활체육</a>
+								<ul>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/life/schedule">대회일정</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/life/player">선수</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/life/lesson">강습사업</a>
+									</li>
+									
+								</ul>
+							</div>
+							<div class="col">
+								<a href="/web/golfRule/rule" class="cat-title">골프규칙</a>
+								<ul>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/golfRule/rule">골프규칙</a></li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/golfRule/news">골프규칙소식</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/golfRule/faq">FAQ</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/golfRule/seminar">룰 세미나</a>
+									</li>
+								</ul>
+							</div>
+							<div class="col">
+								<a href="/web/nationalTeam/nationalTeam" class="cat-title">국가대표</a>
+								<ul>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/nationalTeam/nationalTeam">국가대표 선수 현황</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/nationalTeam/schedule">국제대회 일정</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/nationalTeam/photo">사진</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/nationalTeam/board">게시판</a>
+									</li>
+								</ul>
+							</div>
+						
+						<div class="col">
+							<a href="/web/kgaRanking/home" class="cat-title">KGA랭킹</a>
+							<ul>
+								<li>
+									<span class="form-check form-check-like">
+										
+									</span>
+									<a href="/web/kgaRanking/home">랭킹홈</a>
+								</li>
+								<li>
+									<span class="form-check form-check-like">
+										
+									</span>
+									<a href="/web/kgaRanking/player">선수별</a>
+								</li>
+								<li>
+									<span class="form-check form-check-like">
+										
+									</span>
+									<a href="/web/kgaRanking/tour">대회별</a>
+								</li>
+								<li>
+									<span class="form-check form-check-like">
+										
+									</span>
+									<a href="/web/kgaRanking/junior">주니어랭킹</a>
+								</li>
+							</ul>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col">
+							<a href="/web/handicap/apply/notice" class="cat-title">핸디캡</a>
+							<ul>
+								<li>
+									<span class="form-check form-check-like">
+										
+									</span>
+									<a href="/web/handicap/apply/notice">핸디캡신청</a>
+								</li>
+								
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/handicap/calculator">코스핸디캡™계산기</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/handicap/system/home">월드핸디캡시스템™</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/handicap/video">동영상</a>
+									</li>
+								
+							</ul>
+						</div>
+						
+							<div class="col">
+								<a href="/web/office/home" class="cat-title">행정</a>
+								<ul>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/office/home">행정홈</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/office/signup">경기인 등록</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/office/numberCheck">개인번호 / 선수번호 확인</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/office/transfer">소속변경(이적)</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/office/certificate">증명서</a>
+									</li>
+								</ul>
+							</div>
+							<div class="col">
+								<a href="/web/notice/notice" class="cat-title">공지사항</a>
+							</div>
+							<div class="col">
+								<a href="/web/media/news" class="cat-title">미디어</a>
+								<ul>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/media/news">보도자료</a>
+									</li>
+									<!-- <li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/media/photo">사진</a>
+									</li> -->
+									<!-- <li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="javascript:alert('준비중 입니다.');">동영상</a>
+									</li> -->
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/media/pressCheck">PRESS</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/media/golfIndicator">골프지표</a>
+									</li>
+								</ul>
+							</div>
+							<div class="col">
+								<a href="/web/golfCourse/memberRole" class="cat-title">회원사골프장</a>
+								<ul>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/golfCourse/memberRole">회원사 역할</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/golfCourse/memberProgram">회원사 프로그램</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/golfCourse/golfCourse">회원사골프장 현황</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/golfCourse/holeInOne">홀인원 현황</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/golfCourse/news">회원사골프장 소식</a>
+									</li>
+									<!-- <li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/golfCourse/certificate">홀인원 인증서</a>
+									</li> -->
+									<!-- <li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/golfCourse/championship">클럽 챔피언십</a>
+									</li> -->
+								</ul>
+							</div>
+						
+					</div>
+				</div>
+				<!-- .container -->
+				<div class="header-moremenu">
+					<div class="moremenu-title">
+						<div class="container">MORE KGA</div>
+					</div>
+					<div class="moremenu-list">
+						<div class="container">
+							<div class="d-flex justify-content-between align-items-center">
+								<ul class="list">
+									
+										<li style="min-width: 180px;"><a href="/web/about/history">ABOUT KGA</a></li>
+										<li style="min-width: 140px;"><a href="/web/shop/productList">SHOP</a></li>
+										
+											
+												<li style="min-width: 140px;"><a href="/web/login">LOGIN</a></li>
+											
+											
+										
+									
+									<li style="min-width: 37px;"><a class="dropdown-item" href="https://www.facebook.com/koreagolfassociation" target="_blank"><img src="/resources/web/images/sns-facebook.svg"></a></li>
+									<li style="min-width: 37px;"><a class="dropdown-item" href="https://www.instagram.com/kgagolf_official" target="_blank"><img src="/resources/web/images/sns-insta.svg"></a></li>
+									<li style="min-width: 37px;"><a class="dropdown-item" href="https://www.youtube.com/@대한골프협회-u6q" target="_blank"><img src="/resources/web/images/sns-youtube.svg"></a></li>
+									<li style="min-width: 37px;"><a class="dropdown-item" href="https://sports.news.naver.com/golf/club/postList?expertId=602" target="_blank"><img src="/resources/web/images/sns-naver.svg"></a></li>
+								</ul>
+								<ul class="lang aPointer chageLang">
+									<li>언어</li>
+									<li class="ps-0">ㅣ</li>
+									<li class="active"><a data-lang="KOR">KOR</a></li>
+									<li class="" style="padding-right: 0px;"><a data-lang="ENG">ENG</a></li>
+								</ul>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- end PC용 전체메뉴 -->
+
+			<!--*********************************** 모바일용 전체메뉴 ***********************************-->
+			<div class="mc-only">
+				<!-- 모바일전체 탭메뉴 -->
+				<div class="nav flex-column nav-fullwidth-mc">
+					<button class="btn nav-link dropdown">
+						<details>
+							<summary>전문체육</summary>
+							<ul>
+								<li>
+									<span class="form-check form-check-like">
+										
+									</span>
+									<a href="/web/elite/schedule">대회일정</a>
+								</li>
+								
+								<li>
+									<span class="form-check form-check-like">
+										
+									</span>
+									<a href="/web/elite/player">선수</a>
+								</li>
+								<li>
+									<span class="form-check form-check-like">
+										
+									</span>
+									<a href="/web/elite/record">기록</a>
+								</li>
+							</ul>
+						</details>
+					</button>
+					
+						<button class="btn nav-link dropdown">
+							<details>
+								<summary>생활체육</summary>
+								<ul>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/life/schedule">대회일정</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/life/player">선수</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/life/lesson">강습사업</a>
+									</li>
+								</ul>
+							</details>
+						</button>
+						<button class="btn nav-link dropdown">
+							<details>
+								<summary>골프규칙</summary>
+								<ul>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/golfRule/rule">골프규칙</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/golfRule/news">골프규칙소식</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/golfRule/faq">FAQ</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/golfRule/seminar">룰 세미나</a>
+									</li>
+								</ul>
+							</details>
+						</button>
+						<button class="btn nav-link dropdown">
+							<details>
+								<summary>국가대표</summary>
+								<ul>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/nationalTeam/nationalTeam">국가대표 선수 현황</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/nationalTeam/schedule">국제대회 일정</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/nationalTeam/photo">사진</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/nationalTeam/board">게시판</a>
+									</li>
+								</ul>
+							</details>
+						</button>
+					
+					<button class="btn nav-link dropdown">
+						<details>
+							<summary>KGA랭킹</summary>
+							<ul>
+								<li>
+									<span class="form-check form-check-like">
+										
+									</span>
+									<a href="/web/kgaRanking/home">랭킹홈</a>
+								</li>
+								<li>
+									<span class="form-check form-check-like">
+										
+									</span>
+									<a href="/web/kgaRanking/player">선수별</a>
+								</li>
+								<li>
+									<span class="form-check form-check-like">
+										
+									</span>
+									<a href="/web/kgaRanking/tour">대회별</a>
+								</li>
+								<li>
+									<span class="form-check form-check-like">
+										
+									</span>
+									<a href="/web/kgaRanking/junior">주니어랭킹</a>
+								</li>
+							</ul>
+						</details>
+					</button>
+					<button class="btn nav-link dropdown">
+						<details>
+							<summary>핸디캡</summary>
+							<ul>
+								<li>
+									<span class="form-check form-check-like">
+										
+									</span>
+									<a href="/web/handicap/apply/notice">핸디캡신청</a>
+								</li>
+								
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/handicap/calculator">코스핸디캡™계산기</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/handicap/system/home">월드핸디캡시스템™</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/handicap/video">동영상</a>
+									</li>
+								
+							</ul>
+						</details>
+					</button>
+					
+						<button class="btn nav-link dropdown">
+							<details>
+								<summary>행정</summary>
+								<ul>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/office/home">행정홈</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/office/signup">경기인 등록</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/office/numberCheck">개인번호 / 선수번호 확인</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/office/transfer">소속변경(이적)</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/office/certificate">증명서</a>
+									</li>
+								</ul>
+							</details>
+						</button>
+						<button class="btn nav-link dropdown">
+							<details>
+								<summary>공지사항</summary>
+								<ul>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/notice/notice">공지사항</a>
+									</li>
+								</ul>
+							</details>
+						</button>
+						<button class="btn nav-link dropdown">
+							<details>
+								<summary>미디어</summary>
+								<ul>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/media/news">보도자료 </a>
+									</li>
+									<!-- <li>
+										<span class="form-check form-check-like">
+										</span>
+										<a href="/web/media/photo">사진</a>
+									</li> -->
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/media/pressCheck">PRESS</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/media/golfIndicator">골프지표</a>
+									</li>
+								</ul>
+							</details>
+						</button>
+						<button class="btn nav-link dropdown">
+							<details>
+								<summary>회원사골프장</summary>
+								<ul>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/golfCourse/memberRole">회원사 역할</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/golfCourse/memberProgram">회원사 프로그램</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/golfCourse/golfCourse">회원사골프장 현황</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/golfCourse/holeInOne">홀인원 현황</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/golfCourse/news">회원사골프장 소식</a>
+									</li>
+									<!-- <li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/golfCourse/certificate">홀인원 인증서</a>
+									</li> -->
+									<!-- <li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/golfCourse/championshipSchedule">클럽 챔피언십</a>
+									</li> -->
+								</ul>
+							</details>
+						</button>
+					
+					<div class="header-moremenu mt-0">
+						<div class="moremenu-title">
+							<div class="container">MORE KGA</div>
+						</div>
+						<div class="moremenu-list">
+							<div class="container">
+								<ul class="list">
+									
+										<li>
+											<span class="form-check form-check-like">
+												
+											</span>
+											<a href="/web/about/history">ABOUT KGA</a>
+										</li>
+										<li>
+											<span class="form-check form-check-like">
+												
+											</span>
+											<a href="/web/shop/productList">SHOP</a>
+										</li>
+										
+										<li>
+											<span class="form-check form-check-like">
+											</span>
+											
+												
+													<a id="naviMobileLogin" href="/web/login">LOGIN</a>
+												
+												
+											
+										</li>
+									
+								</ul>
+								<ul class="sns">
+									<li style="width: 24%;"><a class="dropdown-item" href="https://www.facebook.com/koreagolfassociation" target="_blank"><img src="/resources/web/images/sns-facebook.svg"></a></li>
+									<li style="width: 24%;"><a class="dropdown-item" href="https://www.instagram.com/kgagolf_official" target="_blank"><img src="/resources/web/images/sns-insta.svg"></a></li>
+									<li style="width: 24%;"><a class="dropdown-item" href="https://www.youtube.com/@대한골프협회-u6q" target="_blank"><img src="/resources/web/images/sns-youtube.svg"></a></li>
+									<li style="width: 24%;"><a class="dropdown-item" href="https://sports.news.naver.com/golf/club/postList?expertId=602" target="_blank"><img src="/resources/web/images/sns-naver.svg"></a></li>
+								</ul>
+								<ul class="lang aPointer chageLang">
+									<li>언어</li>
+									<li class="ps-0">ㅣ</li>
+									<li class="active"><a data-lang="KOR">KOR</a></li>
+									<li class="" style="padding-right: 0px;"><a data-lang="ENG">ENG</a></li>
+								</ul>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- .nav-fullwidthmc -->
+			</div>
+			<!-- end 모바일용 전체메뉴 -->
+
+		</div>
+		<!-- .nav-fullwidth -->
+
+	</div>
+
+</div>
+<!-- end .main-menu -->
+</header> <!-- end .site-header -->
+<script>
+var serverDate = "20260721"+"1317";
+
+/* if(popup_getCookie("pCookie20260326") != "done" && "20260326120000"<= serverDate && serverDate < "20261231120000") {
+	window.open('/openPopup?index=3','pCookie20260326','location=no,menubar=no,toolbar=no,scrollbars=no,resizable=no,width=620,height=904,top=100,left=700');
+} */
+
+
+/* if(popup_getCookie("pCookie20250617") != "done") {
+	window.open('/openPopup?index=2','pCookie20250617','location=no,menubar=no,toolbar=no,scrollbars=no,resizable=no,width=644,height=830,top=100,left=700');
+} */
+ 
+function popup_getCookie(name) {
+	var nameOfCookie = name + "=";
+	var x  = 0;
+	while(x <= document.cookie.length) {
+		var y = (x+nameOfCookie.length);
+		if(document.cookie.substring(x,y) == nameOfCookie) {
+			if((endOfCookie=document.cookie.indexOf(";",y)) == -1)
+				endOfCookie = document.cookie.length;
+			return unescape(document.cookie.substring(y, endOfCookie));
+		}
+		x = document.cookie.indexOf("",x)+1;
+		if(x == 0)
+			break;
+	}
+	return "";
+}
+</script>
+
+<script>
+engPageYn = "Y";
+function openFixURL(url) {
+	var fixURL = getFixURL(url);
+	if (url != "") {
+		window.open(fixURL);
+	} else {
+		console.log("유효한 URL이 아닙니다.");
+	}
+}
+
+function getFixURL(inputURL) {
+	try {
+		if(inputURL == null || inputURL.trim() === "") {
+			return "";
+		}
+		
+		if (!inputURL.startsWith("http")) {
+			return "http://" + inputURL;
+		} else {
+			return inputURL;
+		}
+	} catch (e) {
+		return "";
+	}
+}
+
+function practice(tournamentCode) {
+	if("" == "") {
+		if(confirm("공식연습 신청은 로그인 후 이용가능합니다.\n로그인 페이지로 이동 하겠습니까?")) {
+			$("#naviLogin").trigger("click");
+		}
+		return false;
+	}
+	location.href="/web/elite/practice?tournamentCode="+tournamentCode
+}
+
+function eliteApply(tournamentCode, licsYn, season, applyCode){
+	if('' === '') {
+		if(confirm("대회 신청은 로그인 후 이용가능합니다.\n로그인 페이지로 이동 하겠습니까?")) {
+			$("#naviLogin").trigger("click");
+		}
+		return false;
+	}
+	
+	var form = $('<form id="applyForm"></form>');
+	form.attr('action', "/web/elite/applyAgree");
+	form.attr('method', 'post');
+	form.attr('target', '_self');
+	form.appendTo('body');
+	form.append($("<input/>", {type:'hidden',name:'tournamentCode', value:tournamentCode}));
+	form.append($("<input/>", {type:'hidden',name:'licsYn', value:licsYn}));
+	form.append($("<input/>", {type:'hidden',name:'season', value:season}));
+	form.append($("<input/>", {type:'hidden',name:'applyCode', value:applyCode}));
+	form.submit();
+	$("#applyForm").remove();
+}
+
+function lifeApply(tournamentCode, licsYn, season){
+	if('' === '') {
+		if(confirm("대회 신청은 로그인 후 이용가능합니다.\n로그인 페이지로 이동 하겠습니까?")) {
+			$("#naviLogin").trigger("click");
+		}
+		return false;
+	}
+	
+	var form = $('<form id="applyForm"></form>');
+	form.attr('action', "/web/life/applyAgree");
+	form.attr('method', 'post');
+	form.attr('target', '_self');
+	form.appendTo('body');
+	form.append($("<input/>", {type:'hidden',name:'tournamentCode', value:tournamentCode}));
+	form.append($("<input/>", {type:'hidden',name:'licsYn', value:licsYn}));
+	form.append($("<input/>", {type:'hidden',name:'season', value:season}));
+	form.submit();
+	$("#applyForm").remove();
+}
+
+function changeScheduleHref(code){
+	$("#calendar1").show();
+	$("#calendar2").show();
+	$('#calendar').hide();
+	
+	if(code == "01"){
+		$("#scheduleHref").attr("onclick","location.href='/web/elite/schedule'");
+	}else if(code == "02"){
+		$("#scheduleHref").attr("onclick","location.href='/web/life/schedule'");
+	}else{
+		$("#scheduleHref").hide();
+	}
+}
+</script>
+<style>
+	.section-news .swiper-thumb {
+		background-size: contain;
+		background-repeat: no-repeat;
+	}
+</style>
+<!----------------------------------------- // status section -------------------------------------------->
+<section class="section-area main-status">
+<div class="container">
+	<div class="row">
+		<!-- 뉴스 슬라이드 -->
+		<div class="col-12 col-lg-6">
+			<div class="section-news">
+				<div class="swiper news-swiper">
+					<div class="swiper-wrapper">
+						
+						<div class="swiper-slide">
+							<div class="swiper-caption">
+								<h3>전국 생활체육 골프 축제, 참가 신청…국제 대회 참가 지원<br></h3>
+							</div>
+							<div class="swiper-thumb" style="background-image: url('/User_File/UserFile/2026/07/f6fd0315-cb2e-458c-bf86-aee46a7fee05(1).jpg')"><img src="/resources/web/images/blank-mainnews.png"></div>
+							<div class="swiper-link"><a href="/web/media/newsDetail?partCode=1585&boardCode=6996" class="fs-more">소식 더보기</a></div>
+						</div>
+						
+						<div class="swiper-slide">
+							<div class="swiper-caption">
+								<h3>정의석, 제3회 신한동해 남자아마추어 우승</h3>
+							</div>
+							<div class="swiper-thumb" style="background-image: url('/User_File/UserFile/2026/07/정의석 (39)(2).jpg')"><img src="/resources/web/images/blank-mainnews.png"></div>
+							<div class="swiper-link"><a href="/web/media/newsDetail?partCode=1585&boardCode=6995" class="fs-more">소식 더보기</a></div>
+						</div>
+						
+						<div class="swiper-slide">
+							<div class="swiper-caption">
+								<h3>박카스배 SBSGOLF 전국시도학생골프팀, 올해도 종합 우승은 경기</h3>
+							</div>
+							<div class="swiper-thumb" style="background-image: url('/User_File/UserFile/2026/07/55383710007_a4e1abc06c_o(1).jpg')"><img src="/resources/web/images/blank-mainnews.png"></div>
+							<div class="swiper-link"><a href="/web/media/newsDetail?partCode=1585&boardCode=6990" class="fs-more">소식 더보기</a></div>
+						</div>
+						
+						<div class="swiper-slide">
+							<div class="swiper-caption">
+								<h3>제3회 신한동해 남자아마추어골프선수권대회, 14일 개막</h3>
+							</div>
+							<div class="swiper-thumb" style="background-image: url('/User_File/UserFile/2026/07/54662686870_48e029327f_o(1).jpg')"><img src="/resources/web/images/blank-mainnews.png"></div>
+							<div class="swiper-link"><a href="/web/media/newsDetail?partCode=1585&boardCode=6988" class="fs-more">소식 더보기</a></div>
+						</div>
+						
+						<div class="swiper-slide">
+							<div class="swiper-caption">
+								<h3>제22회 대한골프협회장배 생활체육 전국골프대회 성료<br></h3>
+							</div>
+							<div class="swiper-thumb" style="background-image: url('/User_File/UserFile/2026/07/KakaoTalk_20260708_095458967(1).jpg')"><img src="/resources/web/images/blank-mainnews.png"></div>
+							<div class="swiper-link"><a href="/web/media/newsDetail?partCode=1585&boardCode=6981" class="fs-more">소식 더보기</a></div>
+						</div>
+						
+					</div>
+				</div>
+				<div class="news-pagination-wrapper">
+					<div class="swiper-pagination news-pagination"></div>
+				</div>
+				<!-- 네비버튼 -->
+				<div class="swiper-button-wrapper swiper-button-blue swiper-button-news">
+					<div class="swiper-button-next"></div>
+					<div class="swiper-button-prev"></div>
+				</div>
+				<!-- Initialize Swiper -->
+				<script>
+					var swiper = new Swiper(".news-swiper", {
+						pagination: {
+							el: ".news-pagination",
+							clickable: true,
+						},
+						navigation: {
+						nextEl: ".swiper-button-news .swiper-button-next",
+						prevEl: ".swiper-button-news .swiper-button-prev",
+						},
+						spaceBetween: 10,
+						slidesPerView: 1,
+						observer: true,
+						observeParents: true,
+					});
+				</script>
+			</div>
+		</div>
+		<!-- TOP5 슬라이드 -->
+		<div class="col-12 col-lg-6">
+			<div class="top5-weeks">
+				<span class="mc-only me-2"><img src="/resources/web/images/logo-white.svg"></span>
+				<h6 class="text-white">29주차 KGA 랭킹</h6>
+			</div>
+
+			<div class="top5-header">
+				<h6>여자 TOP 6</h6>
+				<div class="top5-scrollbar-wrapper">
+					<div class="top5-scrollbar"><img src="/resources/web/images/top5-headline.svg"></div>
+					<div class="top5-more"><a href="/web/kgaRanking/player?division=W" class="fs-more">랭킹 더보기</a></div>
+				</div>
+			</div>
+			<div class="swiper top5-swiper top5-swiper-w">
+				<div class="swiper-wrapper">
+					
+					<div class="swiper-slide" style="cursor: pointer;" onclick="location.href='/web/elite/playerDetail/result?playerCode=21731'">
+						<div class="swiper-caption">
+							<label>Rank</label>
+							<h2 class="fw-bolder">1</h2>
+						</div>
+						<div class="swiper-thumb" style="background-image: url('/User_File/UserFile/2026/02/박서진08.png?ver=2026-06-10T19:49:45.520')"><img src="/resources/web/images/blank-top5.png"></div>
+						<div class="swiper-info">
+							<h6>박서진(080411)</h6>
+							<div class="point">2,443.65 P</div>
+						</div>
+					</div>
+					
+					<div class="swiper-slide" style="cursor: pointer;" onclick="location.href='/web/elite/playerDetail/result?playerCode=22107'">
+						<div class="swiper-caption">
+							<label>Rank</label>
+							<h2 class="fw-bolder">2</h2>
+						</div>
+						<div class="swiper-thumb" style="background-image: url('/User_File/UserFile/2026/02/양윤서.png?ver=2026-06-10T19:49:45.520')"><img src="/resources/web/images/blank-top5.png"></div>
+						<div class="swiper-info">
+							<h6>양윤서</h6>
+							<div class="point">2,436.90 P</div>
+						</div>
+					</div>
+					
+					<div class="swiper-slide" style="cursor: pointer;" onclick="location.href='/web/elite/playerDetail/result?playerCode=24794'">
+						<div class="swiper-caption">
+							<label>Rank</label>
+							<h2 class="fw-bolder">3</h2>
+						</div>
+						<div class="swiper-thumb" style="background-image: url('/User_File/UserFile/2026/02/김규빈.png?ver=2026-06-10T19:49:45.520')"><img src="/resources/web/images/blank-top5.png"></div>
+						<div class="swiper-info">
+							<h6>김규빈(091013)</h6>
+							<div class="point">2,011.80 P</div>
+						</div>
+					</div>
+					
+					<div class="swiper-slide" style="cursor: pointer;" onclick="location.href='/web/elite/playerDetail/result?playerCode=24019'">
+						<div class="swiper-caption">
+							<label>Rank</label>
+							<h2 class="fw-bolder">4</h2>
+						</div>
+						<div class="swiper-thumb" style="background-image: url('/User_File/UserFile/2026/03/윤규리.png?ver=2026-06-10T19:49:45.520')"><img src="/resources/web/images/blank-top5.png"></div>
+						<div class="swiper-info">
+							<h6>윤규리</h6>
+							<div class="point">1,503.60 P</div>
+						</div>
+					</div>
+					
+					<div class="swiper-slide" style="cursor: pointer;" onclick="location.href='/web/elite/playerDetail/result?playerCode=24122'">
+						<div class="swiper-caption">
+							<label>Rank</label>
+							<h2 class="fw-bolder">5</h2>
+						</div>
+						<div class="swiper-thumb" style="background-image: url('/User_File/UserFile/2026/03/상비군_현세린-removebg-preview.png?ver=2026-06-10T19:49:45.520')"><img src="/resources/web/images/blank-top5.png"></div>
+						<div class="swiper-info">
+							<h6>현세린</h6>
+							<div class="point">1,401.62 P</div>
+						</div>
+					</div>
+					
+					<div class="swiper-slide" style="cursor: pointer;" onclick="location.href='/web/elite/playerDetail/result?playerCode=26519'">
+						<div class="swiper-caption">
+							<label>Rank</label>
+							<h2 class="fw-bolder">6</h2>
+						</div>
+						<div class="swiper-thumb" style="background-image: url('/User_File/UserFile/2025/08/주니어상비군_김서아-removebg-preview.png?ver=2026-06-10T19:49:45.520')"><img src="/resources/web/images/blank-top5.png"></div>
+						<div class="swiper-info">
+							<h6>김서아</h6>
+							<div class="point">1,154.93 P</div>
+						</div>
+					</div>
+					
+				</div>
+			</div>
+			<!-- Initialize Swiper -->
+			<script>
+				var swiper = new Swiper(".top5-swiper-w", {
+					spaceBetween: 5,
+					slidesPerView: 3,
+					freeMode: true,
+					watchSlidesProgress: true,
+					observer: true,
+					observeParents: true,
+					breakpoints: {
+						1600: {
+						slidesPerView: 4,
+						spaceBetween: 10,
+						slidesPerGroup : 1,
+						},
+					},
+				});
+			</script>
+			<hr class="top5-divider">
+			<!-- 남자 -->
+			<div class="top5-header">
+				<h6>남자 TOP 6</h6>
+				<div class="top5-scrollbar-wrapper">
+					<div class="top5-scrollbar"><img src="/resources/web/images/top5-headline.svg"></div>
+					<div class="top5-more"><a href="/web/kgaRanking/player?division=M" class="fs-more">랭킹 더보기</a></div>
+				</div>
+			</div>
+			<div class="swiper top5-swiper top5-swiper-m">
+				<div class="swiper-wrapper">
+					
+					<div class="swiper-slide" style="cursor: pointer;" onclick="location.href='/web/elite/playerDetail/result?playerCode=24139'">
+						<div class="swiper-caption">
+							<label>Rank</label>
+							<h2 class="fw-bolder">1</h2>
+						</div>
+						<div class="swiper-thumb" style="background-image: url('/User_File/UserFile/2026/02/김민수.png?ver=2026-06-10T19:49:45.520')"><img src="/resources/web/images/blank-top5.png"></div>
+						<div class="swiper-info">
+							<h6>김민수(080508)</h6>
+							<div class="point">2,994.70 P</div>
+						</div>
+					</div>
+					
+					<div class="swiper-slide" style="cursor: pointer;" onclick="location.href='/web/elite/playerDetail/result?playerCode=22085'">
+						<div class="swiper-caption">
+							<label>Rank</label>
+							<h2 class="fw-bolder">2</h2>
+						</div>
+						<div class="swiper-thumb" style="background-image: url('/User_File/UserFile/2026/02/손제이.png?ver=2026-06-10T19:49:45.520')"><img src="/resources/web/images/blank-top5.png"></div>
+						<div class="swiper-info">
+							<h6>손제이</h6>
+							<div class="point">1,964.44 P</div>
+						</div>
+					</div>
+					
+					<div class="swiper-slide" style="cursor: pointer;" onclick="location.href='/web/elite/playerDetail/result?playerCode=25984'">
+						<div class="swiper-caption">
+							<label>Rank</label>
+							<h2 class="fw-bolder">3</h2>
+						</div>
+						<div class="swiper-thumb" style="background-image: url('/User_File/UserFile/2025/06/?ver=2026-06-10T19:49:45.520')"><img src="/resources/web/images/blank-top5.png"></div>
+						<div class="swiper-info">
+							<h6>정조국</h6>
+							<div class="point">1,551.98 P</div>
+						</div>
+					</div>
+					
+					<div class="swiper-slide" style="cursor: pointer;" onclick="location.href='/web/elite/playerDetail/result?playerCode=21276'">
+						<div class="swiper-caption">
+							<label>Rank</label>
+							<h2 class="fw-bolder">4</h2>
+						</div>
+						<div class="swiper-thumb" style="background-image: url('/User_File/UserFile/2026/02/유민혁.png?ver=2026-06-10T19:49:45.520')"><img src="/resources/web/images/blank-top5.png"></div>
+						<div class="swiper-info">
+							<h6>유민혁</h6>
+							<div class="point">1,518.20 P</div>
+						</div>
+					</div>
+					
+					<div class="swiper-slide" style="cursor: pointer;" onclick="location.href='/web/elite/playerDetail/result?playerCode=25570'">
+						<div class="swiper-caption">
+							<label>Rank</label>
+							<h2 class="fw-bolder">5</h2>
+						</div>
+						<div class="swiper-thumb" style="background-image: url('/User_File/UserFile/2025/07/1750760199639.jpg?ver=2026-06-10T19:49:45.520')"><img src="/resources/web/images/blank-top5.png"></div>
+						<div class="swiper-info">
+							<h6>천지율</h6>
+							<div class="point">1,382.28 P</div>
+						</div>
+					</div>
+					
+					<div class="swiper-slide" style="cursor: pointer;" onclick="location.href='/web/elite/playerDetail/result?playerCode=25408'">
+						<div class="swiper-caption">
+							<label>Rank</label>
+							<h2 class="fw-bolder">6</h2>
+						</div>
+						<div class="swiper-thumb" style="background-image: url('/User_File/UserFile/2026/03/상비군_정의석__2_-removebg-preview.png?ver=2026-06-10T19:49:45.520')"><img src="/resources/web/images/blank-top5.png"></div>
+						<div class="swiper-info">
+							<h6>정의석</h6>
+							<div class="point">1,137.52 P</div>
+						</div>
+					</div>
+					
+				</div>
+			</div>
+			<!-- Initialize Swiper -->
+			<script>
+				var swiper = new Swiper(".top5-swiper-m", {
+					spaceBetween: 5,
+					slidesPerView: 3,
+					freeMode: true,
+					watchSlidesProgress: true,
+					observer: true,
+					observeParents: true,
+					breakpoints: {
+						1600: {
+						slidesPerView: 4,
+						spaceBetween: 10,
+						slidesPerGroup : 1,
+						},
+					},
+				});
+			</script>
+		</div>
+	</div>
+</div>
+
+
+<div class="container">
+	<div class="main-quickmenu">
+		
+			<div class="quickmenu-item"><a class="nav-link" href="/web/notice/notice">
+				<div class="quick-icon"><img src="/resources/web/images/quick-notice.svg"></div>
+				<div class="quick-info">공지사항</div>
+			</a></div>
+			<div class="quickmenu-item"><a class="nav-link" href="/web/office/home">
+				<div class="quick-icon"><img src="/resources/web/images/quick-certification.svg"></div>
+				<div class="quick-info">등록 & 증명서</div>
+			</a></div>
+			<div class="quickmenu-item"><a class="nav-link" href="/web/elite/schedule?category=apply">
+				<div class="quick-icon"><img src="/resources/web/images/quick-application.svg"></div>
+				<div class="quick-info">대회 참가 신청</div>
+			</a></div>
+		
+		<div class="quickmenu-item"><a class="nav-link" href="/web/handicap/apply/notice">
+			<div class="quick-icon"><img src="/resources/web/images/quick-handicap.svg"></div>
+			<div class="quick-info">핸디캡 신청</div>
+		</a></div>
+		
+			<div class="quickmenu-item"><a class="nav-link" href="/web/life/lesson">
+				<div class="quick-icon"><img src="/resources/web/images/quick-lesson.svg"></div>
+				<div class="quick-info">강습사업 신청</div>
+			</a></div>
+			<div class="quickmenu-item"><a class="nav-link" href="/web/golfRule/rule">
+				<div class="quick-icon"><img src="/resources/web/images/quick-rule.svg"></div>
+				<div class="quick-info">골프규칙</div>
+			</a></div>
+			<div class="quickmenu-item"><a class="nav-link" href="https://www.randa.org/search/equipment" target="_blank">
+				<div class="quick-icon"><img src="/resources/web/images/quick-search.svg"></div>
+				<div class="quick-info">공인용품 조회</div>
+			</a></div>
+			<div class="quickmenu-item"><a class="nav-link" href="/web/shop/productList">
+				<div class="quick-icon"><img src="/resources/web/images/quick-book.svg"></div>
+				<div class="quick-info">도서구매</div>
+			</a></div>
+		
+		<div class="quickmenu-item"><a class="nav-link" href="/web/kgaRanking/home">
+			<div class="quick-icon"><img src="/resources/web/images/quick-ranking.svg"></div>
+			<div class="quick-info">KGA 랭킹</div>
+		</a></div>
+	</div>
+</div>
+</section>
+
+
+	
+	<!----------------------------------------- // notice section -------------------------------------------->
+	<section class="section-area section-notice">
+		
+		<!-------------------------------------- 알 림 ----------------------------------->
+		<div class="container" style="max-width: 1140px;">
+			<div class="d-flex justify-content-between align-items-center bg-lemon px-3 mb-3">
+				<h3 class="fw-bold pb-0" style="min-width: 40px;">알림</h3>
+				<ul class="nav nav-dark" id="news-tab" role="tablist">
+					<li class="nav-item" role="presentation">
+						<a class="nav-link active" id="news-notice-tab" data-bs-toggle="pill" data-bs-target="#news-notice" type="button" role="tab" aria-controls="news-notice" aria-selected="true">공지사항</a>
+					</li>
+					<li class="nav-item" role="presentation">
+						<a class="nav-link" id="news-press-tab" data-bs-toggle="pill" data-bs-target="#news-press" type="button" role="tab" aria-controls="news-press" aria-selected="false">보도자료</a>
+					</li>
+					<li class="nav-item" role="presentation">
+						<a class="nav-link" id="news-club-tab" data-bs-toggle="pill" data-bs-target="#news-club" type="button" role="tab" aria-controls="ranking-club" aria-selected="false">회원사골프장 소식</a>
+					</li>
+				</ul>
+			</div>
+		</div>
+		<div class="container" style="max-width: 1140px;">
+			<div class="tab-content" id="news-tabContent">
+				<!-------------------------------------- 공지사항 ----------------------------------->
+				<div class="tab-pane fade show active" id="news-notice" role="tabpanel" aria-labelledby="news-notice-tab">
+					<ul class="ul-news">
+						
+							<li class="news-item">
+								<a href="/web/notice/noticeDetail?partCode=2109&boardCode=6987" class="title">각종 대회 참가자의 스코어 자동 등록 안내(H.I.GOLF)</a>
+								<div class="meta">
+									<span class="date">
+										
+										2026. 7. 9
+									</span>
+								</div>
+							</li>
+						
+							<li class="news-item">
+								<a href="/web/notice/noticeDetail?partCode=2109&boardCode=6957" class="title">핸디캡 뉴스레터 발송 안내</a>
+								<div class="meta">
+									<span class="date">
+										
+										2026. 6. 29
+									</span>
+								</div>
+							</li>
+						
+							<li class="news-item">
+								<a href="/web/notice/noticeDetail?partCode=2109&boardCode=6935" class="title">월드마스터즈게임 2027 간사이 - 대회 안내(장소 추가 업데이트)</a>
+								<div class="meta">
+									<span class="date">
+										
+										2026. 6. 16
+									</span>
+								</div>
+							</li>
+						
+							<li class="news-item">
+								<a href="/web/notice/noticeDetail?partCode=1587&boardCode=6912" class="title">경기인등록 규정 개정 안내</a>
+								<div class="meta">
+									<span class="date">
+										
+										2026. 6. 8
+									</span>
+								</div>
+							</li>
+						
+							<li class="news-item">
+								<a href="/web/notice/noticeDetail?partCode=1587&boardCode=6877" class="title">2026년도 경기인 법정의무교육(성폭력 등 폭력 예방교육) 안내</a>
+								<div class="meta">
+									<span class="date">
+										
+										2026. 5. 13
+									</span>
+								</div>
+							</li>
+						
+					</ul>
+				</div>
+				<!-------------------------------------- 보도자료 ----------------------------------->
+				<div class="tab-pane fade" id="news-press" role="tabpanel" aria-labelledby="news-press-tab">
+					<ul class="ul-news">
+						
+							<li class="news-item">
+								<a href="/web/media/newsDetail?partCode=1585&boardCode=6996" class="title">전국 생활체육 골프 축제, 참가 신청…국제 대회 참가 지원</a>
+								<div class="meta">
+									<span class="date">
+										
+										2026. 7. 21
+									</span>
+									
+								</div>
+							</li>
+						
+							<li class="news-item">
+								<a href="/web/media/newsDetail?partCode=1585&boardCode=6995" class="title">정의석, 제3회 신한동해 남자아마추어 우승</a>
+								<div class="meta">
+									<span class="date">
+										
+										2026. 7. 21
+									</span>
+									
+								</div>
+							</li>
+						
+							<li class="news-item">
+								<a href="/web/media/newsDetail?partCode=1585&boardCode=6990" class="title">박카스배 SBSGOLF 전국시도학생골프팀, 올해도 종합 우승은 경기</a>
+								<div class="meta">
+									<span class="date">
+										
+										2026. 7. 10
+									</span>
+									
+								</div>
+							</li>
+						
+							<li class="news-item">
+								<a href="/web/media/newsDetail?partCode=1585&boardCode=6988" class="title">제3회 신한동해 남자아마추어골프선수권대회, 14일 개막</a>
+								<div class="meta">
+									<span class="date">
+										
+										2026. 7. 10
+									</span>
+									
+								</div>
+							</li>
+						
+							<li class="news-item">
+								<a href="/web/media/newsDetail?partCode=1585&boardCode=6981" class="title">제22회 대한골프협회장배 생활체육 전국골프대회 성료</a>
+								<div class="meta">
+									<span class="date">
+										
+										2026. 7. 8
+									</span>
+									
+								</div>
+							</li>
+						
+					</ul>
+				</div>
+				<!-------------------------------------- 회원사골프장 소식 ----------------------------------->
+				<div class="tab-pane fade" id="news-club" role="tabpanel" aria-labelledby="news-club-tab">
+					<ul class="ul-news">
+						
+							<li class="news-item">
+								<a href="/web/notice/noticeDetail?partCode=1586&boardCode=6439" class="title">회원사 대표이사 변경 안내 - [몽베르 컨트리클럽]</a>
+								<div class="meta">
+									<span class="date">
+										
+										2025. 5. 19
+									</span>
+									
+								</div>
+							</li>
+						
+							<li class="news-item">
+								<a href="/web/notice/noticeDetail?partCode=1586&boardCode=6335" class="title">2025년도 서울컨트리클럽 골프 장학생 모집 공고</a>
+								<div class="meta">
+									<span class="date">
+										
+										2025. 3. 19
+									</span>
+									
+								</div>
+							</li>
+						
+							<li class="news-item">
+								<a href="/web/notice/noticeDetail?partCode=1586&boardCode=5979" class="title">회원사 대표이사 변경 안내 - [블루원 용인]</a>
+								<div class="meta">
+									<span class="date">
+										
+										2024. 6. 13
+									</span>
+									
+								</div>
+							</li>
+						
+							<li class="news-item">
+								<a href="/web/notice/noticeDetail?partCode=1586&boardCode=5753" class="title">회원사 임원 승진인사발령 안내 - [대구 컨트리클럽]</a>
+								<div class="meta">
+									<span class="date">
+										
+										2024. 3. 19
+									</span>
+									
+								</div>
+							</li>
+						
+							<li class="news-item">
+								<a href="/web/notice/noticeDetail?partCode=1586&boardCode=5733" class="title">회원사 대표이사 변경 안내 - [88 컨트리클럽] </a>
+								<div class="meta">
+									<span class="date">
+										
+										2024. 2. 14
+									</span>
+									
+								</div>
+							</li>
+						
+					</ul>
+				</div>
+			</div>
+		</div>
+		
+		
+		
+		<!-------------------------------------- 골프장 현황 ----------------------------------->
+		
+	
+	</section>
+	
+	<!----------------------------------------- // Member Golf Club section -------------------------------------------->
+	
+	<section class="section-area section-membergolfclub" style="background: url(/resources/web/images/main-member-bg.jpg) center; background-size: cover;">
+		<br>
+		<div class="container">
+			<div class="mb-5"><img src="/resources/web/images/logo-lg.svg"></div>
+			<div class="mb-5 p-2" style="max-width: 700px;"><img src="/resources/web/images/main-member-copy.png"></div>
+		</div>
+		<br>
+		<div class="membergolfclub-count">
+			<div class="container">
+				<div class="row">
+					<div class="col-12 col-lg-6">
+						<h3 class="text-white">대한민국 골프발전에 공헌하는 회원사 골프장</h3>
+					</div>
+					<div class="col-12 col-lg-6">
+						<div class="membergolfclub-countwrapper">
+							<ul class="membergolfclub-countpanel count">
+								<li>
+									<div class="num_container">
+										<div class="num" data-count="0.0">0</div>
+									</div>
+								</li>
+								<li>
+									<div class="num_container">
+										<div class="num" data-count="9.0">0</div>
+									</div>
+								</li>
+								<li>
+									<div class="num_container">
+										<div class="num" data-count="7">0</div>
+									</div>
+								</li>
+							</ul>
+							<h3 class="text-white">개사</h3>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+	
+	
+	
+	<!----------------------------------------- // Member Logo section -------------------------------------------->
+	
+	<section class="section-area section-memberlogo my-4">
+		<div class="container">
+			<div class="swiper memberSwiper-01" dir="ltr">
+				<div class="swiper-wrapper" style="transition-timing-function: linear;">
+					<div class="swiper-slide">
+						<div class="member-logo"><img src="/resources/common/golfcourseMember/LAVIE.png"></div>
+					</div>
+					<div class="swiper-slide">
+						<div class="member-logo"><img src="/resources/common/golfcourseMember/1THECLUB.png"></div>
+					</div>
+					<div class="swiper-slide">
+						<div class="member-logo"><img src="/resources/common/golfcourseMember/88.png"></div>
+					</div>
+					<div class="swiper-slide">
+						<div class="member-logo"><img src="/resources/common/golfcourseMember/CASCADIA.png"></div>
+					</div>
+					<div class="swiper-slide">
+						<div class="member-logo"><img src="/resources/common/golfcourseMember/DAEGU.png"></div>
+					</div>
+					<div class="swiper-slide">
+						<div class="member-logo"><img src="/resources/common/golfcourseMember/DREAM PARK 2.png"></div>
+					</div>
+					<div class="swiper-slide">
+						<div class="member-logo"><img src="/resources/common/golfcourseMember/ELYSIAN GANGCHON.png"></div>
+					</div>
+					<div class="swiper-slide">
+						<div class="member-logo"><img src="/resources/common/golfcourseMember/GOLDLAKE.png"></div>
+					</div>
+					<div class="swiper-slide">
+						<div class="member-logo"><img src="/resources/common/golfcourseMember/HAEVICHI.png"></div>
+					</div>
+					<div class="swiper-slide">
+						<div class="member-logo"><img src="/resources/common/golfcourseMember/ILDONGLAKE.png"></div>
+					</div>
+					<div class="swiper-slide">
+						<div class="member-logo"><img src="/resources/common/golfcourseMember/JNGCK.png"></div>
+					</div>
+					<div class="swiper-slide">
+						<div class="member-logo"><img src="/resources/common/golfcourseMember/WOOJEONG.png"></div>
+					</div>
+					<div class="swiper-slide">
+						<div class="member-logo"><img src="/resources/common/golfcourseMember/노벨.png"></div>
+					</div>
+					<div class="swiper-slide">
+						<div class="member-logo"><img src="/resources/common/golfcourseMember/레이크우드.png?ver=20251021"></div>
+					</div>
+					<div class="swiper-slide">
+						<div class="member-logo"><img src="/resources/common/golfcourseMember/레인보우힐스.png"></div>
+					</div>
+					<div class="swiper-slide">
+						<div class="member-logo"><img src="/resources/common/golfcourseMember/무안.png"></div>
+					</div>
+					<div class="swiper-slide">
+						<div class="member-logo"><img src="/resources/common/golfcourseMember/베어크리크.png"></div>
+					</div>
+					<div class="swiper-slide">
+						<div class="member-logo"><img src="/resources/common/golfcourseMember/도고.png"></div>
+					</div>
+					<div class="swiper-slide">
+						<div class="member-logo"><img src="/resources/common/golfcourseMember/센추리.png"></div>
+					</div>
+					<div class="swiper-slide">
+						<div class="member-logo"><img src="/resources/common/golfcourseMember/레이크사이드.png"></div>
+					</div>
+					<!-- 20 -->
+				</div>
+			</div>
+			<script>
+				var swiper = new Swiper(".memberSwiper-01", {
+					speed: 5000,
+					loop: true,
+					loopAdditionalSlides: 1,
+					slidesPerView: 3,
+					autoplay: {
+						delay: 0,
+						disableOnInteraction: false,
+					},
+					breakpoints: {
+						768: {
+							slidesPerView: 6,  //브라우저가 768보다 클 때
+						},
+						1024: {
+							slidesPerView: 7,  //브라우저가 1024보다 클 때
+						},
+					},
+				});
+			</script>
+			<div class="swiper memberSwiper-02" dir="rtl">
+				<div class="swiper-wrapper" style="transition-timing-function: linear;">
+					<div class="swiper-slide">
+						<div class="member-logo"><img src="/resources/common/golfcourseMember/KOREA.png"></div>
+					</div>
+					<div class="swiper-slide">
+						<div class="member-logo"><img src="/resources/common/golfcourseMember/LADENA.png"></div>
+					</div>
+					<div class="swiper-slide">
+						<div class="member-logo"><img src="/resources/common/golfcourseMember/LOTTE SKYHILL.png"></div>
+					</div>
+					<div class="swiper-slide">
+						<div class="member-logo"><img src="/resources/common/golfcourseMember/MONTVERT.png"></div>
+					</div>
+					<div class="swiper-slide">
+						<div class="member-logo"><img src="/resources/common/golfcourseMember/NAMBOO.png"></div>
+					</div>
+					<div class="swiper-slide">
+						<div class="member-logo"><img src="/resources/common/golfcourseMember/NAMCHON.png"></div>
+					</div>
+					<div class="swiper-slide">
+						<div class="member-logo"><img src="/resources/common/golfcourseMember/이스트밸리.png"></div>
+					</div>
+					<div class="swiper-slide">
+						<div class="member-logo"><img src="/resources/common/golfcourseMember/NEWSEOUL.png"></div>
+					</div>
+					<!-- <div class="swiper-slide">
+						<div class="member-logo"><img src="/resources/common/golfcourseMember/PINE RIDGE RESORT.png"></div>
+					</div> -->
+					<div class="swiper-slide">
+						<div class="member-logo"><img src="/resources/common/golfcourseMember/PINESTONE.png"></div>
+					</div>
+					<div class="swiper-slide">
+						<div class="member-logo"><img src="/resources/common/golfcourseMember/GOLF CLUB.png"></div>
+					</div>
+					<div class="swiper-slide">
+						<div class="member-logo"><img src="/resources/common/golfcourseMember/HWASAN.png"></div>
+					</div>
+					<div class="swiper-slide">
+						<div class="member-logo"><img src="/resources/common/golfcourseMember/OCHANG.png"></div>
+					</div>
+					<div class="swiper-slide">
+						<div class="member-logo"><img src="/resources/common/golfcourseMember/서산수.png"></div>
+					</div>
+					<div class="swiper-slide">
+						<div class="member-logo"><img src="/resources/common/golfcourseMember/세종에머슨.png"></div>
+					</div>
+					<div class="swiper-slide">
+						<div class="member-logo"><img src="/resources/common/golfcourseMember/수원.png"></div>
+					</div>
+					<div class="swiper-slide">
+						<div class="member-logo"><img src="/resources/common/golfcourseMember/제일.png"></div>
+					</div>
+					<div class="swiper-slide">
+						<div class="member-logo"><img src="/resources/common/golfcourseMember/고창.png"></div>
+					</div>
+					<!-- <div class="swiper-slide">
+						<div class="member-logo"><img src="/resources/common/golfcourseMember/올데이옥스필드.png"></div>
+					</div>
+					<div class="swiper-slide">
+						<div class="member-logo"><img src="/resources/common/golfcourseMember/프라자 용인.png"></div>
+					</div> -->
+					<div class="swiper-slide">
+						<div class="member-logo"><img src="/resources/common/golfcourseMember/동래베네스트.png"></div>
+					</div>
+					<div class="swiper-slide">
+						<div class="member-logo"><img src="/resources/common/golfcourseMember/서원밸리컨트리클럽.png"></div>
+					</div>
+					<!-- 19 -->
+				</div>
+			</div>
+			<script>
+				var swiper = new Swiper(".memberSwiper-02", {
+					speed: 5000,
+					loop: true,
+					loopAdditionalSlides: 1,
+					slidesPerView: 3,
+					autoplay: {
+						delay: 0,
+						disableOnInteraction: false,
+					},
+					breakpoints: {
+						768: {
+							slidesPerView: 6,  //브라우저가 768보다 클 때
+						},
+						1024: {
+							slidesPerView: 7,  //브라우저가 1024보다 클 때
+						},
+					},
+				});
+			</script>
+			<div class="swiper memberSwiper-03" dir="ltr">
+				<div class="swiper-wrapper" style="transition-timing-function: linear;">
+					<div class="swiper-slide">
+						<div class="member-logo"><img src="/resources/common/golfcourseMember/테디밸리.png"></div>
+					</div>
+					<div class="swiper-slide">
+						<div class="member-logo"><img src="/resources/common/golfcourseMember/SANGROK.png"></div>
+					</div>
+					<div class="swiper-slide">
+						<div class="member-logo"><img src="/resources/common/golfcourseMember/SONGCHOO.png"></div>
+					</div>
+					<div class="swiper-slide">
+						<div class="member-logo"><img src="/resources/common/golfcourseMember/HWASUN.png?ver=20250709"></div>
+					</div>
+					<div class="swiper-slide">
+						<div class="member-logo"><img src="/resources/common/golfcourseMember/WELLINGTON.png"></div>
+					</div>
+					<div class="swiper-slide">
+						<div class="member-logo"><img src="/resources/common/golfcourseMember/설해원.png"></div>
+					</div>
+					<div class="swiper-slide">
+						<div class="member-logo"><img src="/resources/common/golfcourseMember/FERRUM CLUB.png"></div>
+					</div>
+					<div class="swiper-slide">
+						<div class="member-logo"><img src="/resources/common/golfcourseMember/GAPYEONG VENEST.png"></div>
+					</div>
+					<div class="swiper-slide">
+						<div class="member-logo"><img src="/resources/common/golfcourseMember/ILLITE GOLF & RESORT.png"></div>
+					</div>
+					<div class="swiper-slide">
+						<div class="member-logo"><img src="/resources/common/golfcourseMember/HANYANG.png"></div>
+					</div>
+					<div class="swiper-slide">
+						<div class="member-logo"><img src="/resources/common/golfcourseMember/SEOUL.png"></div>
+					</div>
+					<div class="swiper-slide">
+						<div class="member-logo"><img src="/resources/common/golfcourseMember/ARDENHILL.png"></div>
+					</div>
+					<div class="swiper-slide">
+						<div class="member-logo"><img src="/resources/common/golfcourseMember/LAVIE.png"></div>
+					</div>
+					<div class="swiper-slide">
+						<div class="member-logo"><img src="/resources/common/golfcourseMember/천룡.png"></div>
+					</div>
+					<div class="swiper-slide">
+						<div class="member-logo"><img src="/resources/common/golfcourseMember/코스카.png"></div>
+					</div>
+					<div class="swiper-slide">
+						<div class="member-logo"><img src="/resources/common/golfcourseMember/킹스데일.png"></div>
+					</div>
+					<div class="swiper-slide">
+						<div class="member-logo"><img src="/resources/common/golfcourseMember/힐마루.png"></div>
+					</div>
+					<div class="swiper-slide">
+						<div class="member-logo"><img src="/resources/common/golfcourseMember/블루원 상주.png"></div>
+					</div>
+					<div class="swiper-slide">
+						<div class="member-logo"><img src="/resources/common/golfcourseMember/올데이임페리얼레이크.png"></div>
+					</div>
+					<!-- 19 -->
+				</div>
+			</div>
+			<script>
+				var swiper = new Swiper(".memberSwiper-03", {
+					speed: 5000,
+					loop: true,
+					loopAdditionalSlides: 1,
+					slidesPerView: 3,
+					autoplay: {
+						delay: 0,
+						disableOnInteraction: false,
+					},
+					breakpoints: {
+						768: {
+							slidesPerView: 6,  //브라우저가 768보다 클 때
+						},
+						1024: {
+							slidesPerView: 7,  //브라우저가 1024보다 클 때
+						},
+					},
+				});
+			</script>
+		</div>
+	</section>
+	
+	
+	
+	<!----------------------------------------- // Member Logo section -------------------------------------------->
+	
+	<section class="section-area section-membership" style="background: url(/resources/web/images/main-membership-bg.svg) top center; background-size: cover;">
+		<div class="container" style="max-width: 1170px;">
+			<h3 class="fw-sb text-white my-3">KGA 맴버십 프로그램이란?</h3>
+			<div class="row">
+				<div class="col-12 col-lg-6">
+					<h5 class="text-white lh-base my-3">대한골프협회는 회원사 골프장을 위한 다양한 운영지원 프로그램과 <br class="pc-only">
+					임/직원을 위한 회원사 전용 맴버십 프로그램을 제공합니다.</h5>
+					<h6 class="text-white lh-base my-3">회원 가입문의 031-540-5724/5734[회원관리팀]</h6>
+				</div>
+				<div class="col-12 col-lg-6 text-end">
+					<button class="btn btn-sectionmore btn-kgamember border-0" type="button" onclick="window.open('https://gclient.kgagolf.or.kr/client2/member/join')">회원사 가입 바로가기</button>
+				</div>
+			</div>
+		</div>
+		<br>
+		<div class="container" style="overflow: visible">
+			<div class="membership-wrapper">
+				<div class="row g-0">
+					<div class="col-12 col-lg-3">
+						<h1 class="fw-bold m-3">
+							KGA <br>
+							Membership<br>
+							Program 
+						</h1>
+						<div class="m-3"><img src="/resources/web/images/icon-program-title.svg"></div>
+					</div>
+					<div class="col-12 col-lg-3">
+						<div class="card faq-card faq-card-03">
+							<div class="card-header"><h3>골프장 운영지원 <br>프로그램</h3></div>
+							<div class="card-body">
+								<div class="d-flex justify-content-between align-items-end">
+									<div class="faq-icon"><img src="/resources/web/images/icon-program-01.svg"></div>
+									<button onclick="location.href='/web/golfCourse/memberProgram?target=marketing'" class="btn pb-0 ps-3"><img src="/resources/web/images/btn-circlearrow-rightwhite.svg"></button>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="col-12 col-lg-3">
+						<div class="card faq-card faq-card-02">
+							<div class="card-header"><h3>골프장 마케팅/홍보<br>지원 프로그램</h3></div>
+							<div class="card-body">
+								<div class="d-flex justify-content-between align-items-end">
+									<div class="faq-icon"><img src="/resources/web/images/icon-program-02.svg"></div>
+									<button onclick="location.href='/web/golfCourse/memberProgram?target=coalition'" class="btn pb-0 ps-3"><img src="/resources/web/images/btn-circlearrow-rightwhite.svg"></button>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="col-12 col-lg-3">
+						<div class="card faq-card faq-card-04">
+							<div class="card-header"><h3>제휴사 연계<br>지원 프로그램</h3></div>
+							<div class="card-body">
+								<div class="d-flex justify-content-between align-items-end">
+									<div class="faq-icon"><img src="/resources/web/images/icon-program-03.svg"></div>
+									<button onclick="location.href='/web/golfCourse/memberProgram?target=program'" class="btn pb-0 ps-3"><img src="/resources/web/images/btn-circlearrow-rightwhite.svg"></button>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+	
+	<!----------------------------------------- // schedule section -------------------------------------------->
+	<section class="section-area section-schedule" style="">
+	<div class="container" style="max-width: 1140px;">
+		<h2 class="title d-flex align-items-center fw-bold">2026 시즌 KGA 주최(주관)  대회 일정</h2>
+	</div>
+	<div class="container" style="max-width: 1140px;">
+		<ul class="nav nav-custom nav-right" id="schedule-tab" role="tablist">
+			<li class="nav-item" role="presentation">
+				<a class="nav-link active" id="schedule-pro-tab" data-bs-toggle="pill" data-bs-target="#schedule-pro" type="button" role="tab" aria-controls="schedule-pro" aria-selected="true" onclick="changeScheduleHref('01');">전문체육</a>
+			</li>
+			<li class="nav-item" role="presentation">
+				<a class="nav-link" id="schedule-all-tab" data-bs-toggle="pill" data-bs-target="#schedule-all" type="button" role="tab" aria-controls="schedule-all" aria-selected="false" onclick="changeScheduleHref('02');">생활체육</a>
+			</li>
+		</ul>
+		<div class="tab-content" id="news-tabContent">
+	
+			<!-------------------------------------- 전문체육 ----------------------------------->
+			<div class="tab-pane fade show active" id="schedule-pro" role="tabpanel" aria-labelledby="schedule-pro-tab">
+				<!-- 이벤트 일정 : 카드형 -->
+				<div class="schedule-body" id="calendar1">
+					<div class="schedule-header">
+						<div class="d-flex align-items-center fs-4"><span class="inline-icon"><img src="/resources/web/images/inlineicon-date.svg"></span>전문체육 대회 일정</div>
+						<div class="d-flex align-items-center">
+							<button onclick="location.href='/web/elite/schedule'" type="button" class="btn btn-schedule active">전체 대회 일정 보기</button>
+							<!-- 모바일에서 달력버튼 삭제처리 -->
+							<button type="button" class="pc-only btn btn-schedule calendarBtn" onclick="$('#calendar1').slideUp(400);$('#calendar').slideDown(400);"><img src="/resources/web/images/btn-schedule-arrow.svg"><span class="mx-2 fs-6">전체 달력 보기</span></button>
+						</div>
+					</div>
+					
+						<div class="card card-schedule">
+							<div class="card-header"><h4><a href="/web/elite/tour/tourInfo?tournamentCode=1737">2026 박카스배 SBSGOLF 전국시도학생골프팀선수권대회</a></h4></div>
+							<div class="card-body">
+								<div class="row">
+									<div class="col-12 col-lg-4">
+										<label style="color: #767676;">일정</label>
+										<h5>
+										
+										
+										
+										
+										7. 9
+										.(목)
+										 ~
+										7. 10
+										.(금)
+										</h5>
+									</div>
+									<div class="col-12 col-lg-4">
+										<label style="color: #767676;">장소</label>
+										<h5>
+										
+											
+											
+												골프존카운티 오라(남 (Out), 동,  남 (In), 서)
+											
+										
+										</h5>
+									</div>
+									<div class="col-12 col-lg-4 pc-only"> <!-- 모바일에서 노출삭제 -->
+										
+											
+													<label class="label-trophy">챔피언</label>
+													<h5>
+														
+															강예서 (15세이하부여자)<br class="pc-only">
+														
+															강서연 (18세이하부여자)<br class="pc-only">
+														
+															김지아 (12세이하부여자)<br class="pc-only">
+														
+															전시원 (12세이하부남자)<br class="pc-only">
+														
+															유민혁 (18세이하부남자)<br class="pc-only">
+														
+															김빈우 (15세이하부남자)<br class="pc-only">
+														
+													</h5>
+											
+											
+										
+									</div>
+									
+								</div>
+								<div class="card-footer">
+									
+										
+										
+										
+											
+												
+												
+													
+												
+											
+											<button onclick="location.href='/web/elite/record/tour/result?tournamentCode=1737'" class="btn btn-blue rounded-20" style="min-width: 86px;">최종 성적</button>
+											<div class="eventinfo text-center"><img src="/resources/web/images/icon-schedule-score.svg"></div>
+										
+										
+										
+										
+									
+								</div>
+							</div>
+						</div>
+					
+						<div class="card card-schedule">
+							<div class="card-header"><h4><a href="/web/elite/tour/tourInfo?tournamentCode=1738">제3회 신한동해 남자아마추어골프선수권대회</a></h4></div>
+							<div class="card-body">
+								<div class="row">
+									<div class="col-12 col-lg-4">
+										<label style="color: #767676;">일정</label>
+										<h5>
+										
+										
+										
+										
+										7. 14
+										.(화)
+										 ~
+										7. 17
+										.(금)
+										</h5>
+									</div>
+									<div class="col-12 col-lg-4">
+										<label style="color: #767676;">장소</label>
+										<h5>
+										
+											
+											
+												고창(블루,  비치)
+											
+										
+										</h5>
+									</div>
+									<div class="col-12 col-lg-4 pc-only"> <!-- 모바일에서 노출삭제 -->
+										
+											
+													<label class="label-trophy">챔피언</label>
+													<h5>
+														
+															정의석 (남자선수권부)<br class="pc-only">
+														
+													</h5>
+											
+											
+										
+									</div>
+									
+								</div>
+								<div class="card-footer">
+									
+										
+										
+										
+											
+												
+												
+													
+												
+											
+											<button onclick="location.href='/web/elite/record/tour/result?tournamentCode=1738'" class="btn btn-blue rounded-20" style="min-width: 86px;">최종 성적</button>
+											<div class="eventinfo text-center"><img src="/resources/web/images/icon-schedule-score.svg"></div>
+										
+										
+										
+										
+									
+								</div>
+							</div>
+						</div>
+					
+						<div class="card card-schedule">
+							<div class="card-header"><h4><a href="/web/elite/tour/tourInfo?tournamentCode=1739">블루원배 제43회 한국주니어골프선수권대회</a></h4></div>
+							<div class="card-body">
+								<div class="row">
+									<div class="col-12 col-lg-4">
+										<label style="color: #767676;">일정</label>
+										<h5>
+										
+										
+										
+										
+										7. 22
+										.(수)
+										 ~
+										7. 24
+										.(금)
+										</h5>
+									</div>
+									<div class="col-12 col-lg-4">
+										<label style="color: #767676;">장소</label>
+										<h5>
+										
+											
+											
+												블루원용인(서,  중)
+											
+										
+										</h5>
+									</div>
+									<div class="col-12 col-lg-4 pc-only"> <!-- 모바일에서 노출삭제 -->
+										
+											
+											
+													<label class="label-trophy-gray" style="color: #767676;">디펜딩챔피언</label>
+													<h5>
+														
+															유민혁 (18세이하부남자)<br class="pc-only">
+														
+															손제이 (15세이하부남자)<br class="pc-only">
+														
+															성해인 (18세이하부여자)<br class="pc-only">
+														
+															윤규리 (15세이하부여자)<br class="pc-only">
+														
+															장하은 (12세이하부여자)<br class="pc-only">
+														
+															강주원 (12세이하부남자)<br class="pc-only">
+														
+													</h5>
+											
+										
+									</div>
+									
+								</div>
+								<div class="card-footer">
+									
+										
+										
+										
+										
+										
+											<button class="btn btn-green rounded-20" style="min-width: 86px;" onclick="location.href='/web/elite/tour/tourInfo?tournamentCode=1739'">공식연습</button>
+											<div class="eventinfo text-center"><img src="/resources/web/images/icon-schedule-ongoing.svg"></div>
+										
+										
+									
+								</div>
+							</div>
+						</div>
+					
+				</div> <!-- end .schedule-body -->
+	
+			</div> <!-- end .tab-pane -->
+	
+			<!-------------------------------------- 생활체육 ----------------------------------->
+			<div class="tab-pane fade" id="schedule-all" role="tabpanel" aria-labelledby="schedule-all-tab">
+				<!-- 이벤트 일정 : 카드형 -->
+				<div class="schedule-body" id="calendar2">
+					<div class="schedule-header">
+						<div class="d-flex align-items-center fs-2"><span class="inline-icon"><img src="/resources/web/images/inlineicon-date.svg"></span>생활체육 이벤트 전체 일정보기</div>
+						<div class="d-flex align-items-center">
+							<button onclick="location.href='/web/life/schedule'" type="button" class="btn btn-schedule active">전체 대회 일정 보기</button>
+							<!-- 모바일에서 달력버튼 삭제처리 -->
+							<button type="button" class="pc-only btn btn-schedule calendarBtn" onclick="$('#calendar2').slideUp(400);$('#calendar').slideDown(400);"><img src="/resources/web/images/btn-schedule-arrow.svg"><span class="mx-2 fs-6">전체 달력 보기</span></button>
+						</div>
+					</div>
+					
+						<div class="card card-schedule">
+							<div class="card-header"><h4><a href="/web/life/tour/tourInfo?tournamentCode=1712">2026 전국생활체육대축전 골프 종목(필드부)</a></h4></div>
+							<div class="card-body">
+								<div class="row">
+									<div class="col-12 col-lg-4">
+										<label>일정</label>
+										
+										
+										
+										
+										4. 23
+										.(목)
+										 ~
+										4. 23
+										.(목)
+									</div>
+									<div class="col-12 col-lg-4">
+										<label>장소</label>
+										고성노벨<br class="pc-only">
+										가야, <br class="pc-only">
+										충무
+									</div>
+									<div class="col-12 col-lg-4 pc-only"> <!-- 모바일에서 노출삭제 -->
+										
+										
+											
+											
+													<label class="label-trophy">챔피언</label>
+													<h5>
+														
+															홍영성 (남자부)<br class="pc-only">
+														
+															김미선 (여자부)<br class="pc-only">
+														
+													</h5>
+											
+											
+										
+									</div>
+									
+								</div>
+								<div class="card-footer">
+									
+										
+										
+											<button onclick="location.href='/web/life/record/tour/result?tournamentCode=1712'" class="btn btn-blue rounded-20" style="min-width: 86px;">최종 성적</button>
+											<div class="eventinfo text-center"><img src="/resources/web/images/icon-schedule-score.svg"></div>
+										
+										
+										
+									
+								</div>
+							</div>
+						</div>
+					
+						<div class="card card-schedule">
+							<div class="card-header"><h4><a href="/web/life/tour/tourInfo?tournamentCode=1713">2026 전국생활체육대축전 골프 종목(시뮬레이션부)</a></h4></div>
+							<div class="card-body">
+								<div class="row">
+									<div class="col-12 col-lg-4">
+										<label>일정</label>
+										
+										
+										
+										
+										4. 24
+										.(금)
+										 ~
+										4. 24
+										.(금)
+									</div>
+									<div class="col-12 col-lg-4">
+										<label>장소</label>
+										골프존파크 고성 OK스크린골프<br class="pc-only">
+										충무, <br class="pc-only">
+										가야
+									</div>
+									<div class="col-12 col-lg-4 pc-only"> <!-- 모바일에서 노출삭제 -->
+										
+										
+											
+											
+													<label class="label-trophy">챔피언</label>
+													<h5>
+														
+															장종덕 (생활체육동호인부)<br class="pc-only">
+														
+													</h5>
+											
+											
+										
+									</div>
+									
+								</div>
+								<div class="card-footer">
+									
+										
+										
+											<button onclick="location.href='/web/life/record/tour/result?tournamentCode=1713'" class="btn btn-blue rounded-20" style="min-width: 86px;">최종 성적</button>
+											<div class="eventinfo text-center"><img src="/resources/web/images/icon-schedule-score.svg"></div>
+										
+										
+										
+									
+								</div>
+							</div>
+						</div>
+					
+						<div class="card card-schedule">
+							<div class="card-header"><h4><a href="/web/life/tour/tourInfo?tournamentCode=1714">제22회 대한골프협회장배 생활체육 전국골프대회</a></h4></div>
+							<div class="card-body">
+								<div class="row">
+									<div class="col-12 col-lg-4">
+										<label>일정</label>
+										
+										
+										
+										
+										7. 6
+										.(월)
+										 ~
+										7. 7
+										.(화)
+									</div>
+									<div class="col-12 col-lg-4">
+										<label>장소</label>
+										테디밸리<br class="pc-only">
+										테디, <br class="pc-only">
+										밸리
+									</div>
+									<div class="col-12 col-lg-4 pc-only"> <!-- 모바일에서 노출삭제 -->
+										
+										
+											
+											
+													<label class="label-trophy">챔피언</label>
+													<h5>
+														
+															송용찬 (남자부)<br class="pc-only">
+														
+															최명심 (여자부)<br class="pc-only">
+														
+													</h5>
+											
+											
+										
+									</div>
+									
+								</div>
+								<div class="card-footer">
+									
+										
+										
+											<button onclick="location.href='/web/life/record/tour/result?tournamentCode=1714'" class="btn btn-blue rounded-20" style="min-width: 86px;">최종 성적</button>
+											<div class="eventinfo text-center"><img src="/resources/web/images/icon-schedule-score.svg"></div>
+										
+										
+										
+									
+								</div>
+							</div>
+						</div>
+					
+						<div class="card card-schedule">
+							<div class="card-header"><h4><a href="/web/life/tour/tourInfo?tournamentCode=1715">제14회 문화체육관광부장관배 생활체육 전국골프대회</a></h4></div>
+							<div class="card-body">
+								<div class="row">
+									<div class="col-12 col-lg-4">
+										<label>일정</label>
+										
+										
+										
+										
+										8. 31
+										.(월)
+										 ~
+										9. 1
+										.(화)
+									</div>
+									<div class="col-12 col-lg-4">
+										<label>장소</label>
+										군산<br class="pc-only">
+										토너먼트 (Out), <br class="pc-only">
+										토너먼트 (In)
+									</div>
+									<div class="col-12 col-lg-4 pc-only"> <!-- 모바일에서 노출삭제 -->
+										
+										
+											
+											
+											
+													<label class="label-trophy-gray">디펜딩챔피언</label>
+													<h5>
+														
+															김보연 (여자부)<br class="pc-only">
+														
+															권태경 (남자부)<br class="pc-only">
+														
+													</h5>
+											
+										
+									</div>
+									
+								</div>
+								<div class="card-footer">
+									
+										
+											<button class="btn btn-brown rounded-20" style="min-width: 86px;" onclick="lifeApply('1715', 'N','2026')">참가 신청</button>
+											<div class="eventinfo text-center"><img src="/resources/web/images/icon-schedule-apply.svg"></div>
+										
+										
+										
+										
+									
+								</div>
+							</div>
+						</div>
+					
+				</div> <!-- end .schedule-body -->
+	
+			</div> <!-- end .tab-pane -->
+	
+			<!-- 이벤트 일정 : 달력형 -->
+			<div class="schedule-content" id="calendar" style="display: none;">
+				<div class="schedule-datepicker-header">
+					<div class="container">
+						<div class="row">
+							<div class="col-2 d-flex align-items-center">
+								<select id="calYear" class="form-select" aria-label="Default select">
+									
+										<option value="2026" >2026년</option>
+									
+										<option value="2025" >2025년</option>
+									
+										<option value="2024" >2024년</option>
+									
+										<option value="2023" >2023년</option>
+									
+										<option value="2022" >2022년</option>
+									
+										<option value="2021" >2021년</option>
+									
+										<option value="2020" >2020년</option>
+									
+										<option value="2019" >2019년</option>
+									
+										<option value="2018" >2018년</option>
+									
+										<option value="2017" >2017년</option>
+									
+										<option value="2016" >2016년</option>
+									
+										<option value="2015" >2015년</option>
+									
+										<option value="2014" >2014년</option>
+									
+										<option value="2013" >2013년</option>
+									
+										<option value="2012" >2012년</option>
+									
+										<option value="2011" >2011년</option>
+									
+										<option value="2010" >2010년</option>
+									
+										<option value="2009" >2009년</option>
+									
+										<option value="2008" >2008년</option>
+									
+										<option value="2007" >2007년</option>
+									
+										<option value="2006" >2006년</option>
+									
+										<option value="2005" >2005년</option>
+									
+										<option value="2004" >2004년</option>
+									
+								</select>
+							</div>
+							<div class="col-8 d-flex justify-content-center align-items-center">
+								<div class="schedule-datepicker-navi">
+									<button id="preCalMonth" class="btn schedule-datepicker-prev " type="button" aria-label="이전 달"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1" stroke-linecap="round" stroke-linejoin="arcs"><path d="M15 18l-6-6 6-6"></path></svg></button>
+									<div id="nowCalMonth" class="schedule-datepicker-label" data-month="">??월</div>
+									<button id="nextCalMonth" class="btn schedule-datepicker-next " type="button" aria-label="다음 달"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1" stroke-linecap="round" stroke-linejoin="arcs"><path d="M9 18l6-6-6-6"></path></svg></button>
+								</div>
+							</div>
+							<div class="col-2 text-end">
+								<button type="button" class="btn" onclick="$('#calendar1').slideDown(400);$('#calendar2').slideDown(400);$('#calendar').slideUp(400);"><img src="/resources/web/images/btn-circleclose-white.svg"></button>
+							</div>
+						</div>
+					</div>
+				</div> <!-- end .schedule-datepicker-hd -->
+				<div class="schedule-datepicker-body">
+					<div class="schedule-datepicker-thead">
+						<table cellspacing="0">
+							<thead>
+							<tr><th>SUN</th><th>MON</th><th>TUE</th><th>WED</th><th>THU</th><th>FRI</th><th>SAT</th></tr>
+							</thead>
+						</table>
+					</div>
+					<div class="schedule-datepicker-tbody">
+						<table cellspacing="0">
+							<tbody id="calTb">
+								<tr>
+									<td class="schedule-datepicker-disabled"><span class="date">26</span></td>
+									<td class="schedule-datepicker-disabled"><span class="date">27</span></td>
+									<td class="schedule-datepicker-disabled"><span class="date">28</span></td>
+									<td class="schedule-datepicker-disabled"><span class="date">29</span></td>
+									<td class="schedule-datepicker-disabled"><span class="date">30</span></td>
+									<td class="schedule-datepicker-disabled"><span class="date">1</span></td>
+									<td class="schedule-datepicker-disabled"><span class="date">2</span></td>
+								</tr>
+								<tr>
+									<td class="schedule-datepicker-disabled"><span class="date">3</span></td>
+									<td class="schedule-datepicker-disabled"><span class="date">4</span></td>
+									<td class="schedule-datepicker-disabled"><span class="date">5</span></td>
+									<td class="schedule-datepicker-disabled"><span class="date">6</span></td>
+									<td class="schedule-datepicker-disabled"><span class="date">7</span></td>
+									<td class="schedule-datepicker-disabled"><span class="date">8</span></td>
+									<td class="schedule-datepicker-disabled"><span class="date">9</span></td>
+								</tr>
+								<tr>
+									<td class="schedule-datepicker-disabled"><span class="date">10</span></td>
+									<td class="schedule-datepicker-disabled"><span class="date">11</span></td>
+									<td class="schedule-datepicker-disabled"><span class="date">12</span></td>
+									<td class="schedule-datepicker-selected"><span class="date">13</span></td>
+									<td class="schedule-datepicker-highlight"><span class="date">14</span></td>
+									<td class="schedule-datepicker-highlight"><span class="date">15</span></td>
+									<td class="schedule-datepicker-highlight"><span class="date">16</span></td>
+								</tr>
+								<tr>
+									<td class="schedule-datepicker-highlight"><span class="date">17</span></td>
+									<td class="schedule-datepicker-highlight"><span class="date">18</span></td>
+									<td class="schedule-datepicker-highlight"><span class="date">19</span></td>
+									<td class="schedule-datepicker-highlight"><span class="date">20</span></td>
+									<td class="schedule-datepicker-highlight"><span class="date">21</span></td>
+									<td class="schedule-datepicker-highlight"><span class="date">22</span></td>
+									<td class="schedule-datepicker-highlight"><span class="date">23</span></td>
+								</tr>
+								<tr>
+									<td class="schedule-datepicker-highlight"><span class="date">24</span></td>
+									<td class="schedule-datepicker-highlight"><span class="date">25</span></td>
+									<td class="schedule-datepicker-highlight"><span class="date">26</span></td>
+									<td class="schedule-datepicker-highlight"><span class="date">27</span></td>
+									<td class="schedule-datepicker-highlight"><span class="date">28</span></td>
+									<td class="schedule-datepicker-highlight"><span class="date">29</span></td>
+									<td class="schedule-datepicker-highlight"><span class="date">30</span></td>
+								</tr>
+								<tr>
+									<td class="schedule-datepicker-disabled"><span class="date">11/1</span></td>
+									<td class="schedule-datepicker-disabled"><span class="date">2</span></td>
+									<td class="schedule-datepicker-disabled"><span class="date">3</span></td>
+									<td class="schedule-datepicker-disabled"><span class="date">4</span></td>
+									<td class="schedule-datepicker-disabled"><span class="date">5</span></td>
+									<td class="schedule-datepicker-disabled"><span class="date">6</span></td>
+									<td class="schedule-datepicker-disabled"><span class="date">7</span></td>
+								</tr>
+							</tbody>
+						</table>
+					</div> <!-- schedule-datepicker-tbody -->
+				</div> <!-- schedule-datepicker-bd -->
+				<div class="schedule-datepicker-footer">
+					<div class="datepicker-caption-icon">
+						<span class="float-start me-2"><img src="/resources/web/images/icon-datepicker-logo.svg"></span>
+						<span class="fw-bold">대한골프협회 이벤트 전체일정</span>
+					</div>
+					<dl class="datepicker-caption">
+						<dd><span class="list-pro me-2">■</span>전문체육</dd>
+						<dd><span class="list-national me-2">■</span>국가대표</dd>
+						<!-- 
+						<dd><span class="list-school me-2">■</span>룰스쿨</dd>
+						<dd><span class="list-all me-2">■</span>생활체육</dd>
+						 -->
+					</dl>
+				</div>
+			</div>
+			
+			<div class="container text-center">
+				<button id="scheduleHref" onclick="location.href='/web/elite/schedule'" class="btn btn-sectionmore btn-black" type="button">대회 일정 바로가기</button>
+			</div>
+		</div>
+	</div>
+	</section>
+	
+	<!----------------------------------------- // ranking section -------------------------------------------->
+	
+	<section class="section-area section-ranking pc-only">
+	<div class="container" style="max-width: 960px;">
+		<h1 class="d-flex align-items-center fw-bold text-lightblue">KGA Ranking</h1>
+	</div> <!-- end .container -->
+	<div class="container" style="max-width: 960px;">
+		<ul class="nav nav-custom nav-right" id="ranking-tab" role="tablist">
+			<li class="nav-item" role="presentation">
+				<a class="nav-link text-lightblue" type="button" href="/web/nationalTeam/nationalTeam">국가대표 선수현황</a>
+			</li>
+		</ul>
+		<br>
+		<div class="tab-content" id="news-tabContent">
+	
+			<!-------------------------------------- 전문체육 ----------------------------------->
+			<div class="tab-pane fade show active" id="ranking-pro" role="tabpanel" aria-labelledby="ranking-pro-tab">
+				<h5 class="text-white mb-3">29주차</h5>
+				<div class="row">
+					<div class="col-12 col-lg-6">
+						<div class="card card-mainranking">
+							<div class="card-header">
+								<div class="d-flex justify-content-between align-items-center p-3">
+									<h3 class="fw-bold ps-2">여자 / TOP 6</h3>
+									<button onclick="location.href='/web/kgaRanking/player?division=W'" class="btn"><img src="/resources/web/images/btn-circlearrow-right.svg"></button>
+								</div>
+								<br><br><br>
+								<ul class="mainranking-player-header">
+									<li>
+										<div class="row g-0">
+											<div class="col-1 text-center">순위</div>
+											<div class="col-5 text-center">선수명</div>
+											<div class="col-4 text-center">평균 포인트</div>
+											<div class="col-2 text-center">대회수</div>
+										</div>
+									</li>
+								</ul>
+							</div>
+							<div class="card-body">
+								<ul class="mainranking-player-list">
+									
+									<li>
+										<div class="row g-0">
+											<div class="col-1 text-center">1</div>
+											<div class="col-5 text-center"><a href="/web/elite/playerDetail/result?playerCode=21731">박서진(080411)</a></div>
+											<div class="col-4 text-center">2,443.65</div>
+											<div class="col-2 text-center">12</div>
+										</div>
+									</li>
+									
+									<li>
+										<div class="row g-0">
+											<div class="col-1 text-center">2</div>
+											<div class="col-5 text-center"><a href="/web/elite/playerDetail/result?playerCode=22107">양윤서</a></div>
+											<div class="col-4 text-center">2,436.90</div>
+											<div class="col-2 text-center">11</div>
+										</div>
+									</li>
+									
+									<li>
+										<div class="row g-0">
+											<div class="col-1 text-center">3</div>
+											<div class="col-5 text-center"><a href="/web/elite/playerDetail/result?playerCode=24794">김규빈(091013)</a></div>
+											<div class="col-4 text-center">2,011.80</div>
+											<div class="col-2 text-center">16</div>
+										</div>
+									</li>
+									
+									<li>
+										<div class="row g-0">
+											<div class="col-1 text-center">4</div>
+											<div class="col-5 text-center"><a href="/web/elite/playerDetail/result?playerCode=24019">윤규리</a></div>
+											<div class="col-4 text-center">1,503.60</div>
+											<div class="col-2 text-center">14</div>
+										</div>
+									</li>
+									
+									<li>
+										<div class="row g-0">
+											<div class="col-1 text-center">5</div>
+											<div class="col-5 text-center"><a href="/web/elite/playerDetail/result?playerCode=24122">현세린</a></div>
+											<div class="col-4 text-center">1,401.62</div>
+											<div class="col-2 text-center">12</div>
+										</div>
+									</li>
+									
+									<li>
+										<div class="row g-0">
+											<div class="col-1 text-center">6</div>
+											<div class="col-5 text-center"><a href="/web/elite/playerDetail/result?playerCode=26519">김서아</a></div>
+											<div class="col-4 text-center">1,154.93</div>
+											<div class="col-2 text-center">10</div>
+										</div>
+									</li>
+									
+								</ul>
+							</div>
+						</div>
+					</div>
+					<div class="col-12 col-lg-6">
+						<div class="card card-mainranking">
+							<div class="card-header right">
+								<div class="d-flex justify-content-between align-items-center p-3">
+									<h3 class="fw-bold ps-2">남자 / TOP 6</h3>
+									<button onclick="location.href='/web/kgaRanking/player?division=M'" class="btn"><img src="/resources/web/images/btn-circlearrow-right.svg"></button>
+								</div>
+								<br><br><br>
+								<ul class="mainranking-player-header">
+									<li>
+										<div class="row g-0">
+											<div class="col-1 text-center">순위</div>
+											<div class="col-5 text-center">선수명</div>
+											<div class="col-4 text-center">평균 포인트</div>
+											<div class="col-2 text-center">대회수</div>
+										</div>
+									</li>
+								</ul>
+							</div>
+							<div class="card-body">
+								<ul class="mainranking-player-list">
+									
+									<li>
+										<div class="row g-0">
+											<div class="col-1 text-center">1</div>
+											<div class="col-5 text-center"><a href="/web/elite/playerDetail/result?playerCode=24139">김민수(080508)</a></div>
+											<div class="col-4 text-center">2,994.70</div>
+											<div class="col-2 text-center">12</div>
+										</div>
+									</li>
+									
+									<li>
+										<div class="row g-0">
+											<div class="col-1 text-center">2</div>
+											<div class="col-5 text-center"><a href="/web/elite/playerDetail/result?playerCode=22085">손제이</a></div>
+											<div class="col-4 text-center">1,964.44</div>
+											<div class="col-2 text-center">16</div>
+										</div>
+									</li>
+									
+									<li>
+										<div class="row g-0">
+											<div class="col-1 text-center">3</div>
+											<div class="col-5 text-center"><a href="/web/elite/playerDetail/result?playerCode=25984">정조국</a></div>
+											<div class="col-4 text-center">1,551.98</div>
+											<div class="col-2 text-center">18</div>
+										</div>
+									</li>
+									
+									<li>
+										<div class="row g-0">
+											<div class="col-1 text-center">4</div>
+											<div class="col-5 text-center"><a href="/web/elite/playerDetail/result?playerCode=21276">유민혁</a></div>
+											<div class="col-4 text-center">1,518.20</div>
+											<div class="col-2 text-center">14</div>
+										</div>
+									</li>
+									
+									<li>
+										<div class="row g-0">
+											<div class="col-1 text-center">5</div>
+											<div class="col-5 text-center"><a href="/web/elite/playerDetail/result?playerCode=25570">천지율</a></div>
+											<div class="col-4 text-center">1,382.28</div>
+											<div class="col-2 text-center">19</div>
+										</div>
+									</li>
+									
+									<li>
+										<div class="row g-0">
+											<div class="col-1 text-center">6</div>
+											<div class="col-5 text-center"><a href="/web/elite/playerDetail/result?playerCode=25408">정의석</a></div>
+											<div class="col-4 text-center">1,137.52</div>
+											<div class="col-2 text-center">13</div>
+										</div>
+									</li>
+									
+								</ul>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+	
+		</div> <!-- end .tab-pane -->
+	</div>
+	<div class="container text-center">
+		<button onclick="location.href='/web/kgaRanking/home'" class="btn btn-sectionmore btn-skyblue" type="button">랭킹 더 보기</button>
+	</div>
+	<br>
+	</section>
+	
+	
+	<!----------------------------------------- // world section -------------------------------------------->
+	
+	<section class="section-area section-world pc-only">
+	<div class="container">
+		<div class="row align-items-center">
+			<div class="col-3"><h3 class="fw-sb">WORLD Ranking</h3></div>
+			<div class="col-3"><a href="https://www.wagr.com"><img src="/resources/web/images/logo-wagr.png"></a></div>
+			<div class="col-3"><a href="https://www.owgr.com"><img src="/resources/web/images/logo-wgr.png"></a></div>
+			<div class="col-3"><a href="https://www.rolexrankings.com"><img src="/resources/web/images/logo-rolex.png"></a></div>
+		</div>
+	</div>
+	</section>
+	
+	
+	<!----------------------------------------- // qna section -------------------------------------------->
+	
+	<section class="section-area section-qna">
+	<div class="container">
+		<h2 class="title">골프룰 무엇이든 물어보세요.</h2>
+		<hr class="hr-qna pc-only">
+		<br>
+		<div class="row mc-gutter-5">
+			<div class="col-12 col-lg-6">
+				<div class="qna-wrapper">
+					<!-- 네비버튼 -->
+					<div class="swiper-button-wrapper swiper-button-circle swiper-button-qna">
+						<div class="swiper-button-next"></div>
+						<div class="swiper-button-prev"></div>
+					</div>
+					<!-- 슬라이더 -->
+					<div class="swiper qna-swiper">
+						<div class="swiper-wrapper">
+							
+								<div class="swiper-slide">
+									<div class="card qna-card">
+										<div class="card-header">
+											퍼팅그린에 있는 깃대의 위치에 대한 정보는 어드바이스에 포함된다.
+										</div>
+										<div class="card-body">
+											1. 사실<br/>
+											2. 거짓<br/>
+											
+											
+											
+											
+											<h3 class="correct title mt-3" style="display:none;">정답 
+												<span class="ms-3" style="color:red">
+													
+														
+														2. 거짓
+														
+														
+														
+													
+												</span>
+											</h3>
+										</div>
+										<div class="card-footer">
+											<small></small>
+											<br>
+											<div class="text-center">
+												<button onclick="$(this).closest('.card').find('.correct').show();" class="btn btn-lg btn-qna rounded-20" style="min-width: 156px;">답변보기</button>
+											</div>
+										</div>
+									</div>
+								</div>
+							
+								<div class="swiper-slide">
+									<div class="card qna-card">
+										<div class="card-header">
+											플레이어가 우산을 쓴채로 스트로크하였다. 올바른 재정은?
+										</div>
+										<div class="card-body">
+											1. 플레이어는 실격이 된다.<br/>
+											2. 플레이어는 일반 페널티를 받는다.<br/>
+											3. 페널티가 없다.<br/>
+											
+											
+											
+											<h3 class="correct title mt-3" style="display:none;">정답 
+												<span class="ms-3" style="color:red">
+													
+														
+														
+														3. 페널티가 없다.
+														
+														
+													
+												</span>
+											</h3>
+										</div>
+										<div class="card-footer">
+											<small></small>
+											<br>
+											<div class="text-center">
+												<button onclick="$(this).closest('.card').find('.correct').show();" class="btn btn-lg btn-qna rounded-20" style="min-width: 156px;">답변보기</button>
+											</div>
+										</div>
+									</div>
+								</div>
+							
+								<div class="swiper-slide">
+									<div class="card qna-card">
+										<div class="card-header">
+											매치플레이에서 플레이어는 상대방이 규칙 위반을 했다는 사실을 인지하였으나 조치를 취하지 않기로 결정하였다. 올바른 재정은?
+										</div>
+										<div class="card-body">
+											1. 두 플레이어 모두 실격이다.<br/>
+											2. 규칙 위반을 무시한 플레이어는 실격이다.<br/>
+											3. 페널티가 없다.<br/>
+											
+											
+											
+											<h3 class="correct title mt-3" style="display:none;">정답 
+												<span class="ms-3" style="color:red">
+													
+														
+														
+														3. 페널티가 없다.
+														
+														
+													
+												</span>
+											</h3>
+										</div>
+										<div class="card-footer">
+											<small>xpreston</small>
+											<br>
+											<div class="text-center">
+												<button onclick="$(this).closest('.card').find('.correct').show();" class="btn btn-lg btn-qna rounded-20" style="min-width: 156px;">답변보기</button>
+											</div>
+										</div>
+									</div>
+								</div>
+							
+								<div class="swiper-slide">
+									<div class="card qna-card">
+										<div class="card-header">
+											규정된 코스의 구역은 페어웨이, 러프, 페널티구역, 벙커 그리고 티잉구역이다.
+										</div>
+										<div class="card-body">
+											1. 사실<br/>
+											2. 거짓<br/>
+											
+											
+											
+											
+											<h3 class="correct title mt-3" style="display:none;">정답 
+												<span class="ms-3" style="color:red">
+													
+														
+														2. 거짓
+														
+														
+														
+													
+												</span>
+											</h3>
+										</div>
+										<div class="card-footer">
+											<small></small>
+											<br>
+											<div class="text-center">
+												<button onclick="$(this).closest('.card').find('.correct').show();" class="btn btn-lg btn-qna rounded-20" style="min-width: 156px;">답변보기</button>
+											</div>
+										</div>
+									</div>
+								</div>
+							
+								<div class="swiper-slide">
+									<div class="card qna-card">
+										<div class="card-header">
+											스트로크플레이에서 플레이어의 볼이 깊은 러프 속에 있다. 플레이어는 마크하지 않고 자신의 볼인지 확인하기 위해 그 볼을 돌려보았다. 올바른 재정은?
+										</div>
+										<div class="card-body">
+											1. 페널티가 없다.<br/>
+											2. 플레이어는 1벌타를 받는다.<br/>
+											3. 플레이어는 2벌타를 받는다. <br/>
+											
+											
+											
+											<h3 class="correct title mt-3" style="display:none;">정답 
+												<span class="ms-3" style="color:red">
+													
+														
+														2. 플레이어는 1벌타를 받는다.
+														
+														
+														
+													
+												</span>
+											</h3>
+										</div>
+										<div class="card-footer">
+											<small></small>
+											<br>
+											<div class="text-center">
+												<button onclick="$(this).closest('.card').find('.correct').show();" class="btn btn-lg btn-qna rounded-20" style="min-width: 156px;">답변보기</button>
+											</div>
+										</div>
+									</div>
+								</div>
+							
+								<div class="swiper-slide">
+									<div class="card qna-card">
+										<div class="card-header">
+											플레이어가 2분 동안 볼을 찾다가 깊은 러프 속에 있던 자신의 볼을 밟아 움직이게 하였다. 올바른 재정은?
+										</div>
+										<div class="card-body">
+											1. 페널티는 없지만 플레이어는 반드시 볼이 움직이기 전 원래의 지점에 최대한 가깝께 볼을 드롭하여야 한다.<br/>
+											2. 플레이어는 1벌타를 받고 그 볼은 반드시 리플레이스하여야 한다.<br/>
+											3. 페널티는 없지만 그 볼은 반드시 리플레이스하여야 한다.<br/>
+											
+											
+											
+											<h3 class="correct title mt-3" style="display:none;">정답 
+												<span class="ms-3" style="color:red">
+													
+														
+														
+														3. 페널티는 없지만 그 볼은 반드시 리플레이스하여야 한다.
+														
+														
+													
+												</span>
+											</h3>
+										</div>
+										<div class="card-footer">
+											<small></small>
+											<br>
+											<div class="text-center">
+												<button onclick="$(this).closest('.card').find('.correct').show();" class="btn btn-lg btn-qna rounded-20" style="min-width: 156px;">답변보기</button>
+											</div>
+										</div>
+									</div>
+								</div>
+							
+						</div>
+					</div>
+	
+					<!-- Initialize Swiper -->
+					<script>
+						var swiper = new Swiper(".qna-swiper", {
+						slidesPerView: 1,
+						spaceBetween: 20,
+						slidesPerGroup : 1,
+						navigation: {
+						nextEl: ".swiper-button-qna .swiper-button-next",
+						prevEl: ".swiper-button-qna .swiper-button-prev",
+						},
+						observer: true,
+						observeParents: true,
+						});
+					</script>
+				</div>
+			</div>
+			<div class="col-8 col-lg-3">
+				<div class="row mc-gutter-5">
+					<div class="col-6 col-lg-12">
+						<div class="card qna-card-blue">
+							<div class="card-header">
+								2026년 6월 <br>레벨 2 룰 세미나
+							</div>
+							<div class="card-body">
+								<div class="text-center">
+									
+										<button class="btn rounded-20 bg-lightgray"
+											onclick="location.href='/web/golfRule/seminar'" >신청마감</button>
+									
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="col-6 col-lg-12">
+						<div class="card qna-card-blue">
+							<div class="card-header">
+								2026년 6월 <br>레벨 2 룰 세미나
+							</div>
+							<div class="card-body">
+								<div class="text-center">
+									
+										<button class="btn rounded-20 bg-lightgray" 
+											onclick="location.href='/web/golfRule/seminar'" >신청마감</button>
+									
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="col-4 col-lg-3">
+				<div class="card qna-card-download">
+					<div class="card-header">
+						Clarifications<br>
+						규칙에 대한 설명<br>
+						다운로드
+					</div>
+					<div class="card-body">
+						<div class="d-flex justify-content-between align-items-end">
+							<div class="logo"><img src="/resources/web/images/card-bg-qnalogo.svg"></div>
+							<button onclick="window.open('https://www.kgagolf.or.kr/User_File/UserFile/2025/01/2023년 골프 규칙에 대한 설명 (2025년 1월 업데이트) (2).pdf')" class="btn ps-3"><img src="/resources/web/images/icon-download.svg"></button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="container g-0 text-center">
+			<button onclick="location.href='/web/golfRule/rule'" class="btn btn-sectionmore btn-black" type="button">자세히 보기</button>
+		</div>
+	</div>
+	</section>
+	
+	
+	<!----------------------------------------- // faq section -------------------------------------------->
+	<style>
+		.section-faq .title {
+			margin-bottom: 2rem;
+			margin-top: 2rem;
+		}
+		
+		@media (max-width: 992px) {
+			.section-faq .title {
+				margin-bottom: 1rem;
+				margin-top: 1rem;
+			}
+			
+			.higolfImg {
+				height: 8vw !important;
+				margin-left:20px !important;
+			}
+		}
+		.higolfImg {
+			height:80px;
+			margin-left:40px;
+		}
+	</style>
+	<section class="section-area section-faq">
+	<div class="container">
+		<div class="row justify-content-between title">
+			<div class="col-9">
+				<h2>핸디캡<a><img class="higolfImg" src="/resources/web/images/higolflogo.png"></a></h2>
+			</div>
+			<div class="col-3 text-end"><a href="https://www.whs.com" target="_blank"><img width="166px;" src="/resources/web/images/handicapTop.jpg"></a></div>
+		</div>
+		
+		<div class="faq-card-wrapper">
+			<div class="row mc-gutter-5" style="min-width: 576px;">
+				<div class="col col-lg-3">
+					<div class="card faq-card faq-card-01">
+						<div class="card-header">핸디캡 신청하기</div>
+						<div class="card-body">
+							<div class="d-flex justify-content-between align-items-end">
+								<div class="faq-icon"><img src="/resources/web/images/icon-faq-01.svg"></div>
+								<button onclick="location.href='/web/handicap/apply/notice'" class="btn pb-0"><img src="/resources/web/images/btn-circlearrow-rightwhite.svg"></button>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="col col-lg-3">
+					<div class="card faq-card faq-card-02">
+						<div class="card-header">코스 핸디캡은<br>어떻게<br>계산되나요?</div>
+						<div class="card-body">
+							<div class="d-flex justify-content-between align-items-end">
+								<div class="faq-icon"><img src="/resources/web/images/icon-faq-02.svg"></div>
+								<button onclick="location.href='/web/handicap/calculator'" class="btn pb-0"><img src="/resources/web/images/btn-circlearrow-rightwhite.svg"></button>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="col col-lg-3">
+					<div class="card faq-card faq-card-03">
+						<div class="card-header">코스 <br>레이팅이란?</div>
+						<div class="card-body">
+							<div class="d-flex justify-content-between align-items-end">
+								<div class="faq-icon"><img src="/resources/web/images/icon-faq-03.svg"></div>
+								<button onclick="location.href='/web/handicap/system/rating'" class="btn pb-0 ps-3"><img src="/resources/web/images/btn-circlearrow-rightwhite.svg"></button>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="col col-lg-3">
+					<div class="card faq-card faq-card-04">
+						<div class="card-header">핸디캡 관련 자료</div>
+						<div class="card-body">
+							<div class="d-flex justify-content-between align-items-end">
+								<div class="faq-icon"><img src="/resources/web/images/icon-faq-04.svg"></div>
+								<button onclick="location.href='/web/handicap/system/rule/search'" class="btn pb-0"><img src="/resources/web/images/btn-circlearrow-rightwhite.svg"></button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="text-center">
+			<button onclick="location.href='/web/handicap/apply/notice'" class="btn btn-sectionmore btn-black" type="button">핸디캡의 모든것 보러가기</button>
+		</div>
+	</div>
+	</section>
+	
+	<!----------------------------------------- // link section -------------------------------------------->
+	
+	<section class="section-area section-link">
+	<div class="container">
+		<h2 class="title">관련단체 홈페이지</h2>
+		<div class="row">
+			<div class="col-12 col-lg-6">
+				<details class="mb-1">
+					<summary class="summary-link">시도협회</summary>
+					<div class="summary-linklist">
+						<ul>
+							<li><a href="http://www.seoulgolf.or.kr" target="_blank">서울특별시골프협회</a></li>
+							<li><a href="http://www.busangolf.or.kr" target="_blank">부산광역시골프협회</a></li>
+							<li><a href="http://www.dgga.org" target="_blank">대구광역시골프협회</a></li>
+							<li><a href="http://www.iga.or.kr" target="_blank">인천광역시골프협회</a></li>
+							<li><a href="http://www.gjgolf.co.kr" target="_blank">광주광역시골프협회</a></li>
+							<li><a href="http://www.djgolf.or.kr" target="_blank">대전광역시골프협회</a></li>
+							<li><a href="http://usga.or.kr/" target="_blank">울산광역시골프협회</a></li>
+							<li><a href="https://www.sga.or.kr" target="_blank">세종특별자치시골프협회</a></li>
+							<li><a href="https://www.kgdagolf.or.kr" target="_blank">경기도골프협회</a></li>
+							<li><a href="https://www.gwgolf.kr" target="_blank">강원특별자치도골프협회</a></li>
+							<li><a href="http://cbgolf.co.kr/" target="_blank">충청북도골프협회</a></li>
+							<li><a href="http://www.chungnamgolf.net" target="_blank">충청남도골프협회</a></li>
+							<li><a href="http://www.jbgolf.kr" target="_blank">전북특별자치도골프협회</a></li>
+							<li><a href="http://www.jngolf.org" target="_blank">전라남도골프협회</a></li>
+							<li><a href="http://kbgolf.or.kr" target="_blank">경상북도골프협회</a></li>
+							<li><a href="http://www.gnga.kr" target="_blank">경상남도골프협회</a></li>
+							<li><a href="https://www.jejugolf.or.kr" target="_blank">제주특별자치도골프협회</a></li>
+						</ul>
+					</div>
+				</details>
+				<details class="mb-1">
+					<summary class="summary-link">각급연맹</summary>
+					<div class="summary-linklist">
+						<ul>
+							<li><a href="http://www.kesga.or.kr/">한국초등학교골프연맹</a></li>
+							<li><a href="http://www.kjga.or.kr/">한국중고등학교골프연맹</a></li>
+							<li><a href="http://www.kcgf.org/">한국대학골프연맹</a></li>
+							<li><a href="http://www.kmagf.co.kr/">한국미드아마추어골프연맹</a></li>
+						</ul>
+					</div>
+				</details>
+			</div>
+			<div class="col-12 col-lg-6">
+				<details class="mb-1">
+					<summary class="summary-link">관련단체</summary>
+					<div class="summary-linklist">
+						<ul>
+							<li><a href="http://www.mcst.go.kr/">문화체육관광부</a></li>
+							<li><a href="http://www.sports.or.kr/">대한체육회</a></li>
+							<li><a href="http://www.kspo.or.kr/">국민체육진흥공단</a></li>
+							<li><a href="http://www.kgba.co.kr/">한국골프장경영협회</a></li>
+							<li><a href="http://www.kgca.co.kr/">한국골프연습장협회</a></li>
+							<li><a href="http://www.kpgna.co.kr/">한국대중골프협회</a></li>
+							<li><a href="http://www.koreapga.com/">한국프로골프협회</a></li>
+							<li><a href="http://klpga.co.kr/web/home/index.do">한국여자프로골프협회</a></li>
+							<li><a href="http://www.igfgolf.org/">IGF</a></li>
+							<li><a href="http://www.randa.org/">R&amp;A</a></li>
+							<li><a href="http://www.usga.org/">USGA</a></li>
+							<li><a href="https://www.apgc.online/">APGC</a></li>
+							<li><a href="https://www.pgatour.com">PGA TOUR</a></li>
+							<li><a href="https://www.lpga.com">LPGA</a></li>
+							<li><a href="https://www.asiantour.com/">ASIAN TOUR</a></li>
+						</ul>
+					</div>
+				</details>
+				<details class="mb-1">
+					<summary class="summary-link">회원사전용페이지</summary>
+					<div class="summary-linklist">
+						<ul>
+							<li><a href="https://gclient.kgagolf.or.kr">회원사 관리자페이지</a></li>
+						</ul>
+					</div>
+				</details>
+			</div>
+		</div>
+	</div>
+	</section>
+
+
+
+
+<script>
+	$(document).ready(function(){
+		
+		$(".calendarBtn").click(function(){
+			var currYear = "2026";
+			var currMonth = Number("07");
+			drawCalendar(currYear, currMonth);
+			getMainCalendarGameList(currYear, currMonth);
+		});
+		
+		$("#preCalMonth").click(function(){
+			var currYear = $("#calYear").val();
+			var currMonth = Number($("#nowCalMonth").attr("data-month")) - 1;
+			drawCalendar(currYear, currMonth);
+			getMainCalendarGameList(currYear, currMonth);
+		});
+		
+		$("#nextCalMonth").click(function(){
+			var currYear = $("#calYear").val();
+			var currMonth = Number($("#nowCalMonth").attr("data-month")) + 1;
+			drawCalendar(currYear, currMonth);
+			getMainCalendarGameList(currYear, currMonth);
+		});
+		
+		$("#calYear").change(function(){
+			var currYear = $("#calYear").val();
+			var currMonth = Number($("#nowCalMonth").attr("data-month"));
+			drawCalendar(currYear, currMonth);
+			getMainCalendarGameList(currYear, currMonth);
+		});
+	});
+		
+	function drawCalendar(currYear, currMonth){
+		var todayYear = "2026";
+		var todayMonth = "07";
+		var todayDate = "21";
+		var today = new Date(todayYear, todayMonth, todayDate);
+		var todayStr = today.getFullYear()+("0" + (today.getMonth())).slice(-2)+("0" + today.getDate()).slice(-2);
+
+		var firstDate = new Date(currYear, currMonth - 1, 1);
+		var lastDate = new Date(currYear, currMonth, 0);
+		
+		var preLastDate = new Date(currYear, currMonth - 1, 0);
+		var preFirstDate = preLastDate.getDate()-firstDate.getDay()+1;
+		var nextFirstDate = new Date(currYear, currMonth, 1); 
+		
+		var calendarHtml = "";
+		var calendarCnt = 0;
+		var calendarRow = 0;
+		
+		// 달력 앞
+		if(firstDate.getDay() != 0){
+			
+			for(var i=preFirstDate;i<=preLastDate.getDate();i++){
+				
+				if(calendarCnt == 0 || calendarCnt%7 == 0) {
+					calendarHtml += "<tr>";
+					calendarRow += 1;
+				}
+				
+				var forDate = preLastDate.getFullYear()+("0" + (preLastDate.getMonth() + 1)).slice(-2)+("0" + i).slice(-2);
+				if(todayStr == forDate){
+					if(i == preFirstDate ){
+						calendarHtml += "	<td class='schedule-datepicker-selected' data-date='"+forDate+"'><span class='date'>"+(preLastDate.getMonth() + 1)+"/"+i+"</span><ul class='date-list'></ul></td>";
+					}else{
+						calendarHtml += "	<td class='schedule-datepicker-selected' data-date='"+forDate+"'><span class='date'>"+i+"</span><ul class='date-list'></ul></td>";
+					}
+				}else{
+					if(i == preFirstDate){
+						calendarHtml += "	<td class='schedule-datepicker-disabled' data-date='"+forDate+"'><span class='date'>"+(preLastDate.getMonth() + 1)+"/"+i+"</span><ul class='date-list'></ul></td>";
+					}else{
+						calendarHtml += "	<td class='schedule-datepicker-disabled' data-date='"+forDate+"'><span class='date'>"+i+"</span><ul class='date-list'></ul></td>";
+					}
+				}
+				
+				if(calendarCnt != 0 && calendarCnt%7 == 6) {
+					calendarHtml += "</tr>";
+				}
+				
+				calendarCnt += 1;
+			}
+		}
+		
+		// 달력 메인
+		for(var i=0;i<lastDate.getDate();i++){
+			
+			if(calendarCnt == 0 || calendarCnt%7 == 0) {
+				calendarHtml += "<tr>";
+				calendarRow += 1;
+			}
+			
+			var forDate = lastDate.getFullYear()+("0" + (lastDate.getMonth() + 1)).slice(-2)+("0" + (i+1)).slice(-2);
+			if(Number(todayStr) > Number(forDate)){
+				calendarHtml += "	<td class='schedule-datepicker-disabled' data-date='"+forDate+"'><span class='date'>"+(i+1)+"</span><ul class='date-list'></ul></td>";
+			}else if(Number(todayStr) == Number(forDate)){
+				calendarHtml += "	<td class='schedule-datepicker-selected' data-date='"+forDate+"'><span class='date'>"+(i+1)+"</span><ul class='date-list'></ul></td>";
+			}else{
+				calendarHtml += "	<td class='schedule-datepicker-highlight' data-date='"+forDate+"'><span class='date'>"+(i+1)+"</span><ul class='date-list'></ul></td>";
+			}
+			
+			if(calendarCnt != 0 && calendarCnt%7 == 6) {
+				calendarHtml += "</tr>";
+			}
+			
+			calendarCnt += 1;
+		}
+		
+		// 달력 뒤
+		//if(nextFirstDate.getDay() != 0){
+		//	for(var i=7;i>nextFirstDate.getDay();i--){
+		//		endExtraCnt += 1;
+		//	}
+		//}
+		var endExtraCnt = (7 - nextFirstDate.getDay() == 7 ? 0 : 7 - nextFirstDate.getDay());
+		if(calendarRow < 6) endExtraCnt += 7;
+		
+		
+		for(var i=0;i<endExtraCnt;i++){
+			
+			if(calendarCnt == 0 || calendarCnt%7 == 0) {
+				calendarHtml += "<tr>";
+			}
+			
+			var forDate = nextFirstDate.getFullYear()+("0" + (nextFirstDate.getMonth() + 1)).slice(-2)+("0" + (i+1)).slice(-2);
+			if(todayStr == forDate){
+				if(i == 0){
+					calendarHtml += "	<td class='schedule-datepicker-selected' data-date='"+forDate+"'><span class='date'>"+(nextFirstDate.getMonth() + 1)+"/"+(i+1)+"</span><ul class='date-list'></ul></td>";
+				}else{
+					calendarHtml += "	<td class='schedule-datepicker-selected' data-date='"+forDate+"'><span class='date'>"+(i+1)+"</span><ul class='date-list'></ul></td>";
+				}
+			}else{
+				if(i == 0){
+					calendarHtml += "	<td class='schedule-datepicker-disabled' data-date='"+forDate+"'><span class='date'>"+(nextFirstDate.getMonth() + 1)+"/"+(i+1)+"</span><ul class='date-list'></ul></td>";
+				}else{
+					calendarHtml += "	<td class='schedule-datepicker-disabled' data-date='"+forDate+"'><span class='date'>"+(i+1)+"</span><ul class='date-list'></ul></td>";
+				}
+			}
+			
+			if(calendarCnt != 0 && calendarCnt%7 == 6) {
+				calendarHtml += "</tr>";
+			}
+			
+			calendarCnt += 1;
+		}
+		
+		// 버튼 활성화 및 달력 표시
+		if(currMonth == "1"){
+			$("#preCalMonth").addClass("disabled");
+		}else{
+			$("#preCalMonth").removeClass("disabled");
+		}
+		
+		$("#nowCalMonth").attr("data-month",currMonth);
+		$("#nowCalMonth").html(currMonth+"월");
+		
+		if(currMonth == "12"){
+			$("#nextCalMonth").addClass("disabled");
+		}else{
+			$("#nextCalMonth").removeClass("disabled");
+		}
+		
+		$("#calTb").empty();
+		$("#calTb").append(calendarHtml);
+	}
+	
+	function getMainCalendarGameList(currYear, currMonth){
+		currMonth = ("0" + currMonth).slice(-2)
+		
+		$.ajax({
+			  url : "/ajax/web/main/getMainCalendarGameList"
+			, type : "POST"
+			, data : {
+				currentDate : currYear+currMonth+"01"
+			}
+			, datatype : "json"
+			, async : true
+			, success : function(res, status, xhr) {
+				var list = res.scheduleList;
+				
+				for(var i=0;i<list.length;i++) {
+					$("#calTb td").each(function(index, item) {
+						if(list[i].beforeMonthChk == "1"){
+							if($(this).attr("data-date") == list[i].startDate) {
+								for(var j=0;j<list[i].dateDiff;j++) {
+									var thisRowChk = $("#calTb td").eq(index+j).find("[data-gbn='"+list[i].eliteLifeCode+"']").index();
+									if(thisRowChk < 0){
+										$("#calTb td").eq(index+j).find(".date-list").append(printSchedule(thisRowChk, list[i]));
+									}else{
+										$("#calTb td").eq(index+j).find(".date-list > li[data-gbn='"+list[i].eliteLifeCode+"'] > div.list-tooltip").append(printSchedule(thisRowChk, list[i]));
+									}
+								}
+							}
+						}else{
+							if($(this).attr("data-date") == list[i].endDate) {
+								for(var j=0;j<list[i].dateDiff;j++) {
+									var thisRowChk = $("#calTb td").eq(index-j).find("[data-gbn='"+list[i].eliteLifeCode+"']").index();
+									if(thisRowChk < 0){
+										$("#calTb td").eq(index-j).find(".date-list").append(printSchedule(thisRowChk, list[i]));
+									}else{
+										$("#calTb td").eq(index-j).find(".date-list > li[data-gbn='"+list[i].eliteLifeCode+"'] > div.list-tooltip").append(printSchedule(thisRowChk, list[i]));
+									}
+								}
+							}
+						}
+					});
+				}
+				
+			}
+			, error : function(request, status, error) {
+				//alert(error);
+			}
+		}).fail(function(errObj) {
+			try {
+				console.error(errObj);
+			} catch (e) {
+			}
+		}); //ajax
+	}
+		
+	function printSchedule(thisRowChk, gameInfo){
+		var startDate = new Date(gameInfo.startDate.substring(0,4), gameInfo.startDate.substring(4,6), gameInfo.startDate.substring(6,8));
+		var endDate = new Date(gameInfo.endDate.substring(0,4), gameInfo.endDate.substring(4,6), gameInfo.endDate.substring(6,8));
+		
+		var html = "";
+		
+		if(thisRowChk < 0){
+			html += "<li data-gbn='"+gameInfo.eliteLifeCode+"'>";
+			if(gameInfo.eliteLifeCode == "01"){
+				html += "<a href='/web/elite/schedule'><span class='list-bullet list-pro'></span>전문체육</a>";
+			}else if(gameInfo.eliteLifeCode == "02"){
+				html += "<a href='/web/life/schedule'><span class='list-bullet list-all'></span>생활체육</a>";
+			}else if(gameInfo.eliteLifeCode == "11"){
+				html += "<a href='/web/nationalTeam/schedule'><span class='list-bullet list-national'></span>국가대표</a>";
+			}
+			html += "<div class='list-tooltip'>";
+		}else{
+			html += "<br>";
+		}
+		
+		if(gameInfo.eliteLifeCode == "01"){
+			html += "	<h5 class='list-pro'>"+langStringJs('KOR',gameInfo.tournamentName,gameInfo.tournamentEngName)+"</h5>";
+		}else if(gameInfo.eliteLifeCode == "02"){
+			html += "	<h5 class='list-all'>"+langStringJs('KOR',gameInfo.tournamentName,gameInfo.tournamentEngName)+"</h5>";
+		}else if(gameInfo.eliteLifeCode == "11"){
+			html += "	<h5 class='list-national'>"+langStringJs('KOR',gameInfo.tournamentName,gameInfo.tournamentEngName)+"</h5>";
+		}
+		html += "<p>";
+		html += "" + startDate.getFullYear()+"년 " + startDate.getMonth() +"월 " + startDate.getDate() + "일("+weekIndexToNameJs(startDate.getDay(),'Y','KOR')+")";
+		html += " ~ " + endDate.getMonth() + "월 " + endDate.getDate() +"일("+weekIndexToNameJs(endDate.getDay(),'Y','KOR')+")<br>";
+		html += "" + langStringJs('KOR',gameInfo.courseName,gameInfo.courseEngName)+", "+ langStringJs('KOR',gameInfo.outCourseName,gameInfo.outCourseEngName)+", "+ langStringJs('KOR',gameInfo.inCourseName,gameInfo.inCourseEngName)+"<br>";
+		
+		if(gameInfo.eliteLifeCode == "01" || gameInfo.eliteLifeCode == "02"){
+			if(gameInfo.tournamentState == "F"){
+				for(var i=0;i<gameInfo.winnerList.length;i++){
+					html += ""+gameInfo.winnerList[i].groupName+" (W) : "+gameInfo.winnerList[i].playerName + "<br>";
+				}
+			}else if(gameInfo.tournamentState != "F"){
+				for(var i=0;i<gameInfo.defendingList.length;i++){
+					html += ""+gameInfo.defendingList[i].groupName+" (D) : "+gameInfo.defendingList[i].playerName + "<br>";
+				}
+			}
+		}else if(gameInfo.eliteLifeCode == "11"){
+			var nationEntryList = gameInfo.iTourEntryList;
+			var nationResultList = gameInfo.iTourResultList;
+			
+			var nationGroupName = "";
+			if(gameInfo.tournamentState == "F"){
+				for(var i=0;i<nationResultList.length;i++){
+					var rowCnt = 0;
+					if(rowCnt > 0) continue;
+					
+					if(nationGroupName != nationResultList[i].groupName){
+						if(i!=0) html += "<br>";
+						if(nationResultList[i].playerName != ""){
+							html += ""+nationResultList[i].groupName + "(W) : " + nationResultList[i].playerName + "("+nationResultList[i].rank+")";
+						}else{
+							html += ""+nationResultList[i].groupName + "(W) : " + nationResultList[i].nat + "("+nationResultList[i].rank+")";
+						}
+						
+						rowCnt += 1;
+					}
+					
+					nationGroupName = nationResultList[i].groupName;
+				}
+			} else {
+				for(var i=0;i<nationEntryList.length;i++){
+					if(nationGroupName != nationEntryList[i].groupName){
+						if(i!=0) html += "<br>";
+						html += ""+nationEntryList[i].groupName + "(선발) : " + nationEntryList[i].playerName;
+					}else{
+						html += ", " + nationEntryList[i].playerName;
+					}
+					
+					nationGroupName = nationEntryList[i].groupName;
+				}
+			}
+		}
+		
+		html += "	</p>";
+		
+		if(thisRowChk < 0){
+			html += "</div>";
+			html += "</li>";
+		}
+		
+		return html;
+	}
+</script>
+
+<script>
+	if(cookieLang == "ENG" && engPageYn == "N") {
+		alert("해당 페이지는 영문 제공하지 않습니다.");
+		location.href = "/web/main/index";
+	}
+</script>
+<!----------------------------------------- // copyright section -------------------------------------------->
+
+<section class="section-area section-sponsor">
+<div class="container">
+	<div class="swiper sponsor-swiper swiper-initialized swiper-horizontal swiper-free-mode swiper-watch-progress swiper-backface-hidden">
+		<div class="swiper-wrapper" id="swiper-wrapper-cc3e9f4126e89cb3" aria-live="off" style="transition-duration: 0ms; transform: translate3d(-426.333px, 0px, 0px); transition-delay: 0ms;">
+			<div class="swiper-slide" role="group" aria-label="1 / 8" style="width: 193.167px; margin-right: 20px;"><a href="https://www.kspo.or.kr/kspo/main/main.do" target="_blank"><img src="/resources/web/images/sponsor/sponsor-01.png?ver=20240910"></a></div>
+			<div class="swiper-slide swiper-slide-prev" role="group" aria-label="2 / 8" style="width: 193.167px; margin-right: 20px;"><a href="https://www.k-sec.or.kr" target="_blank"><img src="/resources/web/images/sponsor/sponsor-02.png?ver=20240910"></a></div>
+			<div class="swiper-slide swiper-slide-visible swiper-slide-active" role="group" aria-label="3 / 8" style="width: 193.167px; margin-right: 20px;"><a href="https://portal.sports.or.kr/main.do" target="_blank"><img src="/resources/web/images/sponsor/sponsor-03.png?ver=20240910" width="70%"></a></div>
+			<div class="swiper-slide swiper-slide-visible swiper-slide-fully-visible swiper-slide-next" role="group" aria-label="4 / 8" style="width: 193.167px; margin-right: 20px;"><a href="https://www.cspep.or.kr/web/main/main" target="_blank"><img src="/resources/web/images/sponsor/sponsor-04.png?ver=20240910"></a></div>
+			<div class="swiper-slide swiper-slide-visible swiper-slide-fully-visible" role="group" aria-label="5 / 8" style="width: 193.167px; margin-right: 20px;"><a href="https://welfare.sports.or.kr" target="_blank"><img src="/resources/web/images/sponsor/sponsor-05.png?ver=20240910"></a></div>
+			<div class="swiper-slide swiper-slide-visible swiper-slide-fully-visible" role="group" aria-label="6 / 8" style="width: 193.167px; margin-right: 20px;"><a href="https://www.kada-ad.or.kr" target="_blank"><img src="/resources/web/images/sponsor/sponsor-06.png?ver=20240910"></a></div>
+			<div class="swiper-slide swiper-slide-visible swiper-slide-fully-visible" role="group" aria-label="6 / 8" style="width: 193.167px; margin-right: 20px;"><a href="https://www.kigepe.or.kr/kor/index.do" target="_blank"><img src="/resources/web/images/sponsor/sponsor-07.png?ver=20240910"></a></div>
+		</div>
+	<span class="swiper-notification" aria-live="assertive" aria-atomic="true"></span></div>
+
+	<!-- Initialize Swiper -->
+	<script>
+		var swiper = new Swiper(".sponsor-swiper", {
+			slidesPerView: 4,
+			spaceBetween: 5,
+			slidesPerGroup : 4,
+			freeMode: true,
+			watchSlidesProgress: true,
+			observer: true,
+			observeParents: true,
+			breakpoints: {
+				1600: {
+				slidesPerView: 6,
+				spaceBetween: 20,
+				slidesPerGroup : 6,
+				},
+			},
+			autoplay: {
+				delay: 4000,
+			},
+		});
+	</script>
+
+</div> <!-- end .container -->
+</section>
+
+<!----------------------------------------- // copyright section -------------------------------------------->
+<section class="section-area section-copyright">
+	<div class="container">
+		<div class="footer-logo">
+			<img src="/resources/web/images/footer-logo.svg">
+		</div>
+		<div class="footer-menu">
+			<ul>
+				<li><a href="/footerTerms">KGA 이용약관</a></li>
+				<li><a href="/footerPrivate">개인정보처리방침</a></li>
+			</ul>
+		</div>
+		<div class="footer-copyright">
+			<p>Copyright ⓒ KGA All Right Reserved. </p>
+			<p>
+				
+					
+						10881 경기도 파주시 회동길 174 (문발동) | Tel. (031)-540-5700 | FAX (0507)-883-2300<br>
+						174, Hoedong-gil, Paju-si, Gyeonggi-do, 10881, Rep. of KOREA
+					
+					
+				
+			</p>
+		</div>
+	</div> <!-- end .container -->
+</section> <!-- end .section-copyright -->
+
+
+<span itemscope="" itemtype="http://schema.org/Organization">
+	<link itemprop="url" href="https://kgagolf.or.kr">
+	<a itemprop="sameAs" href="https://www.facebook.com/koreagolfassociation"></a>
+	<a itemprop="sameAs" href="https://www.instagram.com/kgagolf_official"></a>
+	<a itemprop="sameAs" href="https://www.youtube.com/@대한골프협회-u6q"></a>
+	<a itemprop="sameAs" href="https://blog.naver.com/koreagolfassociation"></a>
+</span>
+
+
+</body>
+</html>

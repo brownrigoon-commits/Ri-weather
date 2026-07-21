@@ -1,0 +1,485 @@
+
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+
+    
+<meta charset="UTF-8">
+<title>한미르대덕CC</title>
+
+<link type="text/css" rel="stylesheet" href="/Content/web/css/common.css">
+
+
+
+
+<link rel="stylesheet" type="text/css" href="/Content/three-dots.css">
+
+<link rel="shortcut icon" href="/Content/web/img/favicon.ico">
+
+<script type="text/javascript" src="/Content/web/js/jquery-1.12.3.min.js"></script>
+<script type="text/javascript" src="/Content/web/js/slick.min.js"></script>
+
+<script type="text/javascript" src="/Content/web/js/jquery.bxslider.min.js"></script>
+<script type="text/javascript" src="/Content/web/js/aos.js"></script>
+
+<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.9.2/i18n/jquery.ui.datepicker-ko.min.js"></script>
+<!-- Date 라이브러리 -->
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
+
+<script src="/Scripts/common.js"></script>
+<script src="/Scripts/checkForm.js"></script>
+<script src="/Scripts/jquery.vticker-min.js"></script>
+
+
+    <script type="text/javascript">
+        $(function () {
+            /*nav*/
+            $("#header").mouseenter(function () {
+                $(this).addClass("over")
+            });
+            $(window).scroll(function () {
+                var sc = $(window).scrollTop()
+                if (sc > 150) {
+                    $("#header").addClass("over").mouseleave(function () {
+                        $(this).addClass("over")
+                    });
+                } else {
+                    $("#header").removeClass("over").mouseenter(function () {
+                        $(this).addClass("over")
+                    }).mouseleave(function () {
+                        $(this).removeClass("over")
+                    });;
+                }
+            });
+            $("#header").mouseleave(function () {
+                $(this).removeClass("over")
+            });
+        });
+    </script>
+
+    <link rel="stylesheet" href="/Content/web/css/main.css?v=2">
+    <link type="text/css" rel="stylesheet" href="/Content/web/css/aos.css">
+
+    <script type="text/javascript">
+        function login() {
+            var f = document.form1;
+
+            if (checkForm(f)) {
+                $.post('/Member/Login', $(f).serialize(), function (result) {
+
+                    if (result.Item1 == 0) {
+                        location.href = '';
+                    } else {
+                        alert(result.Item2);
+                    }
+                }, 'json');
+            }
+        }
+
+        $(function () {
+
+            $('.bxslider').bxSlider({
+                mode: 'fade',
+                captions: true,
+                auto: true,
+                speed: 500,
+                pause: 6000,
+            });
+
+
+            $(".scroll").click(function(){
+                $('html, body').animate({
+                    scrollTop:700
+                }, '2000');
+            });
+            
+            /*weather*/
+            $('.weather').hover(function(){
+                $(this).addClass("dropDown")
+            });
+            $('.weather').mouseleave(function(){
+                $(this).removeClass("dropDown")
+            });
+            
+            
+            /*main-reservbar*/
+            $('.selectDate').click(function(){
+                $('div.calBox').toggleClass('show');
+            });
+            $('.closedBtn').click(function(){
+                $('div.calBox').removeClass('show');
+            });
+            
+            /*main-noticeSlide*/
+            $('.cntSlide').slick({
+                autoplay: true,
+                autoplaySpeed:2500,
+                dots: true,
+                arrows: false,
+                infinite: true,
+                slidesToShow: 1,
+                pauseOnHover:true
+            });
+            
+            /*main-courseSlide*/
+            $('.courseBg').slick({
+                slidesToShow: 1,
+                slidesToScroll: 1,
+                arrows: false,
+                fade: true,
+                asNavFor: '.infoSlide'
+            });
+            $('.infoSlide').slick({
+                slidesToShow: 1,
+                slidesToScroll: 1,
+                asNavFor: '.courseBg',
+                dots: false,
+                arrows: true,
+                focusOnSelect: true
+            });
+            
+            /*main-snsSlide*/
+            $('.notiSlide ul').bxSlider({
+                slideWidth:1200
+            });
+            AOS.init({
+                duration: 1200
+            });
+
+            // 예약 칼렌다
+            $.get('/Home/AjaxMainCalendar', '', function (html) {
+                $('#AjaxMainCalendar').html(html);
+            });
+
+            // 날씨
+            $.ajax({
+                url: '/Home/AjaxMainWeather'
+            , type: 'POST'
+            , data: ''
+            , cache: true
+            , dataType: 'html'
+            , async: true
+            , beforeSend: function () { $('#ajaxLoadingBox').hide(); }
+            , success: function (data) {
+                $("#main_weather").html(data);
+                $('#ajaxLoadingBox').hide();
+            }
+            , error: function (result) { }
+            });
+
+
+        });
+
+
+
+    </script>
+
+    
+
+</head>
+<body>
+
+    <div id="header">
+    <div class="topNavi">
+        <div class="wrap">
+
+            <div class="utilInner">
+                <a href="/Member/Login">로그인</a>
+                <a href="/Member/FindAccount">ID/PW 찾기</a>
+                <a href="/Member/Join01">회원가입</a>
+            </div>
+
+        </div>
+    </div>
+    <div class="endline"></div>
+
+    <div class="nav wrap">
+        <h1 class="logo">
+            <a href="/">LOGO</a>
+        </h1>
+        <ul class="lnb">
+            <li>
+                <a href="/Club/Info" class="depth1">클럽안내</a>
+                <div id="club" class="depth2">
+                    <a href="/Club/Info">클럽소개</a>
+                    <a href="/Club/UseInfo">이용안내</a>
+                    <a href="/Club/UsageFee">이용요금</a>
+                    <a href="/Club/Facility">시설안내</a>
+                    <a href="/Club/Location">오시는길</a>
+                </div>
+            </li>
+            <li>
+                <a href="/Reservation/ReservCalendar" class="depth1">예약서비스</a>
+                <div id="reservation" class="depth2">
+                    <a href="/Reservation/ReservCalendar">실시간예약</a>
+                    <a href="/Reservation/ReservInfo">예약가이드</a>
+                    <a href="/Reservation/ReservedList">예약현황</a>
+                    <a href="/Reservation/JoinList">조인게시판</a>
+
+                    
+                    
+                </div>
+            </li>
+            <li>
+                <a href="/Course/Index" class="depth1">코스안내</a>
+                <div id="course" class="depth2">
+                    <a href="/Course/Index">코스소개</a>
+                    <a href="/Course/Course1">코스공략법</a>
+                    
+                </div>
+            </li>
+            <li>
+                <a href="/Board/BoardList?board_idx=1" class="depth1">공지사항</a>
+                <div id="board" class="depth2">
+                    <a href="/Board/BoardList?board_idx=1">공지사항</a>
+                    <a href="/Board/HonorList">명예의전당</a>
+                    <a href="/Board/BoardList?board_idx=2">포토갤러리</a>
+                    <a href="/Board/BoardList?board_idx=17">한미르 이모저모</a>
+                    <a href="/Board/LostList">분실물센터</a>
+
+                    
+                    
+                    <a href="/Board/BoardList?board_idx=6">자료실</a>
+                </div>
+            </li>
+            <li>
+                <a href="/Etc/MenuList?board_idx=8" class="depth1">모아담F&B</a>
+                <div id="etc" class="depth2">
+                    <a href="/Etc/MenuList?board_idx=8">메뉴</a>
+                    <a href="/Etc/EventList?board_idx=9">이벤트</a>
+                </div>
+            </li>
+            <li>
+                <a href="/Range/Info" class="depth1">스포츠센터</a>
+                <div id="range" class="depth2">
+                    <a href="/Range/Info">시설안내</a>
+                    <a href="/Range/Fee">이용요금</a>
+                    <a href="/Range/EventList?board_idx=7">이벤트</a>
+                    <a href="/Range/Lesson">강사진</a>
+                    <a href="/Range/SafetyRules">안전수칙</a>
+                </div>
+            </li>
+            
+
+
+
+            <li style="display:none">
+                <a href="/Member/Join01" class="depth1">회원</a>
+                <div id="member" class="depth2">
+                    <a href="/Member/Login">로그인</a>
+                    <a href="/Member/FindAccount">아이디/비밀번호 찾기</a>
+                    <a href="/Member/Join01">회원가입</a>
+                </div>
+            </li>
+
+            <li style="display:none">
+                <a href="/MyPage/MyInfo" class="depth1">회원라운지</a>
+                <div id="mypage" class="depth2">
+                    
+
+                    <a href="/MyPage/MyInfo">회원정보</a>
+                    <a href="/MyPage/ChangePass">비밀번호변경</a>
+                    <a href="/MyPage/Withdrawal">회원탈퇴</a>
+                </div>
+            </li>
+
+            <li style="display:none">
+                <a href="/Terms/ClubUseRule" class="depth1">약관</a>
+                <div id="terms" class="depth2">
+                    <a href="/Terms/ClubUseRule">이용약관</a>
+                    <a href="/Terms/PrivacyRule">개인정보보호정책</a>
+                    <a href="/Terms/PrivacyProcRule">개인정보처리방침</a>
+                    <a href="/Terms/VideoRule">영상정보처리방침</a>
+                </div>
+            </li>
+
+        </ul>
+    </div>
+    <div class="endline"></div>
+</div>
+
+
+
+
+
+
+<script>
+    $(function () {
+
+        
+
+    });
+</script>
+
+    <div id="section">
+        <div class="mainVisual">
+            <ul class="bxslider">
+                <li><img src="/Content/web/img/bg_image05.jpg" alt="메인 비주얼"></li>
+				<li><img src="/Content/web/img/bg_image03.jpg" alt="메인 비주얼"></li>
+                <li><img src="/Content/web/img/bg_image04.jpg" alt="메인 비주얼"></li>
+            </ul>
+            <div class="endline"></div>
+
+            <div class="cnt_w">
+                <div class="weather">
+                    <h1>WEATHER </h1>
+                    <ul id="main_weather"></ul>
+                </div>
+
+                <div class="reserv">
+                    <h1>RESERVATION<a href="/Reservation/ReservCalendar">+</a></h1>
+                    <div id="AjaxMainCalendar" class="time_w"></div>
+                </div>
+                <div class="notice">
+                    <h1>NOTICE<a href="/Board/BoardList?board_idx=1">+</a></h1>
+                    <ul>
+                                <li><a href="/Board/BoardView?board_idx=1&bd_main_seq=1437">기프트 카드 판매[~7/31]</a><span>2026.07.19</span></li>
+                                <li><a href="/Board/BoardView?board_idx=1&bd_main_seq=1435">7월 그린피 안내[7/13~7/31]</a><span>2026.07.12</span></li>
+                                <li><a href="/Board/BoardView?board_idx=1&bd_main_seq=1433">3&#183;4&#183;5 퍼팅 챌린지</a><span>2026.07.04</span></li>
+                                <li><a href="/Board/BoardView?board_idx=1&bd_main_seq=1432">7월 그린피 안내[7/1~7/12]</a><span>2026.06.30</span></li>
+                                <li><a href="/Board/BoardView?board_idx=1&bd_main_seq=1431">고려은단 특별 이벤트 – 시원하게 드립니다!</a><span>2026.06.30</span></li>
+                        
+                    </ul>
+                </div>
+
+                <div class="main_mem">
+
+                        <form name="form1" id="form1">
+                            <input name="__RequestVerificationToken" type="hidden" value="WWCBvKCAh0RfXwZ_2c1yUL5-SKp3B_fWqloHOssLHLaqa9jFY9RARxQ5N_Hg4Uab8eHWpfnSVIGmkhgzFMswpug3CV5ZlEEP4Cw7OTUWfVM1" />
+
+                            <div class="input_area">
+                                <input class="iptStyle" type="text" name="user_id" id="user_id" value="" placeholder="아이디">
+                                <input class="iptStyle" type="password" name="user_pwd" id="user_pwd" placeholder="비밀번호">
+                            </div>
+                            <a href="javascript:login()" class="join_btn">로그인</a>
+                        </form>
+
+                        <ul>
+                            <li><a href="/Reservation/JoinList"><span>조인게시판</span></a></li>
+                            <li><a href="/Range/Info"><span>스포츠센터</span></a></li>
+                            <li><a href="/Club/Location"><span>오시는길</span></a></li>
+                        </ul>
+
+</div>
+            </div>
+
+        </div>
+
+        <div id="footer">
+    <div class="footLink">
+        <div class="footInner">
+            <ul>
+                <li><a href="/Terms/ClubUseRule">이용약관</a></li>
+                <li><a href="/Terms/PrivacyProcRule" class="point">개인정보처리방침</a></li>
+                <!-- <li><a href="https://www.hanmircc.com/intranet/login.asp" target="_blank">INTRANET</a></li> -->
+            </ul>
+        </div>
+    </div>
+    <div class="wrap">
+        <p class="footTxt">
+            청신레저 주식회사<em></em>대표이사 황영채<em></em>개인정보보호 관리자 이아록<em></em>사업자등록번호 417-87-02304<em></em>통신판매번호 2021-대전유성-1026<br>
+			34035 대전광역시 유성구 테크노중앙로 210(용산동676번지)<em></em>대표전화 042.250.6565<em></em>팩스번호 042.250.6667<em></em>e-mail: hanmircc2021@naver.com<em></em>ⓒ 2021 HANMIR Country Club All rights reserved.
+        </p>
+    </div>
+</div>
+
+
+
+
+    </div>
+
+    <!-- s: pop -->
+    <div class="mpop">
+        <div class="cntSlide">
+                    <div><a href="/Board/BoardView?board_idx=1&bd_main_seq=1437"><img src="/_Data/_Upload/202607/260731_-기프트판매-7월-말일까지1.png" alt=""></a></div>
+                    <div><a href="/Board/BoardView?board_idx=1&bd_main_seq=1435"><img src="/_Data/_Upload/202607/image01.png" alt=""></a></div>
+                    <div><a href="/Board/BoardView?board_idx=1&bd_main_seq=1433"><img src="/_Data/_Upload/202607/345 event.png" alt=""></a></div>
+                    <div><a href="/Board/BoardView?board_idx=1&bd_main_seq=1431"><img src="/_Data/_Upload/202607/260629_고려은단.png" alt=""></a></div>
+                    <div><a href="/Board/BoardView?board_idx=1&bd_main_seq=1427"><img src="/_Data/_Upload/202607/260701_-창립5주년-썸머-뮤직페스티벌-골프대항전4.png" alt=""></a></div>
+                    <div><a href="/Board/BoardView?board_idx=9&bd_main_seq=1420"><img src="/_Data/_Upload/202605/260521_-수박주스-&amp;-치아바타.png" alt=""></a></div>
+            
+
+        </div>
+        <a href="javascript:$('.mpop').hide()" class="closedBtn">닫기</a>
+    </div>
+    <!-- e: pop -->
+    
+    
+<div id="topBtn">
+    <p>TOP</p>
+</div>
+<script>
+    $(document).ready(function() {
+        $(window).scroll(function() {
+            if ($(this).scrollTop() > 100) {
+                $('#topBtn').fadeIn();
+            } else {
+                $('#topBtn').fadeOut();
+            }
+        });
+
+        $("#topBtn").click(function() {
+            $('html, body').animate({
+                scrollTop: 0
+            }, 500);
+            return false;
+        });
+    });
+</script>
+
+
+
+
+    
+
+
+    <form name="bookingForm" id="bookingForm" method="post" action="/Reservation/ReservCheck">
+        <input name="__RequestVerificationToken" type="hidden" value="xLRRWnLdfCyTIX6bZe4ohIH6bklg22HrX9jjS1oCQPEXvr3ZTI1BJfFcU8tw4p7AkwTe_3glZDEpC6Tb1DlRX7Gnt_KnaUP_MdlKdxakqp01" />
+
+        <input type="hidden" name="rsv_date" id="rsv_date" />
+        <input type="hidden" name="rsv_seq" id="rsv_seq" />
+        <input type="hidden" name="changeDate" id="changeDate" value="" />
+        <input type="hidden" name="changeSeq" id="changeSeq" value="" />
+
+        <input type="hidden" name="daegiDate" id="daegiDate" value="" />
+        <input type="hidden" name="hopeTime1" id="hopeTime1" value="" />
+        <input type="hidden" name="hopeTime2" id="hopeTime2" value="" />
+    </form>
+
+
+<script>
+
+
+    function HidePopupLayer(TYPE, ID) {
+        var vObject = null;
+
+        var vID = "";
+
+        vID = (typeof (ID) == "string" && ID != "") ? ID : "";
+
+        if (vID != "") {
+            vObject = $("#" + vID);
+
+            if (TYPE == 1) {
+                SetCookie(vID, "HidePopupLayer", 1);
+            }
+
+            vObject.hide();
+        }
+    }
+
+    // 타임 폼 전송
+    function formLayer(rsv_date, rsv_seq) {
+        var f = document.bookingForm;
+        f.rsv_date.value = rsv_date;
+        f.rsv_seq.value = rsv_seq;
+        f.submit();
+    }
+</script>
+
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v4513226cdae34746b4dedf0b4dfa099e1781791509496" integrity="sha512-ZE9pZaUXND66v380QUtch/5sE9tPFh2zg45pR2PB0CVkCtOREv2AJKkSidISWkysEuQ0EH8faUU5du78bx87UQ==" data-cf-beacon='{"version":"2024.11.0","token":"de9f4891b32a4c7ba3c624fc918787fa","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a1e7b581fa415704',t:'MTc4NDYxMDcyOQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

@@ -1,0 +1,5150 @@
+
+
+ 
+
+     
+    
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html> 
+<head>
+<title>블루원</title>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" /> 
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta http-equiv="Pragma" content="no-cache">
+<meta name="robots" content="all">  
+<meta name="keywords" content="블루원, 블루원리조트, 경주 블루원">  
+<meta name="description" content="BlueOne은 용인, 경주, 상주에서 골프, 콘도, 워터파크를 운영하고 있는 고품격 사계절 종합리조트입니다.">  
+<meta name="author" content="블루원, Blue One">
+<link rel="stylesheet" type="text/css" href="/shop/common/css/common_r.css">
+<script src="/shop/common/js/reserve/jquery-1.6.3.min.js"></script>
+<script src="/shop/common/js/reserve/common.js"></script>
+<script src="/shop/common/js/reserve/blueone.js"></script>
+<script type="text/javascript">
+var menuCorpCode = '01';
+var menuYinCoseType = '';
+//예약 procuder 지역 변수
+var I_coseCd = "";
+var I_bookDate = "";
+var I_coseTime = "";
+var I_coseTime2 = "";
+var I_ent_yn = "";
+var I_corp_code = "";
+var I_reservStnadYN = "";
+var I_joinCnt = "";
+var I_bookStts = "";
+
+var lockState = "unLock";	//화면 Lock 상태 : 최초 unLock
+var doubleChoice = "N";		//9홀 선택 시 timeSheet 선택 버튼 풀기
+
+/* 9홀 timeSheet 추가 선택을 위한 지역변수 */
+var doubleCorpCode = "";
+var doubleBookDate = "";
+var doubleYinCoseType = "";
+var doubleSheetTime = "";
+var doubleDoubleTime = "";
+var doubleCoseCd = "";
+var doubleBookStts = "";
+//2019-02-12 김대성추가
+//9홀 예약시 2시간 20분 뒤 타임 전부 조회되어야 하나 타오픈된 시간만 보임(이상경주임)
+var doubletaOpen = "";
+
+
+/* 예약 변경 지역변수*/
+
+var ICH_CORP_CODE    = "";
+var ICH_RESERV_NO    = "";
+var ICH_BOOK_DATE    = "";
+var ICH_COSE         = "";
+var ICH_TIME         = "";
+var ICH_CHANGE_COSE  = "";
+var ICH_CHANGE_TIME  = "";
+var ICH_CDD_RANK     = "";
+var ICH_CHARGE_HP_NO  = "";
+var ICH_STAND_CHARGE_HP_NO = "";
+var ICH_CHARGE_SMS_YN = "";
+var ICH_HP_NO 		  = "";
+var ICH_SMS_YN        = "";
+var ICH_REMARK        = "";
+var ICH_ENTR_YN       = "";
+var ICH_JOINCNT       = "";
+var ICH_RSRV_SEQ      = "";
+var ICH_GUEST_NO	  = "";
+var ICH_BOOK_NAME     = "";
+var ICH_RESERV_CORP_CODE     = '';	//회원SESSION CORP_CODE
+
+var prtnrCorpCode = '';
+var prtnrGuestNo = '';
+
+var preferenceCddRank = '';
+
+var R_CHANGE_CHECK = '';
+var R_S_CHANGE_CHECK = '';
+
+var yinCoseTypeDef = "";
+
+
+var amtDiv = "Y";   //요금 존재 유무
+
+var memIndivCode = '';
+//선택한 날짜
+var choiceBookDate     = "";
+
+var recmTempName  = "";
+var recmTempTel  = "";
+//본인,추천 스왑시 추천자명,핸드폰번호 저장용
+var unregistCnt = 'N';
+
+var join_tempMemberState = "";
+
+var tMemberState = '003';
+
+var prtnrCnt = 0;
+
+var reClickDay = "";
+
+var logCheck = 'N';
+
+var prtnrListSort = 1;
+
+var lastScrollY = 0; // 스마트체크인 플로팅배너
+
+var specialYn = 'N'; 
+
+var firstUseCheck = "Y";
+
+var preferenceCddCheck = 'N';
+
+var cddName = '';
+
+window.onload = function(){
+	
+	if(R_CHANGE_CHECK == "Y"){
+		reservChangeLoad();
+		
+	}else{
+		if(R_S_CHANGE_CHECK == "Y"){
+			reservStandChangeLoad();
+		}else{
+			reservOnLoad();
+		}
+	}
+	setInterval(quick,1);		
+	
+	$('.caddyClassNC').attr("title","·즐거운 셀프라운드! 간편하게 예약하고\n  경험해보자!\n·맞춤형 서비스 : 골프백 세팅, 골프 카트 리모컨,\n 코스안내 태블릿PC,생수,스탠드 하프백 대여, 스코어카드");
+	$('.caddyClassSS').attr("title","·경력 : 10년 이상\n·라운드 : 5,000회 이상\n·캐디 CS 강사자격증 보유");
+	$('.caddyClassS').attr("title","·경력 : 3년 이상\n·라운드 : 1,000회 이상\n·캐디 CS 교육과정 이수");
+	
+	
+}
+
+function reservClear() {
+	/* 미리 선택되는 예약정보를 초기화 */
+	var reCheckValue =  '';	
+	var corpCode =  '';
+	if(reCheckValue != "") {
+		alert("로그인 전 선택정보를 초기화 합니다.");
+		location.href="/shop/reserve/golf/ready.jsp?menuCorpCode="+corpCode;
+	}	
+	
+	reservOnLoad();
+}
+
+
+function reservExpressInfo() {
+	//window.open("http://gj.blueone.com/content/03use/10_01.jsp", "_blank","width=886, height=686");  
+	//window.open("http://gj.blueone.com/content/03use/10_01.jsp", "_blank");
+	document.getElementById("updatePrtnr").style.display = "none";
+	document.getElementById("recentPrtnr").style.display = "none";
+	document.getElementById("prtnrArea").style.display = "none";	
+	document.getElementById("CadyGradeInfo").style.display = "none";		
+	document.getElementById("finalConfirmArea").style.display = "";
+	document.getElementById("expressInfo").style.display = "";
+	document.getElementById("selfroundInfo").style.display = "none";
+}
+function selfroundInfo() {
+	//window.open("http://gj.blueone.com/content/03use/10_01.jsp", "_blank","width=886, height=686");  
+	//window.open("http://gj.blueone.com/content/03use/10_01.jsp", "_blank");
+	document.getElementById("updatePrtnr").style.display = "none";
+	document.getElementById("recentPrtnr").style.display = "none";
+	document.getElementById("prtnrArea").style.display = "none";	
+	document.getElementById("CadyGradeInfo").style.display = "none";		
+	document.getElementById("finalConfirmArea").style.display = "";
+	document.getElementById("expressInfo").style.display = "none";
+	document.getElementById("selfroundInfo").style.display = "";
+}
+function CadyGradeInfo() {
+	//window.open("http://gj.blueone.com/content/03use/10_01.jsp", "_blank","width=886, height=686");  
+	//window.open("http://gj.blueone.com/content/03use/10_01.jsp", "_blank");
+	document.getElementById("updatePrtnr").style.display = "none";
+	document.getElementById("recentPrtnr").style.display = "none";
+	document.getElementById("prtnrArea").style.display = "none";
+	document.getElementById("finalConfirmArea").style.display = "";
+	document.getElementById("CadyGradeInfo").style.display = "";
+}
+
+function reservOnLoad(){
+	
+	
+	var corpCode =  '';
+	
+	
+	
+	
+	
+// 	document.getElementById("initialization01").src = "/shop/images_reserve/online/btn_initialization.gif";
+// 	document.getElementById("initialization02").src = "/shop/images_reserve/online/btn_initialization.gif";
+
+	var mCorpCode = '01';
+	var mYinCoseType = '';
+	if(mCorpCode == "04"){
+		mCorpCode = "02";
+	}
+	var reClickDay = '';
+ 	document.temp.target = "daySelIframe01";
+ 	document.temp.action = "/shop/reserve/golf/bookChkCal01.jsp?corpCode="+mCorpCode+"&YinCoseType="+mYinCoseType+"&tempMemberState="+tMemberState+"&reClickDay="+reClickDay;
+ 	document.temp.submit();
+	
+ 	
+ 	
+	choiceBookDate = "";
+	
+	//2020-05-12 김대성
+	//김완진 파트장 요청
+	//iSO 13.4.1 버전 업데이트로 인한 문제
+	//아이폰 모바일 웹에서 경주/용인/상주 3사 골프 월력 열리지 않음
+	//한번의 이벤트에 iframe 으로 2개의 쿼리 처리시 에러 발생	
+	//f_bookDate('','Y','','', '01',tMemberState,'','' );
+	var reCheckDate = '';
+	if(reCheckDate != "") {
+		var Values = new Array();
+		Values = reCheckDate.split(",");
+		f_bookDate(Values[0],Values[1],Values[2],Values[3],Values[4],Values[5],Values[6],Values[7]);
+		
+	}
+	
+	
+	f_firstSet();
+
+	// 화면로드시 익스프레스 체크인 테이블 비활성화
+	
+	document.getElementById("reservExpressCheck").checked = false;	//초기화 시 익스프레스 체크인 체크 해제
+	
+	f_express();		// 초기화 및 화면로드시 체크해제에 따른 비회원값들 삭제
+	
+	// 첫화면은 본인 이므로 로그인한 회원의 정보 저장, 회원의 성별 disabled 
+	
+	
+	var reLoginYN = '';
+	var memberChangeYn =  '';
+
+	if(reLoginYN == "Y" && memberChangeYn == "Y" ){
+		onDisplay();
+		
+		
+	}else{
+		onDisplay();
+	}
+}
+function reservChangeLoad(){
+	
+	var R_CHANGE_CORP_CODE = '';
+	var R_CHANGE_BOOK_DATE = '';
+	var R_CHANGE_RESERV_NO = '';
+	var R_CHANGE_COSE_CD = '';
+	var R_CHANGE_CH_TIME = '';
+	var R_CHANGE_RESERV_COSE_CD = '';
+	var R_CHANGE_TEAM_CNT = '';
+	var R_CHANGE_ENTR_YN = '';
+	var R_CHANGE_CDD_RANK = '';
+	var R_CHANGE_RECM_NAME = '';
+	var R_CHANGE_RECM_TEL = '';
+	var R_CHANGE_TAOPEN = '';
+	var R_CHANGE_BOOK_STTS = '';
+	var R_CHANGE_HP_NO = '';
+	var R_CHANGE_SMS_YN = '';
+	var R_CHANGE_SMS_YN2 = '';
+	var R_CHANGE_NOCADDY_YN = '';
+	var R_CHANGE_EXP_CHK_IN = '';
+	var R_CHANGE_PRTNR_NAME1 = '';
+	var R_CHANGE_PRTNR_HP_NO1 = '';
+	var R_CHANGE_PRTNR_SEX1 = '';
+	var R_CHANGE_PRTNR_NAME2 = '';
+	var R_CHANGE_PRTNR_HP_NO2 = '';
+	var R_CHANGE_PRTNR_SEX2 = '';
+	var R_CHANGE_PRTNR_NAME3 = '';
+	var R_CHANGE_PRTNR_HP_NO3 = '';
+	var R_CHANGE_PRTNR_SEX3 = '';
+	var R_CHANGE_MEMBER_KBN1 = '';
+	var R_CHANGE_MEMBER_KBN2 = '';
+	var R_CHANGE_MEMBER_KBN3 = '';
+	var R_CHANGE_PRTNR_NAME = '';
+	var R_CHANGE_PRTNR_HP_NO = '';
+	var R_CHANGE_PRTNR_SEX = '';
+	var R_CHANGE_MEMBER_KBN = '';
+	var R_CHANGE_VIP_YN = '';
+	var R_CHANGE_ENTR_OBJT_CODE = '';
+	var R_JOIN_YN = '';
+	
+	
+	f_reservFormChange01(R_CHANGE_CORP_CODE, R_CHANGE_BOOK_DATE, R_CHANGE_RESERV_NO, 
+						 R_CHANGE_COSE_CD, R_CHANGE_CH_TIME, R_CHANGE_RESERV_COSE_CD, 
+						 R_CHANGE_TEAM_CNT, R_CHANGE_ENTR_YN, R_CHANGE_CDD_RANK, 
+						 R_CHANGE_RECM_NAME, R_CHANGE_RECM_TEL, R_CHANGE_TAOPEN, 
+						 R_CHANGE_BOOK_STTS, R_CHANGE_HP_NO, R_CHANGE_SMS_YN, 
+						 R_CHANGE_SMS_YN2, R_CHANGE_NOCADDY_YN, R_CHANGE_EXP_CHK_IN, 
+						 R_CHANGE_PRTNR_NAME1, R_CHANGE_PRTNR_HP_NO1, R_CHANGE_PRTNR_SEX1, 
+						 R_CHANGE_PRTNR_NAME2, R_CHANGE_PRTNR_HP_NO2, R_CHANGE_PRTNR_SEX2, 
+						 R_CHANGE_PRTNR_NAME3, R_CHANGE_PRTNR_HP_NO3, R_CHANGE_PRTNR_SEX3,
+						 R_CHANGE_PRTNR_NAME, R_CHANGE_PRTNR_HP_NO, R_CHANGE_PRTNR_SEX,
+						 R_CHANGE_MEMBER_KBN,R_CHANGE_VIP_YN,
+						 R_CHANGE_MEMBER_KBN1,R_CHANGE_MEMBER_KBN2,R_CHANGE_MEMBER_KBN3,R_CHANGE_ENTR_OBJT_CODE,R_JOIN_YN);
+	
+}
+function reservStandChangeLoad(){
+	var R_S_CHANGE_CORP_CODE = '';
+	var R_S_CHANGE_BOOK_DATE = '';
+	var R_S_CHANGE_RESERV_SEQ = '';
+	var R_S_CHANGE_GUEST_NO = '';
+	var R_S_CHANGE_GUEST_NAME = '';
+	var R_S_CHANGE_CHARGE_HP_NO = '';
+	var R_S_CHANGE_HP_NO = '';
+	var R_S_CHANGE_HOPE_TIME = '';
+	var R_S_CHANGE_HOPE_COSE = '';
+	var R_S_CHANGE_UPJANG = '';
+	var R_S_CHANGE_DATE = '';
+	var R_S_CHANGE_TIME_NAME = '';
+	var R_S_CHANGE_COSE_NAME = '';
+	var R_S_CHANGE_ENTR_YN = '';
+	var R_S_CHANGE_CDD_RANK = '';
+	var R_S_CHANGE_SMS_YN = ''; 
+	var R_S_CHANGE_REMARK = '';
+	
+	f_reservFormChange02(R_S_CHANGE_CORP_CODE, R_S_CHANGE_BOOK_DATE, R_S_CHANGE_RESERV_SEQ, 
+			R_S_CHANGE_GUEST_NO, R_S_CHANGE_GUEST_NAME, R_S_CHANGE_CHARGE_HP_NO, 
+			R_S_CHANGE_HP_NO, R_S_CHANGE_HOPE_TIME, R_S_CHANGE_HOPE_COSE,
+			R_S_CHANGE_UPJANG,R_S_CHANGE_DATE,R_S_CHANGE_TIME_NAME,
+			R_S_CHANGE_COSE_NAME,R_S_CHANGE_ENTR_YN,R_S_CHANGE_CDD_RANK,R_S_CHANGE_SMS_YN,R_S_CHANGE_REMARK);
+	
+}
+function reservOnLoad02(){
+	
+	f_firstSet();
+// 	document.getElementById("initialization01").src = "/shop/images_reserve/online/btn_initialization.gif";
+// 	document.getElementById("initialization02").src = "/shop/images_reserve/online/btn_initialization.gif";
+	
+	document.frames['daySelIframe02'].refresh();
+
+}
+
+//최초 셋팅 
+function f_firstSet(){
+	var corpCode =  '';
+	
+	var guestType = '090';
+	var hpNo = 'null';
+	
+	if(hpNo == 'null'){
+		
+		hpNo = '';
+	}
+	
+	if(firstUseCheck == "Y"){
+		f_preferenceCddAlert();
+	}
+	
+	if(logCheck == "Y"){
+		document.getElementById("reservName").value = 'null';
+		document.getElementById("reservSms1").value = 'null';
+	}else{
+		document.getElementById("reservName").value = '';
+		document.getElementById("reservSms1").value = '';
+	}
+	
+	document.getElementById("reservSms2").value = hpNo;
+	
+	//예약정보, 회원정보 이름, SMS 수신자 정보 입력 막음
+	if(memIndivCode == "002"&&(guestType == "020"||guestType=="025")){
+		document.getElementById("reservSelf").checked = false;
+		document.getElementById("reservReCd").checked = false;
+		document.getElementById("reservUser").checked = true;
+		document.getElementById("reservSelf").disabled = true;
+		document.getElementById("reservReCd").disabled = true;
+	}else{
+		document.getElementById("reservSelf").checked = true;
+		document.getElementById("reservReCd").checked = false;
+		document.getElementById("reservUser").checked = false;
+		document.getElementById("reservSelf").disabled = false;
+	}
+	//SMS 수신여부
+	document.getElementById("reservSms1Yn").checked = true;
+	document.getElementById("reservSms1Yn").value = "Y";
+	document.getElementById("reservSms2Yn").checked = false;
+	document.getElementById("reservSms2Yn").value = "N";
+	document.getElementById("reservReCdSmsCheck").checked = false;
+	document.getElementById("reservReCdSmsCheck").value = "N";
+
+	document.getElementById("reservUpjang").value = "";
+	document.getElementById("reservDay").value = "";
+	document.getElementById("reservTime").value = "";
+	document.getElementById("reservCose").value = "";
+	document.getElementById("reservSelf").value = "";
+	document.getElementById("reservReCdName").value = "";
+	document.getElementById("reservReCdSms").value = "";
+	document.getElementById("reservReCdSmsCheck").value = "";
+	document.getElementById("reservUserName").value = "";
+	document.getElementById("reservUserSms").value = "";
+	document.getElementById("reservUserSmsCheck").value = "";
+	document.getElementById("reRemark").value = "";
+
+	document.getElementById("reservTime2").value = "";
+	document.getElementById("reservTime2Yn").checked = false;
+	document.getElementById("reservTime2Display").style.display = "none";
+	
+	document.getElementById("joinCntview1").style.display = "none";
+	document.getElementById("joinCntview2").style.display = "none";
+	document.getElementById("joinCntview3").style.display = "none";
+
+	for(var i=0; i < document.getElementsByName("joinCnt1").length; i++){
+		if(document.getElementsByName("joinCnt1")[i].value == "4"){
+			document.getElementsByName("joinCnt1")[i].checked = true;
+		}
+	}
+	
+
+	for(var i=0; i < document.getElementsByName("reservCady").length; i++){
+		if(specialYn == "N"){
+			if(document.getElementsByName("reservCady")[i].value == "002"){
+				document.getElementsByName("reservCady")[i].checked = true;
+			}
+		}else{
+			if(document.getElementsByName("reservCady")[i].value == "001"){
+				document.getElementsByName("reservCady")[i].checked = true;
+			}
+		}
+	}
+	if(unregistCnt == "Y"){
+		document.getElementById("applyVipArea").style.display = "";
+		for(var i=0; i < document.getElementsByName("applyVip").length; i++){
+			if(document.getElementsByName("applyVip")[i].value == "N"){
+				document.getElementsByName("applyVip")[i].checked = true;
+			}
+		}
+	}else{
+		document.getElementById("applyVipArea").style.display = "none";
+	}
+	
+//	if(menuCorpCode != "01" && menuCorpCode != "03"){
+	if(menuCorpCode == "01" ){
+		document.getElementById("reservNoCaddy").style.display = "";	
+	}else if(menuCorpCode == "02" ){
+		document.getElementById("reservNoCaddy").style.display = "";
+	}else{
+		document.getElementById("reservNoCaddy").style.display = "none";
+	}
+	
+	I_coseCd = "";
+	I_bookDate = "";
+	I_coseTime = "";
+	I_coseTime2 = "";
+	I_corp_code = "";
+	I_reservStnadYN = "";
+	I_joinCnt = "";
+	I_bookStts = "";
+	I_ent_yn = "Y";
+	lockState = "unLock";
+
+	doubleCorpCode = "";
+	doubleBookDate = "";
+	doubleYinCoseType = "";
+	doubleSheetTime = "";
+	doubleDoubleTime = "";
+	doubleCoseCd = "";
+	doubleBookStts = "";
+
+	if(memIndivCode == "002"&&(guestType == "020"||guestType=="025")){
+		f_useCheck('3');
+		document.getElementById("reservUserSect").style.display = "none";
+	}else{
+		document.getElementById("reservUserSect").style.display = "none";
+		f_useCheck('1');
+	}
+}
+
+//display 초기화
+function onDisplay(){
+
+	document.getElementById("reservFormClose01").style.display = "";
+	document.getElementById("reservFormClose02").style.display = "none";
+	document.getElementById("daySelIframe01").style.display = "";
+	document.getElementById("daySelIframe02").style.display = "none";
+	
+	//다음단계 팝업에서 확인버튼.   결제추가로 어떻게 될지 모름
+
+// 	document.getElementById("initialization01").src = "/shop/images_reserve/online/btn_initialization.gif";
+// 	document.getElementById("initialization02").src = "/shop/images_reserve/online/btn_initialization.gif";
+
+	if(menuCorpCode == "03"){
+		//document.getElementById("reservCaddyStat").style.display = "none";
+		//document.getElementById("expressCheck").style.display = "none";
+		//document.getElementById("expressCheckView").style.display = "none";
+		//document.getElementById("expressWrite").style.display = "none";
+	}
+	
+	
+	var memberListChoce =  'N';
+	var memberListChange =  'N';
+	var memberChangeYn =  '';
+	var memberShipCount = '1';
+	
+	
+	if( memberChangeYn != "Y"){
+		if(memberListChoce == "Y" ){
+			//화면 표시시 무조건 표시하는 기능 삭제
+			//document.getElementById("finalConfirmArea").style.display = "";
+			//document.getElementById("memTicket").style.display = "";
+		}
+	}
+
+	if( memberShipCount > 1){
+		document.getElementById("memberReLogin").style.display = "";
+	}else{
+		document.getElementById("memberReLogin").style.display = "none";
+	}
+	
+    ICH_CORP_CODE    = "";
+    ICH_RESERV_NO    = "";
+    ICH_BOOK_DATE    = "";	
+    ICH_COSE         = "";
+    ICH_TIME         = "";
+    ICH_CHANGE_COSE  = "";
+    ICH_CHANGE_TIME  = "";
+    ICH_CDD_RANK     = "";
+    ICH_CHARGE_HP_NO  = "";
+    ICH_CHARGE_SMS_YN = "";
+    ICH_HP_NO	      = "";
+    ICH_SMS_YN        = "";
+    ICH_REMARK        = "";
+    ICH_ENTR_YN       = "";
+    ICH_JOINCNT       = "";
+    ICH_RSRV_SEQ      = "";
+    ICH_GUEST_NO      = "";
+
+	reservChangeYN = "N";
+
+}
+
+//업장 변경 처리
+
+
+//월력 날짜 선택
+function f_bookDate(vBookDate, standYn, reserveAmPm, yinCoseType, corpCode, tempMemberState, taOpen,dayCode){
+	
+	var sCorpCode = '';
+	
+	join_tempMemberState = tempMemberState ;
+	
+	doubletaOpen = taOpen;
+	
+	
+	var param = "?";
+	param += "vBookDate="+vBookDate;
+	param += "&corpCode="+corpCode;
+	param += "&sheetTime=";
+	param += "&reserveAmPm="+reserveAmPm;
+	param += "&yinCoseType="+'';
+	param += "&tempMemberState=" + tempMemberState;
+	param += "&guestNo="+'';
+	param += "&memNo="+'';
+	param += "&taOpen="+taOpen;
+	param += "&reCheckDate="+vBookDate+","+standYn+","+reserveAmPm+","+yinCoseType+","+corpCode+","+tempMemberState+","+taOpen+","+dayCode;
+	param += "&reCheckValue="+encodeURI(encodeURIComponent(''));
+	param += "&reClickDay="+reClickDay;
+	
+	if(corpCode != "03"){
+		if(corpCode == "02"){
+			if(yinCoseType == "002"){
+				if(tempMemberState == "003"){
+					param += "&taOpenView=Y";
+				}else if(tempMemberState == "002"){
+					if(dayCode == "001"){
+						param += "&taOpenView=N";
+					}else{
+						param += "&taOpenView=N";
+					}
+				}else{
+					param += "&taOpenView=N";
+				}
+			}else{
+				param += "&taOpenView=N";
+			}
+		}else{
+			if(tempMemberState == "003"){
+				param += "&taOpenView=Y";
+			}else if(tempMemberState == "002"){
+				if(dayCode == "001"){
+					param += "&taOpenView=N";
+				}else{
+					param += "&taOpenView=N";
+				}
+			}else{
+				param += "&taOpenView=N";
+			}
+		}
+		
+		
+	}else{
+		param += "&taOpenView=N";	
+	}
+
+	if( standYn == "Y"){
+	
+		param += "&displayCode=001";
+		
+		console.log(param);
+		f_firstSet();
+		
+		document.temp.target = "teeOffIframe";
+		document.temp.action = "/shop/reserve/golf/timeSheet.jsp" + param;
+		document.temp.submit();
+		
+
+	}else{
+		
+		param += "&displayCode=002";
+		
+		console.log(param);
+		f_firstSet();
+		document.temp.target = "teeOffIframe";
+		document.temp.action = "/shop/reserve/golf/timeSheet.jsp" + param;
+		document.temp.submit();
+		
+	}
+}
+
+//일반예약
+function f_golfReservation01(bookDate, corpCode, reservTime, cose, coseCd, coseTime, bookStts, rndName, rndCode, yinCoseType, dayTypeCode, nocaddyYn, nightYn ){
+	
+	document.getElementById("selTime").style.display = "none";
+	document.getElementById("finalConfirmArea").style.display = "none";
+	
+	lockState = "Lock";
+	
+	
+	
+	if(corpCode == "01"){
+		document.getElementById("reservUpjang").value = "디아너스(경주)";
+	}else if(corpCode == "02"){
+		if(menuYinCoseType == "002"){
+			document.getElementById("reservUpjang").value = "용인(회원제)";
+		}else if(menuYinCoseType == "001"){
+			document.getElementById("reservUpjang").value = "용인(퍼블릭)";
+		}
+	}else{
+		document.getElementById("reservUpjang").value = "상주";
+	}
+
+	document.getElementById("reservDay").value = bookDate.substring(0,4) + "년 " + bookDate.substring(4,6) + "월 " + bookDate.substring(6,8) + "일 ";
+	document.getElementById("reservTime").value = reservTime;
+	document.getElementById("reservCose").value = cose + rndName;
+
+	document.getElementsByName("reservCady")[1].disabled = false;
+	document.getElementsByName("reservCady")[2].disabled = false;
+	if(corpCode == "02"){
+		document.getElementsByName("reservCady")[3].disabled = false;
+	}
+	if(corpCode == "01"){
+		document.getElementsByName("reservCady")[3].disabled = false;
+	}
+	if(corpCode == "02"){
+		if (nocaddyYn == "Y") {
+			if(coseCd == "007"){
+				document.getElementById("reservNoCaddy").style.display = "";
+				document.getElementsByName("reservCady")[3].checked = true;
+				document.getElementsByName("reservCady")[1].disabled = true;
+				document.getElementsByName("reservCady")[2].disabled = true;
+				//document.getElementsByName("reservCady")[3].disabled = true;
+				//alert("선택하신 시간은 노캐디 (셀프진행) 로 진행되며, 예약 후에는 변경이 불가합니다.");	
+				messageDiv('[동코스 노캐디 전면 실시공지 안내]<br/>- 운전면허 소지자<br/>- 핸디캡 4인 기준 90타 이상 불가능<br/>   단) 진행에 협조적인팀 가능<br/>- 9홀 경기시간 2시간10분 이내<br/>- 이상조건을 충족하지 않을 시 예약 규제<br/>※ 예약실(Tel. 1899-1888 ▶ 2 ▶ 1)');
+			}else{
+				document.getElementById("reservNoCaddy").style.display = "";
+				document.getElementsByName("reservCady")[3].checked = true;
+				document.getElementsByName("reservCady")[1].disabled = true;
+				document.getElementsByName("reservCady")[2].disabled = true;
+				//document.getElementsByName("reservCady")[3].disabled = true;
+				//alert("선택하신 시간은 노캐디 (셀프진행) 로 진행되며, 예약 후에는 변경이 불가합니다.");	
+				messageDiv('[노캐디 셀프골프카 이용조건]<br/>- 운전면허 소지자<br/>- 핸디캡 4인 기준 90타 이상 불가능<br/>   단) 진행에 협조적인팀 가능<br/>- 9홀 경기시간 2시간10분 이내<br/>- 이상조건을 충족하지 않을 시 예약 규제<br/>※ 예약실(Tel. 1899-1888 ▶ 2 ▶ 1)');
+			}
+		} 
+		else 
+		{
+			document.getElementById("reservNoCaddy").style.display = "";
+			document.getElementsByName("reservCady")[3].checked = false;
+			document.getElementsByName("reservCady")[2].checked = true;
+			document.getElementsByName("reservCady")[1].disabled = false;
+			document.getElementsByName("reservCady")[2].disabled = false;
+			document.getElementsByName("reservCady")[3].disabled = false;
+		}
+	} else if(corpCode == "03" ){
+ 		if ( nocaddyYn == "Y" ) {
+ 			document.getElementById("reservNoCaddy").style.display = "";
+ 			document.getElementsByName("reservCady")[2].checked = true;
+ 			document.getElementsByName("reservCady")[1].disabled = true;
+ 			document.getElementsByName("reservCady")[2].disabled = true;
+ 			if(nightYn == "Y") {
+ 				alert("선택하신 시간은 노캐디 (셀프진행) 로 진행되며, 예약 후에는 변경이 불가합니다.\n\n[안내사항]\n선택하신 시간은 라운드시 마지막3홀이 \n야간조명으로 경기가 진행될 수 있습니다.");
+ 			}else{
+ 				alert("선택하신 시간은 노캐디 (셀프진행) 로 진행되며, 예약 후에는 변경이 불가합니다.");
+ 			}
+			
+ 		} else {
+			document.getElementById("reservNoCaddy").style.display = "";
+			document.getElementsByName("reservCady")[2].checked = false;
+			document.getElementsByName("reservCady")[1].checked = true;
+			document.getElementsByName("reservCady")[1].disabled = true;
+			document.getElementsByName("reservCady")[2].disabled = true;
+			if(nightYn == "Y") {
+				alert("[안내사항]\n선택하신 시간은 라운드시 마지막3홀이 \n야간조명으로 경기가 진행될 수 있습니다.");
+			}
+ 		}
+		
+	}else if(corpCode == "01" ){
+		
+		if (nocaddyYn == "Y") {
+			document.getElementById("reservNoCaddy").style.display = "";
+			document.getElementsByName("reservCady")[1].checked = false;
+			document.getElementsByName("reservCady")[1].checked = true;
+			document.getElementsByName("reservCady")[1].disabled = false;
+			document.getElementsByName("reservCady")[2].disabled = true;
+			document.getElementsByName("reservCady")[3].disabled = true;
+			document.getElementsByName("reservCady")[4].disabled = true;
+			//document.getElementsByName("reservCady")[3].disabled = true;
+			//alert("선택하신 시간은 노캐디 (셀프진행) 로 진행되며, 예약 후에는 변경이 불가합니다.");	
+			messageDiv('[안내사항]\n선택하신 시간은 노캐디 타임 입니다.<br/>※ 예약실(Tel. 1899-1888 ▶ 1▶ 1)');
+			
+		} 
+		else 
+		{
+			document.getElementById("reservNoCaddy").style.display = "";
+			document.getElementsByName("reservCady")[4].checked = false;
+			document.getElementsByName("reservCady")[4].checked = true;
+			document.getElementsByName("reservCady")[1].disabled = false;
+			document.getElementsByName("reservCady")[2].disabled = false;
+			document.getElementsByName("reservCady")[3].disabled = false;
+			document.getElementsByName("reservCady")[4].disabled = false;
+		}
+		if(nightYn == "Y") {
+			alert("[안내사항]\n\n선택하신 시간은 라운드시 마지막3홀이 \n야간조명으로 경기가 진행될 수 있습니다.");
+		}
+		
+	}
+	
+	if(preferenceCddRank != ""){
+		for(var i=0; i < document.getElementsByName("reservCady").length; i++){
+			if(document.getElementsByName("reservCady")[i].value == preferenceCddRank){
+				document.getElementsByName("reservCady")[i].checked = true;
+			}
+		}		
+	}
+	//경주,상주 나이트 여부 alert
+	document.getElementsByName("applyVip")[1].checked = true;
+// 	document.getElementById("initialization01").src = "/shop/images_reserve/online/btn_initialization_on.gif";
+// 	document.getElementById("initialization02").src = "/shop/images_reserve/online/btn_initialization_on.gif";
+	
+	I_bookDate = bookDate;
+	I_coseCd = coseCd;
+	I_coseTime = coseTime;
+	I_corp_code = corpCode;
+	I_bookStts = bookStts;
+	I_reservStnadYN = "N";
+	
+	f_joinCont(corpCode, coseCd, bookStts, dayTypeCode);
+}
+
+//일반예약 : 9홀일 경우 시간 추가]
+function f_golfReservation01_more(reservTime, coseTime,cose,rndName){
+	document.getElementById("reservTime2").value = reservTime; 
+	document.getElementById("reservCose").value = document.getElementById("reservCose").value + "/" + cose + rndName;
+	I_coseTime2 = coseTime;
+}
+
+//대기, 예약접수
+function f_golfReservation02(bookDate, corpCode, reservTime, cose, coseCd, coseTime, bookStts ){
+
+	lockState = "Lock";
+	
+	if(corpCode == "01"){
+		document.getElementById("reservUpjang").value = "디아너스(경주)";
+	}else if(corpCode == "02"){
+		if(menuYinCoseType == "002"){
+			document.getElementById("reservUpjang").value = "용인(회원제)";
+		}else if(menuYinCoseType == "001"){
+			document.getElementById("reservUpjang").value = "용인(퍼블릭)";
+		}
+	}else{
+		document.getElementById("reservUpjang").value = "상주";
+	}
+
+// 	document.getElementById("initialization01").src = "/shop/images_reserve/online/btn_initialization_on.gif";
+// 	document.getElementById("initialization02").src = "/shop/images_reserve/online/btn_initialization_on.gif";
+
+	document.getElementById("reservDay").value = bookDate.substring(0,4) + "년 " + bookDate.substring(4,6) + "월 " + bookDate.substring(6,8) + "일 ";
+	document.getElementById("reservTime").value = reservTime;
+	document.getElementById("reservCose").value = cose;
+
+	I_bookDate = bookDate;
+	I_coseCd = coseCd;
+	I_coseTime = coseTime;
+	I_corp_code = corpCode;
+	I_bookStts = bookStts;
+	I_reservStnadYN = "Y";
+	
+	f_joinCont(corpCode,coseCd,bookStts);
+
+}
+
+//이용구분 라디오 버튼
+function f_useCheck(str){
+
+	if(str == "1" || str == ""){
+		if( document.getElementById("reservSelf").checked != true ){
+			document.getElementById("reCdName").style.display = "none";
+			document.getElementById("reCdSms").style.display = "none";
+			document.getElementById("userName").style.display = "none";
+			document.getElementById("userSms").style.display = "none";
+		}else{
+			document.getElementById("reCdName").style.display = "none";
+			document.getElementById("reCdSms").style.display = "none";
+			document.getElementById("userName").style.display = "none";
+			document.getElementById("userSms").style.display = "none";
+		}
+		recmTempName = document.getElementById("reservReCdName").value;
+		recmTempTel = document.getElementById("reservReCdSms").value;
+		
+		document.getElementById("reservReCdName").value = "";
+		document.getElementById("reservReCdSms").value = "";
+		document.getElementById("reservUserName").value = "";
+		document.getElementById("reservUserSms").value = "";
+		I_ent_yn = "Y";
+	
+	}else if(str == "2"){
+		if( document.getElementsByName("reservReCd").checked != true ){
+			document.getElementById("reCdName").style.display = "";
+			document.getElementById("reCdSms").style.display = "";
+			document.getElementById("userName").style.display = "none";
+			document.getElementById("userSms").style.display = "none";
+		}else{
+			document.getElementById("reCdName").style.display = "";
+			document.getElementById("reCdSms").style.display = "";
+			document.getElementById("userName").style.display = "none";
+			document.getElementById("userSms").style.display = "none";
+		}
+		document.getElementById("reservReCdName").value = recmTempName;
+		document.getElementById("reservReCdSms").value = recmTempTel;
+		document.getElementById("reservUserName").value = "";
+		document.getElementById("reservUserSms").value = "";
+		I_ent_yn = "N";
+		//추천 일시 익스프레스 회원칸 변경
+		
+	}else{
+		if( document.getElementsByName("reservReCd").checked != true ){
+			document.getElementById("reCdName").style.display = "none";
+			document.getElementById("reCdSms").style.display = "none";
+			document.getElementById("userName").style.display = "";
+			document.getElementById("userSms").style.display = "";
+		}else{
+			document.getElementById("reCdName").style.display = "none";
+			document.getElementById("reCdSms").style.display = "none";
+			document.getElementById("userName").style.display = "";
+			document.getElementById("userSms").style.display = "";
+		}
+		document.getElementById("reservReCdName").value = "";
+		document.getElementById("reservReCdSms").value = "";
+		I_ent_yn = "N";
+	}
+	f_partnerSet();	
+}
+
+//SMS 수신 체크
+function f_checkBox(smsCheck){
+	
+	if(smsCheck == "sms"){
+		if( document.getElementById("reservSms1Yn").checked == true ){
+			document.getElementById("reservSms1Yn").value = "Y";
+		}else{
+			document.getElementById("reservSms1Yn").value = "N";
+		}
+
+	}else if(smsCheck == "phon"){
+		if( document.getElementById("reservSms2Yn").checked == true ){
+			document.getElementById("reservSms2Yn").value = "Y";
+		}else{
+			document.getElementById("reservSms2Yn").value = "N";
+		}
+
+	}else {
+		if( document.getElementById("reservReCdSmsCheck").checked == true ){
+			document.getElementById("reservReCdSmsCheck").value = "Y";
+		}else{
+			document.getElementById("reservReCdSmsCheck").value = "N";
+		}
+	}
+}
+
+//참석인원 SELECT박스 처리
+function f_joinCont(corpCode, coseCd, bookStts, dayTypeCode){
+	//용인
+	//alert("f_joinCont : "+corpCode+","+coseCd+","+bookStts+","+dayTypeCode);
+    //2017-04-13 김대성 이상경 주임 요청
+    //용인 퍼블릭 인원수 조인예약은 2명 그외는 4명 3명 2명 으로 보이게 수정	
+    //2017-04-14 추가 김대성 이상경 주임 요청
+    //주말도 용인 퍼블릭 인원수 조인예약은 2명 그외는 4명 3명 2명 으로 보이게 수정
+	if(corpCode == "02"){
+		//퍼블릭
+		if(coseCd == "007"){
+			//조인
+			if(dayTypeCode == "001"){
+				if(bookStts == "006"){
+					document.getElementById("joinCntview1").style.display = "none";
+					document.getElementById("joinCntview2").style.display = "";
+					document.getElementById("joinCntview3").style.display = "none";
+				}else{
+					document.getElementById("joinCntview1").style.display = "";
+					document.getElementById("joinCntview2").style.display = "none";
+					document.getElementById("joinCntview3").style.display = "none";
+				}
+			}else{
+				if(bookStts == "006"){
+					document.getElementById("joinCntview1").style.display = "none";
+					document.getElementById("joinCntview2").style.display = "";
+					document.getElementById("joinCntview3").style.display = "none";
+				}else{
+					document.getElementById("joinCntview1").style.display = "";
+					document.getElementById("joinCntview2").style.display = "none";
+					document.getElementById("joinCntview3").style.display = "none";
+				}
+			}
+		//맴버쉽
+		}else{
+			//document.getElementById("joinCntview1").style.display = "none";
+			//document.getElementById("joinCntview2").style.display = "none";
+			if(bookStts == "006"){
+				document.getElementById("joinCntview1").style.display = "none";
+				document.getElementById("joinCntview2").style.display = "";
+				document.getElementById("joinCntview3").style.display = "none";
+			}else{
+				document.getElementById("joinCntview1").style.display = "none";
+				document.getElementById("joinCntview2").style.display = "none";
+				document.getElementById("joinCntview3").style.display = "";
+			}
+		}
+	//경주 , 상주
+	}else{
+		document.getElementById("joinCntview1").style.display = "none";
+		document.getElementById("joinCntview2").style.display = "none";
+		document.getElementById("joinCntview3").style.display = "none";
+	}
+}
+
+//초기화
+function f_clearForm(){
+
+	//예약 현황 페이지
+	document.getElementById("reservUpjang").value = "";
+	document.getElementById("reservDay").value = "";
+	document.getElementById("reservTime").value = "";
+	document.getElementById("reservCose").value = "";
+	document.getElementById("reservName").value = "";
+	document.getElementById("reservSms1").value = "";
+	document.getElementById("reservSms2").value = "";
+	document.getElementById("reservSelf").value = "";
+	document.getElementById("reservReCdName").value = "";
+	document.getElementById("reservReCdSms").value = "";
+	document.getElementById("reservReCdSmsCheck").value = "";
+	document.getElementById("reservUserName").value = "";
+	document.getElementById("reservUserSms").value = "";
+	document.getElementById("reservUserSmsCheck").value = "";
+	document.getElementById("reRemark").value = "";
+
+	//9홀 추가 초기화
+	document.getElementById("reservTime2").value = "";
+	document.getElementById("reservTime2Yn").checked = false;
+	document.getElementById("reservTime2Display").style.display = "none";
+	
+	lockState = "unLock";
+	
+	f_firstSet();
+}
+
+
+//다음 단계 적용
+function f_next(){
+	
+	if(document.getElementsByName("reservSelf")[1].checked){
+		if(document.getElementById("reservReCdName").value == "" || document.getElementById("reservReCdSms").value == ""){
+			messageDiv('추천으로 선택시 </br>추천자명과 핸드폰을 입력해주셔야 합니다. ');
+			return;
+		}	
+	}	
+	
+	if(  document.getElementById("reservUpjang").value != "" ||  document.getElementById("reservDay").value != ""
+		|| document.getElementById("reservTime").value != "" || document.getElementById("reservCose").value != "") {
+
+		//SMS 체크 유무 
+		//SMS 수신자
+		if(document.getElementById("reservSms1Yn").checked == true){
+			document.getElementById("reservSms1Yn").value = "Y";
+		}else{
+			document.getElementById("reservSms1Yn").value = "N";
+		}
+
+		//핸드폰번호 
+		if(document.getElementById("reservSms2Yn").checked == true){
+			document.getElementById("reservSms2Yn").value = "Y";
+		}else{
+			document.getElementById("reservSms2Yn").value = "N";
+		}
+
+		//추천자 핸드폰
+		if(document.getElementById("reservReCdSmsCheck").checked == true){
+			document.getElementById("reservReCdSmsCheck").value = "Y";
+		}else{
+			document.getElementById("reservReCdSmsCheck").value = "N";
+		}
+		
+		//핸드폰번호 체크
+		if(document.getElementById("reservSms1").value != "" ){
+			
+			if( !isValidPhone(document.getElementById("reservSms1").value ) ){
+				document.getElementById("reservSms1").readOnly = false
+				messageDiv('SMS수신자 정보는 숫자-숫자-숫자(000-0000-0000)<br/> 형식에 맞춰서 입력 해주세요.');
+				return;
+			}
+		}
+
+		//이용구분이 추천일경우 체크
+		if( document.getElementById("reservReCd").checked == true){
+			//추천자 핸드폰 번호 체크
+			if(document.getElementById("reservReCdSms").value != "" ){
+				if( !isValidPhone(document.getElementById("reservReCdSms").value) ){
+					document.getElementById("finalConfirm").style.display = "none";
+					messageDiv('추천자 핸드폰 정보는 숫자-숫자-숫자(000-0000-0000)<br/> 형식에 맞춰서 입력 해주세요.');
+					return;
+				}
+			}
+		}
+		document.getElementById("finalReCdName").value = document.getElementById("reservReCdName").value;
+
+		//이용구분이 이용일경우 체크
+		if( document.getElementById("reservUser").checked == true){
+			//이용자 핸드폰 번호 체크
+			if(document.getElementById("reservUserSms").value != "" ){
+				if( !isValidPhone(document.getElementById("reservUserSms").value) ){
+					document.getElementById("finalConfirm").style.display = "none";
+					messageDiv('이용자 핸드폰 정보는 숫자-숫자-숫자(000-0000-0000)<br/> 형식에 맞춰서 입력 해주세요.');
+					return;
+				}
+			}
+		}
+		//동반자 입력시 성별 필수체크(이름이 존재할때만)
+		var cnt1 = 0;
+		var cnt2 = 0;
+		var cnt3 = 0;
+		
+		var cnt11 = 0;
+		var cnt22 = 0;
+		var cnt33 = 0;
+		
+		if(document.getElementById("reservExpressCheck").checked == true){
+			if(document.getElementById("expressName2").value != ""){
+				
+				if(document.getElementById("expressTel2").value == "" ){
+					messageDiv('첫번째 동반자의 연락처를 입력해주세요.');
+					return;
+				}
+				if(document.getElementById("expressTel2").value != "" ){
+					if( !isValidPhone(document.getElementById("expressTel2").value) ){
+						cnt11++;
+					}
+				}
+				if(cnt11 != 0){
+					messageDiv('첫번째 동반자의 연락처는 숫자-숫자-숫자(000-0000-0000)<br/> 형식에 맞춰서 입력 해주세요.');
+					return;
+				}
+				for(var i = 0; i < document.getElementsByName("expressSex2").length; i++){
+					if(document.getElementsByName("expressSex2")[i].checked == true){
+						cnt1++;
+					}
+				}
+				if(cnt1 == 0){
+					messageDiv('첫번째 동반자의 성별을 선택해주세요.');
+					return;
+				}
+				
+				
+			}
+			if(document.getElementById("expressName3").value != ""){
+				if(document.getElementById("expressTel3").value == "" ){
+					messageDiv('두번째 동반자의 연락처를 입력해주세요.');
+					return;
+				}
+				if(document.getElementById("expressTel3").value != "" ){
+					if( !isValidPhone(document.getElementById("expressTel3").value) ){
+						cnt22++;
+					}
+				}
+
+				if(cnt22 != 0){
+					messageDiv('두번째 동반자의 연락처는 숫자-숫자-숫자(000-0000-0000)<br/> 형식에 맞춰서 입력 해주세요.');
+					return;
+				}
+				
+				for(var i = 0; i < document.getElementsByName("expressSex3").length; i++){
+					if(document.getElementsByName("expressSex3")[i].checked == true){
+						cnt2++;
+					}
+				}
+				if(cnt2 == 0){
+					messageDiv('두번째 동반자의 성별을 선택해주세요.');
+					return;
+				}
+				
+			}
+			if(document.getElementById("expressName4").value != ""){
+				
+				if(document.getElementById("expressTel4").value == "" ){
+					messageDiv('세번째 동반자의 연락처를 입력해주세요.');
+					return;
+				}
+				if(document.getElementById("expressTel4").value != "" ){
+					if( !isValidPhone(document.getElementById("expressTel4").value) ){
+						cnt33++;
+					}
+				}
+
+				if(cnt33 != 0){
+					messageDiv('세번째 동반자의 연락처는 숫자-숫자-숫자(000-0000-0000)<br/> 형식에 맞춰서 입력 해주세요.');
+					return;
+				}
+				
+				for(var i = 0; i < document.getElementsByName("expressSex4").length; i++){
+					if(document.getElementsByName("expressSex4")[i].checked == true){
+						cnt3++;
+					}
+				}
+				if(cnt3 == 0){
+					messageDiv('세번째 동반자의 성별을 선택해주세요.');
+					return;
+				}
+				
+			}
+		}
+		
+		document.getElementById("finalUserName").value = document.getElementById("reservUserName").value;
+
+		for(var i=0; i < document.getElementsByName("reservCady").length; i++){
+			if(document.getElementsByName("reservCady")[i].checked == true) {
+				if(document.getElementsByName("reservCady")[i].value == "001"){
+					document.getElementById("finalCady").value = "S(베스트)";
+				}else if(document.getElementsByName("reservCady")[i].value == "002"){
+					document.getElementById("finalCady").value = "A(일반)";
+				}else if(document.getElementsByName("reservCady")[i].value == "004"){
+					document.getElementById("finalCady").value = "노캐디";
+				}else if(document.getElementsByName("reservCady")[i].value == "015"){
+					document.getElementById("finalCady").value = "SS(슈퍼스페셜)";
+				}else{
+					document.getElementById("finalCady").value = "R(프로)";
+				}
+			} 
+		}
+		if(unregistCnt == "Y"){
+			document.getElementById("finalApplyVipArea").style.display = "";
+			for(var i=0; i < document.getElementsByName("applyVip").length; i++){
+				if(document.getElementsByName("applyVip")[i].checked == true) {
+					if(document.getElementsByName("applyVip")[i].value == "N"){
+						document.getElementById("finalApplyVip").value = "N";
+					}else if(document.getElementsByName("applyVip")[i].value == "Y"){
+						document.getElementById("finalApplyVip").value = "Y";
+					}
+				} 
+			}
+		}else{
+			document.getElementById("finalApplyVipArea").style.display = "none";
+		}
+
+		if( document.getElementById("reservSelf").checked == true ){
+			document.getElementById("finalUseCheck").value = "본인";
+			document.getElementById("finalRecd").style.display = "";
+			document.getElementById("finalRecdMob").style.display = "";
+			document.getElementById("finalUser").style.display = "none";
+			document.getElementById("finalUserMob").style.display = "none";
+			document.getElementById("finalReCdName").value = "";
+			document.getElementById("finalReCdSms").value = "";
+		}else if(document.getElementById("reservReCd").checked == true){
+			document.getElementById("finalUseCheck").value = "추천인";
+			document.getElementById("finalRecd").style.display = "";
+			document.getElementById("finalRecdMob").style.display = "";
+			document.getElementById("finalUser").style.display = "none";
+			document.getElementById("finalUserMob").style.display = "none";
+			document.getElementById("finalReCdName").value = document.getElementById("reservReCdName").value;
+			document.getElementById("finalReCdSms").value = document.getElementById("reservReCdSms").value;
+		}else{
+			document.getElementById("finalUseCheck").value = "이용자";
+			document.getElementById("finalRecd").style.display = "none";
+			document.getElementById("finalRecdMob").style.display = "none";
+			document.getElementById("finalUser").style.display = "";
+			document.getElementById("finalUserMob").style.display = "";
+			document.getElementById("finalUserName").value = document.getElementById("reservUserName").value;
+			document.getElementById("finalUserSms").value = document.getElementById("reservUserSms").value;
+		}
+
+		if(I_corp_code == "02"){
+			//퍼블릭
+			if(I_coseCd == "007"){
+				//조인
+				if(I_bookStts == "006"){
+					for(var i=0; i < document.getElementsByName("joinCnt2").length; i++){
+						if(document.getElementsByName("joinCnt2")[i].checked == true) {
+							document.getElementById("finalJoinCount").value = document.getElementsByName("joinCnt2")[i].value;
+						} 
+					}
+				}else{
+					for(var i=0; i < document.getElementsByName("joinCnt1").length; i++){
+						if(document.getElementsByName("joinCnt1")[i].checked == true) {
+							document.getElementById("finalJoinCount").value = document.getElementsByName("joinCnt1")[i].value;
+						} 
+					}
+				}
+			//맴버쉽
+			}else{
+				for(var i=0; i < document.getElementsByName("joinCnt3").length; i++){
+					if(document.getElementsByName("joinCnt3")[i].checked == true) {
+						document.getElementById("finalJoinCount").value = document.getElementsByName("joinCnt3")[i].value;
+					} 
+				}
+			}
+		//경주 , 상주
+		}else{
+			for(var i=0; i < document.getElementsByName("joinCnt1").length; i++){
+				if(document.getElementsByName("joinCnt1")[i].checked == true) {
+					document.getElementById("finalJoinCount").value = document.getElementsByName("joinCnt1")[i].value;
+				} 
+			}
+		}
+
+		//9홀 선택 시 추가예역처리
+		if( document.getElementById("reservTime2Yn").checked == true ){
+			document.getElementById("finalTime2").value = document.getElementById("reservTime2").value
+		}
+		
+		document.getElementById("finalUpjang").value = document.getElementById("reservUpjang").value;
+		document.getElementById("finalDay").value = document.getElementById("reservDay").value;
+		document.getElementById("finalTime").value = document.getElementById("reservTime").value;
+		document.getElementById("finalCose").value = document.getElementById("reservCose").value;
+		document.getElementById("finalName").value = document.getElementById("reservName").value;
+		document.getElementById("finalSms").value = document.getElementById("reservSms1").value;
+		document.getElementById("finalHpon").value = document.getElementById("reservSms2").value;
+		document.getElementById("finalReRemark").value = document.getElementById("reRemark").value;
+		
+		
+	}else{
+		document.getElementById("finalConfirm").style.display = "none";
+		messageDiv('티오프타임 선택 후 진행 할수 있습니다.');
+		return;
+	}
+	
+	//document.getElementById("finalConfirmArea").style.display = "";
+	//document.getElementById("finalConfirm").style.display = "";
+	f_reservConfirm('01');
+	
+	
+}
+
+//예약확인 취소
+function f_reservCancel(){
+
+	//최종예약 페이지
+	document.getElementById("finalUpjang").value = "";
+	document.getElementById("finalDay").value = "";
+	document.getElementById("finalTime").value = "";
+	document.getElementById("finalCose").value = "";
+	document.getElementById("finalName").value = "";
+	document.getElementById("finalSms").value = "";
+	document.getElementById("finalHpon").value = "";
+	document.getElementById("finalReCdName").value = "";
+	document.getElementById("finalUserName").value = "";
+	document.getElementById("finalCady").value = "";
+	document.getElementById("finalUseCheck").value = "";
+	document.getElementById("finalTime2").value = "";
+
+	document.getElementById("finalConfirm").style.display = "none";
+	document.getElementById("finalConfirmArea").style.display = "none";
+}
+
+//최종 예약 확인
+function f_reservConfirm(str){
+	//일반예약
+	if( str == "01"){
+		if( I_reservStnadYN == "N"){
+			f_reservConfirm01();
+		}else{
+			f_reservConfirm02();
+		}
+	}else{
+		if( I_reservStnadYN == "N"){
+			f_reservConfirm03();
+		}else{
+			f_reservConfirm04();
+		}
+	}
+}
+
+//2018-06-12 이상경주요청
+//블루원 용인 퍼블릭 코스 조인 제외 하고 예약시 참석인원 체크 추가
+function f_GolfReservFirstCheck(){
+	if((I_corp_code == "02") && (I_coseCd == "007") && (I_bookStts != "006")){
+		f_yonginEastCoseReCheck();
+	}else{
+		f_GolfReservSecondCheck();
+	}	
+}
+
+function f_GolfReservSecondCheck(){
+	
+	var I_guestNo = '';
+	var I_memNo = '';
+	
+	if(I_corp_code == "02"){
+		//퍼블릭
+		if(I_coseCd == "007"){
+			//조인
+			if(I_bookStts == "006"){
+				for(var i=0; i < document.getElementsByName("joinCnt2").length; i++){
+					if(document.getElementsByName("joinCnt2")[i].checked == true) {
+						document.getElementById("finalJoinCount").value = document.getElementsByName("joinCnt2")[i].value;
+					} 
+				}
+			}else{
+				for(var i=0; i < document.getElementsByName("joinCnt1").length; i++){
+					if(document.getElementsByName("joinCnt1")[i].checked == true) {
+						document.getElementById("finalJoinCount").value = document.getElementsByName("joinCnt1")[i].value;
+					} 
+				}
+			}
+		//맴버쉽
+		}else{
+			for(var i=0; i < document.getElementsByName("joinCnt3").length; i++){
+				if(document.getElementsByName("joinCnt3")[i].checked == true) {
+					document.getElementById("finalJoinCount").value = document.getElementsByName("joinCnt3")[i].value;
+				} 
+			}
+		}
+	//경주 , 상주
+	}else{
+		for(var i=0; i < document.getElementsByName("joinCnt1").length; i++){
+			if(document.getElementsByName("joinCnt1")[i].checked == true) {
+				document.getElementById("finalJoinCount").value = document.getElementsByName("joinCnt1")[i].value;
+			} 
+		}
+	}	
+	
+	var urlParm = "?";
+
+	urlParm += "I_CORP_CODE=" + I_corp_code ;
+	urlParm += "&I_BOOK_DATE=" + I_bookDate ;
+	urlParm += "&I_COSE=" + I_coseCd;
+	urlParm += "&I_TIME=" + I_coseTime;
+	urlParm += "&I_MEM_NO=" + I_memNo;
+	urlParm += "&I_GUEST_NO=" + I_guestNo;
+	urlParm += "&I_JOINCNT=" + document.getElementById("finalJoinCount").value;
+	urlParm += "&I_TIME2=" + I_coseTime2;
+	
+	document.temp.target = "tempIframe"; 
+	document.temp.action = "/shop/reserve/golf/golfReseveCheck.jsp" + urlParm;
+	document.temp.submit();
+
+	
+}
+
+function f_GolfReservCheckError(msg){
+	alert(msg);
+	/* document.getElementById("finalConfirmArea").style.display = "";
+	document.getElementById("selTime").style.display = "";
+	
+	var inner;
+	
+	inner = "<p class='alertTime2'>" + msg + "";
+	inner += "<div class='popbtn'>";
+	inner += "	<a href='javascript:messageDivOff(20);'><img src='/shop/images_reserve/online/btn_confirm3.gif' alt='확인' /></a> ";
+	inner += "</div>";
+	
+	document.getElementById("selTime").innerHTML = inner; */
+	
+}
+//예약[최종처리]
+function f_reservConfirm01(){
+	
+	var I_guestNo = '';
+	var I_memNo = '';
+	var I_sex = 'null';
+	var reRemarkR = document.getElementById("reRemark").value;
+
+	var urlParm = "?";
+
+	urlParm += "I_CORP_CODE=" + I_corp_code ;
+	urlParm += "&I_BOOK_DATE=" + I_bookDate ;
+	urlParm += "&I_COSE=" + I_coseCd;
+	urlParm += "&I_TIME=" + I_coseTime;
+	urlParm += "&I_TIME2=" + I_coseTime2;
+	urlParm += "&I_MEM_NO=" + I_memNo;
+	urlParm += "&I_GUEST_NO=" + I_guestNo;
+	urlParm += "&I_BOOK_NAME=" + encodeURI(document.getElementById("finalName").value,"utf-8");
+	urlParm += "&I_SEX=" + I_sex;
+	urlParm += "&I_HP_NO=" + document.getElementById("finalSms").value;
+	urlParm += "&I_SMS_YN=" + document.getElementById("reservSms1Yn").value;
+	urlParm += "&I_JOINCNT=" + document.getElementById("finalJoinCount").value;
+	urlParm += "&I_SEND_HP=" + document.getElementById("finalHpon").value;
+	urlParm += "&I_SEND_HP_YN=" + document.getElementById("reservSms2Yn").value;
+	urlParm += "&I_ENTR_OBJT_CODE=" + document.getElementById("entrObjtCode").value;
+	for(var i=0; i < document.getElementsByName("reservCady").length; i++){
+		if(document.getElementsByName("reservCady")[i].checked == true) {
+			urlParm += "&I_CDD_RANK=" + document.getElementsByName("reservCady")[i].value; 
+		} 
+	}
+	for(var i=0; i < document.getElementsByName("applyVip").length; i++){
+		if(document.getElementsByName("applyVip")[i].checked == true) {
+			urlParm += "&I_VIP_YN=" + document.getElementsByName("applyVip")[i].value;
+		} 
+	}
+	urlParm += "&I_REMARK=" + encodeURI(reRemarkR.replace(/\n/gi,"<p>"),'utf-8');
+	urlParm += "&I_ENTR_YN=" + I_ent_yn ;
+
+	if( I_ent_yn == "N" ){
+		urlParm += "&I_RECM_MEM_NO=" + I_memNo;
+		urlParm += "&I_RECM_GUEST_NO=" + I_guestNo;
+		if(document.getElementById("reservUserName").value != ""){
+			urlParm += "&I_RECM_NAME=" + encodeURI(document.getElementById("reservUserName").value,"utf-8");
+		}else{
+			urlParm += "&I_RECM_NAME=" + encodeURI(document.getElementById("reservReCdName").value,"utf-8");
+		}
+		if(document.getElementById("reservUserName").value != ""){
+			urlParm += "&I_TEL=" + document.getElementById("finalUserSms").value;
+		}else{
+			urlParm += "&I_TEL=" + document.getElementById("finalReCdSms").value;
+		}
+		
+		if(document.getElementById("reservUserSmsCheck").checked||document.getElementById("reservReCdSmsCheck").checked){
+			urlParm += "&I_RECM_SMS_YN=Y";
+		}else{
+			urlParm += "&I_RECM_SMS_YN=N";
+		}
+		
+	}else{
+		urlParm += "&I_RECM_MEM_NO=" + "";
+		urlParm += "&I_RECM_GUEST_NO=" + "";
+		urlParm += "&I_RECM_NAME=" + "";
+		urlParm += "&I_TEL=" + "";
+		
+		if(document.getElementById("reservUserSmsCheck").checked||document.getElementById("reservReCdSmsCheck").checked){
+			urlParm += "&I_RECM_SMS_YN=Y";
+		}else{
+			urlParm += "&I_RECM_SMS_YN=N";
+		}
+	}
+	//동반자 추가
+	urlParm += "&I_PRTNR_NAME1="+encodeURI(document.getElementById("expressName2").value,"utf-8");  
+	urlParm += "&I_PRTNR_NAME2="+encodeURI(document.getElementById("expressName3").value,"utf-8");  
+	urlParm += "&I_PRTNR_NAME3="+encodeURI(document.getElementById("expressName4").value,"utf-8");  
+	urlParm += "&I_PRTNR_HP_NO1="+document.getElementById("expressTel2").value; 
+	urlParm += "&I_PRTNR_HP_NO2="+document.getElementById("expressTel3").value; 
+	urlParm += "&I_PRTNR_HP_NO3="+document.getElementById("expressTel4").value; 
+	for(var i=0; i < document.getElementsByName("expressSex2").length; i++){
+		if(document.getElementsByName("expressSex2")[i].checked == true) {   
+			urlParm += "&I_PRTNR_SEX1="+document.getElementsByName("expressSex2")[i].value; 
+		}
+	}
+	
+	for(var i=0; i < document.getElementsByName("expressSex3").length; i++){
+		if(document.getElementsByName("expressSex3")[i].checked == true) {   
+			urlParm += "&I_PRTNR_SEX2="+document.getElementsByName("expressSex3")[i].value; 
+		}
+	}
+	for(var i=0; i < document.getElementsByName("expressSex4").length; i++){
+		if(document.getElementsByName("expressSex4")[i].checked == true) {   
+			urlParm += "&I_PRTNR_SEX3="+document.getElementsByName("expressSex4")[i].value; 
+		}
+	} 
+	if(document.getElementById("expressMem1").checked){
+		urlParm += "&I_MEMBER_KBN1=Y";	
+	}else{
+		urlParm += "&I_MEMBER_KBN1=N";
+	}
+	if(document.getElementById("expressMem2").checked){
+		urlParm += "&I_MEMBER_KBN2=Y";	
+	}else{
+		urlParm += "&I_MEMBER_KBN2=N";
+	}
+	if(document.getElementById("expressMem3").checked){
+		urlParm += "&I_MEMBER_KBN3=Y";	
+	}else{
+		urlParm += "&I_MEMBER_KBN3=N";
+	}
+	urlParm += "&I_PRTNR_NAME="+encodeURI(document.getElementById("expressName").value,"utf-8");  
+	urlParm += "&I_PRTNR_HP_NO="+document.getElementById("expressTel").value; 
+	for(var i=0; i < document.getElementsByName("expressSex").length; i++){
+		if(document.getElementsByName("expressSex")[i].checked == true) {   
+			urlParm += "&I_PRTNR_SEX="+document.getElementsByName("expressSex")[i].value; 
+		}
+	}
+	if(document.getElementById("expressMem").checked){
+		urlParm += "&I_MEMBER_KBN=Y";	
+	}else{
+		urlParm += "&I_MEMBER_KBN=N";
+	}
+	if(document.getElementById("reservExpressCheck").checked == true){
+		urlParm += "&I_EXPRESS_YN=Y";	
+	}else{
+		urlParm += "&I_EXPRESS_YN=N";
+	}
+	
+	//담당자SMS 정보
+	urlParm += "&I_CHARGE_SMS_YN=N";
+	urlParm += "&I_CHARGE_HP_NO=";
+	urlParm += "&I_RESERV_CORP_CODE=" + ICH_RESERV_CORP_CODE;
+
+	urlParm += "&I_YI_COSE_TYPE="+menuYinCoseType;
+	
+	var expressCnt = 1;
+	if(document.getElementById("expressName2").value != ""){
+		expressCnt++;
+	}
+	if(document.getElementById("expressName3").value != ""){
+		expressCnt++;
+	}
+	if(document.getElementById("expressName4").value != ""){
+		expressCnt++;
+	}
+	if(document.getElementById("reservExpressCheck").checked &&(expressCnt > document.getElementById("finalJoinCount").value)){
+		alert("스마트체크인 시 동반자 수는 참석인원을 초과할 수 없습니다.");
+		return;
+	}
+	document.getElementById("finalConfirm").style.display = "none";
+	
+	if(amtDiv == "Y"){
+	
+		urlParm += "&I_FINAL_UPJANG="+encodeURI(document.getElementById("finalUpjang").value,"utf-8");
+		urlParm += "&I_FINAL_DAY="+encodeURI(document.getElementById("finalDay").value,"utf-8");
+		urlParm += "&I_FINAL_TIME="+encodeURI(document.getElementById("finalTime").value,"utf-8");
+		urlParm += "&I_FINAL_TIME2="+encodeURI(document.getElementById("finalTime2").value,"utf-8");
+		urlParm += "&I_FINAL_COSE="+encodeURI(document.getElementById("finalCose").value,"utf-8");
+		urlParm += "&I_FINAL_USE_CHECK="+encodeURI(document.getElementById("finalUseCheck").value,"utf-8");
+		urlParm += "&I_FINAL_CADDY="+encodeURI(document.getElementById("finalCady").value,"utf-8");
+		urlParm += "&I_FINAL_APPLY_VIP="+encodeURI(document.getElementById("finalApplyVip").value,"utf-8");
+		urlParm += "&I_FINAL_JOIN_COUNT="+encodeURI(document.getElementById("finalJoinCount").value,"utf-8");
+		urlParm += "&I_FINAL_SMS="+document.getElementById("finalSms").value;
+		urlParm += "&I_FINAL_RECD_NAME="+encodeURI(document.getElementById("finalReCdName").value,"utf-8");
+		urlParm += "&I_FINAL_RECD_SMS="+document.getElementById("finalReCdSms").value;
+		
+		location.href = "/shop/reserve/golf/pay.jsp"+urlParm;	
+	}else{
+	
+		document.temp.action = "/shop/reserve/golf/reservSend01.jsp"+urlParm;
+		document.temp.submit();	
+	}
+	
+	
+}
+
+//예약변경[최종처리]
+function f_reservConfirm03(){
+
+	var I_guestNo = '';
+	var I_memNo = '';
+	var I_sex = 'null';
+
+	var urlParm = "?";
+
+	urlParm += "ICH_CORP_CODE=" + ICH_CORP_CODE ;
+	urlParm += "&ICH_RESERV_NO=" + ICH_RESERV_NO ;
+	urlParm += "&ICH_BOOK_DATE=" + ICH_BOOK_DATE;
+	urlParm += "&ICH_COSE=" + ICH_COSE;
+	urlParm += "&ICH_TIME=" + ICH_TIME;
+	urlParm += "&ICH_CHANGE_COSE=" + ICH_CHANGE_COSE;
+	urlParm += "&ICH_CHANGE_TIME=" + ICH_CHANGE_TIME;
+	urlParm += "&ICH_HP_NO=" + document.getElementById("finalSms").value;
+	urlParm += "&ICH_SMS_YN=" + ICH_SMS_YN;
+	urlParm += "&ICH_CHARGE_HP_NO=" + ICH_CHARGE_HP_NO;
+	urlParm += "&ICH_CHARGE_SMS_YN=" + ICH_CHARGE_SMS_YN;
+	urlParm += "&ICH_REMARK=" + encodeURI(ICH_REMARK.replace(/\n/gi,"<p>"),'UTF-8');
+	urlParm += "&ICH_JOINCNT=" + ICH_JOINCNT;
+
+	for(var i=0; i < document.getElementsByName("reservCady").length; i++){
+		if(document.getElementsByName("reservCady")[i].checked == true) {
+			urlParm += "&ICH_CDD_RANK=" + document.getElementsByName("reservCady")[i].value
+		} 
+	}
+	for(var i=0; i < document.getElementsByName("applyVip").length; i++){
+		if(document.getElementsByName("applyVip")[i].checked == true) {
+			urlParm += "&ICH_VIP_YN=" + document.getElementsByName("applyVip")[i].value
+		} 
+	}
+
+	if( document.getElementById("reservSelf").checked == true ){
+		urlParm += "&ICH_ENTR_YN=Y";
+	}else{
+		urlParm += "&ICH_ENTR_YN=N";
+	}
+	
+		urlParm += "&ICH_RECM_NAME=" + encodeURI(document.getElementById("finalReCdName").value,'UTF-8');
+		urlParm += "&ICH_RECM_TEL=" + document.getElementById("finalReCdSms").value;
+	
+	if(document.getElementById("reservReCdSmsCheck").checked){
+		urlParm += "&ICH_RECM_TEL_YN=Y";
+	}else{
+		urlParm += "&ICH_RECM_TEL_YN=N";
+	}
+	//동반자 추가
+	urlParm += "&ICH_PRTNR_NAME="+encodeURI(document.getElementById("expressName").value,'UTF-8');
+	urlParm += "&ICH_PRTNR_NAME1="+encodeURI(document.getElementById("expressName2").value,'UTF-8');  
+	urlParm += "&ICH_PRTNR_NAME2="+encodeURI(document.getElementById("expressName3").value,'UTF-8');  
+	urlParm += "&ICH_PRTNR_NAME3="+encodeURI(document.getElementById("expressName4").value,'UTF-8');  
+	urlParm += "&ICH_PRTNR_HP_NO="+document.getElementById("expressTel").value; 
+	urlParm += "&ICH_PRTNR_HP_NO1="+document.getElementById("expressTel2").value; 
+	urlParm += "&ICH_PRTNR_HP_NO2="+document.getElementById("expressTel3").value; 
+	urlParm += "&ICH_PRTNR_HP_NO3="+document.getElementById("expressTel4").value; 
+	for(var i=0; i < document.getElementsByName("expressSex").length; i++){
+		if(document.getElementsByName("expressSex")[i].checked == true) {   
+			urlParm += "&ICH_PRTNR_SEX="+document.getElementsByName("expressSex")[i].value; 
+		}
+	}
+	
+	for(var i=0; i < document.getElementsByName("expressSex2").length; i++){
+		if(document.getElementsByName("expressSex2")[i].checked == true) {   
+			urlParm += "&ICH_PRTNR_SEX1="+document.getElementsByName("expressSex2")[i].value; 
+		}
+	}
+	
+	for(var i=0; i < document.getElementsByName("expressSex3").length; i++){
+		if(document.getElementsByName("expressSex3")[i].checked == true) {   
+			urlParm += "&ICH_PRTNR_SEX2="+document.getElementsByName("expressSex3")[i].value; 
+		}
+	}
+	for(var i=0; i < document.getElementsByName("expressSex4").length; i++){
+		if(document.getElementsByName("expressSex4")[i].checked == true) {   
+			urlParm += "&ICH_PRTNR_SEX3="+document.getElementsByName("expressSex4")[i].value; 
+		}
+	} 
+	if(document.getElementById("expressMem").checked){
+		urlParm += "&ICH_MEM_KBN=Y";
+	}else{
+		urlParm += "&ICH_MEM_KBN=N";
+	}
+	if(document.getElementById("expressMem1").checked){
+		urlParm += "&ICH_MEM_KBN1=Y";
+	}else{
+		urlParm += "&ICH_MEM_KBN1=N";
+	}
+	if(document.getElementById("expressMem2").checked){
+		urlParm += "&ICH_MEM_KBN2=Y";
+	}else{
+		urlParm += "&ICH_MEM_KBN2=N";
+	}
+	if(document.getElementById("expressMem3").checked){
+		urlParm += "&ICH_MEM_KBN3=Y";
+	}else{
+		urlParm += "&ICH_MEM_KBN3=N";
+	}
+	if(document.getElementById("reservExpressCheck").checked == true){
+		urlParm += "&ICH_EXPRESS_YN=Y";	
+	}else{
+		urlParm += "&ICH_EXPRESS_YN=N";
+	}
+	urlParm += "&ICH_ENTR_OBJT_CODE=" + document.getElementById("entrObjtCode").value;
+	document.getElementById("finalConfirm").style.display = "none";
+	
+
+	document.temp.action = "/shop/reserve/golf/reservSend03.jsp"+urlParm;
+	document.temp.submit();
+}
+
+//예약접수/대기예약[최종처리]
+function f_reservConfirm02(){
+	
+	var I_guestNo = '';
+	var I_tel = 'null';
+	var I_memNo = '';
+	var I_sex = 'null';
+
+	if(I_tel == 'null'){
+		I_tel = '';
+	}
+	var reRemarkR = document.getElementById("reRemark").value;
+
+	var urlParm = "?";
+
+	urlParm += "I_CORP_CODE=" + I_corp_code ;
+	urlParm += "&I_BOOK_DATE=" + I_bookDate ;
+	urlParm += "&I_HOPE_COSE=" + I_coseCd;
+	urlParm += "&I_HOPE_TIME=" + I_coseTime;
+	urlParm += "&I_MEM_NO=" + I_memNo;
+	urlParm += "&I_GUEST_NO=" + I_guestNo;
+	urlParm += "&I_BOOK_NAME=" + encodeURI(document.getElementById("finalName").value,'UTF-8');
+	urlParm += "&I_HP_NO=" + document.getElementById("finalSms").value;
+	urlParm += "&I_CHARGE_HP_NO=" + document.getElementById("finalHpon").value;
+	
+	for(var i=0; i < document.getElementsByName("reservCady").length; i++){
+		if(document.getElementsByName("reservCady")[i].checked == true) {
+			urlParm += "&I_CDD_RANK=" + document.getElementsByName("reservCady")[i].value 
+		} 
+	}
+	
+	urlParm += "&I_SMS_YN=" + document.getElementById("reservSms1Yn").value;
+	urlParm += "&I_CHARGE_SMS_YN=";
+	urlParm += "&I_REMARK=" + encodeURI(reRemarkR.replace(/\n/gi,"<p>"),'UTF-8');
+	urlParm += "&I_ENTR_YN=" + I_ent_yn ;
+
+	if( I_ent_yn == "N" ){
+		urlParm += "&I_RECM_MEM_NO=" + I_memNo;
+		urlParm += "&I_RECM_GUEST_NO=" + I_guestNo;
+		if(document.getElementById("reservUserName").value != ""){
+			urlParm += "&I_RECM_NAME=" + encodeURI(document.getElementById("reservUserName").value,'UTF-8');
+			urlParm += "&I_TEL=" + document.getElementById("finalUserSms").value;
+		}else{
+			urlParm += "&I_RECM_NAME=" + encodeURI(document.getElementById("reservReCdName").value,'UTF-8');
+			urlParm += "&I_TEL=" + document.getElementById("finalReCdSms").value;
+		}
+		
+		if(document.getElementById("reservUserSmsCheck").checked||document.getElementById("reservReCdSmsCheck").checked){
+			urlParm += "&I_RECM_SMS_YN=Y";
+		}else{
+			urlParm += "&I_RECM_SMS_YN=N";
+		}
+	}else{
+		urlParm += "&I_RECM_MEM_NO=" + "";
+		urlParm += "&I_RECM_GUEST_NO=" + "";
+		urlParm += "&I_RECM_NAME=" + "";
+		urlParm += "&I_TEL=" + "";
+		if(document.getElementById("reservUserSmsCheck").checked||document.getElementById("reservReCdSmsCheck").checked){
+			urlParm += "&ICH_RECM_TEL_YN=Y";
+		}else{
+			urlParm += "&I_RECM_SMS_YN=N";
+		}
+	}
+	urlParm += "&I_RESERV_CORP_CODE=" + ICH_RESERV_CORP_CODE;
+	
+	document.getElementById("finalConfirm").style.display = "none";
+	document.temp.action = "/shop/reserve/golf/reservSend02.jsp"+urlParm;
+	document.temp.submit();
+}
+
+
+//예약접수/대기예약 변경[최종처리]
+function f_reservConfirm04(){
+
+	var urlParm = "?";
+	urlParm += "&I_CORP_CODE=" + ICH_CORP_CODE;
+	urlParm += "&I_BOOK_DATE=" + ICH_BOOK_DATE;
+	urlParm += "&I_RSRV_SEQ=" + ICH_RSRV_SEQ;
+	urlParm += "&I_HOPE_COSE=" + ICH_HOPE_COSE;
+	urlParm += "&I_HOPE_TIME=" + ICH_HOPE_TIME;
+	urlParm += "&I_GUEST_NO=" + ICH_GUEST_NO;
+	urlParm += "&I_BOOK_NAME=" + encodeURI(ICH_BOOK_NAME,'UTF-8');
+	urlParm += "&I_CHARGE_HP_NO=" + ICH_STAND_CHARGE_HP_NO;
+	urlParm += "&I_CHARGE_SMS_YN=" + ICH_CHARGE_SMS_YN;
+	urlParm += "&I_HP_NO=" + ICH_HP_NO;
+	urlParm += "&I_SMS_YN=" + ICH_SMS_YN;
+	urlParm += "&I_REMARK=" + encodeURI(ICH_REMARK.replace(/\n/gi,"<p>"),'UTF-8');
+
+	for(var i=0; i < document.getElementsByName("reservCady").length; i++){
+		if(document.getElementsByName("reservCady")[i].checked == true) {
+			urlParm += "&I_CDD_RANK=" + document.getElementsByName("reservCady")[i].value 
+		} 
+	}
+	
+	document.getElementById("finalConfirm").style.display = "none";
+	document.temp.action = "/shop/reserve/golf/reservSend04.jsp"+urlParm;
+	document.temp.submit();
+}
+
+//상단 업장 변경
+
+
+//9홀 선택 시 시간2 choice
+function f_reservTime2Y(){
+	
+	if( document.getElementById("reservTime2Yn").checked == true){
+		doubleChoice = "Y";
+
+		var param = "?";
+		param += "vBookDate=" + doubleBookDate;
+		param += "&corpCode="+doubleCorpCode;
+		param += "&sheetTime=";
+		param += "&reserveAmPm=not";
+		param += "&yinCoseType="+doubleYinCoseType;
+		param += "&doubleTime="+doubleDoubleTime;
+		param += "&doubleCoseCd="+doubleCoseCd;
+		param += "&doubleBookStts="+doubleBookStts;
+		param += "&tempMemberState=" + join_tempMemberState;
+		param += "&guestNo="+'';
+		param += "&notJoin=Y";
+		param += "&taOpen="+doubletaOpen;		
+		 
+		//if(document.getElementsByName("joinCnt1")[0].checked){
+		//	param += "&joinYn=Y";
+		//} 수정중
+	
+		document.temp.target = "teeOffIframe";
+		document.temp.action = "/shop/reserve/golf/timeSheet.jsp" + param;
+		document.temp.submit();
+		
+	}else{
+		doubleChoice = "N";
+		document.getElementById("reservTime2").value = "";
+	}
+}
+
+function f_reservFormChange01( corpCode, bookDate, reservNo, coseCd, chtime, reservCoseCd, teamCnt, entrYn, cddRank, recmName, 
+        recmTel,  taOpen, bookStts, hpNo, smsYn,smsYn2, nocaddyYn
+        ,expChkIn,prtnrName1,prtnrHpNo1,prtnrSex1,prtnrName2,prtnrHpNo2,prtnrSex2,prtnrName3,prtnrHpNo3,prtnrSex3,
+        prtnrName,prtnrHpNo,prtnrSex,memberKbn,vipYn,memberKbn1,memberKbn2,memberKbn3,entrObjtCode,joinYn){
+	
+
+	var memState = '003';
+	var c_hpNo = 'null';
+	
+	if(c_hpNo == 'null'){
+		
+		c_hpNo = '';
+	}
+	document.getElementById("reservName").value = 'null';
+	
+	//document.getElementById("reservSms1").value = 'null';
+	document.getElementById("reservSms1").value = hpNo;
+
+	document.getElementById("reservSms2").value = c_hpNo;
+	
+
+	
+
+
+
+	
+	reservChangeYN = "Y";
+	I_reservStnadYN = "N";
+
+	for(var i=0; i < document.getElementsByName("joinCnt1").length; i++){
+		if(document.getElementsByName("joinCnt1")[i].value == teamCnt) {
+			document.getElementsByName("joinCnt1")[i].checked = true;
+		} 
+	}
+	
+	document.getElementById("reservUserSect").style.display = "none";
+	document.getElementById("reservFormClose01").style.display = "none";
+	document.getElementById("reservFormClose02").style.display = "";
+	document.getElementById("daySelIframe01").style.display = "none";
+	document.getElementById("daySelIframe02").style.display = "";
+	
+	
+	if(corpCode == "02"){
+		if(coseCd == "007"){
+			if(joinYn == "Y"){
+				document.getElementById("joinCntview1").style.display = "none";
+				document.getElementById("joinCntview2").style.display = "";
+				document.getElementById("joinCntview3").style.display = "none";
+			}else{
+				document.getElementById("joinCntview1").style.display = "";
+				document.getElementById("joinCntview2").style.display = "none";
+				document.getElementById("joinCntview3").style.display = "none";
+			}
+		}else{
+			document.getElementById("joinCntview1").style.display = "none";
+			document.getElementById("joinCntview2").style.display = "none";
+			document.getElementById("joinCntview3").style.display = "none";
+		}
+		
+	}else{
+		document.getElementById("joinCntview1").style.display = "none";
+		document.getElementById("joinCntview2").style.display = "none";
+		document.getElementById("joinCntview3").style.display = "none";
+	}
+
+	document.getElementsByName("reservCady")[1].disabled = false;
+	document.getElementsByName("reservCady")[2].disabled = false;
+	if(corpCode == "02"){
+		document.getElementsByName("reservCady")[3].disabled = false;
+	}
+	if(corpCode == "01"){
+		document.getElementsByName("reservCady")[3].disabled = false;
+	}
+	if(corpCode == "02"){
+		if (nocaddyYn == "Y") {
+			document.getElementById("reservNoCaddy").style.display = "";
+			document.getElementsByName("reservCady")[3].checked = true;
+			document.getElementsByName("reservCady")[1].disabled = true;
+			document.getElementsByName("reservCady")[2].disabled = true;	
+			document.getElementsByName("reservCady")[3].disabled = true;
+		}
+		else 
+		{
+			document.getElementById("reservNoCaddy").style.display = "none";
+			document.getElementsByName("reservCady")[3].checked = false;
+			document.getElementsByName("reservCady")[1].checked = true;
+			//document.getElementsByName("reservCady")[1].disabled = true;
+			//document.getElementsByName("reservCady")[2].disabled = true;
+			//document.getElementsByName("reservCady")[3].disabled = true;			
+		}
+	} else if(corpCode == "03" ){
+ 		if ( nocaddyYn == "Y" ) {
+ 			document.getElementById("reservNoCaddy").style.display = "";
+ 			document.getElementsByName("reservCady")[2].checked = true;
+ 			document.getElementsByName("reservCady")[1].disabled = true;
+ 			document.getElementsByName("reservCady")[2].disabled = true;
+ 		} else {
+			document.getElementById("reservNoCaddy").style.display = "none";
+			document.getElementsByName("reservCady")[2].checked = false;
+			document.getElementsByName("reservCady")[1].checked = true;
+			//document.getElementsByName("reservCady")[1].disabled = true;
+ 		}
+		
+	}else if(corpCode == "01" ){
+		
+		if (nocaddyYn == "Y") {
+			document.getElementById("reservNoCaddy").style.display = "";
+			document.getElementsByName("reservCady")[1].checked = false;
+			document.getElementsByName("reservCady")[1].checked = true;
+			document.getElementsByName("reservCady")[1].disabled = false;
+			document.getElementsByName("reservCady")[2].disabled = true;
+			document.getElementsByName("reservCady")[3].disabled = true;
+			document.getElementsByName("reservCady")[4].disabled = true;
+		} 
+		else 
+		{
+			document.getElementById("reservNoCaddy").style.display = "";
+			document.getElementsByName("reservCady")[4].checked = false;
+			document.getElementsByName("reservCady")[4].checked = true;
+			document.getElementsByName("reservCady")[1].disabled = false;
+			document.getElementsByName("reservCady")[2].disabled = false;
+			document.getElementsByName("reservCady")[3].disabled = false;
+			document.getElementsByName("reservCady")[4].disabled = false;
+		}
+
+	}
+
+	
+	for(var i=0; i < document.getElementsByName("reservCady").length; i++){
+		if(document.getElementsByName("reservCady")[i].value == cddRank){
+			document.getElementsByName("reservCady")[i].checked = true;
+		}
+	}
+	
+	if(unregistCnt == "Y"){
+		document.getElementById("applyVipArea").style.display = "";
+		for(var i=0; i < document.getElementsByName("applyVip").length; i++){
+			if(document.getElementsByName("applyVip")[i].value == vipYn){
+				document.getElementsByName("applyVip")[i].checked = true;
+			}
+		}
+	}else{
+		document.getElementById("applyVipArea").style.display = "none";
+	}
+	/* 에러발생 임시조치 2017 05 18 최필규	 
+	if(corpCode == "01"){
+		
+		changecss('.rbtn_btn1', 'background', 'url(/shop/images_reserve/online/bg_btn2.gif)');
+		changecss('.rbtn_btn2', 'background', 'url(/shop/images_reserve/online/bg_btn.gif)');
+		changecss('.rbtn_btn4', 'background', 'url(/shop/images_reserve/online/bg_btn.gif)');
+		changecss('.rbtn_btn3', 'background', 'url(/shop/images_reserve/online/bg_btn.gif)');
+	}else if(corpCode == "02"&&coseCd != "007"){
+		changecss('.rbtn_btn1', 'background', 'url(/shop/images_reserve/online/bg_btn.gif)');
+		changecss('.rbtn_btn2', 'background', 'url(/shop/images_reserve/online/bg_btn2.gif)');
+		changecss('.rbtn_btn4', 'background', 'url(/shop/images_reserve/online/bg_btn.gif)');
+		changecss('.rbtn_btn3', 'background', 'url(/shop/images_reserve/online/bg_btn.gif)');
+	}else if(corpCode == "02"&&coseCd=="007"){
+		changecss('.rbtn_btn1', 'background', 'url(/shop/images_reserve/online/bg_btn.gif)');
+		changecss('.rbtn_btn2', 'background', 'url(/shop/images_reserve/online/bg_btn.gif)');
+		changecss('.rbtn_btn4', 'background', 'url(/shop/images_reserve/online/bg_btn2.gif)');
+		changecss('.rbtn_btn3', 'background', 'url(/shop/images_reserve/online/bg_btn.gif)');
+	}else{
+		changecss('.rbtn_btn1', 'background', 'url(/shop/images_reserve/online/bg_btn.gif)');
+		changecss('.rbtn_btn2', 'background', 'url(/shop/images_reserve/online/bg_btn.gif)');
+		changecss('.rbtn_btn4', 'background', 'url(/shop/images_reserve/online/bg_btn.gif)');
+		changecss('.rbtn_btn3', 'background', 'url(/shop/images_reserve/online/bg_btn2.gif)');
+	}
+	*/	
+	
+	var param = "?";
+	param += "reservFormChange=01";
+	param += "&corpCode01="+corpCode;
+	param += "&bookDate01="+bookDate;
+	param += "&reservNo01="+reservNo;
+	param += "&coseCd01="+coseCd;
+	param += "&time01=" + chtime;
+	param += "&teamCnt=" + teamCnt;
+	param += "&taOpen=" + taOpen;
+	if(bookStts == "008"&&memState != "001"){
+		param += "&taOpenView=Y";
+	}else{
+		
+			param += "&taOpenView=N";
+		
+	}
+
+	if(entrYn == "Y"){
+		document.getElementById("reservSelf").checked = true;
+		document.getElementById("reCdName").style.display = "none";
+		document.getElementById("reCdSms").style.display = "none";
+		document.getElementById("userName").style.display = "none";
+		document.getElementById("userSms").style.display = "none";
+	}else{
+		document.getElementById("reservReCd").checked = true;
+		document.getElementById("reCdName").style.display = "";
+		document.getElementById("reCdSms").style.display = "";
+		document.getElementById("reservSelf").disabled = false;
+		document.getElementById("userName").style.display = "none";
+		document.getElementById("userSms").style.display = "none";
+		document.getElementById("reservReCdName").value = recmName;
+		document.getElementById("reservReCdSms").value = recmTel;
+		if(smsYn2 == "Y"){
+			$("#reservRecdSmsCheck").prop('checked', true);
+		}
+	}
+
+	if(smsYn=="Y"){
+		document.getElementById("reservSms1Yn").checked = true;
+	}
+	var r_memRemark = '';
+	document.getElementById("reservUpjang").value = '';
+	document.getElementById("reservDay").value = '';
+	document.getElementById("reservTime").value = '';
+	document.getElementById("reservCose").value = '';
+	document.getElementById("reRemark").value = r_memRemark.replace(/<br>/gi,"\n");
+	document.getElementById("entrObjtCode").value = entrObjtCode ;
+	
+	if(expChkIn == "Y"){
+		document.getElementById("expressCheck").style.display = "";
+		document.getElementById("reservExpressCheck").checked = true;
+		document.getElementById("expressCheckView").style.display = "";
+		//document.getElementById("expressWrite").style.display = "";
+		document.getElementById("expressName").value = prtnrName;
+		document.getElementById("expressTel").value = prtnrHpNo;
+		for(var i=0; i < document.getElementsByName("expressSex").length; i++){
+			if(document.getElementsByName("expressSex")[i].value == prtnrSex) {
+				document.getElementsByName("expressSex")[i].checked = true;
+			} 
+		}
+		if(memberKbn == "Y"){
+			document.getElementById("expressMem").checked = true;
+		}
+		
+		document.getElementById("expressName2").value = prtnrName1;
+		document.getElementById("expressTel2").value = prtnrHpNo1;
+		for(var i=0; i < document.getElementsByName("expressSex2").length; i++){
+			if(document.getElementsByName("expressSex2")[i].value == prtnrSex1) {
+				document.getElementsByName("expressSex2")[i].checked = true;
+			} 
+		}
+		if(memberKbn1 == "Y"){
+			document.getElementById("expressMem1").checked = true;
+		}
+		document.getElementById("expressName3").value = prtnrName2;
+		document.getElementById("expressTel3").value = prtnrHpNo2;
+		for(var i=0; i < document.getElementsByName("expressSex3").length; i++){
+			if(document.getElementsByName("expressSex3")[i].value == prtnrSex2) {
+				document.getElementsByName("expressSex3")[i].checked = true;
+			} 
+		}
+		if(memberKbn2 == "Y"){
+			document.getElementById("expressMem2").checked = true;
+		}
+		document.getElementById("expressName4").value = prtnrName3;
+		document.getElementById("expressTel4").value = prtnrHpNo3;
+		for(var i=0; i < document.getElementsByName("expressSex4").length; i++){
+			if(document.getElementsByName("expressSex4")[i].value == prtnrSex3) {
+				document.getElementsByName("expressSex4")[i].checked = true;
+			} 
+		}
+		if(memberKbn3 == "Y"){
+			document.getElementById("expressMem3").checked = true;
+		}
+		}else{
+			document.getElementById("expressCheck").style.display = "";
+			document.getElementById("reservExpressCheck").checked = false;
+			document.getElementById("expressCheckView").style.display = "none";
+			//document.getElementById("expressWrite").style.display = "none";
+		}
+	f_partnerFirstSet();
+	if(menuCorpCode == "03"){
+		//document.getElementById("reservCaddyStat").style.display = "none";	
+		//document.getElementById("expressCheck").style.display = "none";
+		//document.getElementById("expressCheckView").style.display = "none";
+		//document.getElementById("expressWrite").style.display = "none";
+	}
+	
+	ICH_CORP_CODE     = corpCode;
+	ICH_RESERV_NO     = reservNo;
+	ICH_BOOK_DATE     = bookDate;
+	ICH_COSE          = coseCd;
+	ICH_TIME          = chtime;
+	
+	/* 기본정보만 변경할 경우 처리 하기위하여 변경cose,time */
+	ICH_CHANGE_COSE  = coseCd;
+	ICH_CHANGE_TIME  = chtime;
+	
+	document.temp.target = "daySelIframe02";
+	document.temp.action = "/shop/reserve/golf/bookChkCal02.jsp" + param;
+	document.temp.submit();
+	
+}
+
+//예약변경(대기예약, 예약접수)
+function f_reservFormChange02(chCorpCode, chbookDate, chRsrvSeq, chGuestNo, chGuestNm, chCHpNo, chHpNo, chHopeTime, chHopeCose, chUpjang, chDate, chTimeNm, chCoseNm, chEntrYn, chCddRank,chSmsYn,chRemark){
+	
+	//alert(chCorpCode+","+ chbookDate+","+ chRsrvSeq+","+ chGuestNo+","+ chGuestNm+","+ chCHpNo+","+ chHpNo+","+ chHopeTime+","+ chHopeCose+","+ chUpjang+","+ chDate+","+ chTimeNm+","+ chCoseNm+","+ chEntrYn+","+ chCddRank+","+chSmsYn);
+	
+	reservChangeYN = "Y";
+	I_reservStnadYN = "Y";
+
+	
+	document.getElementById("reservFormClose01").style.display = "none";
+	document.getElementById("reservFormClose02").style.display = "";
+	document.getElementById("daySelIframe01").style.display = "none";
+	document.getElementById("daySelIframe02").style.display = "";
+	document.getElementById("expressCheck").style.display = "none";
+	document.getElementById("entrObjtArea").style.display
+	document.getElementById("expressCheckView").style.display = "none";
+	//document.getElementById("expressWrite").style.display = "none";
+	
+	document.getElementById("useDiv").style.display = "none";
+	document.getElementById("reCdName").style.display = "none";
+	document.getElementById("reCdSms").style.display = "none";
+	document.getElementById("userName").style.display = "none";
+	document.getElementById("userSms").style.display = "none";
+	document.getElementById("applyVipArea").style.display = "none";
+	document.getElementById("joinCntview1").style.display = "none";
+	document.getElementById("joinCntview2").style.display = "none";
+	document.getElementById("joinCntview3").style.display = "none";
+	
+	for(var i=0; i < document.getElementsByName("reservCady").length; i++){
+		if(document.getElementsByName("reservCady")[i].value == chCddRank){
+			document.getElementsByName("reservCady")[i].checked = true;
+		}
+	}
+	document.getElementById("reservUpjang").value = chUpjang;
+	document.getElementById("reservDay").value = chDate;
+	document.getElementById("reservTime").value = chTimeNm;
+	document.getElementById("reservCose").value = chCoseNm;
+	document.getElementById("reservName").value = chGuestNm;
+	document.getElementById("reservSms2").value = chHpNo;
+	document.getElementById("reservSms1").value = chCHpNo;
+	document.getElementById("reRemark").value =chRemark;
+	if(chSmsYn == "Y"){
+		
+		document.getElementById("reservSms1Yn").checked = true;
+	}
+	
+	var param = "?";
+	param += "reservFormChange=02";
+	param += "&corpCode02="+chCorpCode;
+	param += "&bookDate02="+chbookDate;
+	param += "&coseCd02="+chHopeCose;
+	param += "&timeCd02="+chHopeTime;
+    ICH_CORP_CODE     = chCorpCode;
+    ICH_BOOK_DATE     = chbookDate;
+    ICH_RSRV_SEQ      = chRsrvSeq;
+    ICH_GUEST_NO      = chGuestNo;
+    ICH_BOOK_NAME     = chGuestNm;
+    ICH_STAND_CHARGE_HP_NO  = chCHpNo;
+    ICH_SMS_YN 		  = chSmsYn;	
+    ICH_HOPE_COSE = chHopeCose;
+    ICH_HOPE_TIME = chHopeTime;
+    	 
+	document.temp.target = "daySelIframe02";
+	document.temp.action = "/shop/reserve/golf/bookChkCal02.jsp" + param;
+	document.temp.submit();
+}
+
+function reservFormClose(){
+	reservOnLoad();
+
+}
+
+//다음 단계 적용
+function f_next02(){
+
+	var finalReCdSms = "";
+	
+	if(document.getElementsByName("reservSelf")[1].checked){
+		if(document.getElementById("reservReCdName").value == "" || document.getElementById("reservReCdSms").value == ""){
+			messageDiv('추천으로 선택시 </br>추천자명과 핸드폰을 입력해주셔야 합니다. ');
+			return;
+		}	
+	}	
+	if(  document.getElementById("reservUpjang").value != "" ||  document.getElementById("reservDay").value != ""
+		|| document.getElementById("reservTime").value != "" || document.getElementById("reservCose").value != "") {
+
+		//SMS 체크 유무 
+		//SMS 수신자
+		if(document.getElementById("reservSms1Yn").checked == true){
+			document.getElementById("reservSms1Yn").value = "Y";
+		}else{
+			document.getElementById("reservSms1Yn").value = "N";
+		}
+
+		//핸드폰번호 
+		if(document.getElementById("reservSms2Yn").checked == true){
+			document.getElementById("reservSms2Yn").value = "Y";
+		}else{
+			document.getElementById("reservSms2Yn").value = "N";
+		}
+
+		//추천자 핸드폰
+		if(document.getElementById("reservReCdSmsCheck").checked == true){
+			document.getElementById("reservReCdSmsCheck").value = "Y";
+		}else{
+			document.getElementById("reservReCdSmsCheck").value = "N";
+		}
+
+		/* 핸드폰 번호 기본으로 설정되며, 수정 할수 없기때문에 유효성 체크 로직 주석 처리 함2012.06.04
+		if(document.getElementById("reservSms2").value != "" ){
+			if( !isValidPhone(document.getElementById("reservSms2").value ) ){
+				document.getElementById("finalConfirm").style.display = "none";
+				messageDiv('핸드폰 번호는  숫자-숫자-숫자(000-0000-0000)<br/> 형식에 맞춰서 입력 해주세요.');
+				return;
+				//alert("핸드폰 번호는  숫자-숫자-숫자(000-0000-0000) 형식에 맞춰서 입력 해주세요.");
+				//return document.getElementById("reservSms2").focus();					
+			}
+		}
+		*/
+
+		//이용구분이 추천일경우 체크
+		if( document.getElementById("reservReCd").checked == true){
+			//추천자 핸드폰 번호 체크
+			if(document.getElementById("reservReCdSms").value != "" ){
+				if( !isValidPhone(document.getElementById("reservReCdSms").value) ){
+					document.getElementById("finalConfirm").style.display = "none";
+					messageDiv('추천자 핸드폰 정보는  숫자-숫자-숫자(000-0000-0000)<br/> 형식에 맞춰서 입력 해주세요.');
+					return;
+				}
+			}
+		}
+		
+		document.getElementById("finalReCdName").value = document.getElementById("reservReCdName").value;
+
+		//이용구분이 이용일경우 체크
+		if( document.getElementById("reservUser").checked == true){
+			//이용자 핸드폰 번호 체크
+			if(document.getElementById("reservUserSms").value != "" ){
+				if( !isValidPhone(document.getElementById("reservUserSms").value) ){
+					document.getElementById("finalConfirm").style.display = "none";
+					messageDiv('이용자 핸드폰 정보는  숫자-숫자-숫자(000-0000-0000)<br/> 형식에 맞춰서 입력 해주세요.');
+					return;
+				}
+			}
+		}
+		//동반자 입력시 성별 필수체크(이름이 존재할때만)
+		var cnt1 = 0;
+		var cnt2 = 0;
+		var cnt3 = 0;
+		
+		if(document.getElementById("reservExpressCheck").checked == true){
+			if(document.getElementById("expressName2").value != ""){
+				for(var i = 0; i < document.getElementsByName("expressSex2").length; i++){
+					if(document.getElementsByName("expressSex2")[i].checked == true){
+						cnt1++;
+					}
+				}
+				if(cnt1 == 0){
+					messageDiv('첫번째 동반자의 성별을 선택해주세요.');
+					return;
+				}
+				
+			}
+			if(document.getElementById("expressName3").value != ""){
+				for(var i = 0; i < document.getElementsByName("expressSex3").length; i++){
+					if(document.getElementsByName("expressSex3")[i].checked == true){
+						cnt2++;
+					}
+				}
+				if(cnt2 == 0){
+					messageDiv('두번째 동반자의 성별을 선택해주세요.');
+					return;
+				}
+				
+			}
+			if(document.getElementById("expressName4").value != ""){
+				for(var i = 0; i < document.getElementsByName("expressSex4").length; i++){
+					if(document.getElementsByName("expressSex4")[i].checked == true){
+						cnt3++;
+					}
+				}
+				if(cnt3 == 0){
+					messageDiv('세번째 동반자의 성별을 선택해주세요.');
+					return;
+				}
+				
+			}
+							
+		}
+		
+		document.getElementById("finalUserName").value = document.getElementById("reservUserName").value;
+		
+
+		for(var i=0; i < document.getElementsByName("reservCady").length; i++){
+			if(document.getElementsByName("reservCady")[i].checked == true) {
+				if(document.getElementsByName("reservCady")[i].value == "001"){
+					document.getElementById("finalCady").value = "S(베스트)";
+				}else if(document.getElementsByName("reservCady")[i].value == "002"){
+					document.getElementById("finalCady").value = "A(일반)";
+				}else if(document.getElementsByName("reservCady")[i].value == "004"){
+					document.getElementById("finalCady").value = "노캐디";
+				}else{
+					document.getElementById("finalCady").value = "B(하)";
+				}
+			} 
+		}
+		if(unregistCnt == "Y"){
+			document.getElementById("finalApplyVipArea").style.display = "";
+			for(var i=0; i < document.getElementsByName("applyVip").length; i++){
+				if(document.getElementsByName("applyVip")[i].checked == true) {
+					if(document.getElementsByName("applyVip")[i].value == "N"){
+						document.getElementById("finalApplyVip").value = "N";
+					}else if(document.getElementsByName("applyVip")[i].value == "Y"){
+						document.getElementById("finalApplyVip").value = "Y";
+					}
+				} 
+			}
+		}else{
+			document.getElementById("finalApplyVipArea").style.display = "none";
+		}
+		
+		if(I_corp_code == "02"){
+			//퍼블릭
+			if(I_coseCd == "007"){
+				//조인
+				if(I_bookStts == "006"){
+					for(var i=0; i < document.getElementsByName("joinCnt2").length; i++){
+						if(document.getElementsByName("joinCnt2")[i].checked == true) {
+							document.getElementById("finalJoinCount").value = document.getElementsByName("joinCnt2")[i].value;
+						} 
+					}
+				}else{
+					for(var i=0; i < document.getElementsByName("joinCnt1").length; i++){
+						if(document.getElementsByName("joinCnt1")[i].checked == true) {
+							document.getElementById("finalJoinCount").value = document.getElementsByName("joinCnt1")[i].value;
+						} 
+					}
+				}
+			//맴버쉽
+			}else{
+				for(var i=0; i < document.getElementsByName("joinCnt3").length; i++){
+					if(document.getElementsByName("joinCnt3")[i].checked == true) {
+						document.getElementById("finalJoinCount").value = document.getElementsByName("joinCnt3")[i].value;
+					} 
+				}
+			}
+		//경주 , 상주
+		}else{
+			for(var i=0; i < document.getElementsByName("joinCnt1").length; i++){
+				if(document.getElementsByName("joinCnt1")[i].checked == true) {
+					document.getElementById("finalJoinCount").value = document.getElementsByName("joinCnt1")[i].value;
+				} 
+			}
+		}
+
+		if( document.getElementById("reservSelf").checked == true ){
+			document.getElementById("finalUseCheck").value = "본인";
+			document.getElementById("finalRecd").style.display = "";
+			document.getElementById("finalRecdMob").style.display = "";
+			document.getElementById("finalUser").style.display = "none";
+			document.getElementById("finalUserMob").style.display = "none";
+			document.getElementById("finalReCdName").value = "";
+			document.getElementById("finalReCdSms").value = "";
+		}else if(document.getElementById("reservReCd").checked == true){
+			document.getElementById("finalUseCheck").value = "추천인";
+			document.getElementById("finalRecd").style.display = "";
+			document.getElementById("finalRecdMob").style.display = "";
+			document.getElementById("finalUser").style.display = "none";
+			document.getElementById("finalUserMob").style.display = "none";
+			document.getElementById("finalReCdName").value = document.getElementById("reservReCdName").value;
+			document.getElementById("finalReCdSms").value = document.getElementById("reservReCdSms").value;
+		}else{
+			document.getElementById("finalUseCheck").value = "이용자";
+			document.getElementById("finalRecd").style.display = "none";
+			document.getElementById("finalRecdMob").style.display = "none";
+			document.getElementById("finalUser").style.display = "";
+			document.getElementById("finalUserMob").style.display = "";
+			document.getElementById("finalUserName").value = document.getElementById("reservUserName").value;
+			document.getElementById("finalUserSms").value = document.getElementById("reservUserSms").value;
+		}
+		
+		document.getElementById("finalUpjang").value = document.getElementById("reservUpjang").value;
+		document.getElementById("finalDay").value = document.getElementById("reservDay").value;
+		document.getElementById("finalTime").value = document.getElementById("reservTime").value;
+		document.getElementById("finalCose").value = document.getElementById("reservCose").value;
+		document.getElementById("finalName").value = document.getElementById("reservName").value;
+		document.getElementById("finalSms").value = document.getElementById("reservSms1").value;
+		document.getElementById("finalHpon").value = document.getElementById("reservSms2").value;
+		document.getElementById("finalReRemark").value = document.getElementById("reRemark").value;
+
+		if(I_coseCd != "" && I_coseTime != ""){
+			ICH_CHANGE_COSE   = I_coseCd;
+		    ICH_CHANGE_TIME   = I_coseTime;
+		    ICH_HOPE_COSE     = I_coseCd 
+		    ICH_HOPE_TIME	  = I_coseTime;
+		}
+	    
+	    ICH_CDD_RANK      = document.getElementById("finalCady").value;
+	    ICH_CHARGE_HP_NO  = document.getElementById("reservReCdSms").value;
+	    ICH_CHARGE_SMS_YN = document.getElementById("reservReCdSmsCheck").value;
+	    ICH_HP_NO         = document.getElementById("reservSms1").value;
+	    ICH_SMS_YN        = document.getElementById("reservSms1Yn").value;
+	    ICH_REMARK        = document.getElementById("reRemark").value;
+	    ICH_JOINCNT       = document.getElementById("finalJoinCount").value;
+
+	}else{
+		document.getElementById("finalConfirmArea").style.display = "";
+		document.getElementById("finalConfirm").style.display = "none";
+		messageDiv('티오프타임 선택 후 진행 할수 있습니다.');
+		return;
+	}
+	
+	//document.getElementById("finalConfirmArea").style.display = "";
+	//document.getElementById("finalConfirm").style.display = "";
+	f_reservConfirm('02');
+}
+
+function f_restrictionPop(bookDate, corpCode, coseCd, time, reservNo, delYn){
+	
+	var url = "?";
+	url += "I_CORP_CODE=" + corpCode ;
+	url += "&I_RESERV_NO=" + reservNo ;
+	url += "&I_BOOK_DATE=" + bookDate;
+	url += "&I_COSE=" + coseCd;
+	url += "&I_TIME=" + time;
+	url += "&I_DEL_YN=" + delYn;
+
+	document.temp.target = "tempIframe"; 
+	document.temp.action = "/shop/reserve/golf/golfRestrictionCheck.jsp" + url;
+	document.temp.submit();
+
+	
+}
+
+//예약 취소
+function f_reservCancelOk(bookDate, corpCode, coseCd, time, reservNo, delYn){
+	if( document.getElementById("resCancelRemark").value == "" ){
+		messageDiv('취소사유를 입력해주세요.','10');
+		return;
+		//alert("취소사유를 입력해주세요.");
+		//return document.getElementById("resCancelRemark").focus();
+	}else{
+		// 2015.10.10 sklee 상주 예약 취소시 위약금 발생팝업 삭제
+		//if(corpCode == '03'){
+		//	if(!confirm("경기일 기준 4일 이내 취소 시, 위약금이 발생합니다. 취소하시겠습니까?")){
+		//		return;
+		//	}
+		//} 
+		var url = "?";
+		url += "I_CORP_CODE=" + corpCode ;
+		url += "&I_RESERV_NO=" + reservNo ;
+		url += "&I_BOOK_DATE=" + bookDate;
+		url += "&I_COSE=" + coseCd;
+		url += "&I_TIME=" + time;
+		url += "&I_REMARK=" + encodeURI(document.getElementById("resCancelRemark").value,'UTF-8');
+		url += "&I_DEL_YN=" + delYn;
+
+		document.getElementById("resCancel").style.display = "none";
+		document.getElementById("finalConfirmArea").style.display = "none";
+		document.getElementById("resCancelRemark").value == "";
+		
+		document.temp.action = "/mypage/golfReservCancelSend01.jsp" + url;
+		document.temp.submit();
+	}
+}
+
+//예약 취소
+function f_reservCancelOk02(corpCode, bookDate, rsrvSqe, hopeDate, guestNo, guestNm, sendHpno){
+	if( document.getElementById("resCancelRemark").value == "" ){
+		messageDiv('취소사유를 입력해주세요.','10');
+		return;
+		//alert("취소사유를 입력해주세요.");
+		//return document.getElementById("resCancelRemark").focus();
+	}else{
+		// 2015.10.10 sklee 상주 예약 취소시 위약금 발생팝업 삭제
+		//if(corpCode == '03'){
+		//	if(!confirm("경기일 기준 4일 이내 취소 시, 위약금이 발생합니다. 취소하시겠습니까?")){
+		//		return;
+		//	}
+		//} 
+		
+		var url = "?";
+		url += "I_CORP_CODE=" + corpCode ;
+		url += "&I_BOOK_DATE=" + bookDate ;
+		url += "&I_RSRV_SEQ=" + rsrvSqe;
+		url += "&I_HOPE_TIME=" + hopeDate.substr(8,4);
+		url += "&I_GUEST_NO=" + guestNo;
+		url += "&I_BOOK_NAME=" + encodeURI(guestNm,'UTF-8');
+		url += "&I_HP_NO=" + sendHpno;
+		url += "&I_CANCEL_RESN=" + encodeURI(document.getElementById("resCancelRemark").value,'UTF-8');
+		
+		document.getElementById("resCancel").style.display = "none";
+		document.getElementById("finalConfirmArea").style.display = "none";
+		
+		document.temp.action = "/mypage/golfReservCancelSend02.jsp" + url;
+		document.temp.submit();
+	}
+}
+
+//회원권 선택 시 param 셋팅
+function f_memberListClick(corpCode, c2userId, c2guestType){
+	document.getElementById("CcorpCode").value = corpCode;
+	document.getElementById("c2userId").value = c2userId;
+	document.getElementById("c2guestType").value = c2userId;
+}
+
+//회원권 선택 시 회원번호로 예약 화면 처리
+function f_memberListchoice(corpCode, guestNo, memNo, userId, guestType){
+
+	var resUrl = '/shop/reserve/golf/ready.jsp';
+	
+	var urlParm = "?";
+	urlParm += "kind=1";
+	urlParm += "&corpCode="+corpCode;
+	urlParm += "&guestNo="+guestNo;
+	urlParm += "&memNo="+memNo;
+	urlParm += "&userId="+userId;
+	urlParm += "&golfCondo=golf";
+	urlParm += "&resUrl=" + resUrl;
+	urlParm += "&guestType=" + guestType;
+	
+	document.temp.action = "/shop/reserve/golf/chkOpinion02.jsp"+urlParm;
+	document.temp.submit();
+	
+}
+
+//회원권 로그인 처리(인터넷 회원으로 접속)
+function f_memberChoice(){
+
+	var resUrl = '/shop/reserve/golf/ready.jsp';
+
+	if(document.getElementById("CcorpCode").value == "" ){
+		
+		document.getElementById("CcorpCode").value = "";
+		document.getElementById("c2userId").value = "";
+		document.getElementById("c2pwd").value = "";
+		
+		messageDiv('회원권을 선택해주세요', 'memChoice');
+		return;
+	}
+
+	if( document.getElementById("c2pwd").value == ""){
+		messageDiv('비밀번호를 입력해주세요', 'memChoice');
+		return;
+	}
+	
+	
+	var urlParm = "?";
+	urlParm += "kind=2";
+	urlParm += "&checkCorp="+document.getElementById("CcorpCode").value;
+	urlParm += "&c2userId="+document.getElementById("c2userId").value;
+	urlParm += "&c2pwd="+document.getElementById("c2pwd").value;
+	urlParm += "&guestType="+document.getElementById("c2guestType").value;
+	urlParm += "&golfCondo=golf";
+	urlParm += "&resUrl=" + resUrl;
+
+	document.temp.action = "/membership/chkOpinion02.jsp"+urlParm;
+	document.temp.submit();
+}
+
+//회원권 로그인 취소
+function f_memberChoiceCancel(){
+	document.getElementById("memTicket2").style.display = "none";
+	document.getElementById("finalConfirmArea").style.display = "none";
+}
+
+
+//다른 회원권 로그인(회원ID 접속)
+function f_memberReLogin(){
+	var memberListChoce =  'N';
+
+	if(memberListChoce == "Y" ){
+		
+		document.getElementById("finalConfirmArea").style.display = "";
+		document.getElementById("memTicket").style.display = "";
+	}else{
+		document.getElementById("finalConfirmArea").style.display = "";
+		document.getElementById("memTicket2").style.display = "";
+	}
+}
+
+//용인동코스인원체크
+function f_yonginEastCoseReCheck(){
+
+	document.getElementById("finalConfirmArea").style.display = "";
+	document.getElementById("selTime").style.display = "";
+	
+	var inner = "";
+
+	inner = "<p class='alertTime2'> 참삭인원이 맞습니까? </p>																												";
+	inner += "   <table class='table2 form'>																														";
+	inner += "   	<tr id='joinCntview1'>                                                                                                                      	";
+	inner += "   	<th>참석인원</th>                                                                                                                           		";
+	inner += "   	<td>                                                                                                                                        	";
+	inner += "   		<input id='joinCnt1Input1' name='checkJoinCnt1' type='radio' value='4' checked='checked'/><label for='joinCnt1Input1'>4명</label>            ";
+	inner += "   		<span class='space'><input id='joinCnt1Input2' name='checkJoinCnt1' type='radio' value='3' /><label for='joinCnt1Input2'>3명</label></span>  ";
+	inner += "   		<span class='space'><input id='joinCnt1Input3' name='checkJoinCnt1' type='radio' value='2' /><label for='joinCnt1Input3'>2명</label></span>  ";
+	inner += "   	</td>                                                                                                                                       	";
+	inner += "   	</tr>                                                                                                                                       	";
+	inner += "   </table>                                                                                                                                     		";
+	inner += "<div class='popbtn'>                                                                                                                          		";
+	inner += "	<a href='javascript:f_confirm();'><img src='/shop/images_reserve/online/btn_confirm3.gif' alt='확인' /></a>                                			";
+	inner += "	<a href='javascript:messageDivOff();'><img src='/shop/images_reserve/online/btn_cancel2.gif' alt='취소' /></a>                                		";
+	inner += "</div>                               		                               		                               		                               		";
+		
+	document.getElementById("selTime").innerHTML = inner;
+
+	for(var i=0; i < document.getElementsByName("joinCnt1").length; i++){
+		if(document.getElementsByName("joinCnt1")[i].checked == true) {
+			document.getElementsByName("checkJoinCnt1")[i].checked = true;
+		} 
+	}	
+}
+
+//결과 메세지
+function f_confirm(){
+	for(var i=0; i < document.getElementsByName("checkJoinCnt1").length; i++){
+		if(document.getElementsByName("checkJoinCnt1")[i].checked == true) {
+			document.getElementsByName("joinCnt1")[i].checked = true;
+		} 
+	}
+	messageDivOff();
+	f_GolfReservSecondCheck();
+}
+	
+//결과 메세지
+function f_resultMsg(msg , str){
+
+	document.getElementById("finalConfirmArea").style.display = "";
+	document.getElementById("selTime").style.display = "";
+	
+	var coment = "";
+	var inner = "";
+
+	if(msg.substring(0,1) == "Y"){
+		if(str == "01"){
+			inner = "<p class='alertTime2'><b>[예약 번호 : " +  msg.substring( 3, 13) + "] </b> 예약되었습니다.<br/> 예약현황으로 이동 하시겠습니까? </p>";
+			inner += "<div class='popbtn'>";
+			inner += "	<a href='/shop/retrieve/golf/golfUse.jsp'><img src='/shop/images_reserve/online/btn_confirm3.gif' alt='확인' /></a> ";
+			inner += "	<a href='javascript:messageDivOff(20);'><img src='/shop/images_reserve/online/btn_cancel2.gif' alt='취소' /></a> ";
+			inner += "</div>";
+		}else if(str == "02"){
+			inner = "<p class='alertTime2'> 대기예약(예약접수) 되었습니다. <br/> 예약현황으로 이동 하시겠습니까? </p>";
+			inner += "<div class='popbtn'>";
+			inner += "	<a href='/shop/retrieve/golf/golfStandReserv.jsp'><img src='/shop/images_reserve/online/btn_confirm3.gif' alt='확인' /></a> ";
+			inner += "	<a href='javascript:messageDivOff(20);'><img src='/shop/images_reserve/online/btn_cancel2.gif' alt='취소' /></a> ";
+			inner += "</div>";
+		}else if(str == "03"){
+			inner = "<p class='alertTime2'> 예약이 변경 되었습니다.</p>";
+			inner += "<div class='popbtn'>";
+			inner += "	<a href='/shop/retrieve/golf/golfUse.jsp'><img src='/shop/images_reserve/online/btn_confirm3.gif' alt='확인' /></a> ";
+			inner += "</div>";
+		}else if(str == "04"){
+			inner = "<p class='alertTime2'> 대기예약(예약접수) 변경 되었습니다.</p>";
+			inner += "<div class='popbtn'>";
+			inner += "	<a href='/shop/retrieve/golf/golfStandReserv.jsp'><img src='/shop/images_reserve/online/btn_confirm3.gif' alt='확인' /></a> ";
+			inner += "</div>";
+		}else if(str == "05"){
+			inner = "<p class='alertTime2'><b>[예약 번호 : " +  msg.substring( 3, 13) + "] </b> <br/> 예약 취소 되었습니다. </p>";
+			inner += "<div class='popbtn'>";
+			inner += "	<a href='/shop/retrieve/golf/golfUse.jsp'><img src='/shop/images_reserve/online/btn_confirm3.gif' alt='확인' /></a> ";
+			inner += "</div>";
+		}else if(str == "06"){
+			inner = "<p class='alertTime2'><b> 대기예약(예약접수) 취소 되었습니다. </p>";
+			inner += "<div class='popbtn'>";
+			inner += "	<a href='/shop/retrieve/golf/golfUse.jsp'><img src='/shop/images_reserve/online/btn_confirm3.gif' alt='확인' /></a> ";
+			inner += "</div>";
+		}
+
+	}else if( msg.substring( 0, 1) == "N" ){
+		//inner  = "<p class='alertTime2'>오류가 발생 하였습니다.<br/>고객센터에 연락 부탁 드립니다.</p>";
+		inner  = "<p class='alertTime2'>" + msg.substring(2, msg.length) + "</p>";
+		inner += "<div class='popbtn'>";
+		inner += "	<a href='javascript:messageDivOff(20);'><img src='/shop/images_reserve/online/btn_confirm3.gif' alt='확인' /></a> ";
+		inner += "</div>";
+
+	}else{
+		inner  = "<p class='alertTime2'>" + msg.substring(4, msg.length) + "</p>";
+		inner += "<div class='popbtn'>";
+		inner += "	<a href='javascript:messageDivOff(20);'><img src='/shop/images_reserve/online/btn_confirm3.gif' alt='확인' /></a> ";
+		inner += "</div>";
+	}
+	
+	document.getElementById("selTime").innerHTML = inner;
+}
+
+//안내문구 창
+function messageDiv(message, str){
+
+	document.getElementById("finalConfirmArea").style.display = "";
+
+	if(str == "memChoice"){
+		document.getElementById("memTicket2").style.display = "none";
+	}
+	
+	document.getElementById("selTime").style.display = "";
+	
+	var inner;
+
+	if(str == "reservCnt"){
+		inner = message;
+	}else if(str == "init"){
+		inner  = "<p class='alertTime2'>" + message + "</p>";
+		inner += "<div class='popbtn'>";
+		inner += "	<a href=javascript:messageDivOff('"+str+"')><img src='/shop/images_reserve/online/btn_initialization2.gif' alt='초기화' /></a> ";
+		inner += "	<a href=javascript:messageDivOff('"+str+"')><img src='/shop/images_reserve/online/btn_confirm3.gif' alt='확인' /></a> ";
+		inner += "</div>";
+	}else{
+		inner  = "<p class='alertTime2'>" + message + "</p>";
+		inner += "<div class='popbtn'>";
+		inner += "	<a href=javascript:messageDivOff('"+str+"')><img src='/shop/images_reserve/online/btn_confirm3.gif' alt='확인' /></a> ";
+		inner += "</div>";
+	}
+	
+	document.getElementById("selTime").innerHTML = inner;
+}
+
+//안내문구 창 닫기
+function messageDivOff(str){
+	if( str == "10"){
+		document.getElementById("selTime").style.display = "none";
+		document.getElementById("resCancel").style.display = "";
+	}else if( str == "20"){
+		window.location.reload();
+	}else if (str == "memChoice") {
+		document.getElementById("selTime").style.display = "none";
+		document.getElementById("memTicket2").style.display = "";
+		
+		
+	}else if (str == "reservChangeDiv") {
+		document.getElementById("selTime").style.display = "none";
+		
+		
+		
+	}else if (str == "myPage") {
+		document.getElementById("selTime").style.display = "none";
+		document.getElementById("finalConfirmArea").style.display = "none";
+		
+	}else if (str == "init"){
+		document.getElementById("selTime").style.display = "none";
+		document.getElementById("finalConfirmArea").style.display = "none";
+		reservClear();
+	}else {
+		document.getElementById("selTime").style.display = "none";
+		document.getElementById("finalConfirmArea").style.display = "none";
+	}
+}
+
+function updateChar(content, FieldName, str) {
+
+	var strCount = 0;
+	var tempStr, tempStr2; 
+
+	for(i = 0;i < content.value.length;i++) {
+		tempStr = content.value.charAt(i);
+
+		if(escape(tempStr).length > 4) {
+			strCount += 2;
+		} else {
+			strCount += 1 ;
+		}
+	}
+
+	if(strCount > FieldName) {
+		strCount = 0;  
+		tempStr2 = "";
+		for(i = 0; i < content.value.length; i++) {
+			tempStr = content.value.charAt(i); 
+			if(escape(tempStr).length > 4) {
+				strCount += 2;
+			} else {
+				strCount += 1 ;
+			}
+
+			if(strCount > FieldName) {
+				if(escape(tempStr).length > 4) {
+					strCount -= 2;
+				} else {
+					strCount -= 1 ; 
+				}
+         		break;         
+        	} else {
+    			tempStr2 += tempStr;
+			}
+		}
+		content.value = tempStr2;
+		messageDiv('120자 까지만 입력 가능합니다.',str);
+		return;
+		
+	}else{
+
+		//특수문자 체크
+		var arg = content.value; 
+		var specialChar = '/*!%#$&\;\'"<>`';
+		var bIsSpecialChar = false;
+		var retVal = "";
+
+		for(i = 0, j = arg.length; i < j; i++) {
+			
+			var value = arg.charAt(i);
+			if(specialChar.indexOf(value) != -1) {
+					bIsSpecialChar = true;
+			}
+
+			if(!bIsSpecialChar) {
+				retVal += value;
+			}
+
+			if(bIsSpecialChar) {
+				content.value = retVal;
+				messageDiv('특수문자(/!%#$&\;\'\"<>`)를 입력할 수 없습니다.',str);
+				return;
+			}
+		}
+	}
+}
+function updateSms1(content) {
+
+	
+	var _val = content.value.trim();
+	content.value = autoHypenPhone(_val);
+	
+}
+function updateName(content) {
+
+	var strCount = 0;
+	var tempStr; 
+
+	for(i = 0;i < content.value.length;i++) {
+		tempStr = content.value.charAt(i);
+
+		if(escape(tempStr).length > 4) {
+			strCount += 2;
+		} else {
+			strCount += 1 ;
+		}
+	}
+	if(strCount == 0){
+		document.getElementById("expressName").value = "";
+		document.getElementById("expressTel").value = "";
+		for(var i=0; i < document.getElementsByName("expressSex").length; i++){
+			document.getElementsByName("expressSex")[i].checked = false;
+		}
+		document.getElementById("expressMem").checked = false;
+	}
+
+	
+}
+function updateName1(content) {
+
+	var strCount = 0;
+	var tempStr; 
+
+	for(i = 0;i < content.value.length;i++) {
+		tempStr = content.value.charAt(i);
+
+		if(escape(tempStr).length > 4) {
+			strCount += 2;
+		} else {
+			strCount += 1 ;
+		}
+	}
+	if(strCount == 0){
+		document.getElementById("expressName2").value = "";
+		document.getElementById("expressTel2").value = "";
+		for(var i=0; i < document.getElementsByName("expressSex2").length; i++){
+			document.getElementsByName("expressSex2")[i].checked = false;
+		}
+		document.getElementById("expressMem1").checked = false;
+	}
+
+	
+}
+function updateName2(content) {
+
+	var strCount = 0;
+	var tempStr; 
+
+	for(i = 0;i < content.value.length;i++) {
+		tempStr = content.value.charAt(i);
+
+		if(escape(tempStr).length > 4) {
+			strCount += 2;
+		} else {
+			strCount += 1 ;
+		}
+	}
+	if(strCount == 0){
+		document.getElementById("expressName3").value = "";
+		document.getElementById("expressTel3").value = "";
+		for(var i=0; i < document.getElementsByName("expressSex3").length; i++){
+			document.getElementsByName("expressSex3")[i].checked = false;
+		}
+		document.getElementById("expressMem2").checked = false;
+	}
+
+	
+}
+function updateName3(content) {
+
+	var strCount = 0;
+	var tempStr; 
+
+	for(i = 0;i < content.value.length;i++) {
+		tempStr = content.value.charAt(i);
+
+		if(escape(tempStr).length > 4) {
+			strCount += 2;
+		} else {
+			strCount += 1 ;
+		}
+	}
+	if(strCount == 0){
+		document.getElementById("expressName4").value = "";
+		document.getElementById("expressTel4").value = "";
+		for(var i=0; i < document.getElementsByName("expressSex4").length; i++){
+			document.getElementsByName("expressSex4")[i].checked = false;
+		}
+		document.getElementById("expressMem3").checked = false;
+	}
+
+	
+}
+
+function f_NoCaddy(){ 
+if(menuCorpCode == "01") return false;
+//messageDiv('[ 노캐디 셀프골프카 이용조건 ]<br/>- 운전면허소지자<br/>- 핸디캡 4인 기준 86이내<br/>- 9홀 경기시간 2시간 10분 이내<br/>- 이상조건을 충족하지 않을 시 캐디배치<br/>※ 문의 : 예약실(Tel.031-330-9752~3)');
+	if ((I_corp_code == "02") && (I_coseCd == "007")){
+		messageDiv('[동코스 노캐디 전면 실시공지 안내]<br/>- 운전면허 소지자<br/>- 핸디캡 4인 기준 90타 이상 불가능<br/>   단) 진행에 협조적인팀 가능<br/>- 9홀 경기시간 2시간10분 이내<br/>- 이상조건을 충족하지 않을 시 예약 규제<br/>※ 예약실(Tel. 1899-1888 ▶ 2 ▶ 1)');
+	}else{
+		messageDiv('[노캐디 셀프골프카 이용조건]<br/>- 운전면허 소지자<br/>- 핸디캡 4인 기준 90타 이상 불가능<br/>   단) 진행에 협조적인팀 가능<br/>- 9홀 경기시간 2시간10분 이내<br/>- 이상조건을 충족하지 않을 시 예약 규제<br/>※ 예약실(Tel. 1899-1888 ▶ 2 ▶ 1)');
+	}
+}
+function f_NoCaddy03(){
+	messageDiv('[ 노캐디 셀프골프카 이용조건 ]<br/>- 운전면허소지자<br/>- 핸디캡 4인 기준 86이내<br/>- 9홀 경기시간 2시간 10분 이내<br/>- 이상조건을 충족하지 않을 시 캐디배치<br/>※ 문의 : 예약실(Tel.054-530-8880)');
+
+	}
+
+function f_partnerFirstSet(){
+	//2018-08-15 이상주요청
+	//이용구분이 본인일 때만 동반자에 첫행에 예약자 넣어주 고 read only 처리
+	if( document.getElementById("reservSelf").checked == true ){
+		document.getElementById("expressName").readOnly = true;
+		document.getElementById("expressTel").readOnly = true;
+		document.getElementById("expressName").style.backgroundColor="#e1dcd3"; 
+		document.getElementById("expressTel").style.backgroundColor="#e1dcd3"; 
+	}
+}
+
+function f_partnerSet(){
+	var memSex = 'null';
+	//2018-08-15 이상주요청
+	//이용구분이 본인일 때만 동반자에 첫행에 예약자 넣어주 고 read only 처리
+	if( document.getElementById("reservSelf").checked == true ){
+		document.getElementById("expressName").value = document.getElementById("reservName").value;
+		document.getElementById("expressTel").value = document.getElementById("reservSms2").value;
+		document.getElementById("expressName").readOnly = true;
+		document.getElementById("expressTel").readOnly = true;
+		document.getElementById("expressName").style.backgroundColor="#e1dcd3"; 
+		document.getElementById("expressTel").style.backgroundColor="#e1dcd3"; 
+
+		for(var i=0; i < document.getElementsByName("expressSex").length; i++){
+			if(document.getElementsByName("expressSex")[i].value == memSex) {
+				document.getElementsByName("expressSex")[i].checked = true;
+			} 
+		}
+		if(tMemberState == "001"){
+			document.getElementById("expressMem").checked = true;	
+		}else{
+			document.getElementById("expressMem").checked = false;
+		}
+
+	}else{
+		document.getElementById("expressName").value = "";
+		document.getElementById("expressTel").value = "";
+		document.getElementById("expressName").readOnly = false;
+		document.getElementById("expressTel").readOnly = false;
+		document.getElementById("expressName").style.backgroundColor=""; 
+		document.getElementById("expressTel").style.backgroundColor=""; 
+
+		for(var i=0; i < document.getElementsByName("expressSex").length; i++){
+			if(document.getElementsByName("expressSex")[i].value == memSex) {
+				document.getElementsByName("expressSex")[i].checked = false;
+			} 
+		}
+
+	}	
+}
+
+function f_express(){  
+
+if(document.getElementById("reservExpressCheck").checked == true){
+	document.getElementById("expressCheckView").style.display = "";
+	f_partnerSet();
+	//document.getElementById("expressWrite").style.display = "";
+}else{
+	document.getElementById("expressCheckView").style.display = "none";
+	//document.getElementById("expressWrite").style.display = "none";
+	document.getElementById("expressName").value = "";
+	document.getElementById("expressTel").value = "";
+	for(var i=0; i < document.getElementsByName("expressSex").length; i++){
+		document.getElementsByName("expressSex")[i].checked = false;
+	}
+	document.getElementById("expressMem").checked = false;
+	document.getElementById("expressName2").value = "";
+	document.getElementById("expressTel2").value = "";
+	for(var i=0; i < document.getElementsByName("expressSex2").length; i++){
+		document.getElementsByName("expressSex2")[i].checked = false;
+	}
+	document.getElementById("expressMem1").checked = false;
+	document.getElementById("expressName3").value = "";
+	document.getElementById("expressTel3").value = "";
+	for(var i=0; i < document.getElementsByName("expressSex3").length; i++){
+		document.getElementsByName("expressSex3")[i].checked = false;
+	}
+	document.getElementById("expressMem2").checked = false;
+	document.getElementById("expressName4").value = "";
+	document.getElementById("expressTel4").value = "";
+	for(var i=0; i < document.getElementsByName("expressSex4").length; i++){
+		document.getElementsByName("expressSex4")[i].checked = false;
+	}
+	document.getElementById("expressMem3").checked = false;
+		 
+}
+
+}
+function changecss(theClass,element,value) {
+	var cssRules;
+
+	if (document.all) {
+		cssRules = 'rules';
+	}else if (document.getElementById){
+		cssRules = 'cssRules';
+	}
+
+	var added = false;
+	for (var S = 0; S < document.styleSheets.length; S++){
+		for (var R = 0; R < document.styleSheets[S][cssRules].length; R++){
+			if (document.styleSheets[S][cssRules][R].selectorText == theClass){
+				if(document.styleSheets[S][cssRules][R].style[element]){
+					document.styleSheets[S][cssRules][R].style[element] = value;
+					added=true;
+					break;
+				}
+			}
+		}
+
+		if(!added){
+			if(document.styleSheets[S].insertRule){
+				document.styleSheets[S].insertRule(theClass+' { '+element+': '+value+';}',document.styleSheets[S][cssRules].length); 
+			}else if (document.styleSheets[S].addRule){
+				document.styleSheets[S].addRule(theClass,element+': '+value+';'); 
+			}
+		}
+	}
+}
+//예약화면에서 동반자관리 클릭
+function f_prtnrControll(sortDiv){
+	if(document.getElementById("reservExpressCheck").checked == false){
+		alert("스마트체크인이 활성화 되어있지 않습니다.");
+		return;
+	}
+	var prtnrSearchName = document.getElementById("searchName").value;
+
+	if(!sortDiv) sortDiv = '00';
+	
+	if(sortDiv == '00' && prtnrListSort == 0){
+		prtnrListSort = 1;
+		$("#tab1").text("이름순　▼");
+	} 
+	else if (sortDiv =='00' && prtnrListSort == 1) {
+		prtnrListSort = 0;
+		$("#tab1").text("이름순　▲");
+	}
+	
+	var cnt = 0;
+	$.ajax({
+		'type':'POST',
+		'url':'retirevePrtnrAjax.jsp',
+		'data':{
+					 'P_CORP_CODE':prtnrCorpCode
+					,'P_RESERV_GUEST_NO': prtnrGuestNo
+					,'P_PRTNR_SEARCH_NAME': prtnrSearchName
+					,'P_SORT_DIV': sortDiv
+					,'P_SORT_ASC': prtnrListSort
+				},
+		'dataType':'json',
+		'error': function (x){
+			alert('fail');
+			ing = false;
+		},
+		'success':function(json) {
+			$("#retrievePrtnrList").empty();
+			var table = "";
+				table +="<colgroup>" +
+						"<col width='7%'/>" +
+						"<col width='*'/>" +
+						"<col width='20%'/>" +
+						"<col width='10%'/>" +
+						"<col width='10%'/>" +
+						"<col width='20%'/>" +
+					"</colgroup>";
+				table +="<thead>" +
+						"<tr>" +
+							"<th scop='col'>선택</th>" +
+							"<th scop='col'>동반자명</th>" +
+							"<th scop='col'>연락처</th>" +
+							"<th scop='col'>성별</th>" +
+							"<th scop='col'>회원여부</th>" +
+							"<th scop='col'>관리</th>" +
+						"</tr>" +
+						"</thead>";
+			if (json.succ_yn=='N') {
+				alert(json.message);
+			} else {
+				if(json.list.length == 0) {
+					// 데이터가 없을때
+					table +="<tbody>";
+					
+						table += "<tr>"+
+						"<td><input id='prtnrChoice1' type='checkbox' class='noline' value='' /></td>"+
+						"<td><input id='prtnrName1' type='text'  class='noline' value='' readonly/></td>"+
+						"<td><input id='prtnrTel1' type='text'  class='noline' value='' readonly/></td>"+
+						"<td><input id='prtnrSex1' type='text'  class='noline' value='' readonly/></td>"+
+						"<td><input id='prtnrMemKbn1' type='text'  class='noline' value='' readonly/></td>"+
+						"<td></td>"+
+					"</tr>";
+					table +="</tbody>";	
+					
+					
+				} else {
+					
+					table +="<tbody>";
+					$.each( json.list, function (index, entry) {	
+						cnt = index;
+						cnt ++;
+						table += "";
+						if(entry["SEQ_NO"]=='0'){
+							table += "<tr><td style='background-color:#BDBDBD'><input id='prtnrChoice"+cnt+"' type='checkbox' class='noline' value='' /></td>"+
+							"<td style='background-color:#BDBDBD'><input  id='prtnrName"+cnt+"' type='text' style='background-color:#BDBDBD' class='noline' value='"+entry['PRTNR_NAME']+"' readonly/></td>"+
+							"<td style='background-color:#BDBDBD'><input  id='prtnrTel"+cnt+"' type='text' style='background-color:#BDBDBD' class='noline' value='"+entry['TEL']+"' readonly/></td>"+
+							"<td style='background-color:#BDBDBD'><input  id='prtnrSex"+cnt+"' type='text' style='background-color:#BDBDBD' class='noline' value='"+entry['SEX_NM']+"' readonly/></td>"+
+							"<td style='background-color:#BDBDBD'><input  id='prtnrMemKbn"+cnt+"' type='text'  class='noline' style='background-color:#BDBDBD' value='"+entry['MEMBER_KBN']+"'  readonly/></td>"+
+							"<td style='background-color:#BDBDBD'>최근동반자</td>";
+						}else if(entry["SEQ_NO"]=='-1'){
+							table += "<tr><td style='background-color:#BDBDBD'><input id='prtnrChoice"+cnt+"' type='checkbox' class='noline' value='' /></td>"+
+							"<td style='background-color:#BDBDBD'><input  id='prtnrName"+cnt+"' type='text' class='noline' style='background-color:#BDBDBD' value='"+entry['PRTNR_NAME']+"' readonly/></td>"+
+							"<td style='background-color:#BDBDBD'><input  id='prtnrTel"+cnt+"' type='text'  class='noline' style='background-color:#BDBDBD' value='"+entry['TEL']+"' readonly/></td>"+
+							"<td style='background-color:#BDBDBD'><input  id='prtnrSex"+cnt+"' type='text'  class='noline' style='background-color:#BDBDBD' value='"+entry['SEX_NM']+"' readonly/></td>"+
+							"<td style='background-color:#BDBDBD'><input  id='prtnrMemKbn"+cnt+"' type='text' class='noline' style='background-color:#BDBDBD'  value='"+entry['MEMBER_KBN']+"'  readonly/></td>"+
+							"<td style='background-color:#BDBDBD'>자주가는동반자</td>";
+						}else{
+							table += "<tr><td><input id='prtnrChoice"+cnt+"' type='checkbox' class='noline' value='' /></td>"+
+							"<td><input  id='prtnrName"+cnt+"' type='text'  class='noline' value='"+entry['PRTNR_NAME']+"' readonly/></td>"+
+							"<td><input  id='prtnrTel"+cnt+"' type='text'  class='noline' value='"+entry['TEL']+"' readonly/></td>"+
+							"<td><input  id='prtnrSex"+cnt+"' type='text'  class='noline' value='"+entry['SEX_NM']+"' readonly/></td>"+
+							"<td><input  id='prtnrMemKbn"+cnt+"' type='text'  class='noline' value='"+entry['MEMBER_KBN']+"'  readonly/></td>"+
+							"<td><img src='/shop/images/btn_modify.gif' onclick=f_prtnrUpdate('"+ entry["PRTNR_NAME"]+"','"+entry["TEL"]+"','"+entry["SEX"]+"','"+entry["MEMBER_KBN"]+"','"+entry["SEQ_NO"]+"'); style='cursor: pointer;' alt='수정' /><img src='/shop/images/btn_delete.gif' onclick=f_prtnrDelete('"+ entry["PRTNR_NAME"]+"','"+entry["TEL"]+"','"+entry["SEX"]+"','"+entry["MEMBER_KBN"]+"','"+entry["SEQ_NO"]+"'); style='cursor: pointer; margin-left:10px;' alt='삭제' /></td>"
+						}
+								
+					});	
+					table +="</tr></tbody>";	
+				}
+			}	
+		
+			$("#retrievePrtnrList").append(table);
+		}
+  });
+	document.getElementById("updatePrtnr").style.display = "none";
+	document.getElementById("recentPrtnr").style.display = "none";
+	document.getElementById("expressInfo").style.display = "none";
+	document.getElementById("selfroundInfo").style.display = "none";
+	document.getElementById("finalConfirmArea").style.display = "";
+	document.getElementById("prtnrArea").style.display = "";
+	
+
+
+
+}
+//예약화면에서 최근동반자 클릭
+function f_recentPrtnr(){
+	if(document.getElementById("reservExpressCheck").checked == false){
+		alert("스마트체크인이 활성화 되어있지 않습니다.");
+		return;
+	}
+var cnt = 0;
+	
+	$.ajax({
+		'type':'POST',
+		'url':'retrieveRecentPartnerAjax.jsp',
+		'data':{
+					 'P_CORP_CODE':prtnrCorpCode
+					,'P_RESERV_GUEST_NO':prtnrGuestNo
+				},
+		'dataType':'json',
+		'error': function (x){
+			alert('fail');
+			ing = false;
+		},
+		'success':function(json) {
+			$("#retrieveRecentPrtnrList").empty();
+			var table = "";
+				table +="<colgroup>" +
+						"<col width='7%'/>" +
+						"<col width='15%'/>" +
+						"<col width='*'/>" +
+						"<col width='17%'/>" +
+						"<col width='10%'/>" +
+						"<col width='10%'/>" +
+						"<col width='18%'/>" +
+					"</colgroup>";
+				table +="<thead>" +
+						"<tr>" +
+						"<th scope='col'>선택</th>" +
+						"<th scope='col'>예약일자</th>" +
+						"<th scope='col'>동반자명</th>" +
+						"<th scope='col'>연락처</th>" +
+						"<th scope='col'>성별</th>" +
+						"<th scope='col'>회원여부</th>" +
+						"<th scope='col'>관리</th>" +
+						"</tr>" +
+						"</thead>";
+			if (json.succ_yn=='N') {
+				alert(json.message);
+			} else {
+				if(json.list.length == 0) {
+					table +="<tbody>";
+					
+						table += "<tr>"+
+						"<td><input id='recentPrtnrChoice1' type='checkbox' value='' /></td>" +
+						"<td><input  id='recentPrtnrDate1' readonly class='noline'/></td>" +
+						"<td><input  id='recentPrtnrName1' readonly class='noline' /></td>" +
+						"<td><input  id='recentPrtnrTel1' readonly class='noline' maxlength='13' /></td>" +
+						"<td><input  id='recentPrtnrSex1' type='text'  class='noline' value='' readonly/></td>"+
+						"<td><input  id='recentPrtnrMemKbn1' type='text'  value=''  readonly class='noline' /></td>" +
+						"<td></td>" +
+					"</tr>";
+								
+					
+					table +="</tbody>";
+				} else {
+					table +="<tbody>";
+					$.each( json.list, function (index, entry) {	
+						cnt = index;
+						cnt ++;
+						
+						table += "<tr>"+
+						"<td ><input id='recentPrtnrChoice"+cnt+"' type='checkbox' value='' /></td>" +
+						"<td><input  id='recentPrtnrDate"+cnt+"' type='text'  value='"+entry['BOOK_DATE']+"' class='noline' readonly /></td>" +
+						"<td><input  id='recentPrtnrName"+cnt+"' type='text'  value='"+entry['PRTNR_NAME']+"' class='noline'  readonly /></td>" +
+						"<td><input  id='recentPrtnrTel"+cnt+"' type='text'  value='"+entry['TEL']+"'  maxlength='13' class='noline' readonly /></td>" +
+						"<td><input  id='recentPrtnrSex"+cnt+"' type='text'  value='"+entry['SEX_NM']+"' class='noline' readonly   /></td>" +
+						"<td><input  id='recentPrtnrMemKbn"+cnt+"' type='text'  value='"+entry['MEMBER_KBN']+"' class='noline' readonly /></td>" +
+						"<td><img src='/shop/images_reserve/online/btn_prtnr_insert.gif' onclick=f_prtnrInsert('"+entry['PRTNR_NAME']+"','"+entry['TEL']+"','"+entry['SEX']+"','"+entry['MEMBER_KBN']+"'); style='cursor: pointer;' alt='수정' /></td>" +
+					"</tr>";
+								
+					});	
+					table +="</tbody>";	
+				}
+			}	
+			$("#retrieveRecentPrtnrList").append(table);
+		}
+  });
+	document.getElementById("finalConfirmArea").style.display = "";
+	document.getElementById("recentPrtnr").style.display = "";
+
+}
+function f_prtnrChoice(str) {
+	prtnrCnt = 0;
+	var checkCnt = 0;
+	var prtnrName1 = "";
+	var prtnrTel1 = "";
+	var prtnrSex1 = "";
+	var prtnrMemKbn1 = "";
+	var prtnrName2 = "";
+	var prtnrTel2 = "";
+	var prtnrSex2 = "";
+	var prtnrMemKbn2 = "";
+	var prtnrName3 = "";
+	var prtnrTel3 = "";
+	var prtnrSex3 = "";
+	var prtnrMemKbn3 = "";
+	var prtnrNameFull1 = "N";
+	var prtnrNameFull2 = "N";
+	var prtnrNameFull3 = "N";
+	if(document.getElementById("expressName2").value != ""){
+		prtnrCnt++;
+		prtnrNameFull1 = "Y";
+	}
+	if(document.getElementById("expressName3").value != ""){
+		prtnrCnt++;
+		prtnrNameFull2 = "Y";
+	}
+	if(document.getElementById("expressName4").value != ""){
+		prtnrCnt++;
+		prtnrNameFull3 = "Y";
+	}
+	
+	//str 값 따라서 각각 처리  동반자관리 :예약화면 이름 카운팅 후 비어있는 갯수만큼 체크 가능하도록, 그리고 해당값넘김.
+	//최근동반자 : 동반자관리와 똑같이 처리
+	//동반자수정 : 등록한 동반자를 동반자관리테이블에 저장ajax
+	if(str =="1"){		//최근동반자
+		//alert("최근동반자");
+		$('#retrieveRecentPrtnrList tr').each(function(){
+
+			var index = $('#retrieveRecentPrtnrList tr').index(this);
+
+			var checkedId = "recentPrtnrChoice"+index;
+
+			if($('#'+checkedId).is(":checked")) {
+ 				checkCnt++;
+
+				//alert("checkCnt+prtnrCnt : "+(Number(checkCnt)+Number(prtnrCnt)));
+				if((Number(checkCnt)+Number(prtnrCnt)) > 3){
+					return;
+				}
+				if(checkCnt == "1"){
+					
+					prtnrName1 = $('#recentPrtnrName' + index).val();
+					prtnrTel1 = $('#recentPrtnrTel' + index).val();
+					if($('#recentPrtnrSex' + index).val() == "남"){
+						prtnrSex1 = "1";	
+					}else{
+						prtnrSex1 = "2";
+					}
+					prtnrMemKbn1 = $('#recentPrtnrMemKbn' + index).val();
+				}else if(checkCnt == "2"){
+					
+					prtnrName2 = $('#recentPrtnrName' + index).val();
+					prtnrTel2 = $('#recentPrtnrTel' + index).val();
+					if($('#recentPrtnrSex' + index).val() == "남"){
+						prtnrSex2 = "1";	
+					}else{
+						prtnrSex2 = "2";
+					}
+					prtnrMemKbn2 = $('#recentPrtnrMemKbn' + index).val();
+				} if(checkCnt == "3"){
+					
+					prtnrName3 = $('#recentPrtnrName' + index).val();
+					prtnrTel3 = $('#recentPrtnrTel' + index).val();
+					if($('#recentPrtnrSex' + index).val() == "남"){
+						prtnrSex3 = "1";	
+					}else{
+						prtnrSex3 = "2";
+					}
+					prtnrMemKbn3 = $('#recentPrtnrMemKbn' + index).val();
+				}
+			}
+	    });
+		
+		if((Number(checkCnt)+Number(prtnrCnt)) > 3){
+			alert("동반자는 3인이상 입력 할 수 없습니다.");
+			return;
+		}else{
+			
+			if(checkCnt == "3"){
+				document.getElementById("expressName2").value = prtnrName1;
+				document.getElementById("expressTel2").value = prtnrTel1;
+				for(var i=0; i < document.getElementsByName("expressSex2").length; i++){
+					if(document.getElementsByName("expressSex2")[i].value == prtnrSex1) {
+						document.getElementsByName("expressSex2")[i].checked = true;
+					} 
+				}
+				if(prtnrMemKbn1 == "Y"){
+					document.getElementById("expressMem1").checked = true;
+				}
+				document.getElementById("expressName3").value = prtnrName2;
+				document.getElementById("expressTel3").value = prtnrTel2;
+				for(var i=0; i < document.getElementsByName("expressSex3").length; i++){
+					if(document.getElementsByName("expressSex3")[i].value == prtnrSex2) {
+						document.getElementsByName("expressSex3")[i].checked = true;
+					} 
+				}
+				if(prtnrMemKbn2 == "Y"){
+					document.getElementById("expressMem2").checked = true;
+				}
+				document.getElementById("expressName4").value = prtnrName3;
+				document.getElementById("expressTel4").value = prtnrTel3;
+				for(var i=0; i < document.getElementsByName("expressSex4").length; i++){
+					if(document.getElementsByName("expressSex4")[i].value == prtnrSex3) {
+						document.getElementsByName("expressSex4")[i].checked = true;
+					} 
+				}
+				if(prtnrMemKbn3 == "Y"){
+					document.getElementById("expressMem3").checked = true;
+				}
+			}else if(checkCnt == "2"){
+				
+				if(prtnrNameFull1 == "Y"){
+					if(document.getElementById("expressName2").value == prtnrName1){
+						if(document.getElementById("expressTel2").value == prtnrTel1){
+							alert("동일한 동반자가 등록되어 있습니다. ("+prtnrName1+")");
+							return;
+						}
+					}
+					if(document.getElementById("expressName2").value == prtnrName2){
+						if(document.getElementById("expressTel2").value == prtnrTel2){
+							alert("동일한 동반자가 등록되어 있습니다. ("+prtnrName2+")");
+							return;
+						}
+					}
+					document.getElementById("expressName3").value = prtnrName1;
+					document.getElementById("expressTel3").value = prtnrTel1;
+					for(var i=0; i < document.getElementsByName("expressSex3").length; i++){
+						if(document.getElementsByName("expressSex3")[i].value == prtnrSex1) {
+							document.getElementsByName("expressSex3")[i].checked = true;
+						} 
+					}
+					if(prtnrMemKbn1 == "Y"){
+						document.getElementById("expressMem2").checked = true;
+					}
+					document.getElementById("expressName4").value = prtnrName2;
+					document.getElementById("expressTel4").value = prtnrTel2;
+					for(var i=0; i < document.getElementsByName("expressSex4").length; i++){
+						if(document.getElementsByName("expressSex4")[i].value == prtnrSex2) {
+							document.getElementsByName("expressSex4")[i].checked = true;
+						} 
+					}
+					if(prtnrMemKbn2 == "Y"){
+						document.getElementById("expressMem3").checked = true;
+					}
+				}else if(prtnrNameFull2 == "Y"){
+					if(document.getElementById("expressName3").value == prtnrName1){
+						if(document.getElementById("expressTel3").value == prtnrTel1){
+							alert("동일한 동반자가 등록되어 있습니다. ("+prtnrName1+")");
+							return;
+						}
+					}
+					if(document.getElementById("expressName3").value == prtnrName2){
+						if(document.getElementById("expressTel3").value == prtnrTel2){
+							alert("동일한 동반자가 등록되어 있습니다. ("+prtnrName2+")");
+							return;
+						}
+					}
+					document.getElementById("expressName2").value = prtnrName1;
+					document.getElementById("expressTel2").value = prtnrTel1;
+					for(var i=0; i < document.getElementsByName("expressSex2").length; i++){
+						if(document.getElementsByName("expressSex2")[i].value == prtnrSex1) {
+							document.getElementsByName("expressSex2")[i].checked = true;
+						} 
+					}
+					if(prtnrMemKbn1 == "Y"){
+						document.getElementById("expressMem1").checked = true;
+					}
+					document.getElementById("expressName4").value = prtnrName2;
+					document.getElementById("expressTel4").value = prtnrTel2;
+					for(var i=0; i < document.getElementsByName("expressSex4").length; i++){
+						if(document.getElementsByName("expressSex4")[i].value == prtnrSex2) {
+							document.getElementsByName("expressSex4")[i].checked = true;
+						} 
+					}
+					if(prtnrMemKbn2 == "Y"){
+						document.getElementById("expressMem3").checked = true;
+					}
+				}else{
+					if(prtnrNameFull3 == "Y"){
+						if(document.getElementById("expressName4").value == prtnrName1){
+							if(document.getElementById("expressTel4").value == prtnrTel1){
+								alert("동일한 동반자가 등록되어 있습니다. ("+prtnrName1+")");
+								return;
+							}
+						}
+						if(document.getElementById("expressName4").value == prtnrName2){
+							if(document.getElementById("expressTel4").value == prtnrTel2){
+								alert("동일한 동반자가 등록되어 있습니다. ("+prtnrName1+")");
+								return;
+							}
+						}
+					}
+					document.getElementById("expressName2").value = prtnrName1;
+					document.getElementById("expressTel2").value = prtnrTel1;
+					for(var i=0; i < document.getElementsByName("expressSex2").length; i++){
+						if(document.getElementsByName("expressSex2")[i].value == prtnrSex1) {
+							document.getElementsByName("expressSex2")[i].checked = true;
+						} 
+					}
+					if(prtnrMemKbn1 == "Y"){
+						document.getElementById("expressMem1").checked = true;
+					}
+					document.getElementById("expressName3").value = prtnrName2;
+					document.getElementById("expressTel3").value = prtnrTel2;
+					for(var i=0; i < document.getElementsByName("expressSex3").length; i++){
+						if(document.getElementsByName("expressSex3")[i].value == prtnrSex2) {
+							document.getElementsByName("expressSex3")[i].checked = true;
+						} 
+					}
+					if(prtnrMemKbn2 == "Y"){
+						document.getElementById("expressMem2").checked = true;
+					}
+				}
+			}else if(checkCnt == "1"){
+				
+				if(prtnrNameFull1 =="N" && prtnrNameFull2 =="N" && prtnrNameFull3 =="N"){
+					document.getElementById("expressName2").value = prtnrName1;
+					document.getElementById("expressTel2").value = prtnrTel1;
+					for(var i=0; i < document.getElementsByName("expressSex2").length; i++){
+						if(document.getElementsByName("expressSex2")[i].value == prtnrSex1) {
+							document.getElementsByName("expressSex2")[i].checked = true;
+						} 
+					}
+					if(prtnrMemKbn1 == "Y"){
+						document.getElementById("expressMem1").checked = true;
+					}
+				}else if(prtnrNameFull1 =="Y" && prtnrNameFull2 =="N" && prtnrNameFull3 =="N"){
+					if(document.getElementById("expressName2").value == prtnrName1){
+						if(document.getElementById("expressTel2").value == prtnrTel1){
+							alert("동일한 동반자가 등록되어 있습니다. ("+prtnrName1+")");
+							return;
+						}
+					}
+					document.getElementById("expressName3").value = prtnrName1;
+					document.getElementById("expressTel3").value = prtnrTel1;
+					for(var i=0; i < document.getElementsByName("expressSex3").length; i++){
+						if(document.getElementsByName("expressSex3")[i].value == prtnrSex1) {
+							document.getElementsByName("expressSex3")[i].checked = true;
+						} 
+					}
+					if(prtnrMemKbn1 == "Y"){
+						document.getElementById("expressMem2").checked = true;
+					}
+				}else if(prtnrNameFull1 =="N" && prtnrNameFull2 =="Y" && prtnrNameFull3 =="N"){
+					if(document.getElementById("expressName3").value == prtnrName1){
+						if(document.getElementById("expressTel3").value == prtnrTel1){
+							alert("동일한 동반자가 등록되어 있습니다. ("+prtnrName1+")");
+							return;
+						}
+					}
+					document.getElementById("expressName2").value = prtnrName1;
+					document.getElementById("expressTel2").value = prtnrTel1;
+					for(var i=0; i < document.getElementsByName("expressSex2").length; i++){
+						if(document.getElementsByName("expressSex2")[i].value == prtnrSex1) {
+							document.getElementsByName("expressSex2")[i].checked = true;
+						} 
+					}
+					if(prtnrMemKbn1 == "Y"){
+						document.getElementById("expressMem1").checked = true;
+					}
+				}else if(prtnrNameFull1 =="N" && prtnrNameFull2 =="N" && prtnrNameFull3 =="Y"){
+					if(document.getElementById("expressName4").value == prtnrName1){
+						if(document.getElementById("expressTel4").value == prtnrTel1){
+							alert("동일한 동반자가 등록되어 있습니다. ("+prtnrName1+")");
+							return;
+						}
+					}
+					document.getElementById("expressName2").value = prtnrName1;
+					document.getElementById("expressTel2").value = prtnrTel1;
+					for(var i=0; i < document.getElementsByName("expressSex2").length; i++){
+						if(document.getElementsByName("expressSex2")[i].value == prtnrSex1) {
+							document.getElementsByName("expressSex2")[i].checked = true;
+						} 
+					}
+					if(prtnrMemKbn1 == "Y"){
+						document.getElementById("expressMem1").checked = true;
+					}
+				}else if(prtnrNameFull1 =="Y" && prtnrNameFull2 =="Y" && prtnrNameFull3 =="N"){
+					if(document.getElementById("expressName2").value == prtnrName1){
+						if(document.getElementById("expressTel2").value == prtnrTel1){
+							alert("동일한 동반자가 등록되어 있습니다. ("+prtnrName1+")");
+							return;
+						}
+					}
+					if(document.getElementById("expressName3").value == prtnrName1){
+						if(document.getElementById("expressTel3").value == prtnrTel1){
+							alert("동일한 동반자가 등록되어 있습니다. ("+prtnrName1+")");
+							return;
+						}
+					}
+					document.getElementById("expressName4").value = prtnrName1;
+					document.getElementById("expressTel4").value = prtnrTel1;
+					for(var i=0; i < document.getElementsByName("expressSex4").length; i++){
+						if(document.getElementsByName("expressSex4")[i].value == prtnrSex1) {
+							document.getElementsByName("expressSex4")[i].checked = true;
+						} 
+					}
+					if(prtnrMemKbn1 == "Y"){
+						document.getElementById("expressMem3").checked = true;
+					}
+				}else if(prtnrNameFull1 =="Y" && prtnrNameFull2 =="N" && prtnrNameFull3 =="Y"){
+					if(document.getElementById("expressName2").value == prtnrName1){
+						if(document.getElementById("expressTel2").value == prtnrTel1){
+							alert("동일한 동반자가 등록되어 있습니다. ("+prtnrName1+")");
+							return;
+						}
+					}
+					if(document.getElementById("expressName4").value == prtnrName1){
+						if(document.getElementById("expressTel4").value == prtnrTel1){
+							alert("동일한 동반자가 등록되어 있습니다. ("+prtnrName1+")");
+							return;
+						}
+					}
+					document.getElementById("expressName3").value = prtnrName1;
+					document.getElementById("expressTel3").value = prtnrTel1;
+					for(var i=0; i < document.getElementsByName("expressSex3").length; i++){
+						if(document.getElementsByName("expressSex3")[i].value == prtnrSex1) {
+							document.getElementsByName("expressSex3")[i].checked = true;
+						} 
+					}
+					if(prtnrMemKbn1 == "Y"){
+						document.getElementById("expressMem2").checked = true;
+					}
+				}else if(prtnrNameFull1 =="N" && prtnrNameFull2 =="Y" && prtnrNameFull3 =="Y"){
+					if(document.getElementById("expressName3").value == prtnrName1){
+						if(document.getElementById("expressTel3").value == prtnrTel1){
+							alert("동일한 동반자가 등록되어 있습니다. ("+prtnrName1+")");
+							return;
+						}
+					}
+					if(document.getElementById("expressNam").value == prtnrName1){
+						if(document.getElementById("expressTel4").value == prtnrTel1){
+							alert("동일한 동반자가 등록되어 있습니다. ("+prtnrName1+")");
+							return;
+						}
+					}
+					document.getElementById("expressName2").value = prtnrName1;
+					document.getElementById("expressTel2").value = prtnrTel1;
+					for(var i=0; i < document.getElementsByName("expressSex2").length; i++){
+						if(document.getElementsByName("expressSex2")[i].value == prtnrSex1) {
+							document.getElementsByName("expressSex2")[i].checked = true;
+						} 
+					}
+					if(prtnrMemKbn1 == "Y"){
+						document.getElementById("expressMem1").checked = true;
+					}
+				}
+				
+				
+			}
+		}
+		document.getElementById("finalConfirmArea").style.display = "none";
+		document.getElementById("prtnrArea").style.display = "none";
+		
+	}else if(str == "2"){ // 동반자관리
+		$('#retrievePrtnrList tr').each(function(){
+
+			var index = $('#retrievePrtnrList tr').index(this);
+
+			var checkedId = "prtnrChoice"+index;
+
+			if($('#'+checkedId).is(":checked")) {
+ 				checkCnt++;
+
+				//alert("checkCnt+prtnrCnt : "+(Number(checkCnt)+Number(prtnrCnt)));
+				if((Number(checkCnt)+Number(prtnrCnt)) > 3){
+					return;
+				}
+				if(checkCnt == "1"){
+					
+					prtnrName1 = $('#prtnrName' + index).val();
+					prtnrTel1 = $('#prtnrTel' + index).val();
+					if($('#prtnrSex' + index).val() == "남"){
+						prtnrSex1 = "1";	
+					}else{
+						prtnrSex1 = "2";
+					}
+					prtnrMemKbn1 = $('#prtnrMemKbn' + index).val();
+				}else if(checkCnt == "2"){
+					
+					prtnrName2 = $('#prtnrName' + index).val();
+					prtnrTel2 = $('#prtnrTel' + index).val();
+					if($('#prtnrSex' + index).val() == "남"){
+						prtnrSex2 = "1";	
+					}else{
+						prtnrSex2 = "2";
+					}
+					prtnrMemKbn2 = $('#prtnrMemKbn' + index).val();
+				} if(checkCnt == "3"){
+					
+					prtnrName3 = $('#prtnrName' + index).val();
+					prtnrTel3 = $('#prtnrTel' + index).val();
+					if($('#prtnrSex' + index).val() == "남"){
+						prtnrSex3 = "1";	
+					}else{
+						prtnrSex3 = "2";
+					}
+					prtnrMemKbn3 = $('#prtnrMemKbn' + index).val();
+				}
+			}
+	    });
+		
+		if((Number(checkCnt)+Number(prtnrCnt)) > 3){
+			alert("동반자는 3인이상 입력 할 수 없습니다.");
+			return;
+		}else{
+			
+			if(checkCnt == "3"){
+				document.getElementById("expressName2").value = prtnrName1;
+				document.getElementById("expressTel2").value = prtnrTel1;
+				for(var i=0; i < document.getElementsByName("expressSex2").length; i++){
+					if(document.getElementsByName("expressSex2")[i].value == prtnrSex1) {
+						document.getElementsByName("expressSex2")[i].checked = true;
+					} 
+				}
+				if(prtnrMemKbn1 == "Y"){
+					document.getElementById("expressMem1").checked = true;
+				}
+				document.getElementById("expressName3").value = prtnrName2;
+				document.getElementById("expressTel3").value = prtnrTel2;
+				for(var i=0; i < document.getElementsByName("expressSex3").length; i++){
+					if(document.getElementsByName("expressSex3")[i].value == prtnrSex2) {
+						document.getElementsByName("expressSex3")[i].checked = true;
+					} 
+				}
+				if(prtnrMemKbn2 == "Y"){
+					document.getElementById("expressMem2").checked = true;
+				}
+				document.getElementById("expressName4").value = prtnrName3;
+				document.getElementById("expressTel4").value = prtnrTel3;
+				for(var i=0; i < document.getElementsByName("expressSex4").length; i++){
+					if(document.getElementsByName("expressSex4")[i].value == prtnrSex3) {
+						document.getElementsByName("expressSex4")[i].checked = true;
+					} 
+				}
+				if(prtnrMemKbn3 == "Y"){
+					document.getElementById("expressMem3").checked = true;
+				}
+			}else if(checkCnt == "2"){
+				
+				if(prtnrNameFull1 == "Y"){  //동반자1 이 존재 할 경우
+					if(document.getElementById("expressName2").value == prtnrName1){
+						if(document.getElementById("expressTel2").value == prtnrTel1){
+							alert("동일한 동반자가 등록되어 있습니다. ("+prtnrName1+")");
+							return;
+						}
+					}
+					if(document.getElementById("expressName2").value == prtnrName2){
+						if(document.getElementById("expressTel2").value == prtnrTel2){
+							alert("동일한 동반자가 등록되어 있습니다. ("+prtnrName2+")");
+							return;
+						}
+					}
+					document.getElementById("expressName3").value = prtnrName1;
+					document.getElementById("expressTel3").value = prtnrTel1;
+					for(var i=0; i < document.getElementsByName("expressSex3").length; i++){
+						if(document.getElementsByName("expressSex3")[i].value == prtnrSex1) {
+							document.getElementsByName("expressSex3")[i].checked = true;
+						} 
+					}
+					if(prtnrMemKbn1 == "Y"){
+						document.getElementById("expressMem2").checked = true;
+					}
+					document.getElementById("expressName4").value = prtnrName2;
+					document.getElementById("expressTel4").value = prtnrTel2;
+					for(var i=0; i < document.getElementsByName("expressSex4").length; i++){
+						if(document.getElementsByName("expressSex4")[i].value == prtnrSex2) {
+							document.getElementsByName("expressSex4")[i].checked = true;
+						} 
+					}
+					if(prtnrMemKbn2 == "Y"){
+						document.getElementById("expressMem3").checked = true;
+					}
+				}else if(prtnrNameFull2 == "Y"){
+					if(document.getElementById("expressName3").value == prtnrName1){
+						if(document.getElementById("expressTel2").value == prtnrTel1){
+							alert("동일한 동반자가 등록되어 있습니다. ("+prtnrName1+")");
+							return;
+						}
+					}
+					if(document.getElementById("expressName3").value == prtnrName2){
+						if(document.getElementById("expressTel2").value == prtnrTel2){
+							alert("동일한 동반자가 등록되어 있습니다. ("+prtnrName2+")");
+							return;
+						}
+					}
+					document.getElementById("expressName2").value = prtnrName1;
+					document.getElementById("expressTel2").value = prtnrTel1;
+					for(var i=0; i < document.getElementsByName("expressSex2").length; i++){
+						if(document.getElementsByName("expressSex2")[i].value == prtnrSex1) {
+							document.getElementsByName("expressSex2")[i].checked = true;
+						} 
+					}
+					if(prtnrMemKbn1 == "Y"){
+						document.getElementById("expressMem1").checked = true;
+					}
+					document.getElementById("expressName4").value = prtnrName2;
+					document.getElementById("expressTel4").value = prtnrTel2;
+					for(var i=0; i < document.getElementsByName("expressSex4").length; i++){
+						if(document.getElementsByName("expressSex4")[i].value == prtnrSex2) {
+							document.getElementsByName("expressSex4")[i].checked = true;
+						} 
+					}
+					if(prtnrMemKbn2 == "Y"){
+						document.getElementById("expressMem3").checked = true;
+					}
+				}else{
+					if(prtnrNameFull3 == "Y"){
+						if(document.getElementById("expressName4").value == prtnrName1){
+							if(document.getElementById("expressTel4").value == prtnrTel1){
+								alert("동일한 동반자가 등록되어 있습니다. ("+prtnrName1+")");
+								return;
+							}
+						}
+						if(document.getElementById("expressName4").value == prtnrName2){
+							if(document.getElementById("expressTel4").value == prtnrTel2){
+								alert("동일한 동반자가 등록되어 있습니다. ("+prtnrName2+")");
+								return;
+							}
+						}
+					}
+					document.getElementById("expressName2").value = prtnrName1;
+					document.getElementById("expressTel2").value = prtnrTel1;
+					for(var i=0; i < document.getElementsByName("expressSex2").length; i++){
+						if(document.getElementsByName("expressSex2")[i].value == prtnrSex1) {
+							document.getElementsByName("expressSex2")[i].checked = true;
+						} 
+					}
+					if(prtnrMemKbn1 == "Y"){
+						document.getElementById("expressMem1").checked = true;
+					}
+					document.getElementById("expressName3").value = prtnrName2;
+					document.getElementById("expressTel3").value = prtnrTel2;
+					for(var i=0; i < document.getElementsByName("expressSex3").length; i++){
+						if(document.getElementsByName("expressSex3")[i].value == prtnrSex2) {
+							document.getElementsByName("expressSex3")[i].checked = true;
+						} 
+					}
+					if(prtnrMemKbn2 == "Y"){
+						document.getElementById("expressMem2").checked = true;
+					}
+				}
+			}else if(checkCnt == "1"){
+				
+				if(prtnrNameFull1 =="N" && prtnrNameFull2 =="N" && prtnrNameFull3 =="N"){
+					document.getElementById("expressName2").value = prtnrName1;
+					document.getElementById("expressTel2").value = prtnrTel1;
+					for(var i=0; i < document.getElementsByName("expressSex2").length; i++){
+						if(document.getElementsByName("expressSex2")[i].value == prtnrSex1) {
+							document.getElementsByName("expressSex2")[i].checked = true;
+						} 
+					}
+					if(prtnrMemKbn1 == "Y"){
+						document.getElementById("expressMem1").checked = true;
+					}
+				}else if(prtnrNameFull1 =="Y" && prtnrNameFull2 =="N" && prtnrNameFull3 =="N"){
+					if(document.getElementById("expressName2").value == prtnrName1){
+						if(document.getElementById("expressTel2").value == prtnrTel1){
+							alert("동일한 동반자가 등록되어 있습니다. ("+prtnrName1+")");
+							return;
+						}
+					}
+					
+					document.getElementById("expressName3").value = prtnrName1;
+					document.getElementById("expressTel3").value = prtnrTel1;
+					for(var i=0; i < document.getElementsByName("expressSex3").length; i++){
+						if(document.getElementsByName("expressSex3")[i].value == prtnrSex1) {
+							document.getElementsByName("expressSex3")[i].checked = true;
+						} 
+					}
+					if(prtnrMemKbn1 == "Y"){
+						document.getElementById("expressMem2").checked = true;
+					}
+				}else if(prtnrNameFull1 =="N" && prtnrNameFull2 =="Y" && prtnrNameFull3 =="N"){
+					if(document.getElementById("expressName3").value == prtnrName1){
+						if(document.getElementById("expressTel3").value == prtnrTel1){
+							alert("동일한 동반자가 등록되어 있습니다. ("+prtnrName1+")");
+							return;
+						}
+					}
+					
+					document.getElementById("expressName2").value = prtnrName1;
+					document.getElementById("expressTel2").value = prtnrTel1;
+					for(var i=0; i < document.getElementsByName("expressSex2").length; i++){
+						if(document.getElementsByName("expressSex2")[i].value == prtnrSex1) {
+							document.getElementsByName("expressSex2")[i].checked = true;
+						} 
+					}
+					if(prtnrMemKbn1 == "Y"){
+						document.getElementById("expressMem1").checked = true;
+					}
+				}else if(prtnrNameFull1 =="N" && prtnrNameFull2 =="N" && prtnrNameFull3 =="Y"){
+					if(document.getElementById("expressName4").value == prtnrName1){
+						if(document.getElementById("expressTel4").value == prtnrTel1){
+							alert("동일한 동반자가 등록되어 있습니다. ("+prtnrName1+")");
+							return;
+						}
+					}
+					
+					document.getElementById("expressName2").value = prtnrName1;
+					document.getElementById("expressTel2").value = prtnrTel1;
+					for(var i=0; i < document.getElementsByName("expressSex2").length; i++){
+						if(document.getElementsByName("expressSex2")[i].value == prtnrSex1) {
+							document.getElementsByName("expressSex2")[i].checked = true;
+						} 
+					}
+					if(prtnrMemKbn1 == "Y"){
+						document.getElementById("expressMem1").checked = true;
+					}
+				}else if(prtnrNameFull1 =="Y" && prtnrNameFull2 =="Y" && prtnrNameFull3 =="N"){
+					if(document.getElementById("expressName2").value == prtnrName1){
+						if(document.getElementById("expressTel2").value == prtnrTel1){
+							alert("동일한 동반자가 등록되어 있습니다. ("+prtnrName1+")");
+							return;
+						}
+					}
+					if(document.getElementById("expressName3").value == prtnrName1){
+						if(document.getElementById("expressTel3").value == prtnrTel1){
+							alert("동일한 동반자가 등록되어 있습니다. ("+prtnrName1+")");
+							return;
+						}
+					}
+					document.getElementById("expressName4").value = prtnrName1;
+					document.getElementById("expressTel4").value = prtnrTel1;
+					for(var i=0; i < document.getElementsByName("expressSex4").length; i++){
+						if(document.getElementsByName("expressSex4")[i].value == prtnrSex1) {
+							document.getElementsByName("expressSex4")[i].checked = true;
+						} 
+					}
+					if(prtnrMemKbn1 == "Y"){
+						document.getElementById("expressMem3").checked = true;
+					}
+				}else if(prtnrNameFull1 =="Y" && prtnrNameFull2 =="N" && prtnrNameFull3 =="Y"){
+					if(document.getElementById("expressName2").value == prtnrName1){
+						if(document.getElementById("expressTel2").value == prtnrTel1){
+							alert("동일한 동반자가 등록되어 있습니다. ("+prtnrName1+")");
+							return;
+						}
+					}
+					if(document.getElementById("expressName4").value == prtnrName1){
+						if(document.getElementById("expressTl4").value == prtnrTel1){
+							alert("동일한 동반자가 등록되어 있습니다. ("+prtnrName1+")");
+							return;
+						}
+					}
+					document.getElementById("expressName3").value = prtnrName1;
+					document.getElementById("expressTel3").value = prtnrTel1;
+					for(var i=0; i < document.getElementsByName("expressSex3").length; i++){
+						if(document.getElementsByName("expressSex3")[i].value == prtnrSex1) {
+							document.getElementsByName("expressSex3")[i].checked = true;
+						} 
+					}
+					if(prtnrMemKbn1 == "Y"){
+						document.getElementById("expressMem2").checked = true;
+					}
+				}else if(prtnrNameFull1 =="N" && prtnrNameFull2 =="Y" && prtnrNameFull3 =="Y"){
+					if(document.getElementById("expressName3").value == prtnrName1){
+						if(document.getElementById("expressTel3").value == prtnrTel1){
+							alert("동일한 동반자가 등록되어 있습니다. ("+prtnrName1+")");
+							return;
+						}
+					}
+					if(document.getElementById("expressName4").value == prtnrName1){
+						if(document.getElementById("expressTel4").value == prtnrTel1){
+							alert("동일한 동반자가 등록되어 있습니다. ("+prtnrName1+")");
+							return;
+						}
+					}
+					document.getElementById("expressName2").value = prtnrName1;
+					document.getElementById("expressTel2").value = prtnrTel1;
+					for(var i=0; i < document.getElementsByName("expressSex2").length; i++){
+						if(document.getElementsByName("expressSex2")[i].value == prtnrSex1) {
+							document.getElementsByName("expressSex2")[i].checked = true;
+						} 
+					}
+					if(prtnrMemKbn1 == "Y"){
+						document.getElementById("expressMem1").checked = true;
+					}
+				}
+				
+				
+			}
+		}
+		document.getElementById("finalConfirmArea").style.display = "none";
+// 		document.getElementById("prtnrArea").style.display = "none";
+		document.getElementById("recentPrtnr").style.display = "none";
+		document.getElementById("expressInfo").style.display = "none";
+		document.getElementById("selfroundInfo").style.display = "none";
+// 		document.getElementById("updatePrtnr").style.display = "none";
+	}else{ // 동반자수정
+		
+		
+	}
+}
+//동반자관리,최근동반자,동반자수정 에서 취소
+//동반자관리,최근동반자 에서 취소시 예약화면으로(1)   동반자수정에서 취소시  동반자관리화면으로(2)
+function f_prtnrChoiceCancel(){
+	
+		
+		document.getElementById("prtnrArea").style.display = "none";
+		document.getElementById("recentPrtnr").style.display = "none";
+		document.getElementById("expressInfo").style.display = "none";
+		document.getElementById("selfroundInfo").style.display = "none";
+		document.getElementById("finalConfirmArea").style.display = "none";
+		
+	
+	
+}
+function f_recentPrtnrChoiceCancel(){
+	
+	document.getElementById("prtnrArea").style.display = "none";
+	document.getElementById("recentPrtnr").style.display = "none";
+	document.getElementById("expressInfo").style.display = "none";
+	document.getElementById("selfroundInfo").style.display = "none";
+	document.getElementById("CadyGradeInfo").style.display = "none";
+	document.getElementById("finalConfirmArea").style.display = "none";
+
+
+}
+function f_movePrtnrControll(){
+	document.getElementById("finalConfirmArea").style.display = "";
+	document.getElementById("prtnrArea").style.display = "";
+	document.getElementById("recentPrtnr").style.display = "none";
+	document.getElementById("updatePrtnr").style.display = "none";
+}
+function f_prtnrShowInsert(){
+	//동반자관리에서 신규버튼 클릭시
+	document.getElementById("reservPrtnrName").value = "";
+	document.getElementById("reservPrtnrTel").value = "";
+	for(var i = 0; i<document.getElementsByName("reservPrtnrSex").length; i++){
+			document.getElementsByName("reservPrtnrSex")[i].checked = false;
+		 
+	}
+	document.getElementById("reservPrtnrMemKbn").checked = false;
+	document.getElementById("reservPrtnrSeq").value = "";
+	//동반자관리의 값들  동반자수정 div에 넣어주기
+	document.getElementById("prtnrArea").style.display = "none";
+	document.getElementById("recentPrtnr").style.display = "none";
+	document.getElementById("updatePrtnr").style.display = "";
+	
+	
+	
+}
+//동반자관리에서 수정버튼 클릭시
+function f_prtnrUpdate(prtnrName, tel, sex, memberKbn,seqNo){
+	document.getElementById("reservPrtnrName").value = prtnrName;
+	document.getElementById("reservPrtnrTel").value = tel;
+	for(var i = 0; i<document.getElementsByName("reservPrtnrSex").length; i++){
+		if(document.getElementsByName("reservPrtnrSex")[i].value == sex) {
+			document.getElementsByName("reservPrtnrSex")[i].checked = true;
+		} 
+	}
+	if(memberKbn == "Y"){
+		document.getElementById("reservPrtnrMemKbn").checked = true;
+	}else{
+		document.getElementById("reservPrtnrMemKbn").checked = false;
+	}
+	document.getElementById("reservPrtnrSeq").value = seqNo;
+	//동반자관리의 값들  동반자수정 div에 넣어주기
+	document.getElementById("finalConfirmArea").style.display = "";
+	document.getElementById("prtnrArea").style.display = "none";
+	document.getElementById("recentPrtnr").style.display = "none";
+	document.getElementById("updatePrtnr").style.display = "";
+}
+//동반자관리에서 해당열 동반자 삭제
+function f_prtnrDelete(prtnrName, tel, sex, memberKbn,seqNo){
+	if(confirm('삭제하시겠습니까?')) {
+		$.ajax({
+			'type':'POST',
+			'url':'deletePrtnrAjax.jsp',
+			'data':{
+						 'I_CORP_CODE':prtnrCorpCode
+						,'I_GUEST_NO':prtnrGuestNo
+						,'I_SEQ_NO':seqNo
+						
+					},
+			'dataType':'json',
+			'error': function (x){
+				alert('failed');
+				ing = false;
+			},
+			'success':function(json) {
+				if (json.succ_yn=='N') {
+					alert(json.message);
+				} else {
+					f_prtnrControll();
+				}	
+			}
+	  	});
+	}
+	//삭제 ajax 태우고  다시 조회
+}
+//최근동반자에서 해당 열의 동반자 저장
+function f_prtnrInsert(patnrName, tel, sex, memberKbn){
+	if(confirm('등록하시겠습니까?')) {
+		$.ajax({
+			'type':'POST',
+			'url':'insertPrtnrAjax.jsp',
+			'data':{
+						 'I_GUEST_NO':prtnrGuestNo
+						,'I_PARTNER_NAME':patnrName
+						,'I_TEL':tel
+						,'I_CORP_CODE':prtnrCorpCode
+						,'I_SEX':sex
+						,'I_MEMBER_KBN':memberKbn
+					},
+			'dataType':'json',
+			'error': function (x){
+				alert('failed');
+				ing = false;
+			},
+			'success':function(json) {
+				if (json.succ_yn=='N') {
+					alert(json.message);
+				} else {
+					f_prtnrControll();
+				}	
+			}
+	  	});
+	}
+// 	alert("f_prtnrInsert : "+patnrName+","+tel+","+sex+","+memberKbn);
+	//저장ajax 태우기만하면됨.  (div 변화없음.)
+}
+function f_prtnrInsertUpdate(){
+	var memKbn = document.getElementById("reservPrtnrMemKbn").checked;
+	if(memKbn) {
+		memKbn = 'Y';
+	} else {
+		memKbn = 'N';
+	}
+	
+		if(document.getElementById("reservPrtnrSeq").value != ""){
+			if(confirm('수정하시겠습니까?')) {
+				
+				
+				
+				$.ajax({
+					'type':'POST',
+					'url':'updatePrtnrAjax.jsp',
+					'data':{
+								 'I_GUEST_NO':prtnrGuestNo
+								,'I_PARTNER_NAME':document.getElementById("reservPrtnrName").value
+								,'I_TEL':document.getElementById("reservPrtnrTel").value
+								,'I_CORP_CODE':prtnrCorpCode
+								,'I_SEX':$(':radio[name="reservPrtnrSex"]:checked').val()
+								,'I_MEMBER_KBN':memKbn
+								,'I_SEQ':document.getElementById("reservPrtnrSeq").value
+							},
+					'dataType':'json',
+					'error': function (x){
+						alert('failed');
+						ing = false;
+					},
+					'success':function(json) {
+						if (json.succ_yn=='N') {
+							alert(json.message);
+						} else {
+	// 						document.getElementById("finalConfirmArea").style.display = "";
+	// 						document.getElementById("prtnrArea").style.display = "";
+	// 						document.getElementById("recentPrtnr").style.display = "none";
+	// 						document.getElementById("updatePrtnr").style.display = "none";
+							f_prtnrControll();
+							document.getElementById("reservPrtnrSeq").value = "";
+						}	
+					}
+			  	});
+			
+			}
+		}else{
+			if(confirm('등록하시겠습니까?')) {
+				$.ajax({
+					'type':'POST',
+					'url':'insertPrtnrAjax.jsp',
+					'data':{
+								 'I_GUEST_NO':prtnrGuestNo
+								,'I_PARTNER_NAME':document.getElementById("reservPrtnrName").value
+								,'I_TEL':document.getElementById("reservPrtnrTel").value
+								,'I_CORP_CODE':prtnrCorpCode
+								,'I_SEX':$(':radio[name="reservPrtnrSex"]:checked').val()
+								,'I_MEMBER_KBN':memKbn
+							},
+					'dataType':'json',
+					'error': function (x){
+						alert('failed');
+						ing = false;
+					},
+					'success':function(json) {
+						if (json.succ_yn=='N') {
+							alert(json.message);
+						} else {
+							f_prtnrControll();
+							document.getElementById("reservPrtnrSeq").value = "";
+						}	
+					}
+			  	});
+			}
+		}
+}
+function autoHypenPhone(str){
+	
+	str = str.replace(/[^0-9]/g, '');
+	var tmp = '';
+	if( str.length < 4){
+		return str;
+	}else if(str.length < 7){
+		tmp += str.substr(0, 3);
+		tmp += '-';
+		tmp += str.substr(3);
+		return tmp;
+	}else if(str.length < 11){
+		tmp += str.substr(0, 3);
+		tmp += '-';
+		tmp += str.substr(3, 3);
+		tmp += '-';
+		tmp += str.substr(6);
+		return tmp;
+	}else{				
+		tmp += str.substr(0, 3);
+		tmp += '-';
+		tmp += str.substr(3, 4);
+		tmp += '-';
+		tmp += str.substr(7);
+		return tmp;
+	}
+	return str;
+}
+// 스마트체크인 플로팅배너
+function quick() {
+	if($("#finalConfirmArea").css("display") == "none"){
+		$("#quick").show();
+	} else {
+		$("#quick").hide();
+		return false;
+	}
+	
+    currentY = $(window).scrollTop();
+    if(menuCorpCode == '01'){
+     	//위치가 틀린 경우
+        if(currentY != lastScrollY) {
+           //percent=움직임속도 * (현재 scrollTop위치) - (마지막 scrollTop위치) 
+          percent = 0.1 * (currentY - lastScrollY);
+          //percent가 0보다 크면 수를 올림  작으면 수를 내림. 
+           percent = ( percent > 0 ? Math.ceil(percent) : Math.floor(percent) );
+           //quick의 style:top을 현재의 top에서 percent를 더한 값(음수라면 빼지겠지?)으로 바꿔준다.
+           
+           if(parseInt($("#quick").css("top")) + percent < 450 && parseInt($("#quick").css("top")) + percent > 150)
+           	$("#quick").css("top", parseInt($("#quick").css("top")) + percent);
+          //현재 위치를 lastScrollY에 저장해준다.
+           lastScrollY = lastScrollY + percent;
+        }
+    } else {
+     	//위치가 틀린 경우
+        if(currentY != lastScrollY) {
+           //percent=움직임속도 * (현재 scrollTop위치) - (마지막 scrollTop위치) 
+          percent = 0.1 * (currentY - lastScrollY);
+          //percent가 0보다 크면 수를 올림  작으면 수를 내림. 
+           percent = ( percent > 0 ? Math.ceil(percent) : Math.floor(percent) );
+           //quick의 style:top을 현재의 top에서 percent를 더한 값(음수라면 빼지겠지?)으로 바꿔준다.
+           
+           if(parseInt($("#quick").css("top")) + percent < 770 && parseInt($("#quick").css("top")) + percent > 200)
+           	$("#quick").css("top", parseInt($("#quick").css("top")) + percent);
+          //현재 위치를 lastScrollY에 저장해준다.
+           lastScrollY = lastScrollY + percent;
+        }
+    }
+    //현재 ((윈도우넓이/2) +480) 을 left로 지정
+    $("#quick").css("left",($(window).width() / 2 ) + 503).css("width",200);
+}   
+function f_preferenceCddAlert(){
+	var corpName = "";
+	var menuCorpName = "";
+	var msg = "";
+	if(menuCorpCode == "04"){
+		menuCorpName = "용인";
+	}else if(menuCorpCode == "03"){
+		menuCorpName = "상주";
+	}else if(menuCorpCode == "02"){
+		menuCorpName = "용인";
+	}else{
+		menuCorpName = "경주";
+	}
+	
+	if(ICH_RESERV_CORP_CODE == "04"){
+		corpName = "용인";
+	}else if(ICH_RESERV_CORP_CODE == "03"){
+		corpName = "상주";
+	}else if(ICH_RESERV_CORP_CODE == "02"){
+		corpName = "용인";
+	}else{
+		corpName = "경주";
+	}
+	msg = '캐디등급이 설정되어있지만 '+menuCorpName+'회원이 아닙니다.<br/>기본등급으로 설정됩니다.<br/><br/>※선호캐디등급 : '+corpName+'사업장의 \''+cddName+'\' 등급';
+	if(preferenceCddCheck == "T"){
+		messageDiv(msg);
+		firstUseCheck = "N";
+	}
+	
+}
+
+</script>
+</head> 
+<body>
+
+<div id="wrap">
+
+<!-- header 시작 -->
+
+
+
+<!--추가_링크설정-->
+
+
+<!--//추가_링크설정-->
+
+
+
+	<script src="/shop/common/js/jquery.easing.1.3.min.js"></script>
+	<script type="text/javascript"> 
+		function nara(){		 
+			var objImage;
+			var objLayer;
+		 
+			try{objImage = document.getElementById("selet");}catch(err){objImage=null;}
+			try{objLayer = document.getElementById("goblue");}catch(err){objLayer=null;}
+		 
+			if (objLayer.style.display=="none" || objLayer.style.display=="inline-block"){
+				//if(objLayer){objLayer.style.display = "block";}	
+				$(objLayer).slideDown();
+			}else{
+				//if(objLayer){objLayer.style.display = "none";}
+				$(objLayer).slideUp();
+			}		
+		}
+		function f_move(url){
+			var rUrl = encodeURIComponent(url);
+			location.href = "https://www.blueone.com/member/login.jsp?prepage="+rUrl;
+			
+		}
+		
+		function f_login(){
+			
+			var rUrl = encodeURIComponent("http://shop.blueone.com");
+			location.href = "https://www.blueone.com/member/login.jsp?prepage="+rUrl;
+		}
+	</script>
+		
+	<link rel="shortcut icon" href="/mobile/img/common/favicon.ico" />
+	<link rel="apple-touch-icon" href="/mobile/img/common/favicon.ico" />
+
+	<!--상단영역-->
+	<div id="head">
+		<div class="head_t">
+			<div class="area">
+				<p id="logo"><a href=""><img src="/shop/images/common/logo.png?aaa=2" alt="강동 리조트" /></a></p>
+				<div class="gosite">
+					<a href="#lang_w" id="selet" onclick="nara();" onfocus="if(event .keycode==13) { nara(); }"><img src="/shop/images/common/gosite_view.png?aaa=3" alt="강동 리조트" /></a>
+					<div id="goblue" style="display:none;">
+						<p class="go_tit"><a href="#empty" id="selet" onclick="nara();" onfocus="if(event .keycode==13) { nara(); }"><img src="/shop/images/common/gosite_close.png?aaa=4" alt="강동 리조트" /></a></p>
+						<ul>
+							<li><a href="https://cd.kangdongcnl.com/"><img src="" alt="" />강동 리조트</a></li>
+						</ul>
+					</div>
+				</div>
+				<div class="membtn">
+					<ul>
+					
+					
+						<li onclick="f_login();"><a href="#">LOGIN</a></li>
+						<li><a href="https://www.blueone.com/member/join00.jsp">JOIN</a></li>
+			
+					</ul>
+				</div>
+			</div>
+		</div>
+		
+		<!--메뉴영역-->
+		<div id="menu_navi">
+			<div id="menu_area">
+				<p id="menuBar"></p>
+				<ul id="top1menu">
+					
+					<li><a href="#""><img src="/shop/images/common/menu4.png" alt="성수기예약" /></a>
+						<div id="top2m4">
+							<ul>
+							
+								<li onclick="f_move('https://shop.blueone.com/shop/reserve/lots/castLots.jsp');"><a href="#">성수기 신청</a></li>
+								<li onclick="f_move('https://shop.blueone.com/shop/retrieve/lots/castLotsUse.jsp');"><a href="#">성수기 조회/취소</a></li>
+								
+							</ul>
+						</div>
+					</li>
+
+				</ul>
+			</div>
+		</div>
+		<!--//메뉴영역-->
+		
+		<script>
+		
+		//$(document).ready(function(){
+			$("#menu_navi").bind('mouseover focusin', function(){
+				$("#menu_navi").stop().animate({opacity:'1',height:'348px'},{queue:false, duration:200, easing: 'easeInSine'});
+			});
+
+			$("#menu_navi").bind('mouseout focusout', function(){
+				$("#menu_navi").stop().animate({height:'48px',opacity:'1'},{duration:200, easing: 'easeInSine'});
+			});
+		//});	
+		
+		</script>
+		
+	</div>
+	<!--//상단영역-->
+	
+
+<!-- header 종료 -->
+<!--컨텐츠영역-->
+	<div id="contentsbox" class="side_bg">
+		<!--내용영역-->
+		<div id="cont_wrap" class="bottom_bg">
+			
+			
+			<h3 class="tit">디아너스 예약</h3>
+			
+			<div id="memberReLogin" class="onlineLogin" style="display:none;">
+							
+				<img src="/shop/images_reserve/online/btn_loginEtc.gif" style="cursor:hand" onclick="f_memberReLogin();" alt="로그인" />
+			</div>
+			<div class="box_wrap wide">
+				
+				<!-- 1_달력 -->
+				<div class="contwrap first">
+					<div class="cont_tit"><span>1. 날짜 선택</span></div>
+					<div class="contbox">
+
+<!-- 						<iframe src="/shop/reserve/condo/gcPackageBookChkCal01.jsp" id="daySelIframe01" name="daySelIframe01" height="240px" width="493px" scrolling="no" frameborder="0" marginheight="0" marginwidth="0" > -->
+<!-- 						</iframe> -->
+						<iframe src="" id="daySelIframe01" name="daySelIframe01" height="240px" width="493px" scrolling="no" frameborder="0" marginheight="0" marginwidth="0"  style="display: none;">
+						</iframe>
+						<iframe src="" id="daySelIframe02" name="daySelIframe02" height="240px" width="493px" scrolling="no" frameborder="0" marginheight="0" marginwidth="0"  style="display: none;">
+						</iframe>
+<!-- wnstjq1015 -->
+						
+						
+					</div>				
+				</div>
+				<!-- //1_달력 -->
+				
+
+				<!-- 2_티오프타임-->
+				<div class="contwrap teeoffbox">
+					<div class="cont_tit"><span>2. 티오프타임 선택</span></div>
+					<div class="contbox withtab">
+						
+						<iframe src="/shop/reserve/golf/timeSheet.jsp" id="teeOffIframe" name="teeOffIframe" height="464px" width="513px" scrolling="no" frameborder="0" marginheight="0" marginwidth="0"></iframe>
+
+
+					</div>				
+				</div>
+				<!-- //2_티오프타임-->
+
+
+				
+
+			</div>
+			
+
+			<!-------->
+
+
+			<div class="box_wrap right">
+
+				<!-- My예약정보 -->
+				<div class="contwrap first myinfobox">
+					<div class="cont_tit"><span>3. 나의 예약정보</span></div>
+					<div class="contbox">
+
+						<p class="tit">예약정보</p>
+						<table class="table2">
+							<colgroup>
+								<col width="115px" />
+								<col />
+							</colgroup>
+							<tbody>
+							<tr>
+								<th scope="col">지역</th>
+								<td><input id="reservUpjang" type="text"  value=""  class="input03" readonly="readonly" style="border:0;"/></td>
+							</tr>
+							<tr>
+								<th scope="col">일시</th>
+								<td><input id="reservDay" type="text"  value=""  class="input03" readonly="readonly" style="border:0;"/></td>
+							</tr>
+							<tr>
+								<th scope="col">시간</th>
+								<td><input id="reservTime" type="text"  value=""  class="input03" readonly="readonly" style="border:0;"/></td>
+							</tr>
+							<tr id="reservTime2Display" style="display: none;">
+										<th scope="col">시간2</th>
+										<td>
+										<input id="reservTime2" type="text"  value=""  class="input04" readonly="readonly" style="border:0;"/>
+										<input id="reservTime2Yn" type="checkbox"  onclick="f_reservTime2Y();" />선택</td>
+							</tr>
+							<tr>
+								<th scope="col">코스</th>
+								<td><input id="reservCose" type="text"  value=""  class="input03" readonly="readonly" style="border:0;"/></td>
+							</tr>
+							</tbody>
+						</table>
+
+						<!------>
+
+						<p class="tit">회원정보</p>
+						<table class="table2 form">
+							<colgroup>
+								<col width="115px" />
+								<col />
+							</colgroup>
+							<tbody>
+							<tr>
+								<th scope="col">이름</th>
+								<td><input id="reservName" type="text"  value=""  class="input03" readonly="readonly" style="border:0;"/></td>
+							</tr>
+							<tr>
+								<th scope="col">핸드폰번호</th>
+								<td>
+									<input id="reservSms2" type="text"  value="" maxlength="13" onkeyup="updateSms1(this);" />
+									<span id="reservCondoStayTelSend" class="space"><input id="reservSms2Yn" type="checkbox" value="" style="display: none;" /><label for="reservSms2Yn">SMS</label></span>
+								</td>
+							</tr>
+							<tr>
+								<th scope="col">SMS수신자</th>
+								<td>
+									<input id="reservSms1" type="text"  value="" maxlength="13" onkeyup="updateSms1(this);" />
+									
+										<span id="reservCondoStayTelSend" class="space"><input id="reservSms1Yn" type="checkbox" value="" /> <label for="reservSms1Yn">SMS</label></span>
+																		
+								</td>
+							</tr>							
+							<tr id="useDiv">
+								<th scope="col">이용구분</th>
+								<td>
+									<div class="textinfO poinT">
+										<span>※</span> 원활한 내장접수를 위해 이용구분의 '본인' 또는 '추천' 여부를 정확하게 선택하여 예약을 진행하여 주시기 바랍니다.
+									</div>
+									<input id="reservSelf" name="reservSelf" type="radio" value="Y" style="cursor:pointer" onclick="javascript:f_useCheck('1');" /><label for="reservSelf">본인</label>
+									<span class="space"><input id="reservReCd" name="reservSelf" type="radio" value="N" style="cursor:pointer" onclick="javascript:f_useCheck('2');" /><label for="reservReCd">추천</label></span>
+									<span id="reservUserSect" class="space" style="display:none;"><input id="reservUser" name="reservSelf" type="radio" value="N" style="cursor:pointer" onclick="javascript:f_useCheck('3');" /><label for="reservUser">이용자</label></span>
+								</td>
+							</tr>
+							<tr id="reCdName" style="display:none;">
+								<th scope="col">추천자명</th>
+								<td>
+									<input id="reservReCdName" type="text" value="" class="input02" />
+								</td>
+							</tr>
+							<tr id="reCdSms" style="display:none;">
+								<th scope="col">추천자핸드폰</th>
+								<td>
+									<input id="reservReCdSms" type="text" value="" maxlength="13" class="input02" onkeyup="updateSms1(this);"/><span class="space"><input id="reservReCdSmsCheck"  type="checkbox" value="" /> <label for="reservReCdSmsCheck">SMS</label></span>
+								</td>
+							</tr>
+							<tr id="userName">
+								<th scope="col">이용자명</th>
+								<td>
+									<input id="reservUserName" type="text" value="" class="input02" />
+								</td>
+							</tr>
+							<tr id="userSms">
+								<th scope="col">이용자핸드폰</th>
+								<td>
+									<input id="reservUserSms" type="text" value="" maxlength="13" class="input02" onkeyup="updateSms1(this);"/>
+									<input id="reservUserSmsCheck"  type="checkbox" value="" /> SMS	
+								</td>
+							</tr>
+							
+							<tr id="reservCaddyStat">
+							<th scope="col">캐디등급<br>
+							<img src="/mobile/img/sub/btn_cady_grade_view.gif" onclick="javascript:CadyGradeInfo();" style="cursor:pointer" alt="캐디등급"/>
+							</th>
+							<td>
+								<span id="reservCadyPro" style="display: none;"><input id="CadyPro" name="reservCady" type="radio" value="003" /><label for="CadyPro" class="caddyClassP">R(프로)</label></span>
+								<span id="reservNoCaddy"  class="space"><input id="CadyNo" name="reservCady" type="radio" value="004" onclick="javascript:f_NoCaddy();"/><label for="CadyNo" class="caddyClassNC">셀프 라운드(노캐디)</label></span>
+								<span class="space"><label class="caddyClassSS"><input id="CadyBest" name="reservCady" type="radio" value="015" checked="checked" />SS(슈퍼스페셜)</label></span>
+								<span class="space" style="padding-right:53px;"><label class="caddyClassS"><input id="CadyBest" name="reservCady" type="radio" value="001" checked="checked" />S(스페셜)</label></span>
+								<span class="space"><label ><input id="CadyNor" name="reservCady" type="radio" value="002"/>A(일반)</label></span>
+								
+							</td>
+						</tr>
+						
+							
+							<tr id="entrObjtArea">
+								<th scope="col">내장목적</th>
+								<td>
+									<select id="entrObjtCode" style="width:150px;" onchange="">
+										<option value="">- 선택 -</option>
+												
+													<option value="001">비즈니스</option>
+												
+													<option value="002">가족모임</option>
+												
+													<option value="003">친구모임</option>
+												
+													<option value="004">회사모임</option>
+												
+													<option value="005">학교모임</option>
+												
+													<option value="006">골프레슨</option>
+												
+													<option value="007">동호회모임</option>
+												
+													<option value="009">기타</option>
+																						
+									</select> 
+								</td>
+							</tr>
+							<tr id="applyVipArea">
+								<th scope="col">VIP 혜택적용</th>
+								<td>
+									<input id="VipYes" name="applyVip" type="radio" value="Y"/><label for="VipYes">Yes</label>
+									<span class="space"><input id="VipNo" name="applyVip" type="radio" value="N" checked="checked" /><label for="VipNo">No</label></span>
+								</td>
+							</tr>
+							<tr id="joinCntview1">
+								<th>참석인원</th>
+								<td>
+									<input id="joinCnt1Input1" name="joinCnt1" type="radio" value="4" checked="checked"/><label for="joinCnt1Input1">4명</label>
+									<span class="space"><input id="joinCnt1Input2" name="joinCnt1" type="radio" value="3" /><label for="joinCnt1Input2">3명</label></span>
+									<span class="space"><input id="joinCnt1Input3" name="joinCnt1" type="radio" value="2" /><label for="joinCnt1Input3">2명</label></span>
+								</td>
+							</tr>
+							<tr id="joinCntview2">
+								<th>참석인원</th>
+								<td>
+									<input name="joinCnt2" type="radio" value="2" checked="checked"/>2명
+								</td>
+							</tr>
+							<tr id="joinCntview3">
+								<th>참석인원</th>
+								<td>
+									<input id="joinCnt1Input1" name="joinCnt3" type="radio" value="4" checked="checked"/><label for="joinCnt1Input1">4명</label>
+									<span class="space"><input id="joinCnt1Input2" name="joinCnt3" type="radio" value="3" /><label for="joinCnt1Input2">3명</label></span>
+								</td>
+							</tr>							
+							</tbody>
+						</table>						
+
+						<!------>
+
+						<div id="expressCheck">							
+							<p class="tit"><input id="reservExpressCheck"  type="checkbox" value="" onclick="javascript:f_express();" style="vertical-align:middle;" /> <label for="reservExpressCheck" style="color: blue;">스마트 체크인(Smart Check-In)</label></p>
+							<div class="btn">
+								<a href="#none" onclick="javascript:f_prtnrControll();"><img src="/shop/images/btn_prtnr_controll.gif" alt="동반자관리"/></a>
+								<a href="#none" onclick="javascript:f_recentPrtnr();"><img src="/shop/images/btn_recent_prtnr.gif" alt="최근동반자"/></a>
+							</div>
+						</div>
+
+						<div id="expressCheckView">
+							<table class="table1 form">
+								<colgroup>
+									<col width="30%"/>
+									<col width="30%"/>
+									<col width="25%"/>
+									<col width="15%"/>
+								</colgroup>
+								<thead>
+								<tr>
+									<th scope="col">동반자명</th>
+									<th scope="col">연락처</th>
+									<th scope="col">성별</th>
+									<th scope="col">회원여부</th>
+								</tr>
+								</thead>
+								<tbody>
+								<tr>
+									<td><input  id="expressName" type="text"  value=""  onkeyup="updateName(this);" style="width:85%;" /></td>
+									<td><input  id="expressTel" type="text"  value="" onkeyup="updateSms1(this);" style="width:85%;" /></td>
+									<td>
+										<input id="SexMan" name="expressSex" type="radio" value="1" checked="checked" /><label for="SexMan">남</label>
+										<span class="space"><input id="SexWoman" name="expressSex" type="radio" value="2"/><label for="SexWoman">여</label></span>
+									</td>
+									<td><input id="expressMem" type="checkbox" value="" /></td>									
+								</tr>
+								<tr>
+									<td><input  id="expressName2" type="text"  value=""  onkeyup="updateName1(this);" style="width:85%;" /></td>
+									<td><input  id="expressTel2" type="text"  value="" onkeyup="updateSms1(this);" style="width:85%;" /></td>
+									<td>
+										<input id="SexMan" name="expressSex2" type="radio" value="1" checked="checked" /><label for="SexMan">남</label>
+										<span class="space"><input id="SexWoman" name="expressSex2" type="radio" value="2"/><label for="SexWoman">여</label></span>
+									</td>
+									<td><input id="expressMem1" type="checkbox" value="" /></td>									
+								</tr>
+								<tr>
+									<td><input  id="expressName3" type="text"  value="" onkeyup="updateName2(this);" style="width:85%;" /></td>
+									<td><input  id="expressTel3" type="text"  value="" maxlength="13" onkeyup="updateSms1(this);" style="width:85%;" /></td>
+									<td>
+										<input id="SexMan2" name="expressSex3" type="radio" value="1" checked="checked" /><label for="SexMan2">남</label>
+										<span class="space"><input id="SexWoman2" name="expressSex3" type="radio" value="2"/><label for="SexWoman2">여</label></span>
+									</td>
+									<td><input id="expressMem2" type="checkbox" value="" /></td>
+								</tr>
+								<tr>
+									<td><input  id="expressName4" type="text"  value="" onkeyup="updateName3(this);" style="width:85%;" /></td>
+									<td><input  id="expressTel4" type="text"  value="" onkeyup="updateSms1(this);" style="width:85%;" /></td>
+									<td>
+										<input id="SexMan3" name="expressSex4" type="radio" value="1" checked="checked" /><label for="SexMan2">남</label>
+										<span class="space"><input id="SexWoman3" name="expressSex4" type="radio" value="2"/><label for="SexWoman2">여</label></span>
+									</td>
+									<td><input id="expressMem3" type="checkbox" value="" /></td>
+								</tr>
+								</tbody>
+							</table>
+						</div>
+
+						<div class="textinfO">
+							<span>※</span> 동반자명과 연락처를 입력하시면 예약 정보와 배정된 락카 정보를 문자 서비스로 안내해 드리며, 프론트 내장 접수없이 바로 입장이 가능합니다.(별도의 추가 비용 없이 이용가능, 락카정보는 하루전 또는 예약일 당일 발송)
+								<br>
+								<br>
+								<img src="/mobile/img/sub/btn_detail_view_new.gif" onclick="javascript:reservExpressInfo();" style="cursor:pointer" alt="자세히"/>
+						</div>
+
+						<!------>
+
+						<p class="tit">추가요청사항</p>
+						<div><textarea id="reRemark" rows="2" class="text01" onkeyup="updateChar(this, 240);" style="width:100%; height:40px;"></textarea></div>						
+
+						<!------>
+
+						<div class="pbtnwrap tar" id="reservFormClose01">
+							<a href="#none" onclick="reservClear();" class="pbtn big gray">초기화</a>
+							<a href="#none" onclick="f_GolfReservFirstCheck();" class="pbtn big point">다음</a>
+						</div>
+						<div class="pbtnwrap tar" id="reservFormClose02" style="display:none;">
+							<a href="#none" onclick="reservOnLoad02();" class="pbtn big gray">초기화</a>
+							<a href="#none" onclick="f_next02();" class="pbtn big point">다음</a>
+						</div>
+
+					</div>
+				</div>
+				<!-- //My예약정보 -->
+
+				
+			</div>
+			
+		</div>
+		<!--내용영역-->
+	</div>
+	<!--컨텐츠영역-->
+
+  
+
+<div id="finalConfirmArea" class="popBack" style="display:none;">
+		<div class="finalPop" id="finalConfirm" style="display:none;">
+		<div class="finalInfo">
+				<h4><img src="/shop/images_reserve/online/h4_finalRes02.gif" alt="예약정보" /></h4>
+				<ul>
+					<li>
+						<input id="finalUpjang" type="text"  value=""  class="input02" style="border:0;" readonly="readonly"/>
+					</li>
+					<li>
+						<input id="finalDay" type="text"  value=""  class="input02" style="border:0;" readonly="readonly"/>
+					</li>
+					<li>
+						<input id="finalTime" type="text"  value=""  class="input02" style="border:0;" readonly="readonly"/>
+					</li>
+					<li>
+						<input id="finalTime2" type="text"  value=""  class="input02" style="border:0;" readonly="readonly"/>
+					</li>
+					<li>
+						<input id="finalCose" type="text"  value=""  class="input02" style="border:0;" readonly="readonly"/>
+					</li>
+				</ul>
+			</div>
+
+			<div class="finalInfo nobg">
+				<h4><img src="/shop/images_reserve/online/h4_finalRes01.gif" alt="회원정보" /></h4>
+				<ul>
+					<li>
+						<input id="finalName" type="text"  value=""  class="input02" style="border:0;" readonly="readonly"/>
+					</li>
+					<li>
+						<input id="finalSms" type="text"  value=""  class="input02" style="border:0;" readonly="readonly"/>
+					</li>
+					<li>
+						
+						<input id="finalHpon" type="text"  value=""  class="input02" style="border:0;" readonly="readonly"/>
+					</li>
+					<li>
+						
+						<input id="finalUseCheck" type="text"  value=""  class="input02" style="border:0;" readonly="readonly"/>
+					</li>
+					<li id="finalRecd">
+						
+						<input id="finalReCdName" type="text"  value=""  class="input02" style="border:0;" readonly="readonly"/>
+					</li>
+					<li id="finalRecdMob">
+						
+						<input id="finalReCdSms" type="text"  value=""  class="input02" style="border:0;" readonly="readonly"/>
+					</li>
+					<li id="finalUser" style="display:none; ">
+						
+						<input id="finalUserName" type="text"  value=""  class="input02" style="border:0;" readonly="readonly"/>
+					</li>
+					<li id="finalUserMob" style="display:none; ">
+						
+						<input id="finalUserSms" type="text"  value=""  class="input02" style="border:0;" readonly="readonly"/>
+					</li>
+					<li>
+						
+						<input id="finalCady" type="text"  value=""  class="input02" style="border:0;" readonly="readonly"/>
+					</li>
+					<li id="finalApplyVipArea">
+						
+						<input id="finalApplyVip" type="text"  value=""  class="input02" style="border:0;" readonly="readonly"/>
+					</li>
+					<li>
+						
+						<input id="finalJoinCount" type="text"  value=""  class="input02" style="border:0;" readonly="readonly"/>
+					</li>
+					
+					<li>
+						
+						<textarea id="finalReRemark" id="reRemark" rows="3" class="text01" style="border:0;" readonly="readonly"/></textarea>
+					</li>
+					
+				</ul>
+			</div>
+			
+		</div>	
+		<!-- s :: 예약취소 [2012-04-30] 추가 -->
+		<div class="finalPop" id="resCancel" style="display:none;">
+			
+		</div>
+		<!--  e :: Contents -->
+		
+		<!-- s :: 예약취소 [2012-04-30] 추가 -->
+		<div class="finalPop" id="resCancelChk" style="display:none;">
+			
+		</div>
+		<!--  e :: Contents -->	
+		<!-- e :: 예약취소 [2012-04-30] 추가 -->
+		
+		<!-- s :: 시간2 alert [2012-04-30] 추가 -->
+		<div class="finalPop" id="selTime" style="display:none;">
+			<p class="alertTime2">시간2 선택이후 티오프타임을<br/>선택 하실 수 있습니다.</p>
+			<div class="popbtn">
+				<a href="#"><img src="/shop/images_reserve/online/btn_confirm3.gif" alt="확인" /></a>
+			</div>
+		</div>
+		<!-- e :: 시간2 alert [2012-04-30] 추가 -->
+		<div class="finalPop" id="prtnrArea" style="display:none;">
+			<h3>
+				동반자 관리
+				<a href="#none" onclick="f_prtnrChoiceCancel();"><img src="/shop/images/btn_close.gif" alt="닫기" /></a>
+			</h3>
+
+			<ul>
+				<li>해당하는 동반자를 체크하여 확인을 클릭해 주십시요.</li>
+				<li>배정된 락카번호를 사전에 동반자분들에게 문자서비스로  발송해드리며 프론트 체크인 없이 바로<br>입장이 가능합니다.</li>
+				<div class="textinfO poinT">
+					&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*단, 락카번호는 하루 전 또는 예약당일 발송됩니다.
+				</div>
+			</ul>
+ 
+			<div style="float: left; width: 100%; text-align: left; padding-left: 20px; ">
+				<br>
+				<b>이름검색</b>
+				<input  id="searchName" type="text"  value="" style="width:20%;"/>
+				<a href="#none" onclick="f_prtnrControll();"><img style="vertical-align: bottom;" src="/shop/images_reserve/common/btn2/btn_search4.gif" alt="조회"/></a>				
+			</div>
+
+			<div style="float: left; width: 100%; text-align: left; padding-left: 20px; height: 40px;">
+						<br>
+						<div class="formbox">
+							<div style="float: left; padding-top: 7px;"> <b>정렬 조건</b> </div>
+							<div class="con_tab tab_b tabnum3" style="width: 70%; float: left; padding-left:7px;">
+										<a style="float:left; width:120px; font-size:12px; padding: 2px 0 2px 0; href="#none" id="tab1" onclick="viewLayer(1); javascript:f_prtnrControll('00'); return false; " onfocus="viewLayer(1);return false;" class="on">이름순↑</a>
+										<a style="float:left; width:120px; font-size:12px; padding: 2px 0 2px 0; href="#none" id="tab3" onclick="viewLayer(3); javascript:f_prtnrControll('02'); return false;" onfocus="viewLayer(3);return false;">자주가는동반자순</a>
+										<a style="float:left; width:120px; font-size:12px; padding: 2px 0 2px 0; href="#none" id="tab2" onclick="viewLayer(2); javascript:f_prtnrControll('01'); return false;" onfocus="viewLayer(2);return false;">최근동반자</a>
+							</div> 
+						</div>
+			</div>
+			<div class="prtnrList">			
+				<table id="retrievePrtnrList" name="retrievePrtnrList" class="table1 form">
+					<colgroup>
+						<col width="7%"/>
+						<col width="*"/>
+						<col width="20%"/>
+						<col width="10%"/>
+						<col width="10%"/>
+						<col width="20%"/>
+					</colgroup>	
+					<thead>
+					<tr>
+						<th scope="col">선택</th>
+						<th scope="col">동반자명</th>
+						<th scope="col">연락처</th>
+						<th scope="col">성별</th>
+						<th scope="col">회원여부</th>
+						<th scope="col">관리</th>
+					</tr>
+					</thead>
+					<tbody>
+					<tr>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td>
+							<a href="#none" onclick="f_prtnrUpdate('','','','','');"><img src="/shop/images/btn_modify.gif" alt="수정" /></a>
+							<a href="#none"><img src="/shop/images/btn_delete.gif" alt="삭제" /></a>
+						</td>
+					</tr>
+					</tbody>
+				</table>	
+			</div>
+
+			<div class="pbtnwrap tac">
+				<a href="#none" onclick="f_prtnrShowInsert();" class="pbtn mid point">신규</a>
+				<a href="#none" onclick="f_prtnrChoice('2');" class="pbtn mid point2">확인</a>
+				<a href="#none" onclick="f_prtnrChoiceCancel();" class="pbtn mid gray">취소</a>
+			</div>
+			
+		</div>
+
+		<!------>
+
+
+		<div class="finalPop" id="recentPrtnr" style="display:none;">
+			<h3>
+				최근 동반자
+				<a href="#none" onclick="f_recentPrtnrChoiceCancel();"><img src="/shop/images/btn_close.gif" alt="닫기" /></a>
+			</h3>
+
+			<ul>
+				<li>해당하는 동반자를 체크하여 확인을 클릭해 주십시요.</li>
+				<li>배정된 락카번호를 사전에 동반자분들에게 문자서비스로  발송해드리며 프론트 체크인 없이 바로<br>입장이 가능합니다.</li>
+				<div class="textinfO poinT">
+					&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*단, 락카번호는 하루 전 또는 예약당일 발송됩니다.
+				</div>
+			</ul>
+
+			<div class="prtnrList">			
+				<table id="retrieveRecentPrtnrList" name="retrieveRecentPrtnrList" class="table1 form">
+					<colgroup>
+						<col width="7%"/>
+						<col width="10%"/>
+						<col width="*"/>
+						<col width="20%"/>
+						<col width="10%"/>
+						<col width="10%"/>
+						<col width="20%"/>
+					</colgroup>
+					<thead>
+					<tr>
+						<th scope="col">선택</th>
+						<th scope="col">예약일자</th>
+						<th scope="col">동반자명</th>
+						<th scope="col">연락처</th>
+						<th scope="col">성별</th>
+						<th scope="col">회원여부</th>
+						<th scope="col">관리</th>
+					</tr>
+					</thead>
+					<tbody>
+					<tr>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td>-</td>
+					</tr>
+					</tbody>				
+				</table>					
+			</div>
+
+			<div class="pbtnwrap tac">
+				<a href="#none" onclick="f_prtnrChoice('1')" class="pbtn mid point2">확인</a>
+				<a href="#none" onclick="f_recentPrtnrChoiceCancel();" class="pbtn mid gray">취소</a>
+			</div>
+		</div>
+
+		<!------>
+
+
+		<div class="finalPop" id="updatePrtnr" style="display:none;">
+			<h3>동반자 관리</h3>
+
+			<ul>
+				<li>정보를 수정 후 확인을 클릭해 주십시요</li>
+			</ul>
+
+			<div class="prtnrList type2">
+				<table class="table1 form">
+					<colgroup>
+						<col width="30%">
+						<col width="*">
+					</colgroup>	
+					<tbody class="tal">
+					<tr>
+						<th>동반자명</th>
+						<td><input id="reservPrtnrName" type="text" value="" class="noline tal" /></td>
+					</tr>
+					<tr>
+						<th>연락처</th>
+						<td><input id="reservPrtnrTel" type="text" value="" onkeyup="updateSms1(this);" class="noline tal" /></td>
+					</tr>
+					<tr>
+						<th>성별</th>
+						<td><input name="reservPrtnrSex" id="reservPrtnrSex" type="radio" value="1"/>남
+							<span class="space"><input name="reservPrtnrSex" id="reservPrtnrSex" type="radio" value="2"/>여</span>
+						</td>
+					</tr>
+					<tr>
+						<th>회원여부</th>
+						<td><input id="reservPrtnrMemKbn" type="checkbox" value="" /></td>
+					</tr>
+					<tr style="display: none;">
+						<th>회원여부</th>
+						<td><input id="reservPrtnrSeq" type="text"  value="" />
+					</tr>					
+					</tbody>
+				</table>	
+			</div>
+
+			<div class="pbtnwrap tac">
+				<a href="#none" onclick="f_prtnrInsertUpdate();" class="pbtn point2">확인</a>
+				<a href="#none" onclick="f_movePrtnrControll();" class="pbtn gray">취소</a>
+			</div>
+
+		</div>
+		<!-- [2012.04.17] :: 회원권List start -->
+		<!-- s :: 회원권선택 [2012-04-30] 추가 -->
+		<div class="finalPop" id="memTicket" style="display:none;">
+			<h3><img src="/shop/images_reserve/online/h3_memTicket.gif" alt="회원권선택" /></h3>
+			<div class="ticketList">
+				<ul>
+
+				
+
+				</ul>
+			</div>
+		</div>
+	
+		<!-- s :: 회원권선택2 [2012-04-30] 추가 -->
+		<div class="finalPop" id="memTicket2" style="display:none;">
+			<h3><img src="/shop/images_reserve/online/h3_memTicket.gif" alt="회원권선택" /></h3>
+			<div class="ticketList">
+				<p>고객님의 회원번호를 선택하시고 비밀번호를 입력하세요 </p>
+					<ul>
+
+					
+
+				</ul>
+				<div class="passArea">
+					<input id="c2userId" type="hidden" value="" />
+					<input id="CcorpCode" type="hidden" value="" />
+					<input id="c2guestType" type="hidden" value="" />
+					<label><img src="/shop/images_reserve/online/txt_pass.gif" alt="Password" /></label>
+					<input id="c2pwd" type="text" value="" />
+				</div>
+			</div>
+			<div class="popbtn mT0">
+				<img src="/shop/images_reserve/online/btn_confirm3.gif" onclick="f_memberChoice();" style="cursor: hand;" alt="확인" />
+				<img src="/shop/images_reserve/online/btn_cancel2.gif" onclick="f_memberChoiceCancel();" style="cursor: hand;" alt="취소" />
+			</div>
+		</div>
+		
+		<div class="finalPop" id="selfroundInfo" style="display:none;  position: absolute; width: 65%; height: 75%;
+			 left: 40%;	 top: 40%;	 margin-left: -20%;	 margin-top: -15%;	 overflow: hidden;">
+			<h3>
+				셀프라운드 안내
+				<a href="#none" onclick="f_recentPrtnrChoiceCancel();"><img src="/shop/images/btn_close.gif" alt="닫기" /></a>
+			</h3>
+			
+			<iframe scrolling="auto" width="90%" height="90%" src="/shop/images/self_round_detail.jpg"></iframe>
+			
+		</div>
+		
+		<div class="finalPop" id="expressInfo" style="display:none;  position: absolute; width: 65%; height: 75%;
+			 left: 40%;	 top: 40%;	 margin-left: -20%;	 margin-top: -15%;	 overflow: hidden;">
+			<h3>
+				스마트예약 안내
+				<a href="#none" onclick="f_recentPrtnrChoiceCancel();"><img src="/shop/images/btn_close.gif" alt="닫기" /></a>
+			</h3>
+			<iframe scrolling="auto" width="90%" height="90%" src="/shop/images/tip_event.jpg"></iframe>
+		</div>
+		
+		<div class="finalPop" id="CadyGradeInfo" style="display:none;  position: absolute; width: 45%; height: 75%;
+			 left: 48%;	 top: 40%;	 margin-left: -20%;	 margin-top: -15%;	 overflow: hidden;">
+			<h3>
+				캐디등급 안내
+				<a href="#none" onclick="f_recentPrtnrChoiceCancel();"><img src="/shop/images/btn_close.gif" alt="닫기" /></a>
+			</h3>
+			<iframe scrolling="auto" width="90%" height="90%" src="/shop/images/CadyGrade.jpg"></iframe>
+		</div>		
+</div>
+<form method="post" name="temp" >
+		<iframe name="tempIframe" style="visibility: false;display: none" >
+		</iframe>
+	</form>
+</div>	
+	
+	
+	<div id="quick" style="display:none; position: absolute; top: 200px; z-index: 10;">
+      <img onclick="javascript:selfroundInfo();" src="/shop/images/self_round.jpg" style="cursor:pointer; padding-bottom: 10px;" alt="셀프라운드"  />
+      <img onclick="javascript:reservExpressInfo();" src="/shop/images/smart_checkin.jpg" style="cursor:pointer" alt="스마트체크인"/>
+    </div>
+		
+
+
+<!-- footer 시작 -->
+
+<head>
+<style type="text/css">
+
+#foot{width:100%;background:#293642;}
+#foot .area{width:1000px;margin:0 auto;text-align:left; padding:40px 0; font-size:0; line-height:0;}
+#foot .area .cont{width:100%;padding:0 0 30px 0;display:inline-block;}
+#foot .area .cont2{width:100%;padding:0;display:inline-block; border:1px solid #3f4a55; border-left:0; border-right:0;}
+#foot .area .cont3{display:flex;justify-content: space-between;padding:20px 0 0 0;}
+
+#foot .copy{width: 80%;color:#858c92;}
+#foot .copy ul{display: flex;flex-wrap: wrap;gap: 5px 30px;font-size:15px;line-height:1;}
+#foot .copy p{font-size:15px;line-height:1;}
+#foot .copy p span{line-height:2;}
+#foot .copy p.sm{padding-top:25px; font-family:'Lato';color:#6c757d;font-size:13px;text-transform:uppercase;}
+
+#foot .cust{font-size: 25px;color: #fff;line-height:1.6;}
+
+</style>   
+</head> 
+<body>
+<div>
+	
+	<div id="foot">
+		<div class="area">
+		<div class="cont">
+		<div class="cont3">
+			<div class="copy">
+				<ul>
+					<li>(주) 강동씨앤엘 경주사업장</li>
+					<li>대표자명: 구희택, 강대완</li>
+					<li>사업자등록번호: 659-85-02675</li>
+					<li>통신판매업신고: 제 2024-경북경주-0486호 
+					</li><li>주소: 경상북도 경주시 보불로 391<!-- (천군동) --></li>
+				</ul>
+				<p class="sm">COPYRIGHT (C) KANGDONG. ALL RIGHT RESERVED.</p>
+			</div>
+			<div class="cust">1588-0776</div>
+		</div>
+</div>
+</div>
+</div>
+</div>
+</body>
+
+
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33725430-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script> 
+<!-- // footer 종료 -->
+</body>
+</html>

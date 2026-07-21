@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+    <head>
+        <title>서라벌 GC</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+        <script src="/js/jquery.min.js"></script>
+        <script src="/js/utils/ajax.js"></script>
+        <script src="/js/utils/date.js"></script>
+        <script src="/js/utils/popup.js"></script>
+        <script src="/js/utils/string.js"></script>
+        <script src="/js/utils/template.js"></script>
+        <script src="/js/utils/common.js"></script>
+        <script src="/js/jquery.preloaders.js"></script>
+        <script src="/js/const.js"></script>
+        <script src="/pc/js/view.js"></script>
+        <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+        <!-- Basic set-->
+        <link rel="stylesheet" href="/pc/css/import.css">
+        <!-- Swiper -->
+        <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css"/>
+        <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
+        <!-- slick -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.9.0/slick.min.js"></script>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.9.0/slick.min.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.9.0/slick-theme.min.css">
+        <!-- AOS -->
+        <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+        <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+
+        <!-- Only main -->
+        <script type="text/javascript" src="/pc/js/main.js"></script>
+        <link rel="stylesheet" href="/pc/css/main.css?v=3">
+
+        <!-- Only content -->
+        <link rel="stylesheet" href="/pc/css/content.css?v=3">
+    </head>
+
+
+<body>
+<a href="/reservation/main" title="예약하기" class="main-reser-btn">예약하기</a>
+
+    
+    <!-- Header -->
+    <header id="header" class="header">
+        <div class="header-wrap-pc">
+            <div class="inner clear">
+                <div class="main-login-wrap">
+                    <div class="login-box">
+                        <div class="login-area">
+                            <!-- 로그인 전 후 보이는 아이콘 -->
+                            <ul class="login-icon">
+                                <li style="display: none">
+                                    <a href="/member/login" title="로그인">
+                                        <img src="/pc/images/main/login_icon.svg" alt="로그인">로그인
+                                    </a>
+                                </li>
+                                <li style="display: none">
+                                    <a href="/member/join" title="회원가입">
+                                        <img src="/pc/images/main/join_icon.svg" alt="회원가입">회원가입
+                                    </a>
+                                </li>
+                                <li style="display: none">
+                                    <a href="javascript:void(0)" title="로그아웃">
+                                        <img src="/pc/images/main/logout_icon.svg" alt="로그아웃">로그아웃
+                                    </a>
+                                </li>
+                                <li style="display: none">
+                                    <a href="/member/mypage" title="마이페이지">
+                                        <img src="/pc/images/main/mypage_icon.svg" alt="마이페이지">마이페이지
+                                    </a>
+                                </li>
+                            </ul>
+                            <script>
+                                if (isLoggedIn()) {
+                                    $("#header").find("ul.login-icon > li").eq(2).show();
+                                    $("#header").find("ul.login-icon > li").eq(2).on("click", function () {
+                                        ajax.logout().then(() => {
+                                            alert("로그아웃 되었습니다.");
+                                            location.href = "/index";
+                                        }).catch(() => {
+                                        });
+                                    });
+                                    $("#header").find("ul.login-icon > li").eq(3).show();
+                                } else {
+                                    $("#header").find("ul.login-icon > li").eq(0).show();
+                                    $("#header").find("ul.login-icon > li").eq(1).show();
+                                }
+                            </script>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="hd-gnb">
+                    <div class="gnb-bg"></div>
+                    <ul class="depth01">
+                        <li class="depth01-list">
+                            <a class="depth01-link" href="/club/club-info" title="클럽소개">
+                                <span>클럽소개</span>
+                            </a>
+                            <ul class="depth02">
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/club/club-info" title="서라벌GC">
+                                        <span>서라벌GC</span>
+                                    </a>
+                                </li>
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/club/greeting" title="인사말">
+                                        <span>인사말</span>
+                                    </a>
+                                </li>
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/club/map" title="오시는길">
+                                        <span>오시는길</span>
+                                    </a>
+                                </li>
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/board/gallery-list" title="갤러리">
+                                        <span>갤러리</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="depth01-list">
+                            <a class="depth01-link" href="/course/course-Info" title="코스소개">
+                                <span>코스소개</span>
+                            </a>
+                            <ul class="depth02">
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/course/course-Info" title="코스소개">
+                                        <span>코스소개</span>
+                                    </a>
+                                </li>
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/course/concept" title="코스설계">
+                                        <span>코스설계</span>
+                                    </a>
+                                </li>
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/course/data" title="코스제원">
+                                        <span>코스제원</span>
+                                    </a>
+                                </li>
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/course/attack" title="코스공략도">
+                                        <span>코스공략도</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="depth01-list">
+                            <a class="depth01-link" href="/facil/clubhouse" title="부대시설">
+                                <span>부대시설</span>
+                            </a>
+                            <ul class="depth02">
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/facil/clubhouse" title="클럽하우스">
+                                        <span>클럽하우스</span>
+                                    </a>
+                                </li>
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/facil/restaurant" title="레스토랑">
+                                        <span>레스토랑</span>
+                                    </a>
+                                </li>
+<!--                                <li class="depth02-list">-->
+<!--                                    <a class="depth02-link" href="/facil/snack" title="그늘집">-->
+<!--                                        <span>그늘집</span>-->
+<!--                                    </a>-->
+<!--                                </li>-->
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/facil/start" title="스타트하우스">
+                                        <span>스타트하우스</span>
+                                    </a>
+                                </li>
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/facil/locker" title="락카(파우더룸)">
+                                        <span>락카(파우더룸)</span>
+                                    </a>
+                                </li>
+<!--                                <li class="depth02-list">-->
+<!--                                    <a class="depth02-link" href="/facil/shop" title="프로샵">-->
+<!--                                        <span>프로샵</span>-->
+<!--                                    </a>-->
+<!--                                </li>-->
+                            </ul>
+                        </li>
+                       <!-- <li class="depth01-list">
+                            <a class="depth01-link" href="/facil/clunhouse" title="부대시설">
+                                <span>부대시설</span>
+                            </a>
+                            <ul class="depth02">
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/facil/clubhouse" title="클럽하우스">
+                                        <span>클럽하우스</span>
+                                    </a>
+                                </li>
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/facil/restaurant" title="레스토랑">
+                                        <span>레스토랑</span>
+                                    </a>
+                                </li>
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/facil/start" title="스타트하우스">
+                                        <span>스타트하우스</span>
+                                    </a>
+                                </li>
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/facil/sauna" title="사우나">
+                                        <span>사우나</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>-->
+                        <li class="depth01-list">
+                            <a class="depth01-link logo" href="/index" title="메인페이지">
+                                <span></span>
+                            </a>
+                            <ul class="depth02">
+                                <li class="depth02-list"></li>
+                            </ul>
+                        </li>
+                        <li class="depth01-list">
+                            <a class="depth01-link" href="/reservation/main" title="예약서비스">
+                                <span>예약서비스</span>
+                            </a>
+                            <ul class="depth02">
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/reservation/main" title="실시간예약">
+                                        <span>실시간예약</span>
+                                    </a>
+                                </li>
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/reservation/check" title="예약확인/취소">
+                                        <span>예약확인/취소</span>
+                                    </a>
+                                </li>
+                                <!--<li class="depth02-list">
+                                    <a class="depth02-link" href="javascript:alert('준비중입니다.')" title="조인게시판">
+                                        <span>조인게시판</span>
+                                    </a>
+                                </li>-->
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/reservation/mypage" title="내장현황">
+                                        <span>내장현황</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="depth01-list">
+                            <a class="depth01-link" href="/guide/guide" title="예약안내">
+                                <span>예약안내</span>
+                            </a>
+                            <ul class="depth02">
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/guide/guide" title="이용안내">
+                                        <span>이용안내</span>
+                                    </a>
+                                </li>
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/guide/reser-guide" title="예약가이드">
+                                        <span>예약가이드</span>
+                                    </a>
+                                </li>
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/guide/penalty" title="퇴장규정">
+                                        <span>퇴장규정</span>
+                                    </a>
+                                    </a>
+                                </li>
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/guide/manner" title="매너에티켓">
+                                        <span>매너에티켓</span>
+                                    </a>
+                                </li>
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/guide/rule" title="rule">
+                                        <span>로컬룰</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+
+                        <li class="depth01-list">
+                            <a class="depth01-link" href="/board/news" title="고객센터">
+                                <span>고객센터</span>
+                            </a>
+                            <ul class="depth02">
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/board/news" title="공지사항">
+                                        <span>공지사항</span>
+                                    </a>
+                                </li>
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/board/voc-list" title="고객의소리">
+                                        <span>고객의소리</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- content-->
+    <div id="basic-wrap">
+        <div class="basic-bg">
+            <div class="club-bg"></div>
+        </div>
+        <p class="top-tit">
+            코스소개
+            <span>course info</span>
+        </p>
+
+        <div class="basic-con">
+            <ul class="basic-tab01 wp70">
+                <li class="">
+                    <a href="/course/course-Info" title="코스소개">코스소개</a>
+                </li>
+                <li class="on">
+                    <a href="/course/concept" title="코스설계">코스설계</a>
+                </li>
+                <li class="">
+                    <a href="/course/data" title="코스제원">코스제원</a>
+                </li>
+                <li class="">
+                    <a href="/course/attack" title="코스공략도">코스공략도</a>
+                </li>
+            </ul>
+            <div class="about-content-box">
+                <div class="about">
+                    <h4>코스설계</h4>
+                </div>
+                <div class="greeting-con">
+                    <img src="/pc/images/course/designer.png" alt="디자이너">
+                    <p class="tit02 serif">‘자연을 따르다’라는 가장 기본적인 컨셉에서
+                        모든 디자인의 원리가 시작되었습니다.</p>
+                    <p class="sub">‘자연을 따르다’라는 가장 기본적인 컨셉에서 모든 디자인의 원리가 시작되었습니다.
+                        클럽하우스를 중심으로 펼쳐지는 45홀 골프장의 광활안 필드가 자연 지형을 닮아,
+                        자연속에 동화된 편안한 코스를 조성하는 것을 최우선으로 생각하였습니다.
+
+                        자연적인 골프장으로 만들기 위해 지형조건을 충분히 이해하고 자연적인 요소를 최대한 활용하였습니다.
+
+                        그리고, 휴먼스케일에 맞추어 거부감을 느끼지 않는 자연친화적인 골프코스가 되도록 하였습니다.
+                        먼저 기본적인 골격을 조성하는데 있어 코스의 길이와 폭이 최대한 길고 넓게 보이도록 중점을 두었습니다.
+                        그렇게 하여 현재 18홀 평균길이는 약 7,200야드로써 어떠한 수준의 대회라도 유치할 수 있는 능력을 갖추었습니다.
+
+                        그래서 샷밸류가 살아있는 매우 전략적인 레이아웃과 자연 지형적인 조건을 충분히 활용하여
+                        세계적인 코스들과 겨뤄도 손색없는 아름다운 골프장으로 탄생되었습니다.
+
+                        이곳 서라벌 골프클럽에서 한번 플레이를 해보신 골퍼라면 마음속에 잊혀지지 않는 골프장이 되어 다시 한번 방문하고픈 골프장이 되고,
+                        한번도 방문하지 못하신 골퍼라면 언젠가 꼭 가보고 싶은 골프장이 될 것이라 확신합니다.
+
+                        <span>The Limgolf D&C 코스디자인 임상신</span></p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- //content-->
+
+</body>
+
+
+
+    <footer>
+        <div class="footer-top">
+            <button id="top-btn"><img src="/pc/images/main/top_btn.svg" alt="화살표">TOP</button>
+            <ul>
+                <li>
+                    <a href="/club/map" title="오시는길">오시는길</a>
+                </li>
+                <li>
+                    <a href="/policy/policy" title="이용약관">이용약관</a>
+                </li>
+                <li class="on">
+                    <a href="/policy/privacy" title="개인정보취급방침">개인정보취급방침</a>
+                </li>
+            </ul>
+        </div>
+        <div class="footer-con">
+            <div class="top-con">
+                <h4>서라벌 골프클럽</h4>
+                <p class="address">경북 경주시 외동읍 내외로 577-189
+                    Tel. 054-773-7000 Fax. 054-773-7006</p>
+                <img src="/pc/images/main/footer_logo.svg" alt="서라벌로고">
+            </div>
+            <div class="btm-con">
+                <ul>
+                    <Li>
+                        서라벌 골프클럽 대표 김광세<br>
+                        사업자등록번호 505-81-04359 통신판매업신고번호 제2009-경북경주-00076
+                    </Li>
+                    <li>Copyright © 2024 The Seorabol Golf Club. All Rights Reserved</li>
+                </ul>
+
+                <div class="family-area">
+                    <div class="family-site">
+                        <a href="javascript:void(0);" class="family-site-btn">
+                            <span>패밀리 사이트 바로가기</span>
+                        </a>
+                        <div class="family-box">
+                            <ul>
+                                <li>
+                                    <a href="https://www.grace-cc.co.kr/index" target="_blank" title="그레이스컨트리클럽">그레이스컨트리클럽</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+</html>
+
+
+
+

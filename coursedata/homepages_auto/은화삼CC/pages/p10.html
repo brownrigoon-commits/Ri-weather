@@ -1,0 +1,422 @@
+
+
+<!DOCTYPE html>
+<html lang="ko">
+
+    <head>
+        
+<meta charset="UTF-8">
+<link rel="shortcut icon" href="/Content/web/img/favicon.ico">
+<title>코스갤러리</title>
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<link rel="stylesheet" href="/Content/web/css/common.css">
+
+<link rel="stylesheet" href="/Content/web/css/sub.css?v=1">
+<link rel="stylesheet" href="/Content/web/css/form.css">
+<link rel="stylesheet" href="/Content/web/css/member.css">
+<link rel="stylesheet" href="/Content/web/css/board.css">
+
+    <link rel="stylesheet" href="/Content/web/css/reserv.css">
+
+<!--
+<link href="~/Content/Web/css/three-dots.css" rel="stylesheet" type="text/css">
+-->
+<style type="text/css">
+    form {
+        width: auto;
+        height: auto;
+    }
+</style>
+
+<script src="/Scripts/js/jquery-1.12.3.min.js"></script>
+<script type="text/javascript" src="/Scripts/js/slick.min.js"></script>
+<script type="text/javascript" src="/Scripts/js/jquery.bxslider.min.js"></script>
+<script src="/Scripts/common.js"></script>
+<script src="/Scripts/checkForm.js"></script>
+
+<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        /* ts */
+        $("#header .lnb li >a").mouseenter(function () {
+            $(this).addClass("on");
+            $("#header .nav.wrap").addClass('on');
+            $(this).parent().siblings().find(">a").removeClass('on');
+        });
+
+        /*nav*/
+        $("#header").mouseenter(function () {
+            $(this).addClass("over");
+        });
+
+        $(window).scroll(function () {
+            var sc = $(window).scrollTop()
+            if (sc > 150) {
+                if (!$("#header").hasClass("over")) {
+                    $("#header").addClass("over");
+                    $(".lnb li").addClass("bgColor");
+                    $(".bg").hide();
+                }
+            } else {
+                if (!$("#header .nav.wrap").hasClass('on')) {
+                    $("#header").removeClass("over");
+                    $(".lnb li").removeClass("bgColor");
+                    $(".bg").show();
+                }
+            }
+        });
+        $("#header").mouseleave(function () {
+            $(this).removeClass("over");
+            $("#header .nav.wrap").removeClass('on');
+            $("#header .lnb li >a").removeClass('on');
+        });
+
+
+        $(".flipBtn").click(function () {
+            $(this).siblings(".panel").slideToggle(300);
+        });
+
+    });
+</script>
+
+
+
+    </head>
+
+    <body>
+
+        <div id="ajaxLoadingBox" class="col-3" style="display:none;z-index:99999;">
+            <div class="snippet" data-title=".dot-overtaking">
+                <div class="stage filter-contrast">
+                    <div class="dot-overtaking"></div>
+                </div>
+            </div>
+        </div>
+
+
+        <div id="header">
+    <div class="bg"></div>
+    <div class="topNavi">
+        <div class="wrap">
+            <div class="utilInner">
+                <span id="spWeather">
+                    <a class="info_weather" href="#n">
+                        05월 12일(수) 현재 기온 25.0ºC
+                        <img src="/Content/web/img/weather/구름많음.svg" alt="weather">
+                    </a>
+                </span>
+                    <a class="rev_btn" href="/Member/Login">로그인</a>
+                    <a class="chk_btn" href="/Member/JoinStep">회원가입</a>
+
+            </div>
+        </div>
+    </div>
+    <div class="endline"></div>
+    <div class="nav wrap" data-aos="fade-down" data-aos-delay="100">
+        <h1 class="logo">
+            <a href="/">LOGO</a>
+        </h1>
+        <ul class="lnb">
+            <li>
+                <a href="/Club/Greeting" class="depth1">클럽소개</a>
+                <div id="club" class="depth2">
+                    <div class="depth_logo">클럽소개</div>
+                    <div class="depth_menu">
+                        <a href="/Club/Greeting">인사말</a>
+                        <a href="/Club/Info">클럽소개</a>
+                        <a href="/Club/Location">오시는길</a>
+                    </div>
+
+                </div>
+            </li>
+            <li>
+                <a href="/Booking/GolfCalendar" class="depth1">예약하기</a>
+                <div id="booking" class="depth2">
+                    <div class="depth_logo">예약하기</div>
+                    <div class="depth_menu">
+                        <a href="/Booking/GolfCalendar?calendarGubun=lot">주말예약접수</a>
+                        <a href="/Booking/GolfCalendar">예약하기</a>
+                        <a href="/Booking/ReservedList">예약확인취소</a>
+                        <a href="/Booking/PaneltyList">위약정보조회</a>
+                        <a href="/Booking/MyVisitList">내장정보조회</a>
+                    </div>
+
+                </div>
+            </li>
+            <li>
+                <a href="/Course/Info" class="depth1">코스정보</a>
+                <div id="course" class="depth2">
+                    <div class="depth_logo">코스정보</div>
+                    <div class="depth_menu">
+                        <a href="/Course/Info">코스소개</a>
+                        <a href="/Course/ScoreCard">스코어카드</a>
+                        <a href="/Course/Course">코스공략</a>
+                        <a href="/Course/CourseGallery">코스갤러리</a>
+                    </div>
+
+                </div>
+            </li>
+            <li>
+                <a href="/Facility/ClubHouse" class="depth1">클럽하우스</a>
+                <div id="facilities" class="depth2">
+                    <div class="depth_logo">클럽하우스</div>
+                    <div class="depth_menu">
+                        <a href="/Facility/ClubHouse">클럽하우스</a>
+                        <a href="/Facility/Restaurant">레스토랑</a>
+                        <a href="/Facility/Locker1">락커룸(남)</a>
+                        <a href="/Facility/Locker2">락커룸(여)</a>
+                        <a href="/Facility/Proshop">프로샵</a>
+                    </div>
+
+                </div>
+            </li>
+            <li>
+                <a href="/Guide/Info" class="depth1">이용안내</a>
+                <div id="guide" class="depth2">
+                    <div class="depth_logo">이용안내</div>
+                    <div class="depth_menu">
+                        <a href="/Guide/Info">예약안내</a>
+                        <a href="/Guide/OnlineInfo">실시간예약</a>
+                        <a href="/Guide/Fee">요금안내</a>
+                        <a href="/Guide/Panelty">위약안내</a>
+                        <a href="/Guide/UseInfo">이용수칙</a>
+                        <a href="/Guide/Lost">분실물관리규정</a>
+                    </div>
+
+                </div>
+            </li>
+            <li>
+                <a href="/Board/List?board_idx=1" class="depth1">고객센터</a>
+                <div id="board" class="depth2">
+                    <div class="depth_logo">고객센터</div>
+                    <div class="depth_menu">
+                        <a href="/Board/Notice">공지사항</a>
+                        <a href="/Board/Honor">명예의전당</a>
+                        <a href="/Board/MemberShip">회원권관리</a>
+                        <a href="/Board/Pds">자료실</a>
+                    </div>
+
+                </div>
+            </li>
+
+            <li style="display:none">
+                <a href="#" class="depth1">회원</a>
+                <div id="member" class="depth2">
+                    <a href="/Member/JoinStep">회원가입</a>
+                    <a href="/Member/Login">로그인</a>
+                    <a href="/Member/FindAccount">ID/PW찾기</a>
+                </div>
+            </li>
+
+            <li style="display:none">
+                <a href="#" class="depth1">회원</a>
+                <div id="mypage" class="depth2">
+                    <a href="/MyPage/MyInfo">정보수정</a>
+                    <a href="/MyPage/Withdrawal">회원탈퇴</a>
+                </div>
+            </li>
+            <li style="display:none">
+                <a href="#" class="depth1">이용약관</a>
+                <div id="privacy" class="depth2">
+                    <a href="/Privacy/Term">이용약관</a>
+                    <a href="/Privacy/Privacy">개인정보처리방침</a>
+                    <a href="/Privacy/MovePrivacy">영상정보처리방침</a>
+                </div>
+            </li>
+        </ul>
+    </div>
+    <div class="endline"></div>
+</div>
+
+<script>
+    $(function () {
+        var html = getHtmlForm("/Ajax/Weather");
+        $("#spWeather").html(html);
+    });
+</script>
+        <div id="section">
+            
+
+<div class="subTop">
+    <div id="sub_visual" class="subVisual">
+        <div class="subTit">
+            <h2>코스소개</h2>
+            <p>COURSE</p>
+        </div>
+        <div class="subBg subBg02"></div>
+    </div>
+    <ul class="subMenu">
+        
+    </ul>
+</div>
+
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        $(".subBg").addClass('subBg subBg02');
+
+        var path = '/course/coursegallery';
+        var qstring = 'sCate=2';
+        if (qstring != "") path += "?" + qstring.toLowerCase();
+        const sg = 'course';
+        var calendarGubun = '';
+        //console.log(path);
+        //console.log(sg);
+
+        $('.lnb > li').each(function () {
+            const lnb = $(this);
+            
+            lnb.find('div').each(function () {
+                const div = $(this);
+
+                if (div.attr('id') == sg) {
+                    
+                    div.find('a').each(function () {
+                        const a = $(this);
+                        var on = (path == a.attr('href').toLowerCase() ? 'class="menuOn"' : '');
+                        //if (path.indexOf("golfcalendar") > 0 && calendarGubun == "lot") {
+                        //    on = 'class="menuOn"';
+                        //}
+                        console.log(path + "/" + a.attr('href').toLowerCase());
+                        $('.subTop ul').append("<li><a " + on + " href=" + a.attr('href') + ">" + a.text() + "</a></li>");
+
+                    });
+
+                    // $('.subMenu').append('<li>' + v.html() + '</li>');
+
+                    // console.log($(this).find('a').text());
+                }
+            });
+        });
+    });
+</script>
+
+            
+
+
+<link rel="stylesheet" href="/Content/web/css/club.css">
+<link rel="stylesheet" href="/Content/web/css/facility.css">
+<div class="contents">
+    <div class="wrap">
+        <div class="sub_tab">
+            <ul>
+                <li style="width:25%;">
+                    <a href="CourseGallery?sCate=1" >봄</a>
+                </li>
+                <li style="width:25%;">
+                    <a href="CourseGallery?sCate=2"  class=on>여름</a>
+                </li>
+                <li style="width:25%;">
+                    <a href="CourseGallery?sCate=3" >가을</a>
+                </li>
+                <li style="width:25%;">
+                    <a href="CourseGallery?sCate=4" >겨울</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="visualSlide" style="margin-top:48px;">
+        <ul class="bxslider">
+                <li><img src="/Content/web/img/gallery/img2_1.jpg" alt="코스이미지" class="gray"></li>
+                <li><img src="/Content/web/img/gallery/img2_2.jpg" alt="코스이미지" class="gray"></li>
+                <li><img src="/Content/web/img/gallery/img2_3.jpg" alt="코스이미지" class="gray"></li>
+                <li><img src="/Content/web/img/gallery/img2_4.jpg" alt="코스이미지" class="gray"></li>
+                <li><img src="/Content/web/img/gallery/img2_5.jpg" alt="코스이미지" class="gray"></li>
+                <li><img src="/Content/web/img/gallery/img2_6.jpg" alt="코스이미지" class="gray"></li>
+                <li><img src="/Content/web/img/gallery/img2_7.jpg" alt="코스이미지" class="gray"></li>
+                <li><img src="/Content/web/img/gallery/img2_8.jpg" alt="코스이미지" class="gray"></li>
+                <li><img src="/Content/web/img/gallery/img2_9.jpg" alt="코스이미지" class="gray"></li>
+                <li><img src="/Content/web/img/gallery/img2_10.jpg" alt="코스이미지" class="gray"></li>
+                <li><img src="/Content/web/img/gallery/img2_11.jpg" alt="코스이미지" class="gray"></li>
+        </ul>
+    </div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        /*bxSlider*/
+        $('.bxslider').bxSlider({
+            auto: false,
+            minSlides: 3,
+            maxSlides: 3,
+            moveSlides: 1,
+            slideWidth: 1190,
+            slideHeight: 650,
+            slideMargin: 50,
+            pager: false,
+            onSlidePrev: function ($slideElement, oldIndex, newIndex) {
+                $('.bxslider li').removeClass('active');
+                $('.bxslider li img').addClass('gray');
+                $('.bxslider li').eq(newIndex + 4).addClass('active');
+                $('.bxslider li').eq(newIndex + 4).find('img').removeClass('gray');
+            },
+            onSlideNext: function ($slideElement, oldIndex, newIndex) {
+                $('.bxslider li').removeClass('active');
+                $('.bxslider li img').addClass('gray');
+                $('.bxslider li').eq(newIndex + 4).addClass('active');
+                $('.bxslider li').eq(newIndex + 4).find('img').removeClass('gray');
+            },
+            onSliderLoad: function (currentIndex) {
+                $('.bxslider li').removeClass('active');
+                $('.bxslider li img').addClass('gray');
+                $('.bxslider li').eq(currentIndex + 4).addClass('active');
+                $('.bxslider li').eq(currentIndex + 4).find('img').removeClass('gray');
+            }
+        });
+    });
+</script>
+        </div>
+            
+<div id="footer">
+    <div class="footLink_area">
+        <div class="footLink wrap">
+            <a href="/Club/Info">클럽소개</a> |
+            <a href="/Club/Location">오시는길</a> |
+            <a href="/Privacy/Term">이용약관</a> |
+            <a href="/Privacy/MovePrivacy">영상정보처리방침</a> |
+            <a href="/Privacy/Privacy" class="point">개인정보처리방침</a>
+        </div>
+    </div>
+    <div class="footInner wrap">
+        <p class="footTxt">
+            <adress>은화삼컨트리클럽 17140 경기도 용인시 처인구 백옥대로 860-38</adress> / TEL. 031.335.8255/6 FAX. 031.335.8257<br>
+            사업자번호 : 135-81-02787 / 통신판매업신고 : 제2009-용인처인-0165호<br><br>
+            Copyright © 2021 EUNHWASAM Country Club. All Rights Reserved
+        </p>
+    </div>
+</div>
+
+<!-- 탑버튼-->
+<div id="topBtn" style="position: absolute; right: 20px;">
+    <p><img src="/Content/web/img/icon_top.svg" alt=""></p>
+</div>
+<!--// 탑버튼-->
+<!-- Top 버튼-->
+<script>
+    $(document).ready(function () {
+        $(window).scroll(function () {
+            if ($(this).scrollTop() > 100) {
+                $('#topBtn').fadeIn();
+            } else {
+                $('#topBtn').fadeOut();
+            }
+        });
+
+        $("#topBtn").click(function () {
+            $('html, body').animate({
+                scrollTop: 0
+            }, 500);
+            return false;
+        });
+    });
+
+</script>
+<!-- // Top 버튼-->
+
+    <script defer src="https://static.cloudflareinsights.com/beacon.min.js/v4513226cdae34746b4dedf0b4dfa099e1781791509496" integrity="sha512-ZE9pZaUXND66v380QUtch/5sE9tPFh2zg45pR2PB0CVkCtOREv2AJKkSidISWkysEuQ0EH8faUU5du78bx87UQ==" data-cf-beacon='{"version":"2024.11.0","token":"de9f4891b32a4c7ba3c624fc918787fa","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a1e79e3f0af4c622',t:'MTc4NDYwOTc3Ng=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

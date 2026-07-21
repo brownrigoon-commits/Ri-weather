@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html style="overscroll-behavior: none; scroll-behavior: auto;">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<title>뉴코리아컨트리클럽</title>
+	<meta http-equiv="X-UA-Compatible" content="IE=Edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+	<meta http-equiv="Cache-Control" content="No-Cache">
+	<meta http-equiv="Pragma" content="No-Cache">
+	<meta http-equiv="Expires" content="now">
+	<link rel="shortcut icon" href="https://www.newkoreacc.co.kr/images/main/favicon.png"/>
+
+	<link rel="stylesheet" href="lib/css/reset.css">
+	<link rel="stylesheet" href="lib/css/font.css">
+	<link rel="stylesheet" href="lib/css/board.css">
+	<link rel="stylesheet" href="lib/css/sub.css">
+	<link rel="stylesheet" href="lib/css/member.css">
+	<script type="text/javascript" src="lib/js/jquery-1.8.3.min.js"></script>
+	<script type="text/javascript" src="lib/js/jquery.easing.1.3.js"></script>
+	<script type="text/javascript" src="lib/js/jquery-ui.js"></script>
+	<script type="text/javascript" src="lib/js/custom.js"></script>
+	<script src="lib/js/gsap.min.js"></script>
+	<script src="lib/js/ScrollTrigger.min.js"></script>
+	<script src="lib/js/ScrollToPlugin.min.js"></script>
+	<script src="lib/js/ScrollSmoother.min.js"></script>
+	<script src="lib/js/jquery.bxslider2.js"></script>
+	<script src="lib/js/jquery-3.4.0.min.js" type="text/javascript"></script>
+	<script src="lib/js/jquery-ui.min.js" type="text/javascript"></script>
+	<script src="lib/js/owl.carousel.min.js" type="text/javascript"></script>
+	<script src="lib/js/swiper-bundle.min.js"></script>
+	<script src="/lib/js/jquery.cycle2.min.js" type="text/javascript"></script>
+
+	<script type="text/javascript">
+	$(window).load(function() {
+		$('.loadCover').hide(0);
+	});
+
+	$(function(){
+		$(document).mouseup(function(e) {
+			/*메뉴 바깥영역 클릭했을시 서브메뉴 hide*/
+			if ($(e.target).parents('.zeta-menu').length == 0) {
+				$('.zeta-menu li').removeClass('expand');
+				$('.zeta-menu ul').hide();
+			}
+		});
+		$(".zeta-menu>li:has(ul)>a").each( function() {
+			//$(this).html( $(this).html()+' &or;' );
+		});
+		$(".zeta-menu ul li:has(ul)")
+		/*
+			.find("a:first")
+			.append("<p style='float:right;margin:-3px'>&#9656;</p>");
+		*/
+		$(".zeta-menu li>a").click(function(){
+			var li = $(this).parent();
+			var ul = li.parent();
+			ul.find('li').removeClass('expand');
+			ul.find('ul').not(li.find('ul')).hide();
+			li.children('ul').toggle();
+			if( li.children('ul').is(':visible') || li.has('ul')) {
+				li.addClass('expand');
+			}
+		});
+	});
+
+	/**********************************************************************
+		레이어 팝업 관련 스크립트 - 시작
+	 ***********************************************************************/
+	var showCnt = 0;
+
+	$(document).ready( function() {
+		/**		메인배경 돌리기		*/
+		$(".main_visual3").cycle();
+
+		//전체 팝업레이어에 포함된 팝업창의 갯수만큼 반복하면서 오픈여부 확인하여 display설정하기
+		$(".popup_lay > .popDiv").each(function() {
+			var id = $(this).attr("id");		//각각의 팝업창의 id값 가져오기
+			var eachCookieName = getCookie(id + "_cookie");		//아이디를 사용한 쿠키설정값 가져오기
+
+			if ( !eachCookieName ) {
+				showPopup(id);
+				showCnt++;		//보여지는 팝업 갯수 증가
+			}
+		});
+
+		if ( showCnt > 0 ) {		//팝업창이 1개 이상일 경우 팝업창의 전체 레이어를 보이도록 변경함.
+			$(".popup_lay").css("visibility", "visible");
+			document.body.style.overflow = "hidden";
+		}
+	});
+
+	// 쿠키에서 팝업 상태 확인
+	function getCookie(name) {
+		let cookieArr = document.cookie.split("; ");
+		for (let i = 0; i < cookieArr.length; i++) {
+			let cookiePair = cookieArr[i].split("=");
+			if (name === cookiePair[0]) {
+				return decodeURIComponent(cookiePair[1]);
+			}
+		}
+		return null;
+	}
+
+	// 쿠키 설정 (오늘 하루 동안 팝업을 숨기기)
+	function setCookie(name, value, days) {
+		let date = new Date();
+		date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));  // 일 단위
+		let expires = "expires=" + date.toGMTString();
+		document.cookie = name + "=" + encodeURIComponent(value) + ";" + expires + ";path=/";
+	}
+
+	// 팝업 열기
+	function showPopup(popupId) {
+		$("#" + popupId).css("display", "block");
+	}
+
+	//팝업창 닫을때 마다 현재 남아있는 팝업창의 갯수를 가져오기
+	function chkPopupCnt() {
+		$(".popup_lay > .popDiv").each(function() {		//전체 레이어팝업 갯수만큼 반복하기
+			var id = $(this).attr("id");		//각각의 팝업창의 id값 가져오기
+			var eachCookieName = getCookie(id + "_cookie");		//아이디를 사용한 쿠키설정값 가져오기
+
+			if ( !eachCookieName ) {
+				showCnt++;		//현재 보여지는 팝업의 갯수 카운트
+			}
+		});
+	}
+
+	// 팝업 닫기
+	function closePopup(popupId, cookieName) {
+		setCookie(cookieName, 'true', 1);  // 1일 동안 보지 않기
+
+		document.getElementById(popupId).style.display = "none";
+
+		showCnt --;		//보여지는 팝업의 카운트 감소
+
+		if ( showCnt == 0 ) {		//전체팝업이 닫혔을 경우 레이어팝업의 전체틀을 숨기기
+			$(".popup_lay").css("visibility", "hidden");
+			document.body.style.overflow = "";
+		}
+	}
+
+	// 모든 팝업 닫기
+	function closeAllPopups() {
+		$(".popup_lay").hide();
+		document.body.style.overflow = "";
+	}
+
+	/**********************************************************************
+		레이어 팝업 관련 스크립트 - 종료
+	 ***********************************************************************/
+
+	function changeLargeImage(imageUrl) {
+		const largeImage = document.getElementById("large-image");
+		largeImage.src = imageUrl;
+	}
+	</script>
+</head>
+
+<body>
+
+<!-- 레이어 팝업 시작 -->
+<div class="popup_lay" style="visibility: hidden;">
+
+
+<!-- 카트비인상
+	<div id="popup7" class="popDiv popupct is-active on" style="display: none;">
+		<div class="popup-wrap type-basic main popup_imgst top-area swiper-container is_active" role="dialog" style="-webkit-box-align: start;-ms-flex-align: start;align-items: flex-start;">
+			<div class="top-banner swiper-wrapper">
+				<div class="top-slide swiper-slide">
+					<a href="/customer/customer01_view.asp?seq=616"><img src="images/popup/20260130.png"></a>
+				</div>
+			</div>
+		</div>
+		<div class="cookie">
+			<span class="check demo1">
+				<a href="javascript:void(0);"> <span class="dontShowAgain" onClick="closePopup('popup7', 'popup7_cookie')">오늘 하루 보지 않기</span></a>
+			</span>
+		</div>
+	</div>			<!-- <div class="popDiv popupct is-active on" style="display: block;"> -->
+<!-- 카트비인상-->
+
+<!-- 한화라이프플러스 이모저모
+	<div id="popup9" class="popDiv popupct is-active on" style="display: none;">
+		<div class="popup-wrap type-basic main popup_imgst top-area swiper-container is_active" role="dialog" style="-webkit-box-align: start;-ms-flex-align: start;align-items: flex-start;">
+			<div class="top-banner swiper-wrapper">
+				<div class="top-slide swiper-slide">
+					<a href="https://crown.lpga.com/kr/news-media/photo" target="_blank"><img src="images/popup/20251027.jpg"></a>
+				</div>
+			</div>
+		</div>
+		<div class="cookie">
+			<span class="check demo1">
+				<a href="javascript:void(0);"> <span class="dontShowAgain" onClick="closePopup('popup9', 'popup9_cookie')">오늘 하루 보지 않기</span></a>
+			</span>
+		</div>
+	</div>			<!-- <div class="popDiv popupct is-active on" style="display: block;"> -->
+<!-- 한화라이프플러스이모저모-->
+
+<!-- LPGA 영업안내 인스타 
+	<div id="popup7" class="popDiv popupct is-active on" style="display: none;">
+		<div class="popup-wrap type-basic main popup_imgst top-area swiper-container is_active" role="dialog" style="-webkit-box-align: start;-ms-flex-align: start;align-items: flex-start;">
+			<div class="top-banner swiper-wrapper">
+				<div class="top-slide swiper-slide">
+					<a href="https://www.instagram.com/internationalcrown_korea?igsh=MTdkaWNvZ285MXVraQ==" target="_blank"><img src="images/popup/20251016.jpg"></a>
+				</div>
+			</div>
+		</div>
+		<div class="cookie">
+			<span class="check demo1">
+				<a href="javascript:void(0);"> <span class="dontShowAgain" onClick="closePopup('popup7', 'popup7_cookie')">오늘 하루 보지 않기</span></a>
+			</span>
+		</div>
+	</div>			<!-- <div class="popDiv popupct is-active on" style="display: block;"> -->
+<!-- LPGA 영업안내인스타 -->
+
+<!-- 아람코 챔피언십 관련 기사 
+	<div id="popup4" class="popDiv popupct is-active on" style="display: none;">
+		<div class="popup-wrap type-basic main popup_imgst top-area swiper-container is_active" role="dialog" style="-webkit-box-align: start;-ms-flex-align: start;align-items: flex-start;">
+			<div class="top-banner swiper-wrapper">
+				<div class="top-slide swiper-slide">
+					<a href="/customer/customer01_view.asp?seq=601"><img src="images/popup/20250825.jpg"></a>
+				</div>
+			</div>
+		</div>
+		<div class="cookie">
+			<span class="check demo1">
+				<a href="javascript:void(0);"> <span class="dontShowAgain" onClick="closePopup('popup4', 'popup4_cookie')">오늘 하루 보지 않기</span></a>
+			</span>
+		</div>
+	</div>			<!-- <div class="popDiv popupct is-active on" style="display: block;"> -->
+<!-- 아람코 챔피언십 관련 기사 -->
+
+
+<!-- 서비스중단 --> 
+	<div id="popup4" class="popDiv popupct is-active on" style="display: none;">
+		<div class="popup-wrap type-basic main popup_imgst top-area swiper-container is_active" role="dialog" style="-webkit-box-align: start;-ms-flex-align: start;align-items: flex-start;">
+			<div class="top-banner swiper-wrapper">
+				<div class="top-slide swiper-slide">
+					<img src="images/popup/20260721.png">
+				</div>
+			</div>
+		</div>
+		<div class="cookie">
+			<span class="check demo1">
+				<a href="javascript:void(0);"> <span class="dontShowAgain" onClick="closePopup('popup4', 'popup4_cookie')">오늘 하루 보지 않기</span></a>
+			</span>
+		</div>
+	</div>			<!-- <div class="popDiv popupct is-active on" style="display: block;"> -->
+<!--서부스 중단 -->
+
+
+
+
+<!-- 외부음식물반입금지안내 -->
+	<div id="popup1" class="popDiv popupct is-active on" style="display: none;">
+		<div class="popup-wrap type-basic main popup_imgst top-area swiper-container is_active" role="dialog" style="-webkit-box-align: start;-ms-flex-align: start;align-items: flex-start;">
+			<div class="top-banner swiper-wrapper">
+				<div class="top-slide swiper-slide">
+					<a href="/customer/customer01_view.asp?seq=605"><img src="images/popup/20250313.jpg"></a>
+				</div>
+			</div>
+		</div>
+		<div class="cookie">
+			<span class="check demo1">
+				<a href="javascript:void(0);"> <span class="dontShowAgain" onClick="closePopup('popup1', 'popup1_cookie')">오늘 하루 보지 않기</span></a>
+			</span>
+		</div>
+	</div> 			<!-- <div class="popDiv popupct is-active on" style="display: block;"> -->
+<!-- 외부음식물반입금지안내 -->
+<!-- 문신고객 -->
+	<div id="popup3" class="popDiv popupct is-active on" style="display: none;">
+		<div class="popup-wrap type-basic main popup_imgst top-area swiper-container is_active" role="dialog" style="-webkit-box-align: start;-ms-flex-align: start;align-items: flex-start;">
+			<div class="top-banner swiper-wrapper">
+				<div class="top-slide swiper-slide">
+					<a href="/customer/customer01_view.asp?seq=569"><img src="images/popup/20250306_02.jpg"></a>
+				</div>
+			</div>
+		</div>
+		<div class="cookie">
+			<span class="check demo1">
+				<a href="javascript:void(0);"> <span class="dontShowAgain" onClick="closePopup('popup3', 'popup3_cookie')">오늘 하루 보지 않기</span></a>
+			</span>
+		</div>
+	</div>			<!-- <div class="popDiv popupct is-active on" style="display: block;"> -->
+<!-- 문신고객 -->
+
+<!-- 아람코 영업안내
+	<div id="popup6" class="popDiv popupct is-active on" style="display: none;">
+		<div class="popup-wrap type-basic main popup_imgst top-area swiper-container is_active" role="dialog" style="-webkit-box-align: start;-ms-flex-align: start;align-items: flex-start;">
+			<div class="top-banner swiper-wrapper">
+				<div class="top-slide swiper-slide">
+					<a href="/customer/customer01_view.asp?seq=579"><img src="images/popup/20250306_05.jpg"></a>
+				</div>
+			</div>
+		</div>
+		<div class="cookie">
+			<span class="check demo1">
+				<a href="javascript:void(0);"> <span class="dontShowAgain" onClick="closePopup('popup6', 'popup6_cookie')">오늘 하루 보지 않기</span></a>
+			</span>
+		</div>
+	</div>			<!-- <div class="popDiv popupct is-active on" style="display: block;"> -->
+<!-- 아람코 영업안내 -->
+
+<!-- LPGA 영업안내 
+	<div id="popup5" class="popDiv popupct is-active on" style="display: none;">
+		<div class="popup-wrap type-basic main popup_imgst top-area swiper-container is_active" role="dialog" style="-webkit-box-align: start;-ms-flex-align: start;align-items: flex-start;">
+			<div class="top-banner swiper-wrapper">
+				<div class="top-slide swiper-slide">
+					<a href="/customer/customer01_view.asp?seq=574"><img src="images/popup/20250306_04.jpg"></a>
+				</div>
+			</div>
+		</div>
+		<div class="cookie">
+			<span class="check demo1">
+				<a href="javascript:void(0);"> <span class="dontShowAgain" onClick="closePopup('popup5', 'popup5_cookie')">오늘 하루 보지 않기</span></a>
+			</span>
+		</div>
+	</div>			<!-- <div class="popDiv popupct is-active on" style="display: block;"> -->
+<!-- LPGA 영업안내 -->
+
+<!-- 달력 다운로드 -->
+	<div id="popup2" class="popDiv popupct is-active on" style="display: none;">
+		<div class="popup-wrap type-basic main popup_imgst top-area swiper-container is_active" role="dialog" style="-webkit-box-align: start;-ms-flex-align: start;align-items: flex-start;">
+			<div class="top-banner swiper-wrapper">
+				<div class="top-slide swiper-slide">
+					<a href="/popupdown/download_cal.asp"><img src="images/popup/20251212.jpg"></a>
+				</div>
+			</div>
+		</div>
+		<div class="cookie">
+			<span class="check demo1">
+				<a href="javascript:void(0);"> <span class="dontShowAgain" onClick="closePopup('popup2', 'popup2_cookie')">오늘 하루 보지 않기</span></a>
+			</span>
+		</div>
+	</div>			<!-- <div class="popDiv popupct is-active on" style="display: block;"> -->
+<!-- 달력 다운로드 -->
+
+
+	<div class="popup_all_close"><a href="javascript:void(0);"><span id="closeAllPopups" onClick="closeAllPopups();">모든 팝업창 닫기</span></a></div>
+
+</div>			<!-- <div class="popup_lay" style="display:none;"> -->
+<!-- 레이어 팝업 종료 -->
+
+<div class="loadCover" style="display: none;">
+	<div class="loadDiv">
+		<div id="loading"></div>
+	</div>
+</div>
+
+<div class="menuShow-r">
+
+	<div class="menuShow">
+	<ul>
+		<li>
+			<a href="/info/info01.asp"><h3>클럽소개</h3></a>
+			<ul class="mbul-1">
+				<li><a href="/info/info01.asp">뉴코리아소개&연혁</a></li>
+				<li><a href="/info/info02.asp">인사말</a></li>
+				<li><a href="/info/info03.asp">부대시설</a></li>
+				<li><a href="/info/info04.asp">오시는 길</a></li>
+			</ul>
+		</li>
+		<li>
+			<a href="/guide/guide01.asp"><h3>이용안내</h3></a>
+			<ul class="mbul-2">
+				<li><a href="/guide/guide01.asp">운영안내</a></li>
+				<li><a href="/guide/guide02.asp">요금안내</a></li>
+				<li><a href="/guide/guide03.asp">입회안내</a></li>
+				<li><a href="/guide/guide04.asp">회칙 및 이용약관</a></li>
+				<li><a href="/guide/guide05.asp">개인정보처리방법</a></li>
+			</ul>
+		</li>
+		<li>
+			<a href="/course/course01.asp"><h3>코스소개</h3></a>
+			<ul class="mbul-3">
+				<li><a href="/course/course01.asp">코스특징</a></li>
+				<li><a href="/course/course02.asp">코스공략법</a></li>
+				<li><a href="/course/course03.asp">골프에티켓</a></li>
+				<li><a href="/course/course04.asp">뉴코리아사계</a></li>
+			</ul>
+		</li>
+		<li>
+			<a href="/booking/booking01.asp"><h3>예약서비스</h3></a>
+			<ul class="mbul-4">
+				<li><a href="/booking/booking01.asp">예약하기</a></li>
+				<li><a href="/booking/booking02.asp">예약확인 및 취소</a></li>
+				<li><a href="/booking/booking03.asp">대기자등록</a></li>
+				<li><a href="/booking/booking04.asp">대기자조회</a></li>
+			</ul>
+		</li>
+		<li>
+			<a href="/member/member01.asp"><h3>회원정보</h3></a>
+			<ul class="mbul-5">
+				<li><a href="/member/member01.asp">회원정보수정</a></li>
+				<li><a href="/member/member03.asp">위약정보조회</a></li>
+				<li><a href="/member/member02.asp">개인정보이용내역</a></li>
+			</ul>
+		</li>
+		<li>
+			<a href="/customer/customer01.asp"><h3>커뮤니케이션</h3></a>
+			<ul class="mbul-6">
+				<li><a href="/customer/customer01.asp">공지사항</a></li>
+				<li><a href="/customer/customer02.asp">고객의소리</a></li>
+				<li><a href="/customer/customer03.asp">홀인원</a></li>
+			</ul>
+		</li>
+	</ul>
+	</div>			<!-- <div class="menuShow"> -->
+
+	<div class="menuShow-bottom">
+		<p>
+		대표번호 02-353-0091 &nbsp;
+		예약번호 02-385-8080
+		</p>
+		<i>copyright © 2024 NEWKOREA All Rights Reserved.</i>
+	</div>			<!-- <div class="menuShow-bottom"> -->
+
+</div>			<!-- <div class="menuShow-r"> -->
+
+<a class="bun-menu" href="#">
+	<div class="bun_par">
+		<div class="bun_1 buns"></div>
+		<div class="bun_2 buns"></div>
+		<div class="bun_3 buns"></div>
+	</div>
+</a>
+<div class="my-main-btn">
+	<ul>
+
+        <li><a href="/en/index_e.asp">ENGLISH</a></li>
+		<li>BROCHURE&nbsp;<a href="/brochure/english.pdf" target="_blank">(ENG)</a>&nbsp;<a href="/brochure/korean.pdf" target="_blank">(KOR)</a></li>
+        <li><a href="/login/login.asp">예약하기</a></li>
+        <li><a href="/login/login.asp">로그인</a></li>
+
+	</ul>
+</div>
+
+<h1 class="logo"><a href="/"><img src="images/common/logo_c.png" alt="new"></a></h1>
+
+<div class="scroll-topDown-bg"></div>
+<div class="scroll-topDown-bg-M"></div>
+
+<div id="smooth-wrapper" >
+	<div id="smooth-content" >
+		<div class="contentWrap"><div class="mainTop-glbg-1"></div>
+			<!--<div class="main-visual-highType mainVis-02 mainVis-orange">-->
+			<div  class="main_visual3">
+			   <img src="images/main/mainVisual-2.jpg" alt="메인비쥬얼 01" />
+			   <img src="images/main/mainVisual-3.jpg" alt="메인비쥬얼 01" />
+			   <img src="images/main/mainVisual-4.jpg" alt="메인비쥬얼 01" />
+			   <img src="images/main/mainVisual-5.jpg" alt="메인비쥬얼 01" />
+			   <img src="images/main/mainVisual-6.jpg" alt="메인비쥬얼 01" />
+			   <img src="images/main/mainVisual-7.jpg" alt="메인비쥬얼 01" />
+			   <img src="images/main/mainVisual-8.jpg" alt="메인비쥬얼 01" />
+			   <img src="images/main/mainVisual-9.jpg" alt="메인비쥬얼 01" />
+			 </div>
+
+
+
+
+<!-- 내용 들어가기-->
+			<div class="sub-content wrap-1200">
+				<div class="main_txt01 mt110">The One and Only Golf Course in the World at an Excellent Fengshui Location</div>
+				<div class="main_txt12">
+					1966년 개장된 뉴코리아컨트리클럽은 50년이 넘는 역사와 전통을 자랑하는 수도권 명문골프장으로<br>
+					우리나라 최고의 명산인 북한산을 바라보며 라운딩을 즐길 수 있는 회원제골프장입니다.<br>
+				</div>
+
+				<div class="sub09txt1">
+					<p class="sub09txt1-1"> CLUBHOUSE</p>
+					<p class="sub09txt1-2">
+						자연지형을 그대로 살린 코스와<br>
+						연륜에 걸맞는 다양한 수목과 우거진 산림</p>
+					<p class="sub09txt1-3"><a href="/info/info03.asp"><span class="btn_main">자세히 보기&nbsp;&nbsp; →</span></a></p>
+				</div>
+
+				<div class="sub09img1">
+					<img src="images/main/main_img01.jpg" alt="">
+				</div>
+
+				<div class="sub09txt22 mb30">
+					<p class="sub09txt2-1">RESTAURANT</p>
+					<p class="sub09txt2-2">휴식과 여유를 즐기실 수 있는 최고급 호텔이<br>부럽지 않는 품위 있는 레스토랑</p>
+					<p class="sub09txt2-3"><a href="/info/info0302.asp"><span class="btn_main">자세히 보기&nbsp;&nbsp;  →</span></a></p>
+				</div>
+				<div class="sub09img2 mb100">
+					<img src="images/main/main_img02.jpg" alt="">
+				</div>
+
+				<div class="mt110"></div>
+
+				<div class="main_cutxt01 ">
+					<table border="0" cellspacing="0" cellpadding="0">
+					<tr>
+						<td><br><br><br>
+							<span class="txt01_cutitle">COURSE  INFO</span>
+							<li class="txt01_cudata">총 면적 : 860,216㎡ <br>
+							총 코스 면적 : 375,027㎡ <br>
+							울창한 수림과 천연적인 입지조건 <br>
+							위에 아기자기하게 조성된 코스는<br>
+							각 홀마다 독특하게 변화있는 <br>
+							특성을 갖고 있어 골프의 진가를 <br>
+							만끽할 수 있습니다. <br>
+							<br>
+							<br><br><br><br><br>
+							<a href="/course/course01.asp"><span class="btn_coumain">자세히 보기&nbsp;&nbsp;  →</span></a>
+							</li>
+						</td>
+						<!--td align="right"><img src="images/main/course_img.jpg"></td-->
+					</tr>
+					</table>
+				</div>
+
+				<div class="main_cutxt02 ">
+					<table border="0" cellspacing="0" cellpadding="0">
+					<tr>
+						<td>
+							<span class="txt02_cutitle">LOCATION</span>
+							<li class="txt02_cudata">주소
+							경기도 고양시 덕양구 신원2로57<br><br>
+							예약전화<br>
+							02-385-8080<br><br>
+							대표번호<br>
+							02-353-0091<br><br>
+							이메일<br>
+							nkcc66@hanmail.net<br>
+							<br>
+							<br><br><br><br><br>
+							<a href="/info/info04.asp"><span class="btn_coumain">자세히 보기&nbsp;&nbsp;  →</span></a>
+							</li>
+						</td>
+						<td align="right">&nbsp;</td>
+					</tr>
+					</table>
+				</div>
+
+			</div>			<!-- <div class="sub-content wrap-1200"> -->
+
+			<div  class="main_visual1">
+			   <img src="images/main/course_bg.jpg" alt="메인비쥬얼 01" />
+			</div>
+			<br>
+			<br>
+			<br>
+			<br>
+			<br>
+			<div class="wrap-1200">
+				<table width="100%" border="0" cellspacing="0" cellpadding="0">
+				<tr>
+					<td>
+					<table width="100%" border="0" cellspacing="0" cellpadding="0">
+					<tr>
+						<td><div class="poto_big08"><img id="large-image" src="images/main/poto_big08.jpg"></div></td>
+						<!--<td><div class="poto_big01"><img src="images/main/poto_big02.jpg"></div></td>
+						<td><div class="poto_big01"><img src="images/main/poto_big03.jpg"></div></td>
+						<td><div class="poto_big01"><img src="images/main/poto_big04.jpg"></div></td>
+						<td><div class="poto_big01"><img src="images/main/poto_big05.jpg"></div></td>-->
+					</tr>
+					<tr>
+						<td>&nbsp;</td>
+					</tr>
+					<tr>
+						<td>
+						<table width="100%" border="0" cellspacing="0" cellpadding="0">
+						<tr>
+							<td><a href="javascript:void(0);"><img src="images/main/poto_s08.jpg" onClick="changeLargeImage('images/main/poto_big08.jpg');"></a></td>
+							<td><a href="javascript:void(0);"><img src="images/main/poto_s02.jpg" onClick="changeLargeImage('images/main/poto_big02.jpg');"></a></td>
+							<td><a href="javascript:void(0);"><img src="images/main/poto_s03.jpg" onClick="changeLargeImage('images/main/poto_big03.jpg');"></a></td>
+							<td><a href="javascript:void(0);"><img src="images/main/poto_s04.jpg" onClick="changeLargeImage('images/main/poto_big04.jpg');"></a></td>
+							<td><a href="javascript:void(0);"><img src="images/main/poto_s05.jpg" onClick="changeLargeImage('images/main/poto_big05.jpg');"></a></td>
+							<td><a href="javascript:void(0);"><img src="images/main/poto_s06.jpg" onClick="changeLargeImage('images/main/poto_big06.jpg');"></a></td>
+							<td><a href="javascript:void(0);"><img src="images/main/poto_s07.jpg" onClick="changeLargeImage('images/main/poto_big07.jpg');"></a></td>
+							<td><a href="javascript:void(0);"><img src="images/main/poto_s01.jpg" onClick="changeLargeImage('images/main/poto_big01.jpg');"></a></td>
+						</tr>
+						</table>
+						</td>
+					</tr>
+					</table>
+					</td>
+				</tr>
+				</table>
+				<br>
+				<br>
+				<br>
+			</div>			<!-- <div class="wrap-1200"> -->
+
+			<div  class="main_visual2"><img src="images/main/Location_bg.jpg" alt="메인비쥬얼 01" /></div>
+
+			<section class="footer">
+			<div class="footer-in">
+				<ul>
+
+
+
+				<li class="fli1">
+
+                    NEW KOREA COUNTRY CLUB<br>
+                    경기도 고양시 덕양구 신원2로 57<br>
+예약전화 02-385-8080, 대표전화 02-353-0091<br><br>
+
+신고려관광주식회사 대표이사 김화중<br>
+사업자등록번호 128-81-00442<br>
+통신판매신고 2023-경기고양-0141호 <br>
+                </li>
+                <li class="fli2">
+               <a href="/guide/guide04.asp"><br class="mShow"> 이용악관</a><br>
+                   <a href="/guide/guide05.asp"><br class="mShow"> 개인정보처리방침</a><br>
+                   <a href="/guide/guide0502.asp"><br class="mShow">  영상정보처리기 운영관리방침</a><br>
+
+                  <i>  copyright © 2024 NEW KOREA All Rights Reserved.</i>
+
+                </li>
+
+				</ul>
+			</div>			<!-- <div class="footer-in"> -->
+			</section>
+
+		</div>			<!-- <div class="contentWrap"> -->
+
+	</div>			<!-- <div id="smooth-content" > -->
+
+</div>			<!-- <div id="smooth-wrapper" > -->
+<!-- smooth-content -->
+<script type="text/javascript" src="lib/js/mobile.js"></script>
+<script type="text/javascript" src="lib/js/rolling.js"></script>
+
+</body>
+</html>

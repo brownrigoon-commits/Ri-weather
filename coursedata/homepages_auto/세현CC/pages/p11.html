@@ -1,0 +1,487 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+	<script>
+		if(document.location.href.indexOf("m.sehyeoncc.com") > 0) {
+			location.href = "https://m.sehyeoncc.com/mobile/index.asp";
+		}
+	</script>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=Edge">
+	<meta name="apple-mobile-web-app-capable" content="no" />
+	<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+	<meta name="format-detection" content="telephone=no,email=no,address=no">
+	<meta name="title" content="세현 컨트리클럽">
+	<meta name="author" content="세현 컨트리클럽">
+	<meta name="Keywords" content="세현 컨트리클럽">
+	<meta name="description" content="세현 컨트리클럽">
+	<meta name="copyright" content="All Contents COPYRIGHTⓒ SEHYEON CC. All RIGHTS RESERVED.">
+	<meta property="og:type" content="website">
+	<meta property="og:title" content="세현 컨트리클럽">
+	<meta property="og:description" content="세현 컨트리클럽">
+	<meta property="og:image" content="https://sehyeoncc.com/images/snsImg.jpg">
+	<meta property="og:url" content="">
+	<link rel="canonical" href="">
+	<title>세현 컨트리클럽</title>
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.8.2/css/all.min.css" />
+	<link rel="stylesheet" type="text/css" href="/css/import.css">
+	<link rel="stylesheet" type="text/css" href="/css/flickity.css">
+	<link rel="stylesheet" type="text/css" href="/css/main.css">
+	<script src="/js/common.js"></script>
+	<script src="/js/jquery.preloaders.js"></script>
+	<script src="/js/tools.js?v=1"></script>
+	<script src="/js/globals.js"></script>
+	<script src="/js/jquery.subtle-slideshow.js"></script>
+	<script src="/js/cbpHorizontalMenu.js"></script>
+	<script src="https://cdn.jsdelivr.net/bxslider/4.2.12/jquery.bxslider.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/flickity/1.1.1/flickity.pkgd.min.js"></script>
+	
+		<link rel="stylesheet" type="text/css" href="/css/contents.css?v=1">
+	
+	<script>
+		var isOpenSubMenu = false;
+
+		$(document).ready(function() {
+			//setInterval(sessionCheck, 1000);
+
+			setProtocol();
+
+			chkMobile();
+
+			$("#top_menu").find("a").hover(function() {
+				if(!isOpenSubMenu) {
+					isOpenSubMenu = !isOpenSubMenu;
+					$("#sub_menu").toggle(500);
+				}
+				$($("#sub_menu").find("li")[$(this).index()]).addClass("open-hover");
+			}, function() {
+				$($("#sub_menu").find("li")[$(this).index()]).removeClass("open-hover");
+			});
+
+			$("#menu_container").on("mouseleave", function() {
+				isOpenSubMenu = !isOpenSubMenu;
+				$("#sub_menu").toggle(500);
+			});
+
+			$("#sub_menu").find("li").hover(function() {
+				$(this).addClass("open-hover");
+				$($("#top_menu").find("a")[$(this).index()-1]).addClass("on")
+			}, function() {
+				$(this).removeClass("open-hover");
+				$($("#top_menu").find("a")[$(this).index()-1]).removeClass("on")
+			});
+		});
+
+		function setProtocol() {
+			if (document.location.protocol == 'http:') {
+				document.location.href = document.location.href.replace('http:', 'https:');
+			}
+
+			if(document.location.href.indexOf("sehyeoncc.co.kr") > 0) {
+				document.location.href = document.location.href.replace('sehyeoncc.co.kr', 'sehyeoncc.com');
+			} else if(document.location.href.indexOf("sehyeongc.co.kr") > 0) {
+				document.location.href = document.location.href.replace('sehyeongc.co.kr', 'sehyeoncc.com');
+			} else if(document.location.href.indexOf("sehyeongc.com") > 0) {
+				document.location.href = document.location.href.replace('sehyeongc.com', 'sehyeoncc.com');
+			}
+		}
+
+		function doLogout() {
+			var sUrl = "/Controller/MemberController.asp";
+			var params = {};
+
+			params["method"] = "doLogout";
+
+			mAjax(sUrl, params, "POST", true, function(data) {
+				if(data.resultCode == "0000") {
+					alert("로그아웃 되었습니다.");
+					location.href = "/index.asp"
+				}
+			});
+		}
+
+		function onlySubMenu(val){
+			if(val == "1") {
+				$("#onlySub").hide();
+			}else (
+				$("#onlySub").show()
+			)
+		}
+
+		function sessionCheck() {
+			var sUrl = "/controller/SessionManager.asp";
+			var params = {"method" : "sessionConfirm"};
+
+			mAjax(sUrl, params, "POST", false, function(data) {
+				if(data.resultCode == "2000") {
+					alert(data.resultMessage);
+					location.reload();
+				}
+			});
+		}
+	</script>
+	
+	    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-ZV8BWRZ06F"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+    
+      gtag('config', 'G-ZV8BWRZ06F');
+    </script>	
+</head>
+
+<body>
+<div id="wrap">
+	<div id="header">
+		<div class="headerBox">
+			<h1 class="top_logo"><a href="/index.asp"><img src="/images/logo.png" alt="logo"></a></h1>
+			<div id="menu_container">
+				<ul class="top_menu" id="top_menu">
+					<a href="/reservation/reservation.asp">온라인 예약</a>
+					<a href="/board/list.asp?type=1">이벤트&amp;공지사항</a>
+					<a href="/course/allcourse.asp">코스소개</a>
+					<a href="javascript:alert('준비중입니다.')">클럽소개</a>
+					<a href="/guide/guide.asp">이용안내</a>
+					<a href="/member/modify.asp">마이페이지</a>
+				</ul>
+
+				<div class="sub_menu">
+					<ul id="sub_menu" hidden>
+						<div class="top_line"></div>
+						<li>
+							<a href="/reservation/reservation.asp">실시간예약</a>
+							<a href="/reservation/reservation2.asp">예약확인/취소</a>
+						</li>
+						<li>
+							<a href="/board/list.asp?type=1">공지사항</a>
+							<a href="/board/list.asp?type=2">이벤트</a>
+							<a href="javascript:alert('준비중입니다.')">SNS</a>
+						</li>
+						<li>
+							<a href="/course/allcourse.asp">전체코스</a>
+							<a href="/course/v1.asp">VALLEY</a>
+							<a href="/course/l1.asp">LAKE</a>
+							<a href="/board/list.asp?type=5">코스갤러리</a>
+						</li>
+						<li>
+							<a href="javascript:alert('준비중입니다.')">클럽소개</a>
+							<a href="/club/facil.asp">부대시설</a>
+							<a href="/club/map.asp">오시는길</a>
+							<a href="/club/menu.asp">음식메뉴</a>
+						</li>
+						<li>
+							<a href="/guide/guide.asp">이용안내</a>
+							<a href="/guide/guide2.asp">이용규정</a>
+							<a href="/guide/guide3.asp">예약안내 및 위약규정</a>
+							<a href="/guide/guide4.asp">전화번호 안내</a>
+							<a href="/guide/guide5.asp">분실물 처리규정</a>
+						</li>
+						<li>
+							<a href="/member/modify.asp">개인정보수정</a>
+							<a href="/board/customer.asp">고객의소리</a>
+							<a href="/member/coupon.asp">나의쿠폰</a> 
+							<a href="/member/score.asp">스코어카드</a>
+							<a href="/member/delete.asp">회원탈퇴</a>
+						</li>
+					</ul>
+				</div>
+			</div>
+			<div class="top_sns">
+				<a href="javascript:alert('준비중입니다.')"><img src="/images/sns_f.png"></a>
+				<a href="javascript:alert('준비중입니다.')"><img src="/images/sns_t.png"></a>
+				<a href="http://www.weather.go.kr/weather/forecast/timeseries.jsp?searchType=SETINFO&setinfoCode=4155033000" target="_blank"><img src="/images/w_sc.png"></a>
+			</div>
+		</div>
+
+		<script>
+
+  var bigMenu, midMenu;
+  var bigMenus = {
+    "join" : "회원가입",
+    "reservation" : "인터넷예약",
+    "member" : "마이페이지",
+	"board" : "이벤트&공지사항",
+	"course" : "코스소개",
+	"guide" : "이용안내",
+	"etc" : "세현CC",
+	"club" : "클럽소개",
+	 
+  }
+
+  var midMenus = {
+    "join" : {
+      "/join/join.asp" : ["회원가입", true],
+      "/join/join02.asp" : ["회원가입", false],
+      "/join/join03.asp" : ["회원가입", false],
+      "/join/join04.asp" : ["회원가입", false],
+      "/join/find.asp" : ["ID/PW 찾기", true],
+      "/join/login.asp" : ["로그인", false]
+    },
+    "reservation" : {
+      "/reservation/reservation.asp" : ["실시간예약", true],
+      "/reservation/reservation2.asp" : ["예약확인/취소", true]
+    },
+	"member" : {
+      "/member/modify.asp" : ["개인정보수정", true],
+      "/member/coupon.asp" : ["나의쿠폰", true],
+      "/member/score.asp" : ["스코어카드", true],
+      "/member/delete.asp" : ["회원탈퇴", true]
+    },
+	"board" : {
+      "/board/list.asp?type=1" : ["공지사항", true],
+      "/board/list.asp?type=2" : ["이벤트", true],
+      "/board/view.asp?type=1" : ["공지사항", false],
+      "/board/view.asp?type=2" : ["이벤트", false],
+      "/board/score.asp" : ["스코어카드", false]
+    },
+	  "course" : {
+      "/course/allcourse.asp" : ["전체코스", true],
+      "/course/v1.asp" : ["VALLEY", true],
+      "/course/v2.asp" : ["VALLEY", false],
+      "/course/v3.asp" : ["VALLEY", false],
+      "/course/v4.asp" : ["VALLEY", false],
+      "/course/v5.asp" : ["VALLEY", false],
+      "/course/v6.asp" : ["VALLEY", false],
+      "/course/v7.asp" : ["VALLEY", false],
+      "/course/v8.asp" : ["VALLEY", false],
+      "/course/v9.asp" : ["VALLEY", false],
+      "/course/l1.asp" : ["LAKE", true],
+	  "/course/l2.asp" : ["LAKE", false],
+	  "/course/l3.asp" : ["LAKE", false],
+	  "/course/l4.asp" : ["LAKE", false],
+	  "/course/l5.asp" : ["LAKE", false],
+	  "/course/l6.asp" : ["LAKE", false],
+	  "/course/l7.asp" : ["LAKE", false],
+	  "/course/l8.asp" : ["LAKE", false],
+	  "/course/l9.asp" : ["LAKE", false],
+      "/board/list.asp?type=5" : ["코스갤러리", true],
+      "/board/view.asp?type=5" : ["코스갤러리", false]
+    },
+	  "guide" : {
+      "/guide/guide.asp" : ["이용안내", true],
+      "/guide/guide2.asp" : ["이용규정", true],
+      "/guide/guide3.asp" : ["예약안내 및 위약규정", true],
+      "/guide/guide4.asp" : ["전화번호 안내", true],
+      "/guide/guide5.asp" : ["분실물 처리규정", true]
+    },
+	  "etc" : {
+      "/guide/golfterms.asp" : ["골프장 이용약관", true],
+      "/guide/terms.asp" : ["사이트 이용약관", true],
+      "/guide/policy.asp" : ["개인정보처리방침", true]
+    },
+	  "club" : {
+      "/club/facil.asp" : ["부대시설", true],
+      "/club/facil2.asp" : ["부대시설", false],
+      "/club/facil3.asp" : ["부대시설", false],
+      "/club/facil4.asp" : ["부대시설", false],
+      "/club/map.asp" : ["오시는길", true],
+      "/club/menu.asp" : ["음식메뉴", true],
+      "/club/menu02.asp" : ["음식메뉴", false],
+      "/club/menu03.asp" : ["음식메뉴", false],
+      "/club/menu04.asp" : ["음식메뉴", false],
+      "/club/menu05.asp" : ["음식메뉴", false],
+      "/club/menu06.asp" : ["음식메뉴", false],
+    }
+  }
+
+	$(document).ready(function() {
+		initMenus();
+	});
+
+	function initMenus() {
+		var url = window.location.href;
+
+		for(var key in midMenus) {
+			for(var page in midMenus[key]) {
+				if(url.indexOf(page) > 0) {
+					$("#txtBigMenuName").html(bigMenus[key]);
+					$("#txtMidMenuName").html(midMenus[key][page][0]);
+					bigMenu = key;
+					midMenu = page;
+					break;
+				}
+			}
+
+			if(bigMenu != null && bigMenu != "") {
+				break;
+			}
+		}
+
+		$("#menuContainer").empty();
+
+		for(var key in midMenus[bigMenu]) {
+			if(midMenus[bigMenu][key][1]){
+				$("#menuContainer").append(String.format("<li><a href='{0}'>{1}</a></li>", key, midMenus[bigMenu][key][0]));
+			}
+		}
+	}
+</script>
+<div class="naviLine" id="onlySub">
+  <div class="naviBox">
+    <div class="nav">
+      <ul>
+        <li>
+          <a class="home" href="#">
+            <img src="/images/home.png" alt="홈">
+          </a>
+        </li>
+        <li>
+          <a href="#"><txt id="txtBigMenuName">세현CC</txt><span><img src="/images/arw.png" alt="대메뉴선택"></span>
+          </a>
+          <ul class="menu">
+            <!--<li>
+              <a href="/join/join.asp">회원가입</a>
+            </li>
+            <li>
+              <a href="/join/join.asp">ID/PW 찾기</a>
+            </li>-->
+          </ul>
+        </li>
+        <li>
+          <a href="#"><txt id="txtMidMenuName">세현CC</txt><span><img src="/images/arw.png" alt="중메뉴선택"></span>
+          </a>
+          <ul class="menu" id="menuContainer">
+          </ul>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+	</div>
+
+
+	<!--Contents-->
+	<div id="contents">
+		<div class="contentWrap">
+			<div class="tab4 margin40">
+				<a href="/course/allcourse.asp" class="">전체코스</a>
+				<a href="/course/v1.asp" class="on">VALLEY</a>
+				<a href="/course/l1.asp" class="">LAKE</a>
+				<a href="/board/list.asp?type=5" class="">코스갤러리</a>
+			</div>
+			
+			<div class="subTitle1">
+				<h2 class="commonTit left"><span class="subT"><i class="arrow right"></i></span> 코스소개</h2>
+			</div>
+			
+			<div class="courseWrap">
+				<div class="tabBox">
+					<a href="/course/v1.asp">1 hole</a>
+					<a href="/course/v2.asp">2 hole</a>
+					<a href="/course/v3.asp">3 hole</a>
+					<a href="/course/v4.asp">4 hole</a>
+					<a href="/course/v5.asp">5 hole</a>
+					<a href="/course/v6.asp">6 hole</a>
+					<a href="/course/v7.asp">7 hole</a>
+					<a href="/course/v8.asp">8 hole</a>
+					<a href="/course/v9.asp" class="on">9 hole</a>
+				</div>
+				<div class="courseBox">
+					<div class="holeNumBox">
+						<div class="holeNum">9</div>
+						<ul class="holeText">
+							<li class="hole1">hole</li>
+							<li class="hole2">밸리코스</li>
+						</ul>
+					</div>
+					
+					<div class="courseInfo">
+						<div class="leftInfo">
+							<img src="/images/course/v9.jpg">
+						</div>
+						<div class="rightInfo">
+							<div class="topGallery">
+								<iframe width="560" height="315" src="https://www.youtube.com/embed/XzKPuS9aT-w?autoplay=1&playlist=XzKPuS9aT-w&loop=1" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+							</div>
+							<div class="bottomInfo">
+								<p>코스공략 / 경사도</p>								
+								<ul>
+									<li>
+									내리막으로 되어있는 멋있는 경관을 가지고 있는 홀이다.<br>
+									계속 내리막으로 조성되어 있고 IP지점 우측에 수려한 소나무 한 그루가 멋진 전경을 <br>
+									이루고 있다.<br>
+									페어웨이 벙커는 없지만 그린의 방향을 고려하여 선호나는 구질로 어프로치 샷을 구사할수 <br>
+									있는 포지셔닝 확보가 중요하다. <br>
+									세 번째 샷은 호수를 넘겨서 두 개의 좌측 벙커를 피해 좁은 그린공략을 완벽하게 해야<br> 
+									버디가 가능하다. <br>
+									그린을 넘겨서 길게 샷을 치면 그린 뒤편 호수로 굴러들어갈수도 있기 때문에 정확한 <br>
+									어프로치샷이 필요한 홀이다.<br>
+									</li>
+								</ul>
+								<br>
+								<table class="courseTable">
+									<colgroup>
+										<col width="*">
+										<col width="*">
+										<col width="*">
+										<col width="*">
+										<col width="*">
+										<col width="*">
+									</colgroup>
+									<tbody>
+										<tr>
+											<th>PAR</th>
+											<th class="black">BLACK</th>
+											<th class="blue">BLUE</th>
+											<th>WHITE</th>
+											<th class="gold">GOLD</th>
+											<th class="red">RED</th>
+										</tr>
+										<tr>
+											<td>5</td>
+											<td>527</td>
+											<td>510</td>
+											<td>489</td>
+											<td>414</td>
+											<td>325</td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+						</div>					
+					</div>
+				
+				</div>
+			</div>
+			
+		</div>
+	</div>	
+
+	<div id="footer">
+		<div class="footerTop">
+			<a href="/guide/golfterms.asp">골프장 이용약관</a>
+			<a href="/guide/terms.asp">사이트 이용약관</a>
+			<a href="/guide/policy.asp">개인정보처리방침</a>
+			<a href="/guide/safety.asp">안전ㆍ보건 경영방침</a>
+		</div>
+		<div class="footerBottom">
+			<p>경기도 용인시 처인구 이동읍 백자로 450 (서리 산 70-3) | 문의전화 <span class="bold">031-670-8800</span> | 팩스번호 <span class="bold">031-670-8870</span></p>
+			<p>대표이사 이용학 | 사업자등록번호 144-81-31966 | 통신판매신고 2020-용인처인-0978호</p>
+			<p>Copyright© yongin sehyeon country club CO., LTD. All rights reserved.</p>
+			<ul>
+				<li>
+					<!--UCERT Certificate Mark-->
+<img src="https://www.ucert.co.kr/images/trustlogo/ucert_black.gif" width="63" height="71" align="absmiddle" border="0" style="cursor:hand" onclick="javascript:window.open('https://www.ucert.co.kr/trustlogo/UCERT_TRUSTLOGO.html?sealnum=4ce5446abbd59f81','mark','scrollbars=no,resizable=no,width=530,height=468');">
+<!--UCERT Certificate Mark-->
+				</li>
+				<li>
+					<!--UCERT Certificate Mark-->
+<img src="https://www.ucert.co.kr/images/trustlogo/PositiveSSL_tl_trans.gif" width="63" height="63" align="absmiddle" border="0" style="cursor:hand" onclick="javascript:window.open('https://www.ucert.co.kr/trustlogo/sseal_comodo.html?sealnum=4ce5446abbd59f81','mark','scrollbars=no,resizable=no,width=405,height=400');">
+<!--UCERT Certificate Mark-->
+				</li>
+				<li>
+				<!--KISA Certificate Mark-->
+<img src="https://www.ucert.co.kr/images/trustlogo/s_kisa.gif" width="65" height="63" align="absmiddle" border="0" style="cursor:hand" onclick="javascript:window.open('https://www.ucert.co.kr/trustlogo/sseal_cert.html?sealnum=4ce5446abbd59f81&sealid=66c989d32d98d4c8c77fcafd805523ea988b236adc75eedfdd93b4e2fb94f5c92c6ecc1da56bdda180f45f66e807594178a98b468c1d0adea4953a66e8cc8854','mark','scrollbars=no,resizable=no,width=565,height=780');">
+<!--KISA Certificate Mark-->
+				</li>
+			</ul>
+		</div>
+	</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,3313 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=2.0,minimum-scale=1.0,target-densitydpi=medium-dpi" />
+    <meta name="format-detection" content="telephone=no,email=no,address=no">
+    <meta name="title" content="NEWSEOUL, NEWSEOUL">
+    <title>NEWSEOUL COUNTRY CLUB</title>
+    <link rel="shortcut icon" href="/resources/images/favicon.ico">
+
+    <!-- Basic set  -->
+    <link rel="stylesheet" type="text/css" href="/resources/css/import.css?v=2">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+
+    <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.css" />
+    <script src='//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js'></script>
+    <script src="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.js"></script> -->
+
+    <link rel="stylesheet" type="text/css" href="/resources/css/swiper.min.css">
+    <!-- <link rel="stylesheet" type="text/css" href="/resources/css/swiper-bundle.css"> -->
+    <script src="/resources/js/jquery.js"></script>
+    <script src="/resources/js/swiper.min.js"></script>
+    <script src="/resources/js/common.js?v=1.3"></script>
+    <!-- <script src="/resources/js/swiper-bundle.js"></script>  -->
+
+    
+    <!-- Accordion Menu -->
+    <script src="https://code.jquery.com/jquery-latest.min.js"></script>
+	<script type="text/javascript" src="/resources/js/jquery.preloaders.js"></script>
+	<script type="text/javascript" src="/resources/js/tools.js"></script>
+	<script type="text/javascript" src="/resources/js/globals.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+
+	<script>
+
+        var mouseEnter = "N";
+
+		$(document).ready(function() {
+			//checkMobile();
+            var id = "";
+            var pw = "";
+            var gubun = "";
+
+            if ("" == "" && id != "" && id != null && pw != "" && pw != null && gubun != "" && gubun != null) {
+                autoLogin(id,pw,gubun);
+                return;
+            }
+			sessionCheck();
+		});
+
+		function checkMobile() {
+			var mobileKeyWords = new Array('iPhone', 'iPod', 'iPad', 'BlackBerry', 'Android', 'Windows CE', 'MOT', 'SAMSUNG', 'SonyEricsson');
+
+			for (var word in mobileKeyWords) {
+				if ( navigator.userAgent.match(mobileKeyWords[word]) != null ) {
+					location.href = "/mobile/index.asp";
+					break;
+				}
+			}
+		}
+
+        function autoLogin(id,pw,gubun) {
+            var sUrl = "/controller/MemberController.asp";
+            var params = {};
+
+            params["method"] = "doLogin";
+            params["coDiv"] = globals.coDiv;
+            params["id"] = id;
+            params["pw"] = pw;
+            params["gubun"] = gubun;
+            params["check"] = "Y";
+
+            mAjax(sUrl, params, "POST", true, function(data) {
+                if(data.resultCode == "0000") {
+                    location.reload();
+                } else {
+                    alert(data.resultMessage);
+                }
+            });
+        }
+
+		function sessionCheck() {
+            var path = location.href.toLowerCase();
+			var sUrl = "/controller/SessionManager.asp";
+			var params = {"method" : "sessionConfirm", "path" : path};
+            
+			mAjax(sUrl, params, "POST", false, function(data) {
+                var path = location.href.toLowerCase();
+				if(data.resultCode == "2000") {
+					alert(data.resultMessage);
+					location.reload();
+				} else if (data.resultCode == "3000" && path.indexOf("/member/myinfo/mypage.asp") < 0) {
+					alert("회원님의 개인정보 보호를 위하여 비밀번호를 변경후 사용해 주시기 바랍니다...");
+					location.href = "/member/myinfo/mypage.asp";
+				}
+			});
+		}
+
+        function moveToNav() {
+            $("#btn-menu").trigger("click");
+            $(".site").focus();
+        }
+		
+		// 날씨 드롭다운을 열고 닫는 공통 함수
+		function toggleWeatherMenu(element) {
+			// 현재 클릭(선택)된 li.drop의 형제 li 태그들(내일, 모레 날씨)을 찾습니다.
+			var $targetLi = $(element).closest('li.drop').siblings('li');
+			
+			// 형제 li 태그들의 display 상태를 토글합니다.
+			// (jQuery .toggle()은 인라인의 display: none을 지워주므로, 원래 CSS에 있던 display: flex가 정상 적용됩니다)
+			$targetLi.toggle();
+			
+			// 열림/닫힘 상태를 확인하여 스크린 리더용 속성(aria-expanded)을 업데이트합니다.
+			var isOpen = $targetLi.is(':visible');
+			$(element).attr('aria-expanded', isOpen);
+		}
+        
+        // 메뉴(230129)
+        $(document).ready(function(){
+            $('.header-btm .depth01').focusin(function(){
+                $('.header-btm .depth02').stop().slideDown();
+                $('.header-btm').find('.gnb-bg').stop().slideDown();
+                $('#header').addClass('active');
+                mouseEnter = "Y";
+            });
+            $('.header-btm .depth01').focusout(function(){
+                $('.header-btm .depth02').stop().slideUp();
+                $('.header-btm').find('.gnb-bg').stop().slideUp();
+                if ($(window).scrollTop() < 50) {
+                    $("#header").removeClass("active");
+                }
+                mouseEnter = "N";
+            });
+            $('.header-btm .depth01').mouseenter(function(){
+                $('.header-btm .depth02').stop().slideDown();
+                $('.header-btm').find('.gnb-bg').stop().slideDown();
+                $('#header').addClass('active');
+                mouseEnter = "Y";
+            });
+            $('.header-btm .depth01').mouseleave(function(){
+                $('.header-btm .depth02').stop().slideUp();
+                $('.header-btm').find('.gnb-bg').stop().slideUp();
+                if ($(window).scrollTop() < 50) {
+                    $("#header").removeClass("active");
+                }
+                mouseEnter = "N";
+            });
+			
+			// 마우스 클릭 및 키보드 엔터(Enter) 대응
+			$('.weather-toggle').on('click', function(e) {
+				e.preventDefault();
+				toggleWeatherMenu(this);
+			});
+
+			// 키보드 스페이스바(Space) 대응
+			$('.weather-toggle').on('keydown', function(e) {
+				if (e.key === ' ' || e.keyCode === 32) {
+					e.preventDefault();
+					toggleWeatherMenu(this);
+				}
+			});
+        });   
+	</script>
+</head>
+<body>
+    <!-- 웹접근성 건너뛰기 -->
+    <div class="skip">
+        <a href="#contentSkip" tabindex="1">본문 바로가기</a>
+    </div> 
+	<div id="wrap">   
+        <!-- Header -->           
+	    <div id="header" class="header">   
+            <!-- 헤더 날씨/로그인/사이트맵 부분-->
+			
+            <div class="header-top">     
+                <!-- s : 251021 날씨 영역 추가 -->               
+				
+				<div class="weather-box">
+					<ul class="weather">
+						<li class="drop">
+							<a href="#" role="button" aria-haspopup="true" aria-expanded="false" class="weather-toggle">
+								<span class="icon">
+									<img src="/resources/images/main/weather/Rain.png" alt="">
+								</span>
+								<p><span class="temperature"> 27.0˚</span>오늘 7.21&nbsp; 화요일&nbsp; 비</p>
+							</a>
+							<span class="arrow" aria-hidden="true">▼</span> </li>
+						<li>
+							<a href="#none">
+								<span class="weatIcon"><img src="/resources/images/main/weather/Rain.png" alt=""></span>
+								<p><span class="temperature">25.0˚</span>내일 7.22&nbsp; 수요일&nbsp; 비</p>
+							</a>
+						</li>
+						<li>
+							<a href="#none">
+								<span class="weatIcon"><img src="/resources/images/main/weather/Cloudy.png" alt=""></span>
+								<p><span class="temperature">25.0˚</span>모레 7.23&nbsp; 목요일&nbsp; 흐림</p>
+							</a>
+						</li>
+					</ul>
+				</div>
+                <div class="sns-box">
+                    <a href="https://blog.naver.com/newseoul-cc" target="_blank" rel="noopener noreferrer" title="네이버블로그 새 창 열림"><img src="/resources/images/ic_blog.svg" alt="네이버블로그"></a>
+                    <a href="https://www.instagram.com/newseoulcc/" target="_blank" rel="noopener noreferrer" title="인스타그램 새 창 열림"><img src="/resources/images/ic_instar.svg" alt="인스타그램"></a>
+                    <a href="https://www.youtube.com/@NEWSeoul-CC" target="_blank" rel="noopener noreferrer" title="유튜브 새 창 열림"><img src="/resources/images/ic_youtube.svg" alt="유투브"></a>
+                </div>
+                <!-- // e : 251021 날씨 영역 추가 -->        
+                <div class="login-links">           
+					
+                    <a href="javascript:void(0);" data-tooltip="chart14" class="login" title="로그인">로그인</a>
+					
+                    <a href="#" class="site" title="사이트맵" id="btn-menu">사이트맵</a> 
+                        <nav id="top_nav_m">
+                            <div class="in">  
+                                <div class="inner">
+                                    <div class="tit">
+                                        <span>클럽소개</span>
+                                    </div>
+                                    <div class="depth2Set">
+                                        <ul class="depth2">			
+                                            <li>
+                                                <div class="t">
+                                                    <a href="/club/greeting.asp" title="인사말">
+                                                        <span>인사말</span>
+                                                    </a>
+                                                </div>
+                                            </li>	
+                                        </ul>
+                                        <ul class="depth2">			
+                                            <li>
+                                                <div class="t">
+                                                    <a href="/club/clubInfo.asp" title="클럽소개 및 연혁">
+                                                        <span>클럽소개 및 연혁</span>
+                                                    </a>
+                                                </div>
+                                            </li>	
+                                        </ul>
+                                        <ul class="depth2">			
+                                            <li>
+                                                <div class="t">
+                                                    <a href="/club/gallery.asp" title="문화 갤러리">
+                                                        <span>문화 갤러리</span>
+                                                    </a>
+                                                </div>
+                                            </li>	
+                                        </ul>
+                                        <ul class="depth2">			
+                                            <li>
+                                                <div class="t">
+                                                    <a href="/board/list20.asp" title="코스의사계">
+                                                        <span>코스의사계</span>
+                                                    </a>
+                                                </div>  
+                                            </li>	
+                                        </ul>
+                                        <ul class="depth2">			
+                                            <li>
+                                                <div class="t">
+                                                    <a href="/club/partInfo.asp" title="부서안내">
+                                                        <span>부서안내</span>
+                                                    </a>
+                                                </div>                                       
+                                            </li>	
+                                        </ul>
+                                    </div>
+                                    <div class="depth2Set">
+                                        <ul class="depth2">			
+                                            <li>
+                                                <div class="t">
+                                                    <a href="/club/map.asp" title="오시는길">
+                                                        <span>오시는길</span>
+                                                    </a>
+                                                </div>                                       
+                                            </li>	
+                                        </ul>
+                                        <ul class="depth2">			
+                                            <li></li>	
+                                        </ul>
+                                        <ul class="depth2">			
+                                            <li></li>	
+                                        </ul>
+                                        <ul class="depth2">			
+                                            <li></li>	
+                                        </ul>
+                                        <ul class="depth2">			
+                                            <li></li>	
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="inner">
+                                    <div class="tit">
+                                        <span>이용안내</span>
+                                    </div>
+                                    <div class="depth2Set">
+                                        <ul class="depth2">			
+                                            <li>
+                                                <div class="t">
+                                                    <a href="/guide/reserInfo.asp" title="예약안내">
+                                                        <span>예약안내</span>
+                                                    </a>
+                                                </div>
+                                            </li>	
+                                        </ul>
+                                        <ul class="depth2">			
+                                            <li>
+                                                <div class="t">
+                                                    <a href="/guide/membership.asp" title="클럽가입안내">
+                                                        <span>클럽가입안내</span>
+                                                    </a>
+                                                </div>
+                                                <ul class="depth3">
+                                                    <li>
+                                                        <a class="" href="/guide/membership.asp" title="클럽가입안내">
+                                                            <span>클럽가입안내</span>
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a class="" href="/board/list6.asp" title="양식자료실">
+                                                            <span>양식자료실</span>
+                                                        </a>
+                                                    </li>	
+                                                    <li>
+                                                        <a class="" href="/guide/term.asp" title="이용약관">
+                                                            <span>이용약관</span>
+                                                        </a>
+                                                    </li>	
+                                                    <li>
+                                                        <a class="" href="/guide/management.asp" title="클럽운영규정">
+                                                            <span>클럽운영규정</span>
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a class="" href="/guide/privacy.asp" title="개인정보보호정책">
+                                                            <span>개인정보보호정책</span>
+                                                        </a>
+                                                    </li>
+                                                </ul>
+                                            </li>	
+                                        </ul>
+                                        <ul class="depth2">			
+                                            <li>
+                                                <div class="t">
+                                                    <a href="/guide/course/courseInfo.asp" title="코스안내">
+                                                        <span>코스안내</span>
+                                                    </a>
+                                                </div>
+                                                <ul class="depth3">
+                                                    <li>
+                                                        <a class="" href="/guide/course/courseInfo.asp" title="코스조감도">
+                                                            <span>코스조감도</span>
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a class="" href="/guide/course/culture_out_01.asp" title="문화OUT코스">
+                                                            <span>문화OUT코스</span>
+                                                        </a>
+                                                    </li>	                                            
+                                                    <li>
+                                                        <a class="" href="/guide/course/culture_in_10.asp" title="문화IN코스">
+                                                            <span>문화IN코스</span>
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a class="" href="/guide/course/art_out_01.asp" title="예술OUT코스">
+                                                            <span>예술OUT코스</span>
+                                                        </a>
+                                                    </li>	                                                    
+                                                    <li>
+                                                        <a class="" href="/guide/course/art_in_10.asp" title="예술IN코스">
+                                                            <span>예술IN코스</span>
+                                                        </a>
+                                                    </li>	
+                                                </ul>
+                                            </li>	
+                                        </ul>
+                                        <ul class="depth2">			
+                                            <li>
+                                                <div class="t">
+                                                    <a href="/guide/facil/clubhouse.asp" title="부대시설안내">
+                                                        <span>부대시설안내</span>
+                                                    </a>
+                                                </div>
+                                                <ul class="depth3">
+                                                    <li>
+                                                        <a class="" href="/guide/facil/clubhouse.asp" title="클럽하우스">
+                                                            <span>클럽하우스</span>
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a class="" href="/guide/facil/restaurant.asp" title="대식당">
+                                                            <span>대식당</span>
+                                                        </a>
+                                                    </li>	
+                                                    <li>
+                                                        <a class="" href="/guide/facil/vip.asp" title="VIP룸">
+                                                            <span>VIP룸</span>
+                                                        </a>
+                                                    </li>	
+                                                    <li>
+                                                        <a class="" href="/guide/facil/start.asp" title="스타트하우스">
+                                                            <span>스타트하우스</span>
+                                                        </a>
+                                                    </li>	
+                                                    <li>
+                                                        <a class="" href="/guide/facil/snack.asp" title="무인그늘집">
+                                                            <span>무인그늘집</span>
+                                                        </a>
+                                                    </li>	
+                                                    <li>
+                                                        <a class="" href="/guide/facil/shop.asp" title="골프샵">
+                                                            <span>골프샵</span>
+                                                        </a>
+                                                    </li>	
+                                                    <li>
+                                                        <a class="" href="/guide/facil/parking.asp" title="주차장">
+                                                            <span>주차장</span>
+                                                        </a>
+                                                    </li>	
+                                                </ul>
+                                            </li>	
+                                        </ul>                                        
+                                        <ul class="depth2">				
+                                            <li>
+                                                <div class="t">
+                                                    <a href="/guide/fee.asp" title="이용요금안내">
+                                                        <span>이용요금안내</span>
+                                                    </a>
+                                                </div>
+                                            </li>	
+                                        </ul>         
+                                    </div>                                    
+                                    <div class="depth2Set">                                    
+                                        <ul class="depth2">		
+                                            <li>
+                                                <div class="t">
+                                                    <a href="/board/list26.asp" title="자주묻는질문">
+                                                        <span>자주묻는질문</span>
+                                                    </a>
+                                                </div>
+                                            </li>	
+                                        </ul>
+                                        <ul class="depth2">			
+                                            <li></li>	
+                                        </ul>
+                                        <ul class="depth2">			
+                                            <li></li>	
+                                        </ul>
+                                        <ul class="depth2">			
+                                            <li></li>	
+                                        </ul>
+                                        <ul class="depth2">			
+                                            <li></li>	
+                                        </ul>
+                                    </div>
+                                    <!-- <div class="depth2Set">
+                                        <ul class="depth2">			
+                                            <li>
+                                                <div class="t">
+                                                    <a href="/guide/fee.asp" title="이용요금안내">
+                                                        <span>이용요금안내</span>
+                                                    </a>
+                                                </div>
+                                            </li>	
+                                        </ul>
+                                        <ul class="depth2">			
+                                            <li></li>	
+                                        </ul>
+                                        <ul class="depth2">			
+                                            <li></li>	
+                                        </ul>
+                                        <ul class="depth2">			
+                                            <li class="borderNone"></li>	
+                                        </ul>
+                                    </div> -->         
+                                </div>
+                                <div class="inner">
+                                    <div class="tit">
+                                        <span>회원라운지</span>
+                                    </div>
+                                    <div class="depth2Set">
+                                        <ul class="depth2">			
+                                            <li>
+                                                <div class="t">
+                                                    <a href="/member/reser/reser.asp" title="예약 및 확인">
+                                                        <span>예약 및 확인</span>
+                                                    </a>
+                                                </div>
+                                                <ul class="depth3">
+                                                    <li>
+                                                        <a class="" href="/member/reser/reser.asp" title="실시간예약">
+                                                            <span>실시간예약</span>
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a class="" href="/member/reser/reserJoin.asp" title="회원의날 조인예약">
+                                                            <span>회원의날 조인예약</span>
+                                                        </a>
+                                                    </li>	
+                                                    <li>
+                                                        <a class="" href="/member/reser/reserCheck.asp" title="예약확인 및 취소">
+                                                            <span>예약확인 및 취소</span>
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a class="" href="/member/reser/wating.asp" title="대기자등록">
+                                                            <span>대기자등록</span>
+                                                        </a>
+                                                    </li>	
+                                                    <li>
+                                                        <a class="" href="/member/reser/watingList.asp" title="대기자조회">
+                                                            <span>대기자조회</span>
+                                                        </a>
+                                                    </li>	
+                                                </ul>
+                                            </li>	
+                                        </ul>
+                                        <ul class="depth2">			
+                                            <li>
+                                                <div class="t">
+                                                    <a href="/member/myInfo/reserInfo.asp" title="내 정보조회">
+                                                        <span>내 정보조회</span>
+                                                    </a>
+                                                </div>
+                                                <ul class="depth3">
+                                                    <li>
+														<a class="" href="javascript:$('#chart09').click();" title="회원정보">
+															<span data-tooltip="chart09" id="chart09">회원정보</span>
+														</a>
+                                                    </li>
+                                                    <li>
+                                                        <a class="" href="/member/myInfo/reserInfo.asp" title="예약정보">
+                                                            <span>예약정보</span>
+                                                        </a>
+                                                    </li>	                                            
+                                                    <li>
+                                                        <a class="" href="/member/myInfo/cancelInfo.asp" title="취소정보">
+                                                            <span>취소정보</span>
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a class="" href="/member/myInfo/penalInfo.asp" title="위약정보">
+                                                            <span>위약정보</span>
+                                                        </a>
+                                                    </li>	                                                
+                                                    <li>
+                                                        <a class="" href="/member/myInfo/scoreInfo.asp" title="스코어정보">
+                                                            <span>스코어정보</span>
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a class="" href="/member/myInfo/visitInfo.asp" title="내장정보">
+                                                            <span>내장정보</span>
+                                                        </a>
+                                                    </li>
+                                                    <!-- <li>
+                                                        <a class="" href="/member/board/mylist.asp" title="MY게시글">
+                                                            <span>MY게시글</span>
+                                                        </a>
+                                                    </li>	 -->
+                                                </ul>
+                                            </li>	
+                                        </ul>       
+                                        <ul class="depth2">			
+                                            <li>
+                                                <div class="t">
+                                                    <a href="/board/list24.asp" title="회원자유게시판">
+                                                        <span>회원자유게시판</span>
+                                                    </a>
+                                                </div>
+                                            </li>	
+                                        </ul>                            
+                                        <ul class="depth2">			
+                                            <li>
+                                                <div class="t">
+                                                    <a href="/member/board/JoinList.asp" title="조인방">
+                                                        <span>조인방</span>
+                                                    </a>
+                                                </div>
+                                            </li>	
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="inner">
+                                    <div class="tit">
+                                        <span>뉴서울소식</span>
+                                    </div>
+                                    <div class="depth2Set">
+                                        <ul class="depth2">			
+                                            <li>
+                                                <div class="t">
+                                                    <a href="/board/list1.asp" title="공지사항">
+                                                        <span>공지사항</span>
+                                                    </a>
+                                                </div>
+                                            </li>	
+                                        </ul>
+                                        <ul class="depth2">			
+                                            <li>
+                                                <div class="t">
+                                                    <a href="/board/list92.asp" title="보도자료">
+                                                        <span>보도자료</span>
+                                                    </a>
+                                                </div>
+                                            </li>	
+                                        </ul>										
+                                        <ul class="depth2">			
+                                            <li>
+                                                <div class="t">
+                                                    <a href="/board/list19.asp" title="카드뉴스">
+                                                        <span>카드뉴스</span>
+                                                    </a>
+                                                </div>
+                                                <ul class="depth3">
+                                                    <li>
+                                                        <a class="" href="/board/list19.asp" title="뉴스">
+                                                            <span>뉴스</span>
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a class="" href="/board/list21.asp" title="사회공헌활동">
+                                                            <span>사회공헌활동</span>
+                                                        </a>
+                                                    </li>	
+                                                </ul>
+                                            </li>	
+                                        </ul> 
+                                        <!--ul class="depth2">			
+                                            <li>
+                                                <div class="t">
+                                                    <a href="/board/list2.asp" title="홀인원소식">
+                                                        <span>홀인원소식</span>
+                                                    </a>
+                                                </div>
+                                            </li>	
+                                        </ul-->
+										
+                                        <ul class="depth2">			
+                                            <li>
+                                                <div class="t">
+                                                    <a href="/board/list35.asp" title="명예의전당">
+                                                        <span>명예의전당</span>
+                                                    </a>
+                                                </div>
+                                            </li>	
+                                        </ul>     
+                                        <ul class="depth2">			
+                                            <li>
+                                                <div class="t">
+                                                    <a href="/board/list93.asp" title="예술나무숲(후원인)">
+                                                        <span>예술나무숲(후원인)</span>
+                                                    </a>
+                                                </div>
+                                            </li>	
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="inner">
+                                    <div class="tit">
+                                        <span>고객참여</span>
+                                    </div>
+                                    <div class="depth2Set">
+                                        <ul class="depth2">			
+                                            <li>
+                                                <div class="t">
+                                                    <a href="/board/list5.asp" title="분실물 보관안내">
+                                                        <span>분실물 보관안내</span>
+                                                    </a>
+                                                </div>
+                                            </li>	
+                                        </ul>
+                                        <ul class="depth2">			
+                                            <li>
+                                                <div class="t">
+                                                    <a href="/board/list27.asp" title="고객의 말씀">
+                                                        <span>고객의 말씀</span>
+                                                    </a>
+                                                </div>
+                                            </li>	
+                                        </ul>    
+                                    </div>
+                                </div>
+                                <div class="inner">
+                                    <div class="tit">
+                                        <span>정보공개</span>
+                                    </div>
+                                    <div class="depth2Set">
+                                        <ul class="depth2">			
+                                            <li>
+                                                <div class="t">
+                                                    <a href="/info/info01_1.asp" title="정보공개제도안내">
+                                                        <span>정보공개제도안내</span>
+                                                    </a>
+                                                </div>
+                                            </li>	
+                                        </ul>
+                                        <ul class="depth2">				
+                                            <li>
+                                                <div class="t">
+                                                    <a href="/board/list9.asp" title="정보공개자료">
+                                                        <span>정보공개자료</span>
+                                                    </a>
+                                                </div>
+                                            </li>	
+                                        </ul>
+                                        <ul class="depth2">				
+                                            <li>
+                                                <div class="t">
+                                                    <a href="/board/list17.asp" title="입찰공고">
+                                                        <span>입찰공고</span>
+                                                    </a>
+                                                </div>
+                                            </li>	
+                                        </ul>                                        
+                                        <ul class="depth2">				
+                                            <li>
+                                                <div class="t">
+                                                    <a href="/info/info05.asp" title="경영공시(한국문화진흥)">
+                                                        <span>경영공시(한국문화진흥)</span>
+                                                    </a>
+                                                </div>
+                                            </li>	
+                                        </ul>
+                                    </div>
+                                    <div class="depth2Set">
+                                        <ul class="depth2">			
+                                            <li>
+                                                <div class="t">
+                                                    <a href="/info/info06_1.asp" title="경영공시(뉴서울CC)">
+                                                        <span>경영공시(뉴서울CC)</span>
+                                                    </a>
+                                                </div>
+                                                <ul class="depth3">
+                                                    <li>
+                                                        <a class="" href="/info/info06_1.asp" title="일반현황">
+                                                            <span>일반현황</span>
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a class="" href="/info/info06_2.asp" title="경영목표">
+                                                            <span>경영목표</span>
+                                                        </a>
+                                                    </li>	
+                                                    <li>
+                                                        <a class="" href="/info/info06_3.asp" title="사업성과및재무현황">
+                                                            <span>사업성과및재무현황</span>
+                                                        </a>
+                                                    </li>	
+                                                    <li>
+                                                        <a class="" href="/info/info06_4_01.asp" title="정관">
+                                                            <span>정관</span>
+                                                        </a>
+                                                    </li>	
+                                                    <li>
+                                                        <a class="" href="/board/list10.asp" title="고객만족도조사">
+                                                            <span>고객만족도조사</span>
+                                                        </a>
+                                                    </li>	
+                                                    <li>
+                                                        <a class="" href="/info/info06_6_01.asp" title="윤리경영">
+                                                            <span>윤리경영</span>
+                                                        </a>
+                                                    </li>	
+                                                    <li>
+                                                        <a class="" href="/board/list11.asp" title="기타공시">
+                                                            <span>기타공시</span>
+                                                        </a>
+                                                    </li>	
+                                                </ul>
+                                            </li>	
+                                        </ul>
+                                        <ul class="depth2">					
+                                            <li>
+                                                <div class="t">
+                                                    <a href="/board/list31.asp" title="뉴서울공공정보공개">
+                                                        <span>뉴서울공공정보공개</span>
+                                                    </a>
+                                                </div>
+                                                <ul class="depth3">
+                                                    <li>
+                                                        <a class="" href="/info/info07_3.asp" title="공공데이터개방">
+                                                            <span>공공데이터개방</span>
+                                                        </a>
+                                                    </li>	
+                                                    <li>
+                                                        <a class="" href="/board/list31.asp" title="뉴서울레시피">
+                                                            <span>뉴서울레시피</span>
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a class="" href="/board/list32.asp" title="뉴서울수목관리">
+                                                            <span>뉴서울수목관리</span>
+                                                        </a>
+                                                    </li>		
+                                                </ul>
+                                            </li>	
+                                        </ul>
+                                        <ul class="depth2">						
+                                            <li>
+                                                <div class="t">
+                                                    <a href="/board/list16.asp" title="채용정보">
+                                                        <span>채용정보</span>
+                                                    </a>
+                                                </div>
+                                                <ul class="depth3">
+                                                    <li>
+                                                        <a class="" href="/board/list16.asp" title="채용공고">
+                                                            <span>채용공고</span>
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a class="" href="/info/info08_2.asp" title="채용안내">
+                                                            <span>채용안내</span>
+                                                        </a>
+                                                    </li>	
+                                                    <li>
+                                                        <a class="" href="/info/info08_3.asp" title="채용분야">
+                                                            <span>채용분야</span>
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a class="" href="/info/info08_4.asp" title="채용절차">
+                                                            <span>채용절차</span>
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a class="" href="/info/info08_5.asp" title="인재Pool">
+                                                            <span>인재Pool</span>
+                                                        </a>
+                                                    </li>	
+                                                    <li>
+                                                        <a class="" href="/board/list161.asp" title="전형별 합격자 발표">
+                                                            <span>전형별 합격자 발표</span>
+                                                        </a>
+                                                    </li>		
+                                                </ul>
+                                            </li>	
+                                        </ul>                                        
+                                        <ul class="depth2">			
+                                            <li>
+                                                <div class="t">
+                                                    <a href="/info/info10_01.asp" title="안전·윤리·인권경영">
+                                                        <span>안전·윤리·인권경영</span>
+                                                    </a>
+                                                </div>
+                                            </li>	
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </nav>   
+                    <a href="javascript:void(0)" title="닫기" class="x-btn" id="xBtn" style="visibility: hidden;">닫기</a> 
+                </div>
+            </div>                    
+            <!-- 헤더 수정건 -->
+            <div class="header-btm">
+                <div class="gnb-bg"></div>
+                <ul class="depth01">                       
+                    <!-- 가운데로고 -->             
+                    <li class="depth01-list logoarea">
+                        <h1>
+                           <a href="/index.asp" title="메인으로가기">
+                                <span class="logo_wh">
+                                    <img src="/resources/images/main/logo_wh.svg" alt="New Seoul COUNTRY CLUB">
+                                </span>
+                                <span class="logo_color">
+                                    <img src="/resources/images/main/logo_color.svg" alt="New Seoul COUNTRY CLUB">
+                                </span>
+                            </a>
+                        </h1>
+                    </li>
+                    <!-- 클럽소개 -->
+                    <li class="depth01-list">
+                        <a href="/club/greeting.asp" title="클럽소개" class="on">클럽소개</a>
+                        </a>
+                            <ul class="depth02">
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/club/greeting.asp" title="대표이사 인사말">
+                                        <span>대표이사 인사말</span>
+                                    </a>
+                                </li>      
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/club/clubInfo.asp" title="클럽소개 및 연혁">
+                                        <span>클럽소개 및 연혁</span>
+                                    </a>
+                                </li>   
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/club/gallery.asp" title="문화 갤러리">
+                                        <span>문화 갤러리</span>
+                                    </a>
+                                </li>   
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/board/list20.asp" title="코스의사계">
+                                        <span>코스의사계</span>
+                                    </a>
+                                </li>   
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/club/partInfo.asp" title="부서안내">
+                                        <span>부서안내</span>
+                                    </a>
+                                </li>   
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/club/map.asp" title="오시는길">
+                                        <span>오시는길</span>
+                                    </a>
+                                </li>   
+                            </ul>
+                    </li>
+                    <!-- 이용안내 -->
+                    <li class="depth01-list">
+                        <a href="/guide/reserInfo.asp" title="이용안내" class="on">이용안내</a>
+                            <ul class="depth02">
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/guide/reserInfo.asp" title="예약안내">
+                                        <span>예약안내</span>
+                                    </a>
+                                </li>     
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/guide/membership.asp" title="클럽가입안내">
+                                        <span>클럽가입안내</span>
+                                    </a>
+                                </li> 
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/guide/fee.asp" title="이용요금안내">
+                                        <span>이용요금안내</span>
+                                    </a>
+                                </li> 
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/guide/course/courseInfo.asp" title="코스안내">
+                                        <span>코스안내</span>
+                                    </a>
+                                </li> 
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/guide/facil/clubhouse.asp" title="부대시설안내">
+                                        <span>부대시설안내</span>
+                                    </a>
+                                </li>                                  
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/board/list26.asp" title="자주묻는질문">
+                                        <span>자주묻는질문</span>
+                                    </a>
+                                </li> 
+                            </ul>
+                    </li>
+                    <!-- 회원라운지 -->
+                    <li class="depth01-list">
+                        <a href="/member/reser/reser.asp" title="회원라운지" class="on">회원라운지</a>
+                        </a>
+                            <ul class="depth02">
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/member/reser/reser.asp" title="예약 및 확인">
+                                        <span>예약 및 확인</span>
+                                    </a>
+                                </li>    
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/member/myInfo/reserInfo.asp" title="내정보조회">
+                                        <span>내정보조회</span>
+                                    </a>
+                                </li> 
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/board/list24.asp" title="회원자유게시판">
+                                        <span>회원자유게시판</span>
+                                    </a>
+                                </li> 
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/member/board/JoinList.asp" title="조인방">
+                                        <span>조인방</span>
+                                    </a>
+                                </li>   
+                            </ul>
+                    </li>
+                    <!-- 가운데 공백 -->
+                    <li class="depth01-list"></li>
+                    <!-- 뉴서울소식 -->
+                    <li class="depth01-list">
+                        <a href="/board/list1.asp" title="뉴서울소식" class="on">뉴서울소식</a>
+                        </a>
+                            <ul class="depth02">
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/board/list1.asp" title="공지사항">
+                                        <span>공지사항</span>
+                                    </a>
+                                </li> 
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/board/list92.asp" title="보도자료">
+                                        <span>보도자료</span>
+                                    </a>
+                                </li> 								
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/board/list19.asp" title="카드뉴스">
+                                        <span>카드뉴스</span>
+                                    </a>
+                                </li>  
+                                <!--li class="depth02-list">
+                                    <a class="depth02-link" href="/board/list2.asp" title="홀인원소식">
+                                        <span>홀인원소식</span>
+                                    </a>
+                                </li-->  
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/board/list35.asp" title="명예의전당">
+                                        <span>명예의전당</span>
+                                    </a>
+                                </li>  
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/board/list93.asp" title="예술나무숲(후원인)">
+                                        <span>예술나무숲(후원인)</span>
+                                    </a>
+                                </li>
+                            </ul>
+                    </li>
+                    <!-- 고객참여 -->
+                    <li class="depth01-list">
+                        <a href="/board/list5.asp" title="고객참여" class="on">고객참여</a>
+                        </a>
+                            <ul class="depth02">    
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/board/list5.asp" title="분실물보관안내">
+                                        <span>분실물보관안내</span>
+                                    </a>
+                                </li> 
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/board/list27.asp" title="고객의말씀">
+                                        <span>고객의말씀</span>
+                                    </a>
+                                </li>  
+                            </ul>
+                    </li>
+                    <!-- 정보공개 -->
+                    <li class="depth01-list">
+                        <a href="/info/info01_1.asp" title="정보공개" class="on">정보공개</a>
+                        </a>
+                            <ul class="depth02">
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/info/info01_1.asp" title="정보공개제도안내">
+                                        <span>정보공개제도안내</span>
+                                    </a>
+                                </li>   
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/board/list9.asp" title="정보공개자료">
+                                        <span>정보공개자료</span>
+                                    </a>
+                                </li> 
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/board/list17.asp" title="입찰공고">
+                                        <span>입찰공고</span>
+                                    </a>
+                                </li> 
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/info/info05.asp" title="경영공시(한국문화진흥)">
+                                        <span>경영공시(한국문화진흥)</span>
+                                    </a>
+                                </li> 
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/info/info06_1.asp" title="경영공시(뉴서울CC)">
+                                        <span>경영공시(뉴서울CC)</span>
+                                    </a>
+                                </li> 
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/board/list31.asp" title="뉴서울공공정보공개">
+                                        <span>뉴서울공공정보공개</span>
+                                    </a>
+                                </li> 
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/board/list16.asp" title="채용정보">
+                                        <span>채용정보</span>
+                                    </a>
+                                </li> 
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/info/info09.asp" title="안전·윤리·인권경영">
+                                        <span>안전·윤리·인권경영</span>
+                                    </a>
+                                </li>    
+                            </ul>
+                    </li>
+                </ul>
+            </div>
+        </div> 
+        <!-- //Header -->  
+<script type="text/javascript" src="//wcs.naver.net/wcslog.js"></script>
+<script type="text/javascript">
+if(!wcs_add) var wcs_add = {};
+wcs_add["wa"] = "15078994977c5d0";
+if(window.wcs) {
+  wcs_do();
+}
+</script>
+
+<!-- Only Main -->
+<link rel="stylesheet" type="text/css" href="/resources/css/main.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.7.6/lottie.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.12.2/lottie.min.js" integrity="sha512-jEnuDt6jfecCjthQAJ+ed0MTVA++5ZKmlUcmDGBv2vUI/REn6FuIdixLNnQT+vKusE2hhTk2is3cFvv5wA+Sgg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<!-- <script src="/resources/js/lottie.js"></script> -->
+
+<link rel="stylesheet" href="https://fastly.jsdelivr.net/bxslider/4.2.12/jquery.bxslider.css">
+<script src="https://fastly.jsdelivr.net/bxslider/4.2.12/jquery.bxslider.min.js"></script>
+<!-- //Only Main -->
+
+ 
+
+
+<script>
+    $(document).ready(function() {
+		getPopupList();
+		getPopupGridList();
+
+        //새로고침시 최상단으로이동
+        history.scrollRestoration = "manual";
+    });
+
+	function getPopupList() {
+		var sUrl = "/controller/BoardController.asp";
+		var params = {};
+
+		params["method"] = "getBoardList";
+
+		params["coDiv"]    = globals.coDiv;
+		params["type"]     = "95";
+		params["startCnt"] = 0;
+		params["pageCnt"]  = 10;
+
+		mAjax(sUrl, params, "POST", false, function(data) {
+			if(data.resultCode == "0000") {
+				var rows = data.rows;
+
+                for(i=0; i<rows.length; i++) {
+                    var popId = "newseoul_popup_" + rows[i].IDX;
+                    var loc = rows[i].CONTENT.split(",");
+                    var top  = loc[0];
+                    var left = loc[1];
+                    var width = loc[2];
+                    var link = rows[i].LINK;
+                    var link_target = rows[i].LINK_TARGET;
+                    var file = rows[i].FILE_PATH1 + "/" + rows[i].FILE_NAME1;
+					var alt = rows[i].FILE_CONTENT1;
+					
+					if (link_target == "_blank" && link.indexOf("http") == -1)
+					{
+						link = "http://" + link
+					}
+
+                    if(getCookie(popId) != "Y") {
+						var pop = "";
+						pop += " <div id='{0}' class='main_popup' tabindex='-1' style='position: absolute; z-index:999998; top:{1}px; left:{2}px; display: none;'>";
+						pop += "   <a href='{3}' target='{4}'><img src='{5}' style='width:{6}%;' alt='{7}' /></a>";
+						pop += "   <div class='popup_bottom'>";
+						pop += "     <a href='javascript:closePopup(\"{0}\", 1)'>오늘하루 그만보기</a>";
+						pop += "     <a class='pull-right' href='javascript:closePopup(\"{0}\", 0);'>닫기</a>";
+						pop += "   </div>";
+						pop += " </div>";
+						
+						pop = String.format(pop, popId, top, left, link, link_target, file, width, alt);
+
+						$("#popContainer").append(pop);
+
+						//$("#" + popId).show('fade');
+						$("#" + popId).show('fade', function() {
+							$(this).focus();
+						});
+                    }
+                }
+			} else {
+				alert(data.resultMessage);
+			}
+		});
+	}
+
+	function getPopupGridList() {
+		var sUrl = "/controller/BoardController.asp";
+		var params = {};
+
+		params["method"] = "getBoardList";
+
+		params["coDiv"]    = globals.coDiv;
+		params["type"]     = "100";
+		params["startCnt"] = 0;
+		params["pageCnt"]  = 10;
+
+		mAjax(sUrl, params, "POST", false, function(data) {
+			if(data.resultCode == "0000") {
+				var rows = data.rows;
+
+                var pop_grid = "";
+				pop_grid += "   <ul class='pop-flex'>	";
+
+                for(i=0; i<rows.length; i++) {
+                    var popId = "main-pop"
+                    var link = rows[i].LINK;
+                    var link_target = rows[i].LINK_TARGET;
+                    var file = rows[i].FILE_PATH1 + "/" + rows[i].FILE_NAME1;
+					var title = rows[i].TITLE;
+					var alt = rows[i].FILE_CONTENT1;
+					
+					if (link_target == "_blank" && link.indexOf("http") == -1)
+					{
+						link = "http://" + link
+					}
+
+                    if(getCookie(popId) != "Y") {
+						var pop = "";
+						pop += "   <li>				";
+						pop += "		<a href='{0}' target='{1}' title='{3}'><img src='{2}' alt='{4}'/></a>	";
+						pop += "   </li>									";
+
+						pop = String.format(pop, link, link_target, file, title, alt);
+						pop_grid += pop;
+
+						$("#" + popId).show('fade');
+                    }
+                }
+
+				pop_grid += "	</ul>															";
+				pop_grid += "	<div class='pop-bottom' tabindex='-1'>										";
+				pop_grid += "		<a href='javascript:closePopup(\"{0}\", 1)' title='하루동안 보지않기'>하루동안 보지않기</a>	";
+				pop_grid += "		<a href='javascript:closePopup(\"{0}\", 0)' title='닫기'>닫기</a>							";
+				pop_grid += "	</div>															";
+                pop_grid = String.format(pop_grid, popId);
+
+				if (rows.length != 0 && getCookie(popId) != "Y") {
+					$("#main-pop").append(pop_grid);
+					$("body").addClass("notScroll");	
+					$("#banner_grid_bgLayer").addClass("bg-grey");
+					
+					$("#main-pop").find(".pop-flex a").first().focus();
+					// $("#main-pop").find(".pop-bottom a").first().focus();
+				}
+			} else {
+				alert(data.resultMessage);
+			}
+		});
+	}
+
+	function closePopup(id, day) {
+		//$("#" + id).hide('fade');
+		
+		$("#" + id).hide('fade', function () {
+			$(this).remove();
+			
+			// 본문 바로가기 링크로 포커스 이동
+			var $skipLink = $(".skip a");
+			if ($skipLink.length > 0) {
+				$skipLink.focus();
+			}
+			
+			// 로그인 링크로 포커스 이동
+//			const loginLink = document.querySelector("a.login");
+//			if (loginLink) {
+//				loginLink.focus();
+//			}
+		});				
+
+		if (id == "main-pop") {
+			$("body").removeClass("notScroll");
+			$("#banner_grid_bgLayer").removeClass("bg-grey");	
+		}
+
+		if(day > 0) {
+			setCookie(id, "Y", day);
+		}
+	}
+</script>
+
+<div id="popContainer"></div>
+
+		<!-- main -->
+		<div class="main-content" id="contentSkip">	
+			<!-- main-pop -->
+			<div id="main-pop">
+			</div>
+			<div id="banner_grid_bgLayer" class=""></div>
+			<!-- //main-pop -->
+				
+			<!-- sec-01 -->
+			<div id="section-01">
+				<div class="main-replace">
+					<div class="swiper mainswiper03">
+						<div class="swiper-wrapper">
+							<div class="swiper-slide" id="animContainer" data-swiper-autoplay="30000"></div>
+							<!-- <div class="swiper-slide" id="animContainer02" data-swiper-autoplay="15000"></div> -->
+						</div>
+					</div>					
+					<!-- 접근성 심사시 필요  -->
+					<div class="silder-btn-03">                
+						<div class="swiper-pagination"></div> 
+						<div class="stop-play-box">
+							<button class="auto-stop" aria-label="애니메이션 멈춤">
+								<img src="/resources/images/main/icon_news_stop_grey.svg" alt="멈춤">
+							</button>
+							<button class="auto-start" aria-label="애니메이션 재생">
+								<img src="/resources/images/main/icon_news_play_grey.svg" alt="재생">
+							</button>
+						</div> 
+					</div>
+
+				</div>
+				<script>					
+					$("document").ready(function () {
+					var swiper = new Swiper(".mainswiper03",{
+						slidesPerView: 'auto',
+						spaceBetween: 0,
+						loop: false,
+						autoplay : false,
+								
+						// pagination 기본은 bullet
+						// pagination: {
+						// 	el: ".swiper-pagination",
+						// 	clickable: true
+						// }
+					});
+		
+					// 슬라이더 할당한 swiper로 슬라이더 제어
+					$(".silder-btn-03 .auto-start").on("click", function() {
+						// 기본 설정으로 autoplay 시작
+						console.log("autoplay start");
+						swiper.autoplay.start();
+					});
+		
+					$(".silder-btn-03 .auto-stop").on("click", function() {
+						console.log("autoplay stop");
+						swiper.autoplay.stop();
+					});
+				});
+
+					var animation = bodymovin.loadAnimation({
+						container : document.getElementById('animContainer'),
+						renderer : 'svg',
+						loop : true,
+						autoplay : true,
+						path: '/resources/images/main/newseoul_web_total.json'
+					});
+					var animation02 = bodymovin.loadAnimation({
+						container : document.getElementById('animContainer02'),
+						renderer : 'svg',
+						loop : true,
+						autoplay : true,
+						path: '/resources/images/main/new_web_en.json'
+					});
+
+					// [접근성 수정] 정지/재생 버튼과 Lottie 애니메이션 연결
+					$(".stop-play-box .auto-stop").on("click", function() {
+						animation.pause();
+					});
+
+					$(".stop-play-box .auto-start").on("click", function() {
+						animation.play();
+					});
+
+					// [접근성 수정] 마우스 오버 및 키보드 포커스시 애니메이션 정지
+					$("#animContainer").on("mouseenter focus", function() {
+						animation.pause();
+					});
+
+					$("#animContainer").on("mouseleave blur", function() {
+						animation.play();
+					});
+				</script>
+			</div>
+			<!-- sec-02 -->
+			<div id="section-02"> 
+				<div class="quick-menu">
+					<a href="/member/reser/reser.asp" title="실시간예약">
+						<p><img src="/resources/images/main/ic_main_reser.svg" alt=""></p>
+						<span class="on">실시간예약</span>
+					</a>
+					<a href="/member/reser/reserCheck.asp" title="예약확인">
+						<p><img src="/resources/images/main/ic_main_reser.svg" alt=""></p>
+						<span class="">예약확인</span>
+					</a>
+					<a href="/guide/reserInfo.asp" title="예약안내">
+						<p><img src="/resources/images/main/ic_main_reser02.svg" alt=""></p>
+						<span>예약안내</span>
+					</a>
+					<a href="/guide/course/courseInfo.asp" title="코스안내">
+						<p><img src="/resources/images/main/ic_main_course.svg" alt=""></p>
+						<span>코스안내</span>
+					</a>
+					<a href="/guide/fee.asp" title="이용요금">
+						<p><img src="/resources/images/main/ic_main_fee.svg" alt=""></p>
+						<span>이용요금</span>
+					</a>
+					<a href="/member/board/JoinList.asp" title="조인방">
+						<p><img src="/resources/images/main/ic_main_join.svg" alt=""></p>
+						<span>조인방</span>
+					</a>
+					<a href="/board/list1.asp" title="공지사항">
+						<p><img src="/resources/images/main/ic_main_news.svg" alt=""></p>
+						<span>공지사항</span>
+					</a>
+					<a href="/board/list26.asp" title="FAQ">
+						<p><img src="/resources/images/main/ic_main_faq.svg" alt=""></p>
+						<span>FAQ</span>
+					</a>
+					<a href="/board/list6.asp" title="양식자료실">
+						<p><img src="/resources/images/main/ic_main_archive.svg" alt=""></p>
+						<span>양식자료실</span>
+					</a>
+					<a href="/board/list17.asp" title="입찰정보">
+						<p><img src="/resources/images/main/ic_main_bid.svg" alt=""></p>
+						<span>입찰정보</span>
+					</a>
+					<a href="/board/list16.asp" title="채용정보">
+						<p><img src="/resources/images/main/ic_main_job.svg" alt=""></p>
+						<span>채용정보</span>
+					</a>
+					<a href="https://www.arko.or.kr/supp/content/4095" title="후원하기 새 창 열림" target="_blank">
+						<p><img src="/resources/images/main/ic_main_spon.svg" alt=""></p>
+						<span>후원하기</span>
+					</a>
+				</div>			
+			</div>
+			
+			<!-- sec-03 -->
+			<div id="section-03">
+				<h3>뉴서울CC 공지사항</h3>
+				<ul class="news-box">
+
+					<li>
+						<a href="/board/view1.asp?idx=6488" title="클럽공지">
+							<div>
+								<p>청탁금지법 10주년 공모전 안내</p>
+								<span>2026-07-16</span>
+							</div>
+						</a>
+					</li>
+
+					<li>
+						<a href="/board/view1.asp?idx=6487" title="클럽공지">
+							<div>
+								<p>2026년 8월 9홀 이용요금 안내</p>
+								<span>2026-06-30</span>
+							</div>
+						</a>
+					</li>
+
+					<li>
+						<a href="/board/view1.asp?idx=6486" title="클럽공지">
+							<div>
+								<p>	2026년 8월 비회원 입장료 안내</p>
+								<span>2026-06-30</span>
+							</div>
+						</a>
+					</li>
+
+					<li>
+						<a href="/board/view1.asp?idx=6485" title="클럽공지">
+							<div>
+								<p>2026년 8월 주말·공휴일 예약 일정(예약일 기준)</p>
+								<span>2026-06-30</span>
+							</div>
+						</a>
+					</li>
+
+				</ul>
+
+				<div class="news-area">
+					<div class="news-silder-01">
+						<div class="swiper mainSwiper01">
+							<div class="swiper-wrapper">
+							
+									<div class="swiper-slide">
+										<a href="https://www.newseoulgolf.co.kr/board/view1.asp?idx=6477" title="공지사항">
+											<img src="/uploads/20260528/20260528152726.png" alt="7월 비회원 입장료 안내문입니다. 배너를 클릭하면 상세 내용을 확인할 수 있습니다.">
+										</a>
+									</div>
+									
+									<div class="swiper-slide">
+										<a href="https://www.newseoulgolf.co.kr/board/view1.asp?idx=6486" title="공지사항">
+											<img src="/uploads/20260630/20260630083122.png" alt="2026년 8월 비회원 입장료 안내문입니다. 배너를 클릭하면 상세 내용을 확인할 수 있습니다.">
+										</a>
+									</div>
+									
+									<div class="swiper-slide">
+										<a href="/board/view1.asp?idx=6267" title="공지사항">
+											<img src="/uploads/20241104/20241104131037.jpg" alt="비정상적인 예약 방지를 위한 매크로방지 보안시스템 도입 안내문입니다. 매크로는 비정상적인 접속을 통한 예약 프로그램으로, 2024년 9월 9일 월요일부터 시행됩니다. 배너를 클릭하면 상세 내용을 확인할 수 있습니다.">
+										</a>
+									</div>
+									
+							</div>
+						</div>	
+						<!-- 공지사항01 화살표 -->				
+						<div class="silder-arrow-01"> 											
+							<button class="swiper-button-next"></button>	
+							<button class="swiper-button-prev"></button>
+						</div>
+						<!-- 공지사항01 좌우 멈춤 재생 버튼 -->			
+						<div class="silder-btn">                
+							<div class="swiper-pagination-01"></div> 	
+							<div class="stop-play-box-01">
+								<button class="auto-stop">
+									<img src="/resources/images/main/icon_news_stop.svg" alt="멈춤">
+								</button>
+								<button class="auto-start">
+									<img src="/resources/images/main/icon_news_play.svg" alt="재생">
+								</button>
+							</div>
+						</div>
+						<!-- 공지사항01 페이지 카운터 -->
+						<p class="counter" id="counter1"></p>
+					</div>
+					<div class="news-silder-02">
+						<div class="swiper mainSwiper02">
+							<div class="swiper-wrapper">
+							
+									<div class="swiper-slide">
+										<a href="https://www.newseoulgolf.co.kr/board/view19.asp?idx=5557" title="공지사항">
+											<img src="/uploads/20251127/20251127111122.png" alt="당신의 그린피, 이제 착한소비가 됩니다. 배너를 클릭하면 상세 내용을 확인할 수 있습니다.">
+										</a>
+									</div>
+									
+							</div>
+						</div>				
+						<!-- 공지사항02 화살표 -->		
+						<div class="silder-arrow-02"> 										
+							<button class="swiper-button-next"></button>	
+							<button class="swiper-button-prev"></button>
+						</div>
+						<!-- 공지사항02 좌우 멈춤 재생 버튼 -->	
+						<div class="silder-btn">                
+							<div class="swiper-pagination-02"></div> 	
+							<div class="stop-play-box-02">
+								<button class="auto-stop">
+									<img src="/resources/images/main/icon_news_stop.svg" alt="멈춤">
+								</button>
+								<button class="auto-start">
+									<img src="/resources/images/main/icon_news_play.svg" alt="재생">
+								</button>
+							</div>
+						</div>						
+						<!-- 공지사항02 페이지 카운터 -->
+						<p class="counter" id="counter2"></p>
+					</div>	
+					<div class="news-silder-03">
+						<div class="swiper mainSwiper03">
+							<div class="swiper-wrapper">
+							
+									<div class="swiper-slide">
+										<a href="/board/view1.asp?idx=5752" title="공지사항">
+											<img src="/uploads/20250324/20250324150847.jpg" alt="산불 피해 예방 코스 내 흡연금지 안내문입니다. 배너를 클릭하면 상세 내용을 확인할 수 있습니다.">
+										</a>
+									</div>
+									
+									<div class="swiper-slide">
+										<a href="https://www.newseoulgolf.co.kr/board/view1.asp?idx=6185" title="공지사항">
+											<img src="/uploads/20241104/20241104131414.jpg" alt="국민권익위원회의 공직자의 이해충돌 방지법 안내문입니다. 배너를 클릭하면 상세 내용을 확인할 수 있습니다.">
+										</a>
+									</div>
+									
+									<div class="swiper-slide">
+										<a href="/board/view1.asp?idx=5822" title="공지사항">
+											<img src="/uploads/20241104/20241104131341.png" alt="뉴서울컨트리클럽 임직원은 고객으로부터 금품이나 향응 등 사례를 절대 받지 않습니다. 고객님의 따뜻한 격려 한마디면 충분합니다. 신고방법은 누리집(홈페이지) 하단 민원접수, 부패 및 공익신고입니다. 배너를 클릭하면 상세 내용을 확인할 수 있습니다.">
+										</a>
+									</div>
+									
+							</div>
+						</div>				
+						<!-- 공지사항03 화살표 -->		
+						<div class="silder-arrow-03"> 										
+							<button class="swiper-button-next"></button>	
+							<button class="swiper-button-prev"></button>
+						</div>
+						<!-- 공지사항03 좌우 멈춤 재생 버튼 -->	
+						<div class="silder-btn">                
+							<div class="swiper-pagination-03"></div> 	
+							<div class="stop-play-box-03">
+								<button class="auto-stop">
+									<img src="/resources/images/main/icon_news_stop.svg" alt="멈춤">
+								</button>
+								<button class="auto-start">
+									<img src="/resources/images/main/icon_news_play.svg" alt="재생">
+								</button>
+							</div>
+						</div>						
+						<!-- 공지사항03 페이지 카운터 -->
+						<p class="counter" id="counter3"></p>
+					</div>	
+					<script>						
+						$("document").ready(function () {
+							var swiper2 = new Swiper(".mainSwiper01",{
+								slidesPerView: 'auto',
+								spaceBetween: 0,
+								autoplay : true,
+								effect: "fade",			
+								navigation: {
+									nextEl: ".silder-arrow-01 .swiper-button-next",
+									prevEl: ".silder-arrow-01 .swiper-button-prev"
+								},	
+								pagination: {
+                                    el: "#counter1",
+                                    type: "fraction"
+								}
+							});		
+
+							// 슬라이더 할당한 swiper로 슬라이더 제어
+							$(".stop-play-box-01 .auto-start").on("click", function() {
+						        console.log("autoplay start");
+								swiper2.autoplay.start();
+							});
+
+							$(".stop-play-box-01 .auto-stop").on("click", function() {
+						        console.log("autoplay stop");
+								swiper2.autoplay.stop();
+							});
+
+                            var swiper3 = new Swiper(".mainSwiper02",{
+                                slidesPerView: 'auto',
+                                spaceBetween: 0,
+                                //loop: true,
+								autoplay : true,
+                                effect: "fade",			
+                                navigation: {
+                                    nextEl: ".silder-arrow-02 .swiper-button-next",
+                                    prevEl: ".silder-arrow-02 .swiper-button-prev",
+                                },
+                                pagination: {
+                                    el: "#counter2",
+                                    type: "fraction",
+                                },			
+                            });						
+                            // 슬라이더 할당한 swiper로 슬라이더 제어
+                            $(".stop-play-box-02 .auto-start").on("click", function() {
+						        console.log("autoplay start");
+                                swiper3.autoplay.start();
+                            });
+                
+                            $(".stop-play-box-02 .auto-stop").on("click", function() {
+						        console.log("autoplay stop");
+                                swiper3.autoplay.stop();
+                            });
+
+                            var swiper4 = new Swiper(".mainSwiper03",{
+                                slidesPerView: 'auto',
+                                spaceBetween: 0,
+                                //loop: true,
+								autoplay : true,
+                                effect: "fade",			
+                                navigation: {
+                                    nextEl: ".silder-arrow-03 .swiper-button-next",
+                                    prevEl: ".silder-arrow-03 .swiper-button-prev",
+                                },
+                                pagination: {
+                                    el: "#counter3",
+                                    type: "fraction",
+                                },			
+                            });						
+                            // 슬라이더 할당한 swiper로 슬라이더 제어
+                            $(".stop-play-box-03 .auto-start").on("click", function() {
+						        console.log("autoplay start");
+                                swiper4.autoplay.start();
+                            });
+                
+                            $(".stop-play-box-03 .auto-stop").on("click", function() {
+						        console.log("autoplay stop");
+                                swiper4.autoplay.stop();
+                            });
+						});
+					</script>
+					
+<!-- 					<div class="news-info"> -->
+<!-- 						<ul> -->
+<!-- 							<li class="info-box"> -->
+<!-- 								<a href="/guide/membership.asp" title="가입안내"> -->
+<!-- 									<ul> -->
+<!-- 										<li class="tit">뉴서울CC 가입안내</li> -->
+<!-- 										<li class="con con01">뉴서울 컨트리클럽 정회원 및 가족회원 또는<br> -->
+<!-- 											명의변경 안내를 도와드립니다.</li> -->
+<!-- 									</ul> -->
+<!-- 								</a> -->
+<!-- 							</li> -->
+<!-- 							<li class="info-box"> -->
+<!-- 								<a href="/info/info01_1.asp" title="정보공개제도안내"> -->
+<!-- 									<ul> -->
+<!-- 										<li class="tit">정보공개제도안내</li> -->
+<!-- 										<li class="con con02">국민의 알 권리를 보장하고 국정운영의 투명성을<br> -->
+<!-- 											확보하기 위하여 정보공개제도를 시행하고 있습니다.</li> -->
+<!-- 									</ul> -->
+<!-- 								</a> -->
+<!-- 							</li> -->
+<!-- 						</ul>						 -->
+<!-- 					</div> -->
+				</div>
+			</div>
+
+			<!-- sec-04 -->
+			<div id="section-04">				
+				<h3>뉴서울CC 문화골프장</h3>
+				<p class="bigtit">자연과 예술의 환상적인 콜라보레이션
+					<span class="sub">뉴서울 컨트리클럽은 아름다운 자연속에서<br>최고의 시간과 최고의 환경을 제공합니다.</span>
+				</p>
+				<div class="mainSlide">
+					<ul class="bxslider" id="gallerySlider">
+
+						<li>
+							<ul class="bxCon">
+								<li class="one">
+									<a href="/club/galleryView.asp?idx=14&div=1" title="&#47932;&#51060; &#46108; &#46028;">
+										<img src="/uploads/20231116/20231116182042.png" alt="&#47932;&#51060; &#46108; &#46028;">
+										<p>										
+											<span class="tit">&#47932;&#51060; &#46108; &#46028;</span>
+											<span class="con">&#51109;&#51648;&#50640; &#54844;&#54633;&#51116;&#47308; / 122cm x 104cm / V2 &#51077;&#44396; (&#50864;&#52769; &#48317;)</span>
+										</p>									
+									</a>
+								</li>
+
+								<li class="two">
+									<a href="/club/galleryView.asp?idx=32&div=4" title="&#50620;&#44404;">
+										<img src="/uploads/20231116/20231116184952.png" alt="&#50620;&#44404;">
+										<p>										
+											<span class="tit">&#50620;&#44404;</span>
+											<span class="con">&#52397;&#46041; / 57*48*13 / &#50696;&#49696;&#53076;&#49828; &#51060;&#46041;&#47196; &#51452;&#48320;</span>
+										</p>
+									</a>
+								</li>
+
+								<li class="three">
+									<a href="/club/galleryView.asp?idx=8&div=1" title="&#50676;&#51221;&#51004;&#47196;">
+										<img src="/uploads/20231116/20231116181823.png" alt="&#50676;&#51221;&#51004;&#47196;">
+										<p>										
+											<span class="tit">&#50676;&#51221;&#51004;&#47196;</span>
+											<span class="con">mixed media on canvas / 250cm x 130cm / 3&#52789; &#51077;&#44396;</span>
+										</p>
+									</a>
+								</li>
+							</ul>
+                        </li>
+
+						<li>
+							<ul class="bxCon">
+								<li class="one">
+									<a href="/club/galleryView.asp?idx=13&div=1" title="&#48512;&#49688;&#51201;&#51064; &#51064;&#50672;">
+										<img src="/uploads/20231116/20231116182012.png" alt="&#48512;&#49688;&#51201;&#51064; &#51064;&#50672;">
+										<p>										
+											<span class="tit">&#48512;&#49688;&#51201;&#51064; &#51064;&#50672;</span>
+											<span class="con">&#51109;&#51648;&#50640; &#54844;&#54633;&#51116;&#47308; / 122cm x 145.5cm / V2 &#51077;&#44396; (&#50864;&#52769; &#48317;)</span>
+										</p>									
+									</a>
+								</li>
+
+								<li class="two">
+									<a href="/club/galleryView.asp?idx=46&div=2" title="&#54588;&#50504;&#51032;&#45576;">
+										<img src="/uploads/20231117/20231117112806.png" alt="&#54588;&#50504;&#51032;&#45576;">
+										<p>										
+											<span class="tit">&#54588;&#50504;&#51032;&#45576;</span>
+											<span class="con">&#50724;&#49437;, &#52397;&#46041; / 186*130*100 / &#53364;&#47101;&#54616;&#50864;&#49828;&#50526;</span>
+										</p>
+									</a>
+								</li>
+
+								<li class="three">
+									<a href="/club/galleryView.asp?idx=17&div=1" title="Unseen Landscape">
+										<img src="/uploads/20231116/20231116182214.png" alt="Unseen Landscape">
+										<p>										
+											<span class="tit">Unseen Landscape</span>
+											<span class="con">&#51109;&#51648;&#50640; &#49688;&#47925;&#52292;&#49353; / 130cm x 385cm / 2&#52789; &#47196;&#48708;&#44228;&#45800; &#50694;</span>
+										</p>
+									</a>
+								</li>
+							</ul>
+                        </li>
+
+						<li>
+							<ul class="bxCon">
+								<li class="one">
+									<a href="/club/galleryView.asp?idx=49&div=1" title="&#48148;&#46988;">
+										<img src="/uploads/20240601/20240601141250.png" alt="&#48148;&#46988;">
+										<p>										
+											<span class="tit">&#48148;&#46988;</span>
+											<span class="con">&#54252;&#51109;&#51648;&#50640; &#44032;&#47336; / 80cm x 100cm / &#46973;&#52852;&#49892; &#50668;&#51088;&#54868;&#51109;&#49892; &#50526;</span>
+										</p>									
+									</a>
+								</li>
+
+								<li class="two">
+									<a href="/club/galleryView.asp?idx=47&div=2" title="2&#44060;&#51032; &#54805;&#49345;">
+										<img src="/uploads/20231117/20231117113007.png" alt="2&#44060;&#51032; &#54805;&#49345;">
+										<p>										
+											<span class="tit">2&#44060;&#51032; &#54805;&#49345;</span>
+											<span class="con">&#54868;&#44053;&#49437; / 240*180*160 / &#53364;&#47101;&#54616;&#50864;&#49828;&#50526;</span>
+										</p>
+									</a>
+								</li>
+
+								<li class="three">
+									<a href="/club/galleryView.asp?idx=16&div=1" title="Movement">
+										<img src="/uploads/20231116/20231116182154.png" alt="Movement">
+										<p>										
+											<span class="tit">Movement</span>
+											<span class="con">&#51333;&#51060;&#50640; &#49688;&#52292; / 23cm x 30.5cm / V1 &#45236;&#48512; (&#51340;&#52769; &#48317;)</span>
+										</p>
+									</a>
+								</li>
+							</ul>
+                        </li>
+
+						<li>
+							<ul class="bxCon">
+								<li class="one">
+									<a href="/club/galleryView.asp?idx=11&div=1" title="&#49556;&#48169;&#50872;">
+										<img src="/uploads/20231116/20231116181929.png" alt="&#49556;&#48169;&#50872;">
+										<p>										
+											<span class="tit">&#49556;&#48169;&#50872;</span>
+											<span class="con">&#49692;&#51648;&#50640; &#47673; / 25.5cm x 25.5cm / V3 &#45236;&#48512; (&#51340;&#52769; &#51221;&#47732;)</span>
+										</p>									
+									</a>
+								</li>
+
+								<li class="two">
+									<a href="/club/galleryView.asp?idx=22&div=5" title="&#51221;&#54868;&#46108; &#49345;&#54889;">
+										<img src="/uploads/20231116/20231116183634.png" alt="&#51221;&#54868;&#46108; &#49345;&#54889;">
+										<p>										
+											<span class="tit">&#51221;&#54868;&#46108; &#49345;&#54889;</span>
+											<span class="con">&#52397;&#46041; / 98*180*230 / &#47928;&#54868;18&#54848; &#44536;&#47536;&#51452;&#48320;</span>
+										</p>
+									</a>
+								</li>
+
+								<li class="three">
+									<a href="/club/galleryView.asp?idx=52&div=1" title="&#49373;&#51316;-&#48264;&#49885;">
+										<img src="/uploads/20240608/20240608112124.gif" alt="&#49373;&#51316;-&#48264;&#49885;">
+										<p>										
+											<span class="tit">&#49373;&#51316;-&#48264;&#49885;</span>
+											<span class="con">&#51333;&#51060; &#50948;&#50640; &#51081;&#53356; / 130cm x 95cm / &#46973;&#52852; &#47196;&#48708;</span>
+										</p>
+									</a>
+								</li>
+							</ul>
+                        </li>
+
+						<li>
+							<ul class="bxCon">
+								<li class="one">
+									<a href="/club/galleryView.asp?idx=10&div=1" title="&#38737; &#54413;&#44221;">
+										<img src="/uploads/20231116/20231116181908.png" alt="&#38737; &#54413;&#44221;">
+										<p>										
+											<span class="tit">&#38737; &#54413;&#44221;</span>
+											<span class="con">&#51109;&#51648;&#50640; &#54844;&#54633;&#52292;&#49437; / 60.6cm x 72.7cm / S2 &#45236;&#48512; (&#51221;&#47732;)</span>
+										</p>									
+									</a>
+								</li>
+
+								<li class="two">
+									<a href="/club/galleryView.asp?idx=18&div=3" title="&#50668;&#47492;">
+										<img src="/uploads/20231116/20231116182733.png" alt="&#50668;&#47492;">
+										<p>										
+											<span class="tit">&#50668;&#47492;</span>
+											<span class="con">&#52397;&#46041; / 180*50*40 / &#51473;&#50521;&#51221;&#50896;</span>
+										</p>
+									</a>
+								</li>
+
+								<li class="three">
+									<a href="/club/galleryView.asp?idx=50&div=1" title="&#49328;&#47548;(&#23665;&#26519;)">
+										<img src="/uploads/20240608/20240608111736.gif" alt="&#49328;&#47548;(&#23665;&#26519;)">
+										<p>										
+											<span class="tit">&#49328;&#47548;(&#23665;&#26519;)</span>
+											<span class="con">&#51333;&#51060; &#50948;&#50640; &#49688;&#47925;&#45812;&#52292; / 40cm x 30cm / S1</span>
+										</p>
+									</a>
+								</li>
+							</ul>
+                        </li>
+
+						<li>
+							<ul class="bxCon">
+								<li class="one">
+									<a href="/club/galleryView.asp?idx=12&div=1" title="&#49556;&#48169;&#50872;">
+										<img src="/uploads/20231116/20231116181950.png" alt="&#49556;&#48169;&#50872;">
+										<p>										
+											<span class="tit">&#49556;&#48169;&#50872;</span>
+											<span class="con">&#49692;&#51648;&#50640; &#47673; / 25.5cm x 25.5cm / V3 &#45236;&#48512; (&#51340;&#52769; &#51221;&#47732;)</span>
+										</p>									
+									</a>
+								</li>
+
+								<li class="two">
+									<a href="/club/galleryView.asp?idx=39&div=4" title="&#47561;&#49828; &#54532;&#47532;&#49772;&#50752; &#45824;&#54868;">
+										<img src="/uploads/20231116/20231116185238.png" alt="&#47561;&#49828; &#54532;&#47532;&#49772;&#50752; &#45824;&#54868;">
+										<p>										
+											<span class="tit">&#47561;&#49828; &#54532;&#47532;&#49772;&#50752; &#45824;&#54868;</span>
+											<span class="con">&#54868;&#44053;&#49437;, &#46041;, &#52384; / 250*200*100 / &#50696;&#49696;10&#54848; &#50694; &#50672;&#49845;&#44536;&#47536;</span>
+										</p>
+									</a>
+								</li>
+
+								<li class="three">
+									<a href="/club/galleryView.asp?idx=9&div=1" title="A bud">
+										<img src="/uploads/20231116/20231116181846.png" alt="A bud">
+										<p>										
+											<span class="tit">A bud</span>
+											<span class="con">&#51333;&#51060;&#50640; &#49688;&#52292; / 32cm x 41cm / VIP&#47352; &#44228;&#45800;&#51077;&#44396; (&#51221;&#47732;)</span>
+										</p>
+									</a>
+								</li>
+							</ul>
+                        </li>
+
+						<li>
+							<ul class="bxCon">
+								<li class="one">
+									<a href="/club/galleryView.asp?idx=48&div=1" title="&#47924;&#51032;&#49885;&#51032; &#55120;&#47492;85">
+										<img src="/uploads/20240601/20240601141024.png" alt="&#47924;&#51032;&#49885;&#51032; &#55120;&#47492;85">
+										<p>										
+											<span class="tit">&#47924;&#51032;&#49885;&#51032; &#55120;&#47492;85</span>
+											<span class="con">&#50976;&#54868; / 112cm x 146cm / &#53364;&#47101;&#54616;&#50864;&#49828; 3&#52789; &#44228;&#45800;</span>
+										</p>									
+									</a>
+								</li>
+
+								<li class="two">
+									<a href="/club/galleryView.asp?idx=36&div=4" title="&#45824;&#51648;">
+										<img src="/uploads/20231116/20231116185125.png" alt="&#45824;&#51648;">
+										<p>										
+											<span class="tit">&#45824;&#51648;</span>
+											<span class="con">&#54868;&#44053;&#49437; / 240*220*52 / &#50696;&#49696;10&#54848; &#50694; &#50672;&#49845;&#44536;&#47536;</span>
+										</p>
+									</a>
+								</li>
+
+								<li class="three">
+									<a href="/club/galleryView.asp?idx=8&div=1" title="&#50676;&#51221;&#51004;&#47196;">
+										<img src="/uploads/20231116/20231116181823.png" alt="&#50676;&#51221;&#51004;&#47196;">
+										<p>										
+											<span class="tit">&#50676;&#51221;&#51004;&#47196;</span>
+											<span class="con">mixed media on canvas / 250cm x 130cm / 3&#52789; &#51077;&#44396;</span>
+										</p>
+									</a>
+								</li>
+							</ul>
+                        </li>
+
+						<li>
+							<ul class="bxCon">
+								<li class="one">
+									<a href="/club/galleryView.asp?idx=15&div=1" title="&#47581;&#53664;&#47484; &#46160;&#47480; &#46028;">
+										<img src="/uploads/20231116/20231116182132.png" alt="&#47581;&#53664;&#47484; &#46160;&#47480; &#46028;">
+										<p>										
+											<span class="tit">&#47581;&#53664;&#47484; &#46160;&#47480; &#46028;</span>
+											<span class="con">&#51109;&#51648;&#50640; &#52292;&#49353; / 45.5cm x 38cm / V3 &#45236;&#48512; (&#51340;&#52769; &#48317;)</span>
+										</p>									
+									</a>
+								</li>
+
+								<li class="two">
+									<a href="/club/galleryView.asp?idx=23&div=5" title="&#51648;&#44396;">
+										<img src="/uploads/20231116/20231116183711.png" alt="&#51648;&#44396;">
+										<p>										
+											<span class="tit">&#51648;&#44396;</span>
+											<span class="con">&#50508;&#47448;&#48120;&#45700;, &#52384; / 180*90*250 / &#47928;&#54868;9&#54848;, 10&#54848;</span>
+										</p>
+									</a>
+								</li>
+
+								<li class="three">
+									<a href="/club/galleryView.asp?idx=17&div=1" title="Unseen Landscape">
+										<img src="/uploads/20231116/20231116182214.png" alt="Unseen Landscape">
+										<p>										
+											<span class="tit">Unseen Landscape</span>
+											<span class="con">&#51109;&#51648;&#50640; &#49688;&#47925;&#52292;&#49353; / 130cm x 385cm / 2&#52789; &#47196;&#48708;&#44228;&#45800; &#50694;</span>
+										</p>
+									</a>
+								</li>
+							</ul>
+                        </li>
+
+						<li>
+							<ul class="bxCon">
+								<li class="one">
+									<a href="/club/galleryView.asp?idx=14&div=1" title="&#47932;&#51060; &#46108; &#46028;">
+										<img src="/uploads/20231116/20231116182042.png" alt="&#47932;&#51060; &#46108; &#46028;">
+										<p>										
+											<span class="tit">&#47932;&#51060; &#46108; &#46028;</span>
+											<span class="con">&#51109;&#51648;&#50640; &#54844;&#54633;&#51116;&#47308; / 122cm x 104cm / V2 &#51077;&#44396; (&#50864;&#52769; &#48317;)</span>
+										</p>									
+									</a>
+								</li>
+
+								<li class="two">
+									<a href="/club/galleryView.asp?idx=38&div=4" title="&#51648;&#54217;&#49440; 84-B">
+										<img src="/uploads/20231116/20231116185210.png" alt="&#51648;&#54217;&#49440; 84-B">
+										<p>										
+											<span class="tit">&#51648;&#54217;&#49440; 84-B</span>
+											<span class="con">&#54868;&#44053;&#49437; / 75*230*110 / &#50696;&#49696;10&#54848; &#50694; &#50672;&#49845;&#44536;&#47536;</span>
+										</p>
+									</a>
+								</li>
+
+								<li class="three">
+									<a href="/club/galleryView.asp?idx=16&div=1" title="Movement">
+										<img src="/uploads/20231116/20231116182154.png" alt="Movement">
+										<p>										
+											<span class="tit">Movement</span>
+											<span class="con">&#51333;&#51060;&#50640; &#49688;&#52292; / 23cm x 30.5cm / V1 &#45236;&#48512; (&#51340;&#52769; &#48317;)</span>
+										</p>
+									</a>
+								</li>
+							</ul>
+                        </li>
+
+						<li>
+							<ul class="bxCon">
+								<li class="one">
+									<a href="/club/galleryView.asp?idx=13&div=1" title="&#48512;&#49688;&#51201;&#51064; &#51064;&#50672;">
+										<img src="/uploads/20231116/20231116182012.png" alt="&#48512;&#49688;&#51201;&#51064; &#51064;&#50672;">
+										<p>										
+											<span class="tit">&#48512;&#49688;&#51201;&#51064; &#51064;&#50672;</span>
+											<span class="con">&#51109;&#51648;&#50640; &#54844;&#54633;&#51116;&#47308; / 122cm x 145.5cm / V2 &#51077;&#44396; (&#50864;&#52769; &#48317;)</span>
+										</p>									
+									</a>
+								</li>
+
+								<li class="two">
+									<a href="/club/galleryView.asp?idx=43&div=2" title="&#46041;&#44536;&#46972;&#48120; 82-7">
+										<img src="/uploads/20231117/20231117112640.png" alt="&#46041;&#44536;&#46972;&#48120; 82-7">
+										<p>										
+											<span class="tit">&#46041;&#44536;&#46972;&#48120; 82-7</span>
+											<span class="con">&#54633;&#49457;&#49688;&#51648; / 16*97*62 / &#53364;&#47101;&#54616;&#50864;&#49828;</span>
+										</p>
+									</a>
+								</li>
+
+								<li class="three">
+									<a href="/club/galleryView.asp?idx=52&div=1" title="&#49373;&#51316;-&#48264;&#49885;">
+										<img src="/uploads/20240608/20240608112124.gif" alt="&#49373;&#51316;-&#48264;&#49885;">
+										<p>										
+											<span class="tit">&#49373;&#51316;-&#48264;&#49885;</span>
+											<span class="con">&#51333;&#51060; &#50948;&#50640; &#51081;&#53356; / 130cm x 95cm / &#46973;&#52852; &#47196;&#48708;</span>
+										</p>
+									</a>
+								</li>
+							</ul>
+                        </li>
+
+						<li>
+							<ul class="bxCon">
+								<li class="one">
+									<a href="/club/galleryView.asp?idx=49&div=1" title="&#48148;&#46988;">
+										<img src="/uploads/20240601/20240601141250.png" alt="&#48148;&#46988;">
+										<p>										
+											<span class="tit">&#48148;&#46988;</span>
+											<span class="con">&#54252;&#51109;&#51648;&#50640; &#44032;&#47336; / 80cm x 100cm / &#46973;&#52852;&#49892; &#50668;&#51088;&#54868;&#51109;&#49892; &#50526;</span>
+										</p>									
+									</a>
+								</li>
+
+								<li class="two">
+									<a href="/club/galleryView.asp?idx=40&div=4" title="&#49688;&#51649;&#54788;&#49345; 3">
+										<img src="/uploads/20231116/20231116185258.png" alt="&#49688;&#51649;&#54788;&#49345; 3">
+										<p>										
+											<span class="tit">&#49688;&#51649;&#54788;&#49345; 3</span>
+											<span class="con">&#52384;, &#54168;&#51064;&#53944; / 290*120*120 / &#50696;&#49696;10&#54848; &#50694; &#50672;&#49845;&#44536;&#47536;</span>
+										</p>
+									</a>
+								</li>
+
+								<li class="three">
+									<a href="/club/galleryView.asp?idx=50&div=1" title="&#49328;&#47548;(&#23665;&#26519;)">
+										<img src="/uploads/20240608/20240608111736.gif" alt="&#49328;&#47548;(&#23665;&#26519;)">
+										<p>										
+											<span class="tit">&#49328;&#47548;(&#23665;&#26519;)</span>
+											<span class="con">&#51333;&#51060; &#50948;&#50640; &#49688;&#47925;&#45812;&#52292; / 40cm x 30cm / S1</span>
+										</p>
+									</a>
+								</li>
+							</ul>
+                        </li>
+
+						<li>
+							<ul class="bxCon">
+								<li class="one">
+									<a href="/club/galleryView.asp?idx=11&div=1" title="&#49556;&#48169;&#50872;">
+										<img src="/uploads/20231116/20231116181929.png" alt="&#49556;&#48169;&#50872;">
+										<p>										
+											<span class="tit">&#49556;&#48169;&#50872;</span>
+											<span class="con">&#49692;&#51648;&#50640; &#47673; / 25.5cm x 25.5cm / V3 &#45236;&#48512; (&#51340;&#52769; &#51221;&#47732;)</span>
+										</p>									
+									</a>
+								</li>
+
+								<li class="two">
+									<a href="/club/galleryView.asp?idx=28&div=4" title="&#51221;.&#48152;.&#54633;">
+										<img src="/uploads/20231116/20231116184815.png" alt="&#51221;.&#48152;.&#54633;">
+										<p>										
+											<span class="tit">&#51221;.&#48152;.&#54633;</span>
+											<span class="con">&#49828;&#53584;&#47112;&#49828;, &#54633;&#49457;&#49688;&#51648; / 300*270*60 / &#50696;&#49696;&#53076;&#49828; &#51060;&#46041;&#47196; &#51452;&#48320;</span>
+										</p>
+									</a>
+								</li>
+
+								<li class="three">
+									<a href="/club/galleryView.asp?idx=9&div=1" title="A bud">
+										<img src="/uploads/20231116/20231116181846.png" alt="A bud">
+										<p>										
+											<span class="tit">A bud</span>
+											<span class="con">&#51333;&#51060;&#50640; &#49688;&#52292; / 32cm x 41cm / VIP&#47352; &#44228;&#45800;&#51077;&#44396; (&#51221;&#47732;)</span>
+										</p>
+									</a>
+								</li>
+							</ul>
+                        </li>
+
+						<li>
+							<ul class="bxCon">
+								<li class="one">
+									<a href="/club/galleryView.asp?idx=10&div=1" title="&#38737; &#54413;&#44221;">
+										<img src="/uploads/20231116/20231116181908.png" alt="&#38737; &#54413;&#44221;">
+										<p>										
+											<span class="tit">&#38737; &#54413;&#44221;</span>
+											<span class="con">&#51109;&#51648;&#50640; &#54844;&#54633;&#52292;&#49437; / 60.6cm x 72.7cm / S2 &#45236;&#48512; (&#51221;&#47732;)</span>
+										</p>									
+									</a>
+								</li>
+
+								<li class="two">
+									<a href="/club/galleryView.asp?idx=27&div=4" title="&#44144;&#50872;">
+										<img src="/uploads/20231116/20231116184752.png" alt="&#44144;&#50872;">
+										<p>										
+											<span class="tit">&#44144;&#50872;</span>
+											<span class="con">&#49828;&#53584;&#47112;&#49828;, &#54633;&#49457;&#49688;&#51648; / 30*75*175 / &#50696;&#49696;1&#54848;</span>
+										</p>
+									</a>
+								</li>
+
+								<li class="three">
+									<a href="/club/galleryView.asp?idx=8&div=1" title="&#50676;&#51221;&#51004;&#47196;">
+										<img src="/uploads/20231116/20231116181823.png" alt="&#50676;&#51221;&#51004;&#47196;">
+										<p>										
+											<span class="tit">&#50676;&#51221;&#51004;&#47196;</span>
+											<span class="con">mixed media on canvas / 250cm x 130cm / 3&#52789; &#51077;&#44396;</span>
+										</p>
+									</a>
+								</li>
+							</ul>
+                        </li>
+
+						<li>
+							<ul class="bxCon">
+								<li class="one">
+									<a href="/club/galleryView.asp?idx=12&div=1" title="&#49556;&#48169;&#50872;">
+										<img src="/uploads/20231116/20231116181950.png" alt="&#49556;&#48169;&#50872;">
+										<p>										
+											<span class="tit">&#49556;&#48169;&#50872;</span>
+											<span class="con">&#49692;&#51648;&#50640; &#47673; / 25.5cm x 25.5cm / V3 &#45236;&#48512; (&#51340;&#52769; &#51221;&#47732;)</span>
+										</p>									
+									</a>
+								</li>
+
+								<li class="two">
+									<a href="/club/galleryView.asp?idx=33&div=4" title="&#47700;&#49884;&#51648;-&#48731;&#51032;&#50694;&#50640;">
+										<img src="/uploads/20231116/20231116185014.png" alt="&#47700;&#49884;&#51648;-&#48731;&#51032;&#50694;&#50640;">
+										<p>										
+											<span class="tit">&#47700;&#49884;&#51648;-&#48731;&#51032;&#50694;&#50640;</span>
+											<span class="con">&#54868;&#44053;&#49437; / 130*110*30 / &#50696;&#49696;&#53076;&#49828; &#51060;&#46041;&#47196; &#51452;&#48320;</span>
+										</p>
+									</a>
+								</li>
+
+								<li class="three">
+									<a href="/club/galleryView.asp?idx=17&div=1" title="Unseen Landscape">
+										<img src="/uploads/20231116/20231116182214.png" alt="Unseen Landscape">
+										<p>										
+											<span class="tit">Unseen Landscape</span>
+											<span class="con">&#51109;&#51648;&#50640; &#49688;&#47925;&#52292;&#49353; / 130cm x 385cm / 2&#52789; &#47196;&#48708;&#44228;&#45800; &#50694;</span>
+										</p>
+									</a>
+								</li>
+							</ul>
+                        </li>
+
+						<li>
+							<ul class="bxCon">
+								<li class="one">
+									<a href="/club/galleryView.asp?idx=48&div=1" title="&#47924;&#51032;&#49885;&#51032; &#55120;&#47492;85">
+										<img src="/uploads/20240601/20240601141024.png" alt="&#47924;&#51032;&#49885;&#51032; &#55120;&#47492;85">
+										<p>										
+											<span class="tit">&#47924;&#51032;&#49885;&#51032; &#55120;&#47492;85</span>
+											<span class="con">&#50976;&#54868; / 112cm x 146cm / &#53364;&#47101;&#54616;&#50864;&#49828; 3&#52789; &#44228;&#45800;</span>
+										</p>									
+									</a>
+								</li>
+
+								<li class="two">
+									<a href="/club/galleryView.asp?idx=51&div=1" title="&#46020;&#49556;&#50516; &#44032;&#45716; &#44600;">
+										<img src="/uploads/20240608/20240608111914.gif" alt="&#46020;&#49556;&#50516; &#44032;&#45716; &#44600;">
+										<p>										
+											<span class="tit">&#46020;&#49556;&#50516; &#44032;&#45716; &#44600;</span>
+											<span class="con">&#52884;&#48260;&#49828;&#50640; &#50976;&#52292; / 53cm x 45.5cm / S2</span>
+										</p>
+									</a>
+								</li>
+
+								<li class="three">
+									<a href="/club/galleryView.asp?idx=16&div=1" title="Movement">
+										<img src="/uploads/20231116/20231116182154.png" alt="Movement">
+										<p>										
+											<span class="tit">Movement</span>
+											<span class="con">&#51333;&#51060;&#50640; &#49688;&#52292; / 23cm x 30.5cm / V1 &#45236;&#48512; (&#51340;&#52769; &#48317;)</span>
+										</p>
+									</a>
+								</li>
+							</ul>
+                        </li>
+
+						<li>
+							<ul class="bxCon">
+								<li class="one">
+									<a href="/club/galleryView.asp?idx=15&div=1" title="&#47581;&#53664;&#47484; &#46160;&#47480; &#46028;">
+										<img src="/uploads/20231116/20231116182132.png" alt="&#47581;&#53664;&#47484; &#46160;&#47480; &#46028;">
+										<p>										
+											<span class="tit">&#47581;&#53664;&#47484; &#46160;&#47480; &#46028;</span>
+											<span class="con">&#51109;&#51648;&#50640; &#52292;&#49353; / 45.5cm x 38cm / V3 &#45236;&#48512; (&#51340;&#52769; &#48317;)</span>
+										</p>									
+									</a>
+								</li>
+
+								<li class="two">
+									<a href="/club/galleryView.asp?idx=25&div=5" title="&#46041;&#54665;">
+										<img src="/uploads/20231116/20231116184245.png" alt="&#46041;&#54665;">
+										<p>										
+											<span class="tit">&#46041;&#54665;</span>
+											<span class="con">&#49828;&#53580;&#51064;&#47112;&#49828;, &#54868;&#44053;&#49437; / 100*140*250 / </span>
+										</p>
+									</a>
+								</li>
+
+								<li class="three">
+									<a href="/club/galleryView.asp?idx=52&div=1" title="&#49373;&#51316;-&#48264;&#49885;">
+										<img src="/uploads/20240608/20240608112124.gif" alt="&#49373;&#51316;-&#48264;&#49885;">
+										<p>										
+											<span class="tit">&#49373;&#51316;-&#48264;&#49885;</span>
+											<span class="con">&#51333;&#51060; &#50948;&#50640; &#51081;&#53356; / 130cm x 95cm / &#46973;&#52852; &#47196;&#48708;</span>
+										</p>
+									</a>
+								</li>
+							</ul>
+                        </li>
+
+						<li>
+							<ul class="bxCon">
+								<li class="one">
+									<a href="/club/galleryView.asp?idx=14&div=1" title="&#47932;&#51060; &#46108; &#46028;">
+										<img src="/uploads/20231116/20231116182042.png" alt="&#47932;&#51060; &#46108; &#46028;">
+										<p>										
+											<span class="tit">&#47932;&#51060; &#46108; &#46028;</span>
+											<span class="con">&#51109;&#51648;&#50640; &#54844;&#54633;&#51116;&#47308; / 122cm x 104cm / V2 &#51077;&#44396; (&#50864;&#52769; &#48317;)</span>
+										</p>									
+									</a>
+								</li>
+
+								<li class="two">
+									<a href="/club/galleryView.asp?idx=37&div=4" title="&#46300;&#47084;&#45212; &#49452;">
+										<img src="/uploads/20231116/20231116185147.png" alt="&#46300;&#47084;&#45212; &#49452;">
+										<p>										
+											<span class="tit">&#46300;&#47084;&#45212; &#49452;</span>
+											<span class="con">&#52397;&#46041;, &#49437;&#51116; / 160*200*50 / &#50696;&#49696;10&#54848; &#50694; &#50672;&#49845;&#44536;&#47536;</span>
+										</p>
+									</a>
+								</li>
+
+								<li class="three">
+									<a href="/club/galleryView.asp?idx=50&div=1" title="&#49328;&#47548;(&#23665;&#26519;)">
+										<img src="/uploads/20240608/20240608111736.gif" alt="&#49328;&#47548;(&#23665;&#26519;)">
+										<p>										
+											<span class="tit">&#49328;&#47548;(&#23665;&#26519;)</span>
+											<span class="con">&#51333;&#51060; &#50948;&#50640; &#49688;&#47925;&#45812;&#52292; / 40cm x 30cm / S1</span>
+										</p>
+									</a>
+								</li>
+							</ul>
+                        </li>
+
+						<li>
+							<ul class="bxCon">
+								<li class="one">
+									<a href="/club/galleryView.asp?idx=13&div=1" title="&#48512;&#49688;&#51201;&#51064; &#51064;&#50672;">
+										<img src="/uploads/20231116/20231116182012.png" alt="&#48512;&#49688;&#51201;&#51064; &#51064;&#50672;">
+										<p>										
+											<span class="tit">&#48512;&#49688;&#51201;&#51064; &#51064;&#50672;</span>
+											<span class="con">&#51109;&#51648;&#50640; &#54844;&#54633;&#51116;&#47308; / 122cm x 145.5cm / V2 &#51077;&#44396; (&#50864;&#52769; &#48317;)</span>
+										</p>									
+									</a>
+								</li>
+
+								<li class="two">
+									<a href="/club/galleryView.asp?idx=30&div=4" title="&#47700;&#49884;&#51648;-&#49328;&#50640;&#49436;">
+										<img src="/uploads/20231116/20231116184904.png" alt="&#47700;&#49884;&#51648;-&#49328;&#50640;&#49436;">
+										<p>										
+											<span class="tit">&#47700;&#49884;&#51648;-&#49328;&#50640;&#49436;</span>
+											<span class="con">&#54868;&#44053;&#49437; / 100*80*40 / &#50696;&#49696;&#53076;&#49828; &#51060;&#46041;&#47196; &#51452;&#48320;</span>
+										</p>
+									</a>
+								</li>
+
+								<li class="three">
+									<a href="/club/galleryView.asp?idx=9&div=1" title="A bud">
+										<img src="/uploads/20231116/20231116181846.png" alt="A bud">
+										<p>										
+											<span class="tit">A bud</span>
+											<span class="con">&#51333;&#51060;&#50640; &#49688;&#52292; / 32cm x 41cm / VIP&#47352; &#44228;&#45800;&#51077;&#44396; (&#51221;&#47732;)</span>
+										</p>
+									</a>
+								</li>
+							</ul>
+                        </li>
+
+						<li>
+							<ul class="bxCon">
+								<li class="one">
+									<a href="/club/galleryView.asp?idx=49&div=1" title="&#48148;&#46988;">
+										<img src="/uploads/20240601/20240601141250.png" alt="&#48148;&#46988;">
+										<p>										
+											<span class="tit">&#48148;&#46988;</span>
+											<span class="con">&#54252;&#51109;&#51648;&#50640; &#44032;&#47336; / 80cm x 100cm / &#46973;&#52852;&#49892; &#50668;&#51088;&#54868;&#51109;&#49892; &#50526;</span>
+										</p>									
+									</a>
+								</li>
+
+								<li class="two">
+									<a href="/club/galleryView.asp?idx=29&div=4" title="&#44544; 80-6">
+										<img src="/uploads/20231116/20231116184841.png" alt="&#44544; 80-6">
+										<p>										
+											<span class="tit">&#44544; 80-6</span>
+											<span class="con">&#54868;&#44053;&#49437; / 400*240*120 / &#50696;&#49696;&#53076;&#49828; &#51060;&#46041;&#47196; &#51452;&#48320;</span>
+										</p>
+									</a>
+								</li>
+
+								<li class="three">
+									<a href="/club/galleryView.asp?idx=8&div=1" title="&#50676;&#51221;&#51004;&#47196;">
+										<img src="/uploads/20231116/20231116181823.png" alt="&#50676;&#51221;&#51004;&#47196;">
+										<p>										
+											<span class="tit">&#50676;&#51221;&#51004;&#47196;</span>
+											<span class="con">mixed media on canvas / 250cm x 130cm / 3&#52789; &#51077;&#44396;</span>
+										</p>
+									</a>
+								</li>
+							</ul>
+                        </li>
+
+						<li>
+							<ul class="bxCon">
+								<li class="one">
+									<a href="/club/galleryView.asp?idx=11&div=1" title="&#49556;&#48169;&#50872;">
+										<img src="/uploads/20231116/20231116181929.png" alt="&#49556;&#48169;&#50872;">
+										<p>										
+											<span class="tit">&#49556;&#48169;&#50872;</span>
+											<span class="con">&#49692;&#51648;&#50640; &#47673; / 25.5cm x 25.5cm / V3 &#45236;&#48512; (&#51340;&#52769; &#51221;&#47732;)</span>
+										</p>									
+									</a>
+								</li>
+
+								<li class="two">
+									<a href="/club/galleryView.asp?idx=26&div=4" title="&#54872;">
+										<img src="/uploads/20231116/20231116184717.png" alt="&#54872;">
+										<p>										
+											<span class="tit">&#54872;</span>
+											<span class="con">&#52384;&#54032;, &#54633;&#49457;&#49688;&#51648; / 190*100*90 / &#50696;&#49696;1&#54848;</span>
+										</p>
+									</a>
+								</li>
+
+								<li class="three">
+									<a href="/club/galleryView.asp?idx=17&div=1" title="Unseen Landscape">
+										<img src="/uploads/20231116/20231116182214.png" alt="Unseen Landscape">
+										<p>										
+											<span class="tit">Unseen Landscape</span>
+											<span class="con">&#51109;&#51648;&#50640; &#49688;&#47925;&#52292;&#49353; / 130cm x 385cm / 2&#52789; &#47196;&#48708;&#44228;&#45800; &#50694;</span>
+										</p>
+									</a>
+								</li>
+							</ul>
+                        </li>
+
+						<li>
+							<ul class="bxCon">
+								<li class="one">
+									<a href="/club/galleryView.asp?idx=10&div=1" title="&#38737; &#54413;&#44221;">
+										<img src="/uploads/20231116/20231116181908.png" alt="&#38737; &#54413;&#44221;">
+										<p>										
+											<span class="tit">&#38737; &#54413;&#44221;</span>
+											<span class="con">&#51109;&#51648;&#50640; &#54844;&#54633;&#52292;&#49437; / 60.6cm x 72.7cm / S2 &#45236;&#48512; (&#51221;&#47732;)</span>
+										</p>									
+									</a>
+								</li>
+
+								<li class="two">
+									<a href="/club/galleryView.asp?idx=21&div=5" title="&#54869;&#49328; &#44277;&#44036;">
+										<img src="/uploads/20231116/20231116183532.png" alt="&#54869;&#49328; &#44277;&#44036;">
+										<p>										
+											<span class="tit">&#54869;&#49328; &#44277;&#44036;</span>
+											<span class="con">&#52397;&#46041; / 158*63*52 / &#47928;&#54868;18&#54848; &#44536;&#47536;&#51452;&#48320;</span>
+										</p>
+									</a>
+								</li>
+
+								<li class="three">
+									<a href="/club/galleryView.asp?idx=16&div=1" title="Movement">
+										<img src="/uploads/20231116/20231116182154.png" alt="Movement">
+										<p>										
+											<span class="tit">Movement</span>
+											<span class="con">&#51333;&#51060;&#50640; &#49688;&#52292; / 23cm x 30.5cm / V1 &#45236;&#48512; (&#51340;&#52769; &#48317;)</span>
+										</p>
+									</a>
+								</li>
+							</ul>
+                        </li>
+
+						<li>
+							<ul class="bxCon">
+								<li class="one">
+									<a href="/club/galleryView.asp?idx=12&div=1" title="&#49556;&#48169;&#50872;">
+										<img src="/uploads/20231116/20231116181950.png" alt="&#49556;&#48169;&#50872;">
+										<p>										
+											<span class="tit">&#49556;&#48169;&#50872;</span>
+											<span class="con">&#49692;&#51648;&#50640; &#47673; / 25.5cm x 25.5cm / V3 &#45236;&#48512; (&#51340;&#52769; &#51221;&#47732;)</span>
+										</p>									
+									</a>
+								</li>
+
+								<li class="two">
+									<a href="/club/galleryView.asp?idx=35&div=4" title="&#45208;&#47476;&#49884;&#49548;&#49828;&#51032; &#51104;">
+										<img src="/uploads/20231116/20231116185101.png" alt="&#45208;&#47476;&#49884;&#49548;&#49828;&#51032; &#51104;">
+										<p>										
+											<span class="tit">&#45208;&#47476;&#49884;&#49548;&#49828;&#51032; &#51104;</span>
+											<span class="con">&#54844;&#54633;&#47588;&#52404; / 60*160*130 / &#50696;&#49696;10&#54848; &#50694; &#50672;&#49845;&#44536;&#47536;</span>
+										</p>
+									</a>
+								</li>
+
+								<li class="three">
+									<a href="/club/galleryView.asp?idx=52&div=1" title="&#49373;&#51316;-&#48264;&#49885;">
+										<img src="/uploads/20240608/20240608112124.gif" alt="&#49373;&#51316;-&#48264;&#49885;">
+										<p>										
+											<span class="tit">&#49373;&#51316;-&#48264;&#49885;</span>
+											<span class="con">&#51333;&#51060; &#50948;&#50640; &#51081;&#53356; / 130cm x 95cm / &#46973;&#52852; &#47196;&#48708;</span>
+										</p>
+									</a>
+								</li>
+							</ul>
+                        </li>
+
+						<li>
+							<ul class="bxCon">
+								<li class="one">
+									<a href="/club/galleryView.asp?idx=48&div=1" title="&#47924;&#51032;&#49885;&#51032; &#55120;&#47492;85">
+										<img src="/uploads/20240601/20240601141024.png" alt="&#47924;&#51032;&#49885;&#51032; &#55120;&#47492;85">
+										<p>										
+											<span class="tit">&#47924;&#51032;&#49885;&#51032; &#55120;&#47492;85</span>
+											<span class="con">&#50976;&#54868; / 112cm x 146cm / &#53364;&#47101;&#54616;&#50864;&#49828; 3&#52789; &#44228;&#45800;</span>
+										</p>									
+									</a>
+								</li>
+
+								<li class="two">
+									<a href="/club/galleryView.asp?idx=20&div=5" title="&#54889;&#54844;&#46308;&#45400;&#50640; &#49436;&#49436;">
+										<img src="/uploads/20231116/20231116183505.png" alt="&#54889;&#54844;&#46308;&#45400;&#50640; &#49436;&#49436;">
+										<p>										
+											<span class="tit">&#54889;&#54844;&#46308;&#45400;&#50640; &#49436;&#49436;</span>
+											<span class="con">&#45824;&#47532;&#49437; / 89*65*180 / &#47928;&#54868;18&#54848; &#44536;&#47536;&#51452;&#48320;</span>
+										</p>
+									</a>
+								</li>
+
+								<li class="three">
+									<a href="/club/galleryView.asp?idx=50&div=1" title="&#49328;&#47548;(&#23665;&#26519;)">
+										<img src="/uploads/20240608/20240608111736.gif" alt="&#49328;&#47548;(&#23665;&#26519;)">
+										<p>										
+											<span class="tit">&#49328;&#47548;(&#23665;&#26519;)</span>
+											<span class="con">&#51333;&#51060; &#50948;&#50640; &#49688;&#47925;&#45812;&#52292; / 40cm x 30cm / S1</span>
+										</p>
+									</a>
+								</li>
+							</ul>
+                        </li>
+
+						<li>
+							<ul class="bxCon">
+								<li class="one">
+									<a href="/club/galleryView.asp?idx=15&div=1" title="&#47581;&#53664;&#47484; &#46160;&#47480; &#46028;">
+										<img src="/uploads/20231116/20231116182132.png" alt="&#47581;&#53664;&#47484; &#46160;&#47480; &#46028;">
+										<p>										
+											<span class="tit">&#47581;&#53664;&#47484; &#46160;&#47480; &#46028;</span>
+											<span class="con">&#51109;&#51648;&#50640; &#52292;&#49353; / 45.5cm x 38cm / V3 &#45236;&#48512; (&#51340;&#52769; &#48317;)</span>
+										</p>									
+									</a>
+								</li>
+
+								<li class="two">
+									<a href="/club/galleryView.asp?idx=24&div=5" title="&#51665;&#50984;">
+										<img src="/uploads/20231116/20231116183755.png" alt="&#51665;&#50984;">
+										<p>										
+											<span class="tit">&#51665;&#50984;</span>
+											<span class="con">&#52384;, &#49884;&#47704;&#53944; / 200*210*100 / &#47928;&#54868;9&#54848;, 10&#54848;</span>
+										</p>
+									</a>
+								</li>
+
+								<li class="three">
+									<a href="/club/galleryView.asp?idx=9&div=1" title="A bud">
+										<img src="/uploads/20231116/20231116181846.png" alt="A bud">
+										<p>										
+											<span class="tit">A bud</span>
+											<span class="con">&#51333;&#51060;&#50640; &#49688;&#52292; / 32cm x 41cm / VIP&#47352; &#44228;&#45800;&#51077;&#44396; (&#51221;&#47732;)</span>
+										</p>
+									</a>
+								</li>
+							</ul>
+                        </li>
+
+						<li>
+							<ul class="bxCon">
+								<li class="one">
+									<a href="/club/galleryView.asp?idx=14&div=1" title="&#47932;&#51060; &#46108; &#46028;">
+										<img src="/uploads/20231116/20231116182042.png" alt="&#47932;&#51060; &#46108; &#46028;">
+										<p>										
+											<span class="tit">&#47932;&#51060; &#46108; &#46028;</span>
+											<span class="con">&#51109;&#51648;&#50640; &#54844;&#54633;&#51116;&#47308; / 122cm x 104cm / V2 &#51077;&#44396; (&#50864;&#52769; &#48317;)</span>
+										</p>									
+									</a>
+								</li>
+
+								<li class="two">
+									<a href="/club/galleryView.asp?idx=41&div=4" title="&#53664;&#53596;-3">
+										<img src="/uploads/20231116/20231116185318.png" alt="&#53664;&#53596;-3">
+										<p>										
+											<span class="tit">&#53664;&#53596;-3</span>
+											<span class="con">&#54788;&#47924;&#50516; / 240*98*90 / &#50696;&#49696;10&#54848; &#50694; &#50672;&#49845;&#44536;&#47536;</span>
+										</p>
+									</a>
+								</li>
+
+								<li class="three">
+									<a href="/club/galleryView.asp?idx=8&div=1" title="&#50676;&#51221;&#51004;&#47196;">
+										<img src="/uploads/20231116/20231116181823.png" alt="&#50676;&#51221;&#51004;&#47196;">
+										<p>										
+											<span class="tit">&#50676;&#51221;&#51004;&#47196;</span>
+											<span class="con">mixed media on canvas / 250cm x 130cm / 3&#52789; &#51077;&#44396;</span>
+										</p>
+									</a>
+								</li>
+							</ul>
+                        </li>
+
+						<li>
+							<ul class="bxCon">
+								<li class="one">
+									<a href="/club/galleryView.asp?idx=13&div=1" title="&#48512;&#49688;&#51201;&#51064; &#51064;&#50672;">
+										<img src="/uploads/20231116/20231116182012.png" alt="&#48512;&#49688;&#51201;&#51064; &#51064;&#50672;">
+										<p>										
+											<span class="tit">&#48512;&#49688;&#51201;&#51064; &#51064;&#50672;</span>
+											<span class="con">&#51109;&#51648;&#50640; &#54844;&#54633;&#51116;&#47308; / 122cm x 145.5cm / V2 &#51077;&#44396; (&#50864;&#52769; &#48317;)</span>
+										</p>									
+									</a>
+								</li>
+
+								<li class="two">
+									<a href="/club/galleryView.asp?idx=19&div=3" title="&#44396;&#50896;">
+										<img src="/uploads/20231116/20231116183140.png" alt="&#44396;&#50896;">
+										<p>										
+											<span class="tit">&#44396;&#50896;</span>
+											<span class="con">&#54868;&#44053;&#50516; / 110*90*50 / </span>
+										</p>
+									</a>
+								</li>
+
+								<li class="three">
+									<a href="/club/galleryView.asp?idx=17&div=1" title="Unseen Landscape">
+										<img src="/uploads/20231116/20231116182214.png" alt="Unseen Landscape">
+										<p>										
+											<span class="tit">Unseen Landscape</span>
+											<span class="con">&#51109;&#51648;&#50640; &#49688;&#47925;&#52292;&#49353; / 130cm x 385cm / 2&#52789; &#47196;&#48708;&#44228;&#45800; &#50694;</span>
+										</p>
+									</a>
+								</li>
+							</ul>
+                        </li>
+
+						<li>
+							<ul class="bxCon">
+								<li class="one">
+									<a href="/club/galleryView.asp?idx=49&div=1" title="&#48148;&#46988;">
+										<img src="/uploads/20240601/20240601141250.png" alt="&#48148;&#46988;">
+										<p>										
+											<span class="tit">&#48148;&#46988;</span>
+											<span class="con">&#54252;&#51109;&#51648;&#50640; &#44032;&#47336; / 80cm x 100cm / &#46973;&#52852;&#49892; &#50668;&#51088;&#54868;&#51109;&#49892; &#50526;</span>
+										</p>									
+									</a>
+								</li>
+
+								<li class="two">
+									<a href="/club/galleryView.asp?idx=31&div=4" title="&#51221;(&#24773;)">
+										<img src="/uploads/20231116/20231116184929.png" alt="&#51221;(&#24773;)">
+										<p>										
+											<span class="tit">&#51221;(&#24773;)</span>
+											<span class="con">&#52397;&#46041; / 150*35*30 / &#50696;&#49696;&#53076;&#49828; &#51060;&#46041;&#47196; &#51452;&#48320;</span>
+										</p>
+									</a>
+								</li>
+
+								<li class="three">
+									<a href="/club/galleryView.asp?idx=16&div=1" title="Movement">
+										<img src="/uploads/20231116/20231116182154.png" alt="Movement">
+										<p>										
+											<span class="tit">Movement</span>
+											<span class="con">&#51333;&#51060;&#50640; &#49688;&#52292; / 23cm x 30.5cm / V1 &#45236;&#48512; (&#51340;&#52769; &#48317;)</span>
+										</p>
+									</a>
+								</li>
+							</ul>
+                        </li>
+
+						<li>
+							<ul class="bxCon">
+								<li class="one">
+									<a href="/club/galleryView.asp?idx=11&div=1" title="&#49556;&#48169;&#50872;">
+										<img src="/uploads/20231116/20231116181929.png" alt="&#49556;&#48169;&#50872;">
+										<p>										
+											<span class="tit">&#49556;&#48169;&#50872;</span>
+											<span class="con">&#49692;&#51648;&#50640; &#47673; / 25.5cm x 25.5cm / V3 &#45236;&#48512; (&#51340;&#52769; &#51221;&#47732;)</span>
+										</p>									
+									</a>
+								</li>
+
+								<li class="two">
+									<a href="/club/galleryView.asp?idx=34&div=4" title="&#48727;&#51032; &#45800;&#44228;&#51201; &#54364;&#49345;">
+										<img src="/uploads/20231116/20231116185033.png" alt="&#48727;&#51032; &#45800;&#44228;&#51201; &#54364;&#49345;">
+										<p>										
+											<span class="tit">&#48727;&#51032; &#45800;&#44228;&#51201; &#54364;&#49345;</span>
+											<span class="con">&#54868;&#44053;&#49437; / 280*100*58 / &#50696;&#49696;&#53076;&#49828; &#51060;&#46041;&#47196; &#51452;&#48320;</span>
+										</p>
+									</a>
+								</li>
+
+								<li class="three">
+									<a href="/club/galleryView.asp?idx=52&div=1" title="&#49373;&#51316;-&#48264;&#49885;">
+										<img src="/uploads/20240608/20240608112124.gif" alt="&#49373;&#51316;-&#48264;&#49885;">
+										<p>										
+											<span class="tit">&#49373;&#51316;-&#48264;&#49885;</span>
+											<span class="con">&#51333;&#51060; &#50948;&#50640; &#51081;&#53356; / 130cm x 95cm / &#46973;&#52852; &#47196;&#48708;</span>
+										</p>
+									</a>
+								</li>
+							</ul>
+                        </li>
+
+						<li>
+							<ul class="bxCon">
+								<li class="one">
+									<a href="/club/galleryView.asp?idx=10&div=1" title="&#38737; &#54413;&#44221;">
+										<img src="/uploads/20231116/20231116181908.png" alt="&#38737; &#54413;&#44221;">
+										<p>										
+											<span class="tit">&#38737; &#54413;&#44221;</span>
+											<span class="con">&#51109;&#51648;&#50640; &#54844;&#54633;&#52292;&#49437; / 60.6cm x 72.7cm / S2 &#45236;&#48512; (&#51221;&#47732;)</span>
+										</p>									
+									</a>
+								</li>
+
+								<li class="two">
+									<a href="/club/galleryView.asp?idx=44&div=2" title="&#52636;&#53664; 83-17">
+										<img src="/uploads/20231117/20231117112707.png" alt="&#52636;&#53664; 83-17">
+										<p>										
+											<span class="tit">&#52636;&#53664; 83-17</span>
+											<span class="con">&#52397;&#46041; / 150*110*38 / &#53364;&#47101;&#54616;&#50864;&#49828;</span>
+										</p>
+									</a>
+								</li>
+
+								<li class="three">
+									<a href="/club/galleryView.asp?idx=50&div=1" title="&#49328;&#47548;(&#23665;&#26519;)">
+										<img src="/uploads/20240608/20240608111736.gif" alt="&#49328;&#47548;(&#23665;&#26519;)">
+										<p>										
+											<span class="tit">&#49328;&#47548;(&#23665;&#26519;)</span>
+											<span class="con">&#51333;&#51060; &#50948;&#50640; &#49688;&#47925;&#45812;&#52292; / 40cm x 30cm / S1</span>
+										</p>
+									</a>
+								</li>
+							</ul>
+                        </li>
+
+						<li>
+							<ul class="bxCon">
+								<li class="one">
+									<a href="/club/galleryView.asp?idx=12&div=1" title="&#49556;&#48169;&#50872;">
+										<img src="/uploads/20231116/20231116181950.png" alt="&#49556;&#48169;&#50872;">
+										<p>										
+											<span class="tit">&#49556;&#48169;&#50872;</span>
+											<span class="con">&#49692;&#51648;&#50640; &#47673; / 25.5cm x 25.5cm / V3 &#45236;&#48512; (&#51340;&#52769; &#51221;&#47732;)</span>
+										</p>									
+									</a>
+								</li>
+
+								<li class="two">
+									<a href="/club/galleryView.asp?idx=45&div=2" title="&#48708; (&#39131;)">
+										<img src="/uploads/20231117/20231117112731.png" alt="&#48708; (&#39131;)">
+										<p>										
+											<span class="tit">&#48708; (&#39131;)</span>
+											<span class="con">&#52397;&#46041; / 192*102*42 / &#53364;&#47101;&#54616;&#50864;&#49828;</span>
+										</p>
+									</a>
+								</li>
+
+								<li class="three">
+									<a href="/club/galleryView.asp?idx=9&div=1" title="A bud">
+										<img src="/uploads/20231116/20231116181846.png" alt="A bud">
+										<p>										
+											<span class="tit">A bud</span>
+											<span class="con">&#51333;&#51060;&#50640; &#49688;&#52292; / 32cm x 41cm / VIP&#47352; &#44228;&#45800;&#51077;&#44396; (&#51221;&#47732;)</span>
+										</p>
+									</a>
+								</li>
+							</ul>
+                        </li>
+
+					</ul>
+				</div>
+
+				 <script>
+					$(document).ready(function(){					
+						var slider = $('.bxslider').bxSlider({
+							auto: true, // 자동슬라이드
+							autoHover: true, // 마우스 오버시 정지
+							mode:'fade', // 슬라이드 이동방향
+							pager:true, // 볼릿
+							speed :500,
+							autoControls: true, // 이전 다음버튼
+							stopAutoOnClick: true, // 재생 멈춤 버튼
+							controls: true, //좌우 화살표
+							buttons: false,
+							fadeArrows: false,
+							loop: true,
+							autoplay: false,
+							slideAnimationDuration: 1000,
+							
+							//링크 오류 관련 추가 touchEnabled
+							touchEnabled : (navigator.maxTouchPoints > 0)
+						});
+					});
+					</script> 
+			</div>
+		</div>		
+<script>
+	function surveyPage() {
+		if("" == "") {
+			alert("로그인 후 이용 가능합니다.");
+			location.href = "/join/login.asp";
+			return;
+		}
+
+		var sUrl = "/controller/BoardController.asp";
+
+		$("#method2").val("surveyPage");
+		$("#coDiv2").val(globals.coDiv);
+
+		var formData = new FormData($("#pageForm")[0]);
+
+		progressStart();
+
+		mFileAjax(sUrl, formData, function(data) {
+			progressStop();
+			if(data.resultCode == "0000") {
+				alert("제출되었습니다.");
+				location.reload();
+			} else {
+				alert(data.resultMessage);
+			}
+		});
+	}
+
+	function SubmitBoard() {
+		var sUrl = "/controller/BoardController.asp";
+
+		$("#method3").val("SubmitBoard");
+		$("#coDiv3").val(globals.coDiv);
+
+		var title = $("#txtTitle").val();
+
+		var formData = new FormData($("#surveyForm")[0]);
+
+		progressStart();
+
+		mFileAjax(sUrl, formData, function(data) {
+			progressStop();
+			if(data.resultCode == "0000") {
+				alert("제출되었습니다.");
+				location.href = "/index.asp";
+			} else {
+				alert(data.resultMessage);
+			}
+		});
+	}
+
+	function doMemberInfo() {
+
+		if("" == "") {
+			alert("로그인 후 이용 가능합니다.");
+			location.href = "/join/login.asp";
+			return;
+		}
+
+		var sUrl = "/controller/MemberController.asp";
+		var params = {};
+		var pw = $("#checkPw").val();
+
+		if (pw == "") {
+			alert("비밀번호를 입력해주세요.");
+			return;
+		}
+
+		params["method"] = "doMemberInfo";
+		params["pw"] = pw;
+
+		mAjax(sUrl, params, "POST", false, function(data) {
+			if(data.resultCode == "0000") {
+				location.href = "/member/myInfo/mypage.asp";
+			} else {
+				alert(data.resultMessage);
+			}
+		});
+	}
+
+	function checkLogin() {
+		alert("로그인 후 이용 가능합니다.");
+		location.href = "/join/login.asp";
+	}
+</script>
+	<!-- Footer -->
+	<div id="footer">
+        <div class="survey-area">
+			<form id="pageForm" method="post" enctype="multipart/form-data">
+            <div class="survey-box">
+                <img src="/resources/images/info/survey_icon.svg" alt="">
+                <div>
+					<div id="clk_timezone"></div>
+                    <span class="ask">이 페이지에서 제공하는 정보에 대하여 어느 정도 만족하십니까?</span>
+					
+
+<style>
+#clk_timezone{
+    font-size:15px;
+}
+</style>
+</head>
+<body>
+
+<!-- <div id="clk_timezone"></div> -->
+
+<script>
+
+// 서버 기준 시작 시간
+const clk_serverStartTime = new Date('2026-07-21 13:29:04').getTime();
+
+// 클라이언트 시작 시간
+const clk_clientStartTime = Date.now();
+
+function clk_updateClock(){
+
+    // 클라이언트 경과시간
+    const elapsed = Date.now() - clk_clientStartTime;
+
+    // 서버시간 기준 현재시간
+    const currentServerTime = new Date(clk_serverStartTime + elapsed);
+
+    const hh = String(currentServerTime.getHours()).padStart(2, '0');
+    const mm = String(currentServerTime.getMinutes()).padStart(2, '0');
+    const ss = String(currentServerTime.getSeconds()).padStart(2, '0');
+
+    $('#clk_timezone').text(hh + ':' + mm + ':' + ss);
+
+}
+
+
+// 오차 최소화
+function startClock(){
+
+    clk_updateClock();
+
+    const now = new Date();
+
+    const delay = 1000 - now.getMilliseconds();
+
+    setTimeout(startClock, delay);
+
+}
+
+
+// 시작
+startClock();
+
+</script>
+                    <span class="answer">
+                        <label><input type="radio" name="survey1" value="5" checked> 매우 만족(5점)</label>
+                        <label><input type="radio" name="survey1" value="4"> 만족(4점) </label>
+                        <label><input type="radio" name="survey1" value="3"> 보통(3점)</label>
+                        <label><input type="radio" name="survey1" value="2"> 불만족(2점)</label>
+                        <label><input type="radio" name="survey1" value="1"> 매우불만족(1점) </label>
+                    </span>
+                </div>
+                <button type="button" onclick="surveyPage();">전송</button>
+            </div>
+			<input type="hidden" id="method2" name="method" />
+			<input type="hidden" id="coDiv2" name="coDiv" />
+			<input type="hidden" id="httpUrl" name="httpUrl" value="www.newseoulgolf.co.kr/index.asp">
+			</form>
+
+        </div>
+        <div class="footer-area" id="footerArea">
+            <div class="footer-box">
+                <div class="footer-top">
+                    <ul class="terms-links">
+                        <li class="on">
+                            <a href="/guide/privacy.asp?ver=172.20.10.1" title="개인정보처리방침">개인정보처리방침</a>
+                        </li>
+                        <li>
+                            <a href="/guide/copyright.asp" title="저작권정책">저작권정책</a>
+                        </li>
+                        <li>
+<!--                             <a href="javascript:checkLogin();" title="고객만족도조사">고객만족도조사</a> -->
+                            <a href="javascript:void(0);" data-tooltip="chart11" title="고객만족도조사">고객만족도조사</a>
+                        </li>
+                        <!-- <li>
+                            <a href="/board/list27.asp" title="홈페이지 불편신고">홈페이지 불편신고</a>
+                        </li> -->
+                        <li>
+                            <a href="javascript:void(0);" data-tooltip="chart12" title="민원접수/부패·공익신고">민원접수/부패·공익신고</a>
+                        </li>
+                        <li>
+                            <a href="javascript:void(0);" data-tooltip="chart13" title="성희롱 온라인 창구">성희롱/직장내괴롭힘 온라인 창구</a>
+                        </li>
+                        <li>
+                            <!--a href="javascript:void(0);" data-tooltip="chart14" title="로그인">[로그인]</a-->							
+                        </li>
+                    </ul>
+                    <button class="top-btn">TOP<img src="/resources/images/main/top_btn.svg" alt=""></button>
+                </div>
+
+                <div class="footer-btm">                
+                    <h4>한국문화진흥주식회사 뉴서울컨트리클럽</h4>     
+                    <div class="btm-left">               
+                        <ul class="adress">
+                            <li>(12767) 경기 광주 삼지곡길 95(삼동1번지)</li>
+                            <li>대표이사 정상윤    대표전화 031-762-5672~5    이메일 webmaster@newseoulgolf.co.kr</li>
+                        </ul>
+                        <ul class="copy">
+                            <li>사업자번호 126-82-02529    통신판매업신고 제2017-경기광주-0175호</li>
+                            <li>Copyright(C)2023 newseoulgolf All rights reserved.</li>
+                        </ul>
+                    </div>
+                    <div class="btm-right">                        
+                        <a href="https://www.wa.or.kr/board/list.asp?BoardID=0006" title="(사)한국장애인단체총연합회 한국웹접근성인증평가원 웹 접근성 우수사이트 인층마크(WA인증마크) 새 창 열림" target="_blank" class="btm-mark">
+                            <img src="/resources/images/main/mark(2026).svg" alt="접근성인증마크" class="btm-img">
+                        </a>
+                        <ul class="tel">
+                            <li><span>예약안내</span>   031.760.8000 / 764.5858</li>
+                            <li><span>예약팩스</span>   031.763.0519</li>
+                            <li><span>프런트</span>   031.760.8073~4</li>
+                            <li><span>회원관리</span>   031.760.8058</li>
+                        </ul>
+                        <div class="family-area">
+                            <div class="family-site">
+                                <a href="javascript:void(0);" class="family-site-btn" title="열기">
+                                    <span>패밀리 사이트 바로가기</span>
+                                </a>
+                                <div class="family-box">
+                                    <ul>
+                                        <li>
+                                            <a href="http://www.mcst.go.kr" target="_blank" title="새창열림">문화체육관광부</a>
+                                        </li>
+                                        <li>
+                                            <a href="http://www.arko.or.kr" target="_blank" title="새창열림">한국문화예술위원회</a>
+                                        </li>
+                                        <li>
+                                            <a href="http://www.mecenat.or.kr" target="_blank" title="새창열림">한국메세나협의회</a>
+                                        </li>
+                                        <li>
+                                            <a href="http://www.alio.go.kr" target="_blank" title="새창열림">공공기관알리오</a>
+                                        </li>
+                                        <li>
+                                            <a href="http://www.acrc.go.kr" target="_blank" title="새창열림">국민권익위원회</a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+	</div>	
+	<!-- //Footer -->
+	
+	</div> <!-- wrap 닫히는 부분 -->
+    <!-- (S) : 비밀번호 레이어 팝업 -->
+    <div class="pop-members-info wp30 height35 chart09" tabindex="0" data-tooltip-con="chart09" data-focus="chart09" data-focus-prev="chart09-close">
+        <div class="layer-con">
+            <h3>비밀번호 확인</h3>
+            <p class="titCon">본인확인을 위해 비밀번호를 다시한번 입력해 주시기 바랍니다.</p>
+
+            <table class="waitInput-table mb20">
+                <caption>비밀번호확인</caption>
+                <tbody>
+                    <tr> 
+                        <th class="wp30">비밀번호 입력</th>
+                        <td class="waitInput-box wp70">
+                            <input type="password" id="checkPw" placeholder="비밀번호 입력" maxlength="20" title="비밀번호 입력">
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="two-btn mt50">
+                <a href="javascript:doMemberInfo();" title="확인" class="blue">확인</a>
+                <a href="javascript:void(0);" title="취소" class="grey tooltip-close" data-focus="chart09-close" data-focus-next="chart09">취소</a>
+            </div>
+        </div>
+    </div>
+    <div id="overlay" class="overlay" onclick="overlayClose(9)" style="display: none;"></div>
+    <!-- (E) : 비밀번호 레이어 팝업 -->
+
+    <!-- (S) : 저작권정책 레이어 팝업 -->
+    <div class="pop-members-info chart10 height55" tabindex="0" data-tooltip-con="chart10" data-focus="chart10" data-focus-prev="chart10-close">
+        <div class="layer-con">
+            <h3>저작권 정책</h3>
+            <ul class="sub">
+                <li>
+                    저작권법 제24조의2(공공저작물의 자유이용)에 따라 뉴서울컨트리클럽 홈페이지에서 제공하는 자료 중에서 뉴서울컨트리클럽에 저작재산권의 전부를 보유한 저작물의 경우에는 별도의 이용허락 없이 자유이용이 가능합니다.
+                </li>
+                <li>
+                    단,  <span class="red">자유이용</span>이 가능한 자료는 "<span class="red">공공저작물 자유이용허락 표시 기준(공공누리, KOGL) 제1유형</span>"을 부착하여 개방하고 있으므로 공공누리 표시가 부착된 저작물인지를 확인한 이후에 자유롭게 이용하시기 바랍니다.
+                </li>
+                <li>
+                    자유이용의 경우, 이용자께서는 반드시 저작물의 출처를 구체적으로 표시하여야 합니다.
+                </li>
+                <li>
+                    공공누리가 부착되지 않은 자료들을 사용하고자 할 경우에는 뉴서울컨트리클럽 홈페이지 담당자와 사전에 협의한 이후에 이용하여 주시기 바랍니다.
+                </li>
+            </ul>
+
+            <ul class="sub">
+                <li>
+                    &lt;문의&gt;
+                </li>
+                <li>
+                    책임관 : 경영전략본부장 김정연 (031-760-8030)
+                </li>
+                <li>
+                    실무담당자 : 경영기획팀 목대영 (031-760-8034)
+                </li>
+                <li>
+                    <img src="/resources/images/main/copyright_img.png" alt="공공누리 공공저작물 자유이용허락 출처표시">
+                </li>
+            </ul>
+
+            <div class="two-btn mt50">
+                <a href="javascript:void(0);" title="닫기" class="grey tooltip-close" data-focus="chart10-close" data-focus-next="chart10">닫기</a>
+            </div>
+        </div>
+    </div>
+    <div id="overlay" class="overlay" onclick="overlayClose(10)" style="display: none;"></div>
+    <!-- (E) : 저작권정책 레이어 팝업 -->
+
+    <!-- (S) : 고객만족도 레이어 팝업 -->
+    <div class="pop-members-info chart11 height80" tabindex="0" data-tooltip-con="chart11" data-focus="chart11" data-focus-prev="chart11-close" >
+        <div class="layer-con">
+            <h3>뉴서울컨트리클럽 홈페이지 고객만족도 조사</h3>
+            <p class="titCon">
+                뉴서울컨트리클럽 홈페이지에 대한 전반적인 만족도 설문조사에 참여해보세요.
+            </p>
+
+            <div class="custo-survey-box">
+				<form id="surveyForm" method="post" enctype="multipart/form-data">
+                <ul>
+                    <li>
+                        <div>
+                            <p class="question">
+                                <span class="red">[필수]</span> 뉴서울컨트리클럽 홈페이지에 대한 전반적인 만족도는 어떻습니까?
+                            </p>
+                            <p class="answer">
+                                <input type="radio" name="sv1" value="5" id="agree1" checked><label for="agree1">매우만족</label>
+                                <input type="radio" name="sv1" value="4" id="agree2"><label for="agree2">만족</label>
+                                <input type="radio" name="sv1" value="3" id="agree3"><label for="agree3">보통</label>
+                                <input type="radio" name="sv1" value="2" id="agree4"><label for="agree4">불만족</label>
+                                <input type="radio" name="sv1" value="1" id="agree5"><label for="agree5">매우불만족</label>
+                            </p>
+                        </div>
+                    </li>
+                    <li>
+                        <div>
+                            <p class="question">
+                                <span class="red">[필수]</span> "라운딩예약의 편리성"에 대한 만족도는 어떻습니까?
+                            </p>
+                            <p class="answer">
+                                <input type="radio" name="sv2" value="5" id="agree6" checked><label for="agree6">매우만족</label>
+                                <input type="radio" name="sv2" value="4" id="agree7"><label for="agree7">만족</label>
+                                <input type="radio" name="sv2" value="3" id="agree8"><label for="agree8">보통</label>
+                                <input type="radio" name="sv2" value="2" id="agree9"><label for="agree9">불만족</label>
+                                <input type="radio" name="sv2" value="1" id="agree10"><label for="agree10">매우불만족</label>
+                            </p>
+                        </div>
+                    </li>
+                    <li>
+                        <div>
+                            <p class="question">
+                                <span class="red">[필수]</span> "메인 화면의 디자인"에 대한 만족도는 어떻습니까?
+                            </p>
+                            <p class="answer">
+                                <input type="radio" name="sv3" value="5" id="agree11" checked><label for="agree11">매우만족</label>
+                                <input type="radio" name="sv3" value="4" id="agree12"><label for="agree12">만족</label>
+                                <input type="radio" name="sv3" value="3" id="agree13"><label for="agree13">보통</label>
+                                <input type="radio" name="sv3" value="2" id="agree14"><label for="agree14">불만족</label>
+                                <input type="radio" name="sv3" value="1" id="agree15"><label for="agree15">매우불만족</label>
+                            </p>
+                        </div>
+                    </li>
+                    <li>
+                        <div>
+                            <p class="question">
+                                <span class="red">[필수]</span> "홈페이지 접속 속도"에 대한 만족도는 어떻습니까?
+                            </p>
+                            <p class="answer">
+                                <input type="radio" name="sv4" value="5" id="agree16" checked><label for="agree16">매우만족</label>
+                                <input type="radio" name="sv4" value="4" id="agree17"><label for="agree17">만족</label>
+                                <input type="radio" name="sv4" value="3" id="agree18"><label for="agree18">보통</label>
+                                <input type="radio" name="sv4" value="2" id="agree19"><label for="agree19">불만족</label>
+                                <input type="radio" name="sv4" value="1" id="agree20"><label for="agree20">매우불만족</label>
+                            </p>
+                        </div>
+                    </li>
+                    <li>
+                        <div>
+                            <p class="question">
+                                <span class="red">[필수]</span> "라운딩예약의 신속성"에 대한 만족도는 어떻습니까?
+                            </p>
+                            <p class="answer">
+                                <input type="radio" name="sv5" value="5" id="agree21" checked><label for="agree21">매우만족</label>
+                                <input type="radio" name="sv5" value="4" id="agree22"><label for="agree22">만족</label>
+                                <input type="radio" name="sv5" value="3" id="agree23"><label for="agree23">보통</label>
+                                <input type="radio" name="sv5" value="2" id="agree24"><label for="agree24">불만족</label>
+                                <input type="radio" name="sv5" value="1" id="agree25"><label for="agree25">매우불만족</label>
+                            </p>
+                        </div>
+                    </li>
+                    <li>
+                        <div>
+                            <p class="question">
+                                <span class="red">[필수]</span> 뉴서울컨트리클럽 홈페이지에 방문하시는 주요 목적은 무엇입니까?
+                            </p>
+                            <p class="answer">
+                                <input type="radio" name="sv6" value="5" id="agree26" checked><label for="agree26">라운딩예약</label>
+                                <input type="radio" name="sv6" value="4" id="agree27"><label for="agree27">코스정보</label>
+                                <input type="radio" name="sv6" value="3" id="agree28"><label for="agree28">민원상담</label>
+                                <input type="radio" name="sv6" value="2" id="agree29"><label for="agree29">뉴스/이벤트</label>
+                                <input type="radio" name="sv6" value="1" id="agree30"><label for="agree30">기타</label>
+                            </p>
+                        </div>
+                    </li>
+                    <li>
+                        <div>
+                            <p class="question">
+                                <span class="red">[필수]</span> 귀하는 어느 정도 뉴서울컨트리클럽 홈페이지를 방문하십니까?
+                            </p>
+                            <p class="answer">
+                                <input type="radio" name="sv7" value="5" id="agree31" checked><label for="agree31">일1회이상</label>
+                                <input type="radio" name="sv7" value="4" id="agree32"><label for="agree32">주1회이상</label>
+                                <input type="radio" name="sv7" value="3" id="agree33"><label for="agree33">월1회이상</label>
+                                <input type="radio" name="sv7" value="2" id="agree34"><label for="agree34">연1회이상</label>
+                            </p>
+                        </div>
+                    </li>
+					<li>
+                        <div>
+                            <p class="question">
+                                <span class="red">[필수]</span> 귀하의 회원 여부에 대해 답변 부탁드립니다.
+                            </p>
+                            <p class="answer">
+                                <input type="radio" name="sv8" value="5" id="agree35"><label for="agree35">특별회원</label>
+                                <input type="radio" name="sv8" value="4" id="agree36" checked><label for="agree36">회원</label>
+                                <input type="radio" name="sv8" value="3" id="agree37"><label for="agree37">가족회원</label>
+                                <input type="radio" name="sv8" value="2" id="agree38"><label for="agree38">비회원</label>
+								<input type="radio" name="sv8" value="1" id="agree39"><label for="agree39">기타</label>
+                            </p>
+                        </div>
+                    </li>
+                    <li>
+                        <div>
+                            <p class="question">
+                                [선택] 기타 의견을 적어주세요.
+                            </p>
+                            <p class="answer">
+                                <textarea id="txtTitle" name="txtTitle" placeholder="내용을 입력해주세요." cols="30" rows="5" title="기타의견내용입력"></textarea>
+                            </p>
+                        </div>
+                    </li>                    
+                </ul>
+				<input type="hidden" id="method3" name="method" />
+				<input type="hidden" id="coDiv3" name="coDiv" />
+				</form>
+            </div>
+
+            <div class="two-btn mt50">
+				<a href="" title="취소" class="grey tooltip-close" data-focus="chart02-close" data-focus-next="chart02">취소</a>
+				<a href="javascript:SubmitBoard();" title="제출" class="blue">제출</a>
+			</div>
+        </div>
+    </div>
+    <div id="overlay" class="overlay" onclick="overlayClose(11)" style="display: none;"></div>
+    <!-- (E) : 고객만족도 레이어 팝업 -->
+
+    <!-- (S) : 민원접수/부패·공익신고 레이어 팝업 -->
+    <div class="pop-members-info chart12 height35 wp30" tabindex="0" data-tooltip-con="chart12" data-focus="chart12" data-focus-prev="chart12-close">
+        <div class="layer-con">
+            <h3>민원접수/부패·공익신고</h3>
+            <div class="footer-links" align="center">
+                <a href="https://bit.ly/4sAlqoy" title="일반신고" class="">신고하기<img src="/resources/images/main/icon_down_blue.svg"></a>
+            </div>
+
+            <div class="two-btn mt50">
+                <a href="javascript:void(0);" title="닫기" class="grey tooltip-close" data-focus="chart12-close" data-focus-next="chart12">닫기</a>
+            </div>
+        </div>
+    </div>
+    <div id="overlay" class="overlay" onclick="overlayClose(12)" style="display: none;"></div>
+    <!-- (E) : 민원접수/부패·공익신고 레이어 팝업 -->
+
+    <!-- (S) : 성희롱 온라인 창구 레이어 팝업 -->
+    <div class="pop-members-info chart13 height55 wp30" tabindex="0" data-tooltip-con="chart13" data-focus="chart13" data-focus-prev="chart13-close">
+        <div class="layer-con">
+            <h3>성희롱/직장내괴롭힘 온라인 창구</h3>
+            <p class="titCon">
+                한국문화진흥주식회사 에서는 익명 또는 기명으로 신고서를 접수하고 있습니다.<br>
+	    아래 신고하기 버튼을 눌러 신고해주시길 바랍니다.
+            </p>
+            <div class="footer-links">
+                <a href="https://bit.ly/4sAlqoy" title="성희롱 신고" target="_blank">신고하기<img src="/resources/images/main/icon_down_blue.svg"></a>
+            </div>
+            <div class="two-btn mt50">
+                <a href="javascript:void(0);" title="닫기" class="grey tooltip-close" data-focus="chart13-close" data-focus-next="chart13">닫기</a>
+            </div>
+        </div>
+    </div>
+    <div id="overlay" class="overlay" onclick="overlayClose(13)" style="display: none;"></div>
+    <!-- (E) : 성희롱 온라인 창구 레이어 팝업 -->
+
+
+
+	<script type="text/javascript" src="/resources/js/core.min.js"></script>
+	<script type="text/javascript" src="/resources/js/sha256.min.js"></script>
+	<script type="text/javascript" src="/resources/js/login.js?ver=1.1"></script>
+	<script type="text/javascript">
+		var cnt_show_login_layer = 0;
+		function show_login_layer() {
+			if ( cnt_show_login_layer++ > 0 )
+				return;
+
+			login_init();
+		}
+	</script>
+    <div onfocus="show_login_layer();" class="pop-members-info chart14 height80 wp40" tabindex="0" data-tooltip-con="chart14" data-focus="chart14" data-focus-prev="chart14-close">	
+        <div class="layer-con not-scroll">
+            <div class="info-wrap pt40">	
+				<div class="login-wrap">	
+				    <h2 class="title">로그인</h2>
+					<ul class="login-list">
+						<li class="tab-link current" id="loginDiv1" data-tab="1" onclick="loginType(1, '정회원', '단체');">
+							<a href="#none" id="loginTitle1" title="정회원">정회원</a>
+						</li>
+						<li class="tab-link" id="loginDiv2" data-tab="3" onclick="loginType(3, '단체', '정회원');">
+							<a href="#none" id="loginTitle2" title="단체">단체</a>
+						</li>
+					</ul>
+					<input type="hidden" id="member" value="1">
+						
+					<div class="tab-content current"> 
+						<h3>ID</h3>
+						<ul>
+							<li><input type="text" placeholder="아이디" id="txtId" maxlength="12" class="borderB" title="아이디"></li>
+						</ul>
+						<h3>PW</h3>
+						<ul>
+							<li><input type="password" placeholder="자동로그인 상태입니다." id="txtPwAuto" class="borderB" title="자동로그인 상태" onFocus="pwFocus();" hidden></li>
+							<li><input type="password" placeholder="비밀번호" id="txtPw" maxlength="20" class="borderB" title="비밀번호"></li>
+						</ul>		
+						<div class="save-info">
+							자동 로그인
+							<div class="check-select">
+								<span>
+									<input type="checkbox" id="chkSaveId"><label for="chkSaveId" title="자동 로그인">자동 로그인</label>
+								</span>
+							</div>
+						</div>					
+						<a href="javascript:doLogin()" title="로그인" class="wp100 btn-login on">로그인</a>
+					</div>
+			
+					<div class="btn-idpw">
+						<a href="/join/findID.asp" title="아이디찾기">아이디 찾기</a>
+						<a href="/join/findID.asp" title="비밀번호찾기">비밀번호 찾기</a>
+					</div>
+				</div>		
+			</div>       
+        </div>          
+        <p class="x-btn">
+			<button type="button" class="tooltip-close" data-focus="chart14-close" data-focus-next="chart14" aria-label="팝업 닫기">
+				<img src="/resources/images/club/x_btn_big.svg" alt="" aria-hidden="true">
+			</button>
+			<!--a href="#" class="tooltip-close" data-focus="chart14-close" data-focus-next="chart14">
+                <img src="/resources/images/club/x_btn_big.svg" title="닫기버튼">
+            </a-->
+        </p>
+    </div>
+    <div id="overlay" class="overlay" onclick="overlayClose(14)" style="display: none;"></div>
+
+<script async src="https://nscc.botnhuman.com/resources/bnh/analyze/js/DiCO5r3LGPy587zVawQ3n8WgueCcQ2juPQBRTY8NEYpUUqGQtrZvILhpLkGDPiH9jyrAAsrHPku2cpEvj13ZMMRq8JgcX75y94f7AGavswl9nDYPSupnuXeGkpLgBO4ReK62RD0oI6mn3vK3CjsLB6hMSvZW24h0ximZEvSWBNE9ZMFIR3IjNuPwEut63LoB8HBIv6PY.js?v=20260721" ></script>
+
+</body>
+</html>

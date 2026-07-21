@@ -1,0 +1,1625 @@
+
+
+
+
+
+
+
+
+
+
+<!doctype html>
+<html>
+<head>
+<title>KGA - 대한골프협회</title>
+<meta property="og:image" content="/resources/web/images/kga_logo_800_400.png"/>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="keywords" content="" />
+<meta name="description" content="" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<link rel="shortcut icon" href="/resources/web/images/kga_favicon.png">
+<link rel="stylesheet" type="text/css" href="/resources/web/css/bootstrap.css">
+<link href="/resources/web/css/style.css?ver=20250709" rel="stylesheet" type="text/css">
+<link href="/resources/web/css/swiper-bundle.min.css" rel="stylesheet" type="text/css" />
+<link href="/resources/web/css/bootstrap-datepicker3.css" rel="stylesheet" type="text/css">
+<link href="/resources/web/css/cnpsCustom.css?ver=20250709" rel="stylesheet" type="text/css">
+<script src="/resources/web/js/jquery.min.js"></script>
+<script src="/resources/web/js/bootstrap.js"></script>
+<script src="/resources/web/js/custom.js?ver=20250711"></script>
+<script src="/resources/web/js/swiper-bundle.min.js"></script>
+<script src="/resources/web/js/bootstrap-datepicker.js"></script>
+<script src="/resources/web/js/bootstrap-datepicker.ko.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
+
+<!--차트 js -->
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js"></script>
+</head>
+
+
+
+
+
+
+
+
+
+
+
+	
+		
+	
+	
+
+
+<script>
+var engPageYn = "N";
+var cookieLang = "KOR";
+
+//링크로 영문페이지 전달하고 싶은 요구로 인한 수정
+var locationUrl = new URL(window.location.href);
+var locationParams = locationUrl.searchParams;
+var paramLang = locationParams.get("lang");
+locationParams.delete("lang");
+
+if ((paramLang == "ENG" && cookieLang != "ENG") || (paramLang == "KOR" && cookieLang != "KOR")) {
+	window.history.replaceState({}, '', locationUrl.pathname + (locationParams.toString() ? '?' + locationParams.toString() : '') + locationUrl.hash);
+	$.cookie("KGA_WEB_LANG", paramLang, { path : '/' });
+	window.location.reload();
+}
+
+$(document).ready(function() {
+	
+	
+	if("" != "") {
+		var favoritList = JSON.parse("");
+		checkFavorit(favoritList);
+	}
+	
+	$(".chageLang a").off("click").click(function() {
+		var lang = $(this).data("lang");
+		$.cookie("KGA_WEB_LANG", lang, { path : '/' });
+		window.location.reload();
+	});
+	
+	$(".onlyNumber").off("keypress").keypress(function(e){
+		if(e.which != 8 && isNaN(String.fromCharCode(e.which))){
+			e.preventDefault(); //stop character from entering input
+		}
+	});
+	
+	$(".favPlayer").off("click").click(function() {
+		if("" == "") {
+			$(this).prop("checked", false);
+			if(confirm("즐겨찾기 기능은 로그인 후 이용가능합니다.\n로그인 페이지로 이동 하겠습니까?")) {
+				$("#naviLogin").trigger("click");
+			}
+			return;
+		}
+		
+		addFavorit($(this).data("playercode"));
+	});
+	
+	$(".orderTable th").off("click").click(function() {
+		if($(this).is('.sort-asc') == false && $(this).is('.sort-desc') == false) {
+			return;
+		}
+		var column = $(this).index();
+		if ($(this).is('.sort-asc')) {
+			$(this).removeClass('sort-asc');
+			$(this).addClass('sort-desc');
+			sortdir = -1;
+		} else {
+			$(this).addClass('sort-asc');
+			$(this).removeClass('sort-desc');
+			sortdir = 1;
+		}
+
+		$target = $(this).closest("table");
+		
+		$target.find("th").removeClass('active');
+		$(this).addClass('active');
+
+		$target.find("tr").each(function() {
+			$(this).find("td:eq(" + column + ")").addClass('active');
+			$(this).find("td:eq(" + column + ")").siblings().removeClass('active');
+		});
+
+		var sortUnderParFlag = $(this).hasClass('sortUnderPar');
+		var sortUpDownFlag = $(this).hasClass('sortUpDown');
+		var sortSameRankFlag = $(this).hasClass('sortSameRank');
+		var sortNationFlag = $(this).hasClass('sortNation');
+		
+		var rec = $target.find('tbody>tr').get();
+		rec.sort(function(a, b) {
+			var val1 = $(a).children('td').eq(column).text().toUpperCase().trim();
+			var val2 = $(b).children('td').eq(column).text().toUpperCase().trim();
+			
+			if(sortNationFlag) {
+				val1 = $(a).children('td').eq(column).find("span").attr("style");
+				val2 = $(b).children('td').eq(column).find("span").attr("style");
+			}
+			
+			if(sortUnderParFlag) {
+				if(val1 == "E") val1 = "0";
+				if(val2 == "E") val2 = "0";
+			}
+			
+			if(sortUpDownFlag) {
+				if(val1 == "-") val1 = "0";
+				if(val2 == "-") val2 = "0";
+				
+				if($(a).children('td').eq(column).find("span").hasClass('tb-rank-dn')) {
+					val1 = "-"+val1;
+				}
+				if($(b).children('td').eq(column).find("span").hasClass('tb-rank-dn')) {
+					val2 = "-"+val2;
+				}
+			}
+			
+			if(sortSameRankFlag) {
+				val1 = val1.replace("T","")
+				val2 = val2.replace("T","")
+			}
+			
+			if(val1 == "") val1 = 9999*sortdir;
+			if(val2 == "") val2 = 9999*sortdir;
+
+			var num1 = parseFloat(val1);
+			var num2 = parseFloat(val2);
+
+			if (!isNaN(num1) && !isNaN(num2)) {
+				return (num1 < num2) ? -sortdir : (num1 > num2) ? sortdir : 0;
+			}
+
+			return (val1 < val2) ? -sortdir : (val1 > val2) ? sortdir : 0;
+		});
+
+		$.each(rec, function(index, row) {
+			$target.find("tbody").append(row);
+		});
+	});
+});
+
+
+
+function setComboSelectBirth() {
+	var todayYear = (new Date()).getFullYear();
+	var startYear = "";
+	if(startYear == "" || startYear == undefined) {
+		startYear = todayYear - 20;
+	}else {
+		startYear = todayYear - $("select.comboBirthYear").data("diffyear");
+	}
+	
+	for (var y = startYear; y <= todayYear; y++) {
+		$('.comboBirthYear').append($('<option>', {value: y,text: y}));
+	}
+	
+	for (var m = 1; m <= 12; m++) {
+		$('.comboBirthMonth').append($('<option>', {value: m, text: m}));
+	}
+	
+	$('.comboBirthYear, .comboBirthMonth').on('change', function() {
+		var year = $('.comboBirthYear').val();
+		var month = $('.comboBirthMonth').val();
+		var daysInMonth = new Date(year, month, 0).getDate();
+		var $selectDay = $('.comboBirthDay');
+
+		$selectDay.empty();
+
+		for (var d = 1; d <= daysInMonth; d++) {
+			$selectDay.append($('<option>', {value: d, text: d}));
+		}
+	});
+	
+	$('.selectYear, .selectMonth').trigger('change');
+}
+
+function downLoadFile(fileUrl, fileRename){
+	var form = $('<form></form>');
+	form.attr('action', "/fileDownload");
+	form.attr('method', 'post');
+	form.attr('target', '_self');
+	form.appendTo('body');
+	form.find("input[name=fileUrl]").remove();
+	form.append($("<input/>", {type:'hidden',name:'fileUrl', value:fileUrl}));
+	form.append($("<input/>", {type:'hidden',name:'fileRename', value:fileRename}));
+	form.submit();
+}
+
+function downLoadFileZip(fileListJson, zipFileName){
+	var form = $('<form></form>');
+	form.attr('action', "/fileDownloadZip");
+	form.attr('method', 'post');
+	form.attr('target', '_self');
+	form.appendTo('body');
+	form.find("input[name=fileUrl]").remove();
+	form.append($("<input/>", {type:'hidden',name:'fileListJson', value:fileListJson}));
+	form.append($("<input/>", {type:'hidden',name:'zipFileName', value:zipFileName}));
+	form.submit();
+}
+
+function preventHistoryBack() {
+	history.pushState(null, document.title, location.href);
+	window.addEventListener('popstate', function(event) {
+		history.go(1);
+	});
+}
+
+function addFavorit(playerCode) {
+	$.ajax({
+		url : "/ajax/web/mergeFavorit",
+		type : "POST",
+		data : {
+			playerCode : playerCode
+		},
+		datatype : "json",
+		async: false,
+		success : function(res, status, xhr) {
+			var resultCode = res.resultCode;
+			
+			if(resultCode == "-1") {
+				alert("로그인정보가 없습니다.");
+				location.reload();
+				return;
+			}
+			
+			var favList = res.favList;
+			checkFavorit(favList);
+			
+		},
+		error : function(request, status, error) {
+			//alert(error);
+		}
+	}).fail(function(errObj) {
+		try {
+			console.error(errObj);
+		} catch (e) {
+		}
+	}); //ajax
+}
+
+function checkFavorit(favList) {
+	var intArray = favList.map(function(numString) {
+		return parseInt(numString);
+	});
+	
+	var rowToShow = [];
+	
+	$(".favPlayer").each(function() {
+		if ($.inArray($(this).data("playercode"), intArray) == -1) {
+			$(this).prop("checked",false);
+			$(this).closest(".favRow").hide();
+		} else {
+			$(this).prop("checked",true);
+			if ($(this).closest(".favRow").length > 0) {
+				rowToShow.push($(this).closest(".favRow"));
+			}
+		}
+	});
+	
+	$(rowToShow).each(function() {
+		$(this).show();
+	});
+	
+	if (rowToShow.length == 0) {
+		$("#favDiv").hide();
+	} else {
+		$("#favDiv").show();
+	}
+	
+	favoritInPage();
+}
+
+// 즐겨찾기 후 페이지 마다 다른 필요
+// 동작을 위함 함수 제거하면 안됨
+function favoritInPage() {
+	
+}
+
+function parseTimeString(timeString) {
+	var parts = timeString.split(":");
+	if (parts.length !== 2) {
+		return null;
+	}
+
+	var hours = parseInt(parts[0], 10);
+	var minutes = parseInt(parts[1], 10);
+
+	if (isNaN(hours) || isNaN(minutes)) {
+		return null;
+	}
+
+	return new Date(0, 0, 0, hours, minutes);
+}
+
+$.fn.validEmail = function (msg_error = '') {
+	let is_valid = true;
+	this.each(function(k, o) {
+	let pattern_email = /^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]+$/;
+	pattern_email = new RegExp(pattern_email);
+	let email = $(o).val();
+	if (email == '') {
+		return true;
+	}
+	if (pattern_email.test(email) == false) {
+		alert(msg_error);
+		$(o).focus();
+		return is_valid = false;
+	}
+	});
+	return is_valid;
+}
+
+function weekIndexToNameJs(idx, shortYN, lang){
+	var str = "";
+	
+	if(lang == "ENG") {
+		if(idx == "0")
+			if(shortYN == "Y") str = "Sun"; else str = "Sunday";
+		if(idx == "1")
+			if(shortYN == "Y") str = "Mon"; else str = "Monday";
+		if(idx == "2")
+			if(shortYN == "Y") str = "Tue"; else str = "Tuesday";
+		if(idx == "3")
+			if(shortYN == "Y") str = "Wed"; else str = "Wednesday";
+		if(idx == "4")
+			if(shortYN == "Y") str = "Thu"; else str = "Thursday";
+		if(idx == "5")
+			if(shortYN == "Y") str = "Fri"; else str = "Friday";
+		if(idx == "6")
+			if(shortYN == "Y") str = "Sat"; else str = "Saturday";
+	} else {
+		if(idx == "0")
+			if(shortYN == "Y") str = "일"; else str = "일요일";
+		if(idx == "1")
+			if(shortYN == "Y") str = "월"; else str = "월요일";
+		if(idx == "2")
+			if(shortYN == "Y") str = "화"; else str = "화요일";
+		if(idx == "3")
+			if(shortYN == "Y") str = "수"; else str = "수요일";
+		if(idx == "4")
+			if(shortYN == "Y") str = "목"; else str = "목요일";
+		if(idx == "5")
+			if(shortYN == "Y") str = "금"; else str = "금요일";
+		if(idx == "6")
+			if(shortYN == "Y") str = "토"; else str = "토요일";
+	}
+	
+	return str;
+}
+
+function langStringJs(language, korString, engString) {
+	var str = "";
+	
+	if (language == "KOR") {
+		str = korString;
+	} else if (language == "ENG") {
+		if(engString == null || engString == "") {
+			str = korString;
+		} else {
+			str = engString;
+		}
+	} else {
+		str = korString;
+	}
+	
+	if(str == null) str= "";
+	
+	return str;
+}
+
+//action 에 대한 한글 이름
+function actionToName(action) {
+	if (action == "save") {
+		action = "저장";
+	} else if (action == "delete") {
+		action = "삭제";
+	} else if (action == "insert") {
+		action = "입력";
+	} else if (action == "update") {
+		action = "수정";
+	} else if (action == "apply") {
+		action = "신청";
+	}  else {
+		action = "실행";
+	}
+	
+	return action;
+}
+
+function setCnpsSticky() {
+	$(".cnpsStickyTable").each(function() {
+		var table = $(this);
+		var leftWidth = 0;
+		table.find("th.cnpsSticky").each(function() {
+			var leftPosition = leftWidth + 'px';
+			var index = $(this).index();
+
+			$(this).css({
+				'position': 'sticky',
+				'left': leftWidth,
+				'z-index': 1
+			});
+			
+			table.find("tr").each(function() {
+				$(this).find("td:eq("+index+")").css({
+					'position': 'sticky',
+					'left': leftWidth,
+					'z-index': 1
+				});
+			});
+
+			leftWidth += $(this).outerWidth(true)-1;
+		});
+	});
+}
+
+function setCnpsSticky() {
+	$(".cnpsStickyTable").each(function() {
+		var table = $(this);
+		var leftWidth = 0;
+		table.find("th.cnpsSticky").each(function() {
+			var leftPosition = leftWidth + 'px';
+			var index = $(this).index();
+
+			$(this).css({
+				'position': 'sticky',
+				'left': leftWidth,
+				'z-index': 1
+			});
+			
+			table.find("tr").each(function() {
+				$(this).find("td:eq("+index+")").css({
+					'position': 'sticky',
+					'left': leftWidth,
+					'z-index': 1
+				});
+			});
+
+			leftWidth += $(this).outerWidth(true)-1;
+		});
+	});
+}
+
+function setCnpsStickyOther(className) {
+	var leftWidth = 0;
+	$("."+className).find("th.cnpsSticky").each(function() {
+		var leftPosition = leftWidth + 'px';
+		var index = $(this).index();
+
+		$(this).css({
+			'position': 'sticky',
+			'left': leftWidth,
+			'z-index': 1
+		});
+		
+		$("."+className).find("tr").each(function() {
+			$(this).find("td:eq("+index+")").css({
+				'position': 'sticky',
+				'left': leftWidth,
+				'z-index': 1
+			});
+		});
+
+		leftWidth += $(this).outerWidth(true)-1;
+	});
+}
+
+function checkActionResult(result) {
+	returnFlag = true;
+	
+	if (result == "-1") {
+		alert("오류입니다.")
+		returnFlag = false;
+	} else if (result == "-99") {
+		alert("로그인 세션이 없습니다.");
+		location.href="/admin/login";
+		returnFlag = false;
+	}
+	
+	return returnFlag;
+}
+
+function isMobile() {
+	var userAgent = navigator.userAgent.toLowerCase();
+	
+	var mobileDevices = [
+		'android', 'iphone', 'ipad', 'ipod', 'blackberry', 'windows phone', 'opera mini', 'iemobile'
+	];
+	
+	for (var i = 0; i < mobileDevices.length; i++) {
+		if (userAgent.indexOf(mobileDevices[i]) > -1) {
+			return true;  // 모바일 기기
+		}
+	}
+	
+	return false;  // PC
+}
+
+//3자리 콤마 추가
+function addCommasToNumber(number) {
+	var parts = number.toString().split(".");
+	parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+	return parts.join(".");
+}
+</script>
+
+<body>
+	<header class="site-header">
+		
+
+
+
+
+
+<script type="text/javascript">
+$(document).ready(function() {
+	$("#naviLogin").click(function() {
+		var form = $('<form></form>');
+		form.attr('action', "/web/login");
+		form.attr('method', 'post');
+		form.appendTo('body');
+		form.find("input[name=returnURL]").remove();
+		form.append($("<input/>", {type:'hidden',name:'returnURL', value:"/web/golfCourse/championshipSchedule"}));
+		form.submit();
+	});
+	
+	$("#naviMobileLogin").click(function() {
+		var form = $('<form></form>');
+		form.attr('action', "/web/login");
+		form.attr('method', 'post');
+		form.appendTo('body');
+		form.find("input[name=returnURL]").remove();
+		form.append($("<input/>", {type:'hidden',name:'returnURL', value:"/web/golfCourse/championshipSchedule"}));
+		form.submit();
+	});
+	
+	$("#naviLogout").click(function() {
+		var form = $('<form></form>');
+		form.attr('action', "/web/logout");
+		form.attr('method', 'post');
+		form.appendTo('body');
+		form.find("input[name=returnURL]").remove();
+		form.append($("<input/>", {type:'hidden',name:'returnURL', value:"/web/golfCourse/championshipSchedule"}));
+		form.submit();
+	});
+	
+	$("#naviMobileLogout").click(function() {
+		var form = $('<form></form>');
+		form.attr('action', "/web/logout");
+		form.attr('method', 'post');
+		form.appendTo('body');
+		form.find("input[name=returnURL]").remove();
+		form.append($("<input/>", {type:'hidden',name:'returnURL', value:"/web/golfCourse/championshipSchedule"}));
+		form.submit();
+	});
+})
+</script>
+<style>
+	.main-logo {
+		position: absolute;left: calc(50% - 113px);
+	}
+	@media (max-width: 992px) {
+		.main-logo {
+			position: absolute;
+			left: calc(50% - 44px);
+		}
+		
+		.moremenu-list ul.sns {
+			background-color: #FFF;
+			padding: 0.25rem 1rem 0.25rem 0.5rem;
+			border-radius: 2rem;
+			font-weight: 900;
+		}
+	
+		@media (max-width: 992px) {
+			.moremenu-list ul.sns li {
+				padding: 0.5rem 0.5rem;
+			}
+		}
+		
+		@media (max-width: 992px) {
+			.moremenu-list ul.lang li {
+				padding: 0.5rem 1.5rem;
+			}
+		}
+	}
+</style>
+<div class="main-menu">
+	<div class="container">
+		<nav class="navbar">
+			<!-- collapse menu -->
+			<button class="navbar-toggler collapsed" type="button"
+				data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown"
+				aria-controls="navbarNavDropdown" aria-expanded="false"
+				aria-label="Toggle navigation" style="pointer-events: none;">
+				<div id="navi-icon" class="closed" style="pointer-events: auto;">
+					<span class="navi-icon-line"></span>
+					<span class="navi-icon-line"></span>
+					<span class="navi-icon-line"></span>
+				</div>
+			</button>
+			<!-- search -->
+			<!-- <div class="navbar-search">
+				<form class="d-flex">
+					<input class="form-control form-control-search"
+						list="datalistOptions" id="menusearch" type="search"
+						placeholder="Search KGA" aria-label="Search"> <label
+						class="icon-search" for="menusearch"><span><img
+							src="/resources/web/images/menu-search.svg"></span></label>
+					<datalist id="datalistOptions">
+						<option value=""></option>
+					</datalist>
+				</form>
+			</div> -->
+			<!-- main logo -->
+			<div class="main-logo">
+				<a href="/web/main/index"><img src="/resources/web/images/logo.svg" alt=""></a>
+			</div>
+			<!-- right nav -->
+			<ul class="navbar-right">
+				
+					<li class="nav-item pc-only">
+						<button onclick="location.href='/web/about/history'" class="btn btn-darkblue fw-bolder border-0 rounded-0" style="min-width: 114px;">
+						ABOUT KGA
+						</button>
+					</li>
+					<li class="nav-item">
+						
+							
+								<button id="naviLogin" class="btn btn-gold btn-login fw-bolder border-0 rounded-0" style="min-width: 96px;">LOG IN</button>
+							
+							
+						
+					</li>
+				
+				<li class="nav-item dropdown pc-only">
+					<a class="nav-link dropdown-toggle text-darkblue fw-bolder" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false">
+						KOR
+					</a>
+					<ul class="aPointer dropdown-menu chageLang">
+						<li><a class="dropdown-item fw-bolder active" data-lang="KOR">KOR</a></li>
+						<li><a class="dropdown-item fw-bolder " data-lang="ENG">ENG</a></li>
+					</ul>
+				</li>
+				
+					<li class="nav-item pc-only">
+						<button class="btn fw-bolder text-orange" onclick="location.href='/web/shop/productList'">SHOP</button>
+					</li>
+				
+				<li class="nav-item dropdown pc-only">
+					<a class="nav-link dropdown-toggle dropdown-share d-after-none" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false"><img src="/resources/web/images/sns-share.svg"></a>
+					<ul class="dropdown-menu dropdown-sns">
+						<li style="width: 25%;"><a class="dropdown-item" href="https://www.facebook.com/koreagolfassociation" target="_blank"><img src="/resources/web/images/sns-facebook.svg"></a></li>
+						<li style="width: 25%;"><a class="dropdown-item" href="https://www.instagram.com/kgagolf_official" target="_blank"><img src="/resources/web/images/sns-insta.svg"></a></li>
+						<li style="width: 25%;"><a class="dropdown-item" href="https://www.youtube.com/@대한골프협회-u6q" target="_blank"><img src="/resources/web/images/sns-youtube.svg"></a></li>
+						<li style="width: 25%;"><a class="dropdown-item" href="https://blog.naver.com/koreagolfassociation" target="_blank"><img src="/resources/web/images/sns-naver.svg"></a></li>
+					</ul>
+				</li>
+			</ul>
+		</nav>
+	</div>
+
+	<!-- collapse menu -->
+	<div class="collapse" id="navbarNavDropdown">
+		<div class="nav-fullwidth">
+			<div class="header-title">
+				<div class="container">
+					<a href="/web/main/index">HOME</a>
+				</div>
+			</div>
+
+			<!--*********************************** PC용 전체메뉴 ***********************************-->
+			<div class="pc-only">
+				<div class="container">
+					<div class="row">
+						<div class="col">
+							<a href="/web/elite/schedule" class="cat-title">전문체육 </a>
+							<ul>
+								<li>
+									<span class="form-check form-check-like">
+										
+									</span>
+									<a href="/web/elite/schedule">대회일정</a>
+								</li>
+								<li>
+									<span class="form-check form-check-like">
+										
+									</span>
+									<a href="/web/elite/player">선수</a>
+								</li>
+								<li>
+									<span class="form-check form-check-like">
+										
+									</span>
+									<a href="/web/elite/record">기록</a>
+								</li>
+							</ul>
+						</div>
+						
+							<div class="col">
+								<a href="/web/life/schedule" class="cat-title">생활체육</a>
+								<ul>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/life/schedule">대회일정</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/life/player">선수</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/life/lesson">강습사업</a>
+									</li>
+									
+								</ul>
+							</div>
+							<div class="col">
+								<a href="/web/golfRule/rule" class="cat-title">골프규칙</a>
+								<ul>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/golfRule/rule">골프규칙</a></li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/golfRule/news">골프규칙소식</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/golfRule/faq">FAQ</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/golfRule/seminar">룰 세미나</a>
+									</li>
+								</ul>
+							</div>
+							<div class="col">
+								<a href="/web/nationalTeam/nationalTeam" class="cat-title">국가대표</a>
+								<ul>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/nationalTeam/nationalTeam">국가대표 선수 현황</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/nationalTeam/schedule">국제대회 일정</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/nationalTeam/photo">사진</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/nationalTeam/board">게시판</a>
+									</li>
+								</ul>
+							</div>
+						
+						<div class="col">
+							<a href="/web/kgaRanking/home" class="cat-title">KGA랭킹</a>
+							<ul>
+								<li>
+									<span class="form-check form-check-like">
+										
+									</span>
+									<a href="/web/kgaRanking/home">랭킹홈</a>
+								</li>
+								<li>
+									<span class="form-check form-check-like">
+										
+									</span>
+									<a href="/web/kgaRanking/player">선수별</a>
+								</li>
+								<li>
+									<span class="form-check form-check-like">
+										
+									</span>
+									<a href="/web/kgaRanking/tour">대회별</a>
+								</li>
+								<li>
+									<span class="form-check form-check-like">
+										
+									</span>
+									<a href="/web/kgaRanking/junior">주니어랭킹</a>
+								</li>
+							</ul>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col">
+							<a href="/web/handicap/apply/notice" class="cat-title">핸디캡</a>
+							<ul>
+								<li>
+									<span class="form-check form-check-like">
+										
+									</span>
+									<a href="/web/handicap/apply/notice">핸디캡신청</a>
+								</li>
+								
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/handicap/calculator">코스핸디캡™계산기</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/handicap/system/home">월드핸디캡시스템™</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/handicap/video">동영상</a>
+									</li>
+								
+							</ul>
+						</div>
+						
+							<div class="col">
+								<a href="/web/office/home" class="cat-title">행정</a>
+								<ul>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/office/home">행정홈</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/office/signup">경기인 등록</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/office/numberCheck">개인번호 / 선수번호 확인</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/office/transfer">소속변경(이적)</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/office/certificate">증명서</a>
+									</li>
+								</ul>
+							</div>
+							<div class="col">
+								<a href="/web/notice/notice" class="cat-title">공지사항</a>
+							</div>
+							<div class="col">
+								<a href="/web/media/news" class="cat-title">미디어</a>
+								<ul>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/media/news">보도자료</a>
+									</li>
+									<!-- <li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/media/photo">사진</a>
+									</li> -->
+									<!-- <li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="javascript:alert('준비중 입니다.');">동영상</a>
+									</li> -->
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/media/pressCheck">PRESS</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/media/golfIndicator">골프지표</a>
+									</li>
+								</ul>
+							</div>
+							<div class="col">
+								<a href="/web/golfCourse/memberRole" class="cat-title">회원사골프장</a>
+								<ul>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/golfCourse/memberRole">회원사 역할</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/golfCourse/memberProgram">회원사 프로그램</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/golfCourse/golfCourse">회원사골프장 현황</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/golfCourse/holeInOne">홀인원 현황</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/golfCourse/news">회원사골프장 소식</a>
+									</li>
+									<!-- <li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/golfCourse/certificate">홀인원 인증서</a>
+									</li> -->
+									<!-- <li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/golfCourse/championship">클럽 챔피언십</a>
+									</li> -->
+								</ul>
+							</div>
+						
+					</div>
+				</div>
+				<!-- .container -->
+				<div class="header-moremenu">
+					<div class="moremenu-title">
+						<div class="container">MORE KGA</div>
+					</div>
+					<div class="moremenu-list">
+						<div class="container">
+							<div class="d-flex justify-content-between align-items-center">
+								<ul class="list">
+									
+										<li style="min-width: 180px;"><a href="/web/about/history">ABOUT KGA</a></li>
+										<li style="min-width: 140px;"><a href="/web/shop/productList">SHOP</a></li>
+										
+											
+												<li style="min-width: 140px;"><a href="/web/login">LOGIN</a></li>
+											
+											
+										
+									
+									<li style="min-width: 37px;"><a class="dropdown-item" href="https://www.facebook.com/koreagolfassociation" target="_blank"><img src="/resources/web/images/sns-facebook.svg"></a></li>
+									<li style="min-width: 37px;"><a class="dropdown-item" href="https://www.instagram.com/kgagolf_official" target="_blank"><img src="/resources/web/images/sns-insta.svg"></a></li>
+									<li style="min-width: 37px;"><a class="dropdown-item" href="https://www.youtube.com/@대한골프협회-u6q" target="_blank"><img src="/resources/web/images/sns-youtube.svg"></a></li>
+									<li style="min-width: 37px;"><a class="dropdown-item" href="https://sports.news.naver.com/golf/club/postList?expertId=602" target="_blank"><img src="/resources/web/images/sns-naver.svg"></a></li>
+								</ul>
+								<ul class="lang aPointer chageLang">
+									<li>언어</li>
+									<li class="ps-0">ㅣ</li>
+									<li class="active"><a data-lang="KOR">KOR</a></li>
+									<li class="" style="padding-right: 0px;"><a data-lang="ENG">ENG</a></li>
+								</ul>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- end PC용 전체메뉴 -->
+
+			<!--*********************************** 모바일용 전체메뉴 ***********************************-->
+			<div class="mc-only">
+				<!-- 모바일전체 탭메뉴 -->
+				<div class="nav flex-column nav-fullwidth-mc">
+					<button class="btn nav-link dropdown">
+						<details>
+							<summary>전문체육</summary>
+							<ul>
+								<li>
+									<span class="form-check form-check-like">
+										
+									</span>
+									<a href="/web/elite/schedule">대회일정</a>
+								</li>
+								
+								<li>
+									<span class="form-check form-check-like">
+										
+									</span>
+									<a href="/web/elite/player">선수</a>
+								</li>
+								<li>
+									<span class="form-check form-check-like">
+										
+									</span>
+									<a href="/web/elite/record">기록</a>
+								</li>
+							</ul>
+						</details>
+					</button>
+					
+						<button class="btn nav-link dropdown">
+							<details>
+								<summary>생활체육</summary>
+								<ul>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/life/schedule">대회일정</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/life/player">선수</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/life/lesson">강습사업</a>
+									</li>
+								</ul>
+							</details>
+						</button>
+						<button class="btn nav-link dropdown">
+							<details>
+								<summary>골프규칙</summary>
+								<ul>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/golfRule/rule">골프규칙</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/golfRule/news">골프규칙소식</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/golfRule/faq">FAQ</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/golfRule/seminar">룰 세미나</a>
+									</li>
+								</ul>
+							</details>
+						</button>
+						<button class="btn nav-link dropdown">
+							<details>
+								<summary>국가대표</summary>
+								<ul>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/nationalTeam/nationalTeam">국가대표 선수 현황</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/nationalTeam/schedule">국제대회 일정</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/nationalTeam/photo">사진</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/nationalTeam/board">게시판</a>
+									</li>
+								</ul>
+							</details>
+						</button>
+					
+					<button class="btn nav-link dropdown">
+						<details>
+							<summary>KGA랭킹</summary>
+							<ul>
+								<li>
+									<span class="form-check form-check-like">
+										
+									</span>
+									<a href="/web/kgaRanking/home">랭킹홈</a>
+								</li>
+								<li>
+									<span class="form-check form-check-like">
+										
+									</span>
+									<a href="/web/kgaRanking/player">선수별</a>
+								</li>
+								<li>
+									<span class="form-check form-check-like">
+										
+									</span>
+									<a href="/web/kgaRanking/tour">대회별</a>
+								</li>
+								<li>
+									<span class="form-check form-check-like">
+										
+									</span>
+									<a href="/web/kgaRanking/junior">주니어랭킹</a>
+								</li>
+							</ul>
+						</details>
+					</button>
+					<button class="btn nav-link dropdown">
+						<details>
+							<summary>핸디캡</summary>
+							<ul>
+								<li>
+									<span class="form-check form-check-like">
+										
+									</span>
+									<a href="/web/handicap/apply/notice">핸디캡신청</a>
+								</li>
+								
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/handicap/calculator">코스핸디캡™계산기</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/handicap/system/home">월드핸디캡시스템™</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/handicap/video">동영상</a>
+									</li>
+								
+							</ul>
+						</details>
+					</button>
+					
+						<button class="btn nav-link dropdown">
+							<details>
+								<summary>행정</summary>
+								<ul>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/office/home">행정홈</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/office/signup">경기인 등록</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/office/numberCheck">개인번호 / 선수번호 확인</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/office/transfer">소속변경(이적)</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/office/certificate">증명서</a>
+									</li>
+								</ul>
+							</details>
+						</button>
+						<button class="btn nav-link dropdown">
+							<details>
+								<summary>공지사항</summary>
+								<ul>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/notice/notice">공지사항</a>
+									</li>
+								</ul>
+							</details>
+						</button>
+						<button class="btn nav-link dropdown">
+							<details>
+								<summary>미디어</summary>
+								<ul>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/media/news">보도자료 </a>
+									</li>
+									<!-- <li>
+										<span class="form-check form-check-like">
+										</span>
+										<a href="/web/media/photo">사진</a>
+									</li> -->
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/media/pressCheck">PRESS</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/media/golfIndicator">골프지표</a>
+									</li>
+								</ul>
+							</details>
+						</button>
+						<button class="btn nav-link dropdown">
+							<details>
+								<summary>회원사골프장</summary>
+								<ul>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/golfCourse/memberRole">회원사 역할</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/golfCourse/memberProgram">회원사 프로그램</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/golfCourse/golfCourse">회원사골프장 현황</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/golfCourse/holeInOne">홀인원 현황</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/golfCourse/news">회원사골프장 소식</a>
+									</li>
+									<!-- <li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/golfCourse/certificate">홀인원 인증서</a>
+									</li> -->
+									<!-- <li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/golfCourse/championshipSchedule">클럽 챔피언십</a>
+									</li> -->
+								</ul>
+							</details>
+						</button>
+					
+					<div class="header-moremenu mt-0">
+						<div class="moremenu-title">
+							<div class="container">MORE KGA</div>
+						</div>
+						<div class="moremenu-list">
+							<div class="container">
+								<ul class="list">
+									
+										<li>
+											<span class="form-check form-check-like">
+												
+											</span>
+											<a href="/web/about/history">ABOUT KGA</a>
+										</li>
+										<li>
+											<span class="form-check form-check-like">
+												
+											</span>
+											<a href="/web/shop/productList">SHOP</a>
+										</li>
+										
+										<li>
+											<span class="form-check form-check-like">
+											</span>
+											
+												
+													<a id="naviMobileLogin" href="/web/login">LOGIN</a>
+												
+												
+											
+										</li>
+									
+								</ul>
+								<ul class="sns">
+									<li style="width: 24%;"><a class="dropdown-item" href="https://www.facebook.com/koreagolfassociation" target="_blank"><img src="/resources/web/images/sns-facebook.svg"></a></li>
+									<li style="width: 24%;"><a class="dropdown-item" href="https://www.instagram.com/kgagolf_official" target="_blank"><img src="/resources/web/images/sns-insta.svg"></a></li>
+									<li style="width: 24%;"><a class="dropdown-item" href="https://www.youtube.com/@대한골프협회-u6q" target="_blank"><img src="/resources/web/images/sns-youtube.svg"></a></li>
+									<li style="width: 24%;"><a class="dropdown-item" href="https://sports.news.naver.com/golf/club/postList?expertId=602" target="_blank"><img src="/resources/web/images/sns-naver.svg"></a></li>
+								</ul>
+								<ul class="lang aPointer chageLang">
+									<li>언어</li>
+									<li class="ps-0">ㅣ</li>
+									<li class="active"><a data-lang="KOR">KOR</a></li>
+									<li class="" style="padding-right: 0px;"><a data-lang="ENG">ENG</a></li>
+								</ul>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- .nav-fullwidthmc -->
+			</div>
+			<!-- end 모바일용 전체메뉴 -->
+
+		</div>
+		<!-- .nav-fullwidth -->
+
+	</div>
+
+</div>
+<!-- end .main-menu -->
+	</header>
+	<script type="text/javascript">
+		$(document).ready(function() {
+			var width = document.documentElement.clientWidth;
+			if($("#headermenu a").hasClass("active") === true) {
+				document.getElementById("headermenu").scrollLeft += ($("#headermenu a.active").closest("li").offset().left-(width/2));
+			}
+			
+			if($(".nav-postmenu a").hasClass("active") === true) {
+				$(".nav-postmenu").closest(".scroll").scrollLeft($(".nav-postmenu a.active").closest("li").offset().left-(width/2));
+			}
+			
+		});
+
+	</script>
+	<!-- end .site-header -->
+	<!----------------------------------------- // section headermenu -------------------------------------------->
+	<section id="headermenu" class="section-headermenu">
+		<div class="container">
+			<ul class="nav nav-headermenu">
+				<li class="nav-item"><a class="nav-link " href="/web/elite/schedule">전문체육</a></li>
+				
+				
+					<li class="nav-item"><a class="nav-link " href="/web/life/schedule">생활체육</a></li>
+					<li class="nav-item"><a class="nav-link " href="/web/golfRule/rule">골프규칙</a></li>
+					<li class="nav-item"><a class="nav-link " href="/web/nationalTeam/nationalTeam">국가대표</a></li>
+				
+				
+				<li class="nav-item"><a class="nav-link " href="/web/kgaRanking/home">KGA랭킹</a></li>
+				<li class="nav-item"><a class="nav-link " href="/web/handicap/apply/notice">핸디캡</a></li>
+				
+				
+					<li class="nav-item"><a class="nav-link " href="/web/office/home">행정</a></li>
+					<li class="nav-item"><a class="nav-link " href="/web/notice/notice">공지사항</a></li>
+					<li class="nav-item"><a class="nav-link " href="/web/media/news">미디어</a></li>
+					<li class="nav-item"><a class="nav-link active" href="/web/golfCourse/memberRole">회원사골프장</a></li>
+				
+			</ul>
+		</div>
+	</section>
+
+<!----------------------------------------- // section postmenu -------------------------------------------->
+
+<section class="section-postmenu pb-0">
+	<div class="container">
+		<div class="title-group">
+			<div class="title">회원사골프장</div>
+		</div>
+	</div>
+	<div class="container">
+		<div class="scroll">
+			<ul class="nav nav-postmenu">
+				<li class="nav-item">
+					<a class="nav-link " href="/web/golfCourse/memberRole">회원사 역할</a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link " href="/web/golfCourse/memberProgram">회원사 프로그램</a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link " href="/web/golfCourse/golfCourse">회원 골프장 현황</a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link " href="/web/golfCourse/holeInOne">홀인원 현황</a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link " href="/web/golfCourse/news">회원사골프장 소식</a>
+				</li>
+				
+				
+			</ul>
+		</div>
+	</div>
+</section>
+
+
+<script type="text/javascript">
+$(document).ready(function() {
+	loadDataList();
+	
+	$("#searchYear").change(function() {
+		loadDataList();
+	});
+	
+});
+
+function loadDataList() {
+	var params = new Object();
+	params.year = $("#searchYear").val();
+	
+	$("#loadDiv").load("/load/web/golfCourse/championshipScheduleList", params, function(responseText, textStatus, XMLHttpRequest){
+	});
+}
+</script>
+
+<!----------------------------------------- // content section -------------------------------------------->
+
+<section class="section-area pt-0">
+	<div class="container">
+		<div class="p-4" style="background-color: #9DE98F;">
+			<div class="fs-2 fw-sb">클럽 챔피언십 일정</div>
+		</div>
+		<br>
+		<select id="searchYear" class="form-select form-select-lg border-blue rounded-20 px-4 my-2" style="width: 126px;">
+			
+				<option value="2024">2024</option>
+			
+				<option value="2023">2023</option>
+			
+		</select>
+	</div>
+	
+	<br>
+	
+	<div id="loadDiv"></div>
+</section>
+
+
+
+<script>
+	if(cookieLang == "ENG" && engPageYn == "N") {
+		alert("해당 페이지는 영문 제공하지 않습니다.");
+		location.href = "/web/main/index";
+	}
+</script>
+<!----------------------------------------- // copyright section -------------------------------------------->
+
+<section class="section-area section-sponsor">
+<div class="container">
+	<div class="swiper sponsor-swiper swiper-initialized swiper-horizontal swiper-free-mode swiper-watch-progress swiper-backface-hidden">
+		<div class="swiper-wrapper" id="swiper-wrapper-cc3e9f4126e89cb3" aria-live="off" style="transition-duration: 0ms; transform: translate3d(-426.333px, 0px, 0px); transition-delay: 0ms;">
+			<div class="swiper-slide" role="group" aria-label="1 / 8" style="width: 193.167px; margin-right: 20px;"><a href="https://www.kspo.or.kr/kspo/main/main.do" target="_blank"><img src="/resources/web/images/sponsor/sponsor-01.png?ver=20240910"></a></div>
+			<div class="swiper-slide swiper-slide-prev" role="group" aria-label="2 / 8" style="width: 193.167px; margin-right: 20px;"><a href="https://www.k-sec.or.kr" target="_blank"><img src="/resources/web/images/sponsor/sponsor-02.png?ver=20240910"></a></div>
+			<div class="swiper-slide swiper-slide-visible swiper-slide-active" role="group" aria-label="3 / 8" style="width: 193.167px; margin-right: 20px;"><a href="https://portal.sports.or.kr/main.do" target="_blank"><img src="/resources/web/images/sponsor/sponsor-03.png?ver=20240910" width="70%"></a></div>
+			<div class="swiper-slide swiper-slide-visible swiper-slide-fully-visible swiper-slide-next" role="group" aria-label="4 / 8" style="width: 193.167px; margin-right: 20px;"><a href="https://www.cspep.or.kr/web/main/main" target="_blank"><img src="/resources/web/images/sponsor/sponsor-04.png?ver=20240910"></a></div>
+			<div class="swiper-slide swiper-slide-visible swiper-slide-fully-visible" role="group" aria-label="5 / 8" style="width: 193.167px; margin-right: 20px;"><a href="https://welfare.sports.or.kr" target="_blank"><img src="/resources/web/images/sponsor/sponsor-05.png?ver=20240910"></a></div>
+			<div class="swiper-slide swiper-slide-visible swiper-slide-fully-visible" role="group" aria-label="6 / 8" style="width: 193.167px; margin-right: 20px;"><a href="https://www.kada-ad.or.kr" target="_blank"><img src="/resources/web/images/sponsor/sponsor-06.png?ver=20240910"></a></div>
+			<div class="swiper-slide swiper-slide-visible swiper-slide-fully-visible" role="group" aria-label="6 / 8" style="width: 193.167px; margin-right: 20px;"><a href="https://www.kigepe.or.kr/kor/index.do" target="_blank"><img src="/resources/web/images/sponsor/sponsor-07.png?ver=20240910"></a></div>
+		</div>
+	<span class="swiper-notification" aria-live="assertive" aria-atomic="true"></span></div>
+
+	<!-- Initialize Swiper -->
+	<script>
+		var swiper = new Swiper(".sponsor-swiper", {
+			slidesPerView: 4,
+			spaceBetween: 5,
+			slidesPerGroup : 4,
+			freeMode: true,
+			watchSlidesProgress: true,
+			observer: true,
+			observeParents: true,
+			breakpoints: {
+				1600: {
+				slidesPerView: 6,
+				spaceBetween: 20,
+				slidesPerGroup : 6,
+				},
+			},
+			autoplay: {
+				delay: 4000,
+			},
+		});
+	</script>
+
+</div> <!-- end .container -->
+</section>
+
+<!----------------------------------------- // copyright section -------------------------------------------->
+<section class="section-area section-copyright">
+	<div class="container">
+		<div class="footer-logo">
+			<img src="/resources/web/images/footer-logo.svg">
+		</div>
+		<div class="footer-menu">
+			<ul>
+				<li><a href="/footerTerms">KGA 이용약관</a></li>
+				<li><a href="/footerPrivate">개인정보처리방침</a></li>
+			</ul>
+		</div>
+		<div class="footer-copyright">
+			<p>Copyright ⓒ KGA All Right Reserved. </p>
+			<p>
+				
+					
+						10881 경기도 파주시 회동길 174 (문발동) | Tel. (031)-540-5700 | FAX (0507)-883-2300<br>
+						174, Hoedong-gil, Paju-si, Gyeonggi-do, 10881, Rep. of KOREA
+					
+					
+				
+			</p>
+		</div>
+	</div> <!-- end .container -->
+</section> <!-- end .section-copyright -->
+
+
+<span itemscope="" itemtype="http://schema.org/Organization">
+	<link itemprop="url" href="https://kgagolf.or.kr">
+	<a itemprop="sameAs" href="https://www.facebook.com/koreagolfassociation"></a>
+	<a itemprop="sameAs" href="https://www.instagram.com/kgagolf_official"></a>
+	<a itemprop="sameAs" href="https://www.youtube.com/@대한골프협회-u6q"></a>
+	<a itemprop="sameAs" href="https://blog.naver.com/koreagolfassociation"></a>
+</span>
+
+
+</body>
+</html>

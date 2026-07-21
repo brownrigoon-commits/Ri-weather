@@ -1,0 +1,703 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+	<script>
+		if(document.location.href.indexOf("m.sehyeoncc.com") > 0) {
+			location.href = "https://m.sehyeoncc.com/mobile/index.asp";
+		}
+	</script>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=Edge">
+	<meta name="apple-mobile-web-app-capable" content="no" />
+	<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+	<meta name="format-detection" content="telephone=no,email=no,address=no">
+	<meta name="title" content="세현 컨트리클럽">
+	<meta name="author" content="세현 컨트리클럽">
+	<meta name="Keywords" content="세현 컨트리클럽">
+	<meta name="description" content="세현 컨트리클럽">
+	<meta name="copyright" content="All Contents COPYRIGHTⓒ SEHYEON CC. All RIGHTS RESERVED.">
+	<meta property="og:type" content="website">
+	<meta property="og:title" content="세현 컨트리클럽">
+	<meta property="og:description" content="세현 컨트리클럽">
+	<meta property="og:image" content="https://sehyeoncc.com/images/snsImg.jpg">
+	<meta property="og:url" content="">
+	<link rel="canonical" href="">
+	<title>세현 컨트리클럽</title>
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.8.2/css/all.min.css" />
+	<link rel="stylesheet" type="text/css" href="/css/import.css">
+	<link rel="stylesheet" type="text/css" href="/css/flickity.css">
+	<link rel="stylesheet" type="text/css" href="/css/main.css">
+	<script src="/js/common.js"></script>
+	<script src="/js/jquery.preloaders.js"></script>
+	<script src="/js/tools.js?v=1"></script>
+	<script src="/js/globals.js"></script>
+	<script src="/js/jquery.subtle-slideshow.js"></script>
+	<script src="/js/cbpHorizontalMenu.js"></script>
+	<script src="https://cdn.jsdelivr.net/bxslider/4.2.12/jquery.bxslider.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/flickity/1.1.1/flickity.pkgd.min.js"></script>
+	
+		<link rel="stylesheet" type="text/css" href="/css/contents.css?v=1">
+	
+	<script>
+		var isOpenSubMenu = false;
+
+		$(document).ready(function() {
+			//setInterval(sessionCheck, 1000);
+
+			setProtocol();
+
+			chkMobile();
+
+			$("#top_menu").find("a").hover(function() {
+				if(!isOpenSubMenu) {
+					isOpenSubMenu = !isOpenSubMenu;
+					$("#sub_menu").toggle(500);
+				}
+				$($("#sub_menu").find("li")[$(this).index()]).addClass("open-hover");
+			}, function() {
+				$($("#sub_menu").find("li")[$(this).index()]).removeClass("open-hover");
+			});
+
+			$("#menu_container").on("mouseleave", function() {
+				isOpenSubMenu = !isOpenSubMenu;
+				$("#sub_menu").toggle(500);
+			});
+
+			$("#sub_menu").find("li").hover(function() {
+				$(this).addClass("open-hover");
+				$($("#top_menu").find("a")[$(this).index()-1]).addClass("on")
+			}, function() {
+				$(this).removeClass("open-hover");
+				$($("#top_menu").find("a")[$(this).index()-1]).removeClass("on")
+			});
+		});
+
+		function setProtocol() {
+			if (document.location.protocol == 'http:') {
+				document.location.href = document.location.href.replace('http:', 'https:');
+			}
+
+			if(document.location.href.indexOf("sehyeoncc.co.kr") > 0) {
+				document.location.href = document.location.href.replace('sehyeoncc.co.kr', 'sehyeoncc.com');
+			} else if(document.location.href.indexOf("sehyeongc.co.kr") > 0) {
+				document.location.href = document.location.href.replace('sehyeongc.co.kr', 'sehyeoncc.com');
+			} else if(document.location.href.indexOf("sehyeongc.com") > 0) {
+				document.location.href = document.location.href.replace('sehyeongc.com', 'sehyeoncc.com');
+			}
+		}
+
+		function doLogout() {
+			var sUrl = "/Controller/MemberController.asp";
+			var params = {};
+
+			params["method"] = "doLogout";
+
+			mAjax(sUrl, params, "POST", true, function(data) {
+				if(data.resultCode == "0000") {
+					alert("로그아웃 되었습니다.");
+					location.href = "/index.asp"
+				}
+			});
+		}
+
+		function onlySubMenu(val){
+			if(val == "1") {
+				$("#onlySub").hide();
+			}else (
+				$("#onlySub").show()
+			)
+		}
+
+		function sessionCheck() {
+			var sUrl = "/controller/SessionManager.asp";
+			var params = {"method" : "sessionConfirm"};
+
+			mAjax(sUrl, params, "POST", false, function(data) {
+				if(data.resultCode == "2000") {
+					alert(data.resultMessage);
+					location.reload();
+				}
+			});
+		}
+	</script>
+	
+	    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-ZV8BWRZ06F"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+    
+      gtag('config', 'G-ZV8BWRZ06F');
+    </script>	
+</head>
+
+<body>
+<div id="wrap">
+	<div id="header">
+		<div class="headerBox">
+			<h1 class="top_logo"><a href="/index.asp"><img src="/images/logo.png" alt="logo"></a></h1>
+			<div id="menu_container">
+				<ul class="top_menu" id="top_menu">
+					<a href="/reservation/reservation.asp">온라인 예약</a>
+					<a href="/board/list.asp?type=1">이벤트&amp;공지사항</a>
+					<a href="/course/allcourse.asp">코스소개</a>
+					<a href="javascript:alert('준비중입니다.')">클럽소개</a>
+					<a href="/guide/guide.asp">이용안내</a>
+					<a href="/member/modify.asp">마이페이지</a>
+				</ul>
+
+				<div class="sub_menu">
+					<ul id="sub_menu" hidden>
+						<div class="top_line"></div>
+						<li>
+							<a href="/reservation/reservation.asp">실시간예약</a>
+							<a href="/reservation/reservation2.asp">예약확인/취소</a>
+						</li>
+						<li>
+							<a href="/board/list.asp?type=1">공지사항</a>
+							<a href="/board/list.asp?type=2">이벤트</a>
+							<a href="javascript:alert('준비중입니다.')">SNS</a>
+						</li>
+						<li>
+							<a href="/course/allcourse.asp">전체코스</a>
+							<a href="/course/v1.asp">VALLEY</a>
+							<a href="/course/l1.asp">LAKE</a>
+							<a href="/board/list.asp?type=5">코스갤러리</a>
+						</li>
+						<li>
+							<a href="javascript:alert('준비중입니다.')">클럽소개</a>
+							<a href="/club/facil.asp">부대시설</a>
+							<a href="/club/map.asp">오시는길</a>
+							<a href="/club/menu.asp">음식메뉴</a>
+						</li>
+						<li>
+							<a href="/guide/guide.asp">이용안내</a>
+							<a href="/guide/guide2.asp">이용규정</a>
+							<a href="/guide/guide3.asp">예약안내 및 위약규정</a>
+							<a href="/guide/guide4.asp">전화번호 안내</a>
+							<a href="/guide/guide5.asp">분실물 처리규정</a>
+						</li>
+						<li>
+							<a href="/member/modify.asp">개인정보수정</a>
+							<a href="/board/customer.asp">고객의소리</a>
+							<a href="/member/coupon.asp">나의쿠폰</a> 
+							<a href="/member/score.asp">스코어카드</a>
+							<a href="/member/delete.asp">회원탈퇴</a>
+						</li>
+					</ul>
+				</div>
+			</div>
+			<div class="top_sns">
+				<a href="javascript:alert('준비중입니다.')"><img src="/images/sns_f.png"></a>
+				<a href="javascript:alert('준비중입니다.')"><img src="/images/sns_t.png"></a>
+				<a href="http://www.weather.go.kr/weather/forecast/timeseries.jsp?searchType=SETINFO&setinfoCode=4155033000" target="_blank"><img src="/images/w_sc.png"></a>
+			</div>
+		</div>
+
+		<script>
+
+  var bigMenu, midMenu;
+  var bigMenus = {
+    "join" : "회원가입",
+    "reservation" : "인터넷예약",
+    "member" : "마이페이지",
+	"board" : "이벤트&공지사항",
+	"course" : "코스소개",
+	"guide" : "이용안내",
+	"etc" : "세현CC",
+	"club" : "클럽소개",
+	 
+  }
+
+  var midMenus = {
+    "join" : {
+      "/join/join.asp" : ["회원가입", true],
+      "/join/join02.asp" : ["회원가입", false],
+      "/join/join03.asp" : ["회원가입", false],
+      "/join/join04.asp" : ["회원가입", false],
+      "/join/find.asp" : ["ID/PW 찾기", true],
+      "/join/login.asp" : ["로그인", false]
+    },
+    "reservation" : {
+      "/reservation/reservation.asp" : ["실시간예약", true],
+      "/reservation/reservation2.asp" : ["예약확인/취소", true]
+    },
+	"member" : {
+      "/member/modify.asp" : ["개인정보수정", true],
+      "/member/coupon.asp" : ["나의쿠폰", true],
+      "/member/score.asp" : ["스코어카드", true],
+      "/member/delete.asp" : ["회원탈퇴", true]
+    },
+	"board" : {
+      "/board/list.asp?type=1" : ["공지사항", true],
+      "/board/list.asp?type=2" : ["이벤트", true],
+      "/board/view.asp?type=1" : ["공지사항", false],
+      "/board/view.asp?type=2" : ["이벤트", false],
+      "/board/score.asp" : ["스코어카드", false]
+    },
+	  "course" : {
+      "/course/allcourse.asp" : ["전체코스", true],
+      "/course/v1.asp" : ["VALLEY", true],
+      "/course/v2.asp" : ["VALLEY", false],
+      "/course/v3.asp" : ["VALLEY", false],
+      "/course/v4.asp" : ["VALLEY", false],
+      "/course/v5.asp" : ["VALLEY", false],
+      "/course/v6.asp" : ["VALLEY", false],
+      "/course/v7.asp" : ["VALLEY", false],
+      "/course/v8.asp" : ["VALLEY", false],
+      "/course/v9.asp" : ["VALLEY", false],
+      "/course/l1.asp" : ["LAKE", true],
+	  "/course/l2.asp" : ["LAKE", false],
+	  "/course/l3.asp" : ["LAKE", false],
+	  "/course/l4.asp" : ["LAKE", false],
+	  "/course/l5.asp" : ["LAKE", false],
+	  "/course/l6.asp" : ["LAKE", false],
+	  "/course/l7.asp" : ["LAKE", false],
+	  "/course/l8.asp" : ["LAKE", false],
+	  "/course/l9.asp" : ["LAKE", false],
+      "/board/list.asp?type=5" : ["코스갤러리", true],
+      "/board/view.asp?type=5" : ["코스갤러리", false]
+    },
+	  "guide" : {
+      "/guide/guide.asp" : ["이용안내", true],
+      "/guide/guide2.asp" : ["이용규정", true],
+      "/guide/guide3.asp" : ["예약안내 및 위약규정", true],
+      "/guide/guide4.asp" : ["전화번호 안내", true],
+      "/guide/guide5.asp" : ["분실물 처리규정", true]
+    },
+	  "etc" : {
+      "/guide/golfterms.asp" : ["골프장 이용약관", true],
+      "/guide/terms.asp" : ["사이트 이용약관", true],
+      "/guide/policy.asp" : ["개인정보처리방침", true]
+    },
+	  "club" : {
+      "/club/facil.asp" : ["부대시설", true],
+      "/club/facil2.asp" : ["부대시설", false],
+      "/club/facil3.asp" : ["부대시설", false],
+      "/club/facil4.asp" : ["부대시설", false],
+      "/club/map.asp" : ["오시는길", true],
+      "/club/menu.asp" : ["음식메뉴", true],
+      "/club/menu02.asp" : ["음식메뉴", false],
+      "/club/menu03.asp" : ["음식메뉴", false],
+      "/club/menu04.asp" : ["음식메뉴", false],
+      "/club/menu05.asp" : ["음식메뉴", false],
+      "/club/menu06.asp" : ["음식메뉴", false],
+    }
+  }
+
+	$(document).ready(function() {
+		initMenus();
+	});
+
+	function initMenus() {
+		var url = window.location.href;
+
+		for(var key in midMenus) {
+			for(var page in midMenus[key]) {
+				if(url.indexOf(page) > 0) {
+					$("#txtBigMenuName").html(bigMenus[key]);
+					$("#txtMidMenuName").html(midMenus[key][page][0]);
+					bigMenu = key;
+					midMenu = page;
+					break;
+				}
+			}
+
+			if(bigMenu != null && bigMenu != "") {
+				break;
+			}
+		}
+
+		$("#menuContainer").empty();
+
+		for(var key in midMenus[bigMenu]) {
+			if(midMenus[bigMenu][key][1]){
+				$("#menuContainer").append(String.format("<li><a href='{0}'>{1}</a></li>", key, midMenus[bigMenu][key][0]));
+			}
+		}
+	}
+</script>
+<div class="naviLine" id="onlySub">
+  <div class="naviBox">
+    <div class="nav">
+      <ul>
+        <li>
+          <a class="home" href="#">
+            <img src="/images/home.png" alt="홈">
+          </a>
+        </li>
+        <li>
+          <a href="#"><txt id="txtBigMenuName">세현CC</txt><span><img src="/images/arw.png" alt="대메뉴선택"></span>
+          </a>
+          <ul class="menu">
+            <!--<li>
+              <a href="/join/join.asp">회원가입</a>
+            </li>
+            <li>
+              <a href="/join/join.asp">ID/PW 찾기</a>
+            </li>-->
+          </ul>
+        </li>
+        <li>
+          <a href="#"><txt id="txtMidMenuName">세현CC</txt><span><img src="/images/arw.png" alt="중메뉴선택"></span>
+          </a>
+          <ul class="menu" id="menuContainer">
+          </ul>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+	</div>
+
+<style>
+area:focus{
+  border: none;
+  outline:none;
+  outline-style: none;
+	-moz-outline-style:none; }
+</style>
+<script>
+ $(document).ready(function() {
+    $("#mapContainer").find("area").each(function() {
+      $(this).mouseover(function() {
+        $("#course").css("opacity","0");
+        $("#cm" + $(this).data("idx")).css("display", "block");
+      }).mouseout(function() {
+        $("#course").css("opacity","1");
+        $("#cm" + $(this).data("idx")).css("display", "none");
+      });
+    });
+ })
+</script>
+	<!--Contents-->
+	<div id="contents">
+		<div class="contentWrap">
+			<div class="tab4 margin40">
+				<a href="/course/allcourse.asp" class="on">전체코스</a>
+				<a href="/course/v1.asp" class="">VALLEY</a>
+				<a href="/course/l1.asp" class="">LAKE</a>
+				<a href="/board/list.asp?type=5" class="">코스갤러리</a>
+			</div>
+
+			<div class="subTitle1">
+				<h2 class="commonTit left"><span class="subT"><i class="arrow right"></i></span> 전체코스</h2>
+			</div>
+
+			<div class="allcourseWrap">
+				<div class="courseText">
+					<img src="/images/david.jpg">
+				</div>
+
+				<div class="allcourseImg">
+					<div class="bgCourse">
+						<div class="onCourse">
+							<img src="/images/course/allcourse.jpg" usemap="#Map" border="0" id="course">
+							<map name="Map" id="mapContainer">
+  <area shape="poly" data-idx="1" coords="508,384,526,364,561,340,577,315,605,313,619,304,634,277,656,266,685,250,719,240,720,227,697,213,674,210,635,215,595,248,583,274,559,299,543,326,527,346,504,363,492,371" href="/course/v1.asp" id="c1">
+  <area shape="poly" data-idx="2" coords="746,225,759,219,765,212,761,201,738,197,724,194,674,179,642,177,610,179,597,177,565,176,543,175,526,179,508,191,495,228,495,240,510,268,520,274,527,273,539,261,535,241,540,237,558,228,588,219,628,210,638,202,652,197,680,200" href="/course/v2.asp" id="c2">
+  <area shape="poly" data-idx="3" coords="492,224,473,233,455,238,442,231,420,220,404,192,396,186,386,177,370,175,346,188,335,197,318,220,293,233,270,251,251,273,232,278,218,273,207,254,214,240,224,219,248,208,281,177,318,151,358,149,383,146,407,151,425,167,441,189,465,200,474,201,485,202,493,209" href="/course/v3.asp" id="c3">
+  <area shape="poly" data-idx="4" coords="197,267,178,270,172,279,183,288,202,298,222,305,242,307,255,311,270,318,315,348,346,345,359,330,356,311,344,294,323,293,295,288,284,287,273,284,251,281,240,283,236,285,219,281" href="/course/v4.asp" id="c4">
+  <area shape="poly" data-idx="5" coords="345,376,374,375,396,388,403,393,425,399,446,406,455,417,441,423,410,414,406,417,394,409,374,394,343,385,306,377,271,380,232,375,208,361,184,353,178,340,178,324,184,316,197,309,209,309,301,351,322,363,338,372" href="/course/v5.asp" id="c5">
+  <area shape="poly" data-idx="6" coords="195,299,171,314,166,328,162,338,161,357,158,377,151,386,129,386,117,373,118,359,127,346,134,334,139,321,151,306,159,297,179,289" href="/course/v6.asp" id="c6">
+  <area shape="poly" data-idx="7" coords="119,425,139,482,164,513,176,538,208,581,238,611,263,628,299,673,354,689,387,671,400,661,401,648,392,639,379,638,355,641,343,624,329,619,312,612,303,605,285,585,261,571,243,542,217,519,197,511,186,497,176,479,164,471,163,437,143,413,120,405" href="/course/v7.asp" id="c7">
+  <area shape="poly" data-idx="8" coords="446,657,424,653,405,640,376,630,345,610,330,599,305,593,272,571,235,528,218,506,203,485,185,468,185,448,190,440,194,435,211,429,224,430,229,445,239,457,250,475,255,490,273,511,287,520,306,538,329,555,373,597,398,613,422,621,441,630,456,643" href="/course/v8.asp" id="c8">
+  <area shape="poly" data-idx="9" coords="165,416,179,418,213,424,339,452,498,509,516,499,518,466,508,449,492,434,458,429,419,425,387,420,360,403,329,389,295,388,269,392,233,391,206,384,181,380,163,383,151,388,123,389,120,400" href="/course/v9.asp" id="c9">
+  <area shape="poly" data-idx="10" coords="545,384,693,310,755,289,772,285,787,287,800,303,789,332,772,368,756,386,702,404,689,411,660,396,621,392,598,393,582,397,565,397,547,394" href="/course/l1.asp" id="c10">
+  <area shape="poly" data-idx="11" coords="711,283,827,202,884,139,900,115,943,106,973,100,983,107,991,113,992,133,949,168,902,217,832,237,776,266,730,293,712,292" href="/course/l2.asp" id="c11">
+  <area shape="poly" data-idx="12" coords="1064,72,1037,107,1028,127,1012,148,956,177,912,224,824,255,789,267,791,279,795,289,802,297,815,303,828,304,852,304,884,291,928,277,973,244,1009,216,1029,179,1047,133,1068,99,1090,70,1090,62,1080,59" href="/course/l3.asp" id="c12">
+  <area shape="poly" data-idx="13" coords="1049,203,1056,228,1054,241,1052,251,1014,272,989,291,964,309,942,314,895,322,874,329,846,330,811,347,806,336,807,326,828,313,846,311,857,308,874,306,888,302,926,285,970,253,1017,219,1033,199" href="/course/l4.asp" id="c13">
+  <area shape="poly" data-idx="14" coords="875,339,902,323,924,319,950,318,978,308,1012,287,1037,269,1050,264,1058,267,1062,269,1060,276,1055,286,1035,304,1025,312,1017,318,1007,329,994,347,967,343,952,354,943,365,927,374,911,376,894,373,881,368,869,357,863,349,868,343" href="/course/l5.asp" id="c14">
+  <area shape="poly" data-idx="15" coords="730,422,749,409,759,413,765,421,750,436,731,453,714,480,691,510,686,540,677,561,670,577,659,583,625,592,607,599,590,614,578,637,556,648,528,643,517,626,514,614,524,604,538,581,587,550,625,529,638,523" href="/course/l6.asp" id="c15">
+  <area shape="poly" data-idx="16" coords="501,633,540,652,565,660,576,675,568,682,550,680,532,679,520,673,499,662,450,629,402,604,357,577,318,538,279,512,256,478,255,459,261,451,272,445,298,452,319,475,348,505,407,552" href="/course/l7.asp" id="c16">
+  <area shape="poly" data-idx="17" coords="318,452,340,455,358,466,430,490,464,507,465,525,454,539,436,547,421,547,403,537,383,523,343,493,324,474,316,463" href="/course/l8.asp" id="c17">
+  <area shape="poly" data-idx="18" coords="610,399,643,400,659,408,669,417,677,430,673,444,664,459,645,476,634,491,627,506,623,514,591,531,542,549,508,558,481,568,472,575,461,580,451,580,443,572,440,564,482,529,515,513,539,486,575,447,590,425,606,403" href="/course/l9.asp" id="c18">
+</map>
+						</div>
+						<div class="onCourse2" >
+							<a href="#"><img src="/images/course/c1.jpg" id="cm1"></a>
+							<a href="#"><img src="/images/course/c2.jpg" id="cm2"></a>
+							<a href="#"><img src="/images/course/c3.jpg" id="cm3"></a>
+							<a href="#"><img src="/images/course/c4.jpg" id="cm4"></a>
+							<a href="#"><img src="/images/course/c5.jpg" id="cm5"></a>
+							<a href="#"><img src="/images/course/c6.jpg" id="cm6"></a>
+							<a href="#"><img src="/images/course/c7.jpg" id="cm7"></a>
+							<a href="#"><img src="/images/course/c8.jpg" id="cm8"></a>
+							<a href="#"><img src="/images/course/c9.jpg" id="cm9"></a>
+							<a href="#"><img src="/images/course/c10.jpg" id="cm10"></a>
+							<a href="#"><img src="/images/course/c11.jpg" id="cm11"></a>
+							<a href="#"><img src="/images/course/c12.jpg" id="cm12"></a>
+							<a href="#"><img src="/images/course/c13.jpg" id="cm13"></a>
+							<a href="#"><img src="/images/course/c14.jpg" id="cm14"></a>
+							<a href="#"><img src="/images/course/c15.jpg" id="cm15"></a>
+							<a href="#"><img src="/images/course/c16.jpg" id="cm16"></a>
+							<a href="#"><img src="/images/course/c17.jpg" id="cm17"></a>
+							<a href="#"><img src="/images/course/c18.jpg" id="cm18"></a>
+						</div>
+					</div>
+				</div>
+
+				<table class="courseTable1">
+					<colgroup>
+						<col width="20%">
+						<col width="13%">
+						<col width="6%">
+						<col width="6%">
+						<col width="6%">
+						<col width="6%">
+						<col width="6%">
+						<col width="6%">
+						<col width="6%">
+						<col width="6%">
+						<col width="6%">
+						<col width="13%">
+					</colgroup>
+
+					<tbody>
+						<tr>
+							<th scope="col" rowspan="7" class="bold bgWhite">VALLEY</th>
+							<th scope="col">HOLE</th>
+							<th scope="col">1</th>
+							<th scope="col">2</th>
+							<th scope="col">3</th>
+							<th scope="col">4</th>
+							<th scope="col">5</th>
+							<th scope="col">6</th>
+							<th scope="col">7</th>
+							<th scope="col">8</th>
+							<th scope="col">9</th>
+							<th scope="col">TOTAL(M)</th>
+						</tr>
+						<tr>
+							<td>BLACK</td>
+							<td>335</td>
+							<td>358</td>
+							<td>342</td>
+							<td>178</td>
+							<td>337</td>
+							<td>135</td>
+							<td>535</td>
+							<td>440</td>
+							<td>527</td>
+							<td>3,187</td>
+						</tr>
+						<tr>
+							<td>BLUE</td>
+							<td>316</td>
+							<td>336</td>
+							<td>317</td>
+							<td>166</td>
+							<td>319</td>
+							<td>124</td>
+							<td>518</td>
+							<td>413</td>
+							<td>510</td>
+							<td>3,019</td>
+						</tr>
+						<tr>
+							<td>WHITE</td>
+							<td>288</td>
+							<td>321</td>
+							<td>298</td>
+							<td>151</td>
+							<td>306</td>
+							<td>114</td>
+							<td>505</td>
+							<td>385</td>
+							<td>489</td>
+							<td>2,857</td>
+						</tr>
+						<tr>
+							<td>GOLD</td>
+							<td>282</td>
+							<td>306</td>
+							<td>275</td>
+							<td>142</td>
+							<td>294</td>
+							<td>108</td>
+							<td>485</td>
+							<td>337</td>
+							<td>414</td>
+							<td>2,643</td>
+						</tr>
+						<tr>
+							<td>RED</td>
+							<td>239</td>
+							<td>242</td>
+							<td>260</td>
+							<td>131</td>
+							<td>231</td>
+							<td>96</td>
+							<td>408</td>
+							<td>305</td>
+							<td>325</td>
+							<td>2,237</td>
+						</tr>
+						<tr>
+							<td>PAR</td>
+							<td>4</td>
+							<td>4</td>
+							<td>4</td>
+							<td>3</td>
+							<td>4</td>
+							<td>3</td>
+							<td>5</td>
+							<td>4</td>
+							<td>5</td>
+							<td>36</td>
+						</tr>
+					</tbody>
+				</table>
+
+				<table class="courseTable1">
+					<colgroup>
+						<col width="20%">
+						<col width="13%">
+						<col width="6%">
+						<col width="6%">
+						<col width="6%">
+						<col width="6%">
+						<col width="6%">
+						<col width="6%">
+						<col width="6%">
+						<col width="6%">
+						<col width="6%">
+						<col width="13%">
+					</colgroup>
+
+					<tbody>
+						<tr>
+							<th scope="col" rowspan="7" class="bold bgWhite">LAKE</th>
+							<th scope="col">HOLE</th>
+							<th scope="col">1</th>
+							<th scope="col">2</th>
+							<th scope="col">3</th>
+							<th scope="col">4</th>
+							<th scope="col">5</th>
+							<th scope="col">6</th>
+							<th scope="col">7</th>
+							<th scope="col">8</th>
+							<th scope="col">9</th>
+							<th scope="col">TOTAL(M)</th>
+						</tr>
+						<tr>
+							<td>BLACK</td>
+							<td>353</td>
+							<td>408</td>
+							<td>495</td>
+							<td>334</td>
+							<td>207</td>
+							<td>413</td>
+							<td>501</td>
+							<td>191</td>
+							<td>348</td>
+							<td>3,250</td>
+						</tr>
+						<tr>
+							<td>BLUE</td>
+							<td>339</td>
+							<td>382</td>
+							<td>476</td>
+							<td>311</td>
+							<td>198</td>
+							<td>389</td>
+							<td>488</td>
+							<td>172</td>
+							<td>322</td>
+							<td>3,077</td>
+						</tr>
+						<tr>
+							<td>WHITE</td>
+							<td>320</td>
+							<td>359</td>
+							<td>448</td>
+							<td>294</td>
+							<td>178</td>
+							<td>369</td>
+							<td>473</td>
+							<td>155</td>
+							<td>302</td>
+							<td>2,898</td>
+						</tr>
+						<tr>
+							<td>GOLD</td>
+							<td>307</td>
+							<td>345</td>
+							<td>398</td>
+							<td>279</td>
+							<td>158</td>
+							<td>356</td>
+							<td>449</td>
+							<td>135</td>
+							<td>294</td>
+							<td>2721</td>
+						</tr>
+						<tr>
+							<td>RED</td>
+							<td>225</td>
+							<td>285</td>
+							<td>328</td>
+							<td>241</td>
+							<td>123</td>
+							<td>296</td>
+							<td>402</td>
+							<td>112</td>
+							<td>250</td>
+							<td>2,262</td>
+						</tr>
+						<tr>
+							<td>PAR</td>
+							<td>4</td>
+							<td>4</td>
+							<td>5</td>
+							<td>4</td>
+							<td>3</td>
+							<td>4</td>
+							<td>5</td>
+							<td>3</td>
+							<td>4</td>
+							<td>36</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+
+	<div id="footer">
+		<div class="footerTop">
+			<a href="/guide/golfterms.asp">골프장 이용약관</a>
+			<a href="/guide/terms.asp">사이트 이용약관</a>
+			<a href="/guide/policy.asp">개인정보처리방침</a>
+			<a href="/guide/safety.asp">안전ㆍ보건 경영방침</a>
+		</div>
+		<div class="footerBottom">
+			<p>경기도 용인시 처인구 이동읍 백자로 450 (서리 산 70-3) | 문의전화 <span class="bold">031-670-8800</span> | 팩스번호 <span class="bold">031-670-8870</span></p>
+			<p>대표이사 이용학 | 사업자등록번호 144-81-31966 | 통신판매신고 2020-용인처인-0978호</p>
+			<p>Copyright© yongin sehyeon country club CO., LTD. All rights reserved.</p>
+			<ul>
+				<li>
+					<!--UCERT Certificate Mark-->
+<img src="https://www.ucert.co.kr/images/trustlogo/ucert_black.gif" width="63" height="71" align="absmiddle" border="0" style="cursor:hand" onclick="javascript:window.open('https://www.ucert.co.kr/trustlogo/UCERT_TRUSTLOGO.html?sealnum=4ce5446abbd59f81','mark','scrollbars=no,resizable=no,width=530,height=468');">
+<!--UCERT Certificate Mark-->
+				</li>
+				<li>
+					<!--UCERT Certificate Mark-->
+<img src="https://www.ucert.co.kr/images/trustlogo/PositiveSSL_tl_trans.gif" width="63" height="63" align="absmiddle" border="0" style="cursor:hand" onclick="javascript:window.open('https://www.ucert.co.kr/trustlogo/sseal_comodo.html?sealnum=4ce5446abbd59f81','mark','scrollbars=no,resizable=no,width=405,height=400');">
+<!--UCERT Certificate Mark-->
+				</li>
+				<li>
+				<!--KISA Certificate Mark-->
+<img src="https://www.ucert.co.kr/images/trustlogo/s_kisa.gif" width="65" height="63" align="absmiddle" border="0" style="cursor:hand" onclick="javascript:window.open('https://www.ucert.co.kr/trustlogo/sseal_cert.html?sealnum=4ce5446abbd59f81&sealid=66c989d32d98d4c8c77fcafd805523ea988b236adc75eedfdd93b4e2fb94f5c92c6ecc1da56bdda180f45f66e807594178a98b468c1d0adea4953a66e8cc8854','mark','scrollbars=no,resizable=no,width=565,height=780');">
+<!--KISA Certificate Mark-->
+				</li>
+			</ul>
+		</div>
+	</div>
+</div>
+</body>
+</html>

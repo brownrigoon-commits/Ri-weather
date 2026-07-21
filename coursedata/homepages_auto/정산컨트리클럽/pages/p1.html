@@ -1,0 +1,1063 @@
+
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="author" content="씨엠인포텍" />
+<meta name="description" content="" />
+
+<meta property="og:image" content="/resource/assets/common/images/common_icon_and.ico">
+<meta property="og:description" content=""/>
+<title>정산컨트리클럽</title>
+
+<link rel="shortcut icon" href="/resource/assets/common/images/common_icon_and.ico" />
+<link rel="apple-touch-icon-precomposed" href="/resource/assets/common/images/common_icon_and.ico" />
+<link rel="shortcut icon" href="/resource/assets/common/images/common_icon_and.ico" />
+<link rel="apple-touch-icon-precomposed" href="/resource/assets/common/images/common_icon_and.ico" />
+
+
+
+<link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Lato:300,400,700" />
+<!-- common css -->
+<link rel="stylesheet" type="text/css" href="/resource/assets/common/css/jquery.bxslider.css" />
+<link rel="stylesheet" type="text/css" href="/resource/assets/common/css/common.css?ver=250924" />
+<link rel="stylesheet" type="text/css" href="/resource/assets/common/css/sub.css?ver=20220928" />
+<link rel="stylesheet" type="text/css" href="/resource/assets/common/css/cm_joinroom_calender.css" />
+<link rel="stylesheet" type="text/css" href="/resource/assets/common/css/jquery-ui.tooltip.css" />
+<!-- ÃªÂ¹ÂÃ­ÂÂÃ«Â¹Â 2018-06-21 Ã¬Â¶ÂÃªÂ°Â -->
+<link rel="stylesheet" type="text/css" href="/resource/assets/reservation/css/cm_maincalender.css" />
+<link rel="stylesheet" type="text/css" href="/resource/assets/reservation/css/cm_reservation.css" />
+<link rel="stylesheet" type="text/css" href="/resource/assets/reservation/css/cm_quickreservation.css" />
+<link rel="stylesheet" type="text/css" href="/resource/assets/common/css/cminfor.css" />
+<link rel="stylesheet" type="text/css" href="/resource/assets/member/css/login_modal.css" />
+
+<!-- common js -->
+<script type="text/javascript" src="/resource/assets/common/js/jquery-1.7.1.js"></script>
+<script type="text/javascript" src="/resource/assets/common/js/jquery-1.7.1.min.js"></script>
+<script type="text/javascript" src="/resource/assets/common/js/jquery.easing.1.3.min.js"></script>
+<script type="text/javascript" src="/resource/assets/common/js/jquery.sliderkit.1.9.2.pack.js"></script>
+<script type="text/javascript" src="/resource/assets/common/js/jquery.bxslider.js"></script>
+<script type="text/javascript" src="/resource/assets/common/js/menu.layer.js"></script>
+<script type="text/javascript" src="/resource/assets/member/js/loginfrom.js"></script>
+<script type="text/javascript" src="/resource/assets/common/js/jquery.ui.core.js"></script>
+<script type="text/javascript" src="/resource/assets/common/js/jquery.watermark.js"></script>
+<script type="text/javascript" src="/resource/assets/common/js/jquery.jrumble.1.3.min.js"></script> 
+<script type="text/javascript" src="/resource/assets/common/js/prettify.js"></script>
+<script type="text/javascript" src="/resource/assets/common/js/rolling_zone.js"></script>
+<script type="text/javascript" src="/resource/assets/common/js/jquery.DOMWindow.js"></script>
+<script type="text/javascript" src="/resource/assets/common/js/common.js"></script>
+
+
+
+<script>
+//퀵 레이아웃 오픈 여무 
+
+   
+
+    var flg2 = true;
+    
+    // 퀵레이어 오픈 
+    function quick_layout_info_html(mId){
+   
+        if (mId == ""){ mId = "quickModalPop";}
+        var body_height = window.innerHeight
+        if (body_height <500){
+            $("#"+mId+"").css("position", "absolute");
+            //document.getElementById("quickModalPop").style.position = "absolute";
+        }else{
+            $("#"+mId+"").css("position", "fixed");
+            // document.getElementById("quickModalPop").style.position = "fixed";
+        }   
+
+        if (flg2){
+        }else{
+            // 모달팝업 숨김
+            $('.quick_reserv').removeClass("on");
+            $("#"+mId+"").css("display","none");
+            flg2 =!flg2;
+            return;
+        }
+  
+        var actionurl = "/reservation/modal/ajax_real_modal_info.do";
+
+        var tt = 0;
+        if (tt == 1){
+            $("#quick_layoutform_info").attr("action", actionurl);
+            $("#quick_layoutform_info").submit();
+        }else{
+            $.ajax({
+                async: false,
+                type: "post",
+                url : actionurl,
+                data : $("#quick_layoutform_info").serialize(),
+                dataType : "html",
+                success: function(obj){
+                    $("#quick_layout_info").html(obj);
+                    // 모달팝업 오픈
+                    $('.quick_reserv').addClass("on");
+                    $("#"+mId+"").css("display","block");
+                    flg2 =!flg2;
+                },
+                error: function(xhr, option, error){
+                      alert(xhr.status+" | "+error); //오류코드 | 오류내용
+                }
+                /*error : function(success){
+                    meg = "서버와 통신중 에러가 발생하였습니다."
+                    alert("처리결과 : "+meg);
+                }*/
+                , beforeSend: function() {
+                    //통신을 시작할때 처리   
+                    $("#quick_layout_info").html('<img src="/resource/assets/common/images/loading.gif" alt="loading"/>');
+                }
+                , complete: function() {
+                    //통신이 완료(success)된 후 처리
+                    //$("#quick_layout_info").html('');
+                }
+            });
+        }
+    }
+
+    // 모달로그인 숨김
+    function quick_layout_close(mId){
+        //
+        if (mId == ""){ mId = "quickModalPop";}
+        // 모달팝업 숨김
+        $('.quick_reserv').removeClass("on");
+        $("#"+mId+"").css("display","none");
+        flg2 =!flg2;
+    }
+     
+      
+      $(document).ready(function() {	
+    		$('.all_menu').click(function() {
+    			$('#layer_pop').show();
+    		}); 
+    		$('.close_btn').click(function() {
+    			$('#layer_pop').hide('clip');
+    		}); 	
+    	});
+      
+    //세션 체크를 위한 함수
+      function sessionCheck(){
+      	var id = "";
+      	
+      	if(id == "" || id == null){
+      		alert("로그아웃 되었습니다.\n다시 로그인 해주세요.");
+      		window.location.href = "/login/login.do";
+      		return false;
+      	}
+      	
+      	return true;
+      }
+</script>
+
+
+
+<div id="wrap" class="sub">
+	<div class="skip_navi">
+		<ul>
+			<li><a href="#gnb">GNB 바로가기</a></li>
+			<li><a href="#body">본문 바로가기</a></li>
+			<li><a href="#footer">하단 바로가기</a></li>
+		</ul>
+	</div>
+<!-- 
+ 확인-codeDepth1 : course
+ <br>
+  확인-codeDepth2 : 
+ <br>
+ 확인-type : courseIntro
+ -->
+<!----------------------------------------------------------------------------- 	여기에 입력 ----------------------------------------------------------------------------------->
+    <!-- 헤더 -->      
+	<div id="header">
+		<div class="head">
+			<h1><a href="/main/mainPage.do"><img src="/resource/assets/common/images/logo.png" alt="정산컨트리클럽" /></a></h1>			
+			<!-- //navi gnb -->            
+            
+			<div class="gnb">               
+                <ul> 
+	                <li> 
+	                    <h2><a href="/club/intro.do">클럽소개</a></h2> 
+	                    <ul class="dep2"> 
+		                    <li><a href="/club/intro.do">소개 및 개요</a></li> 
+							<li><a href="/club/greet.do">인사말</a></li> 
+							<li><a href="/club/history.do">연혁</a></li> 
+							<li><a href="/club/ci.do">CI소개</a></li> 
+							<li><a href="/club/map.do">오시는 길</a></li> 
+							<li><a href="/club/weather_01.do">날씨정보</a></li> 
+		                     
+		                    
+	                    </ul> 
+					</li> 
+	                <li> 
+	                    <h2><a href="/course/courseIntro.do">코스소개</a></h2> 
+	                    <ul class="dep2"> 
+		                    <li><a href="/course/courseIntro.do">코스소개</a></li> 
+		                    <li><a href="/course/hole.do?tab=0">코스공략정보</a></li> 
+		                    <li><a href="/course/courseIntro02.do">코스설계자</a></li> 
+		                    <li><a href="/board/boardList.do?groupcode=CGALLERY">정산C.C 갤러리</a></li>  
+	                    </ul> 
+					</li> 
+	                <li> 
+	                    <h2><a href="/house/house.do">시설안내</a></h2> 
+	                    <ul class="dep2"> 
+							<li><a href="/house/house.do">클럽하우스</a></li>
+							<li><a href="/house/roby.do">프론트</a></li>
+							<li><a href="/house/teahouse.do">그릴&티하우스</a></li> 
+							<li><a href="/house/lock.do">락카룸</a></li> 
+							<li><a href="/house/proshop.do">프로샵</a></li>
+	                    </ul> 
+					</li>
+	                <li> 
+	                    <h2><a href="/guide/guide01.do">이용안내</a></h2> 
+	                    <ul class="dep2"> 
+							<li><a href="/guide/guide01.do">이용안내</a></li>
+							<li><a href="/guide/guide02.do">예약안내</a></li>
+							<li><a href="/guide/guide03.do">이용요금</a></li> 
+							<li><a href="/guide/guide04.do">위약안내</a></li> 
+							<li><a href="/guide/guide05.do">명의개서안내</a></li> 
+							<li><a href="/board/boardList.do?groupcode=DATA">서식다운로드</a></li> 
+	                    </ul> 
+					</li>
+	                <li> 
+	                    <h2><a href="/reservation/real_reservation.do">인터넷예약</a></h2> 
+	                    <ul class="dep2"> 
+		                    <li><a href="/reservation/real_reservation.do">예약하기</a></li>
+		                    <li><a href="/reservation/my_golfreslist.do">예약확인/취소</a></li>
+		                    
+							<li><a href="/myContents/infom/punishList.do">위약현황</a></li> 
+							<li><a href="/myContents/visit/requestGame.do">참가신청</a></li> 
+							<li><a href="/myContents/visit/womenGolferDay.do">여성의 날</a></li>
+					
+		                    
+		                    
+	                    </ul> 
+	                </li> 
+					<li> 
+	                    <h2><a href="/board/boardList.do?groupcode=NOTICE">커뮤니티</a></h2> 
+	                    <ul class="dep2"> 
+							<li><a href="/board/boardList.do?groupcode=NOTICE">공지사항</a></li>
+							
+							<li><a href="/myContents/infom/honor.do">명예의 전당</a></li> 
+							
+							
+							<li><a href="/myContents/infom/myInfo.do">개인정보수정</a></li>
+	                    </ul> 
+	                </li> 
+	            </ul>
+            </div>
+            <div class="mb_area">
+            	<a href="/club/weather_01.do" class="link">날씨바로가기</a>
+				<!-- //Today’s WEATHER -->
+				
+				<embed type="text/html" id="top_weather" class="testweather" src="https://hosting.kweather.co.kr/jeongsancc/current.html">
+				<!-- //Today’s WEATHER -->
+                <span class="line-top"></span>				
+				
+											
+						<a class="mb_btn" href="/member/joinTerms.do">회원가입</a>
+						<a class="mb_btn" href="/login/login.do">로그인</a>						
+					
+					
+               
+            </div>
+			<!-- //navi gnb -->
+		</div>
+		<!-- /헤더 -->
+	</div>
+	<!-- 상단 종료 -->
+	
+	<!-- 바디 시작 -->
+	<!-- content -->
+	<div id="body" >	
+		<div class="content_sub">	
+			<div class="tit_depth1">
+				<h3 id="tit_depth1">
+				
+					
+					
+					
+					
+					
+					
+
+										
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+										
+					
+					
+					 
+					
+					
+					
+					
+					
+					
+					
+					
+					 
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					 
+					
+										
+					
+										
+					
+					
+					
+					
+										
+					
+					
+					
+                
+                course
+                </h3>
+				
+
+				
+					
+			
+					
+					
+								
+						
+					
+					
+					
+					
+					
+					
+					
+				
+				 
+				<div class="bg COURSE">
+					<!-- 서브 bg 바뀜 class : club, reservation, course, facilities, member, information.. -->
+					<span></span>
+				</div>
+				<!-- lnb --><!-- 코드로 공통으로 나오게 작업요청(솔모로참고)-->
+				
+								
+					<div class="lnb">
+						
+						
+
+						
+						
+									
+							<ul class="in_st">
+								<li><a href="/course/courseIntro.do"    class='on'>코스소개</a></li>								
+			                    <li><a href="/course/hole.do?tab=0"    >코스공략정보</a></li> 
+			                    <li><a href="/course/courseIntro02.do"   >코스설계자</a></li>  
+			                    <li><a href="/board/boardList.do?groupcode=CGALLERY" >정산C.C 갤러리</a></li>  
+							</ul>
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+												
+						
+						
+
+						
+						
+					</div>
+				
+				
+				<!-- <div class="lnb lnb_menu">
+				</div>
+				-->
+			</div>
+			<div class="content_sub_in">
+				<!-- 컨텐츠 -->
+
+
+</head>
+<body>
+		
+<script language="javascript" type="text/javascript" src="/resource/assets/common/js/jquery.easing.1.3.min.js"></script>
+<script language="JavaScript" type="text/JavaScript">
+$(window).load(function(){
+	/* 메뉴 탭 */
+	$(function () {	
+		tab('#tab',0);	
+	});
+
+	function tab(e, num){
+		var num = num || 0;
+		var menu = $(e).children();
+		var con = $(e+'_con').children();
+		var select = $(menu).eq(num);
+		var i = num;
+
+		select.addClass('on');
+		con.eq(num).show();
+
+		menu.click(function(){
+			if(select!==null){
+				select.removeClass("on");
+				con.eq(i).hide();
+			}
+
+			select = $(this);	
+			i = $(this).index();
+
+			select.addClass('on');
+			con.eq(i).show();
+		});
+	}
+});	
+</script>
+<div id="content_body" class="clear courseIntro">
+	<!-- 데이타 시작 -->
+	<div class="sub_content">
+		<ul class="tab"  id="tab">
+			<li class="on">해우코스</li>
+			<li>달우코스</li>
+			<li>별우코스</li>			
+		</ul>
+		<div class="tab_con pt-80" id="tab_con">
+
+			<!-- 탭 1 s -->
+			<div>
+				<div class="infor mb-100">
+					<span class="course_sc_left">
+						<h5 class="ft_color-06"><strong>해우</strong>코스<em class="ft_nt">sun course</em></h5>
+						<p class="ft_s_15 ft_color-02 lh-01">전 우주를 아우르는 "태양"의 이미지를 차용하여, 정상에서의 골프를 시작하는 첫 단계인 코스</p>
+						<div class="link_course_list c-01">
+							<a class="link_hole01" href="hole.do?co=sun&h=1">1번홀</a>
+							<a class="link_hole02" href="hole.do?co=sun&h=2">2번홀</a>
+							<a class="link_hole03" href="hole.do?co=sun&h=3">3번홀</a>
+							<a class="link_hole04" href="hole.do?co=sun&h=4">4번홀</a>
+							<a class="link_hole05" href="hole.do?co=sun&h=5">5번홀</a>
+							<a class="link_hole06" href="hole.do?co=sun&h=6">6번홀</a>
+							<a class="link_hole07" href="hole.do?co=sun&h=7">7번홀</a>
+							<a class="link_hole08" href="hole.do?co=sun&h=8">8번홀</a>
+							<a class="link_hole09" href="hole.do?co=sun&h=9">9번홀</a>
+						</div>
+						<span class="course_txt-01 ft_s_15 ft_color-02">
+							자연을 먼저 이해하지 않고서는 공략할 수 없는 자연 친화적 코스.<br/>
+							호쾌한 티샷보다는 정교한 샷만이 이 코스를 정복할 수 있다.<br/>
+							전략적 사고와 창조적인 샷만이 요구되므로 자연에 대한 도전이<br/>
+							곧 골프라는 철학을 다시 한번 생각하게 하는 코스이다.
+						</span>
+					</span>
+					<span class="course_sc_right course_bg-01">
+						있는 그대로의 지형을 이용한 국내 최고수준의 자연을 닮은 전략적 코스
+					</span>
+				</div>
+				<table class="board_write tbl_course" summary="해우코스">
+					<caption>해우코스 정보</caption>
+					<colgroup>
+						<col style="width:9%">
+						<col style="width:13%">
+						<col style="width:13%">
+						<col style="width:13%">
+						<col style="width:13%">
+						<col style="width:13%">
+						<col style="width:13%">
+						<col style="width:13%">
+					</colgroup>
+					<thead>
+						<tr>
+							<th>Hole</th>
+							<th>Blue</th>
+							<th>White</th>
+							<th>Gold</th>
+							<th>Red</th>
+							<th>PAR</th>
+							<th>HCP</th>
+						</tr>
+					</thead>
+					<tbody>						
+						<tr>
+							<td>1</td>
+							<td>385</td>                            
+							<td>353</td>
+                            <td>320</td>
+							<td>300</td>
+							<td>4</td>
+							<td>4</td>
+						</tr>
+						<tr>
+							<td>2</td>
+							<td>505</td>
+							<td>459</td>
+                            <td>430</td>
+							<td>386</td>
+							<td>5</td>
+							<td>8</td>
+						</tr>
+						<tr>
+							<td>3</td>
+							<td>150</td>
+							<td>139</td>
+                            <td>122</td>
+							<td>101</td>
+							<td>3</td>
+							<td>3</td>
+						</tr>
+						<tr>
+							<td>4</td>
+							<td>500</td>
+							<td>470</td>
+                            <td>443</td>
+							<td>381</td>
+							<td>5</td>
+							<td>9</td>
+						</tr>
+						<tr>
+							<td>5</td>
+							<td>385</td>
+							<td>356</td>
+                            <td>336</td>
+							<td>285</td>
+							<td>4</td>
+							<td>6</td>
+						</tr>
+						<tr>
+							<td>6</td>
+							<td>170</td>
+							<td>154</td>
+                            <td>121</td>
+							<td>103</td>
+							<td>3</td>
+							<td>5</td>
+						</tr>
+						<tr>
+							<td>7</td>
+							<td>395</td>
+							<td>369</td>
+                            <td>337</td>
+							<td>293</td>
+							<td>4</td>
+							<td>2</td>
+						</tr>
+						<tr>
+							<td>8</td>
+							<td>365</td>
+							<td>341</td>
+                            <td>315</td>
+							<td>293</td>
+							<td>4</td>
+							<td>7</td>
+						</tr>
+						<tr>
+							<td>9</td>
+							<td>390</td>
+							<td>367</td>
+                            <td>347</td>
+							<td>287</td>
+							<td>4</td>
+							<td>1</td>
+						</tr>
+						<tr>
+							<td>SUN</td>
+							<td>3,245</td>
+							<td>3,008</td>
+                            <td>2,771</td>
+							<td>2,429</td>
+							<td>36</td>
+							<td>&nbsp;</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+			<!-- 탭 1 e -->
+			
+			<!-- 탭2 s -->
+			<div>
+				<div class="infor mb-100">
+					<span class="course_sc_left">
+						<h5 class="ft_color-08"><strong>달우</strong>코스<em class="ft_nt">moon course</em></h5>
+						<p class="ft_s_15 ft_color-02 lh-01">우리 민족에게 친근한 "달"의 이미지를 차용하여, 자연의 숨결을 그대로 느낄 수 있는 코스</p>
+						<div class="link_course_list c-03">
+							<a class="link_hole01" href="hole.do?co=moon&h=1">1번홀</a>
+							<a class="link_hole02" href="hole.do?co=moon&h=2">2번홀</a>
+							<a class="link_hole03" href="hole.do?co=moon&h=3">3번홀</a>
+							<a class="link_hole04" href="hole.do?co=moon&h=4">4번홀</a>
+							<a class="link_hole05" href="hole.do?co=moon&h=5">5번홀</a>
+							<a class="link_hole06" href="hole.do?co=moon&h=6">6번홀</a>
+							<a class="link_hole07" href="hole.do?co=moon&h=7">7번홀</a>
+							<a class="link_hole08" href="hole.do?co=moon&h=8">8번홀</a>
+							<a class="link_hole09" href="hole.do?co=moon&h=9">9번홀</a>
+						</div>
+						<span class="course_txt-03 ft_s_15 ft_color-02">
+							사계의 아름다운 자연을 느낄 수 있고, 천혜의 자연 황새봉의 능선을 페어웨이까지 연결시킨<br/>
+							정통스코틀랜드 풍의 코스설계. 티잉 그라운드에 서면 탁 트인 페어웨이.....<br/>
+							마치 스코틀랜드에 와서 플레이하는 느낌이 나지만 그린 주위에  큰 호수와 수많은<br/>
+							벙커가 위치하여 정교하고 전략적인 코스 공략만을 허용하고 있다.
+							
+						</span>
+					</span>
+					<span class="course_sc_right course_bg-03">
+						정통 스코틀랜드 풍의 남성적이면서 광활하고 터프한 코스
+					</span>
+				</div>
+
+				<table class="board_write tbl_course" summary="달우코스">
+					<caption>달우코스 정보</caption>
+					<colgroup>
+						<col style="width:9%">
+						<col style="width:13%">
+						<col style="width:13%">
+						<col style="width:13%">
+						<col style="width:13%">
+						<col style="width:13%">
+						<col style="width:13%">
+						<col style="width:13%">
+					</colgroup>
+					<thead>
+						<tr>
+							<th>Hole</th>
+							<th>Blue</th>
+							<th>White</th>
+							<th>Gold</th>
+							<th>Red</th>
+							<th>PAR</th>
+							<th>HCP</th>
+						</tr>
+					</thead>
+					<tbody>						
+						<tr>
+							<td>1</td>
+							<td>545</td>
+							<td>497</td>
+							<td>444</td>
+							<td>416</td>
+							<td>5</td>
+							<td>4</td>
+						</tr>
+						<tr>
+							<td>2</td>
+							<td>205</td>
+							<td>180</td>
+							<td>141</td>
+							<td>127</td>
+							<td>3</td>
+							<td>5</td>
+						</tr>
+						<tr>
+							<td>3</td>
+							<td>420</td>
+							<td>404</td>
+							<td>382</td>
+							<td>329</td>
+							<td>4</td>
+							<td>2</td>
+						</tr>
+						<tr>
+							<td>4</td>
+							<td>395</td>
+							<td>364</td>
+							<td>337</td>
+							<td>302</td>
+							<td>4</td>
+							<td>6</td>
+						</tr>
+						<tr>
+							<td>5</td>
+							<td>470</td>
+							<td>444</td>
+							<td>399</td>
+							<td>373</td>
+							<td>5</td>
+							<td>7</td>
+						</tr>
+						<tr>
+							<td>6</td>
+							<td>375</td>
+							<td>341</td>
+							<td>317</td>
+							<td>271</td>
+							<td>4</td>
+							<td>8</td>
+						</tr>
+						<tr>
+							<td>7</td>
+							<td>360</td>
+							<td>340</td>
+							<td>293</td>
+							<td>256</td>
+							<td>4</td>
+							<td>9</td>
+						</tr>
+						<tr>
+							<td>8</td>
+							<td>210</td>
+							<td>188</td>
+							<td>142</td>
+							<td>121</td>
+							<td>3</td>
+							<td>3</td>
+						</tr>
+						<tr>
+							<td>9</td>
+							<td>420</td>
+							<td>391</td>
+							<td>335</td>
+							<td>304</td>
+							<td>4</td>
+							<td>1</td>
+						</tr>
+						<tr>
+							<td>MOON</td>
+							<td>3,400</td>
+							<td>3,149</td>
+							<td>2,790</td>
+							<td>2,499</td>
+							<td>36</td>
+							<td>&nbsp;</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+			<!-- 탭2 e -->
+
+
+			<!-- 탭 3 s -->
+			<div>
+				<div class="infor mb-100">
+					<span class="course_sc_left">
+						<h5 class="ft_color-07"><strong>별우</strong>코스<em class="ft_nt">star course</em></h5>
+						<p class="ft_s_15 ft_color-02 lh-01">꿈과 희망을 상징하는 "별"의 이미지로, 정상의 골프경험을 마무리하는 코스</p>
+						<div class="link_course_list c-02">
+							<a class="link_hole01" href="hole.do?co=star&h=1">1번홀</a>
+							<a class="link_hole02" href="hole.do?co=star&h=2">2번홀</a>
+							<a class="link_hole03" href="hole.do?co=star&h=3">3번홀</a>
+							<a class="link_hole04" href="hole.do?co=star&h=4">4번홀</a>
+							<a class="link_hole05" href="hole.do?co=star&h=5">5번홀</a>
+							<a class="link_hole06" href="hole.do?co=star&h=6">6번홀</a>
+							<a class="link_hole07" href="hole.do?co=star&h=7">7번홀</a>
+							<a class="link_hole08" href="hole.do?co=star&h=8">8번홀</a>
+							<a class="link_hole09" href="hole.do?co=star&h=9">9번홀</a>
+						</div>
+						<span class="course_txt-02 ft_s_15 ft_color-02">
+							호쾌한 드라이버 샷과 정교한 아이언 샷이 동시에 요구되는<br/>
+							자연과 현대 감각이 함께 어우러지는 코스.<br/>
+							자연지형을 그대로 페어웨이까지 끌고와 14개 모든 클럽을<br/>
+							사용해야만 공략이 가능한....항아리 벙커와 아름다운 연못,<br/>
+							자연의 숲을 따라 조성된 코스  레이아웃 한 순간이라도<br/>
+							방심할 수 없는 창조적 사고가 요구되는 코스이다.
+						</span>
+					</span>
+					<span class="course_sc_right course_bg-02">
+						전략적이고 정교한 샷만을, 현대적 감각과 스코틀랜드 풍이 조화되는 ...
+					</span>
+				</div>
+
+				<table class="board_write tbl_course" summary="별우코스">
+					<caption>별우코스 정보</caption>
+					<colgroup>
+						<col style="width:9%">
+						<col style="width:13%">
+						<col style="width:13%">
+						<col style="width:13%">
+						<col style="width:13%">
+						<col style="width:13%">
+						<col style="width:13%">
+						<col style="width:13%">
+					</colgroup>
+					<thead>
+						<tr>
+							<th>Hole</th>
+							<th>Blue</th>
+							<th>White</th>
+							<th>Gold</th>
+							<th>Red</th>
+							<th>PAR</th>
+							<th>HCP</th>
+						</tr>
+					</thead>
+					<tbody>	
+						<tr>
+							<td>1</td>
+							<td>500</td>
+							<td>474</td>
+                            <td>415</td>
+							<td>362</td>
+							<td>5</td>
+							<td>5</td>
+						</tr>
+						<tr>
+							<td>2</td>
+							<td>180</td>
+							<td>155</td>
+                            <td>137</td>
+							<td>115</td>
+							<td>3</td>
+							<td>6</td>
+						</tr>
+						<tr>
+							<td>3</td>
+							<td>370</td>
+							<td>345</td>
+                            <td>309</td>
+							<td>276</td>
+							<td>4</td>
+							<td>7</td>
+						</tr>
+						<tr>
+							<td>4</td>
+							<td>340</td>
+							<td>305</td>
+                            <td>286</td>
+							<td>256</td>
+							<td>4</td>
+							<td>8</td>
+						</tr>
+						<tr>
+							<td>5</td>
+							<td>542</td>
+							<td>529</td>
+                            <td>473</td>
+							<td>429</td>
+							<td>5</td>
+							<td>4</td>
+						</tr>
+						<tr>
+							<td>6</td>
+							<td>400</td>
+							<td>380</td>
+                            <td>351</td>
+							<td>299</td>
+							<td>4</td>
+							<td>3</td>
+						</tr>
+						<tr>
+							<td>7</td>
+							<td>335</td>
+							<td>317</td>
+                            <td>272</td>
+							<td>245</td>
+							<td>4</td>
+							<td>9</td>
+						</tr>
+						<tr>
+							<td>8</td>
+							<td>240</td>
+							<td>208</td>
+                            <td>166</td>
+							<td>130</td>
+							<td>3</td>
+							<td>2</td>
+						</tr>
+						<tr>
+							<td>9</td>
+							<td>425</td>
+							<td>403</td>
+                            <td>361</td>
+							<td>321</td>
+							<td>4</td>
+							<td>1</td>
+						</tr>
+						<tr>
+							<td>STAR</td>
+							<td>3,332</td>
+							<td>3,116</td>
+                            <td>2,770</td>
+							<td>2,433</td>
+							<td>36</td>
+							<td>&nbsp;</td>
+						</tr>
+					</tbody>
+				</table>		
+			</div>
+			<!-- 탭 3 e -->
+
+
+		</div>
+	</div>		
+	<!-- 데이타 종료 -->
+</div>
+
+		
+
+
+			</div>
+		</div>
+	</div>
+
+ 
+ 
+ <!----------------------------------------------------------------------------- 	여기에 입력 ----------------------------------------------------------------------------------->
+ 
+ 
+	<!-- //footer -->
+	
+<div id="footer_area">
+	<div class="foot_in">
+		<div class="clause_ul f_left">	
+			<span class="addr">
+				<dl>                                
+					<dt>주소 : </dt>
+					<dd>정산개발주식회사 경남 김해시 주촌면 서부로 1637번길 299-194</dd>
+					<dt>대표전화 : </dt>
+					<dd>055-338-8300</dd>
+					<dt>팩스 : </dt>
+					<dd>055-338-8308</dd>
+					<dt>이메일 : </dt>
+					<dd>jeongsan@jeongsancc.com</dd>
+				</dl>
+				<dl>                                
+					<dt>사업자등록번호&nbsp;&nbsp;</dt>
+					<dd>615-81-12326</dd>
+					<dt>통신판매신고&nbsp;&nbsp;</dt>
+					<dd>제 2009 - 경남김해 - 0147</dd>
+					<dt>대표이사&nbsp;&nbsp;</dt>
+					<dd>김호철</dd>
+				</dl>
+				<p>COPYRIGHT 2004. JEONGSAN ALL RIGHT RESERVED.</p>			
+			</span>
+		</div>
+		<div class="f_right">
+			<ul>
+				<li><a href="/agreeInfo/guideInfo.do">이용약관</a></li>
+				<li><a href="/agreeInfo/internetInfo.do">인터넷서비스 이용약관</a></li>
+				<li><a href="/agreeInfo/clauseInfo.do">개인정보취급방침</a></li>
+				<li><a href="http://www.ftc.go.kr/bizCommPop.do?wrkr_no=6158112326" target="_blank">사업자정보확인</a></li>
+			</ul>
+
+			<!-- 직원전용 Site -->
+			<a href="https://gw.taekwang.com/loginlocal.aspx" target="_blank" class="f_btn-01">직원전용 <i>+</i></a>
+
+		</div>
+	</div>
+</div>
+	<!-- //footer -->
+    
+</div>	
+    
+ <!-- 로딩 div -->
+<div id="div-dark" class="dark" style="display:none;"></div>
+<div id="loading"
+        style="display:none; top: 55%; left: 50%;  margin-left:-100px;z-index: 9999; border: 3px #2B97D6;position:fixed">
+        <p style="text-align: center;">
+            <img src="/resource/assets/common/images/loading_img.gif" alt="loading" />
+            <font color="#0054FF"><span id="percentage"></span></font>
+        </p>
+ </div>
+<!--[if lt IE 9]>
+<div id="ie_chk" class="ie_chk_area">
+	<button type="button" onclick="javascript:popHide('ie_chk')" class="btn-close"><span class="blind">현재창 닫기</span></button>
+	<div class="con">
+		<p class="tit">
+			<img src="/resource/assets/common/images/ico_ie.png" alt="ie" />
+			본사이트는 <strong>Internet Explorer 10</strong>버전<br/>이상에 <strong class="color-01">최적화</strong> 되어 있습니다.
+		</p>
+		<span>
+			<p class="btxt">‘Explorer 9 이하’ 에서는 스크립트 적용이 원활하지 않을 수 있습니다.</p>
+			<p class="txt">Explorer를 최신 버전으로 업데이트 하시거나, <br /><strong class="color-01">Chrome, Firefox</strong> 등의 브라우저를 이용해 주시기 바랍니다.</p>
+			<a href="http://windows.microsoft.com/ko-kr/internet-explorer/download-ie" target="_blank" title="새창열림" class="btn-upgrade">지금 업그레이드</a>
+			<p class="chk-uclose"><input type="checkbox" name="ie_chk_close" id="ie_chk_close" onclick="popHide('ie_chk')" /><label for="ie_chk_close">일주일간 표시 안하기</label></p>
+		</span>			
+	</div>
+</div>
+<script type="text/javascript">
+	//쿠키////////////////////////////////////////////////
+	function getCookie( name )
+	{
+		var nameOfCookie = name + "=";
+		var x = 0;
+		while ( x <= document.cookie.length )
+		{
+			var y = (x+nameOfCookie.length);
+			if ( document.cookie.substring( x, y ) == nameOfCookie ) {
+				if ( (endOfCookie=document.cookie.indexOf( ";", y )) == -1 )
+					endOfCookie = document.cookie.length;
+				return unescape( document.cookie.substring( y, endOfCookie ) );
+			}
+			x = document.cookie.indexOf( " ", x ) + 1;
+			if ( x == 0 )
+				break;
+		}
+		return "";
+	}
+	
+	function setCookie( name, value, expiredays ){ 
+		var todayDate = new Date(); 
+		todayDate.setDate( todayDate.getDate() + expiredays ); 
+		document.cookie = name + "=" + escape( value ) + "; path=/; expires=" +		todayDate.toGMTString() + ";" 
+	}
+	
+	//ie_chk 레이어팝업 닫기
+	function popHide(pop_id){		
+		if (document.getElementById("ie_chk_close").checked==true)
+		{
+			setCookie( pop_id, "done" , 24); 
+		}
+		//document.getElementById(pop_id).style.display = "none";
+		$("#"+pop_id).hide(1000);
+	}
+	
+	//ie_chk 레이어팝업 호출
+	function checkPop(pop_id) {
+		if ( getCookie(pop_id) != "done" ) {
+			document.getElementById(pop_id).style.display = "";
+		}else{
+			document.getElementById(pop_id).style.display = "none";
+		}
+	}
+	checkPop('ie_chk');
+</script>
+<![endif]-->
+</body>
+</html>

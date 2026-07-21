@@ -1,0 +1,2447 @@
+
+
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+    <meta name="keywords" content="렉스필드 컨트리클럽, 골프장">
+    <meta name="description" content="렉스필드 컨트리클럽에 오신것을 환영합니다. 실시간예약 및 안내 제공">
+    <title>렉스필드 컨트리클럽</title>
+    <meta property="og:type" content="website"> 
+	<meta property="og:title" content="렉스필드 컨트리클럽">
+	<meta property="og:description" content="렉스필드 컨트리클럽에 오신것을 환영합니다. 실시간예약 및 안내 제공">
+	<meta property="og:image" content="https://www.rexfield.com/static/pc/images/common/ogimage.png">
+	<meta property="og:url" content="https://www.rexfield.com">
+	<!-- custom favicon 설정 -->
+    <link rel="shortcut icon" href="/static/common/images/favicon.ico">
+    <script type="text/javascript" src="/static/common/libs/jquery-1.12.4.min.js" charset="UTF-8"></script>
+    <!-- ui -->
+    <script type="text/javascript" src="/static/common_control/js/ui.js?ver=20260420" data-ver="20260420"></script>
+    <!-- css -->
+    <script type="text/javascript" src="/static/pc/js/include_css.js?ver=20260420" data-ver="20260420" charset="UTF-8"></script>
+    <!-- fonts -->
+    <script type="text/javascript" src="/static/global_font/include_fonts.js" charset="UTF-8"></script>
+    <!-- js -->
+    <script type="text/javascript" src="/static/pc/js/include_js.js?ver=20260420" data-ver="20260420" charset="UTF-8"></script>
+    
+    <script type="text/javascript" src="/static/pc/templates/setting.js?ver=20260420" data-ver="20260420" charset="UTF-8"></script>
+    <script>
+        
+            goSSL();
+        
+
+        //page_type
+	    //ui_custom.page_type.init();
+
+        //--basic Customizing(origin)-s
+        var mPage;
+
+        $(document).ready(function() {
+            //setProtocol();
+
+            initHeader();
+
+            initHeaderListener();
+        });
+
+        function setProtocol() {
+            if (document.location.protocol == 'http:') {
+                var sUrl = document.location.href;
+                sUrl = sUrl.replace('http:', 'https:');
+                sUrl = sUrl.replace('www.sillacc.co.kr', 'sillacc.co.kr');
+
+                document.location.href = sUrl;
+            }
+        }
+
+        function initHeader() {
+            mPage = "";
+            var open = "";
+
+            if ((mPage != "" || open == "Y") && "" == "") {
+                $('.loginWrap').slideToggle(400);
+            }
+        }
+
+        function initHeaderListener() {
+            $(".nav li").hover(function() {
+                $(this).children("ul").stop().delay(200).animate({
+                    height: "toggle",
+                    opacity: "toggle"
+                }, 200);
+            });
+
+            var chkId = getCookie("chkSaveId");
+            var id = getCookie("cookieId");
+
+            if (chkId != null && chkId != "") {
+                $("#chkSaveId").attr('checked', true);
+            }
+
+            if (id != null && id != "") {
+                $("#txtHeaderId").val(id);
+            }
+
+            $("#txtHeaderId").keypress(function(event) {
+                if (event.keyCode == 13) {
+                    doLogin();
+                }
+            });
+
+            $("#txtHeaderPw").keypress(function(event) {
+                if (event.keyCode == 13) {
+                    doLogin();
+                }
+            });
+        }
+
+        function doLogin() {
+            var sUrl = "/controller/MemberController.asp";
+            var params = {};
+
+            var id = $("#txtHeaderId").val();
+            var pw = $("#txtHeaderPw").val();
+
+            if (id == "") {
+                alert("아이디를 입력하세요.");
+                return;
+            }
+
+            if (pw == "") {
+                alert("비밀번호를 입력하세요.");
+                return;
+            }
+
+            params["method"] = "doLogin";
+            params["coDiv"] = globals.coDiv;
+            params["id"] = id;
+            params["pw"] = pw;
+
+            mAjax(sUrl, params, "POST", true, function(data) {
+                if (data.resultCode == "0000") {
+                    var chkSaveId = $('input:checkbox[id="chkSaveId"]').is(":checked");
+
+                    if (chkSaveId) {
+                        setCookie("cookieId", $("#txtHeaderId").val(), 365);
+                        setCookie("chkSaveId", true, 365);
+                    } else {
+                        setCookie("cookieId", "", 365);
+                        setCookie("chkSaveId", "", 365);
+                    }
+
+                    if (mPage != "") {
+                        location.href = mPage;
+                    } else {
+                        location.reload();
+                    }
+                } else {
+                    alert(data.resultMessage);
+                }
+            });
+        }
+
+        function doLogout() {
+            var sUrl = "/Controller/MemberController.asp";
+            var params = {};
+
+            params["method"] = "doLogout";
+
+            mAjax(sUrl, params, "POST", true, function(data) {
+                if (data.resultCode == "0000") {
+                    alert("로그아웃 되었습니다.");
+                    location.href = "/index.asp"
+                }
+            });
+        }
+
+        function onlyMainMenu(val) {
+            if (val == "1") {
+                $("#onlyMain").show();
+            } else(
+                $("#onlyMain").hide()
+            )
+        }
+        //--basic Customizing(origin)-e
+        
+        
+		$(document).ajaxError(function(event, request, settings, thrownError) {
+			if (request.status == 555) {
+				alert('다른 환경에서 접속되었습니다');
+				location.reload(true);
+			}
+		});
+        
+    </script>
+</head>
+<body>
+
+	
+    <div class="lds-ring"><div></div><div></div><div></div><div></div></div>
+    
+    <div id="wrapper">
+        <!-- SkipNav -->
+        <div id="skipNav">
+            <a href="#gnb">주요 메뉴 바로가기</a>
+            <a href="#content">컨텐트 바로가기</a>
+        </div>
+        <!-- //SkipNav -->
+        
+        
+        <!-- 
+        <div class="right_area">
+            <a href="#sec0" class="btn right_btn right_menu aside-menu-open full" aria-controls="asideMenu" aria-expanded="false"><span><i class="ico ico-menu white"></i>메뉴</span></a>
+            <a href="/board/notice" class="btn right_btn right_notice"><span><i class="ico ico-notice white"></i>공지사항</span></a>
+            <a href="/reservation/golf" class="btn right_btn right_res"><span><i class="ico ico-res white"></i>실시간예약</span></a>
+        </div>
+ 		-->
+ 		
+        <!-- header -->
+        
+
+
+
+
+
+
+        <!-- Header -->
+        <header id="header">
+            <div class="header-inner">
+				<div class="header-top">
+					<div class="header-utilMenu">
+						<ul>
+							
+							
+							
+								<li><a href="/member/login"><span>LOGIN</span></a></li>
+								<li><a href="/myContents/myInfo"><span>MY PAGE</span></a></li>
+							
+							
+							<li><a href="/board/notice"><span>CLUB NEWS</span></a></li>
+						</ul>
+					</div>
+					<div class="header-logo">
+						<a href="/" class="logo">LOGO</a>
+					</div>
+					<a href="/reservation/golf" class="btn-resQuick">reservation</a>
+                    <button type="button" class="btn-anb aside-menu-open full" aria-controls="asideMenu" aria-expanded="false"><div class="menu_icon"><i></i></div></button>
+				</div>
+                
+                <div class="header-anb">
+                    
+                    <nav class="gnb">
+                        <ul class="node1-list">
+                	
+                            
+                            
+                            
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                	
+	                                
+	                                    <li class="node1-item">
+	                                        
+	                                        
+	                                        
+	                                       
+	                                               <a href="/swp/club" class="node1-link">클럽안내</a>	
+	                                       
+	                                       		
+	                                        <div class="node2-menu">
+	                                                <ul class="node2-list">
+	                                
+	                                
+	                                
+	                                
+	                                
+	                                    
+	                                        
+	                                    
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										<li class="node2-item">
+											<a href="/swp/club" class="node2-link" target=""><span>렉스필드소개</span></a>	
+										</li>						  
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										<li class="node2-item">
+											<a href="/swp/guide" class="node2-link" target=""><span>이용안내</span></a>	
+										</li>						  
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										<li class="node2-item">
+											<a href="/swp/charge" class="node2-link" target=""><span>이용요금</span></a>	
+										</li>						  
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                            </ul>
+	                                        </div>
+	                                    </li>
+	                                    
+	                                
+	                                
+	                                
+	                                
+	                                	
+	                                
+	                                    <li class="node1-item">
+	                                        
+	                                        
+	                                        
+	                                       
+	                                               <a href="/swp/lake_course" class="node1-link">코스안내</a>	
+	                                       
+	                                       		
+	                                        <div class="node2-menu">
+	                                                <ul class="node2-list">
+	                                
+	                                
+	                                
+	                                
+	                                
+	                                    
+	                                        
+	                                    
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										<li class="node2-item">
+											<a href="/swp/lake_course" class="node2-link" target=""><span>코스안내</span></a>	
+										</li>						  
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										<li class="node2-item">
+											<a href="/swp/course_eight" class="node2-link" target=""><span>렉스필드8경</span></a>	
+										</li>						  
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										<li class="node2-item">
+											<a href="/swp/season" class="node2-link" target=""><span>렉스필드 사계</span></a>	
+										</li>						  
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                            </ul>
+	                                        </div>
+	                                    </li>
+	                                    
+	                                
+	                                
+	                                
+	                                
+	                                	
+	                                
+	                                    <li class="node1-item">
+	                                        
+	                                        
+	                                        
+	                                       
+	                                               <a href="/board/notice" class="node1-link">홍보마당</a>	
+	                                       
+	                                       		
+	                                        <div class="node2-menu">
+	                                                <ul class="node2-list">
+	                                
+	                                
+	                                
+	                                
+	                                
+	                                    
+	                                        
+	                                    
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										<li class="node2-item">
+											<a href="/board/notice" class="node2-link" target=""><span>클럽뉴스</span></a>	
+										</li>						  
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										<li class="node2-item">
+											<a href="/board/photo" class="node2-link" target=""><span>포토갤러리</span></a>	
+										</li>						  
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                            </ul>
+	                                        </div>
+	                                    </li>
+	                                    
+	                                
+	                                
+	                                
+	                                
+	                                	
+	                                
+	                                    <li class="node1-item">
+	                                        
+	                                        
+	                                        
+	                                       
+	                                               <a href="/swp/data" class="node1-link">정보마당</a>	
+	                                       
+	                                       		
+	                                        <div class="node2-menu">
+	                                                <ul class="node2-list">
+	                                
+	                                
+	                                
+	                                
+	                                
+	                                    
+	                                        
+	                                    
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										<li class="node2-item">
+											<a href="/swp/data" class="node2-link" target=""><span>자료실</span></a>	
+										</li>						  
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										<li class="node2-item">
+											<a href="https://weather.naver.com/today/02670380" class="node2-link" target="_blank"><span>날씨정보</span></a>	
+										</li>						  
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										<li class="node2-item">
+											<a href="/swp/facil_info" class="node2-link" target=""><span>부대시설</span></a>	
+										</li>						  
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										<li class="node2-item">
+											<a href="/swp/club_market" class="node2-link" target=""><span>Club Market</span></a>	
+										</li>						  
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                            </ul>
+	                                        </div>
+	                                    </li>
+	                                    
+	                                
+	                                
+	                                
+	                                
+	                                	
+	                                
+	                                    <li class="node1-item">
+	                                        
+	                                        
+	                                        
+	                                       
+	                                               <a href="/reservation/golf" class="node1-link">예약</a>	
+	                                       
+	                                       		
+	                                        <div class="node2-menu">
+	                                                <ul class="node2-list">
+	                                
+	                                
+	                                
+	                                
+	                                
+	                                    
+	                                        
+	                                    
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										<li class="node2-item">
+											<a href="/swp/reserve_guide" class="node2-link" target=""><span>예약안내</span></a>	
+										</li>						  
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										<li class="node2-item">
+											<a href="/swp/limousine_cart" class="node2-link" target=""><span>리무진 카트 안내</span></a>	
+										</li>						  
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										<li class="node2-item">
+											<a href="/swp/caddie_info" class="node2-link" target=""><span>전문캐디안내</span></a>	
+										</li>						  
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										<li class="node2-item">
+											<a href="/reservation/golf" class="node2-link" target=""><span>예약하기</span></a>	
+										</li>						  
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										<li class="node2-item">
+											<a href="/reservation/resWait" class="node2-link" target=""><span>대기예약</span></a>	
+										</li>						  
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										<li class="node2-item">
+											<a href="/reservation/resList" class="node2-link" target=""><span>예약확인/취소</span></a>	
+										</li>						  
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                            </ul>
+	                                        </div>
+	                                    </li>
+	                                    
+	                                
+	                                
+	                                
+	                                
+	                                	
+	                                
+	                                    <li class="node1-item">
+	                                        
+	                                        
+	                                        
+	                                       
+	                                               <a href="/myContents/myInfo" class="node1-link">회원서비스</a>	
+	                                       
+	                                       		
+	                                        <div class="node2-menu">
+	                                                <ul class="node2-list">
+	                                
+	                                
+	                                
+	                                
+	                                
+	                                    
+	                                        
+	                                    
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										<li class="node2-item">
+											<a href="/myContents/honer" class="node2-link" target=""><span>명예의전당</span></a>	
+										</li>						  
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										<li class="node2-item">
+											<a href="/myContents/myInfo" class="node2-link" target=""><span>마이페이지</span></a>	
+										</li>						  
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                            </ul>
+	                                        </div>
+	                                    </li>
+	                                    
+	                                
+	                                
+	                                
+	                                
+	                                
+	                                
+	                                
+	                                    
+	                                        
+	                                    
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                        </ul>
+                    </nav>
+                </div>
+
+                <div class="header-gnb to-animate all_menu-full" data-duration="dur-03" data-delay="delay-03" data-animate="fadeInUp" style="display: none;">
+					<div class="inner">
+						<div class="top">
+							<div class="header-utilMenu">
+								<ul>
+									
+									
+									
+										<li><a href="/member/login"><span>LOGIN</span></a></li>
+										<li><a href="/myContents/myInfo"><span>MY PAGE</span></a></li>
+									
+									
+									<li><a href="/board/notice"><span>CLUB NEWS</span></a></li>
+								</ul>
+							</div>
+							<a href="/" class="logo">LOGO</a>
+							<a href="/reservation/golf" class="btn-resQuick">reservation</a>
+							<a href="javascript:void(0);" class="gnb-close"><span>닫기</span></a>
+						</div>
+						<nav class="gnb gnb-fullsize">
+							<ul class="node1-list">
+							
+								
+								
+									
+									
+									
+									
+										<li class="node1-item">
+											<a href="/swp/club" class="node1-link" target=""><span>클럽안내</span></a>
+												<div class="node2-menu">
+													<ul class="node2-list">
+									
+									
+									
+										
+									
+										
+											
+										
+										
+									
+								
+								
+									
+									
+									
+									
+									
+									
+										<li class="node2-item"><a href="/swp/club" class="node2-link" target="">렉스필드소개</a></li>
+									
+										
+									
+										
+										
+											
+										
+									
+								
+								
+									
+									
+									
+									
+									
+									
+										<li class="node2-item"><a href="/swp/guide" class="node2-link" target="">이용안내</a></li>
+									
+										
+									
+										
+										
+											
+										
+									
+								
+								
+									
+									
+									
+									
+									
+									
+										<li class="node2-item"><a href="/swp/charge" class="node2-link" target="">이용요금</a></li>
+									
+										
+									
+										
+										
+											
+										
+									
+								
+								
+									
+									
+												</ul>
+											</div>
+										</li>
+									
+									
+									
+										<li class="node1-item">
+											<a href="/swp/lake_course" class="node1-link" target=""><span>코스안내</span></a>
+												<div class="node2-menu">
+													<ul class="node2-list">
+									
+									
+									
+										
+									
+										
+											
+										
+										
+									
+								
+								
+									
+									
+									
+									
+									
+									
+										<li class="node2-item"><a href="/swp/lake_course" class="node2-link" target="">코스안내</a></li>
+									
+										
+									
+										
+										
+											
+										
+									
+								
+								
+									
+									
+									
+									
+									
+									
+										<li class="node2-item"><a href="/swp/course_eight" class="node2-link" target="">렉스필드8경</a></li>
+									
+										
+									
+										
+										
+											
+										
+									
+								
+								
+									
+									
+									
+									
+									
+									
+										<li class="node2-item"><a href="/swp/season" class="node2-link" target="">렉스필드 사계</a></li>
+									
+										
+									
+										
+										
+											
+										
+									
+								
+								
+									
+									
+									
+									
+									
+									
+										
+									
+										
+										
+											
+										
+									
+								
+								
+									
+									
+									
+									
+									
+									
+										
+									
+										
+										
+											
+										
+									
+								
+								
+									
+									
+									
+									
+									
+									
+										
+									
+										
+										
+											
+										
+									
+								
+								
+									
+									
+									
+									
+									
+									
+										
+									
+										
+										
+											
+										
+									
+								
+								
+									
+									
+												</ul>
+											</div>
+										</li>
+									
+									
+									
+										<li class="node1-item">
+											<a href="/board/notice" class="node1-link" target=""><span>홍보마당</span></a>
+												<div class="node2-menu">
+													<ul class="node2-list">
+									
+									
+									
+										
+									
+										
+											
+										
+										
+									
+								
+								
+									
+									
+									
+									
+									
+									
+										<li class="node2-item"><a href="/board/notice" class="node2-link" target="">클럽뉴스</a></li>
+									
+										
+									
+										
+										
+											
+										
+									
+								
+								
+									
+									
+									
+									
+									
+									
+										<li class="node2-item"><a href="/board/photo" class="node2-link" target="">포토갤러리</a></li>
+									
+										
+									
+										
+										
+											
+										
+									
+								
+								
+									
+									
+												</ul>
+											</div>
+										</li>
+									
+									
+									
+										<li class="node1-item">
+											<a href="/swp/data" class="node1-link" target=""><span>정보마당</span></a>
+												<div class="node2-menu">
+													<ul class="node2-list">
+									
+									
+									
+										
+									
+										
+											
+										
+										
+									
+								
+								
+									
+									
+									
+									
+									
+									
+										<li class="node2-item"><a href="/swp/data" class="node2-link" target="">자료실</a></li>
+									
+										
+									
+										
+										
+											
+										
+									
+								
+								
+									
+									
+									
+									
+									
+									
+										<li class="node2-item"><a href="https://weather.naver.com/today/02670380" class="node2-link" target="_blank">날씨정보</a></li>
+									
+										
+									
+										
+										
+											
+										
+									
+								
+								
+									
+									
+									
+									
+									
+									
+										<li class="node2-item"><a href="/swp/facil_info" class="node2-link" target="">부대시설</a></li>
+									
+										
+									
+										
+										
+											
+										
+									
+								
+								
+									
+									
+									
+									
+									
+									
+										<li class="node2-item"><a href="/swp/club_market" class="node2-link" target="">Club Market</a></li>
+									
+										
+									
+										
+										
+											
+										
+									
+								
+								
+									
+									
+												</ul>
+											</div>
+										</li>
+									
+									
+									
+										<li class="node1-item">
+											<a href="/reservation/golf" class="node1-link" target=""><span>예약</span></a>
+												<div class="node2-menu">
+													<ul class="node2-list">
+									
+									
+									
+										
+									
+										
+											
+										
+										
+									
+								
+								
+									
+									
+									
+									
+									
+									
+										<li class="node2-item"><a href="/swp/reserve_guide" class="node2-link" target="">예약안내</a></li>
+									
+										
+									
+										
+										
+											
+										
+									
+								
+								
+									
+									
+									
+									
+									
+									
+										<li class="node2-item"><a href="/swp/limousine_cart" class="node2-link" target="">리무진 카트 안내</a></li>
+									
+										
+									
+										
+										
+											
+										
+									
+								
+								
+									
+									
+									
+									
+									
+									
+										<li class="node2-item"><a href="/swp/caddie_info" class="node2-link" target="">전문캐디안내</a></li>
+									
+										
+									
+										
+										
+											
+										
+									
+								
+								
+									
+									
+									
+									
+									
+									
+										<li class="node2-item"><a href="/reservation/golf" class="node2-link" target="">예약하기</a></li>
+									
+										
+									
+										
+										
+											
+										
+									
+								
+								
+									
+									
+									
+									
+									
+									
+										<li class="node2-item"><a href="/reservation/resWait" class="node2-link" target="">대기예약</a></li>
+									
+										
+									
+										
+										
+											
+										
+									
+								
+								
+									
+									
+									
+									
+									
+									
+										<li class="node2-item"><a href="/reservation/resList" class="node2-link" target="">예약확인/취소</a></li>
+									
+										
+									
+										
+										
+											
+										
+									
+								
+								
+									
+									
+												</ul>
+											</div>
+										</li>
+									
+									
+									
+										<li class="node1-item">
+											<a href="/myContents/myInfo" class="node1-link" target=""><span>회원서비스</span></a>
+												<div class="node2-menu">
+													<ul class="node2-list">
+									
+									
+									
+										
+									
+										
+											
+										
+										
+									
+								
+								
+									
+									
+									
+									
+									
+									
+										<li class="node2-item"><a href="/myContents/honer" class="node2-link" target="">명예의전당</a></li>
+									
+										
+									
+										
+										
+											
+										
+									
+								
+								
+									
+									
+									
+									
+									
+									
+										<li class="node2-item"><a href="/myContents/myInfo" class="node2-link" target="">마이페이지</a></li>
+									
+										
+									
+										
+										
+											
+										
+									
+								
+								
+									
+									
+												</ul>
+											</div>
+										</li>
+									
+									
+									
+									
+									
+										
+									
+										
+											
+										
+										
+									
+								
+								
+									
+									
+									
+									
+									
+									
+										
+									
+										
+										
+											
+										
+									
+								
+								
+									
+									
+									
+									
+									
+									
+										
+									
+										
+										
+											
+										
+									
+								
+								
+									
+									
+									
+									
+									
+									
+										
+									
+										
+										
+											
+										
+									
+								
+								
+									
+									
+									
+									
+									
+									
+										
+									
+										
+										
+											
+										
+									
+								
+								
+									
+									
+									
+									
+									
+									
+										
+									
+										
+										
+											
+										
+									
+								
+								
+								
+								<div class="sns_area">
+									<a href="https://www.instagram.com/explore/tags/렉스필드cc/" class="btn_sns st_1" target="_blank"><span>렉스필드 인스타그램</span></a>
+									<a href="https://mobile.twitter.com/search?q=%EB%A0%89%EC%8A%A4%ED%95%84%EB%93%9C&amp;s=typd" class="btn_sns st_2" target="_blank"><span>렉스필드 트위터</span></a>
+									<a href="https://www.facebook.com/hashtag/렉스필드?source=feed_text&amp;story_id=1001330466606463" class="btn_sns st_3" target="_blank"><span>렉스필드 페이스북</span></a>
+								</div>
+							</ul>
+						</nav>
+						<div class="bg"></div>
+					</div>
+ 			
+            </div>
+        </header>
+        <!-- //Header -->
+        <!--// header -->
+
+        <!-- container -->
+        
+
+
+
+
+
+
+<script>
+$(function(){
+	hioInit();
+
+	//로그인 쿠키 초기설정
+    cookieLoginInit('rememberId','usrId');
+    cookieLoginInit('rememberPwd','usrPwd');
+
+	//더블클릭
+    var click = true;
+	
+	// 패스워드 엔터키 이벤트
+	$('#usrPwd').keydown(function(){
+		if(event.keyCode == 13 && click == true) {
+			setTimeout("document.getElementById('fnLogin').click()", 100);
+			
+	    }
+	});
+
+	// 로그인처리
+	$('#fnLogin').click(function(){
+
+		//중복 불가 처리
+		if(click == false) {
+			console.log("중복");
+			return;
+		}	
+
+		//중복 불가 처리
+		click = false;
+		console.log("클릭");
+
+		var strUsrId = $('#usrId').val().trim();
+
+		$('#usrId').val(strUsrId);
+
+		// 체크
+		if($('#usrId').val() == ''){
+			alert('아이디를 입력하십시요.');
+			//ui_control.popup_alert.call('아이디를 입력하십시요.');
+			$("#usrId").focus();
+			ui_control.must_chk.confirm('#usrId');
+			click = true;
+			return;
+		}else if($('#usrPwd').val() == ''){
+			alert('비밀번호를 입력하십시요.');
+			//ui_control.popup_alert.call('비밀번호를 입력하십시요.');
+			$("#usrPwd").focus();
+			ui_control.must_chk.confirm('#usrPwd');
+			click = true;
+			return;
+		}
+		
+		//로그인 쿠키세팅
+		cookieLoginSet('rememberId',  'usrId',7);
+		cookieLoginSet('rememberPwd','usrPwd',7);
+		
+		$.ajax({
+		    type: 'POST',
+		    url: '/member/loginChk',
+		    dataType:'json',
+		    data:$('#mainForm').serialize(),
+		    success: function(response, status) {
+		    	if(response.success == 'SPW'){
+		    		   if (!confirm(response.returnMsg)) {   
+		    			   $.ajax({
+		    				    type: 'POST',
+		    				    url: '/member/loginPwUpt',
+		    				    dataType:'json',
+		    				    data:$('#mainForm').serialize(),
+		    				    success: function(response, status) {
+		    				    	if(response.success == 'S'){
+		    				    		alert(response.returnMsg);
+		    							location.href = response.returnURL;
+										//ui_control.popup_alert_login.call(response.returnMsg, response.returnURL);
+		    						}
+		    				    	
+		    					},
+		    					error:function(request,status,error) {
+		    						
+		    						alert('로그인 처리중 오류가 발생하였습니다.');
+									//ui_control.popup_alert.call('로그인 처리중 오류가 발생하였습니다.'); 
+		    						click = true;
+		    						
+		    						return;
+		    					}
+		    				});
+		    	        } else {
+		    	        	location.href = response.returnURL;
+		    	        }
+					}else{
+				    	alert(response.returnMsg);
+				    	click = true;
+						if(response.success == 'S'){
+							location.href = response.returnURL;
+							//ui_control.popup_alert_login.call(response.returnMsg, response.returnURL);
+						}
+					}
+			},
+			beforeSend: function () {
+				//console.log('beforeSend');
+				if ($('.lds-ring').length) {  
+					setTimeout(function() {
+						$('.lds-ring').removeClass('dp-none');
+					}, 500);        
+				}
+			},
+			complete: function () {
+				if ($('.lds-ring').length) {  
+					setTimeout(function() {
+						$('.lds-ring').addClass('dp-none');
+					}, 500);        
+				}
+			},
+			error:function(request,status,error) {
+				alert('로그인 처리중 오류가 발생하였습니다.');
+				//ui_control.popup_alert.call('로그인 처리중 오류가 발생하였습니다.'); 
+				click = true;
+				return;
+			}
+		});
+	    
+	});
+});
+
+// 기본세팅
+function hioInit(){
+	popCookieInit();
+}
+
+//1일동안 열지 않기 - get
+function popCookieInit(){
+	let cookie_chk_1 = getCookie('popDiv');
+	let cookie_chk_2 = getCookie('popDiv2');
+	console.log('cookie_chk_2:'+cookie_chk_2);
+	if(!cookie_chk_1){
+		$('#popDiv').addClass('is-active on');
+	}else{
+		
+	}
+	
+	if(!cookie_chk_2){
+		$('#popDiv2').addClass('is-active on');
+	}else{
+		
+			// noPop 인 div close 처리
+			if('noPop' == getCookie('popDiv2')){
+				popupUi.topbanner.close('popDiv2');
+			}
+		
+	}
+	
+}
+
+//1일동안 열지 않기 - set
+function popCookie(seq){
+	// seq(ex:main_popup-288) 이름의 Div 1일동안 noPop이란 값을 쿠키저장
+	setCookie(seq, 'noPop', '1');
+	popupUi.topbanner.close(seq);
+}
+</script>
+
+<form name="mainForm" id="mainForm" method="POST" action="">
+
+
+        <!-- Container -->
+        <div class="container">
+            <!-- Content -->
+            <div id="content" class="content main">
+				<ul id="menu">
+					<li class="is-selected"><a href="javascript:void(0);" class="spyscroll-link" data-sec="section0"><span>Intro</span></a></li>
+					<li><a href="javascript:void(0);" class="spyscroll-link" data-sec="section1"><span>Rexfield</span></a></li>
+					<li><a href="javascript:void(0);" class="spyscroll-link" data-sec="section2"><span>Course</span></a></li>
+					<li><a href="javascript:void(0);" class="spyscroll-link" data-sec="section3"><span>facilities</span></a></li>
+					<li><a href="javascript:void(0);" class="spyscroll-link" data-sec="section4"><span>Art</span></a></li>
+				</ul>
+				<div id="fullpage" class="main-body load">
+					<section id="section0" class="section in-sec spyscroll-sec">
+						<div class="popup_Wrap">
+							<!-- 회원 팝업 -->
+							
+							<!-- //회원 팝업 -->
+							
+							<!-- 비회원 팝업 -->
+							<div id="popDiv2" class="popupct popDiv2">
+								
+								<div class="popup-close">
+									<button type="button" class="btn btn_close" onclick="popupUi.topbanner.close('popDiv2')"><span>닫기</span></button>
+								</div>
+								<div id="main_popup-2" class="popup-wrap type-basic main popup_imgst top-area swiper-container" role="dialog">
+									<div class="top-banner swiper-wrapper">
+									
+										<div class="top-slide top-slide2 swiper-slide" data-swiper-autoplay="4000">
+											
+												
+													<a href="/board/boardDetail?boardCode=NOTICE&boardPostSeq=1976"><img src='/static/POPUP_MAIN/20260703165815_1448.jpg' class="txt-align_c" alt="하계 휴장 안내" /></a>
+												
+												
+											
+										</div>
+									
+										<div class="top-slide top-slide2 swiper-slide" data-swiper-autoplay="4000">
+											
+												
+													<a href="/board/boardDetail?boardCode=NOTICE&boardPostSeq=1963"><img src='/static/POPUP_MAIN/20260527161041_1428.jpg' class="txt-align_c" alt="2026년 주말 예약 일정표" /></a>
+												
+												
+											
+										</div>
+									
+									</div>
+									<!-- Pagination -->
+									<div class="swiper-navigation">
+										<div class="swiper-pagination"></div>	
+									</div>
+									<div class="swiper-button-next"></div>
+									<div class="swiper-button-prev"></div>
+								</div>
+								<!--쿠키-->
+								<div class="cookie">
+									<span class="check demo1">
+										<input type="checkbox" name="cookie-2" id="cookie-2" onclick="popCookie('popDiv2');" value="cookie_chk" class="cookie_chk">
+										<label for="cookie-2"><span>오늘 하루 이 창을 열지 않음</span></label><!--input id와 label for 동일하게 cookie-01 -->
+									</span>
+								</div>
+								<!--//쿠키-->
+							</div>
+							<!-- //비회원 팝업 -->
+						</div>
+						<span class="scroll_down"><em>Scroll Down</em></span>
+						<div class="section-inner">
+							<div class="main_inner changed custom">
+                                <div class="main_visual">
+									<div class="visual_txt to-animate-sec" data-duration="dur-03" data-delay="delay-03" data-animate="fadeInUp">
+                                        <span class="txt_1">Rexfield country club</span>
+										<span class="txt_2">No.1 Prestige</span>
+                                    </div>
+                                    <!--slider-->
+                                    <div class="mv_inner">
+										<div class="mv_box">
+											<div class="visual" style="background-image: url('/static/pc/images/main/sec0_bg_0_260602.jpg');">
+												<div class="inner to-animate-sec" data-duration="dur-03" data-delay="delay-03" data-animate="fadeOut"></div>
+											</div>
+										</div>
+										<div class="mv_box">
+											<div class="visual" style="background-image: url('/static/pc/images/main/sec0_bg_1.jpg');">
+												<div class="inner to-animate-sec" data-duration="dur-03" data-delay="delay-03" data-animate="fadeOut"></div>
+											</div>
+										</div>
+										<div class="mv_box">
+											<div class="visual" style="background-image: url('/static/pc/images/main/sec0_bg_2.jpg');">
+												<div class="inner to-animate-sec" data-duration="dur-03" data-delay="delay-03" data-animate="fadeOut"></div>
+											</div>
+										</div>
+										<div class="mv_box">
+											<div class="visual" style="background-image: url('/static/pc/images/main/sec0_bg_3.jpg');">
+												<div class="inner to-animate-sec" data-duration="dur-03" data-delay="delay-03" data-animate="fadeOut"></div>
+											</div>
+										</div>
+										<div class="mv_box">
+											<div class="visual" style="background-image: url('/static/pc/images/main/sec0_bg_4.jpg');">
+												<div class="inner to-animate-sec" data-duration="dur-03" data-delay="delay-03" data-animate="fadeOut"></div>
+											</div>
+										</div>
+                                    </div>
+                                    <!--//slider-->
+
+                                </div>
+                            </div>
+						</div>
+					</section>
+					<section id="section1" class="section in-sec spyscroll-sec">
+						<div class="section-inner">
+							<div class="section-body">
+								<div class="content_area">
+									<div class="txt_area">
+										<div class="txt_1">No.1 Prestige</div>
+										<div class="txt_2">
+											현대의 골프장이 옛날 왕족들의 사슴사냥터를 상징하듯,<br>
+											렉스필드 클럽하우스는 활 모양을 형상화 하였습니다.
+										</div>
+										<div class="txt_3">
+											아름다운 코스와 조경을, 멀리는 자연속의 산과 하늘을 최대한 조망할 수 있도록 한 것이며, 자연에 순응하는 곡면과 지붕 등으로 건물의 선(線), 각(角), 곡 (曲)을 중요시 했습니다. 
+											<span>클럽하우스 외벽의 갈색 벽돌은 이탈리아에서 전체를 수입한 것으로 시간이 지날수록 오히려 컬러가 선명하고 고급스러움을 더합니다.</span>
+										</div>
+									</div>
+									<i class="img_1"></i>
+									<i class="img_2"></i>
+								</div>
+							</div>
+						</div>
+					</section>
+					<section id="section2" class="section in-sec spyscroll-sec">
+						<div class="section-inner">
+							<div class="section-body">
+								<div class="content_area">
+									<i class="img_1"><!-- <span>REXFIELD</span> --></i>
+									<div class="txt_area">
+										<div class="txt_1">COURSE</div>
+										<div class="txt_2">
+											<a href="/swp/lake_course" class="link"><span>VIEW</span></a>
+											코스의 미학과 플레이의 감동을 함께 드리는 렉스필드!<br>
+											단순한 기능적 코스가 아니라 하나의 아트코스입니다.
+										</div>
+										<div class="txt_3">
+											렉스필드는 레이크코스 9홀, 마운틴코스 9홀, 밸리코스 9홀 등 모두 27홀로 구성되어 있습니다.<br>
+											가장 큰 특징은 3개 코스를 완전 차별화시켜 비슷하게 생긴 홀이 하나도 없다는 점입니다.<br>
+											서로 다른 27가지 공략의 묘미를 만끽할 수 있습니다.
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</section>
+					<section id="section3" class="section in-sec spyscroll-sec">
+						<div class="section-inner">
+							<div class="section-body section3">
+								<div class="content_area">
+									<div class="txt_area">
+										<div class="txt_1">REXFIELD</div>
+										<div class="txt_2">
+											언제나 머물고 싶은 곳! 내 집같은 편안함과 즐거움이 있는 곳
+										</div>
+										<div class="txt_3">
+											자연과 하나된 선(線), 각(角), 곡(曲)<br>
+											렉스필드 클럽하우스는 아름다운 코스와 조경, 자연 속의 산과 하늘을<br>
+											최대한 조망할 수 있도록 활과 같이 휜 모양을 띄고 있습니다.
+										</div>
+										
+									</div>
+								</div>
+								 
+							</div>
+						</div>
+					</section>
+					<section id="section4" class="section in-sec spyscroll-sec">
+						<div class="section-inner">
+							<div class="section-body section4">
+								<div class="content_area">
+									<div class="txt_area">
+										<div class="txt_1">줄리아노반지</div>
+										<div class="txt_2">
+											품격있는 라운드와함께
+											이탈리아 조각 거장의 작품 &lt;줄리아노 반지&gt;의 작품을 감상해 보세요.<br>
+										</div>
+										<div class="txt_3">
+											렉스필드컨트리클럽은 20세기의 미켈란젤로 불리는 이탈리아의 조각 거장<br>
+											줄리아노(Giuliano Vangi, 1931~)조각품을 다수 소장전시하고 있습니다.<br>
+											품격있는라운드와 함께 이탈리아 조각거장 &lt;줄리아노 반지&gt;의 작품을 감상해보세요.
+										</div>
+										<a href="/board/boardDetail?boardCode=STORY&boardPostSeq=1265" class="link"><span>View more</span></a>
+									</div>
+								</div>
+								<div class="artSelect">
+									<div class="artWrap">
+										<a href="javascript:main_c.section4_popup.call(1);" class="art"><img src="/static/pc/images/main/sec-4-1.jpg" alt="렉스필드"></a>
+										<a href="javascript:main_c.section4_popup.call(2);" class="art"><img src="/static/pc/images/main/sec-4-2.jpg" alt="무한기둥"></a>
+										<a href="javascript:main_c.section4_popup.call(3);" class="art"><img src="/static/pc/images/main/sec-4-3.jpg" alt="패트릭 휴즈"></a>
+										<a href="javascript:main_c.section4_popup.call(4);" class="art"><img src="/static/pc/images/main/sec-4-4.jpg" alt="집합"></a>
+									</div>
+								</div>
+							</div>
+						</div>
+					</section>
+					<section id="section5" class="section in-sec fp-section fp-auto-height">
+                        <div class="section-inner" id="main_footer">
+							
+                        </div>
+                    </section>
+				</div>
+            </div>
+            <!-- //Content -->
+        </div>
+        <!-- //Container -->
+</form>
+<script type="text/javascript" src="/static/pc/js/custom/ui.popup.js"></script>
+        <!--// container-->
+
+        <!-- footer -->
+        
+
+
+
+
+
+
+
+<!-- Footer -->
+<footer id="footer" class="out-sec">
+    <div class="footer-inner in-sec">
+        
+        <div class="logo_inner">
+            <a href="/" class="logo gray">LOGO</a>
+        </div>
+        <div class="info_inner">
+        
+            <!-- Company Information -->
+            <div class="company_info">
+                <div class="row-01">
+                    <!-- terms -->
+		            <div class="terms">
+		                <ul>
+		                    <li><a href="javascript:ui.popup.open('terms-02');"><span>이용약관</span></a></li>
+		                    <li><a href="javascript:ui.popup.open('terms-01');" class="f_infocolor"><span>개인정보 처리 방침</span></a></li>
+		                    <li><a href="javascript:ui.popup.open('terms-03');"><span>영상정보처리기기 운영방침</span></a></li>
+		                    <li><a href="https://www.woongjin.com/maintenance/moral_inform_receipt.aspx" target="_blank"><span>윤리제보</span></a></li>
+		                    <li><a href="/swp/faq"><span>고객센터</span></a></li>
+		                </ul>
+		            </div>
+		            <!-- //terms -->
+                </div>
+                <div class="row-02 m_t-10px">
+                	<dl>
+                    	<dd>경기도 여주시 산북면 광여로 1115</dd>
+                    </dl>
+                </div>
+                <div class="row-02">
+                    <!-- <dl>
+                        <dt class="m_r-30px">렉스필드</dt>
+                        <dd>경기도 여주시 산북면 광여로 1115</dd>
+                    </dl> -->
+                    <dl>
+                        <dt>대표번호</dt>
+                        <dd>031-880-8700</dd>                    
+                    </dl>
+                    <dl>
+                    	<dt>예약실</dt>
+                    	<dd>031-880-0300,0302</dd>
+                    </dl>
+                    <dl>
+                    	<dt>프론트</dt>
+                    	<dd>031-880-8799</dd>
+                    </dl>
+                    <!--Family Site-->
+		            <div class="drop down family_site">
+		                <button type="button" aria-controls="family_site" aria-haspopup="listbox" aria-expanded="false" class="drop-toggle"><span>Family Site</span></button>
+		                <div id="family_site" class="drop-menu">
+		                    <ul class="drop-list" role="listbox">
+		                        <li class="drop-item" role="option"><a href="http://www.woongjin.com/" target="_blank">웅진그룹</a></li>
+		                        <li class="drop-item" role="option"><a href="https://www.wjthinkbig.com/" target="_blank">웅진씽크빅</a></li>
+		                        <li class="drop-item" role="option"><a href="https://www.woongjin.co.kr/" target="_blank">(주) 웅진</a></li>
+		                        <li class="drop-item" role="option"><a href="https://www.woongjin.co.kr/" target="_blank">웅진에너지</a></li>
+		                        <li class="drop-item" role="option"><a href="http://www.booxen.com/" target="_blank">북센</a></li>
+		                        <li class="drop-item" role="option"><a href="http://www.playdoci.com/" target="_blank">웅진플레이도시</a></li>
+		                        <li class="drop-item" role="option"><a href="http://www.opms.co.kr/" target="_blank">OPMS</a></li>
+		                        <li class="drop-item" role="option"><a href="https://www.dermalogica.co.kr/" target="_blank">웅진투투랩</a></li>
+		                    </ul>
+		                </div>
+		            </div>
+		            <!--//Family Site-->
+                </div>
+                <div class="row-02">
+                	<dl>
+                    	<dt>레스토랑</dt>
+                    	<dd>031-880-8733</dd>
+                    </dl>
+                    <dl>
+                    	<dt>우편번호</dt>
+                    	<dd>12630</dd>
+                    </dl>
+                    <dl>
+                    	<dt>FAX</dt>
+                    	<dd>031-880-0301</dd>
+                    </dl>
+                </div>
+                <!-- Copyright -->
+                <p class="copyright">COPYRIGHT ⓒ  2008 Rexfield country club. ALL rights Reserved. <span>For more information contact : WEBMASTER@REXFIELD.COM</span></p>
+                <!-- //Copyright -->
+            </div>
+            <!-- //Company Information -->
+            
+        
+        </div>
+		
+    </div>
+    <!-- top btn -->
+	<div class="sticky_area">
+	    <a href="javascript:void(0);" class="btn_sticky sticky01"><span>TOP</span></a>
+	</div>
+	<!-- //top btn -->
+</footer>   
+<!-- //Footer -->
+        
+<!-- 개인정보처리방침 팝업 -->
+<div id="terms-01" class="popup-wrap type-basic type01 footer" role="dialog">
+    <section class="popup demo1" tabindex="0">
+        <div class="popup-head">
+            <h3 id="popupContentTitle">개인정보취급방침</h3>
+        </div>
+        <div class="popup-body">
+            <div class="popup-cont" id="terms_in-01">
+                
+
+            </div>
+        </div>
+        <div class="popup-foot">
+            <div class="btn-area flex-center">
+                <button type="button" id="fnPopClose" class="btn demo1 secondary" onclick="ui.popup.close('terms-01')"><span>닫기</span></button>
+            </div>
+        </div>
+        <div class="popup-close">
+            <button type="button" class="btn-ico btn-close" title="팝업닫기" onclick="ui.popup.close('terms-01')"><span><i class="ico ico-close1 white">Close</i></span></button>
+        </div>
+    </section>
+</div>
+<!-- //개인정보처리방침 팝업 -->
+
+<!-- 이용약관 팝업 -->
+<div id="terms-02" class="popup-wrap type-basic type01 footer" role="dialog">
+    <section class="popup demo1" tabindex="0">
+        <div class="popup-head">
+            <h3 id="popupContentTitle">이용약관</h3>
+        </div>
+        <div class="popup-body">
+            <div class="popup-cont" id="terms_in-02">
+                
+
+            </div>
+        </div>
+        <div class="popup-foot">
+            <div class="btn-area flex-center">
+                <button type="button" id="fnPopClose" class="btn demo1 secondary" onclick="ui.popup.close('terms-02')"><span>닫기</span></button>
+            </div>
+        </div>
+        <div class="popup-close">
+            <button type="button" class="btn-ico btn-close" title="팝업닫기" onclick="ui.popup.close('terms-02')"><span><i class="ico ico-close1 white">Close</i></span></button>
+        </div>
+    </section>
+</div>
+<!-- //이용약관 팝업 -->
+
+<!-- 영상정보처리기기 운영방침 팝업 -->
+<div id="terms-03" class="popup-wrap type-basic type01 footer" role="dialog">
+    <section class="popup demo1" tabindex="0">
+        <div class="popup-head">
+            <h3 id="popupContentTitle">영상정보처리기기 운영방침</h3>
+        </div>
+        <div class="popup-body">
+            <div class="popup-cont" id="terms_in-03">
+                
+
+            </div>
+        </div>
+        <div class="popup-foot">
+            <div class="btn-area flex-center">
+                <button type="button" id="fnPopClose" class="btn demo1 secondary" onclick="ui.popup.close('terms-03')"><span>닫기</span></button>
+            </div>
+        </div>
+        <div class="popup-close">
+            <button type="button" class="btn-ico btn-close" title="팝업닫기" onclick="ui.popup.close('terms-03')"><span><i class="ico ico-close1 white">Close</i></span></button>
+        </div>
+    </section>
+</div>
+<!-- //영상정보처리기기 운영방침 팝업 -->
+
+<div class="dimmer"></div>
+
+<script>
+$(function(){
+    document.getElementById("terms_in-01").innerHTML='<object type="text/html" data="/static/pc/agreeform/agreeform-03.html"></object>';
+    document.getElementById("terms_in-02").innerHTML='<object type="text/html" data="/static/pc/agreeform/agreeform-01.html"></object>';
+    document.getElementById("terms_in-03").innerHTML='<object type="text/html" data="/static/pc/agreeform/agreeform-02.html"></object>';
+    //document.getElementById("terms_in-04").innerHTML='<object type="text/html" data="/static/pc/agreeform/agreeform-05.html"></object>';
+});
+</script>
+        <!--// footer -->
+    
+    </div>
+	<div id="ie_chk" class="ie_chk_area dp-none">
+		<button type="button" onclick="javascript:popHide('ie_chk')" class="btn-close"><span class="blind">현재창 닫기</span></button>
+		<div class="con">
+			<p class="tit">
+				<img src="/static/pc/images/common/ico_ie.png" alt="ie" />
+				본사이트는 <strong>Internet Explorer 11</strong>버전<br/>에 <strong class="color-01">최적화</strong> 되어 있습니다.
+			</p>
+			<span>
+				<p class="btxt">‘Explorer 11이하’ 에서는 사용이 원활하지 않을 수 있습니다.</p>
+				<p class="btxt">Internet Explorer 11은 2022년 6월 15일부터 사용 및 지원이 중지됩니다. Microsoft Edge 사용을 권장합니다.</p>
+				<p class="txt">Explorer를 최신 버전으로 업데이트 하시거나, <br /><strong class="color-01">Chrome, 네이버 Whale</strong> 등의 브라우저를 이용해 주시기 바랍니다.</p>
+				<a href="http://windows.microsoft.com/ko-kr/internet-explorer/download-ie" target="_blank" title="새창열림" class="btn-upgrade">지금 업그레이드</a>
+				<p class="chk-uclose"><input type="checkbox" name="ie_chk_close" id="ie_chk_close" onclick="popHide('ie_chk')" /><label for="ie_chk_close">일주일간 표시 안하기</label></p>
+			</span>			
+		</div>
+	</div>
+	<script type="text/javascript">
+	//익스플로러 중지 안내 활성화
+	var agent = navigator.userAgent.toLowerCase();
+	
+	function ie_setCookie(name, value, days) {
+        if (days) {
+                var date = new Date();
+                date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+                var expires = "; expires=" + date.toGMTString();
+        } else {
+               var expires = "";
+        }
+        
+        document.cookie = name + "=" + value + expires + "; path=/";
+	}
+
+	 
+	//일주일간 표시 안하기
+	function ie_getCookie(name) {
+        var i, x, y, ARRcookies = document.cookie.split(";");
+        
+        for (i = 0; i < ARRcookies.length; i++) {     
+            x = ARRcookies[i].substr(0, ARRcookies[i].indexOf("="));
+            y = ARRcookies[i].substr(ARRcookies[i].indexOf("=") + 1);
+            
+            x = x.replace(/^\s+|\s+$/g, "");
+
+            if (x == name) {
+                    return unescape(y);
+            }
+        }
+	}
+	
+	//ie_chk 레이어팝업 닫기
+	function popHide(pop_id){
+		//document.getElementById(pop_id).style.display = "none";
+		$("#"+pop_id).hide(1000);
+		ie_setCookie('ie_chk_close', 'close', 7); //7일 후 만료
+	}
+
+	$(window).ready(function(){ 
+        var ie_Pchk = ie_getCookie('ie_chk_close');
+        //console.log(ie_Pchk);
+        if( ie_Pchk == 'close'){
+        	$("#"+pop_id).hide(1000);
+        }else{
+            if((navigator.appName == 'Netscape' && agent.indexOf('trident') != -1) || (agent.indexOf("msie") != -1)){
+    			$('#ie_chk').removeClass('dp-none');
+            }
+    	}
+    });
+    </script>
+</body>
+</html>

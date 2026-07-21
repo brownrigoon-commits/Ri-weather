@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+    <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <meta name="format-detection" content="telephone=no">
+        <title>예미지컨트리클럽</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+        <meta name="description" content="예미지컨트리클럽 예약문의(041-943-8777)">
+        <script src="/js/jquery.min.js"></script>
+        <script src="/js/const.js"></script>
+        <script src="/js/utils/ajax.js"></script>
+        <script src="/js/utils/common.js"></script>
+        <script src="/js/utils/date.js"></script>
+        <script src="/js/utils/popup.js"></script>
+        <script src="/js/utils/string.js"></script>
+        <script src="/js/utils/template.js"></script>
+        <script src="/js/jquery.preloaders.js"></script>
+        <script src="/pc/js/view.js"></script>
+        <script src="/pc/js/swiper.js"></script>
+
+        <script src="/js/jquery.rwdImageMaps.min.js"></script><!-- image map -->
+        <link href="https://cdn.jsdelivr.net/gh/sun-typeface/SUIT@2/fonts/static/woff2/SUIT.css" rel="stylesheet">
+        <link rel="stylesheet" href="/css/common.css?v=1.0.1" type="text/css">
+        <link rel="stylesheet" href="/css/swiper.css" type="text/css">
+        <link rel="stylesheet" href="/css/layout.css?v=2.0.1" type="text/css">
+        <link rel="stylesheet" href="/css/contents.css?v=2.0.1" type="text/css">
+        <link rel="stylesheet" href="/css/contents_m.css?v=2.0.1" type="text/css">
+
+        <link rel="icon" href="/images/favicon.ico">
+    </head>
+
+    <header class="pc">
+        <div class="nav-area">
+            <div class="top-left">
+                <a href="/" class="logo-area"><img src="/images/logo.svg"></a>
+            </div>
+            <div class="top-right login-container" style="display: none">
+                <a href="/member/login" class="login">로그인</a>
+                <a href="/member/terms">회원가입</a>
+            </div>
+            <div class="top-right logout-container" style="display: none">
+                <a href="javascript:logout()" class="login">로그아웃</a>
+                <a href="/mypage/modify">회원정보관리</a>
+            </div>
+        </div>
+        <!--메뉴-->
+        <nav>
+            <ul class="nav-menu">
+                <li class="gnb"><a href="/club/intro">클럽소개</a></li>
+                <li class="gnb"><a href="/course/intro">코스소개</a></li>
+                <li class="gnb"><a href="/guide/guide">이용안내</a></li>
+                <li class="gnb"><a href="/reservation/main">예약안내</a></li>
+                <li class="gnb"><a href="/board/notice">커뮤니티</a></li>
+                <li class="gnb"><a href="/mypage/modify">회원라운지</a></li>
+            </ul>
+        </nav>
+        <div class="lnb">
+            <div class="lnb-area">
+                <div class="lnb-box">
+                    <ul>
+                        <li><a href="/club/intro">클럽소개</a></li>
+                        <!--<li><a href="/club/greeting">인사말</a></li>-->
+                        <li><a href="/club/facil">클럽하우스</a></li>
+                        <li><a href="/club/golftel">골프텔</a></li>
+                        <li><a href="/club/map">오시는길</a></li>
+                        <!--<li><a href="/club/ci">CI소개</a></li>-->
+                    </ul>
+                    <ul>
+                        <!--<li><a href="javascript:void(0)" onclick="alert('준비중입니다.');">전체코스</a></li>-->
+                        <li><a href="/course/intro">전체코스</a></li>
+                        <!--<li><a href="/course/course01">예코스</a></li>
+                        <li><a href="/course/course02">미코스</a></li>
+                        <li><a href="/course/course03">지코스</a></li>-->
+                        <!--<li><a href="/board/board-course">코스갤러리</a></li>-->
+                    </ul>
+                    <ul>
+                        <li><a href="/guide/guide">이용안내</a></li>
+                        <li><a href="/guide/fee">이용요금</a></li>
+                        <li><a href="/guide/reservation-guide">예약안내</a></li>
+                        <li><a href="/guide/penalty">위약안내</a></li>
+                        <li><a href="/guide/local">로컬룰</a></li>
+                    </ul>
+                    <ul>
+                        <li><a href="/reservation/main">실시간예약</a></li>
+                        <li><a href="/reservation/wait">대기예약</a></li>
+                        <li><a href="/reservation/check">예약확인/취소</a></li>
+                        <!--<li><a href="/reservation/board-join">조인게시판</a></li>-->
+                    </ul>
+                    <ul>
+                        <li><a href="/board/notice">공지사항</a></li>
+                        <li><a href="/board/event">이벤트</a></li>
+                        <li><a href="/board/board-file">자료실</a></li>
+                        <!--<li><a href="/board/photo">포토갤러리</a></li>
+                        <li><a href="/board/honor">명예의전당</a></li>
+                        <li><a href="/board/voc">고객의소리</a></li>-->
+                    </ul>
+                    <ul>
+                        <li><a href="/mypage/enter">내장현황</a></li>
+                        <!--<li><a href="/mypage/coupon">마이쿠폰</a></li>
+                        <li><a href="/mypage/placebo">위약현황</a></li>
+                        <li><a href="/mypage/score">스코어현황</a></li>-->
+                        <li><a href="/member/login" class="login-container" style="display: none">로그인</a></li>
+                        <li><a href="/member/join" class="login-container" style="display: none">회원가입</a></li>
+                        <li><a href="/member/find-id" class="login-container" style="display: none">아이디찾기</a></li>
+                        <li><a href="/mypage/modify">회원정보관리</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="menu-bg"></div>
+        <!--//메뉴-->
+    </header>
+    <header class="mobile">
+        <div class="top-left">
+            <a href="/" class="logo-area"><img src="/images/logo.svg"></a>
+        </div>
+        <input type="checkbox" id="toggleNav"/>
+        <label class="toggle-btn" for="toggleNav" id="toggleTop">
+            <span></span>
+            <span></span>
+            <span></span>
+        </label>
+        <nav>
+            <div class="nav-box">
+                <div class="nav-header">
+                    <div class="logo-wrap">
+                        <a href="/"><img src="/images/logo.svg" class="logo"></a>
+                    </div>
+                    <!--로그인전-->
+                    <div class="nav-header-text login-container" hidden>
+                        <h2>로그인하세요</h2>
+                        <p>회원이 되시면 다양한 혜택을 누릴 수 있습니다.</p>
+                        <div class="nav-login-area">
+                            <a href="/member/login" class="login">로그인</a>
+                            <a href="/member/terms" class="">회원가입</a>
+                        </div>
+                    </div>
+                    <!--로그인후-->
+                    <div class="nav-header-text logout-container" hidden>
+                        <h2 id="login-member-container"></h2>
+                        <p>예미지컨트리클럽에 오신 걸 환영합니다.</p>
+                        <div class="nav-login-area">
+                            <a href="javascript:logout()" class="login">로그아웃</a>
+                            <a href="/mypage/modify" class="">회원정보관리</a>
+                        </div>
+                    </div>
+                </div>
+                <ul class="menu-list">
+                    <li>
+                        <a href="javascript:void(0)"><p>클럽소개</p><b><span></span></b></a>
+                        <div class="lnb">
+                            <a href="/club/intro">클럽소개</a>
+                            <!--<a href="/club/greeting">인사말</a>-->
+                            <a href="/club/facil">클럽하우스</a>
+                            <a href="/club/golftel">골프텔</a>
+                            <a href="/club/map">오시는길</a>
+                            <!--<a href="/club/ci">CI소개</a>-->
+                        </div>
+                    </li>
+                    <li>
+                        <a href="javascript:void(0)"><p>코스소개</p><b><span></span></b></a>
+                        <div class="lnb">
+                            <!--<a href="javascript:void(0)" onclick="alert('준비중입니다.');">전체코스</a>-->
+                            <a href="/course/intro">전체코스</a>
+                            <!--<a href="/course/course01">예코스</a>
+                            <a href="/course/course02">미코스</a>
+                            <a href="/course/course03">지코스</a>-->
+                            <!--<a href="/board/board-course">코스갤러리</a>-->
+                        </div>
+                    </li>
+                    <li>
+                        <a href="javascript:void(0)"><p>이용안내</p><b><span></span></b></a>
+                        <div class="lnb">
+                            <a href="/guide/guide">이용안내</a>
+                            <a href="/guide/fee">이용요금</a>
+                            <a href="/guide/reservation-guide">예약안내</a>
+                            <a href="/guide/penalty">위약안내</a>
+                            <a href="/guide/local">로컬룰</a>
+                        </div>
+                    </li>
+                    <li>
+                        <a href="javascript:void(0)"><p>예약안내</p><b><span></span></b></a>
+                        <div class="lnb">
+                            <a href="/reservation/main">실시간예약</a>
+                            <a href="/reservation/wait">대기예약</a>
+                            <a href="/reservation/check">예약확인/취소</a>
+                            <!--<a href="/reservation/board-join">조인게시판</a>-->
+                        </div>
+                    </li>
+                    <li>
+                        <a href="javascript:void(0)"><p>커뮤니티</p><b><span></span></b></a>
+                        <div class="lnb">
+                            <a href="/board/notice">공지사항</a>
+                            <a href="/board/event">이벤트</a>
+                            <!--<a href="/board/board-file">자료실</a>
+                            <a href="/board/photo">포토갤러리</a>
+                            <a href="/board/honor">명예의전당</a>
+                            <a href="/board/voc">고객의소리</a>-->
+                        </div>
+                    </li>
+                    <li>
+                        <a href="javascript:void(0)"><p>회원라운지</p><b><span></span></b></a>
+                        <div class="lnb">
+                            <a href="/mypage/enter">내장현황</a>
+                            <!--<a href="/mypage/coupon">마이쿠폰</a>
+                            <a href="/mypage/placebo">위약현황</a>
+                            <a href="/mypage/score">스코어현황</a>
+                            <a href="/mypage/modify">회원정보관리</a>-->
+                            <a href="/member/login" class="login-container" style="display: none">로그인</a>
+                            <a href="/member/join" class="login-container" style="display: none">회원가입</a>
+                            <a href="/member/find-id" class="login-container" style="display: none">아이디찾기</a>
+                            <a href="/mypage/modify">회원정보관리</a>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <script>
+        $(document).ready(async function () {
+            const isLoggedIn = await checkLogin()
+
+            if (isLoggedIn) {
+                const member = await ajax.get("/api/member", {}, false);
+                $("#login-member-container").html(`${member.name} 고객님`)
+                $(".logout-container").show();
+            } else {
+                $(".login-container").show();
+            }
+        });
+
+        function logout() {
+            localStorage.removeItem(TOKEN_KEY);
+            location.href = "/";
+        }
+    </script>
+
+
+<body>
+
+    <link rel="stylesheet" href="/css/fullpage.css" type="text/css">
+    <link rel="stylesheet" href="/css/main.css" type="text/css">
+
+    <div id="fullpage">
+        <!--<div class="section sec-video">
+            <video class="bg-video" autoplay muted loop playsinline>
+                <source src="/images/main.mp4" type="video/mp4">
+            </video>
+            <div class="video-content">
+                <h3>중부권 새로운 명문의 시작</h3>
+                <h1><img src="/images/logo.svg"></h1>
+            </div>
+            <div class="aside-m">
+                <ul>
+                    <li>
+                        <a href="/reservation/main">
+                            <img src="/images/ic_ft_menu01.svg">
+                            <p>예약</p>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/reservation/check">
+                            <img src="/images/ic_ft_menu02.svg">
+                            <p>예약확인</p>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/board/notice">
+                            <img src="/images/ic_ft_menu03.svg">
+                            <p>공지사항</p>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>-->
+
+        <div class="section main-visual">
+            <div class="swiper main-swiper">
+                <div class="swiper-wrapper">
+                    <div class="swiper-slide">
+                        <div class="slide-bg" style="background-image: url('/images/img_main_01.jpg')"></div>
+                        <div class="slide-content">
+                            <p class="sub-title">칠갑산의 청정자연 속에 녹아든</p>
+                            <h2 class="main-title">조화와 감동</h2>
+                        </div>
+                    </div>
+
+                    <div class="swiper-slide">
+                        <div class="slide-bg" style="background-image: url('/images/img_main_02.jpg')"></div>
+                        <div class="slide-content">
+                            <p class="sub-title">고품격 클럽하우스에서 누리는</p>
+                            <h2 class="main-title">특별한 힐링</h2>
+                        </div>
+                    </div>
+
+                    <div class="swiper-slide">
+                        <div class="slide-bg" style="background-image: url('/images/img_main_03.jpg')"></div>
+                        <div class="slide-content">
+                            <p class="sub-title">자연위에 완성 된 새로운 명문으로</p>
+                            <h2 class="main-title">당신을 초대합니다.</h2>
+                        </div>
+                    </div>
+
+                    <div class="swiper-slide">
+                        <div class="slide-bg" style="background-image: url('/images/img_main_04.jpg')"></div>
+                        <div class="slide-content">
+                            <p class="sub-title">중부권 새로운 명문의 시작</p>
+                            <h2 class="main-title">예미지 컨트리클럽</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="swiper-pagination"></div>
+                <a href="/reservation/main" class="reserve-btn"><img src="/images/ic_m_reser.svg"> 실시간 예약하기</a>
+            </div>
+        </div>
+
+
+        <div class="section sec-course">
+            <div class="crs-item">
+                <img src="/images/img_course_01.jpg" alt="예코스">
+                <div class="crs-con">
+                    <span>예 코스</span>
+                    <strong>藝</strong>
+                    <p>대자연의 품에 안긴 듯 유려한 곡선의 미학<br>계절마다 옷을 갈아입는 한 폭의 수채화 같은 풍경</p>
+                    <a href="/course/intro">바로가기</a>
+                </div>
+            </div>
+            <div class="crs-item">
+                <img src="/images/img_course_02.jpg" alt="미코스">
+                <div class="crs-con">
+                    <span>미 코스</span>
+                    <strong>美</strong>
+                    <p>새로운 설렘으로 다가오는 다이내믹한 코스<br>치밀한 전략과 과감한 도전이 공존하는 승부의 장</p>
+                    <a href="/course/intro">바로가기</a>
+                </div>
+            </div>
+            <div class="crs-item">
+                <img src="/images/img_course_03.jpg" alt="지코스">
+                <div class="crs-con">
+                    <span>지 코스</span>
+                    <strong>智</strong>
+                    <p>대지의 숨결을 따라 설계된 예술적 코스 레이아웃<br>당신의 플레이가 작품이 되는 고결한 필드</p>
+                    <a href="/course/intro">바로가기</a>
+                </div>
+            </div>
+        </div>
+        <div class="section sec-news">
+            <div class="news-head">
+                <h2>예미지의<br>가장 최신소식을 들려드립니다.</h2>
+                <a href="/board/notice">더 보러가기</a>
+            </div>
+
+            <div class="news-slide">
+                <div class="swiper news-swiper">
+                    <div class="swiper-wrapper" id="notice-container">
+
+                    </div>
+                    <div class="swiper-scrollbar"></div>
+                </div>
+            </div>
+        </div>
+        <div class="section sec-facil">
+            <div class="facil-left">
+                <div class="facil-head">
+                    <h2>예미지의 감각적인 부대시설을 만나보세요.</h2>
+                    <!--<a href="/club/facil">더 보러가기</a>-->
+                </div>
+                <ul class="facil-tab">
+                    <li class="on" data-tab="0">
+                        <div class="facil-info">
+                            <strong>클럽하우스</strong>
+                            <p>자연과 조화로운 감각적 건축미의 정점</p>
+                        </div>
+                        <a href="javascript:void(0)"></a>
+                    </li>
+                    <li data-tab="1">
+                        <div class="facil-info">
+                            <strong>레스토랑</strong>
+                            <p>품격 있는 맛과 프라이빗한 여유의 조화.</p>
+                        </div>
+                        <a href="javascript:void(0)"></a>
+                    </li>
+                    <li data-tab="2">
+                        <div class="facil-info">
+                            <strong>락커룸/사우나</strong>
+                            <p>피로가 녹아드는 아느한 치유의 시간.</p>
+                        </div>
+                        <a href="javascript:void(0)"></a>
+                    </li>
+                    <li data-tab="3">
+                        <div class="facil-info">
+                            <strong>프로샵</strong>
+                            <p>필드의 주인공을 위한 고품격 셀렉트 숍</p>
+                        </div>
+                        <a href="javascript:void(0)"></a>
+                    </li>
+                </ul>
+            </div>
+            <div class="facil-right">
+                <div class="facil-panel on" data-panel="0">
+                    <div class="swiper facil-swiper">
+                        <div class="swiper-wrapper">
+                            <div class="swiper-slide"><img src="/images/img_m_house01.jpg"></div>
+                            <div class="swiper-slide"><img src="/images/img_m_house02.jpg"></div>
+                            <div class="swiper-slide"><img src="/images/img_m_house03.jpg"></div>
+                        </div>
+                        <div class="sw-nav">
+                            <button class="gal-prev"><img src="/images/ic_arw_l.svg"></button>
+                            <button class="gal-next"><img src="/images/ic_arw_r.svg"></button>
+                        </div>
+                    </div>
+                </div>
+                <div class="facil-panel" data-panel="1">
+                    <div class="swiper facil-swiper">
+                        <div class="swiper-wrapper">
+                            <div class="swiper-slide"><img src="/images/img_m_res01.jpg"></div>
+                            <div class="swiper-slide"><img src="/images/img_m_res02.jpg"></div>
+                        </div>
+                        <div class="sw-nav">
+                            <button class="gal-prev"><img src="/images/ic_arw_l.svg"></button>
+                            <button class="gal-next"><img src="/images/ic_arw_r.svg"></button>
+                        </div>
+                    </div>
+                </div>
+                <div class="facil-panel" data-panel="2">
+                    <div class="swiper facil-swiper">
+                        <div class="swiper-wrapper">
+                            <div class="swiper-slide"><img src="/images/img_m_locker01.jpg"></div>
+                            <div class="swiper-slide"><img src="/images/img_m_locker02.jpg"></div>
+                            <div class="swiper-slide"><img src="/images/img_m_locker03.jpg"></div>
+                        </div>
+                        <div class="sw-nav">
+                            <button class="gal-prev"><img src="/images/ic_arw_l.svg"></button>
+                            <button class="gal-next"><img src="/images/ic_arw_r.svg"></button>
+                        </div>
+                    </div>
+                </div>
+                <div class="facil-panel" data-panel="3">
+                    <div class="swiper facil-swiper">
+                        <div class="swiper-wrapper">
+                            <div class="swiper-slide"><img src="/images/img_main_facil.jpg"></div>
+                            <div class="swiper-slide"><img src="/images/img_main_facil.jpg"></div>
+                            <div class="swiper-slide"><img src="/images/img_main_facil.jpg"></div>
+                        </div>
+                        <div class="sw-nav">
+                            <button class="gal-prev"><img src="/images/ic_arw_l.svg"></button>
+                            <button class="gal-next"><img src="/images/ic_arw_r.svg"></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="section sec-map">
+            <div class="map-left">
+                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3208.899453938777!2d126.83960587625786!3d36.459986086802736!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x357a91007e11d7ef%3A0x1613ffa63f7fba81!2z7JiI66-47KeA7Luo7Yq466as7YG065-9!5e0!3m2!1sko!2skr!4v1776411860644!5m2!1sko!2skr" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+            </div>
+            <div class="map-right">
+                <div class="map-head">
+                    <h2>예미지의 오시는 길을<br>안내해드립니다.</h2>
+                    <a href="/club/map">더 보러가기</a>
+                </div>
+                <div class="m-map-info">
+                    <p>충남 청양군 대치면 주전로 268</p>
+                    <h3>041-943-8777</h3>
+                </div>
+                <div class="quick-link-wrap">
+                    <ul class="quick-link" onclick="location.href='/club/intro'">
+                        <li><img src="/images/ic_m_menu01.svg"></li>
+                        <li class="quick-info">
+                            <h3>클럽소개</h3>
+                            <p>예미지를 더 알고싶나요?</p>
+                        </li>
+                    </ul>
+                    <ul class="quick-link" onclick="location.href='/guide/guide'">
+                        <li><img src="/images/ic_m_menu02.svg"></li>
+                        <li class="quick-info">
+                            <h3>이용안내</h3>
+                            <p>미리 알고 가면 좋아요!</p>
+                        </li>
+                    </ul>
+                    <ul class="quick-link" onclick="location.href='/guide/fee'">
+                        <li><img src="/images/ic_m_menu03.svg"></li>
+                        <li class="quick-info">
+                            <h3>요금안내</h3>
+                            <p>예미지의 그린피 및 요금</p>
+                        </li>
+                    </ul>
+                    <ul class="quick-link" onclick="location.href='/guide/guide'">
+                        <li><img src="/images/ic_m_menu04.svg"></li>
+                        <li class="quick-info">
+                            <h3>복장규정</h3>
+                            <p>가기전에 읽어보는 복장규정</p>
+                        </li>
+                    </ul>
+                    <!--<ul class="quick-link" onclick="alert('준비중입니다.');">
+                        <li><img src="/images/ic_m_menu05.svg"></li>
+                        <li class="quick-info">
+                            <h3>실시간 조인</h3>
+                            <p>다른 회원들과 실시간 조인</p>
+                        </li>
+                    </ul>
+                    <ul class="quick-link" onclick="alert('준비중입니다.');">
+                        <li><img src="/images/ic_m_menu06.svg"></li>
+                        <li class="quick-info">
+                            <h3>연단체 모집</h3>
+                            <p>2026년 연단체 모집안내</p>
+                        </li>
+                    </ul>-->
+                </div>
+            </div>
+        </div>
+        <div class="section section-footer fp-auto-height">
+            
+    <footer>
+        <div class="f-head-area">
+            <a href="/policy/policy" class="f-red">개인정보처리방침</a>
+            <a href="/policy/video">영상정보처리기기방침</a>
+            <a href="/policy/legal">이용약관</a>
+            <a href="/policy/email">이메일무단수집거부</a>
+        </div>
+        <div class="f-con-area">
+            <h1><img src="/images/logo_bottom.svg?v=1"></h1>
+            <address>
+                <ul>
+                    <li>
+                        <span>(주)해오름주택</span>
+                        <span><b>사업자등록번호</b> 314-86-61370</span>
+                        <!--<span><b>통신판매업신고</b> 제0000-00-0000호</span>-->
+                    </li>
+                </ul>
+                <ul>
+                    <li>
+                        <span><b>주소</b> 충남 청양군 대치면 주전로 268</span>
+                        <span><b>대표이사</b> 김길수</span>
+                        <span><b>대표전화</b> 041-943-8777</span>
+                        <span><b>FAX</b> 041-943-8776</span>
+                    </li>
+                </ul>
+            </address>
+            <p>Copyright(C) 2026 YEMIZI GOLF CLUB. ALL RIGHT RESERVED.</p>
+        </div>
+    </footer>
+
+        </div>
+    </div>
+
+    <!--메인팝업-->
+    <!--<div class="main-pop-wrap">
+        <div class="main-pop">
+            <div class="swiper-btn-prev"><img src="/images/ic_pop_left.svg"></div>
+            <div class="swiper pop-swiper">
+                <div class="swiper-wrapper">
+                    <div class="swiper-slide"><img src="/images/img_banner.jpg"></div>
+                    <div class="swiper-slide"><img src="/images/img_banner2.jpg"></div>
+                    <div class="swiper-slide"><img src="/images/img_banner3.jpg"></div>
+                    <div class="swiper-slide"><img src="/images/img_banner4.jpg"></div>
+                    <div class="swiper-slide"><img src="/images/img_banner.jpg"></div>
+                    <div class="swiper-slide"><img src="/images/img_banner2.jpg"></div>
+                </div>
+            </div>
+            <div class="swiper-btn-next"><img src="/images/ic_pop_right.svg"></div>
+        </div>
+        <div class="btn-pop-close">
+            <button type="button">오늘은 그만보기 <img src="/images/ic_x.svg"></button>
+            <button type="button">팝업닫기 <img src="/images/ic_x.svg"></button>
+        </div>
+    </div>-->
+    <!--///메인팝업-->
+
+    <script src="/pc/js/fullpage.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            initFacilTab();
+            getMainContents();
+        });
+
+        function getMainContents() {
+            ajax.get("/api/open/board/main").then((data) => {
+                data.notice.forEach((notice) => {
+                    $("#notice-container").append(`
+                        <div class="swiper-slide">
+                            <a href="/board/${notice.type}-view/${notice.id}">
+                                <div class="slide-img">
+                                    <img src="${notice.thumbnailUrl}" alt="" onerror="this.src='/images/default_thumbnail.png'; this.onerror=null;">
+                                </div>
+                                <p>${notice.title}</p>
+                                <span>${notice.createdAt.toDateTime().yyyymmdd().toDateStringFormat(".")}</span>
+                            </a>
+                        </div>`);
+                });
+                initNewsSwiper();
+
+                if (getCookie("main-popup") !== "Y" && data.popup.length > 0) {
+                    popup.open("/popup/popup-main.html?v=2", function ($el, open, close) {
+                        data.popup.forEach((item) => {
+                            const $item = $(`<div class="swiper-slide"><a href="${item.link}"><img src="${item.thumbnailUrl}"></a></div>`);
+
+                            $el.find(".pop-swiper > .swiper-wrapper").append($item);
+                        });
+
+                        $el.find(".btn-pop-close button:first-child").on("click", function () {
+                            setCookie("main-popup", "Y", 1);
+                            close();
+                        });
+
+                        $el.find(".btn-pop-close button:last-child").on("click", function () {
+                            close();
+                        });
+
+                        open();
+                    });
+                }
+            });
+        }
+
+        window.addEventListener('load', function () {
+            let fpInstance = null;
+
+            function initFullpage() {
+                if (window.innerWidth > 1200 && !fpInstance) {
+                    fpInstance = new fullpage('#fullpage', {
+                        licenseKey: 'K261H-R4BRK-24YI9-QVEL6-QKNLN',
+                        autoScrolling: true,
+                        scrollOverflow: false,
+                        afterRender: function () {
+                            $('#fullpage').css('visibility', 'visible');
+                        },
+                        onLeave: function (origin, destination, direction) {
+                            const idx = destination.index;
+                            const $header = $('header.pc');
+                            if (!$header.hasClass('hovering')) {
+                                if (idx === 0 || idx === 1) {
+                                    $header.removeClass('type2').addClass('main');
+                                } else {
+                                    $header.removeClass('main').addClass('type2');
+                                }
+                            }
+                            if (destination.index === 1) {
+                                document.querySelectorAll('.crs-item').forEach(el => {
+                                    el.classList.add('active');
+                                });
+                            }
+                            const targets = ['.news-head', '.facil-head', '.map-head'];
+                            if (idx >= 2 && idx <= 4) {
+                                $(targets[idx - 2]).addClass('active');
+                            }
+                        },
+                        afterLoad: function (origin, destination, direction) {
+                            const idx = destination.index;
+                            const $header = $('header.pc');
+
+                            if (idx === 0 || idx === 1) {
+                                $header.removeClass('type2').addClass('main');
+                            } else {
+                                $header.removeClass('main').addClass('type2');
+                            }
+
+                            const $video = destination.item.querySelector('video');
+                            if ($video) $video.play();
+
+                            if (idx === 3) {
+                                initFacilSwiper(0);
+                            }
+                        }
+                    });
+                } else if (window.innerWidth <= 1280 && fpInstance) {
+                    fullpage_api.destroy('all');
+                    fpInstance = null;
+                }
+            }
+
+            initFullpage();
+            window.addEventListener('resize', initFullpage);
+
+            if (window.innerWidth <= 1280) {
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('active');
+                        }
+                    });
+                }, { threshold: 0 });
+
+                document.querySelectorAll('.news-head, .facil-head, .map-head, .crs-item').forEach(el => {
+                    observer.observe(el);
+                });
+            }
+        });
+
+        //메인
+        const mainSwiper = new Swiper('.main-swiper', {
+            loop: true,
+            speed: 800,
+            effect: 'fade',
+            fadeEffect: {
+                crossFade: true
+            },
+            autoplay: {
+                delay: 5000,
+                disableOnInteraction: false,
+            },
+            pagination: {
+                el: '.swiper-pagination',
+                clickable: true,
+            },
+
+            on: {
+                slideChangeTransitionStart: function () {
+                    this.slides.forEach(slide => {
+                        // 배경 리셋 (기존)
+                        const bg = slide.querySelector('.slide-bg');
+                        if (bg) {
+                            bg.style.animation = 'none';
+                            void bg.offsetWidth;
+                            bg.style.animation = '';
+                        }
+                        // ⭐ 텍스트 리셋 (추가)
+                        const texts = slide.querySelectorAll('.sub-title, .main-title');
+                        texts.forEach(el => {
+                            el.style.animation = 'none';
+                            void el.offsetWidth;
+                            el.style.animation = '';
+                        });
+                    });
+                }
+            }
+        });
+
+        //팝업
+        new Swiper('.pop-swiper', {
+            slidesPerView: 1,
+            spaceBetween: 8,
+            speed: 500,
+            loop: true,
+            watchOverflow: true,
+            grabCursor: true,
+            autoplay: {
+                delay: 4000,
+                disableOnInteraction: false
+            },
+            navigation: {
+                nextEl: '.main-pop .swiper-btn-next',
+                prevEl: '.main-pop .swiper-btn-prev',
+            },
+            breakpoints: {
+                480: {
+                    spaceBetween: 8,
+                    slidesPerView: 2,
+                    centeredSlides: false,
+                },
+                768: {
+                    spaceBetween: 16,
+                    slidesPerView: 3,
+                    centeredSlides: false,
+                },
+                1200: {
+                    spaceBetween: 32,
+                    slidesPerView: 4,
+                    centeredSlides: false,
+                }
+            },
+        });
+
+        // 뉴스 슬라이더
+        function initNewsSwiper() {
+            new Swiper('.news-swiper', {
+                slidesPerView: 1.5,
+                spaceBetween: 16,
+                loop: true,
+                scrollbar: {
+                    el: '.news-swiper .swiper-scrollbar',
+                    draggable: true,
+                },
+                autoplay: {
+                    delay: 2500,
+                    disableOnInteraction: false,
+                },
+                breakpoints: {
+                    721: { slidesPerView: 2, spaceBetween: 20 },
+                    1024: { slidesPerView: 3, spaceBetween: 24 },
+                    1440: { slidesPerView: 4, spaceBetween: 24 },
+                }
+            });
+        }
+
+        // 부대시설 슬라이더
+        const facilSwipers = {};
+
+        function initFacilSwiper(idx) {
+            if (facilSwipers[idx]) return;
+            const $panel = $(`.facil-panel[data-panel="${idx}"]`);
+            facilSwipers[idx] = new Swiper($panel.find('.facil-swiper')[0], {
+                slidesPerView: 1,
+                loop: true,
+                navigation: {
+                    prevEl: $panel.find('.gal-prev')[0],
+                    nextEl: $panel.find('.gal-next')[0],
+                }
+            });
+        }
+
+        // 탭 이벤트
+        function initFacilTab() {
+            $('.facil-tab li').on('click', function (e) {
+                //if ($(e.target).closest('a').length) return;
+
+                const idx = $(this).data('tab');
+
+                $('.facil-tab li').removeClass('on');
+                $(this).addClass('on');
+
+                $('.facil-panel').removeClass('on');
+                $(`.facil-panel[data-panel="${idx}"]`).addClass('on');
+
+                initFacilSwiper(idx);
+            });
+
+            const firstIdx = $('.facil-tab li.on').data('tab');
+            initFacilSwiper(firstIdx);
+        }
+    </script>
+
+
+    <div class="aside">
+        <ul>
+            <li>
+                <a href="/reservation/main">
+                    <img src="/images/ic_ft_menu01.svg">
+                    <p>예약</p>
+                </a>
+            </li>
+            <li>
+                <a href="/reservation/check">
+                    <img src="/images/ic_ft_menu02.svg">
+                    <p>예약확인</p>
+                </a>
+            </li>
+            <li>
+                <a href="/board/notice">
+                    <img src="/images/ic_ft_menu03.svg">
+                    <p>공지사항</p>
+                </a>
+            </li>
+        </ul>
+        <button type="button"><img src="/images/ic_top.svg"></button>
+    </div>
+
+    <script>
+        $('.aside button').on('click', function() {
+            fullpage_api.moveTo(1);
+        });
+    </script>
+
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a1e796ad6cefd1f5',t:'MTc4NDYwOTQ2Ng=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script><script defer src="https://static.cloudflareinsights.com/beacon.min.js/v4513226cdae34746b4dedf0b4dfa099e1781791509496" integrity="sha512-ZE9pZaUXND66v380QUtch/5sE9tPFh2zg45pR2PB0CVkCtOREv2AJKkSidISWkysEuQ0EH8faUU5du78bx87UQ==" data-cf-beacon='{"version":"2024.11.0","token":"de9f4891b32a4c7ba3c624fc918787fa","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+</body>
+</html>

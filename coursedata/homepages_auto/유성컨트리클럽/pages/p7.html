@@ -1,0 +1,370 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=Edge">
+	<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0,user-scalable=no,target-densitydpi=medium-dpi" />
+	<meta name="apple-mobile-web-app-capable" content="no" />
+	<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+	<meta name="format-detection" content="telephone=no,email=no,address=no">
+	<meta name="title" content="유성C.C">
+	<meta name="author" content="유성C.C">
+	<meta name="Keywords" content="유성C.C">
+	<meta name="description" content="유성C.C">
+	<meta name="copyright" content="All Contents Copyright©yuseong country club">
+	<meta property="og:type" content="website">
+	<meta property="og:title" content="유성C.C">
+	<meta property="og:description" content="유성C.C">
+	<meta property="og:url" content="">
+	<link rel="canonical" href="">
+	<title>유성C.C</title>
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+	<script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
+	<script src="/js/tools.js"></script>
+	<script src="/js/globals.js"></script>
+	<script src="/js/jquery.preloaders.js"></script>
+	<link rel="stylesheet" type="text/css" href="/css/import.css?v=2">
+	<link rel="stylesheet" type="text/css" href="/css/contents.css?v=5.2">
+	<script type="text/javascript" src="/js/common.js"></script>
+
+	<script>
+		$(document).ready(function() {
+			setProtocol();
+
+			checkMobile();
+
+			initTop();
+
+			//initWeather();
+		});
+
+		function setProtocol() {
+			if (document.location.protocol == 'http:') {
+				document.location.href = document.location.href.replace('http:', 'https:');
+    		}
+		}
+
+		function initTop() {
+			var url = "/course/course05.asp";
+
+			if(url.indexOf("index.asp") > 0){
+				$("#header").removeClass("subBg");
+				$("#header").addClass("mainBg");
+			} else {
+				$("#header").removeClass("mainBg");
+				$("#header").addClass("subBg");
+			}
+
+			if("" == "Y") {
+				$("#btnPopup").show();
+				$("#btnPush").show();
+				$("#btnBenner").show();
+			}
+		}
+
+		function checkMobile() {
+			var mobileKeyWords = new Array('iPhone', 'iPod', 'iPad', 'BlackBerry', 'Android', 'Windows CE', 'MOT', 'SAMSUNG', 'SonyEricsson');
+
+			for (var word in mobileKeyWords) {
+				if ( navigator.userAgent.match(mobileKeyWords[word]) != null ) {
+					location.href = "/mobile/index.asp";
+					break;
+				}
+			}
+		}
+
+		function doLogout() {
+			var sUrl = "/controller/MemberController.asp";
+			var params = {};
+
+			params["method"] = "doLogout";
+
+			mAjax(sUrl, params, "POST", true, function(data) {
+				if(data.resultCode == "0000") {
+					alert("로그아웃 되었습니다.");
+
+					location.href = "/index.asp";
+				}
+			});
+		}
+
+		function initWeather() {
+			var sUrl = "/controller/CommonController.asp";
+			var params = {};
+
+			params["method"] = "getWeather";
+
+			mAjax(sUrl, params, "GET", false, function(data) {
+				if(data.resultCode == "0000") {
+					var temp = data.temp;
+					var wfKor = data.wfKor;
+					var wfEn = data.wfEn;
+
+					temp = Math.round(temp);
+
+					var img = "/images/weather/wt_b.png";
+
+					$("#txtTemp").empty().append(temp);
+
+					if(wfEn == "Clear") {
+						img = "/images/weather/wt_s.png";
+					} else if(wfEn == "Partly Cloudy") {
+						img = "/images/weather/wt_pc.png";
+					} else if(wfEn == "Mostly Cloudy") {
+						img = "/images/weather/wt_mc.png";
+					} else if(wfEn == "Cloudy") {
+						img = "/images/weather/wt_c.png";
+					} else if(wfEn == "Rain") {
+						img = "/images/weather/wt_r.png";
+					} else if(wfEn == "Snow/Rain") {
+						img = "/images/weather/wt_ras.png";
+					} else if(wfEn == "Snow") {
+						img = "/images/weather/wt_sn.png";
+					} else if(wfEn == "Shower") {
+						img = "/images/weather/wt_ss.png";
+					}
+
+					$("#imgWeather").attr("src", img);
+				}
+			});
+		}
+	</script>
+</head>
+
+<body>
+	<div id="wrap">
+		<!--header-->
+		<div id="header">
+			<div class="headerWrap">
+				<div class="HWarpL"><a href="/" class="RBtn"><img src="../images/icon_home.png"> Main</a></div>
+				<div class="HWarpC"><a href="/"><img src="../images/logo.jpg"></a></div>
+				<div class="HWarpR">
+					
+					<a href="/members/login.asp" class="RBtn1"><img src="../images/icon_lockon.jpg"> 로그인</a>
+					<a href="/members/join.asp" class="RBtn1"><img src="../images/icon_user.jpg"> 회원가입</a>
+					
+				</div>
+			</div>
+			<div class="HNavWrap">
+				<div class="HNavBox">
+					<div class="Hblank">빈영역</div>
+					<div class="nav">
+						<ul>
+							<li>
+								<a href="/club/clubInfo.asp">클럽소개</a>
+								<ul>
+									<li><a href="/club/clubInfo.asp">인사말</a></li>
+									<li><a href="/club/clubGroup.asp">조직구성도</a></li>
+									<li><a href="/club/history.asp">클럽연혁</a></li>
+									<li><a href="/club/map.asp">오시는길</a></li>
+								</ul>
+							</li>
+							<li>
+								<a href="/course/allcourse.asp">코스소개</a>
+								<ul>
+									<li><a href="/course/allcourse.asp">전체코스</a></li>
+									<li><a href="/course/course01.asp">코스공략법</a></li>
+								</ul>
+							</li>
+							<li>
+								<a href="/guide/guide.asp">이용안내</a>
+								<ul>
+									<li><a href="/guide/guide.asp">이용안내</a></li>
+									<li><a href="/guide/charge.asp">이용요금</a></li>
+									<li><a href="/guide/reserInfo.asp">예약접수안내</a></li>
+									<!-- <li><a href="/guide/userGuide.asp">내장객 안내사항</a></li> -->
+									<li><a href="/guide/golfTerms.asp">골프장 이용약관</a></li>
+								</ul>
+							</li>
+							<li>
+								<a href="/reservation/reservation.asp">인터넷예약</a>
+								<ul>
+									<li><a href="/reservation/reservation.asp">예약하기</a></li>
+									<li><a href="/reservation/reservationList.asp">예약확인</a></li>
+								</ul>
+							</li>
+							<li style="display:none">
+								<a href="/ticket/ticketdeal.asp">회원권 거래</a>
+								<ul>
+									<li><a href="/ticket/ticketinfo.asp">회원권 정보</a></li>
+									<li><a href="/ticket/ticketdeal.asp">회원권 거래</a></li>
+								</ul>
+							</li>
+							<li>
+								<a href="/facil/facil02.asp">부대시설</a>
+								<ul>
+									<!-- <li><a href="/facil/facil01.asp">연습장</a></li> -->
+									<li><a href="/facil/facil02.asp">대식당</a></li>
+									<li><a href="/facil/facil03.asp">티하우스&amp;그늘집</a></li>
+									<li><a href="/facil/facil04.asp">프로샵</a></li>
+								</ul>
+							</li>
+							<li>
+								<a href="/facil/facil01.asp">연습장</a>
+								<ul>
+									<li><a href="/facil/facil01.asp">연습장</a></li>
+								</ul>
+							</li>
+							<!-- <li>
+								<a href="/club/honorHoleList.asp">클럽존</a>
+								<ul>
+									<li><a href="/club/honorHoleList.asp">명예의 전당</a></li>
+									<li><a href="/board/list.asp?type=5">골프강좌</a></li>
+								</ul>
+							</li> -->
+							<li>
+								<a href="/board/list.asp?type=1">클럽뉴스</a>
+								<ul>
+									<li><a href="/board/list.asp?type=1">클럽뉴스</a></li>
+									<!-- <li><a href="/board/list.asp?type=2">Q&amp;A</a></li> -->
+									<li><a href="/board/list.asp?type=3">포토갤러리</a></li>
+									<li><a href="/club/honorList.asp">역대클럽 챔피온</a></li>
+									<li><a href="/board/list.asp?type=4">자료실</a></li>
+									<!-- <li><a href="/club/employ.asp">채용정보</a></li> -->
+									<li><a href="/board/list.asp?type=6" id="btnPopup" style="display:none">팝업관리</a></li>
+									<li><a href="/board/list.asp?type=7" id="btnPush" style="display:none">푸쉬관리</a></li>
+									<li><a href="/board/list.asp?type=8" id="btnBenner" style="display:none">배너관리</a></li>
+								</ul>
+							</li>
+							<li class="lamp"><span></span></li>
+						</ul>
+					</div>
+					<!-- 기상청 날씨정보
+					<div class="HWether">
+						<img id="imgWeather" src="/images/weather/wt_b.png">
+						<div class="wetherNum" id="txtTemp"></div>
+					</div>
+					-->
+				</div>
+			</div>
+		</div>
+		<!--//header-->
+
+	<div class="subV"></div>		
+	<div id="contents">
+		<!--현재페이지위치-->
+		<div class="lnbWrap">
+			<div class="lnb">
+				<img src="../images/icon_navihome.jpg"> HOME > <span>코스공략법</span>
+			</div>
+		</div>
+		
+		<div class="container">
+			
+			<div class="commonTab2" id="rTab">
+				<a href="/course/allcourse.asp">전체코스</a>
+				<a href="/course/course01.asp" class="on">코스공략법</a>
+			</div>
+			
+			<h2 class="commonTitle"> 코스공략법</h2>
+			
+			<div class="courseTab">
+				<a href="course01.asp" class="">01h</a>
+				<a href="course02.asp" class="">02h</a>
+				<a href="course03.asp" class="">03h</a>
+				<a href="course04.asp" class="">04h</a>
+				<a href="course05.asp" class="on">05h</a>
+				<a href="course06.asp" class="">06h</a>
+				<a href="course07.asp" class="">07h</a>
+				<a href="course08.asp" class="">08h</a>
+				<a href="course09.asp" class="">09h</a>
+				<a href="course10.asp" class="">10h</a>
+				<a href="course11.asp" class="">11h</a>
+				<a href="course12.asp" class="">12h</a>
+				<a href="course13.asp" class="">13h</a>
+				<a href="course14.asp" class="">14h</a>
+				<a href="course15.asp" class="">15h</a>
+				<a href="course16.asp" class="">16h</a>
+				<a href="course17.asp" class="">17h</a>
+				<a href="course18.asp" class="">18h</a>				
+			</div>
+			
+			<div class="grayBg">
+				
+				<div class="holeNumBox">
+					<div class="holeNum">05</div>
+					<ul class="holeText">
+						<li class="hole1">hole</li>
+						<li class="hole2">COURSE</li>
+					</ul>
+				</div>
+				
+				<div class="holeWrap">
+					<div class="GreenbullText">
+					par4의 내리막 미들홀이며 티샷은 좌우측 ob지역으로 우중간을 공략하는 것이 유리하며 세컨샷은 그린의 우측벙커와 ob지역이니 슬라이스가 나지 않도록 그린측을 공략한다. 
+					</div>
+					
+					<div class="padding15"></div>
+					
+					<div class="holeLeft">
+						<div class="subTitle font20">HDCP 10</div>
+						<div class="bwr">
+							<span class="blue"></span> Blue <b>352</b>
+							<span class="white"></span> White <b>341</b>
+							<span class="red"></span> Red <b>324</b>
+						</div>
+						<table class="gwTable">
+							<colgroup>
+							<col width="*">
+							<col width="*">
+							<col width="*">
+							</colgroup>
+
+							<thead>
+								<tr>
+									<th scope="col">HOLE</th>
+									<th scope="col">METER</th>
+									<th scope="col">PAR</th>
+								</tr>
+							</thead>
+							
+							<tbody>
+								<tr>
+									<td>5H</td>
+									<td>352</td>
+									<td>4</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+					<div class="holeRight">
+						<img src="/images/course/h5.png">
+					</div>
+				</div>
+				
+			</div>			
+		</div>
+	</div>
+	
+	<!--footer-->
+<div id="footer">
+	<div class="footerWrap">
+		<div class="footerTop">
+			<p class="top">
+				<a href="/guide/terms.asp">개인정보 수집 &bull; 이용 동의서</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;<a href="/guide/policy.asp">개인정보 취급방침</a>
+			</p>
+		</div>
+		<div class="footerBox">
+			<p class="footerlogo"></p>
+			<div class="footerInfo">
+				<ul>
+					<li>
+						회사명 : 유성관광 | 대표자 : 강은모 | 사업자등록번호 : 314-81-00704 | 통신판매신고 : 제 2009-대전유성-0164호<br>
+						대전광역시 유성구 현충원로 200(도로명주소) | 대전광역시 유성구 덕명동 215-7번지 (지번주소)<br>
+						대표전화 : 042)822-7103 | 팩스번호 : 042-823-4288<br>
+						COPYRIGHT ⓒ YUSUNGCC ALL RIGHT RESERVED.
+					</li>
+				</ul>
+			</div>
+			<div class="snsBox">
+				<!--<img src="/images/facebook.png"> <img src="/images/twitter.png"> <img src="/images/instagram.png">-->
+			</div>
+		</div>
+	</div>
+</div>
+<!--//footer-->
+</div>
+
+</body>
+</html>

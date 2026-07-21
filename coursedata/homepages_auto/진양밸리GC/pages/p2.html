@@ -1,0 +1,527 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="user-scalable=yes, initial-scale=0.3, maximum-scale=1.0, minimum-scale=0.1, width=device-width" />
+<meta name="title" content="진양밸리">
+<meta name="author" content="진양밸리">
+<meta name="Keywords" content="진양밸리, 진양밸리CC, ">
+<meta name="description" content="진양밸리, 진양밸리CC, ">
+<meta name="copyright" content="All Contents Copyright©chinyangValley">
+<meta name="format-detection" content="telephone=no, address=no, email=no"/>
+<meta property="og:type" content="mobile">
+<meta property="og:title" content="진양밸리, 진양밸리CC">
+<meta property="og:description" content="진양밸리, 진양밸리CC">
+<meta property="og:url" content="">
+<title>진양밸리</title>
+<link rel="stylesheet" type="text/css" href="/css/import.css">
+<link rel="stylesheet" type="text/css" href="/css/content.css?v=6">
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+<script type="text/javascript" src="/js/common.js"></script>
+<script>
+	$(document).ready(function() {
+		checkMobile();
+		
+		initHeader();
+	});
+
+	function initHeader() {
+		var msNum = "";
+
+		if(msNum == "") {
+			$("#memContainer").hide();
+			$("#nonMemContainer").show();
+		} else {
+			$("#memContainer").show();
+			$("#nonMemContainer").hide();
+		}
+	}
+
+	function checkMobile() {
+		var mobileKeyWords = new Array('iPhone', 'iPod', 'iPad', 'BlackBerry', 'Android', 'Windows CE', 'MOT', 'SAMSUNG', 'SonyEricsson');
+
+		for (var word in mobileKeyWords) {
+			if ( navigator.userAgent.match(mobileKeyWords[word]) != null ) {
+				location.href = "/mobile/index.asp";
+				break;
+			}
+		}
+	}
+
+	function doLogout() {
+		var sUrl = "/controller/MemberController.asp";
+		var params = {};
+
+		params["method"] = "doLogout";
+
+		mAjax(sUrl, params, "POST", true, function(data) {
+			if(data.resultCode == "0000") {
+				alert("로그아웃 되었습니다.");
+
+				location.href = "/index.asp";
+			}
+		});
+	}
+</script>
+</head>
+
+
+<body>
+
+	<div id="header">
+		<div class="headerBox">
+			<div class="topBox">
+				<!--<a href="" class="topBtn"><img src="../images/topIcon3.png" alt="인스타그램"> </a>
+				<a href="" class="topBtn"><img src="../images/topIcon2.png" alt="트위터"> </a>
+				<a href="" class="topBtn"><img src="../images/topIcon1.png" alt="페이스북"> </a>-->
+				<div id="memContainer">
+					<a href="/member/modify.asp" class="topBtn login">회원정보수정</a>
+						<a href="javascript:doLogout()" class="topBtn join">로그아웃</a>
+				</div>
+				<div id="nonMemContainer">
+					<a href="/member/join01.asp" class="topBtn join">회원가입</a>
+					<a href="/member/login.asp" class="topBtn login">로그인</a>
+				</div>
+			</div>
+		</div>
+		<div id="gnb">
+			<a class="logoBox" href="/index.asp">
+				<img src="../images/logo.png" alt="">
+			</a>
+			<div class="gnbList">
+				<li><a href="/club/intro.asp">클럽안내</a></li>
+				<li><a href="/reservation/reservation.asp">인터넷예약</a></li>
+				<li><a href="/membership/deposit.asp">회원서비스</a></li>
+				<li><a href="/course/courseIntro.asp">코스안내</a></li>
+				<li><a href="/guide/charge.asp">이용안내</a></li>
+				<li><a href="/board/list.asp?type=1">정보안내</a></li>
+			</div>
+			<!--<div class="gnbTotal">
+				<img src="../images/menu.png" alt="">
+			</div>-->
+		</div>
+			<div id="scrollmenuwrap">
+        <div id="scrollmenu">
+            <div class="menuBox">
+                <div class="menu">
+                    <div class="subMenu">
+                        <ul>
+                            <li><a href="/club/intro.asp">인사말</a></li>
+                            <li><a href="/club/history.asp">연혁</a></li>
+                            <li><a href="/club/ci.asp">CI소개</a></li>
+                            <li><a href="/club/location.asp">오시는길</a></li>
+                            <li><a href="/club/facility.asp">부대시설</a></li>
+                        </ul>
+                    </div>
+                    <div class="subMenu">
+                        <ul>
+                            <li><a href="/reservation/reserGuide.asp">예약안내</a></li>
+                            <li><a href="/reservation/reservation.asp">실시간예약</a></li>
+                            <li><a href="/reservation/reserCheck.asp">예약확인/취소</a></li>
+                            <li><a href="/reservation/breakCont.asp">위약처리규정</a></li>
+                            <li><a href="/board/list.asp?type=5">조인게시판</a></li>
+                        </ul>
+                    </div>
+                    <div class="subMenu">
+                        <ul>
+                            <li><a href="/membership/deposit.asp">위약예치금안내</a></li>
+                            <li><a href="/membership/score.asp">스코어</a></li>
+                            <li><a href="/membership/break.asp">위약현황</a></li>
+                        </ul>
+                    </div>
+                    <div class="subMenu">
+                        <ul>
+                            <li><a href="/course/courseIntro.asp">코스안내</a></li>
+                            <li><a href="/course/courseData.asp">코스제원</a></li>
+                            <li><a href="/course/h1.asp">코스공략</a></li>
+                        </ul>
+                    </div>
+                    <div class="subMenu">
+                        <ul>
+                            <li><a href="/guide/charge.asp">이용요금</a></li>
+                            <li><a href="/member/terms.asp">이용약관</a></li>
+                            <li><a href="/member/policy.asp">개인정보취급방침</a></li>
+                        </ul>
+                    </div>
+                    <div class="subMenu">
+                        <ul>
+							<li><a href="/board/list.asp?type=1">공지사항</a></li>
+							<li><a href="/board/list.asp?type=2">명예의전당</a></li>
+							<li><a href="/board/list.asp?type=3">고객의소리</a></li>
+							<li><a href="/board/list.asp?type=4">포토갤러리</a></li>
+							
+							<li><a href="http://www.weather.go.kr/weather/forecast/timeseries.jsp?searchType=SETINFO&setinfoCode=4377035000" target="_blank">날씨정보</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+	</div>
+	
+	<!-- 이 부분은 index에서만 안 보이면 됨. 서브 페이지에서만 필요 -->
+	<div class="middleBg"></div>
+	
+
+<script src="/js/jquery.preloaders.js"></script>
+<script src="/js/tools.js"></script>
+<script src="/js/globals.js"></script>
+
+
+
+	<!-- 컨텐츠 시작 -->
+	<div id="wrap">
+
+		<!-- 중간 메뉴 -->
+		<ul class="lnbTab">
+			<li class=""><a href="/course/courseIntro.asp">코스안내</a></li>
+			<li class="on"><a href="/course/courseData.asp">코스제원</a></li>
+			<li class=""><a href="/course/h1.asp">코스공략</a></li>
+			<!-- <li class=""><a href="/course/hi1.asp">코스공략</a></li> -->
+		</ul>
+		 
+		<div class="contents">
+		  <!-- subTitle -->
+		  <ul class="subTitle">
+			<li class="title">코스제원</li>
+			<li class="tree"> <img src="/images/home_btn.png" alt="집모양"> HOME &gt; 코스안내 &gt; <b>코스제원</b></li>
+		  </ul>
+		  <div class="subLine"></div>
+		  <!-- subTitle End --> 
+
+		  <div class="contPage">
+			<p class="introTitle" style="text-align:center">
+				<b>“ </b><span class="intro bold">Natural</span> 천연미인, 자연주의 코스설계 <span class="intro bold">Course Design</span> <b>”</b>
+			</p>
+		  </div>
+
+		  <p class="courseTitle">Hill Course <span class="courseM">(단위:M)</span></p>
+		  <table class="commonTable" style="margin-top:0;">
+			  <tbody>
+				<tr>
+				  <th>Hole</th>
+				  <th>1</th>
+				  <th>2</th>
+				  <th>3</th>
+				  <th>4</th>
+				  <th>5</th>
+				  <th>6</th>
+				  <th>7</th>
+				  <th>8</th>
+				  <th>9</th>
+				  <th>계</th>
+				</tr>
+				<tr>
+				  <td class="bold">Black</td>
+				  <td>366</td>
+				  <td>358</td>
+				  <td>520</td>
+				  <td>205</td>
+				  <td>380</td>
+				  <td>325</td>
+				  <td>146</td>
+				  <td>515</td>
+				  <td>405</td>
+				  <td>3220</td>
+				</tr>
+				<tr>
+				  <td class="blueData bold">Blue</td>
+				  <td>344</td>
+				  <td>340</td>
+				  <td>473</td>
+				  <td>186</td>
+				  <td>347</td>
+				  <td>309</td>
+				  <td>125</td>
+				  <td>490</td>
+				  <td>393</td>
+				  <td>3007</td>
+				</tr>
+				<tr>
+				  <td class="bold">White</td>
+				  <td>313</td>
+				  <td>327</td>
+				  <td>421</td>
+				  <td>160</td>
+				  <td>307</td>
+				  <td>303</td>
+				  <td>115</td>
+				  <td>462</td>
+				  <td>362</td>
+				  <td>2770</td>
+				</tr>
+				<tr>
+				  <td class="redData bold">Red</td>
+				  <td>283</td>
+				  <td>305</td>
+				  <td>374</td>
+				  <td>145</td>
+				  <td>250</td>
+				  <td>290</td>
+				  <td>95</td>
+				  <td>423</td>
+				  <td>341</td>
+				  <td>2506</td>
+				</tr>
+				<tr>
+				  <th>Par</th>
+				  <td>4</td>
+				  <td>4</td>
+				  <td>5</td>
+				  <td>3</td>
+				  <td>4</td>
+				  <td>4</td>
+				  <td>3</td>
+				  <td>5</td>
+				  <td>4</td>
+				  <td>36</td>
+				</tr>
+				<tr>
+				  <th>HDCP</th>
+				  <td>5</td>
+				  <td>2</td>
+				  <td>6</td>
+				  <td>3</td>
+				  <td>1</td>
+				  <td>8</td>
+				  <td>7</td>
+				  <td>9</td>
+				  <td>4</td>
+				  <td>&nbsp;</td>
+				</tr>
+			  </tbody>
+		  </table>
+
+		  <p class="courseTitle">Creek Course <span class="courseM">(단위:M)</span></p>
+		  <table class="commonTable" style="margin-top:0;">
+			 <tbody>
+				<tr>
+				  <th>Hole</th>
+				  <th>1</th>
+				  <th>2</th>
+				  <th>3</th>
+				  <th>4</th>
+				  <th>5</th>
+				  <th>6</th>
+				  <th>7</th>
+				  <th>8</th>
+				  <th>9</th>
+				  <th>계</th>
+				</tr>
+              <tr>
+                <td class="bold">Black</td>
+                <td>508</td>
+                <td>401</td>
+                <td>215</td>
+                <td>335</td>
+                <td>435</td>
+                <td>155</td>
+                <td>395</td>
+                <td>390</td>
+                <td>536</td>
+                <td>3370</td>
+              </tr>
+              <tr>
+                <td class="blueData bold">Blue</td>
+                <td>475</td>
+                <td>380</td>
+                <td>193</td>
+                <td>315</td>
+                <td>400</td>
+                <td>130</td>
+                <td>380</td>
+                <td>373</td>
+                <td>505</td>
+                <td>3151</td>
+              </tr>
+              <tr>
+                <td class="bold">White</td>
+                <td>448</td>
+                <td>341</td>
+                <td>168</td>
+                <td>280</td>
+                <td>349</td>
+                <td>125</td>
+                <td>363</td>
+                <td>343</td>
+                <td>480</td>
+                <td>2897</td>
+              </tr>
+              <tr>
+                <td class="redData bold">Red</td>
+                <td>383</td>
+                <td>318</td>
+                <td>145</td>
+                <td>248</td>
+                <td>309</td>
+                <td>90</td>
+                <td>339</td>
+                <td>318</td>
+                <td>455</td>
+                <td>2605</td>
+              </tr>
+              <tr>
+                <th>Par</th>
+                <td>5</td>
+                <td>4</td>
+                <td>3</td>
+                <td>4</td>
+                <td>4</td>
+                <td>3</td>
+                <td>4</td>
+                <td>4</td>
+                <td>5</td>
+                <td>36</td>
+              </tr>
+              <tr>
+                <th>HDCP</th>
+                <td>9</td>
+                <td>1</td>
+                <td>3</td>
+                <td>6</td>
+                <td>4</td>
+                <td>5</td>
+                <td>7</td>
+                <td>2</td>
+                <td>8</td>
+                <td>&nbsp;</td>
+              </tr>
+            </tbody>
+		  </table>
+
+		  <p class="courseTitle">Valley  Course <span class="courseM">(단위:M)</span></p>
+		  <table class="commonTable" style="margin-top:0;">
+			<tbody>
+                <tr>
+				  <th>Hole</th>
+				  <th>1</th>
+				  <th>2</th>
+				  <th>3</th>
+				  <th>4</th>
+				  <th>5</th>
+				  <th>6</th>
+				  <th>7</th>
+				  <th>8</th>
+				  <th>9</th>
+				  <th>계</th>
+				</tr>
+              <tr>
+                <td class="bold">Black</td>
+                <td>481</td>
+                <td>210</td>
+                <td>375</td>
+                <td>345</td>
+                <td>390</td>
+                <td>515</td>
+                <td>355</td>
+                <td>157</td>
+                <td>370</td>
+                <td>3198</td>
+              </tr>
+              <tr>
+                <td class="blueData bold">Blue</td>
+                <td>457</td>
+                <td>194</td>
+                <td>343</td>
+                <td>317</td>
+                <td>369</td>
+                <td>484</td>
+                <td>335</td>
+                <td>145</td>
+                <td>347</td>
+                <td>2991</td>
+              </tr>
+              <tr>
+                <td class="bold">White</td>
+                <td>424</td>
+                <td>175</td>
+                <td>306</td>
+                <td>292</td>
+                <td>339</td>
+                <td>461</td>
+                <td>310</td>
+                <td>128</td>
+                <td>314</td>
+                <td>2749</td>
+              </tr>
+              <tr>
+                <td class="redData bold">Red</td>
+                <td>376</td>
+                <td>144</td>
+                <td>279</td>
+                <td>266</td>
+                <td>309</td>
+                <td>448</td>
+                <td>288</td>
+                <td>113</td>
+                <td>295</td>
+                <td>2518</td>
+              </tr>
+              <tr>
+                <th>Par</th>
+                <td>5</td>
+                <td>3</td>
+                <td>4</td>
+                <td>4</td>
+                <td>4</td>
+                <td>5</td>
+                <td>4</td>
+                <td>3</td>
+                <td>4</td>
+                <td>36</td>
+              </tr>
+              <tr>
+                <th>HDCP</th>
+                <td>9</td>
+                <td>3</td>
+                <td>1</td>
+                <td>5</td>
+                <td>2</td>
+                <td>8</td>
+                <td>6</td>
+                <td>7</td>
+                <td>4</td>
+                <td>&nbsp;</td>
+              </tr>
+            </tbody>
+		  </table>
+
+		</div><!-- contents End--> 
+	  
+	</div>	<!-- wrap 끝 --> 
+
+
+<!-- footer 영역 -->
+		<div id="footerWrap">
+			<div class="termsBox">
+				<div class="terms">
+						<a href="/member/terms.asp">이용약관</a><span> l </span>
+						<a href="/member/policy.asp" class="bold" style="color:#d03939;">개인정보처리방침</a><span> l </span>
+				</div>
+			</div>
+			<div class="footerBox">
+				<div class="footer">
+					<img src="../images/f_Logo.png" alt="로고" class="footerLogo">
+					<p class="infoBox">	
+						충청북도 음성군 삼성면 금일로 1195 &nbsp;&nbsp;&nbsp; TEL : 043.880.8000  |  FAX : 043.880.8003 <br>
+						사업자 등록번호621-81-45690  |  통신판매신고 제 2010-충북음성군-19호 <br>
+						<a href="https://www.ftc.go.kr/www/biz/bizCommList.do?key=5375" target="_blank">사업자 등록확인</a> |  개인정보 관리책임자:김성환 043-880-8501 <br>
+						COPYRIGHT ⓒ CHINYANGVALLEY.CO.KR ALL RIGHT RESERVED.
+					</p>
+					<!--<div class="snsBox">
+							<a href=""><img src="../images/ft_face.png" alt="페이스북 연결"></a>
+							<a href=""><img src="../images/ft_twt.png" alt="트위터 연결"></a>
+							<a href=""><img src="../images/ft_insta.png" alt="인스타그램 연결"></a>
+					</div>-->	
+				</div>
+				<p id="topArrow" style="margin: auto; width: 50px; display: block;"><a href="#top"><span></span></a></p>
+			</div>
+		</div>
+
+
+
+</body>
+</html>

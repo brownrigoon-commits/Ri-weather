@@ -1,0 +1,1459 @@
+<!-- sso설정추가 2015-05-13 heesoo -->
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ko" xml:lang="ko">
+<head>
+<!---->
+<title>모나용평:버치힐 컨트리클럽</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="description" content="YONG PYONG,YONGPYONG, YONGPYONG RESORT, YONG PYONG WEBSITE, 용평리조트, 용평리조트 국문 웹사이트, 용평리조트 웹사이트, 용평리조트 홈페이지" />
+<meta name="keywords" content="YONG PYONG 용평리조트" />
+<meta name="author" content="Media4th &amp; Company" />
+  <link rel="image_src" href="/images/kor/yp_sns.png" />
+<link rel="shortcut icon" href="/images/kor/favicon.ico" />
+<link rel="stylesheet" type="text/css" href="/common/kor/css/common.css" />
+<!--[if IE 7]><link rel="stylesheet" type="text/css" href="/common/kor/css/ie7lte.css" /><![endif]-->
+<script type="text/javascript" src="/common/js/jquery-1.11.0.min.js"></script>
+<script type="text/javascript" src="/common/js/TweenMax.min.js"></script>
+<script type="text/javascript" src="/common/kor/js/ui.js"></script>
+<script type="text/javascript" src="/common/kor/js/jquery.paging.js"></script>
+<script type="text/javascript" src="/common/js/common.js"></script>
+<script type="text/javascript">
+//document.domain = 'yongpyong.co.kr';
+//sso 로그인 확인 후 return code : 1 true, 0 false
+
+$(document).ready(function() {
+    // 세션 사용자 ID가 특정 값일 때
+    if ($("#sessionUserId").val() == "mynameisljh" || $("#sessionUserId").val() == "jmjang" || $("#sessionUserId").val() == "useful88") {
+        // 기존 onclick 속성을 변경
+        $("li.inactiveList").css("display", "none");
+    }
+});
+
+function checkSession(retCode) {
+
+console.log(retCode);
+
+if(retCode == "0"){
+	if($("#checkSession").val() != ""){
+	retCode = "1";
+	}
+}
+
+if ( retCode == 1 ) {
+	if($("#sessionUserId").val() == ""){
+		//2024-06-28 김대성 nsso 처리
+		//location.href = "/kor/member/login.do";	
+		location.href = "/kor/member/nsso/login.do";	
+	}
+}else{
+	if($("#sessionUserId").val() != ""){
+		//2024-06-28 김대성 nsso 처리
+		//location.href = "/kor/member/logout.do";
+		location.href = "/kor/member/nsso/logout.do";
+	}
+}
+}
+
+//sso 로그인 여부 체크
+function init() {
+	$.ajax({
+		url: 'https://sso.yongpyong.co.kr/isignplus/api/checkSession.jsp?returnURL=https://www.yongpyong.co.kr/sso/sCheck/resultSession.jsp',
+		type: 'GET',
+		dataType: 'json', // 서버로부터 받아올 데이터 타입을 JSON으로 지정
+		success: function(response) {
+
+			console.log(response.resultCode);
+
+			// if (response.resultCode == "000000") {
+			// 	if($("#sessionUserId").val() == ""){
+			// 		location.href = "/kor/member/nsso/login.do";	
+			// 	}
+			// }else{
+			// 	if($("#sessionUserId").val() != ""){
+			// 		location.href = "/kor/member/nsso/logout.do";	
+			// 	}
+			// }
+		},
+		error: function(xhr, status, error) {
+			console.error('Request failed with status:', status);
+		}
+	});
+
+	// document.getElementById("FM").src = "https://sso.yongpyong.co.kr/isignplus/api/checkSession.jsp?returnURL=https://www.yongpyong.co.kr/sso/sCheck/resultSession.jsp";
+}
+
+$(function(){
+	//sso 로그인 여부 체크
+	init();
+});
+
+function share_tw(){
+  var content = "";
+  var link = "/kor/golf/course/birchhillClub/birch.do";
+  var popOption = "width=370, height=360, resizable=no, scrollbars=no, status=no;";
+  var wp = window.open("http://twitter.com/share?url=" + encodeURIComponent(link) + "&text=" + encodeURIComponent(content), 'twitter', popOption);
+  if ( wp ) {
+    wp.focus();
+  }
+}
+
+function share_fb(){
+	var shareUrl = "https://www.facebook.com/sharer/sharer.php?u="+
+	encodeURIComponent("https://www.yongpyong.co.kr//kor/golf/course/birchhillClub/birch.do");
+	//$("a.fb").attr("href",shareUrl);
+	var popOption = "width=370, height=360, resizable=no, scrollbars=no, status=no;";
+	  var wp = window.open(shareUrl, 'facebook', popOption);
+	  if ( wp ) {
+	    wp.focus();
+	  }
+}
+
+function goMenu(url){
+	
+	$("form[name=menuFrm]").attr("action", url);
+	$("form[name=menuFrm]").submit();
+}
+
+$(document).ready(function() {
+	$(document).ready(function () {
+		
+        $('#topUtilSelect').on('change', function () {
+            var url = $(this).val();
+            if (url) {
+            	$(this).val('');
+                window.location.href = url;
+            }
+        });
+    });
+});
+
+function gotoRenewMain2(type){
+	
+	var currentUrlParams = new URLSearchParams(window.location.search);
+	var packageId = currentUrlParams.get('packageId');
+	if(packageId == 'MHP2482'){
+		window.location.href = "https://monapark.pscms.co.kr/user/ypmember"
+			return
+	}
+
+	if(packageId == 'MYP2410'){
+		window.location.href = "https://monapark.pscms.co.kr/deal/?deal=2603050001156544"
+			return
+	}
+
+	if($("#sessionUserId").val() == ''){
+		location.href="/kor/member/nsso/login.do";
+		return;
+	}
+	
+	var url = "https://booking.yongpyong.co.kr/IRS/renewmain.do"
+	//var url = "https://devirs.yongpyong.co.kr/IRS/renewmain.do"
+
+	var form = document.all("menuFrm");
+	
+	if(type == 'golf'){
+		document.getElementById('type2').value = 'G'
+	}else if(type == 'package'){
+		document.getElementById('type2').value = 'P';
+		$("#packageCode").val(packageId);
+	}else if( type == 'peakseason'){
+		/* url = 'https://booking.yongpyong.co.kr/IRS/peakseason/peakinfo.do' */
+		document.getElementById('type2').value = 'PK'
+	}else if ( type == 'room'){
+		document.getElementById('type2').value = 'R'
+	}else if ( type == 'check'){
+		document.getElementById('type2').value = 'SC'
+	}else if ( type == 'golfPeakseason'){
+		document.getElementById('type2').value = 'GPK'
+	}
+	
+// 	form.method = "post";
+	form.target = "_blank";
+	form.action = url;
+	form.submit();
+}
+
+</script>
+
+
+<style>
+.topSelect{float: left; margin: 0 0 0 10px;}
+</style>
+</head>
+<body>
+
+<form id="menuFrm" name="menuFrm" method="post">
+	<input type="hidden" id="type2" name ='type' value="" />
+	<input type="hidden" id="id2" name ='id' value="" />
+	<input type="hidden" id="packageCode" name="packageCode" value="" />
+</form>
+	<iframe src="" width="0" height="0" name="FM" id="FM" frameborder="0" style="display:none"></iframe>
+	<input type="hidden" id="sessionUserId" value=""/>
+	<input type="hidden" id="ssUserType" value="" />
+	<input type="hidden" id="ssUserTypeDiv" value="3" />
+	
+
+	<!-- Accessibility Navigation -->
+	<div class="accNav">
+		<p><a href="#gnb">주메뉴 바로가기</a></p>
+		<p><a href="#content">본문 바로가기</a></p>
+	</div>
+	<!-- //Accessibility Navigation -->
+
+	<hr />
+
+	<div id="wrap">
+		<!-- Header -->
+		<div id="header">
+			<h1><a href="https://www.yongpyong.co.kr"><img src="/images/kor/img_logo.png" width="260" height="40" alt="YONG PYONG" /></a></h1>
+
+			<div class="globalSection">
+				<div class="compWrap">
+					<!-- FamilySite QuickLink -->
+					<div class="familySiteMenu">
+						<h2>패밀리 사이트 바로가기 메뉴</h2>
+						<a href="https://www.yongpyong.co.kr" class="yp">모나용평</a>
+						<a href="http://www.beachepalace.co.kr">비체팰리스</a>
+						<a href="https://theoceanresort.co.kr" title="새창" target="_blank">디오션리조트</a>
+						<a href="https://www.pineridge.co.kr" title="새창" target="_blank">파인리즈리조트</a>
+						<a href="http://www.itms.co.kr/" title="새창" target="_blank">세일여행사</a>
+						<!--<a href="https://monacampark.co.kr/" title="새창" target="_blank">모나캠핑파크</a>-->
+						<a href="http://www.aino-cc.net/" title="새창" target="_blank">AINO C.C.</a>
+						<a href="https://www.shimabaracc.com/" title="새창" target="_blank">SHIMABARA C.C.</a>
+					</div>
+					<!-- FamilySite QuickLink -->
+
+					<!-- Uility -->
+					<div class="util">
+						<h2>유틸메뉴</h2>
+						<div id="top_right_menu">
+						<a href="/kor/member/nsso/login.do">로그인</a>
+						 	<a href="/kor/member/certified.do">회원가입</a>
+						<a href="/EgovPageLink.do?link=kor/membership/lusongce" style="color: #ff5519;">회원권</a>
+							<a href="/kor/customer/service/condoMember.do">회원서비스</a>
+							<a href="/kor/etc/sitemap.do">사이트맵</a>
+							<!-- <a href="https://www.yongpyong.co.kr/eng/" class="eng">ENG</a> -->
+							<!-- <a href="https://www.monayongpyong.com/" class="eng">ENG</a>
+							<a href="/ch/index.do">CHN</a> -->
+							<div class="topSelect">
+							    <select class="topUtilSelect" id="topUtilSelect">
+									<option value="" selected="selected">KOR</option>
+									<option value="https://www.yongpyong.co.kr/eng/index.do">ENG</option>
+									<option value="https://www.yongpyong.co.kr/ch/index.do">简体</option>
+									<option value="https://www.yongpyong.co.kr/zh-TW/index.do">繁體</option>
+<!-- 									<option value="https://www.yongpyong.co.kr/ch/index.do">CHN</option> -->
+								</select>
+								</div>
+						</div>
+					</div>
+					<!-- //Uility -->
+
+					<!-- Search -->
+					<!--  <div id="search">
+						<form action="post">
+							<fieldset>
+								<legend>통합 검색</legend>
+								<input type="text" name="" value="검색어 입력" title="통합검색 입력폼" />
+								<span><button type="submit">검색</button></span>
+							</fieldset>
+						</form>
+					</div>-->
+					<!-- //Search -->
+				</div>
+			</div>
+
+			<div class="menuSection">
+				<div class="compWrap">
+					<a href="#gnb" class="btnMenuOpen"><span>주요메뉴 열기</span></a>
+
+					<!-- Gnb (Global navigation bar) -->
+					<div id="gnb">
+						<h2>주요메뉴</h2>
+						<ul>
+							<li data-menu="type1" data-active="0"><a href="/kor/guide/resortGuideMap.do">용평가이드</a>
+								<ul>
+									<li data-active="0"><a href="/kor/guide/resortGuideMap.do">리조트 안내도</a></li>
+									<li data-active="1"><a href="/kor/guide/notice/list.do">공지사항</a></li>
+									<li data-active="2"><a href="/kor/guide/event/eventList.do">이벤트/패키지</a>
+										<ul>
+											<li data-active="0"><a href="/kor/guide/event/eventList.do">이벤트</a></li>
+											<li data-active="1"><a href="/kor/guide/package/list.do">패키지</a></li>
+											<!-- <li data-active="1"><a href="/kor/guide/event/calendar.do">이벤트캘린더</a></li> -->
+										</ul>
+									</li>
+									<li data-active="3"><a href="/kor/guide/discount/information.do">할인</a>
+										<ul>
+											<li data-active="0"><a href="/kor/guide/discount/information.do">할인안내</a></li>
+											<li data-active="1"><a href="/kor/guide/discount/coupon.do">할인쿠폰</a></li>
+										</ul>
+									</li>
+									<!-- <li data-active="4"><a href="/kor/guide/package/list.do">패키지</a></li> -->
+									<li data-active="5"><a href="/kor/guide/realTimeNews/ypResortWebcam.do">실시간현장소식</a>
+										<ul style="left:-107px;">  
+											<li data-active="0"><a href="/kor/guide/realTimeNews/ypResortWebcam.do">모나용평 웹캠</a></li>
+											<!-- <li data-active="1"><a href="/kor/guide/realTimeNews/peakIslandWebcam.do">용평 워터파크웹캠</a></li> -->
+											<li data-active="2"><a href="/kor/guide/realTimeNews/lgbPhotoList.do">모나 사진포착</a></li>
+											<li data-active="3"><a href="/kor/guide/realTimeNews/bjuMediaList.do">모나 영상포착</a></li>
+											<li data-active="4"><a href="/kor/guide/realTimeNews/weatherInfo.do">날씨정보</a></li>
+										</ul>
+									</li>
+									<li data-active="6"><a href="/kor/guide/ypWellnessMain.do">웰니스</a>
+										<ul style="left: -178px;">
+										    <li data-active="0"><a href="/kor/guide/ypWellnessMain.do">모나용평 웰니스</a></li>
+											<li data-active="1"><a href="/kor/guide/ypWellnessSchedule.do">프로그램 일정표</a></li> 
+											<li data-active="2"><a href="/kor/guide/ypWellnessRegularProgram.do">정규 프로그램</a></li>
+											<!-- <li data-active="3"><a href="/kor/guide/ypWellnessSpecialProgram.do">스페셜 프로그램</a></li>
+											<li data-active="4"><a href="/kor/guide/ypWellnessSpot.do">웰니스 스팟</a></li> -->
+										</ul>
+									</li>
+									<li data-active="7"><a href="/kor/guide/ypAttraction.do">모나용평</a>
+										<ul style="left:-107px;">   <!-- 2015-06-18 modify by YHJ -->
+											<li data-active="0"><a href="/kor/guide/ypAttraction.do">모나용평 명소</a></li>
+											<!--<li data-active="1"><a href="/kor/guide/ypTour.do">용평 투어</a></li>-->
+											<!-- <li data-active="2"><a href="/kor/guide/pyeongChang.do">지도로보는평창군</a></li> -->
+											<li data-active="2"><a href="/kor/guide/pyeongChang.do">모나용평 브랜드 스토리</a></li>
+											<!-- <li data-active="4"><a href="/kor/guide/festivalNevent.do">축제및행사</a></li> -->
+										</ul>
+									</li>
+									<!-- <li data-active="6"><a href="/kor/guide/ypAttraction.do">주변관광</a> -->
+									
+									
+								</ul>
+							</li>
+							<li data-menu="type3" data-active="2"><a href="/kor/room/hotel.do">객실</a>
+								<ul>
+									<li data-active="0"><a href="/kor/room/information.do">객실 이용 안내</a>
+										<ul>
+											<li data-active="0"><a href="/kor/room/information.do">객실 이용 안내</a></li>
+											<li data-active="1"><a href="/kor/room/appointment/roomReservation.do">잔여 객실 안내</a></li>
+										</ul>
+									</li>
+									
+									<li data-active="1"><a href="/kor/room/hotel.do">호텔</a>
+									<ul>
+											<li data-active="0"><a href="/kor/room/hotel.do">드래곤밸리호텔</a></li>
+										</ul>
+									</li>
+									<li data-active="2"><a href="/kor/room/condo/tower.do">콘도</a>
+										<ul>
+											<li data-active="0"><a href="/kor/room/condo/tower.do">타워콘도</a></li>
+											<li data-active="1"><a href="/kor/room/condo/villa.do">빌라콘도</a></li>
+											<li data-active="2"><a href="/kor/room/condo/greenpia.do">그린피아콘도</a></li>
+										</ul>
+									</li>
+									<li data-active="3"><a href="/kor/room/premium/yongpyong.do">프리미엄콘도</a>
+										<ul style=" left: -20px;">
+											<li data-active="0"><a href="/kor/room/premium/yongpyong.do">용평콘도</a></li>
+											<li data-active="1"><a href="/kor/room/premium/birchHill.do">버치힐</a></li>
+											<li data-active="2"><a href="/kor/room/premium/verdeHill.do">베르데힐</a></li>
+											<li data-active="3"><a href="/kor/room/premium/forest.do">포레스트</a></li>
+											<li data-active="4"><a href="https://www.yongpyong.co.kr/EgovPageLink.do?link=kor/room/premium/terrace">버치힐테라스</a></li>
+											<li data-active="5"><a href="/kor/room/premium/apolis.do">아폴리스</a></li>
+											<li data-active="6"><a href="/kor/room/premium/lusongce.do">루송채</a></li>	
+										</ul>
+									</li>
+									<li data-active="4"><a href="/kor/room/bStay.do">호스텔</a>
+									<ul>
+											<li data-active="0"><a href="/kor/room/bStay.do">블리스힐 스테이</a></li>
+										</ul>
+									</li>
+									<li data-active="5"><a href="/kor/room/suite/suiteHotel.do">스위트</a>
+										<ul style=" left: -20px;">
+											<li data-active="0"><a href="/kor/room/suite/suiteHotel.do">호텔 스위트</a></li>
+											<li data-active="1"><a href="/kor/room/suite/suiteTower.do">타워 스위트</a></li>
+											<li data-active="2"><a href="/kor/room/suite/suiteVilla.do">빌라 스위트</a></li>
+										</ul>
+									</li>
+
+								</ul>
+							</li>
+							<li data-menu="type4" data-active="3"><a href="/kor/convenience/leports/gondola.do">레저</a> 
+								<ul>
+									<li data-active="0"><a href="/kor/convenience/leports/gondola.do">레포츠</a>
+										<ul style="left:-180px; width: 770px;">
+											<li data-active="0"><a href="/kor/convenience/leports/gondola.do">발왕산 관광케이블카</a></li>
+											<li data-active="1"><a href="/kor/convenience/leports/extreme02.do">사계절썰매장</a></li>
+											<li data-active="2"><a href="/kor/convenience/leports/luge.do">용평루지</a></li>
+											<li data-active="3"><a href="/kor/convenience/leports/extreme01.do">마운틴코스터</a></li>
+											<li data-active="4"><a href="/kor/convenience/leports/leports.do">익스트림레저</a></li>
+											<li data-active="5"><a href="/kor/convenience/leports/kidsLeisure.do">키즈레저</a></li>
+											<li data-active="6"><a href="/kor/convenience/leports/alpacagoldfarm.do">애니포레</a></li>
+											<li data-active="7"><a href="/kor/convenience/leports/INART.do">이나트</a></li>
+											<li data-active="8"><a href="/kor/convenience/leports/pangPangUniverse.do">팡팡유니버스</a></li>
+										</ul>
+									</li>
+									<li data-active="2"><a href="/kor/convenience/facilities/fitnessCenter.do">편의/오락</a>
+										<ul>
+											<li data-active="0"><a href="/kor/convenience/facilities/fitnessCenter.do">호텔 피트니스센터</a></li>
+											<li data-active="1"><a href="/kor/convenience/facilities/amenity.do">편의시설</a></li>
+											<li data-active="2"><a href="/kor/convenience/facilities/gameZone.do">오락시설</a></li>
+										</ul>
+									</li>
+								</ul>
+							</li>
+							<li data-menu="type4_02" data-active="10"><a href="/kor/convenience/refection/restaurant.do">식음</a> 
+								<ul>
+									<li data-active="0"><a href="/kor/convenience/refection/restaurant.do">식음</a>
+										<ul>
+											<li data-active="0"><a href="/kor/convenience/refection/restaurant.do">레스토랑</a></li>
+											<li data-active="1"><a href="/kor/convenience/refection/foodCourt.do">푸드코트</a></li>
+											<li data-active="2"><a href="/kor/convenience/refection/cafeNbar.do">카페&amp;바&amp;야외</a></li>
+											<!-- <li data-active="3"><a href="/kor/convenience/refection/ypfoodMap.do">용평맛동여지도</a></li> -->
+										</ul>
+									</li>
+								</ul>
+							</li>
+							<li data-menu="type5" data-active="4"><a href="/kor/peakIsland/introduce.do">워터파크</a>
+								<ul>
+									<li data-active="0"><a href="/kor/peakIsland/introduce.do">용평워터파크 소개</a></li>
+									<li data-active="1"><a href="/kor/peakIsland/infoMap.do">용평워터파크 안내도</a></li>
+									<li data-active="2"><a href="/kor/peakIsland/useMethod/admissionInfo.do">이용방법</a>
+										<ul>
+											<li data-active="0"><a href="/kor/peakIsland/useMethod/admissionInfo.do">입장안내</a></li>
+											<li data-active="1"><a href="/kor/peakIsland/useMethod/time.do">운영시간 및 요금</a></li>
+											<!-- <li data-active="2"><a href="/kor/peakIsland/useMethod/charge.do">이용요금</a></li> -->
+											<!-- <li data-active="3"><a href="/kor/peakIsland/useMethod/saleInfo.do">할인안내</a></li> -->
+										</ul>
+									</li>
+									<li data-active="3"><a href="/kor/peakIsland/indoorZone/indoorZone01.do">실내존</a>
+										<ul style="left:-169px;"> <!-- 2015-06-18 modify by YHJ -->
+											<li data-active="0"><a href="/kor/peakIsland/indoorZone/indoorZone01.do">파도풀</a></li>
+											<li data-active="1"><a href="/kor/peakIsland/indoorZone/indoorZone02.do">유수풀</a></li>
+											<li data-active="2"><a href="/kor/peakIsland/indoorZone/indoorZone03.do">1인용바디슬라이드</a></li>
+											<li data-active="3"><a href="/kor/peakIsland/indoorZone/indoorZone04.do">2인용튜브라이더</a></li>
+											<li data-active="4"><a href="/kor/peakIsland/indoorZone/indoorZone05.do">스노우어드벤쳐</a></li>
+											<li data-active="5"><a href="/kor/peakIsland/indoorZone/indoorZone06.do">실내키디풀</a></li>
+											<li data-active="6"><a href="/kor/peakIsland/indoorZone/indoorZone07.do">바데풀</a></li>
+										</ul>
+									</li>
+									<li data-active="4"><a href="/kor/peakIsland/outdoorZone/outdoorZone02.do">실외존</a>
+										<ul style="left:-120px;">  
+											<!-- <li data-active="0"><a href="/kor/peakIsland/outdoorZone/outdoorZone01.do">하이스피드슬라이드</a></li> -->
+											<li data-active="0"><a href="/kor/peakIsland/outdoorZone/outdoorZone02.do">스페이스볼슬라이더</a></li>
+											<li data-active="1"><a href="/kor/peakIsland/outdoorZone/outdoorZone03.do">이벤트탕</a></li>
+											<li data-active="2"><a href="/kor/peakIsland/outdoorZone/outdoorZone04.do">비치풀</a></li>
+											<li data-active="3"><a href="/kor/peakIsland/outdoorZone/outdoorZone05.do">비치키디풀</a></li>
+										</ul>
+									</li>
+									<li data-active="4"><a href="/kor/peakIsland/facilities/refection.do">오락/편의</a>
+										<ul style="left:-123px;"> <!-- 2015-06-18 modify by YHJ -->
+											<li data-active="0"><a href="/kor/peakIsland/facilities/refection.do">식음시설</a></li>
+											<li data-active="1"><a href="/kor/peakIsland/facilities/spa.do">마사지</a></li>
+											<li data-active="2"><a href="/kor/peakIsland/facilities/sauna.do">사우나</a></li>
+											<!--<li data-active="3"><a href="/kor/peakIsland/facilities/bungalowNsunbed.do">방갈로&amp;썬베드</a></li>-->
+											<li data-active="3"><a href="/kor/peakIsland/facilities/amenity.do">편의시설</a></li>
+											<li data-active="4"><a href="/kor/peakIsland/facilities/rentalShop.do">렌탈샵</a></li>
+										</ul>
+									</li>
+								</ul>
+							</li>
+							<li data-menu="type6" data-active="5"><a href="/kor/golf/clubGuide/introduce.do">골프</a>
+								<ul>
+									<li data-active="0"><a href="/kor/golf/clubGuide/introduce.do">클럽가이드</a>
+										<ul>
+											<li data-active="0"><a href="/kor/golf/clubGuide/introduce.do">전체클럽소개</a></li>
+											<li data-active="1"><a href="/kor/golf/clubGuide/birchhillIntro.do">버치힐컨트리클럽</a></li>
+											<li data-active="2"><a href="/kor/golf/clubGuide/yongpyongIntro.do">용평컨트리클럽</a></li>
+											<li data-active="3"><a href="/kor/golf/clubGuide/yongpyong9Intro.do">용평9 골프코스</a></li>
+										</ul>
+									</li>
+									<li data-active="1"><a href="/kor/golf/appointment/appointmentInfo.do">예약 및 이용안내</a>
+										<ul>
+											<li data-active="0"><a href="/kor/golf/appointment/appointmentInfo.do">예약안내</a></li>
+											<li data-active="1"><a href="/kor/golf/appointment/priceInfo.do">요금안내</a></li>
+											<!-- <li data-active="4" class="inactiveList"><a href="/kor/golf/appointment/onlineReservation.do">잔여골프예약 </a></li>  -->
+											<li data-active="2"><a href="/EgovPageLink.do?link=kor/golf/appointment/golfMou">제휴골프장</a></li>											
+											<!-- <li data-active="3"><a href="/kor/golf/appointment/cancleNplacebo.do">온라인예약방법</a></li> -->
+										</ul>
+									</li>
+									<li data-active="2"><a href="/kor/golf/course/totalPlace.do">코스소개</a>
+										<ul>
+											<li data-active="0"><a href="/kor/golf/course/totalPlace.do">전체지형도</a></li>
+											<li data-active="1"><a href="/kor/golf/course/birchhillClub/fullMap.do">버치힐컨트리클럽</a></li>
+											<li data-active="2"><a href="/kor/golf/course/yongpyongClub/fullMap.do">용평컨트리클럽</a></li>
+											<li data-active="3"><a href="/kor/golf/course/yongpyong9/fullMap.do">용평9 골프코스</a></li>
+										</ul>
+									</li>
+									<li data-active="3"><a href="/kor/golf/clubHouse.do">부대시설</a>
+										<ul>
+											<li data-active="0"><a href="/kor/golf/clubHouse.do">클럽하우스</a></li>
+											<li data-active="1"><a href="/kor/golf/startHouse.do">스타트하우스</a></li>
+											<li data-active="2"><a href="/kor/golf/shadeHouse.do">그늘집</a></li>
+											<li data-active="3"><a href="/kor/golf/lockerRoom.do">라커룸</a></li>
+											<li data-active="4"><a href="/kor/golf/sportsShop.do">스포츠샵</a></li>
+										</ul>
+									</li>
+								</ul>
+							</li>
+							<li data-menu="type2" data-active="1"><a href="/kor/skiNboard/introduce.do">스키/보드</a>
+								<ul>
+									<li data-active="0"><a href="/kor/skiNboard/introduce.do">스키장 제원 및 소식</a>
+										<ul>
+											<li data-active="0"><a href="/kor/skiNboard/introduce.do">스키장 제원</a></li>
+											<li data-active="1"><a href="/kor/skiNboard/live.do">스키장현장소식</a></li>
+										</ul>
+									</li>
+
+									<li data-active="1"><a href="/kor/skiNboard/slope/openStatusBoard.do">스키장현황</a>
+										<ul>
+											<li data-active="0"><a href="/kor/skiNboard/slope/openStatusBoard.do">슬로프/리프트현황</a></li>
+											<li data-active="1"><a href="/kor/skiNboard/slope/manageSchedule.do">스키장운영일정</a></li>
+											<li data-active="2"><a href="/kor/skiNboard/slope/slopeMap.do">슬로프맵</a></li>
+											<li data-active="3"><a href="/kor/skiNboard/slope/introduce.do">전체슬로프소개</a></li>
+											<li data-active="4"><a href="/kor/skiNboard/slope/tourInfo.do">코스이용방법</a></li>
+										</ul>
+									</li>
+									<li data-active="2"><a href="/kor/skiNboard/useInfo/house.do">스키이용안내</a>
+										<ul>
+											<li data-active="0"><a href="/kor/skiNboard/useInfo/house.do">스키하우스이용안내</a></li>
+											<li data-active="1"><a href="/kor/skiNboard/useInfo/useInfo.do">초보자이용안내</a></li>
+											<li data-active="2"><a href="/kor/skiNboard/useInfo/ypSkiSchool.do">용평스키스쿨</a></li>
+										</ul>
+									</li>
+									<li data-active="3"><a href="/kor/skiNboard/utilizationFee/rentCharge.do">스키이용요금</a>
+										<ul>
+											<li data-active="0"><a href="/kor/skiNboard/utilizationFee/rentCharge.do">리프트&amp;렌탈요금</a></li>
+											<li data-active="1"><a href="/kor/skiNboard/utilizationFee/lessonCharge.do">강습요금</a></li>
+											<!-- <li data-active="2"><a href="/kor/skiNboard/utilizationFee/sledCharge.do">사계절썰매장요금</a></li> -->
+										</ul>
+									</li>
+									<li data-active="4"><a href="/kor/skiNboard/skiPatrol.do">스키패트롤</a></li>
+<!-- 									<li data-active="5"><a href="/kor/skiNboard/seasonBuy/useInfo.do">시즌권구매</a> -->
+									<!--  <li data-active="5"><a href="javascript:void(0)" onclick="openSeason()">시즌권구매</a> -->
+									<li data-active="5"><a href="/kor/guide/notice/read.do?noticeId=1238">시즌권구매</a>
+										<ul style="left:-89px;">
+											<li data-active="0"><a href="https://www.yongpyong.co.kr/kor/guide/notice/read.do?noticeId=1550">X5+ 시즌패스</a>
+											<li data-active="1"><a href="https://www.yongpyong.co.kr/kor/guide/notice/read.do?noticeId=1576">모나용평 단독시즌권</a>
+											<!-- <li data-active="0"><a href="javascript:void(0)" onclick="openSeason()">이용안내</a></li> -->
+									<!-- <li data-active="5"><a href="/kor/skiNboard/seasonBuy/useInfo.do">시즌권구매</a>
+										<ul style="left:-89px;"> --> <!-- 2015-06-18 modify by YHJ -->
+											<!-- <li data-active="0"><a href="/kor/skiNboard/seasonBuy/useInfo.do">이용안내</a></li> -->
+											<!-- <li data-active="1"><a href="/kor/skiNboard/seasonBuy/seasonTicketBuy01.do">시즌권구매</a></li>
+											<li data-active="2"><a href="javascript:goMenu('/kor/skiNboard/seasonBuy/modifyList.do');">사진수정</a></li>
+											<li data-active="3"><a href="javascript:goMenu('/kor/skiNboard/seasonBuy/purchaseHistory.do')">구매내역조회</a></li>
+											<li data-active="4"><a href="/kor/skiNboard/seasonBuy/virtualAccountCheck.do">가상계좌조회</a></li>
+											<li data-active="5"><a href="/kor/skiNboard/seasonBuy/seasonTicketFAQ.do">시즌권FAQ</a></li> -->
+										</ul>
+									</li>
+ 									<li data-active="6"><a href="/kor/skiNboard/buy/useInfo.do">개인 스키보관소구매</a> 
+	<!--								<li data-active="6"><a href="javascript:void(0)" onclick="openIRS('/IRS/skilocker/skilockermain.do',980,650)">개인 스키보관소구매</a> -->
+										<ul style="left:-100px;"> 
+ 											<li data-active="0"><a href="/kor/skiNboard/buy/useInfo.do">이용안내</a></li> 
+	<!--										<li data-active="0"><a href="javascript:void(0)" onclick="openIRS('/IRS/skilocker/skilockermain.do',980,650)">구매하기</a></li> -->
+											<li data-active="1"><a href="/kor/skiNboard/buy/useCharge.do">보관소 상세정보</a></li>
+											<!-- <li data-active="2"><a href="/kor/skiNboard/buy/seasonLockerBuy01.do">시즌락커구매</a></li>
+											<li data-active="3"><a href="/kor/skiNboard/buy/seasonLockerBuy04.do">구매내역조회</a></li> -->
+										</ul>
+									</li>
+									<!--<li data-active="7"><a href="/kor/skiNboard/live.do">실시간현장소식</a></li>-->
+								</ul>
+							</li>
+							<li data-menu="type1" data-active="6"><a href="/kor/organizationEvent/general.do">단체행사</a>
+								<ul>
+									<li data-active="0"><a href="/kor/organizationEvent/general.do">세미나&amp;연회</a></li>
+									<li data-active="1"><a href="/kor/organizationEvent/student.do">학생단체</a></li>
+									<li data-active="2"><a href="/kor/organizationEvent/wedding.do">웨딩</a></li>
+									<li data-active="3"><a href="/kor/organizationEvent/advice.do">단체행사상담</a></li>
+									<li data-active="4"><a href="/kor/organizationEvent/estimates01.do">단체행사신청</a></li>
+									<li data-active="5"><a href="/kor/organizationEvent/conferenceBooking/list.do">학회예약</a></li>
+									<li data-active="6"><a href="/kor/organizationEvent/partnerShipBooking/partnerlist.do">제휴사예약</a></li>
+									<li data-active="7"><a href="/kor/organizationEvent/corporatePartnerShipBooking/corporatePartnerlist.do">법인회원제휴 예약</a></li>
+								</ul>
+							</li>
+							<li data-menu="type1" data-active="7"><a href="/kor/customer/service/condoMember.do">고객센터</a>
+								<ul>
+									<li style="display: none;" data-active="0"><a href="/EgovPageLink.do?link=kor/customer/service/memberShip">분양상품</a>
+										<ul class="sub_gnb3_depth">
+											<li data-active="0"><a href="/EgovPageLink.do?link=kor/customer/service/lusongce">루송채</a></li>
+											<li data-active="1"><a href="/EgovPageLink.do?link=kor/customer/service/beacheCorp">법인다구좌</a></li>
+											<li data-active="2"><a href="/EgovPageLink.do?link=kor/customer/service/memberShip">일반분양</a></li>
+										</ul>
+									</li>
+									<li data-active="1"><a href="/kor/customer/service/condoMember.do">회원서비스</a>
+										<ul>
+											<li data-active="0"><a href="/kor/customer/service/condoMember.do">객실회원</a></li>
+											<li data-active="1"><a href="/kor/customer/service/golfMember.do">골프회원</a></li>
+											<li data-active="2"><a href="/kor/customer/service/cyberMember.do">사이버회원</a></li>
+											<li data-active="3"><a href="/EgovPageLink.do?link=kor/customer/service/jehuResort">제휴리조트</a></li>
+										</ul>
+									</li>
+									<li data-active="2"><a href="/kor/customer/giftToken/giftcard.do">상품권</a>
+										 <ul>
+											<li data-active="0"><a href="/kor/customer/giftToken/giftcard.do">전자상품권</a></li>
+											<li data-active="1"><a href="/kor/customer/giftToken/otherGiftCard.do">기타상품권</a></li> 
+										</ul> 
+									</li>
+									<li data-active="3"><a href="/kor/customer/csCenter/faq.do">고객센터</a>
+										<ul>
+											<li data-active="0"><a href="/kor/customer/csCenter/faq.do">FAQ</a></li>
+											<li data-active="1"><a href="/kor/customer/csCenter/qna.do">고객의 말씀</a></li>
+											<li data-active="2"><a href="/kor/customer/csCenter/foundArticleList.do">분실물센터</a></li>
+										</ul>
+									</li>
+									<li data-active="4"><a href="/kor/customer/weekMissa.do">예배/미사/기도실</a></li>
+									<li data-active="5"><a href="/kor/customer/location/ktx01.do">오시는 길</a>
+										<ul>
+									<!--	<li data-active="0"><a href="/kor/customer/location/ktx01.do">KTX경강선</a></li>										
+											<li data-active="1"><a href="/kor/customer/location/bus01.do">버스</a></li>
+											<li data-active="2"><a href="/kor/customer/location/car.do">자동차</a></li>	-->
+											<li data-active="0"><a href="/kor/customer/location/ktx01.do">대중교통</a></li>										
+											<li data-active="1"><a href="/kor/customer/location/car.do">자동차</a></li>
+										</ul>
+									</li>
+								</ul>
+							</li>
+							<li name = 'renew' data-menu="type9" data-active="8" class="combineReservation"><a href="javascript:void(0)" onclick="gotoRenewMain2('room')">통합예약</a> 
+								<ul>
+									<li data-active="0"><a href="javascript:void(0)" onclick="gotoRenewMain2('room')">객실예약</a></li>
+									<li data-active="2"><a href="javascript:void(0)" onclick="gotoRenewMain2('package')">패키지예약</a></li>
+									<li data-active="3"><a href="javascript:void(0)" onclick="gotoRenewMain2('peakseason')">객실성수기추첨</a></li>
+									<li data-active="4"><a href="javascript:void(0)" onclick="gotoRenewMain2('golf')">골프예약</a></li>
+									<li data-active="6"><a href="/kor/guide/package/list.do?packageCate1=GF">골프패키지</a></li>
+									<li data-active="7"><a href="/kor/customer/location/bus01.do">교통예약</a></li>
+								</ul>
+							</li>
+						</ul>
+					</div>
+					<!-- //Gnb (Global navigation bar) -->
+
+					<!-- QuickMenu -->
+					<div class="quickMenu">   
+						<a name = 'renew' href="javascript:void(0)" onclick="gotoRenewMain2('room')" class="combineReservation">통합예약</a>
+						<a href="javascript:void(0)" onclick="openMall()" class="coupon">용평몰</a>
+<!-- 						<a href="/kor/guide/discount/coupon.do" class="coupon">쿠폰</a> -->
+					</div>
+					<!-- //QuickMenu -->
+
+					<a href="#menuOpen" class="btnMenuClose">주요메뉴 닫기</a>
+
+
+					<h3>버치힐 컨트리클럽</h3>
+
+				</div>
+			</div>
+		</div>
+			<script type="text/javascript">
+		
+		
+		function openIRS(url,wd,hei){
+			
+			$.ajax({
+				type : 'post',
+				dataType:"json",
+				url : "/sessionCheck.do",
+				success : function(data){
+					if(data.isLogin == "true"){
+						if (document.noticeWindow && !document.noticeWindow.closed && document.noticeWindow.focus){
+							document.noticeWindow.focus();
+						} else {
+							document.noticeWindow = window.open('https://booking.yongpyong.co.kr'+url,'popup01','toolbar=no,location=no,directories=no,status=no,fullscreen=no,menubar=no,scrollbars=no,resizable=no,width='+wd+',height='+hei+',innerWidth=1000,top=0,left=0');
+						}
+						//noticeWindow.opener = self;
+					}else{
+						location.href="/kor/member/login.do";
+					}
+				},
+				error : function(request,status){
+					location.href="/kor/member/login.do";
+				}
+			});
+			
+		}
+		
+		function openSeason(){
+//			var url = "http://x3.playstory.co.kr";
+//			var url = "https://monapark.pscms.co.kr/deal/index.php?deal=2022012100010589";
+// 			var url = "https://www.yanolja.com/event/19250";
+			var url = "https://www.yanolja.com/leisure/89423";
+
+			window.open(url, '_blank'); 
+		}
+		
+		function openMall(){
+			var url = "https://monapark.pscms.co.kr";
+			var param = "";
+			
+			var uId = $("#sessionUserId").val();
+			var uClass = "";
+			
+			var userTypeDiv = $("#ssUserTypeDiv").val();
+			
+			if(userTypeDiv == "1"){
+				uClass = "member";
+			}else if(userTypeDiv == "2"){
+				uClass = "cyber";
+			}else{
+				uClass = "";
+			}
+			
+			if(userTypeDiv != "3"){
+				param =  "?uis="+uId+"&uclass="+uClass;
+			}
+			
+			url = url + param;
+			
+			window.open(url, '_blank'); 
+//			location.href = url;
+			
+			
+		}
+		</script>
+		<!-- //Header -->
+<script type="text/javascript">
+			// active된 페이지 별 setActive( 1뎁스, 2뎁스, 3뎁스 )  0부터 시작입니다.
+			$(function(){
+				setActive( 5 , 2, 1 );
+			})
+		</script>
+		<script type="text/javascript">
+			var section = 1;
+		</script>
+		<hr />
+
+		<!-- Container -->
+		<div id="container">
+			<!-- Content -->
+			<div id="content">
+				<h2>본문 시작</h2>
+				<div class="hGroup">
+					<h3>버치힐컨트리클럽</h3>
+					<p class="titInfo">버치힐컨트리클럽의 홀 소개 및 코스별 공략법을 안내해 드립니다.</p>
+					<div class="breadCrumb">
+						<a href="/kor/index.do" class="home"><span>홈</span></a>
+						<a href="/kor/golf/clubGuide/introduce.do">골프</a>
+						<a href="/kor/golf/course/totalPlace.do">코스소개</a>
+						<strong>버치힐컨트리클럽</strong>
+					</div>
+				</div>
+
+				<div class="golfMenu">
+					<div class="btnFull">
+						<a href="/kor/golf/course/birchhillClub/fullMap.do">FULL MAP</a>
+					</div>
+					<div class="course current">
+						<p class="current">BIRCH COURSE</p>
+						<ul>
+							<li><a href="#section01" class="current">1</a></li>
+							<li><a href="#section02">2</a></li>
+							<li><a href="#section03">3</a></li>
+							<li><a href="#section04">4</a></li>
+							<li><a href="#section05">5</a></li>
+							<li><a href="#section06">6</a></li>
+							<li><a href="#section07">7</a></li>
+							<li><a href="#section08">8</a></li>
+							<li><a href="#section09">9</a></li>
+						</ul>
+					</div>
+					<div class="course">
+						<p>HILL COURSE</p>
+						<ul>
+							<li><a href="/kor/golf/course/birchhillClub/hill.do?section=1">1</a></li>
+							<li><a href="/kor/golf/course/birchhillClub/hill.do?section=2">2</a></li>
+							<li><a href="/kor/golf/course/birchhillClub/hill.do?section=3">3</a></li>
+							<li><a href="/kor/golf/course/birchhillClub/hill.do?section=4">4</a></li>
+							<li><a href="/kor/golf/course/birchhillClub/hill.do?section=5">5</a></li>
+							<li><a href="/kor/golf/course/birchhillClub/hill.do?section=6">6</a></li>
+							<li><a href="/kor/golf/course/birchhillClub/hill.do?section=7">7</a></li>
+							<li><a href="/kor/golf/course/birchhillClub/hill.do?section=8">8</a></li>
+							<li><a href="/kor/golf/course/birchhillClub/hill.do?section=9">9</a></li>
+						</ul>
+					</div>
+				</div>
+
+				<!-- 버치코스 1 -->
+				<div id="section01" class="tabCont current">
+					<div class="holeInfo">
+						<h4 class="golfTit">BIRCH <span class="hdObj">Course 1</span></h4>
+						<div class="courseInfo type02">
+							<ul>
+								<li>Hole 1</li>
+								<li>PAR 5</li>
+								<li>HDCP 16</li>
+							</ul>
+						</div>
+					
+						<p class="courseTxt">
+							비행기에서 내려다 보듯 광활하고 아름다운 파노라마가 펼쳐지는 다운힐 홀입니다.<br />
+							좌우측 해저드의 심리적 부담을 극복한다면 어느 홀보다 티샷의 기쁨이 큰 홀입니다.<br />
+							모험을 시도한다면 그린 앞의 3개의 벙커가 발목을 잡을 것입니다. <br />
+							현명한 판단력이 필요한 홀입니다.
+						</p>
+					
+						<div class="placeArea birchhillMap type01">
+							<a href="/kor/golf/course/totalPlace.do">전체지형도 페이지로 가기</a>
+						</div>
+					
+						<div class="courseSide">
+							<img src="/images/kor/golf/birch_slope01.png" alt="BIRCH Hole 1 경사도" />
+						</div>
+					</div>
+					
+					<div class="holePic hole1">
+						<h5 class="hdObj">BIRCH Hole1 홀까지의 거리 정보</h5>
+						<div class="pointInfo info01">
+							<p class="hdObj">티에서 1차 퍼팅 지역 까지의 거리</p>
+							<ul>
+								<li class="p1"><em>Senior</em>407m</li>
+								<li class="p2"><em>LADY</em>439m</li>
+								<li class="p3"><em>REGULAR</em>468m</li>
+								<li class="p4"><em>Gold</em>484m</li>
+								<li class="p5"><em>CHAMPION</em>499m</li>
+							</ul>
+						</div>
+						<div class="pointInfo info02">
+							<p class="hdObj">1차 퍼팅 지역에서 다음 퍼팅 지역 까지의 거리</p>
+							<ul>
+								<li class="p1"><em class="hdObj">Senior</em>168m</li>
+								<li class="p2"><em class="hdObj">LADY</em>200m</li>
+								<li class="p3"><em class="hdObj">REGULAR</em>229m</li>
+								<li class="p4"><em class="hdObj">Gold</em>245m</li>
+								<li class="p5"><em class="hdObj">CHAMPION</em>260m</li>
+							</ul>
+						</div>
+						<div class="lineBg"></div>
+					</div>
+					
+					<!-- 재원표 이미지 -->
+                <div class="photoBox"><img src="/images/kor/golf/golf_birch_h01.jpg" alt="버치힐 h1 재원표"></div>
+                
+				</div>
+				<!-- //버치코스 1 -->
+
+				<!-- 버치코스 2 -->
+				<div id="section02" class="tabCont">
+					<div class="holeInfo">
+						<h4 class="golfTit">BIRCH <span class="hdObj">Course 2</span></h4>
+						<div class="courseInfo type02">
+							<ul>
+								<li>Hole 2</li>
+								<li>PAR 4</li>
+								<li>HDCP 2</li>
+							</ul>
+						</div>
+					
+						<p class="courseTxt">
+							잔잔한 호수와 그를 지키는 두 그루의 구상나무, 병풍처럼 둘러싸고 있는 수하계곡의<br />
+							절경,송천강 건너 용평컨트리클럽의 자태…<br />
+							한 폭의 그림을 연상케 하는 버치힐을 대표하는 홀입니다. 두 번째 샷은 그린 우측을 <br />
+							감싸고 있는 호수와 벙커를 피해 그린 좌측 둔덕을 겨냥하는 전략이 유리합니다.
+						</p>
+					
+						<div class="placeArea birchhillMap type02">
+							<a href="/kor/golf/course/totalPlace.do">전체지형도 페이지로 가기</a>
+						</div>
+					
+						<div class="courseSide">
+							<img src="/images/kor/golf/birch_slope02.png" alt="BIRCH Hole 2 경사도" />
+						</div>
+					</div>
+					
+					<div class="holePic hole2">
+						<h5 class="hdObj">BIRCH Hole2 홀까지의 거리 정보</h5>
+						<div class="pointInfo info01">
+							<p class="hdObj">티에서 1차 퍼팅 지역 까지의 거리</p>
+							<ul>
+								<li class="p1"><em>Senior</em>315m</li>
+								<li class="p2"><em>LADY</em>338m</li>
+								<li class="p3"><em>REGULAR</em>369m</li>
+								<li class="p4"><em>Gold</em>395m</li>
+								<li class="p5"><em>CHAMPION</em>417m</li>
+							</ul>
+						</div>
+						<div class="pointInfo info02">
+							<p class="hdObj">1차 퍼팅 지역에서 다음 퍼팅 지역 까지의 거리</p>
+							<ul>
+								<li class="p1"><em class="hdObj">Senior</em>165m</li>
+								<li class="p2"><em class="hdObj">LADY</em>188m</li>
+								<li class="p3"><em class="hdObj">REGULAR</em>219m</li>
+								<li class="p4"><em class="hdObj">Gold</em>245m</li>
+								<li class="p5"><em class="hdObj">CHAMPION</em>267m</li>
+							</ul>
+						</div>
+						<div class="lineBg"></div>
+						</div>
+						
+						<!-- 재원표 이미지 -->
+                <div class="photoBox"><img src="/images/kor/golf/golf_birch_h02.jpg" alt="버치힐 h2 재원표"></div>
+				</div>
+				<!-- //버치코스 2 -->
+
+				<!-- 버치코스 3 -->
+				<div id="section03" class="tabCont">
+					<div class="holeInfo">
+						<h4 class="golfTit">BIRCH <span class="hdObj">Course 3</span></h4>
+						<div class="courseInfo type02">
+							<ul>
+								<li>Hole 3</li>
+								<li>PAR 3</li>
+								<li>HDCP 12</li>
+							</ul>
+						</div>
+					
+						<p class="courseTxt">
+							느릅나무 두꺼비가 지키는 홀입니다. 선녀가 내려올 것 같은 연못과 라일락 숲의 <br />
+							고요함이 함께하는 수채화 같은 Par3홀입니다.<br />
+							그린 우측의 해저드와 벙커를 감안하여 왼쪽 그린을 겨냥하는 것이 현명합니다.<br />
+							클럽 선택이 중요합니다.
+						</p>
+					
+						<div class="placeArea birchhillMap type03">
+							<a href="/kor/golf/course/totalPlace.do">전체지형도 페이지로 가기</a>
+						</div>
+					
+						<div class="courseSide">
+							<img src="/images/kor/golf/birch_slope03.png" alt="BIRCH Hole 3 경사도" />
+						</div>
+					</div>
+					
+					<div class="holePic hole3">
+						<h5 class="hdObj">BIRCH Hole3 홀까지의 거리 정보</h5>
+						<div class="pointInfo info01">
+							<p class="hdObj">티에서 그린 지역 까지의 거리</p>
+							<ul>
+								<li class="p1"><em>Senior</em>123m</li>
+								<li class="p2"><em>LADY</em>123m</li>
+								<li class="p3"><em>REGULAR</em>143m</li>
+								<li class="p4"><em>Gold</em>165m</li>
+								<li class="p5"><em>CHAMPION</em>184m</li>
+							</ul>
+						</div>
+						<div class="lineBg"></div>
+						</div>
+						
+						<!-- 재원표 이미지 -->
+                <div class="photoBox"><img src="/images/kor/golf/golf_birch_h03.jpg" alt="버치힐 h3 재원표"></div>
+					
+				</div>
+				<!-- //버치코스 3 -->
+				
+				<!-- 버치코스 4 -->
+				<div id="section04" class="tabCont">
+					<div class="holeInfo">
+						<h4 class="golfTit">BIRCH <span class="hdObj">Course 4</span></h4>
+						<div class="courseInfo type02">
+							<ul>
+								<li>Hole 4</li>
+								<li>PAR 4</li>
+								<li>HDCP 18</li>
+							</ul>
+						</div>
+					
+						<p class="courseTxt">
+							정확한 샷이 티에서 그린까지 요구되는 홀입니다. 짧아서 욕심을 낼만하지만 욕심의<br />
+							대가가 기다리는 홀이라는 것을 명심해야 합니다.
+						</p>
+					
+						<div class="placeArea birchhillMap type04">
+							<a href="/kor/golf/course/totalPlace.do">전체지형도 페이지로 가기</a>
+						</div>
+					
+						<div class="courseSide">
+							<img src="/images/kor/golf/birch_slope04.png" alt="BIRCH Hole 2 경사도" />
+						</div>
+					</div>
+					
+					<div class="holePic hole4">
+						<h5 class="hdObj">BIRCH Hole4 홀까지의 거리 정보</h5>
+						<div class="pointInfo info01">
+							<p class="hdObj">티에서 1차 퍼팅 지역 까지의 거리</p>
+							<ul>
+								<li class="p1"><em>Senior</em>221m</li>
+								<li class="p2"><em>LADY</em>237m</li>
+								<li class="p3"><em>REGULAR</em>277m</li>
+								<li class="p4"><em>Gold</em>280m</li>
+								<li class="p5"><em>CHAMPION</em>295m</li>
+							</ul>
+						</div>
+						<div class="pointInfo info02">
+							<p class="hdObj">1차 퍼팅 지역에서 그린 까지의 거리</p>
+							<ul>
+								<li class="p1"><em class="hdObj">Senior</em>111m</li>
+								<li class="p2"><em class="hdObj">LADY</em>127m</li>
+								<li class="p3"><em class="hdObj">REGULAR</em>167m</li>
+								<li class="p4"><em class="hdObj">Gold</em>170m</li>
+								<li class="p5"><em class="hdObj">CHAMPION</em>185m</li>
+							</ul>
+						</div>
+						<div class="pointInfo info03">
+							<p class="hdObj">1차 퍼팅 지역에서 그린 까지의 거리</p>
+							<ul>
+								<li class="p1"><em class="hdObj">Senior</em>181m</li>
+								<li class="p2"><em class="hdObj">LADY</em>197m</li>
+								<li class="p3"><em class="hdObj">REGULAR</em>237m</li>
+								<li class="p4"><em class="hdObj">Gold</em>240m</li>
+								<li class="p5"><em class="hdObj">CHAMPION</em>255m</li>
+							</ul>
+						</div>
+						<div class="lineBg"></div>
+						</div>
+						
+						<!-- 재원표 이미지 -->
+                <div class="photoBox"><img src="/images/kor/golf/golf_birch_h04.jpg" alt="버치힐 h4 재원표"></div>
+					
+				</div>
+				<!-- //버치코스 4 -->
+				
+				<!-- 버치코스 5 -->
+				<div id="section05" class="tabCont">
+					<div class="holeInfo">
+						<h4 class="golfTit">BIRCH <span class="hdObj">Course 5</span></h4>
+						<div class="courseInfo type02">
+							<ul>
+								<li>Hole 5</li>
+								<li>PAR 4</li>
+								<li>HDCP 14</li>
+							</ul>
+						</div>
+					
+						<p class="courseTxt">
+							작은 바람결에도 솔 향과 자작나무 잎의 하늘거림이 느껴지는 Par4 홀입니다.<br /> 
+							그린 벙커를 목표로 티샷을 하는 것이 좋고, 그린 왼쪽이 함몰되어 있어 핀보다 <br />
+							오른쪽으로 공략하고 퍼팅도 보다 안전하게 하여야 합니다.
+						</p>
+					
+						<div class="placeArea birchhillMap type05">
+							<a href="/kor/golf/course/totalPlace.do">전체지형도 페이지로 가기</a>
+						</div>
+					
+						<div class="courseSide">
+							<img src="/images/kor/golf/birch_slope05.png" alt="BIRCH Hole 5 경사도" />
+						</div>
+					</div>
+					
+					<div class="holePic hole5">
+						<h5 class="hdObj">BIRCH Hole5 홀까지의 거리 정보</h5>
+						<div class="pointInfo info01">
+							<p class="hdObj">티에서 1차 퍼팅 지역 까지의 거리</p>
+							<ul>
+								<li class="p1"><em>Senior</em>223m</li>
+								<li class="p2"><em>LADY</em>242m</li>
+								<li class="p3"><em>REGULAR</em>266m</li>
+								<li class="p4"><em>Gold</em>282m</li>
+								<li class="p5"><em>CHAMPION</em>312m</li>
+							</ul>
+						</div>
+						<div class="pointInfo info02">
+							<p class="hdObj">1차 퍼팅 지역에서 그린 까지의 거리</p>
+							<ul>
+								<li class="p1"><em class="hdObj">Senior</em>143m</li>
+								<li class="p2"><em class="hdObj">LADY</em>162m</li>
+								<li class="p3"><em class="hdObj">REGULAR</em>186m</li>
+								<li class="p4"><em class="hdObj">Gold</em>202m</li>
+								<li class="p5"><em class="hdObj">CHAMPION</em>232m</li>
+							</ul>
+						</div>
+						<div class="lineBg"></div>
+						</div>
+						
+						<!-- 재원표 이미지 -->
+                <div class="photoBox"><img src="/images/kor/golf/golf_birch_h05.jpg" alt="버치힐 h5 재원표"></div>
+					
+				</div>
+				<!-- //버치코스 5 -->
+				
+				<!-- 버치코스 6 -->
+				<div id="section06" class="tabCont">
+					<div class="holeInfo">
+						<h4 class="golfTit">BIRCH <span class="hdObj">Course 6</span></h4>
+						<div class="courseInfo type02">
+							<ul>
+								<li>Hole 6</li>
+								<li>PAR 4</li>
+								<li>HDCP 4</li>
+							</ul>
+						</div>
+					
+						<p class="courseTxt">
+							발왕산을 비롯한 7개의 수려한 산봉우리가 한눈에 보이는 최고의 명당자리. <br />
+							전형적인 도그렉 홀로서 충분한 드라이브 거리를 요하며 훼어웨이 약간 오른쪽에 <br />
+							안착하면 두 번째 샷이 유리합니다. 급경사 2단 그린이므로 핀 위치에 따라<br />
+							클럽 선택을 신중히 하여야 합니다.
+						</p>
+					
+						<div class="placeArea birchhillMap type06">
+							<a href="/kor/golf/course/totalPlace.do">전체지형도 페이지로 가기</a>
+						</div>
+					
+						<div class="courseSide">
+							<img src="/images/kor/golf/birch_slope06.png" alt="BIRCH Hole 6 경사도" />
+						</div>
+					</div>
+					
+					<div class="holePic hole6">
+						<h5 class="hdObj">BIRCH Hole6 홀까지의 거리 정보</h5>
+						<div class="pointInfo info01">
+							<p class="hdObj">티에서 1차 퍼팅 지역 까지의 거리</p>
+							<ul>
+								<li class="p1"><em>Senior</em>324m</li>
+								<li class="p2"><em>LADY</em>342m</li>
+								<li class="p3"><em>REGULAR</em>368m</li>
+								<li class="p4"><em>Gold</em>396m</li>
+								<li class="p5"><em>CHAMPION</em>415m</li>
+							</ul>
+						</div>
+						<div class="pointInfo info02">
+							<p class="hdObj">1차 퍼팅 지역에서 그린 까지의 거리</p>
+							<ul>
+								<li class="p1"><em class="hdObj">Senior</em>154m</li>
+								<li class="p2"><em class="hdObj">LADY</em>172m</li>
+								<li class="p3"><em class="hdObj">REGULAR</em>198m</li>
+								<li class="p4"><em class="hdObj">Gold</em>226m</li>
+								<li class="p5"><em class="hdObj">CHAMPION</em>245m</li>
+							</ul>
+						</div>
+						<div class="lineBg"></div>
+						</div>
+						
+						<!-- 재원표 이미지 -->
+                <div class="photoBox"><img src="/images/kor/golf/golf_birch_h06.jpg" alt="버치힐 h6 재원표"></div>
+					
+				</div>
+				<!-- //버치코스 6 -->
+				
+				<!-- 버치코스 7 -->
+				<div id="section07" class="tabCont">
+					<div class="holeInfo">
+						<h4 class="golfTit">BIRCH <span class="hdObj">Course 7</span></h4>
+						<div class="courseInfo type02">
+							<ul>
+								<li>Hole 7</li>
+								<li>PAR 4</li>
+								<li>HDCP 10</li>
+							</ul>
+						</div>
+					
+						<p class="courseTxt">
+							세컨 샷 지점에 세 그루의 소나무와 자작이 기다리는 럭키트리플 Par4  홀입니다. <br />
+							오른쪽 도그렉 홀로서 페어웨이 약간 왼쪽에 떨어지는 장타의 티샷이 다음 샷에 <br />
+							도움이 됩니다. 앞뒤로 긴 그린을 감안하여 핀 위치에 따른 클럽선택이 중요합니다.
+						</p>
+					
+						<div class="placeArea birchhillMap type07">
+							<a href="/kor/golf/course/totalPlace.do">전체지형도 페이지로 가기</a>
+						</div>
+					
+						<div class="courseSide">
+							<img src="/images/kor/golf/birch_slope07.png" alt="BIRCH Hole 7 경사도" />
+						</div>
+					</div>
+					
+					<div class="holePic hole7">
+						<h5 class="hdObj">BIRCH Hole7 홀까지의 거리 정보</h5>
+						<div class="pointInfo info01">
+							<p class="hdObj">티에서 1차 퍼팅 지역 까지의 거리</p>
+							<ul>
+								<li class="p1"><em>Senior</em>270m</li>
+								<li class="p2"><em>LADY</em>308m</li>
+								<li class="p3"><em>REGULAR</em>330m</li>
+								<li class="p4"><em>Gold</em>348m</li>
+								<li class="p5"><em>CHAMPION</em>365m</li>
+							</ul>
+						</div>
+						<div class="pointInfo info02">
+							<p class="hdObj">1차 퍼팅 지역에서 그린 까지의 거리</p>
+							<ul>
+								<li class="p1"><em class="hdObj">Senior</em>140m</li>
+								<li class="p2"><em class="hdObj">LADY</em>178m</li>
+								<li class="p3"><em class="hdObj">REGULAR</em>200m</li>
+								<li class="p4"><em class="hdObj">Gold</em>218m</li>
+								<li class="p5"><em class="hdObj">CHAMPION</em>235m</li>
+							</ul>
+						</div>
+						<div class="lineBg"></div>
+						</div>
+						
+						<!-- 재원표 이미지 -->
+                <div class="photoBox"><img src="/images/kor/golf/golf_birch_h07.jpg" alt="버치힐 h7 재원표"></div>
+					
+				</div>
+				<!-- //버치코스 7 -->
+				
+				<!-- 버치코스 8 -->
+				<div id="section08" class="tabCont">
+					<div class="holeInfo">
+						<h4 class="golfTit">BIRCH <span class="hdObj">Course 8</span></h4>
+						<div class="courseInfo type02">
+							<ul>
+								<li>Hole 8</li>
+								<li>PAR 3</li>
+								<li>HDCP 6</li>
+							</ul>
+						</div>
+					
+						<p class="courseTxt">
+							전설을 간직한 아름드리 적송들이 웅장한 요새를 이루고 있는 가장 긴<br />
+							Par3홀 입니다. 그린 앞 4개의 거리에 대한 착시를 일으킬 수 있고, <br />
+							대형 그린으로 핀 위치에 따라 각기 다른 전략이 요구되고 있습니다. <br />
+							욕심내지 말고 그린 중앙을 공략하는 것이 안전합니다.
+						</p>
+					
+						<div class="placeArea birchhillMap type08">
+							<a href="/kor/golf/course/totalPlace.do">전체지형도 페이지로 가기</a>
+						</div>
+					
+						<div class="courseSide">
+							<img src="/images/kor/golf/birch_slope08.png" alt="BIRCH Hole 8 경사도" />
+						</div>
+					</div>
+					
+					<div class="holePic hole8">
+						<h5 class="hdObj">BIRCH Hole8 홀까지의 거리 정보</h5>
+						<div class="pointInfo info01">
+							<p class="hdObj">티에서 그린 까지의 거리</p>
+							<ul>
+								<li class="p1"><em>Senior</em>142m</li>
+								<li class="p2"><em>LADY</em>158m</li>
+								<li class="p3"><em>REGULAR</em>164m</li>
+								<li class="p4"><em>Gold</em>182m</li>
+								<li class="p5"><em>CHAMPION</em>197m</li>
+							</ul>
+						</div>
+						<div class="lineBg"></div>
+						</div>
+						
+						<!-- 재원표 이미지 -->
+                <div class="photoBox"><img src="/images/kor/golf/golf_birch_h08.jpg" alt="버치힐 h8 재원표"></div>
+					
+				</div>
+				<!-- //버치코스 8 -->
+				
+				<!-- 버치코스 9 -->
+				<div id="section09" class="tabCont">
+					<div class="holeInfo">
+						<h4 class="golfTit">BIRCH <span class="hdObj">Course 9</span></h4>
+						<div class="courseInfo type02">
+							<ul>
+								<li>Hole 9</li>
+								<li>PAR 5</li>
+								<li>HDCP 8</li>
+							</ul>
+						</div>
+					
+						<p class="courseTxt">
+							저녁 노을과 함께 이국적인 클럽하우스의 풍경이 올려다 보이는 가장 긴 Par5홀입니<br />
+							다. 세 번의 완벽한 샷이 좋은 결과를 낼 수 있는 홀입니다. 그린을 보호하고 있는<br />
+							벙커는 항상 위험이 도사리고 있습니다. 그린면이 보이지 않는 세 번째 샷은 항상 <br />
+							부담스러우며 클럽선택에 신경을 써야 합니다.
+						</p>
+					
+						<div class="placeArea birchhillMap type09">
+							<a href="/kor/golf/course/totalPlace.do">전체지형도 페이지로 가기</a>
+						</div>
+					
+						<div class="courseSide">
+							<img src="/images/kor/golf/birch_slope09.png" alt="BIRCH Hole 9 경사도" />
+						</div>
+					</div>
+					
+					<div class="holePic hole9">
+						<h5 class="hdObj">BIRCH Hole9 홀까지의 거리 정보</h5>
+						<div class="pointInfo info01">
+							<p class="hdObj">티에서 1차 퍼팅 지역 까지의 거리</p>
+							<ul>
+								<li class="p1"><em>Senior</em>372m</li>
+								<li class="p2"><em>LADY</em>421m</li>
+								<li class="p3"><em>REGULAR</em>460m</li>
+								<li class="p4"><em>Gold</em>481m</li>
+								<li class="p5"><em>CHAMPION</em>496m</li>
+							</ul>
+						</div>
+						<div class="pointInfo info02">
+							<p class="hdObj">1차 퍼팅 지역에서 다음 퍼팅 지역 까지의 거리</p>
+							<ul>
+								<li class="p1"><em class="hdObj">Senior</em>132m</li>
+								<li class="p2"><em class="hdObj">LADY</em>181m</li>
+								<li class="p3"><em class="hdObj">REGULAR</em>220m</li>
+								<li class="p4"><em class="hdObj">Gold</em>241m</li>
+								<li class="p5"><em class="hdObj">CHAMPION</em>256m</li>
+							</ul>
+						</div>
+						<div class="lineBg"></div>
+						</div>
+						
+						<!-- 재원표 이미지 -->
+                <div class="photoBox"><img src="/images/kor/golf/golf_birch_h09.jpg" alt="버치힐 h9 재원표"></div>
+					
+				</div>
+				<!-- //버치코스 9 -->
+
+				<script type="text/javascript" src="/common/kor/js/golf.js"></script>
+
+				<div class="optional">
+  					<button type="button" onClick="share_tw()">twitter</button>
+  					<a href="javascript:void(0)" class="fb" onclick="share_fb()"><span>facebook</span></a>
+  					<button type="button" onclick="window.print();" class="print">print</button>
+  				</div>
+
+				<a href="#header" class="btnTop"><span>상단으로 이동</span></a>
+
+			</div>
+			<!-- //Content -->
+		</div>
+		<!-- //Container -->
+
+		<hr />
+
+		<!-- Footer -->
+		<div class="popCon3" style="width: 576px; height: 683px; float: left; position: absolute; left:50%; top:50%; transform: translate(-50%,-50%); z-index: 999; display: none;">
+			<div>
+				<img src="/images/kor/pop/adyongpyong2.jpg" alt="제휴안내" width="571px" height="786px" usemap="#image-map0">
+				<!-- <map name="image-map0">
+					<area shape="rect" coords="107,489,463,521" href="http://ad.yongpyong.co.kr/" alt="제휴안내" target="_blank">
+				</map> -->
+			</div>
+		</div>
+		
+		<div id="footer">
+			<h2>용평리조트 회사정보 안내</h2>
+			<div class="footWrap">
+				<div class="menuArea" style="height: 220px;">
+					<ul>
+						<li><a href="/kor/introduce/companyIdeology.do">회사소개</a>
+							<ul>
+								<li><a href="/kor/introduce/companyIdeology.do">기업이념</a></li>
+								<li><a href="/kor/introduce/greenYp.do">모나용평 ESG</a></li>
+								<li><a href="/kor/introduce/history.do">연혁</a></li>
+								<li><a href="/kor/introduce/awardList.do">수상내역</a></li>
+								<li><a href="/kor/introduce/ci.do">브랜드 스토리</a></li>
+<!--								<li><a href="/kor/introduce/character.do">캐릭터</a></li>								-->
+								<li><a href="/kor/introduce/contactUs.do">오시는길</a></li>
+							</ul>
+						</li>
+						<li><a href="/EgovPageLink.do?link=kor/ir/managementResult">투자정보</a>
+							<ul>
+								<li><a href="/EgovPageLink.do?link=kor/ir/managementResult">재무정보</a></li>
+								<li><a href="/kor/ir/infoDisclosure.do">공시정보</a></li>
+								<li><a href="/kor/ir/irCalList.do">IR자료실</a></li>
+								<li><a href="/EgovPageLink.do?link=kor/ir/noticeRules">지배구조</a></li>
+							</ul>
+						</li>
+						<li><a href="/kor/prCenter/mediaReportList.do">홍보센터</a>
+							<ul>
+								<li><a href="/kor/prCenter/mediaReportList.do">언론보도</a></li>
+<!--								<li><a href="/kor/prCenter/e-brochure.do">온라인브로셔</a></li> -->
+							</ul>
+						</li>
+						<!-- <li><a href="/kor/guide/resortGuideMap.do">리조트맵</a></li> -->
+						<li class="recruitInfo"><a href="/kor/recruit/recruitInfo.do">채용안내</a>
+							<ul>
+								<li><a href="/kor/recruit/pms.do">인사제도</a></li>
+								<li><a href="/kor/recruit/recruitInfo.do">채용안내</a></li>
+								<li><a href="/kor/recruit/notice/list.do">공지사항</a></li>
+								<li><a href="/kor/recruit/announce/list.do">채용공고</a></li>
+								<li><a href="/kor/recruit/announce/seasonSelectRegular.do">채용결과확인</a></li>
+							</ul>
+						</li>
+						<li id="alliance" style="color:white"><a href="#">제휴안내</a></li>
+						<li><a href="/kor/customer/giftToken/giftcard.do">상품권</a>
+							<ul>
+								<li><a href="/kor/customer/giftToken/giftcard.do">전자상품권</a></li>
+								<li><a href="/kor/customer/giftToken/otherGiftCard.do">기타상품권</a></li>
+							</ul>
+						</li>
+						<li><a href="/kor/etc/sitemap.do?tabID=1">구내 전화번호</a></li>                     
+					</ul>					
+				</div>
+				<!-- <div class="linkArea">
+					<div class="familySite">
+						<a href="#familySiteLink">FAMILYSITE</a> -->
+				<div class="linkArea">
+					<div class="familySite close">
+						<a href="javascript:;">FAMILYSITE</a>
+						<span id="familySiteLink" style="bottom:auto;">
+							<!-- <a href="http://www.beachepalace.co.kr/bp/kor/index.do" title="새창" target="_blank">비체팰리스</a> -->
+							<a href="http://www.beachepalace.co.kr/" title="새창" target="_blank">비체팰리스</a>
+							<a href="http://www.theoceanresort.co.kr/" title="새창" target="_blank">디오션리조트</a>
+							<!-- <a href="http://yongpyongmall.co.kr/" title="새창" target="_blank"> .</a> -->
+							<a href="https://www.pineridge.co.kr/" title="새창" target="_blank">파인리즈리조트</a>
+							<a href="http://www.itms.co.kr/" title="새창" target="_blank">세일여행사</a>
+							<a href="http://www.aino-cc.net/" title="새창" target="_blank">AINO C.C.</a>
+							<a href="https://www.shimabaracc.com/" title="새창" target="_blank">SHIMABARA C.C.</a>
+						</span>
+					</div>
+					<div class="language">
+						<a href="https://www.yongpyong.co.kr/" class="kor">한국어</a>
+						<!-- <a href="https://www.yongpyong.co.kr/eng/">ENG</a> -->
+						<a href="https://www.yongpyong.co.kr/eng/index.do">ENG</a>
+						<a href="https://www.yongpyong.co.kr/ch/index.do">简体</a>
+						<a href="https://www.yongpyong.co.kr/zh-TW/index.do">繁體</a>
+					</div>
+					<div class="social">						
+						<a href="https://www.facebook.com/yongpyong.co.kr" title="새창" target="_blank" class="fb"><span>facebook</span></a> 
+					<a href="https://www.youtube.com/channel/UCKeA43nQvoSfrpUAYeoWHQw" title="새창" target="_blank" class="tw"><span>youtube</span></a>
+					<a href="https://blog.naver.com/monayp" title="새창" target="_blank" class="bl"><span>blog</span></a>
+					</div>
+				</div>
+				<div class="otherLink" style="bottom: 0px; right: 0px; position: relative;">
+					<!--<a href="/kor/introduce/contactUs.do">문의전화</a>-->
+					<a href="/kor/etc/personalInfo.do">개인정보처리방침</a> 
+					<a href="/EgovPageLink.do?link=kor/etc/personalInfoVideo">고정형 영상정보처리기기 운영관리방침</a>
+					<a href="/kor/etc/email.do">이메일무단수집거부</a>
+				</div>
+			</div>
+			
+			<div class="addressArea">
+				<div class="yp">
+					<address>모나용평 주식회사 강원특별자치도 평창군 대관령면 올림픽로 715(구 용산리 130) TEL : (객실예약) 1588-0009 (골프예약) 1522-3111 (대표번호) 033-335-5757 </address>
+					<p><span>대표이사 : 박인준</span>사업자등록번호: 226-81-24374 통신판매업 신고번호 : 제2004-강원평창-0003호 개인정보보호책임/관리자 : 전략지원본부장 / 이정욱 이사</p> <!-- 2015-07-06 개인정보관리책임 수정 -->
+					<p class="copyright">Copyright 2014 YONGPYONG RESORT All rights reserved.</p>
+					<!--  <em class="award">WEB AWARD / 웹접근성인증마크</em>-->
+				</div>
+			</div>	
+		</div>
+		<!-- //Footer -->
+	</div>
+<!-- <div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) return;
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/ko_KR/sdk.js#xfbml=1&appId=1421629414753944&version=v2.0";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script> -->
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) return;
+  js = d.createElement(s); js.id = id;
+  js.src = 'https://connect.facebook.net/ko_KR/sdk.js#xfbml=1&version=v3.0&appId=1421629414753944&autoLogAppEvents=1';
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+<!--  구글 통계 추적 코드 -->
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-54746822-2', 'auto');
+  ga('send', 'pageview');
+
+</script>
+<script>
+/*	제휴안내 클릭시 스크롤 최상단으로 이동	*/
+$("#alliance").click(function() {
+	scrollUp();
+	$(".popCon3").css("display","block");
+});
+/*	제휴안내 닫기 클릭시 popCon3 배너 안보이게*/
+$(".popCon3").click(function() {
+	$(".popCon3").css("display","none");
+});
+/*	스크롤 최상단까지 부드럽게 올리기 */
+function scrollUp()
+{
+	var scrollUpDelay = 1;
+	var scrollUpSpeed = 30;
+	
+	if(document.body.scrollTop<1)
+	{
+		return;
+	}
+	document.body.scrollTop=document.body.scrollTop-scrollUpSpeed;
+	setTimeout('scrollUp()',scrollUpDelay);
+}
+</script>
+</body>
+</html>

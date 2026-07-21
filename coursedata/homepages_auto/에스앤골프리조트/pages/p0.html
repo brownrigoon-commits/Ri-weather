@@ -1,0 +1,1130 @@
+
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head><meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><title>
+	에스앤골프리조트
+</title><link rel="stylesheet" type="text/css" href="/css/common.css?v=2" /><link rel="stylesheet" type="text/css" href="/css/main3.css" /><link rel="stylesheet" type="text/css" href="/css/join.css?v=2" />
+    <script type="text/javascript" src="/js/cmmfun.js"></script>
+
+    <script src="/js/jquery-1.12.3.min.js"></script>
+    <script src="/js/jquery.bxslider.min.js"></script>
+    <script>
+        var mobileKeyWords = new Array('iPhone', 'iPod', 'iPad', 'BlackBerry', 'Android', 'Windows CE', 'LG', 'MOT', 'SAMSUNG', 'SonyEricsson');
+        var mobileyn = "N";
+        //alert(navigator.userAgent);
+        for (var m = 0; m < mobileKeyWords.length; m++) {
+            //alert(navigator.userAgent.match(mobileKeyWords[m]) + "." + mobileKeyWords[m]);
+            if (navigator.userAgent.match(mobileKeyWords[m]) != null) {
+                mobileyn = "Y";
+                parent.window.location.href = '/Mobile';
+                break;
+            }
+        }
+
+
+        $(document).ready(function () {
+            $(window).scroll(function () {
+                var sc = $(window).scrollTop()
+                //alert(document.getElementById("dvPopup").style.display);
+                var cTop = "50px";
+                if (document.getElementById("dvPopup").style.display != "") cTop = "200px";
+                if (sc > 120) {
+                    document.getElementById("dvLogo").style.display = "none";
+                    //document.getElementById("dvMainContent").style.paddingTop = cTop;
+                    $("div.top_nav").addClass("fixed")
+                } else {
+                    document.getElementById("dvLogo").style.display = "";
+                    //document.getElementById("dvMainContent").style.paddingTop = "0px";
+                    $("div.top_nav").removeClass("fixed")
+                }
+				
+				var wh = $(window).height();
+				
+                if (wh < 950) {
+                    document.getElementById("dvMyPageContent").style.height = (wh - 200) + "px";
+                    document.getElementById("dvMyPageContent").style.overflowY = "hidden";
+                } else {
+                    document.getElementById("dvMyPageContent").style.height = wh + "px";
+                    document.getElementById("dvMyPageContent").style.overflowY = "hidden";
+                }
+            });
+            /*메뉴 마우스 hover 시*/
+            $('div.sub_nav').hide();
+            $('ul.top_menu a, div.sub_nav').hover(function () {
+                $('div.sub_nav').show();
+            });
+            $('ul.top_menu, div.sub_nav').mouseleave(function () {
+                $('div.sub_nav').hide();
+            });
+            $('.bxslider').bxSlider({
+                auto: true
+            });
+            $('li.close').click(function () {
+                $('div.popup').slideUp(500);
+            });
+
+            $('li.dayclose').click(function () {
+                setCookie("topbanner", "1", 1);
+                $('div.popup').slideUp(500);
+            });
+
+            /*마이페이지버튼클릭시*/
+            $('div.myhome, div.myhomeClose').click(function () {
+                $('div.mypage').toggleClass('start');
+                $('div.myhomeClose').toggleClass('show');
+                $('div.curtain').toggleClass('show');
+            });
+
+            $('.page-tab a').click(function () {
+                //Check if the tabs menu has active class
+                $('.page-tab li').removeClass('active');
+                $(this).parent().addClass('active');
+
+                // Display active tab
+                var currentTab = $(this).attr('href');
+                $('.tabs-mycontent div').hide();
+                $(currentTab).show();
+
+                return false;
+            });
+            $('.btn01').click(function () {
+                $('.contact_form01').show();
+            });
+            $('.btn02').click(function () {
+                $('.contact_form02').show();
+            });
+            $('.closeBt01').click(function () {
+                $('.contact_form01').hide();
+            });
+            $('.closeBt02').click(function () {
+                $('.contact_form02').hide();
+            });
+
+            PageInit();
+        });
+
+
+    function showMyPage() {
+        $('div.mypage').toggleClass('start');
+        $('div.myhomeClose').toggleClass('show');
+        $('div.curtain').toggleClass('show');
+    }
+
+	function mypageMyScore() {
+        $('.page-tab li').eq(2).addClass('active').siblings('li').removeClass('active');
+        $('.tab_content').hide();
+        $('.tab_content').eq(2).show();
+        showMyPage();
+    }
+
+    function mypageMyReserve() {
+        $('.page-tab li').eq(0).addClass('active').siblings('li').removeClass('active');
+        $('.tab_content').hide();
+        $('.tab_content').eq(0).show();
+        showMyPage();
+    }
+	
+	//팝업
+	function cookieVal(cookieName){
+	thisCookie = document.cookie.split("; ");
+		for(i=0; i<thisCookie.length; i++){
+			if(cookieName == thisCookie[i].split("=")[0]){
+				return thisCookie[i].split("=")[1];
+			}
+		}
+		return "x";
+		}
+		
+		
+    //쿠키값 설정
+    function setCookie(name, value, expiredays) {
+        var todayDate = new Date();
+        todayDate.setDate(todayDate.getDate() + expiredays);
+        document.cookie = name + "=" + escape(value) + "; path=/; expires=" + todayDate.toGMTString() + ";"
+    }
+
+    //쿠키값 가져오기
+    function getCookie(name) {
+        thisCookie = document.cookie.split("; ");
+        for (i = 0; i < thisCookie.length; i++) {
+            if (name == thisCookie[i].split("=")[0]) {
+                return thisCookie[i].split("=")[1];
+            }
+        }
+        return "x";
+    }
+
+    //창닫기
+    function closeWin(id, cookie_name, i) {
+        frm = document.getElementById("aspnetForm");
+
+        if (eval("frm.cbNotice" + i + ".checked")) {
+            setCookie(cookie_name, "1", 1);
+        }
+
+        document.getElementById(id).style.visibility = "hidden";
+    }
+/*
+	//정의철팀장요청에의한 강제팝업출력20180119
+	if(cookieVal("Popup1") != "1"){
+		window.open("/popup/20180119.html", "window1", "toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, width=640, height=380, top=20, left=600");
+	}
+*/
+	/*// 연단체모집
+	if(cookieVal("Popup1") != "1"){
+		window.open("/popup/231115.html", "Popup1", "toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, width=600, height=650, top=0, left=0");
+	}*/
+				
+    function PageInit() {
+        if (getCookie("topbanner") == "1") {
+            document.getElementById("dvPopup").style.display = "none";
+        }
+    }
+
+        function LoginSubmit() {
+	        if ((document.getElementById("txtUserID").value.length == 0)) {
+		        alert("아이디를 입력해 주십시오.");
+		        document.getElementById("txtUserID").focus();
+				return false;
+            }
+
+            if ((document.getElementById("txtPassword").value.length == 0)) {
+		        alert("비밀번호를 입력해 주십시오.");
+		        document.getElementById("txtPassword").focus();
+				return false;
+            }
+            return true;
+        }
+	    function EnterSubmit(e) {
+	        if (e.keyCode == 13) {
+	            //return FormSubmit();
+	            Login();
+	        }
+	    }
+        function Login() {
+            document.getElementById("ibtnLogin").click();
+        }
+
+        function SetTimeReserveCount(param) {
+            
+            var arrParam = param.split("|");
+            var sDayGubun = arrParam[3];
+
+            var sHtml = '선택날짜 <span class="col">' + arrParam[1] + '</span><br>';
+            switch (sDayGubun) {
+                case "0":
+                    sHtml += "일정없음";
+                    break;
+                case "9":
+                    sHtml += "휴장";
+                    break;
+                default:
+                    sHtml += '잔여팀수 <span class="col">' + arrParam[2] + '</span>';
+                    break;
+            }
+
+            document.getElementById("pDayContent").innerHTML = sHtml;
+        }
+        function closePop() {
+            $(".pop").css("display","none");
+        }
+</script>
+    <!-- 추가 되는 부분 시작-->
+    <style type="text/css">
+	    .desSlideshow {width: 1260px; height: 330px; position: relative;overflow: hidden; background: none;}
+	    .desSlideshow .switchBigPic {position: relative; display: block;}
+	    .desSlideshow .switchBigPic .BigPic {position: absolute; overflow: hidden; display: none; border: 1px solid #ddd; box-sizing: border-box; height: 330px;}
+	
+	    ul.nav {margin: 0px; padding: 0px; width: 318px; height: 330px; position: absolute; right: 0px; top: 0px; display: block;}
+	    ul.nav li {margin: 0px; padding: 0px; list-style: none; height: 55px; line-height: 55px;}
+	    ul.nav li a {color: rgb(0, 0, 0); text-decoration: none; height: 49px; display: block; padding-left: 25px; font-size: 12px; letter-spacing: -1px; overflow: hidden;}
+	    ul.nav .noCnt {margin: 0px; padding: 0px; list-style: none; height: 55px; line-height: 55px;background: url(images/menubg_off.png); text-align: center; font-size: 14px;}
+		div#seasonPopup {
+			position:fixed;
+			top:260px;
+			right:130px;
+			z-index:9999;
+		}
+        /*.pop-wrap{
+            display: none;
+            position: absolute;
+            z-index: 10000;
+            left: 0;
+            top: 0;
+        }
+        .pop-wrap::before{
+            content: '';
+            position: absolute;
+            z-index: -1;
+            background-color: rgba(0,0,0,0.6);
+            top:0;
+            left: 0;
+            right: 0;
+            bottom: 0;            
+        }*/
+        .pop{
+            position: absolute;
+            top:0;
+            left: 0;
+            z-index: 9999;
+        }
+        .pop img{ display: block;}
+        .pop .pop-footer{
+            background-color: #333;
+            line-height: 1.5em;
+            width: 100%;
+            text-align: center;
+        }
+        .pop .pop-footer a{
+            color: #fff;
+            display: block;
+            font-size: 0.81rem;            
+        }
+    </style>
+    
+    <!--팝업-->
+	<div class="pop">
+		<img src="/Upload/260629_pop.jpg">
+		<div class="pop-footer">
+			<a href="javascript:closePop();">닫기</a>
+		</div>
+	</div>
+    
+    
+    <script type="text/javascript" src="js/desSlideshow.js"></script>
+
+   
+    <script language="javascript" type="text/javascript">
+$(function () {
+            $("#desSlideshow2").desSlideshow({
+                autoplay: 'enable',//option:enable,disable
+                slideshow_width: '1260',//slideshow window width
+                slideshow_height: '330',//slideshow window height
+                thumbnail_width: '318',//thumbnail width
+                time_Interval: '4000',//Milliseconds
+                directory: '../images/'// flash-on.gif and flashtext-bg.jpg directory
+            });
+
+       
+        });
+function MM_showHideLayers() { //v9.0
+  var i,p,v,obj,args=MM_showHideLayers.arguments;
+  for (i=0; i<(args.length-2); i+=3) 
+  with (document) if (getElementById && ((obj=getElementById(args[i]))!=null)) { v=args[i+2];
+    if (obj.style) { obj=obj.style; v=(v=='show')?'visible':(v=='hide')?'hidden':v; }
+    obj.visibility=v; }
+}
+    </script>
+    <!-- 추가 되는 부분 끝-->
+</head>
+<body>
+    <form method="post" action="./" id="aspnetForm">
+<div class="aspNetHidden">
+<input type="hidden" name="__EVENTTARGET" id="__EVENTTARGET" value="" />
+<input type="hidden" name="__EVENTARGUMENT" id="__EVENTARGUMENT" value="" />
+<input type="hidden" name="__VIEWSTATE" id="__VIEWSTATE" value="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ICA8bGk+PGEgaHJlZj0iIyI+7JeQ7Iqk7JWkPC9hPjwvbGk+CiAgICAgICAgICAgICAgICAgPGxpPjxhIGhyZWY9IiMiPuqzoOqwneyEvO2EsDwvYT48L2xpPgogICAgICAgICAgIDwvdWw+CiAgICAgICAgICAgPGRpdiBjbGFzcz0ic3ViX25hdiI+CiAgICAgICAgICAgICAgPGRpdiBjbGFzcz0ic3ViX21lbnUiPgogICAgICAgICAgICAgICAgICA8b2w+DQoJCQkJCTxsaT48YSBocmVmPSIvUmVzZXJ2YXRpb24vUmVzZXJ2YXRpb25WMi5hc3B4Ij7si6Tsi5zqsITsmIjslb08L2E+PC9saT4NCgkJCQkJPGxpPjxhIGhyZWY9Ii9SZXNlcnZhdGlvbi9SZXNlcnZhdGlvbkxpc3QuYXNweCI+7JiI7JW97KGw7ZqMPC9hPjwvbGk+DQoJCQkJCTxsaT48YSBocmVmPSJodHRwczovL3d3dy50ZWV1cG5qb3kuY29tL2hwL2NsdWJpZC81ODUuZG8iIHRhcmdldD0iX3dpbjEyIj7sobDsnbjsmIjslb08L2E+PC9saT4NCgkJCQkJPGxpPjxhIGhyZWY9Ii9Cb2FyZC9Cb2FyZExpc3QuYXNweD9jZmdpZD1qb2luIj7sobDsnbjqsozsi5ztjJA8L2E+PC9saT4KICAgICAgICAgICAgICAgIDwvb2w+CiAgICAgICAgICAgICAgICAgIDxvbCBjbGFzcz0ibnRoMiI+DQoJCQkJCTxsaT48YSBocmVmPSIvQm9hcmQvTmV3c0xpc3QuYXNweD9jZmdpZD1ub3RpY2UiPuydtOuypO2KuDwvYT48L2xpPg0KCQkJCQk8bGk+PGEgaHJlZj0iL0JvYXJkL1dlYXRoZXIuYXNweCIgdGFyZ2V0PSJfd2luMTUiPuuCoOyUqOygleuztDwvYT48L2xpPg0KCQkJCQk8bGk+PGEgaHJlZj0iL0JvYXJkL0hvbm9yTGlzdC5hc3B4Ij7rqoXsmIjsnZjsoITri7k8L2E+PC9saT4KICAgICAgICAgICAgICAgIDwvb2w+CiAgICAgICAgICAgICAgICAgIDxvbD4NCgkJCQkJPGxpPjxhIGhyZWY9Ii9BYm91dC9JbnRyb2R1Y3Rpb24uYXNweCI+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RXwwNy4wNSjsnbwpfDB8MCcpOyIgPjUNCgkJCQkJCQkJCTwvdGQ+DQoJCQkJCQkJCQk8dGQgIHRpdGxlPSI27J28IDog7J287KCV7JeG7J2MIiBvbm1vdXNlb3Zlcj0iU2V0VGltZVJlc2VydmVDb3VudCgnTUVTU0FHRXwwNy4wNijsm5QpfDB8MCcpOyIgPjYNCgkJCQkJCQkJCTwvdGQ+DQoJCQkJCQkJCQk8dGQgIHRpdGxlPSI37J28IDog7J287KCV7JeG7J2MIiBvbm1vdXNlb3Zlcj0iU2V0VGltZVJlc2VydmVDb3VudCgnTUVTU0FHRXwwNy4wNyjtmZQpfDB8MCcpOyIgPjcNCgkJCQkJCQkJCTwvdGQ+DQoJCQkJCQkJCQk8dGQgIHRpdGxlPSI47J28IDog7J287KCV7JeG7J2MIiBvbm1vdXNlb3Zlcj0iU2V0VGltZVJlc2VydmVDb3VudCgnTUVTU0FHRXwwNy4wOCjsiJgpfDB8MCcpOyIgPjgNCgkJCQkJCQkJCTwvdGQ+DQoJCQkJCQkJCQk8dGQgIHRpdGxlPSI57J28IDog7J287KCV7JeG7J2MIiBvbm1vdXNlb3Zlcj0iU2V0VGltZVJlc2VydmVDb3VudCgnTUVTU0FHRXwwNy4wOSjrqqkpfDB8MCcpOyIgPjkNCgkJCQkJCQkJCTwvdGQ+DQoJCQkJCQkJCQk8dGQgIHRpdGxlPSIxMOydvCA6IOydvOygleyXhuydjCIgb25tb3VzZW92ZXI9IlNldFRpbWVSZXNlcnZlQ291bnQoJ01FU1NBR0V8MDcuMTAo6riIKXwwfDAnKTsiID4xMA0KCQkJCQkJCQkJPC90ZD4NCgkJCQkJCQkJCTx0ZCAgY2xhc3M9ImMwMyB0aXRsZT0iMTHsnbwgOiDsnbzsoJXsl4bsnYwiIG9ubW91c2VvdmVyPSJTZXRUaW1lUmVzZXJ2ZUNvdW50KCdNRVNTQUdFfDA3LjExKO2GoCl8MHwwJyk7IiA+MTENCgkJCQkJCQkJCTwvdGQ+DQoJCQkJCQkJCTwvdHI+DQoJCQkJCQkJCTx0cj4NCgkJCQkJCQkJCTx0ZCAgY2xhc3M9ImMwNCB0aXRsZT0iMTLsnbwgOiDsnbzsoJXsl4bsnYwiIG9ubW91c2VvdmVyPSJTZXRUaW1lUmVzZXJ2ZUNvdW50KCdNRVNTQUdFfDA3LjEyKOydvCl8MHwwJyk7IiA+MTINCgkJCQkJCQkJCTwvdGQ+DQoJCQkJCQkJCQk8dGQgIHRpdGxlPSIxM+ydvCA6IOydvOygleyXhuydjCIgb25tb3VzZW92ZXI9IlNldFRpbWVSZXNlcnZlQ291bnQoJ01FU1NBR0V8MDcuMTMo7JuUKXwwfDAnKTsiID4xMw0KCQkJCQkJCQkJPC90ZD4NCgkJCQkJCQkJCTx0ZCAgdGl0bGU9IjE07J28IDog7J287KCV7JeG7J2MIiBvbm1vdXNlb3Zlcj0iU2V0VGltZVJlc2VydmVDb3VudCgnTUVTU0FHRXwwNy4xNCjtmZQpfDB8MCcpOyIgPjE0DQoJCQkJCQkJCQk8L3RkPg0KCQkJCQkJCQkJPHRkICB0aXRsZT0iMTXsnbwgOiDsnbzsoJXsl4bsnYwiIG9ubW91c2VvdmVyPSJTZXRUaW1lUmVzZXJ2ZUNvdW50KCdNRVNTQUdFfDA3LjE1KOyImCl8MHwwJyk7IiA+MTUNCgkJCQkJCQkJCTwvdGQ+DQoJCQkJCQkJCQk8dGQgIHRpdGxlPSIxNuydvCA6IOydvOygleyXhuydjCIgb25tb3VzZW92ZXI9IlNldFRpbWVSZXNlcnZlQ291bnQoJ01FU1NBR0V8MDcuMTYo66qpKXwwfDAnKTsiID4xNg0KCQkJCQkJCQkJPC90ZD4NCgkJCQkJCQkJCTx0ZCAgdGl0bGU9IjE37J28IDog7J287KCV7JeG7J2MIiBvbm1vdXNlb3Zlcj0iU2V0VGltZVJlc2VydmVDb3VudCgnTUVTU0FHRXwwNy4xNyjquIgpfDB8MCcpOyIgPjE3DQoJCQkJCQkJCQk8L3RkPg0KCQkJCQkJCQkJPHRkICBjbGFzcz0iYzAzIHRpdGxlPSIxOOydvCA6IOydvOygleyXhuydjCIgb25tb3VzZW92ZXI9IlNldFRpbWVSZXNlcnZlQ291bnQoJ01FU1NBR0V8MDcuMTgo7YagKXwwfDAnKTsiID4xOA0KCQkJCQkJCQkJPC90ZD4NCgkJCQkJCQkJPC90cj4NCgkJCQkJCQkJPHRyPg0KCQkJCQkJCQkJPHRkICBjbGFzcz0iYzA0IHRpdGxlPSIxOeydvCA6IOydvOygleyXhuydjCIgb25tb3VzZW92ZXI9IlNldFRpbWVSZXNlcnZlQ291bnQoJ01FU1NBR0V8MDcuMTko7J28KXwwfDAnKTsiID4xOQ0KCQkJCQkJCQkJPC90ZD4NCgkJCQkJCQkJCTx0ZCAgdGl0bGU9IjIw7J28IDog7J287KCV7JeG7J2MIiBvbm1vdXNlb3Zlcj0iU2V0VGltZVJlc2VydmVDb3VudCgnTUVTU0FHRXwwNy4yMCjsm5QpfDB8MCcpOyIgPjIwDQoJCQkJCQkJCQk8L3RkPg0KCQkJCQkJCQkJPHRkICB0aXRsZT0iMjHsnbwgOiDsnbzsoJXsl4bsnYwiIG9ubW91c2VvdmVyPSJTZXRUaW1lUmVzZXJ2ZUNvdW50KCdNRVNTQUdFfDA3LjIxKO2ZlCl8MHwwJyk7IiA+MjENCgkJCQkJCQkJCTwvdGQ+DQoJCQkJCQkJCQk8dGQgIGNsYXNzPSJjMDIgIiB0aXRsZT0iMjAyNuuFhCAwN+yblCAyMuydvA0KLSAxOO2ZgCA6IDUz7YyAIOyYiOyVveqwgOuKpSIgb25tb3VzZW92ZXI9IlNldFRpbWVSZXNlcnZlQ291bnQoJyB8MDcuMjIo7IiYKXw1M3wxJyk7IiBvbmNsaWNrPSJHZXRSZXNlcnZhdGlvbignTElTVHwyMDI2LTA3LTAxfDIwMjYtMDctMjJ8WXwxfE5VTEx8TlVMTHxOVUxMfE5VTEwnKSIgbG9jYXRpb24uaHJlZj0nIyc7Ij4yMg0KCQkJCQkJCQkJPC90ZD4NCgkJCQkJCQkJCTx0ZCAgY2xhc3M9ImMwMiAiIHRpdGxlPSIyMDI264WEIDA37JuUIDIz7J28DQotIDE47ZmAIDogNTHtjIAg7JiI7JW96rCA64qlIiBvbm1vdXNlb3Zlcj0iU2V0VGltZVJlc2VydmVDb3VudCgnIHwwNy4yMyjrqqkpfDUxfDEnKTsiIG9uY2xpY2s9IkdldFJlc2VydmF0aW9uKCdMSVNUfDIwMjYtMDctMDF8MjAyNi0wNy0yM3xZfDF8TlVMTHxOVUxMfE5VTEx8TlVMTCcpIiBsb2NhdGlvbi5ocmVmPScjJzsiPjIzDQoJCQkJCQkJCQk8L3RkPg0KCQkJCQkJCQkJPHRkICBjbGFzcz0iYzAyICIgdGl0bGU9IjIwMjbrhYQgMDfsm5QgMjTsnbwNCi0gMTjtmYAgOiAzNu2MgCDsmIjslb3qsIDriqUiIG9ubW91c2VvdmVyPSJTZXRUaW1lUmVzZXJ2ZUNvdW50KCcgfDA3LjI0KOq4iCl8MzZ8MScpOyIgb25jbGljaz0iR2V0UmVzZXJ2YXRpb24oJ0xJU1R8MjAyNi0wNy0wMXwyMDI2LTA3LTI0fFl8MXxOVUxMfE5VTEx8TlVMTHxOVUxMJykiIGxvY2F0aW9uLmhyZWY9JyMnOyI+MjQNCgkJCQkJCQkJCTwvdGQ+DQoJCQkJCQkJCQk8dGQgIGNsYXNzPSJjMDIgYzAzIiB0aXRsZT0iMjAyNuuFhCAwN+yblCAyNeydvA0KLSAxOO2ZgCA6IDM57YyAIOyYiOyVveqwgOuKpSIgb25tb3VzZW92ZXI9IlNldFRpbWVSZXNlcnZlQ291bnQoJyB8MDcuMjUo7YagKXwzOXwyJyk7IiBvbmNsaWNrPSJHZXRSZXNlcnZhdGlvbignTElTVHwyMDI2LTA3LTAxfDIwMjYtMDctMjV8WXwyfE5VTEx8TlVMTHxOVUxMfE5VTEwnKSIgbG9jYXRpb24uaHJlZj0nIyc7Ij4yNQ0KCQkJCQkJCQkJPC90ZD4NCgkJCQkJCQkJPC90cj4NCgkJCQkJCQkJPHRyPg0KCQkJCQkJCQkJPHRkICBjbGFzcz0iYzAyIGMwNCIgdGl0bGU9IjIwMjbrhYQgMDfsm5QgMjbsnbwNCi0gMTjtmYAgOiA1M+2MgCDsmIjslb3qsIDriqUiIG9ubW91c2VvdmVyPSJTZXRUaW1lUmVzZXJ2ZUNvdW50KCcgfDA3LjI2KOydvCl8NTN8MycpOyIgb25jbGljaz0iR2V0UmVzZXJ2YXRpb24oJ0xJU1R8MjAyNi0wNy0wMXwyMDI2LTA3LTI2fFl8M3xOVUxMfE5VTEx8TlVMTHxOVUxMJykiIGxvY2F0aW9uLmhyZWY9JyMnOyI+MjYNCgkJCQkJCQkJCTwvdGQ+DQoJCQkJCQkJCQk8dGQgIGNsYXNzPSJjMDIgIiB0aXRsZT0iMjAyNuuFhCAwN+yblCAyN+ydvA0KLSAxOO2ZgCA6IDM07YyAIOyYiOyVveqwgOuKpSIgb25tb3VzZW92ZXI9IlNldFRpbWVSZXNlcnZlQ291bnQoJyB8MDcuMjco7JuUKXwzNHwxJyk7IiBvbmNsaWNrPSJHZXRSZXNlcnZhdGlvbignTElTVHwyMDI2LTA3LTAxfDIwMjYtMDctMjd8WXwxfE5VTEx8TlVMTHxOVUxMfE5VTEwnKSIgbG9jYXRpb24uaHJlZj0nIyc7Ij4yNw0KCQkJCQkJCQkJPC90ZD4NCgkJCQkJCQkJCTx0ZCAgY2xhc3M9ImMwMiAiIHRpdGxlPSIyMDI264WEIDA37JuUIDI47J28DQotIDE47ZmAIDogMzbtjIAg7JiI7JW96rCA64qlIiBvbm1vdXNlb3Zlcj0iU2V0VGltZVJlc2VydmVDb3VudCgnIHwwNy4yOCjtmZQpfDM2fDEnKTsiIG9uY2xpY2s9IkdldFJlc2VydmF0aW9uKCdMSVNUfDIwMjYtMDctMDF8MjAyNi0wNy0yOHxZfDF8TlVMTHxOVUxMfE5VTEx8TlVMTCcpIiBsb2NhdGlvbi5ocmVmPScjJzsiPjI4DQoJCQkJCQkJCQk8L3RkPg0KCQkJCQkJCQkJPHRkICBjbGFzcz0iYzAyICIgdGl0bGU9IjIwMjbrhYQgMDfsm5QgMjnsnbwNCi0gMTjtmYAgOiA0Ne2MgCDsmIjslb3qsIDriqUiIG9ubW91c2VvdmVyPSJTZXRUaW1lUmVzZXJ2ZUNvdW50KCcgfDA3LjI5KOyImCl8NDV8MScpOyIgb25jbGljaz0iR2V0UmVzZXJ2YXRpb24oJ0xJU1R8MjAyNi0wNy0wMXwyMDI2LTA3LTI5fFl8MXxOVUxMfE5VTEx8TlVMTHxOVUxMJykiIGxvY2F0aW9uLmhyZWY9JyMnOyI+MjkNCgkJCQkJCQkJCTwvdGQ+DQoJCQkJCQkJCQk8dGQgIGNsYXNzPSJjMDIgIiB0aXRsZT0iMjAyNuuFhCAwN+yblCAzMOydvA0KLSAxOO2ZgCA6IDMx7YyAIOyYiOyVveqwgOuKpSIgb25tb3VzZW92ZXI9IlNldFRpbWVSZXNlcnZlQ291bnQoJyB8MDcuMzAo66qpKXwzMXwxJyk7IiBvbmNsaWNrPSJHZXRSZXNlcnZhdGlvbignTElTVHwyMDI2LTA3LTAxfDIwMjYtMDctMzB8WXwxfE5VTEx8TlVMTHxOVUxMfE5VTEwnKSIgbG9jYXRpb24uaHJlZj0nIyc7Ij4zMA0KCQkJCQkJCQkJPC90ZD4NCgkJCQkJCQkJCTx0ZCAgY2xhc3M9ImMwMiAiIHRpdGxlPSIyMDI264WEIDA37JuUIDMx7J28DQotIDE47ZmAIDogNDDtjIAg7JiI7JW96rCA64qlIiBvbm1vdXNlb3Zlcj0iU2V0VGltZVJlc2VydmVDb3VudCgnIHwwNy4zMSjquIgpfDQwfDEnKTsiIG9uY2xpY2s9IkdldFJlc2VydmF0aW9uKCdMSVNUfDIwMjYtMDctMDF8MjAyNi0wNy0zMXxZfDF8TlVMTHxOVUxMfE5VTEx8TlVMTCcpIiBsb2NhdGlvbi5ocmVmPScjJzsiPjMxDQoJCQkJCQkJCQk8L3RkPg0KCQkJCQkJCQkJPHRkPiZuYnNwOzwvdGQ+DQoJCQkJCQkJCTwvdHI+DQoJCQkJCQkJCTx0cj4NCgkJCQkJCQkJCTx0ZD4mbmJzcDs8L3RkPg0KCQkJCQkJCQkJPHRkPiZuYnNwOzwvdGQ+DQoJCQkJCQkJCQk8dGQ+Jm5ic3A7PC90ZD4NCgkJCQkJCQkJCTx0ZD4mbmJzcDs8L3RkPg0KCQkJCQkJCQkJPHRkPiZuYnNwOzwvdGQ+DQoJCQkJCQkJCQk8dGQ+Jm5ic3A7PC90ZD4NCgkJCQkJCQkJCTx0ZD4mbmJzcDs8L3RkPg0KCQkJCQkJCQk8L3RyPmQCCQ8PFgYeCEltYWdlVXJsBRkvaW1hZ2VzL3dlYXRoZXIvQ2xlYXIucG5nHg1BbHRlcm5hdGVUZXh0BQbrp5HsnYweB1Rvb2xUaXAFBuunkeydjGRkAgsPFgIfAQUSMjY8c3Bhbj7ihIM8L3NwYW4+ZAINDxYCHwEFAjAlZAIPDxYCHwEFBjQuOG0vc2QCEQ8PFgYfBgUYL2ltYWdlcy93ZWF0aGVyL1JhaW4ucG5nHwcFA+u5hB8IBQPruYRkZAITDxYCHwEFDTIz4oSDIC8gMjjihINkAhUPFgIfAQUDNjAlZAIXDw8WBh8GBRovaW1hZ2VzL3dlYXRoZXIvQ2xvdWR5LnBuZx8HBQbtnZDrprwfCAUG7Z2Q66a8ZGQCGQ8WAh8BBQ0yM+KEgyAvIDI44oSDZAIbDxYCHwEFAzMwJWQCHQ8PFgIfAmdkZAIfDw8WAh8CaGRkGAEFHl9fQ29udHJvbHNSZXF1aXJlUG9zdEJhY2tLZXlfXxYBBQhjYklEU2F2Za/WWC0P6hwOzNrdgph3HMR+ClvEgkm36tq5cQ4KcLex" />
+</div>
+
+<script type="text/javascript">
+//<![CDATA[
+var theForm = document.forms['aspnetForm'];
+if (!theForm) {
+    theForm = document.aspnetForm;
+}
+function __doPostBack(eventTarget, eventArgument) {
+    if (!theForm.onsubmit || (theForm.onsubmit() != false)) {
+        theForm.__EVENTTARGET.value = eventTarget;
+        theForm.__EVENTARGUMENT.value = eventArgument;
+        theForm.submit();
+    }
+}
+//]]>
+</script>
+
+
+<script src="/WebResource.axd?d=_WdBVQrf2G5DvUIxDuxsrYJu91H5RQLrbuBkNDcdR6hYFyrK7WoqZP_3iiPpm5VJdcOlD-yc6DoGO54ce6Ej2omKU_5u9bayOoYn1KWfQqw1&amp;t=637823689837077270" type="text/javascript"></script>
+
+
+<script src="/ScriptResource.axd?d=glBecqwTBDj7QMkAgXFR6nBUg6kucB9iNi6at264TeV78l6YZqUcuyyUBb-oezRqbwHZsyKWshRRWWoaRbNZtmwtE5YuKrg4Fi0rUlX3yOf0KB60nY5VvYno1gYV0ccGWRRIfCkORBn5Z93Qftr99CpVI53JEu3aSUr-ptc4-ELIqGFbuzZsfYXnnA8vOjM80&amp;t=ffffffffaa493ab8" type="text/javascript"></script>
+<script type="text/javascript">
+//<![CDATA[
+if (typeof(Sys) === 'undefined') throw new Error('ASP.NET Ajax 클라이언트 쪽 프레임워크를 로드하지 못했습니다.');
+//]]>
+</script>
+
+<script src="/ScriptResource.axd?d=7tp65E3kINI884QZyAj22Srlin4MQl14F1c5fPpUf7pxSiqkreE5B4Y8E6Pq8wLiEtMNCUDWQ7undc-DqDBzeFu3EUqMeuzhi22IIYnb7ilwSvsoZmuFWRQEvZz-myy955k2BAxnASu4RuYQkmn38pbSioOT7sstUIss8QVFG7nLlEvizABmsl7FyIRW44I70&amp;t=ffffffffaa493ab8" type="text/javascript"></script>
+<div class="aspNetHidden">
+
+	<input type="hidden" name="__VIEWSTATEGENERATOR" id="__VIEWSTATEGENERATOR" value="CA0B0334" />
+	<input type="hidden" name="__EVENTVALIDATION" id="__EVENTVALIDATION" value="/wEdAAj7VSWEFysqtJkVvAHXKbJh9Tt6KoVd96dN6zOjIKoOlHY2+Mc6SrnAqio3oCKbxYZQPYov7BxyCUd3lPUCqgV5MFv0gPUI0ZVMe6DKkBlfhHEDkg6ZVpotguzLQQ7ee0PIYkEnNQC+HanNJpPRAgB6kuIMSV/YuYgNF9LuMcEp2ZD3ugxRva1oRGD3HzAEwfbSmdL0vl+Lz3lC6aRR6dmY" />
+</div>
+    <script type="text/javascript">
+//<![CDATA[
+Sys.WebForms.PageRequestManager._initialize('ScManager', 'aspnetForm', ['tUpdPanel',''], ['btnUpd',''], [], 90, '');
+//]]>
+</script>
+
+    <div style="position:relative; z-index:20000;">
+        <span id="lblPopup"><script type="text/javascript">
+//<![CDATA[
+cookiedata = document.cookie;
+//]]>
+</script>
+</span>
+    </div>
+    <div class="popup" id="dvPopup" style="display:none;">
+		<div class="banner">
+			<div class="left_banner">
+				<div class="go_btn"><a href="#"></a></div>
+				<p><span>에스앤 골프장 안내</span><br>실속있고 센스있는 에스앤 골프클럽으로 오세요.</p>
+			</div>
+			<div class="right_banner">
+				<p><span>자연주의를 꿈꾸는 에스앤</span><br>실속있고 센스있는 에스앤 골프클럽으로 오세요.</p>
+				<div class="go_btn"><a href="#"></a></div>
+			</div>
+			<div class="popup_btn">
+			<ul>
+				<li class="dayclose">다음부터 보지않기</li>
+				<li class="close">닫기</li>
+			</ul>
+		</div>
+		</div>
+	</div>
+	<header>
+		
+    <link type="text/css" href="/js/jquery-ui.css" rel="stylesheet" />
+    <script type="text/javascript" src="/js/jquery-ui.js"></script>
+    <script type="text/javascript">
+        // <![CDATA[
+        function date_check(choice_date, Day_Gubun, List_gubun, ChangeTime, Changeseq, ChangeDaygubun, Changehole, Changecode, sYY, sMM) {
+            aspnetForm.action = "/Reservation/ReservationV2.aspx";
+            aspnetForm.Choice_Date.value = choice_date;
+            aspnetForm.Day_Gubun.value = Day_Gubun;
+            aspnetForm.list_gubun.value = List_gubun;
+            aspnetForm.dtmChangeDate.value = choice_date;
+            aspnetForm.strChangeTime.value = ChangeTime;
+            aspnetForm.strChangeSeq.value = Changeseq;
+            aspnetForm.strChangeDayGubun.value = ChangeDaygubun;
+            aspnetForm.strChangeHole.value = Changehole;
+            aspnetForm.strChangeCode.value = Changecode;
+            aspnetForm.strYY.value = sYY;
+            aspnetForm.strMM.value = sMM;
+            aspnetForm.submit();
+        }
+
+        function ReservationCancel(strReserveDate, strReserveTime, strCourseCode, strSeq, intDayGubun, strReserveGubun, strHole, sCourseName, strCancelName, intBuljum) {
+            var msg = "";
+            if (intBuljum > 0) {
+                msg += "해당 건은 " + strCancelName + " 취소로 예약정지 " + intBuljum + "일이 부과됩니다.\n\n";
+            }
+            msg += "[예약일자] " + strReserveDate.substring(0, 4) + "-" + strReserveDate.substring(4, 6) + "-" + strReserveDate.substring(6, 8) + " " + sCourseName + "코스 " + strReserveTime.substring(0, 2) + "시 " + strReserveTime.substring(2, 4) + "분\n\n위 예약사항을 취소하시겠습니까?";
+
+            if (confirm(msg)) {
+                aspnetForm.strReserveDate.value = strReserveDate;
+                aspnetForm.strReserveTime.value = strReserveTime;
+                aspnetForm.strCourseCode.value = strCourseCode;
+                aspnetForm.strSeq.value = strSeq;
+                aspnetForm.intDayGubun.value = intDayGubun;
+                aspnetForm.strReserveGubun.value = strReserveGubun;
+                aspnetForm.strHole.value = strHole;
+                document.getElementById("Top1_btnCancel").click();
+            }
+        }
+
+    // ]]>
+	</script>
+	<script type="text/javascript">
+	    function EditSubmit() {
+	        var obj = document.getElementById("aspnetForm");
+	        
+	        if (IsEmptyChk(document.getElementById("Top1_txtPassword1").value)) {
+                alert("비밀번호를 입력하세요.");
+                document.getElementById("Top1_txtPassword1").focus();
+                return false;
+            }
+            if (document.getElementById("Top1_txtPassword1").value.length < 8) {
+                alert("비밀번호는 8자 이상입니다.");
+                document.getElementById("Top1_txtPassword1").value = "";
+                document.getElementById("Top1_txtPassword1").focus();
+                return false;
+            }
+            if (StringLen(document.getElementById("Top1_txtPassword1"), 15) == false) {
+                alert("비밀번호는 15자 이하입니다.");
+                document.getElementById("Top1_txtPassword1").value = "";
+                document.getElementById("Top1_txtPassword1").focus();
+                return false;
+            }
+            
+	        if (!PWDCheck(document.getElementById("Top1_txtPassword1").value)) {
+	            document.getElementById("Top1_txtPassword1").focus();
+                return false;
+            }
+            var pwdchk = document.getElementById("Top1_txtPassword1").value;
+            var pwd = document.getElementById("Top1_txtPassword2").value;
+            if (pwdchk != pwd) {
+                alert("비밀번호확인이 틀렸습니다");
+                document.getElementById("Top1_txtPassword2").focus();
+                return false;
+            }
+            
+            if (IsEmptyChk(document.getElementById("Top1_txtMobile1").value)) {
+                alert("휴대폰번호를 입력해 주십시요.");
+                document.getElementById("Top1_txtMobile1").focus();
+                return false;
+            }
+            if (IsEmptyChk(document.getElementById("Top1_txtMobile2").value)) {
+                alert("휴대폰번호 가운데 3자리 혹은 4자리를 입력해 주십시요.");
+                document.getElementById("Top1_txtMobile2").focus();
+                return false;
+            }
+            if (IsEmptyChk(document.getElementById("Top1_txtMobile3").value)) {
+                alert("휴대폰번호 뒤 4자리를 입력해 주십시요.");
+                document.getElementById("Top1_txtMobile3").focus();
+                return false;
+            }
+            
+            if (IsEmptyChk(document.getElementById("Top1_txtZipCode").value)) {
+                alert("우편번호를 입력해 주십시요.");
+                document.getElementById("Top1_txtZipCode").focus();
+                return false;
+            }
+
+            if (IsEmptyChk(document.getElementById("Top1_txtAddr1").value)) {
+                alert("주소를 입력해 주십시요.");
+                document.getElementById("Top1_txtAddr1").focus();
+                return false;
+            }
+            
+            if (IsEmptyChk(document.getElementById("Top1_txtAddr2").value)) {
+                alert("나머지 주소를 입력해 주십시요.");
+                document.getElementById("Top1_txtAddr2").focus();
+                return false;
+            }
+            
+            if (IsEmptyChk(document.getElementById("Top1_txtEmail1").value)) {
+                alert("이메일주소를 입력해 주십시요.");
+                document.getElementById("Top1_txtEmail1").focus();
+                return false;
+            }
+            
+            var sms = ""
+            for (i = 0; i < obj.ctl00$Top1$rblSMSYn.length; i++) {
+                if (obj.ctl00$Top1$rblSMSYn[i].checked) {
+                    sms = obj.ctl00$Top1$rblSMSYn[i].value;
+                    break;
+                }
+            }
+
+            if (IsEmptyChk(sms)) {
+                alert("문자수신 여부를 선택해 주십시요.");
+                obj.ctl00$Top1$rblSMSYn[0].focus();
+                return false;
+            }
+
+            var email = ""
+            for (i = 0; i < obj.ctl00$Top1$rblEmailYn.length; i++) {
+                if (obj.ctl00$Top1$rblEmailYn[i].checked) {
+                    email = obj.ctl00$Top1$rblEmailYn[i].value;
+                    break;
+                }
+            }
+
+            if (IsEmptyChk(email)) {
+                alert("이메일 여부를 선택해 주십시요.");
+                obj.ctl00$Top1$rblEmailYn[0].focus();
+                return false;
+            }
+            
+            return true;
+        }
+
+	    function CustomerSend() {
+            if (IsEmptyChk(document.getElementById("Top1_txtCustomerTitle").value)) {
+                alert("제목을 입력해 주십시요.");
+                document.getElementById("Top1_txtCustomerTitle").focus();
+                return false;
+            }
+            
+            if (IsEmptyChk(document.getElementById("Top1_txtCustomerContent").value)) {
+                alert("내용을 입력해 주십시요.");
+                document.getElementById("Top1_txtCustomerContent").focus();
+                return false;
+            }
+	        return true;
+	    }
+
+	    function CustomerClick() {
+	        document.getElementById("Top1_lbtCustomer").click();
+	    }
+
+        function SubjectSend() {
+            if (IsEmptyChk(document.getElementById("Top1_txtSubjectTitle").value)) {
+                alert("제목을 입력해 주십시요.");
+                document.getElementById("Top1_txtSubjectTitle").focus();
+                return false;
+            }
+            
+            if (IsEmptyChk(document.getElementById("Top1_txtSubjectContent").value)) {
+                alert("내용을 입력해 주십시요.");
+                document.getElementById("Top1_txtSubjectContent").focus();
+                return false;
+            }
+	        return true;
+	    }
+
+	    function SubjectClick() {
+	        document.getElementById("Top1_lbtSubject").click();
+	    }
+
+	    function PageReload(url) {
+	        location.href = url;
+	    }		
+		
+	    $(function () {
+	        $("#strScoreStartDate").datepicker({
+	            changeYear: true,
+	            changeMonth: true,
+	            showMonthAfterYear: true,
+	            dateFormat: 'yymmdd',
+	            dayNamesMin: ['일', '월', '화', '수', '목', '금', '토'],
+	            monthNamesShort: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],
+	            yearRange: '1940:2020'
+
+	        });
+
+	        $("#strScoreEndDate").datepicker({
+	            changeYear: true,
+	            changeMonth: true,
+	            showMonthAfterYear: true,
+	            dateFormat: 'yymmdd',
+	            dayNamesMin: ['일', '월', '화', '수', '목', '금', '토'],
+	            monthNamesShort: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],
+	            yearRange: '1940:2020'
+
+	        });
+	    });
+
+	    function GetScoreList(sParam, sPage) {
+	        var obj = document.getElementById("aspnetForm");
+	        if (sParam == "") {
+	            sParam = "strStartDate=" + document.getElementById("strScoreStartDate").value + "&strEndDate=" + document.getElementById("strScoreEndDate").value;
+	        }
+	        sParam = "strStartDate=&strEndDate=";
+	        var sParam = sParam + "&sCurrentPage=" + sPage;
+	        $.ajax({
+	            type: "POST",
+	            url: "/_LayOut/ScoreList.aspx",
+	            data: sParam,
+	            success: function (returnVal) {
+	                if (returnVal == "" || returnVal == null || returnVal == undefined || (returnVal != null && typeof returnVal == "object" && !Object.keys(returnVal).length)) {
+
+	                } else {
+//	                    document.getElementById("mypage_tab3").innerHTML = returnVal;
+	                }
+	            },
+	            error: function (response, textStatus, errorThrown) {
+	                alert(errorThrown);
+	            }
+	        });
+	    }
+
+	    function GetCouponList(sParam, sPage) {
+	        var obj = document.getElementById("aspnetForm");
+	        sParam = "strStartDate=&strEndDate=";
+	        var sParam = sParam + "&sCurrentPage=" + sPage;
+	        $.ajax({
+	            type: "POST",
+	            url: "/_LayOut/MyCouponList.aspx",
+	            data: sParam,
+	            success: function (returnVal) {
+	                if (returnVal == "" || returnVal == null || returnVal == undefined || (returnVal != null && typeof returnVal == "object" && !Object.keys(returnVal).length)) {
+
+	                } else {
+//	                    document.getElementById("mypage_tab2").innerHTML = returnVal;
+	                }
+	            },
+	            error: function (response, textStatus, errorThrown) {
+	                alert(errorThrown);
+	            }
+	        });
+	    }
+
+	    $(document).ready(function () {
+	        var sScoreParam = "strStartDate=&strEndDate=";
+	        GetScoreList(sScoreParam, '1');
+	        GetCouponList(sScoreParam, '1');
+	    });
+	</script>
+
+    <script src="https://spi.maps.daum.net/imap/map_js_init/postcode.v2.js"></script>
+    <script>
+        function OpenZipSearch(gubun) {
+            new daum.Postcode({
+                oncomplete: function (data) {
+                    // 팝업에서 검색결과 항목을 클릭했을때 실행할 코드를 작성하는 부분.
+
+                    // 도로명 주소의 노출 규칙에 따라 주소를 조합한다.
+                    // 내려오는 변수가 값이 없는 경우엔 공백('')값을 가지므로, 이를 참고하여 분기 한다.
+                    var fullRoadAddr = data.roadAddress; // 도로명 주소 변수
+                    var extraRoadAddr = ''; // 도로명 조합형 주소 변수
+
+                    // 법정동명이 있을 경우 추가한다.
+                    if (data.bname !== '') {
+                        extraRoadAddr += data.bname;
+                    }
+                    // 건물명이 있을 경우 추가한다.
+                    if (data.buildingName !== '') {
+                        extraRoadAddr += (extraRoadAddr !== '' ? ', ' + data.buildingName : data.buildingName);
+                    }
+                    // 도로명, 지번 조합형 주소가 있을 경우, 괄호까지 추가한 최종 문자열을 만든다.
+                    if (extraRoadAddr !== '') {
+                        extraRoadAddr = ' (' + extraRoadAddr + ')';
+                    }
+                    // 도로명, 지번 주소의 유무에 따라 해당 조합형 주소를 추가한다.
+                    if (fullRoadAddr !== '') {
+                        fullRoadAddr += extraRoadAddr;
+                    }
+
+                    if(gubun == "H"){
+                        // 우편번호와 주소 정보를 해당 필드에 넣는다.
+                        document.getElementById("Top1_txtZipCode").value = data.zonecode;
+
+                        var addr = fullRoadAddr.replace(/(\s|^)\(.+\)$|\S+~\S+/g, ''); //필요없는 문자를 ‘’로 변환한다.
+                        document.getElementById('Top1_txtAddr1').value = addr;	      // 직접가져갈 자료(구주소)
+                        // 추가된 부분 : 호출될 소스에서 @,$를 기준으로 구분할겁니다.
+
+                        var addr = data.jibunAddress.replace(/(\s|^)\(.+\)$|\S+~\S+/g, ''); //필요없는 문자를 ‘’로 변환한다.
+                        // 사용자가 '선택 안함'을 클릭한 경우, 예상 주소라는 표시를 해준다.
+                        if (data.autoRoadAddress) {
+                            //예상되는 도로명 주소에 조합형 주소를 추가한다.
+                            var expRoadAddr = data.autoRoadAddress + extraRoadAddr;
+                            //document.getElementById("guide").innerHTML = '(예상 도로명 주소 : ' + expRoadAddr + ')';
+                            document.getElementById("Top1_txtAddr1").value = expRoadAddr;
+
+                        } else if (data.autoJibunAddress) {
+                            var expJibunAddr = data.autoJibunAddress;
+                            //document.getElementById("guide").innerHTML = '(예상 지번 주소 : ' + expJibunAddr + ')';
+                            document.getElementById("Top1_txtAddr1").value = expJibunAddr;
+                        }
+                    } 
+                }
+            }).open();
+    }
+
+    //window.onload = sample4_execDaumPostcode();
+    </script>
+
+        <input type="hidden" name="strYY" id="strYY" value="" />
+        <input type="hidden" name="strMM" id="strMM" value="" />
+        <input type="hidden" name="Choice_Date" value="" />
+	    <input type="hidden" name="list_gubun" value="" />
+	    <input type="hidden" name="Day_Gubun" value="" />
+	    <input type="hidden" name="strReserveGubun" value="" />
+	
+        <input type="hidden" name="dtmChangeDate" value="" />
+	    <input type="hidden" name="strChangeCode" value="" />
+	    <input type="hidden" name="strChangeTime" value="" />
+	    <input type="hidden" name="strChangeSeq" value="" />
+	    <input type="hidden" name="strChangeDayGubun" value="" />
+	    <input type="hidden" name="strChangeHole" value="" />
+        <input type="hidden" name="strClubCode" value="M" />
+        
+        <input type="hidden" name="strReserveDate" value="" />
+        <input type="hidden" name="strReserveTime" value="" />
+        <input type="hidden" name="strCourseCode" value="" />
+        <input type="hidden" name="strSeq" value=""  />
+        <input type="hidden" name="strDayGubun" value="" />
+        <input type="hidden" name="strHole" value=""  />
+        <input type="hidden" name="strBu" value=""  />
+    
+
+        <input type="hidden" name="intDayGubun" value="" />
+	    <input type="hidden" name="strDaegiHole" value="" />
+	    <input type="hidden" name="strDaegiGubun" value="" />
+
+		<div id="dvLogo" class="top_util">
+            <h1><a href="/"><img src="../img/logo2.png" width="278px" height="50px" alt="LOGO"></a></h1>
+			<ul>
+                <li><a href="/Member/Login.aspx">로그인</a></li>     <li><a href="/Member/JoinStep1.aspx">회원가입</a></li><li class="last_child"><a href="/Member/IDSearch.aspx">ID 찾기</a></li><li class="last_child"><a href="/Member/PWDSearch.aspx">PW 찾기</a></li>				
+			</ul>
+		</div>
+		<div class="top_nav">
+            
+
+
+            <ul class="top_menu">
+                 <li><a href="#">예약서비스</a></li>
+                 <li class="nth2"><a href="#">NEWS & EVENT</a></li>
+                 <li><a href="#">클럽소개</a></li>
+                 <li><a href="#">에스앤</a></li>
+                 <li><a href="#">고객센터</a></li>
+           </ul>
+           <div class="sub_nav">
+              <div class="sub_menu">
+                  <ol>
+					<li><a href="/Reservation/ReservationV2.aspx">실시간예약</a></li>
+					<li><a href="/Reservation/ReservationList.aspx">예약조회</a></li>
+					<li><a href="https://www.teeupnjoy.com/hp/clubid/585.do" target="_win12">조인예약</a></li>
+					<li><a href="/Board/BoardList.aspx?cfgid=join">조인게시판</a></li>
+                </ol>
+                  <ol class="nth2">
+					<li><a href="/Board/NewsList.aspx?cfgid=notice">이벤트</a></li>
+					<li><a href="/Board/Weather.aspx" target="_win15">날씨정보</a></li>
+					<li><a href="/Board/HonorList.aspx">명예의전당</a></li>
+                </ol>
+                  <ol>
+					<li><a href="/About/Introduction.aspx">에스앤 소개</a></li>
+					<li><a href="/About/Course.aspx">코스안내</a></li>
+					<li><a href="/About/Facilities.aspx">시설안내</a></li>
+					<li><a href="/Reservation/ReserveGuide.aspx">이용안내</a></li>
+					<li><a href="/Reservation/Fees.aspx">요금안내</a></li>
+                </ol>
+                  <ol>
+					<li><a href="/Facilities/Daecheon.aspx">대천에 가면</a></li>
+					<li><a href="/Facilities/Tour.aspx">주변관광안내</a></li>
+                </ol>
+                  <ol>
+					<li><a href="/Guide/Tel.aspx">주요연락처</a></li>
+					<li><a href="/Board/BoardList.aspx?cfgid=lost">분실물센터</a></li>
+					<li><a href="/Guide/Location.aspx">오시는 길</a></li>
+					<li><a href="/Board/BoardList.aspx?cfgid=data">자료실</a></li>
+                </ol>
+              </div>
+          </div>
+
+		</div>
+	</header>
+
+	<!-- 시즌권판매시작 팝업 -->
+	<!--
+	<div id="seasonPopup">
+		<img src="img/181127_p.png" alt="시즌권판매시작" usemap="#Map">
+        <map name="Map">
+          <area shape="rect" coords="-8,136,276,291" href="/Board/NewsView.aspx?cfgid=notice&strPostIdx=206&CurrentPgae=1">
+        <area shape="circle" coords="225,47,25" href="#" class="closePopBtn" onClick="MM_showHideLayers('seasonPopup','','hide')">
+        </map>
+	</div> -->
+	 <!--//시즌권판매시작 팝업 -->
+		
+	
+<div id="dvMainContent">
+	<div class="section_00">
+		<div class="contents_0">
+			<!--슬라이드-->
+			<div id="desSlideshow2" class="desSlideshow">
+				<div class="switchBigPic">
+                    <div class="BigPic"><a href="/Board/NewsView.aspx?cfgid=notice&strPostIdx=2124&CurrentPgae=1" style="color:rgb(0, 0, 0);"><img class="pic" src="/Upload/260629_fee_bn.jpg" alt="8월 그린피 안내"></a></div>
+					<div class="BigPic"><a href="/Board/NewsView.aspx?cfgid=notice&strPostIdx=2125&CurrentPgae=1" style="color:rgb(0, 0, 0);"><img class="pic" src="/Upload/260629_package_bn.jpg" alt="8월 패키지 안내"></a></div>                    
+                    <div class="BigPic"><a href="/Board/NewsView.aspx?cfgid=notice&strPostIdx=2115&CurrentPgae=1" style="color:rgb(0, 0, 0);"><img class="pic" src="/Upload/260528_fee_bn.jpg" alt="7월 그린피 안내"></a></div>
+					<div class="BigPic"><a href="/Board/NewsView.aspx?cfgid=notice&strPostIdx=2116&CurrentPgae=1" style="color:rgb(0, 0, 0);"><img class="pic" src="/Upload/260528_package_bn.jpg" alt="7월 패키지 안내"></a></div>                    
+				</div>
+				<ul class="nav">
+                    <li><a href="/Board/NewsView.aspx?cfgid=notice&strPostIdx=2124&CurrentPgae=1">8월 그린피 안내</a></li>
+					<li><a href="/Board/NewsView.aspx?cfgid=notice&strPostIdx=2125&CurrentPgae=1">8월 패키지 요금 안내</a></li>
+                    <li><a href="/Board/NewsView.aspx?cfgid=notice&strPostIdx=2115&CurrentPgae=1">7월 그린피 안내</a></li>
+					<li><a href="/Board/NewsView.aspx?cfgid=notice&strPostIdx=2116&CurrentPgae=1">7월 패키지 요금 안내</a></li>
+					<div class="noCnt">준비중</div>
+					<div class="noCnt">준비중</div>
+				</ul>
+			</div>
+		</div>
+
+
+	</div>
+	<div id="UpdPanel">
+	
+		<div class="section_01">
+			<div class="cal-inner">
+				<div class="reserv_date">
+					<h5 style="margin-top:18px;text-align:center;font-size:16px;color:#d33c31;font-weight:bold">실시간예약</h5>
+					<div>
+						<span class="date_bt prev_bt" onclick="Update('PREV|2026-06-01|2026-06-01');"></span>
+						<span class="date"><p>07</p></span>
+						<span class="date_bt next_bt" onclick="Update('NEXT|2026-08-01|2026-08-01');"></span>
+					</div>
+					<p id="pDayContent" style="font-size:12px;">원하시는 일자를 선택해 주세요.</p>
+					<img src="/img/main_index_color.jpg" alt="컬러">
+				</div>
+				<div class="calenda">
+					<table class="cal_table">
+						<colgroup>
+							<col width="40px" span="7">
+						</colgroup>
+						<thead>
+							<tr>
+								<th scope="col" class="c04">일</th>
+								<th scope="col">월</th>
+								<th scope="col">화</th>
+								<th scope="col">수</th>
+								<th scope="col">목</th>
+								<th scope="col">금</th>
+								<th scope="col" class="c03">토</th>
+							</tr>
+						</thead>
+						<tbody>
+							
+								<tr>
+									<td>&nbsp;</td>
+									<td>&nbsp;</td>
+									<td>&nbsp;</td>
+									<td  title="1일 : 일정없음" onmouseover="SetTimeReserveCount('MESSAGE|07.01(수)|0|0');" >1
+									</td>
+									<td  title="2일 : 일정없음" onmouseover="SetTimeReserveCount('MESSAGE|07.02(목)|0|0');" >2
+									</td>
+									<td  title="3일 : 일정없음" onmouseover="SetTimeReserveCount('MESSAGE|07.03(금)|0|0');" >3
+									</td>
+									<td  class="c03 title="4일 : 일정없음" onmouseover="SetTimeReserveCount('MESSAGE|07.04(토)|0|0');" >4
+									</td>
+								</tr>
+								<tr>
+									<td  class="c04 title="5일 : 일정없음" onmouseover="SetTimeReserveCount('MESSAGE|07.05(일)|0|0');" >5
+									</td>
+									<td  title="6일 : 일정없음" onmouseover="SetTimeReserveCount('MESSAGE|07.06(월)|0|0');" >6
+									</td>
+									<td  title="7일 : 일정없음" onmouseover="SetTimeReserveCount('MESSAGE|07.07(화)|0|0');" >7
+									</td>
+									<td  title="8일 : 일정없음" onmouseover="SetTimeReserveCount('MESSAGE|07.08(수)|0|0');" >8
+									</td>
+									<td  title="9일 : 일정없음" onmouseover="SetTimeReserveCount('MESSAGE|07.09(목)|0|0');" >9
+									</td>
+									<td  title="10일 : 일정없음" onmouseover="SetTimeReserveCount('MESSAGE|07.10(금)|0|0');" >10
+									</td>
+									<td  class="c03 title="11일 : 일정없음" onmouseover="SetTimeReserveCount('MESSAGE|07.11(토)|0|0');" >11
+									</td>
+								</tr>
+								<tr>
+									<td  class="c04 title="12일 : 일정없음" onmouseover="SetTimeReserveCount('MESSAGE|07.12(일)|0|0');" >12
+									</td>
+									<td  title="13일 : 일정없음" onmouseover="SetTimeReserveCount('MESSAGE|07.13(월)|0|0');" >13
+									</td>
+									<td  title="14일 : 일정없음" onmouseover="SetTimeReserveCount('MESSAGE|07.14(화)|0|0');" >14
+									</td>
+									<td  title="15일 : 일정없음" onmouseover="SetTimeReserveCount('MESSAGE|07.15(수)|0|0');" >15
+									</td>
+									<td  title="16일 : 일정없음" onmouseover="SetTimeReserveCount('MESSAGE|07.16(목)|0|0');" >16
+									</td>
+									<td  title="17일 : 일정없음" onmouseover="SetTimeReserveCount('MESSAGE|07.17(금)|0|0');" >17
+									</td>
+									<td  class="c03 title="18일 : 일정없음" onmouseover="SetTimeReserveCount('MESSAGE|07.18(토)|0|0');" >18
+									</td>
+								</tr>
+								<tr>
+									<td  class="c04 title="19일 : 일정없음" onmouseover="SetTimeReserveCount('MESSAGE|07.19(일)|0|0');" >19
+									</td>
+									<td  title="20일 : 일정없음" onmouseover="SetTimeReserveCount('MESSAGE|07.20(월)|0|0');" >20
+									</td>
+									<td  title="21일 : 일정없음" onmouseover="SetTimeReserveCount('MESSAGE|07.21(화)|0|0');" >21
+									</td>
+									<td  class="c02 " title="2026년 07월 22일
+- 18홀 : 53팀 예약가능" onmouseover="SetTimeReserveCount(' |07.22(수)|53|1');" onclick="GetReservation('LIST|2026-07-01|2026-07-22|Y|1|NULL|NULL|NULL|NULL')" location.href='#';">22
+									</td>
+									<td  class="c02 " title="2026년 07월 23일
+- 18홀 : 51팀 예약가능" onmouseover="SetTimeReserveCount(' |07.23(목)|51|1');" onclick="GetReservation('LIST|2026-07-01|2026-07-23|Y|1|NULL|NULL|NULL|NULL')" location.href='#';">23
+									</td>
+									<td  class="c02 " title="2026년 07월 24일
+- 18홀 : 36팀 예약가능" onmouseover="SetTimeReserveCount(' |07.24(금)|36|1');" onclick="GetReservation('LIST|2026-07-01|2026-07-24|Y|1|NULL|NULL|NULL|NULL')" location.href='#';">24
+									</td>
+									<td  class="c02 c03" title="2026년 07월 25일
+- 18홀 : 39팀 예약가능" onmouseover="SetTimeReserveCount(' |07.25(토)|39|2');" onclick="GetReservation('LIST|2026-07-01|2026-07-25|Y|2|NULL|NULL|NULL|NULL')" location.href='#';">25
+									</td>
+								</tr>
+								<tr>
+									<td  class="c02 c04" title="2026년 07월 26일
+- 18홀 : 53팀 예약가능" onmouseover="SetTimeReserveCount(' |07.26(일)|53|3');" onclick="GetReservation('LIST|2026-07-01|2026-07-26|Y|3|NULL|NULL|NULL|NULL')" location.href='#';">26
+									</td>
+									<td  class="c02 " title="2026년 07월 27일
+- 18홀 : 34팀 예약가능" onmouseover="SetTimeReserveCount(' |07.27(월)|34|1');" onclick="GetReservation('LIST|2026-07-01|2026-07-27|Y|1|NULL|NULL|NULL|NULL')" location.href='#';">27
+									</td>
+									<td  class="c02 " title="2026년 07월 28일
+- 18홀 : 36팀 예약가능" onmouseover="SetTimeReserveCount(' |07.28(화)|36|1');" onclick="GetReservation('LIST|2026-07-01|2026-07-28|Y|1|NULL|NULL|NULL|NULL')" location.href='#';">28
+									</td>
+									<td  class="c02 " title="2026년 07월 29일
+- 18홀 : 45팀 예약가능" onmouseover="SetTimeReserveCount(' |07.29(수)|45|1');" onclick="GetReservation('LIST|2026-07-01|2026-07-29|Y|1|NULL|NULL|NULL|NULL')" location.href='#';">29
+									</td>
+									<td  class="c02 " title="2026년 07월 30일
+- 18홀 : 31팀 예약가능" onmouseover="SetTimeReserveCount(' |07.30(목)|31|1');" onclick="GetReservation('LIST|2026-07-01|2026-07-30|Y|1|NULL|NULL|NULL|NULL')" location.href='#';">30
+									</td>
+									<td  class="c02 " title="2026년 07월 31일
+- 18홀 : 40팀 예약가능" onmouseover="SetTimeReserveCount(' |07.31(금)|40|1');" onclick="GetReservation('LIST|2026-07-01|2026-07-31|Y|1|NULL|NULL|NULL|NULL')" location.href='#';">31
+									</td>
+									<td>&nbsp;</td>
+								</tr>
+								<tr>
+									<td>&nbsp;</td>
+									<td>&nbsp;</td>
+									<td>&nbsp;</td>
+									<td>&nbsp;</td>
+									<td>&nbsp;</td>
+									<td>&nbsp;</td>
+									<td>&nbsp;</td>
+								</tr>
+
+						</tbody>
+					</table>
+				</div>
+			</div>	
+			<div class="weather">
+				<ul class="left">
+					<li>
+						<h5>오늘</h5>
+											<div style="width:177px;height:85px;">
+													<div style="float:left;margin-top:40px;margin-left:15px;"><img id="imgWeatherIcon1" title="맑음" src="/images/weather/Clear.png" alt="맑음" style="width:83px;" /></div>
+													<div style="float:left;" class="weather_ic">26<span>℃</span></div>
+											</div>
+											<div style=" width:177px;height:70px;">
+													<dl>
+									<dd>0%</dd>
+									<dd>4.8m/s</dd>
+								</dl>
+											</div>
+					</li>
+				</ul>
+				<ul class="right">
+					<li>
+						<h5>내일</h5>
+											<div style="padding-top:20px;padding-left:25px;">
+													<span style="float:left"><img id="imgWeatherIcon2" title="비" src="/images/weather/Rain.png" alt="비" style="width:37px;" /></span>
+								<span class="weather_ic02" style="float:left;padding-left:10px;padding-top:5px;">
+									23℃ / 28℃ <br>
+									60%
+								</span>
+											</div>
+					</li>
+					<li>
+						<h5>모레</h5>
+						 <div style="padding-top:20px;padding-left:25px;">
+													<span style="float:left"><img id="imgWeatherIcon3" title="흐림" src="/images/weather/Cloudy.png" alt="흐림" style="width:37px;" /></span>
+								<span class="weather_ic02" style="float:left;padding-left:10px;padding-top:5px;">
+									23℃ / 28℃ <br>
+									30%
+								</span>
+											</div>
+					</li>
+				</ul>
+			</div>
+			<div id="plLogin" class="login_box">
+		
+					<div class="login_form">
+						<h5>LOGIN</h5>
+						<div class="form">
+												<input name="txtUserID" type="text" id="txtUserID" onkeypress="EnterSubmit(event);" placeholder="아이디를 입력하세요" />
+							<input name="txtPassword" type="password" id="txtPassword" onkeypress="EnterSubmit(event);" placeholder="비밀번호를 입력하세요" />
+						</div>
+						<div class="btn_0">
+							<span class="checkbox"><input id="cbIDSave" type="checkbox" name="cbIDSave" /></span>
+							<label for="cbIDSave"><p>아이디저장</p></label>
+						</div>
+						<div class="btn_1">
+							<button class="lgn_btn" onclick="Login();return false;">LOGIN</button>
+							<button class="lgn_btn red" onclick="location.href='/Member/IDSearch.aspx';return false;">ID/PW</button>
+						</div>
+						<button onclick="location.href='/Member/JoinStep1.aspx';return false;"><a href="#">회원가입</a></button>	
+										 <a onclick="if(!LoginSubmit()) return false;" id="ibtnLogin" href="javascript:__doPostBack(&#39;ibtnLogin&#39;,&#39;&#39;)"></a>
+					</div>
+				
+	</div>
+			
+		</div>
+		
+</div>
+	<input type="hidden" name="htbArgs" id="htbArgs" />
+	<a id="btnUpd" href="javascript:__doPostBack(&#39;btnUpd&#39;,&#39;&#39;)"></a>
+    <input type="hidden" name="dateArgs" id="dateArgs" />
+
+	<div class="section_02">
+		<div class="call">
+			<h6>대표번호</h6>
+			<img src="/img/ico01.png" alt="대표번호">
+			<p>041.934.0100</p>
+		</div>
+		<div class="pkg">
+			<h6>1박2일 대천에 가면 무엇을 할까요?</h6>
+			<ul>
+				<li><a href="/Facilities/Daecheon.aspx?TN=1"><img src="/img/ico02.png" alt="놀거리"><p>놀거리</p></a></li>
+				<li><a href="/Facilities/Daecheon.aspx?TN=2"><img src="/img/ico03.png" alt="볼거리"><p>볼거리</p></a></li>
+				<li><a href="/Facilities/Daecheon.aspx?TN=3"><img src="/img/ico04.png" alt="먹거리"><p>먹거리</p></a></li>
+			</ul>
+		</div>
+		<div class="quick_menu">
+		   <ul>
+				<li><a href="/Guide/Location.aspx" class="ic_01"></a></li>
+				<li><a href="/About/GolfGuide.aspx" class="ic_02"></a></li>
+				<li><a href="/Board/BoardList.aspx?cfgid=lost" class="ic_03"></a></li>
+				<li><a href="/Board/HonorList.aspx" class="ic_04"></a></li>
+			</ul>
+		</div>
+	</div>
+	<div class="section_03">
+		<a href="http://www.snhotel.co.kr" target="_blank"><img src="/img/mi_snhotel.jpg?v=1.0" alt="S& Hotel"></a>
+	</div>
+</div>
+
+
+    <div id="footer">
+		<div class="foot">
+			<div class="foot_logo"></div>
+			<div class="adress">
+				<ul class="foot_util">
+					<li><a href="javascript:NewWindow('/privacy/Privacy.aspx', 'privacy', '1320', '800', 'yes');"><strong>개인정보취급방침</strong></a></li>
+					<li><a href="javascript:NewWindow('/privacy/Email.aspx', 'email', '1320', '250', 'yes');">이메일무단수집거부</a></li>
+					<li><a href="javascript:NewWindow('/privacy/Agreement.aspx', 'agree', '1320', '800', 'yes');">회원약관</a></li>
+				</ul>
+				<p>
+					충남 보령시 남포면 개목수리섬길 187 (양항리 1190번지) &nbsp; | &nbsp; 대표전화 : 041-934-0100 &nbsp; | &nbsp; 팩스 : 041-934-0170 <br>
+					㈜에스앤골프리조트 &nbsp; | &nbsp; 대표이사 : 김성환 &nbsp; | &nbsp; 사업자등록번호 : 313-81-18405 &nbsp; | &nbsp; 통신판매신고번호 제2022-충남보령-0053호 <br>
+					<br>
+					COPYRIGHT 2015(C) 에스앤골프리조트대천 ALL RIGHT RESERVED
+				</p>
+			</div>
+		</div>
+	</div>
+</form>
+
+<script type="text/javascript">
+	//<![CDATA[
+	var SEPARATOR = "|";
+	var form = document.getElementById("aspnetForm");
+
+	function Update(arg) {
+			// alert(arg);	       
+			document.getElementById("htbArgs").value = arg;
+			btnUpd.click();
+	}	// End of Function : Update
+
+	function GetTimeList(rdate, rdaygubun, rgubun, rtype) {
+			var obj = document.getElementById("aspnetForm");
+			obj.strReserveDate.value = rdate;
+			obj.strDayGubun.value = rdaygubun;
+			obj.strReserveType.value = rtype;
+			if (rtype == '4') {
+					obj.action = "ReservationWeek.aspx";
+			} else {
+					obj.action = "ReservationTimeList.aspx";
+			}
+			obj.submit();
+	}
+
+	function GetReservation(dateArgs) {
+	    var obj = document.getElementById("aspnetForm");
+	    obj.dateArgs.value = dateArgs;
+	    obj.action = "Reservation/ReservationV2.aspx";
+	    obj.submit();
+	}
+
+
+	//]]>
+</script>
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-116571402-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-116571402-1');
+</script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a1e793ac8d15d1ee',t:'MTc4NDYwOTM0Mw=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script><script defer src="https://static.cloudflareinsights.com/beacon.min.js/v4513226cdae34746b4dedf0b4dfa099e1781791509496" integrity="sha512-ZE9pZaUXND66v380QUtch/5sE9tPFh2zg45pR2PB0CVkCtOREv2AJKkSidISWkysEuQ0EH8faUU5du78bx87UQ==" data-cf-beacon='{"version":"2024.11.0","token":"de9f4891b32a4c7ba3c624fc918787fa","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+</body>
+</html>

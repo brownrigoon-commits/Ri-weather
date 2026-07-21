@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="keywords" content="" />
+    <meta name="description" content="" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+    <title>휘슬링락컨트리클럽</title>
+
+
+    <!-- CSS  -->
+    <link rel="stylesheet" type="text/css" href="/Content/css/style.css?v=3">
+    <link rel="stylesheet" type="text/css" href="/Content/css/additional.css?v=2.0.1">
+
+    <!-- JS -->
+    <script src="/Scripts/lib/jquery-2.1.3.min.js"></script>
+    <script src="/Scripts/common.js"></script>
+    <!--[if lt IE 9]>
+    <script src="~/Scripts/js/html5shiv.js"></script>
+    <script src="~/Scripts/respond.js"></script>
+    <![endif]-->
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.0.0/crypto-js.min.js"></script>
+
+</head>
+
+<body class="page-intro">
+    <section class="section-intro" style="background-image: url(/Content/img/custom/main_visual_1.jpg);">
+        
+
+
+<input type="hidden" id="secretKey" value="gnltmffldfkrrmfl">
+<div class="intro-login-wrapper">
+    <div class="intro-login-inner">
+        <div class="intro-login-header">
+            <img src="/Content/img/custom/intro_logo.png">
+        </div>
+        <div class="intro-login-body">
+            <div class="login-group">
+                <span class="login-group-text"><svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-user"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></span>
+                <input type="text" placeholder="아이디(회원번호)" class="form-login" id="txtId" name="txtId">
+            </div>
+            <div class="login-group">
+                <span class="login-group-text"><svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-lock"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg></span>
+                <input type="password" placeholder="비밀번호" class="form-login" id="txtPwd" name="txtPwd">
+            </div>
+            <div class="login-group" style="text-align:center; color:#ffffff;">
+                <input type="checkbox" placeholder="authLogin" class="" id="chkAutoLogin" name="chkAutoLogin"> &nbsp;자동로그인
+            </div>
+            <div>
+                <button type="submit" class="btn-login" onClick="javascript:LoginAction();"> Log in </button>
+            </div>
+
+            <div class="login-etc-link">
+                <a href="/Booking/Guide"><img src="/Content/img/custom/ic_fee.svg"> 이용요금</a>
+                <a href="/Board/NewsEventView?bd_main_seq=1004&page=0" style="width:100px;"><img src="/Content/img/custom/ic_shop.svg"> 식음 메뉴</a>
+                
+                <a href="/ko/Main/provision2">개인정보처리방침</a>
+            </div>
+        </div>
+        <div class="intro-login-footer">
+            <p>
+                회원번호 분실 시 예약실로 문의 바랍니다.<br>
+                T. 033-269-2101
+            </p>
+        </div>
+    </div>
+</div>
+
+<style>
+    .policy-popup-wrap {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: #fff;
+        width: 430px;
+        height: 360px;
+        border-radius: 20px;
+        padding: 50px;
+        box-sizing: border-box;
+    }
+
+    .policy-popup-contnet {
+        width: 90%;
+        margin: 0 auto;
+    }
+
+    .policy-popup-contnet h2 {
+        text-align: center;
+        line-height: 35px;
+        font-size: 24px;
+        position: relative;
+        font-weight: 400;
+    }
+
+    .policy-popup-contnet h2::after {
+        content: "";
+        position: absolute;
+        top: -25px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #C9B392;
+        width: 20px;
+        height: 3px;
+    }
+
+    .policy-popup-contnet .view-btn {
+        display: flex;
+        justify-content: center;
+        margin-top: 35px;
+        width: 100%;
+    }
+
+    .policy-popup-contnet .view-btn a {
+        display: block;
+        width: 100%;
+        text-align: center;
+        padding: 5px 18px;
+        color: #8B8B8B;
+        font-size: 16px;
+        border: 1px solid #C8C8C8;
+    }
+
+    .policy-popup-contnet .policy-popup-btn {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 0 10px;
+        margin-top: 50px;
+    }
+
+    .policy-popup-contnet .policy-popup-btn a {
+        border-radius: 30px;
+        text-align: center;
+        color: #707070;
+        background: #DCDCDC;
+        font-size: 18px;
+        padding: 10px 0;
+        width: 50%;
+    }
+
+    .policy-popup-contnet .policy-popup-btn a.on {
+        background: #A07E55;
+        color: #fff;
+    }
+</style>
+
+<div id="myPopup" class="policy-popup-wrap" style="display: none; ">
+    <div class="policy-popup-contnet">
+        <h2>개인 정보 수집<br>이용 동의(필수)</h2>
+        <div class="policy-popup-btn">
+            <a href="#" onclick="hidePopup()">취소</a>
+            <a href="/Ko/Main/Provision4" class="on">확인</a>
+        </div>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+
+    });
+
+    $('body').keypress(function (event) {
+
+        if (event.keyCode==13) {
+            LoginAction();
+        }
+    });
+
+
+</script>
+<script>
+
+    function regAgree() {
+        var rData = getJsonForm("/Member/RegAgree");
+        if (rData.code > 0) {
+            location.href = "/Ko/";
+        }
+    }
+
+    function hidePopup() {
+        const popup = document.getElementById('myPopup');
+        popup.style.display = 'none';
+    }
+
+    function LoginAction() {
+
+        var oId = $("#txtId");
+        var oPwd = $("#txtPwd");
+        var isLoginAuto = "N"; //자동로그인
+
+
+        if ($("#txtId").val() == "") {
+            alert("아이디(회원번호)를 입력해 주세요.");
+            $("#txtId").focus();
+            return false;
+        }
+
+        if ($("#txtPwd").val() == "") {
+            alert("비밀번호를 입력해 주세요.");
+            $("#txtPwd").focus();
+            return false;
+        }
+        
+        oId = encryptData(oId.val(), $("#secretKey").val());
+        oPwd = encryptData(oPwd.val(), $("#secretKey").val());
+
+        if (!oId) {
+            alert("아이디를 입력해 주세요.");
+            oId.focus();
+            return false;
+        }
+
+        if (!oPwd) {
+            alert("비밀번호를 입력해 주세요.");
+            oPwd.focus();
+            return false;
+        }
+
+        //자동로그인 체크여부
+        if ($("#chkAutoLogin").is(":checked")) {
+            //SetCookie("chkAutoLogin", "Y", 1);
+            isLoginAuto = "Y";
+        }
+
+        var rData = getJsonForm("/Member/LoginAction", { memberId: oId, memberPw: oPwd, save_id: isLoginAuto });
+        alert(rData.msg.replace("<br />", "\n"));
+        if (rData.code == "0") {
+            location.href = "/Ko/";
+        } else if (rData.code == "N") {
+            showPopup();
+        }
+    }
+
+    function showPopup() {
+        const popup = document.getElementById('myPopup');
+        popup.style.display = 'flex';
+    }
+
+    function encryptData(data, secretKey) {
+        const key = CryptoJS.enc.Utf8.parse(secretKey);
+        const iv = CryptoJS.lib.WordArray.random(16); // 128비트 IV 생성 (CBC 모드 권장)
+
+        const encrypted = CryptoJS.AES.encrypt(CryptoJS.enc.Utf8.parse(data), key, {
+            iv: iv,
+            mode: CryptoJS.mode.CBC,
+            padding: CryptoJS.pad.Pkcs7
+        });
+
+        // IV와 암호화된 데이터를 Base64로 인코딩하여 함께 반환
+        const encryptedBase64 = CryptoJS.enc.Base64.stringify(iv.concat(encrypted.ciphertext));
+
+        return encryptedBase64;
+    }
+
+
+</script>
+    </section>
+</body>
+</html>
+

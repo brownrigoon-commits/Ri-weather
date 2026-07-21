@@ -1,0 +1,2531 @@
+
+
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+    <meta name="keywords" id="hio_keywords" content="원더클럽">
+    <meta name="description" content="원더클럽에 오신것을 환영합니다. 라운드가 더 즐거운 골프 커뮤니티!">
+    <title>원더클럽</title>
+    <meta property="og:type" content="website"> 
+	<meta property="og:title" content="원더클럽">
+	<meta property="og:description" content="원더클럽에 오신것을 환영합니다. 라운드가 더 즐거운 골프 커뮤니티!">
+	<meta property="og:image" content="https://onetheclub.com//static/common/images/ogimage.png">
+	<meta property="og:url" content="https://onetheclub.com/">
+	<!-- custom favicon 설정 -->
+    <link rel="shortcut icon" href="/static/common/images/favicon.ico">
+    <script type="text/javascript" src="/static/common/libs/jquery-1.12.4.min.js" charset="UTF-8"></script>
+    <!-- ui -->
+    <script type="text/javascript" src="/static/common_control/js/ui.js?ver=20260710" data-ver="20260710"></script>
+    <!-- css -->
+    <script type="text/javascript" src="/static/pc/js/include_css.js?ver=20260710" data-ver="20260710" charset="UTF-8"></script>
+    <!-- js -->
+    <script type="text/javascript" src="/static/pc/js/include_js.js?ver=20260710" data-ver="20260710" charset="UTF-8"></script>
+    
+    <script type="text/javascript" src="/static/pc/templates/setting.js?ver=20260710" data-ver="20260710" charset="UTF-8"></script>
+
+	<!-- Google tag (gtag.js) -->
+	<script async src="https://www.googletagmanager.com/gtag/js?id=G-W4W7MKP9HC"></script>
+	<script>
+		window.dataLayer = window.dataLayer || [];
+		function gtag(){dataLayer.push(arguments);}
+		gtag('js', new Date());
+	
+		gtag('config', 'G-W4W7MKP9HC');
+	</script>
+    
+    <script>
+        
+            goSSL();
+        
+
+        //page_type
+	    //ui_custom.page_type.init();
+
+        //--basic Customizing(origin)-s
+        var mPage;
+
+        $(document).ready(function() {
+            //setProtocol();
+
+            initHeader();
+
+            initHeaderListener();
+        });
+
+        function setProtocol() {
+            if (document.location.protocol == 'http:') {
+                var sUrl = document.location.href;
+                sUrl = sUrl.replace('http:', 'https:');
+                sUrl = sUrl.replace('kxleisure.com',  'onetheclub.com');
+                sUrl = sUrl.replace('kmhleisure.com', 'onetheclub.com');
+
+                document.location.href = sUrl;
+            }
+            if (document.location.protocol == 'https:') {
+                var sUrl = document.location.href;
+                //sUrl = sUrl.replace('http:', 'https:');
+                sUrl = sUrl.replace('kxleisure.com',  'onetheclub.com');
+                sUrl = sUrl.replace('kmhleisure.com', 'onetheclub.com');
+
+                document.location.href = sUrl;
+            }
+        }
+
+        function initHeader() {
+            mPage = "";
+            var open = "";
+
+            if ((mPage != "" || open == "Y") && "" == "") {
+                $('.loginWrap').slideToggle(400);
+            }
+        }
+
+        function initHeaderListener() {
+            $(".nav li").hover(function() {
+                $(this).children("ul").stop().delay(200).animate({
+                    height: "toggle",
+                    opacity: "toggle"
+                }, 200);
+            });
+
+            var chkId = getCookie("chkSaveId");
+            var id = getCookie("cookieId");
+
+            if (chkId != null && chkId != "") {
+                $("#chkSaveId").attr('checked', true);
+            }
+
+            if (id != null && id != "") {
+                $("#txtHeaderId").val(id);
+            }
+
+            $("#txtHeaderId").keypress(function(event) {
+                if (event.keyCode == 13) {
+                    doLogin();
+                }
+            });
+
+            $("#txtHeaderPw").keypress(function(event) {
+                if (event.keyCode == 13) {
+                    doLogin();
+                }
+            });
+        }
+
+        function doLogin() {
+            var sUrl = "/controller/MemberController.asp";
+            var params = {};
+
+            var id = $("#txtHeaderId").val();
+            var pw = $("#txtHeaderPw").val();
+
+            if (id == "") {
+                alert("아이디를 입력하세요.");
+                return;
+            }
+
+            if (pw == "") {
+                alert("비밀번호를 입력하세요.");
+                return;
+            }
+
+            params["method"] = "doLogin";
+            params["coDiv"] = globals.coDiv;
+            params["id"] = id;
+            params["pw"] = pw;
+
+            mAjax(sUrl, params, "POST", true, function(data) {
+                if (data.resultCode == "0000") {
+                    var chkSaveId = $('input:checkbox[id="chkSaveId"]').is(":checked");
+
+                    if (chkSaveId) {
+                        setCookie("cookieId", $("#txtHeaderId").val(), 365);
+                        setCookie("chkSaveId", true, 365);
+                    } else {
+                        setCookie("cookieId", "", 365);
+                        setCookie("chkSaveId", "", 365);
+                    }
+
+                    if (mPage != "") {
+                        location.href = mPage;
+                    } else {
+                        location.reload();
+                    }
+                } else {
+                    alert(data.resultMessage);
+                }
+            });
+        }
+
+        function doLogout() {
+            var sUrl = "/Controller/MemberController.asp";
+            var params = {};
+
+            params["method"] = "doLogout";
+
+            mAjax(sUrl, params, "POST", true, function(data) {
+                if (data.resultCode == "0000") {
+                    alert("로그아웃 되었습니다.");
+                    location.href = "/index.asp"
+                }
+            });
+        }
+
+        function onlyMainMenu(val) {
+            if (val == "1") {
+                $("#onlyMain").show();
+            } else(
+                $("#onlyMain").hide()
+            )
+        }
+        //--basic Customizing(origin)-e
+        
+        
+		$(document).ajaxError(function(event, request, settings, thrownError) {
+			if (request.status == 555) {
+				alert('다른 환경에서 접속되었습니다');
+				location.href="/member/login";
+				
+			}else if(request.status == 556){
+				alert('로그인 하시기 바랍니다.');
+				location.href="/member/login";
+				
+			}
+		});
+        
+    </script>
+</head>
+<body>
+
+	
+    <div class="lds-ring"><div></div><div></div><div></div><div></div></div>
+    
+    <div id="wrapper">
+        <!-- SkipNav -->
+        <div id="skipNav">
+            <a href="#gnb">주요 메뉴 바로가기</a>
+            <a href="#content">컨텐트 바로가기</a>
+        </div>
+        <!-- //SkipNav -->
+        
+        
+        <!-- 
+        <div class="right_area">
+            <a href="#sec0" class="btn right_btn right_menu aside-menu-open full" aria-controls="asideMenu" aria-expanded="false"><span><i class="ico ico-menu white"></i>메뉴</span></a>
+            <a href="/board/notice" class="btn right_btn right_notice"><span><i class="ico ico-notice white"></i>공지사항</span></a>
+            <a href="/reservation/golf" class="btn right_btn right_res"><span><i class="ico ico-res white"></i>실시간예약</span></a>
+        </div>
+ 		-->
+ 		
+        <!-- header -->
+        
+
+<head>
+<style>
+.mb_join { position:absolute; top:20px; }
+.mb_join a { padding:6px 10px; background-color:#247a4f; border-radius:7px; color:#fff; }
+.mb_login { right:53px; }
+.mb_logout { right:53px; }
+
+@media all and (max-width:1680px){ 
+	.mb_join { position:absolute; top:21px; }
+	.mb_join a { padding:6px 10px; background-color:#247a4f; border-radius:7px; color:#fff; }
+	.mb_login { right:176px; }
+	.mb_logout { right:82px; }
+}
+
+</style>
+
+<meta name="naver-site-verification" content="04a8c949e57d6ef68209d0274e594e0da0f6e2e0" />
+</head>
+
+        <!-- Header -->
+        <header id="header">
+			<!--통합 gnb DB-->
+			<div class="header_group">
+				<nav class="gnb">
+					<a href="/" class="header-logo">원더클럽</a>
+					<ul class="node1-list">
+						
+						
+						
+						
+						
+						
+							
+							
+							
+								
+								
+								
+								<li class="node1-item">
+									<a href="/reservation/golf" class="node1-link">예약하기</a>	
+										<div class="node2-menu">
+												<ul class="node2-list">
+							
+							
+							
+								
+							
+								
+									
+								
+								
+							
+													
+						
+						
+							
+							
+							
+							
+							
+								
+									
+				                	
+				                		<li class="node2-item"><a href="/reservation/golf" class="node2-link "><span>실시간예약</span></a></li>
+				                	
+				                							  
+							
+								
+							
+								
+								
+									
+								
+							
+													
+						
+						
+							
+							
+							
+							
+							
+								
+									
+				                	
+				                		<li class="node2-item"><a href="/reservation/golfPartner" class="node2-link "><span>제휴골프장<br>예약</span></a></li>
+				                	
+				                							  
+							
+								
+							
+								
+								
+									
+								
+							
+													
+						
+						
+							
+							
+							
+							
+							
+								
+									
+				                	
+				                		<li class="node2-item"><a href="/reservation/assign" class="node2-link "><span>매니저<br>상담 예약</span></a></li>
+				                	
+				                							  
+							
+								
+							
+								
+								
+									
+								
+							
+													
+						
+						
+							
+							
+							
+							
+							
+								
+									
+				                	
+				                	
+				                							  
+							
+								
+							
+								
+								
+									
+								
+							
+													
+						
+						
+							
+										</ul>
+									</div>
+								</li>
+								
+								
+							
+							
+							
+								
+								
+								
+								<li class="node1-item">
+									<a href="/join/request/main" class="node1-link">조인하기</a>	
+										<div class="node2-menu">
+												<ul class="node2-list">
+							
+							
+							
+								
+							
+								
+									
+								
+								
+							
+													
+						
+						
+							
+							
+							
+							
+							
+								
+									
+				                	
+				                		<li class="node2-item"><a href="/join/request/main" class="node2-link "><span>조인예약</span></a></li>
+				                	
+				                							  
+							
+								
+							
+								
+								
+									
+								
+							
+													
+						
+						
+							
+							
+							
+							
+							
+								
+									
+				                	
+				                		<li class="node2-item"><a href="/join/confirm/recruit" class="node2-link "><span>조인예약확인</span></a></li>
+				                	
+				                							  
+							
+								
+							
+								
+								
+									
+								
+							
+													
+						
+						
+							
+							
+							
+							
+							
+								
+									
+				                	
+				                		<li class="node2-item"><a href="/join/setup/main" class="node2-link "><span>설정</span></a></li>
+				                	
+				                							  
+							
+								
+							
+								
+								
+									
+								
+							
+													
+						
+						
+							
+										</ul>
+									</div>
+								</li>
+								
+								
+							
+							
+							
+								
+								
+								
+								<li class="node1-item">
+									<a href="/swp/golf_list" class="node1-link">골프장정보</a>	
+										<div class="node2-menu">
+												<ul class="node2-list">
+							
+							
+							
+								
+							
+								
+									
+								
+								
+							
+													
+						
+						
+							
+							
+							
+							
+							
+								
+									
+				                	
+				                		<li class="node2-item"><a href="/club72/main" class="node2-link "><span>클럽72CC</span></a></li>
+				                	
+				                							  
+							
+								
+							
+								
+								
+									
+								
+							
+													
+						
+						
+							
+							
+							
+							
+							
+								
+									
+				                	
+				                		<li class="node2-item"><a href="/shilla/main" class="node2-link "><span>신라CC</span></a></li>
+				                	
+				                							  
+							
+								
+							
+								
+								
+									
+								
+							
+													
+						
+						
+							
+							
+							
+							
+							
+								
+									
+				                	
+				                		<li class="node2-item"><a href="/paju/main" class="node2-link "><span>파주CC</span></a></li>
+				                	
+				                							  
+							
+								
+							
+								
+								
+									
+								
+							
+													
+						
+						
+							
+							
+							
+							
+							
+								
+									
+				                	
+				                		<li class="node2-item"><a href="/reservation/golf?sel=J5A" class="node2-link "><span>듄스코스</span></a></li>
+				                	
+				                							  
+							
+								
+							
+								
+								
+									
+								
+							
+													
+						
+						
+							
+							
+							
+							
+							
+								
+									
+				                	
+				                		<li class="node2-item"><a href="/swp/high1" class="node2-link "><span>[제휴] 하이원</span></a></li>
+				                	
+				                							  
+							
+								
+							
+								
+								
+									
+								
+							
+													
+						
+						
+							
+							
+							
+							
+							
+								
+									
+				                	
+				                		<li class="node2-item"><a href="/swp/happiness" class="node2-link "><span>[제휴] 해피니스</span></a></li>
+				                	
+				                							  
+							
+								
+							
+								
+								
+									
+								
+							
+													
+						
+						
+							
+							
+							
+							
+							
+								
+									
+				                	
+				                		<li class="node2-item"><a href="/swp/pinehills" class="node2-link "><span>[제휴] 파인힐스</span></a></li>
+				                	
+				                							  
+							
+								
+							
+								
+								
+									
+								
+							
+													
+						
+						
+							
+							
+							
+							
+							
+								
+									
+				                	
+				                		<li class="node2-item"><a href="/swp/sagewood" class="node2-link "><span>[제휴] 세이지우드</span></a></li>
+				                	
+				                							  
+							
+								
+							
+								
+								
+									
+								
+							
+													
+						
+						
+							
+							
+							
+							
+							
+								
+									
+				                	
+				                		<li class="node2-item"><a href="/swp/partners_list" class="node2-link "><span>[제휴] 아덴힐</span></a></li>
+				                	
+				                							  
+							
+								
+							
+								
+								
+									
+								
+							
+													
+						
+						
+							
+							
+							
+							
+							
+								
+									
+				                	
+				                		<li class="node2-item"><a href="/swp/sscc" class="node2-link "><span>[제휴] 사우스스프링스</span></a></li>
+				                	
+				                							  
+							
+								
+							
+								
+								
+									
+								
+							
+													
+						
+						
+							
+							
+							
+							
+							
+								
+									
+				                	
+				                		<li class="node2-item"><a href="https://www.golfscanner.co.kr/" class="node2-link "><span>해외 골프투어</span></a></li>
+				                	
+				                							  
+							
+								
+							
+								
+								
+									
+								
+							
+													
+						
+						
+							
+										</ul>
+									</div>
+								</li>
+								
+								
+							
+							
+							
+								
+								
+								
+								<li class="node1-item">
+									<a href="/board/event" class="node1-link">이벤트/공지</a>	
+										<div class="node2-menu">
+												<ul class="node2-list">
+							
+							
+							
+								
+							
+								
+									
+								
+								
+							
+													
+						
+						
+							
+							
+							
+							
+							
+								
+									
+				                	
+				                		<li class="node2-item"><a href="/board/event" class="node2-link "><span>진행중인 이벤트</span></a></li>
+				                	
+				                							  
+							
+								
+							
+								
+								
+									
+								
+							
+													
+						
+						
+							
+							
+							
+							
+							
+								
+									
+				                	
+				                		<li class="node2-item"><a href="/board/notice" class="node2-link "><span>공지사항</span></a></li>
+				                	
+				                							  
+							
+								
+							
+								
+								
+									
+								
+							
+													
+						
+						
+							
+										</ul>
+									</div>
+								</li>
+								
+								
+							
+							
+							
+								
+								
+								
+								<li class="node1-item">
+									<a href="/shop/main" class="node1-link">원더몰</a>	
+										<div class="node2-menu">
+												<ul class="node2-list">
+							
+							
+							
+								
+							
+								
+									
+								
+								
+							
+													
+						
+						
+							
+										</ul>
+									</div>
+								</li>
+								
+								
+							
+							
+							
+								
+								
+								
+								<li class="node1-item">
+									<a href="/swp/tozoMembership" class="node1-link">일본 회원권</a>	
+										<div class="node2-menu">
+												<ul class="node2-list">
+							
+							
+							
+								
+							
+								
+									
+								
+								
+							
+													
+						
+						
+							
+										</ul>
+									</div>
+								</li>
+								
+								
+							
+							
+							
+								
+								
+								
+								<li class="node1-item">
+									<a href="/swp/faq" class="node1-link">고객라운지</a>	
+										<div class="node2-menu">
+												<ul class="node2-list">
+							
+							
+							
+								
+							
+								
+									
+								
+								
+							
+													
+						
+						
+							
+							
+							
+							
+							
+								
+									
+				                	
+				                		<li class="node2-item"><a href="/swp/faq" class="node2-link "><span>FAQ</span></a></li>
+				                	
+				                							  
+							
+								
+							
+								
+								
+									
+								
+							
+													
+						
+						
+							
+							
+							
+							
+							
+								
+									
+				                	
+				                		<li class="node2-item"><a href="/board/customer" class="node2-link "><span>고객의소리</span></a></li>
+				                	
+				                							  
+							
+								
+							
+								
+								
+									
+								
+							
+													
+						
+						
+							
+							
+							
+							
+							
+								
+							
+								
+								
+									
+								
+							
+													
+						
+						
+							
+							
+							
+							
+							
+								
+									
+				                	
+				                		<li class="node2-item"><a href="/swp/contact" class="node2-link "><span>전화번호 및 기타 안내</span></a></li>
+				                	
+				                							  
+							
+								
+							
+								
+								
+									
+								
+							
+													
+						
+						
+							
+							
+							
+							
+							
+								
+									
+				                	
+				                		<li class="node2-item"><a href="/board/gallery" class="node2-link "><span>갤러리</span></a></li>
+				                	
+				                							  
+							
+								
+							
+								
+								
+									
+								
+							
+													
+						
+						
+							
+										</ul>
+									</div>
+								</li>
+								
+								
+							
+							
+							
+								
+								
+								
+								<li class="node1-item">
+									<a href="/myContents/membership" class="node1-link">My페이지</a>	
+										<div class="node2-menu">
+												<ul class="node2-list">
+							
+							
+							
+								
+							
+								
+									
+								
+								
+							
+													
+						
+						
+							
+							
+							
+							
+							
+								
+									
+				                	
+				                		<li class="node2-item"><a href="/myContents/membership" class="node2-link "><span>마이원더클럽</span></a></li>
+				                	
+				                							  
+							
+								
+							
+								
+								
+									
+								
+							
+													
+						
+						
+							
+							
+							
+							
+							
+								
+									
+				                	
+				                		<li class="node2-item"><a href="/myContents/pointMain" class="node2-link "><span>마이포인트</span></a></li>
+				                	
+				                							  
+							
+								
+							
+								
+								
+									
+								
+							
+													
+						
+						
+							
+							
+							
+							
+							
+								
+									
+				                	
+				                		<li class="node2-item"><a href="/myContents/couponList" class="node2-link "><span>쿠폰함</span></a></li>
+				                	
+				                							  
+							
+								
+							
+								
+								
+									
+								
+							
+													
+						
+						
+							
+							
+							
+							
+							
+								
+									
+				                	
+				                		<li class="node2-item"><a href="/reservation/resList" class="node2-link "><span>예약조회/수정</span></a></li>
+				                	
+				                							  
+							
+								
+							
+								
+								
+									
+								
+							
+													
+						
+						
+							
+							
+							
+							
+							
+								
+									
+				                	
+				                		<li class="node2-item"><a href="/reservation/groupGolfRes" class="node2-link "><span>연단체/임시단체</span></a></li>
+				                	
+				                							  
+							
+								
+							
+								
+								
+									
+								
+							
+													
+						
+						
+							
+							
+							
+							
+							
+								
+							
+								
+								
+									
+								
+							
+													
+						
+						
+							
+							
+							
+							
+							
+								
+							
+								
+								
+									
+								
+							
+													
+						
+						
+							
+							
+							
+							
+							
+								
+									
+				                	
+				                		<li class="node2-item"><a href="/myContents/vipRewardInfo" class="node2-link "><span>클럽72 VIP 리워드</span></a></li>
+				                	
+				                							  
+							
+								
+							
+								
+								
+									
+								
+							
+													
+						
+						
+							
+							
+							
+							
+							
+								
+							
+								
+								
+									
+								
+							
+													
+						
+						
+							
+							
+							
+							
+							
+								
+							
+								
+								
+									
+								
+							
+													
+						
+						
+							
+							
+							
+							
+							
+								
+									
+				                	
+				                		<li class="node2-item"><a href="/myContents/memberStamp" class="node2-link "><span>스탬프적립</span></a></li>
+				                	
+				                							  
+							
+								
+							
+								
+								
+									
+								
+							
+													
+						
+						
+							
+							
+							
+							
+							
+								
+									
+				                	
+				                		<li class="node2-item"><a href="/myContents/scoreList" class="node2-link "><span>스코어조회</span></a></li>
+				                	
+				                							  
+							
+								
+							
+								
+								
+									
+								
+							
+													
+						
+						
+							
+							
+							
+							
+							
+								
+									
+				                	
+				                		<li class="node2-item"><a href="/myContents/myInfo" class="node2-link "><span>내정보관리</span></a></li>
+				                	
+				                							  
+							
+								
+							
+								
+								
+									
+								
+							
+													
+						
+						
+							
+							
+							
+							
+							
+								
+							
+								
+								
+									
+								
+							
+													
+						
+						
+							
+							
+							
+							
+							
+								
+									
+				                	
+				                		<li class="node2-item"><a href="/swp/membership_intro" class="node2-link "><span>멤버십안내</span></a></li>
+				                	
+				                							  
+							
+								
+							
+								
+								
+									
+								
+							
+													
+						
+						
+							
+							
+							
+							
+							
+								
+									
+				                	
+				                		<li class="node2-item"><a href="/myContents/prmPass" class="node2-link dp-none"><span>클럽72 골드패스</span></a></li>
+				                	
+				                							  
+							
+								
+							
+								
+								
+									
+								
+							
+													
+						
+						
+							
+							
+							
+							
+							
+								
+									
+				                	
+				                		<li class="node2-item"><a href="/myContents/punishList" class="node2-link "><span>위약내역</span></a></li>
+				                	
+				                							  
+							
+								
+							
+								
+								
+									
+								
+							
+													
+						
+						
+							
+										</ul>
+									</div>
+								</li>
+								
+								
+							
+							
+							
+							
+							
+								
+							
+								
+									
+								
+								
+							
+													
+						
+						
+							
+							
+							
+							
+							
+								
+							
+								
+								
+									
+								
+							
+													
+						
+						
+							
+							
+							
+							
+							
+								
+							
+								
+								
+									
+								
+							
+													
+						
+						
+							
+							
+							
+							
+							
+								
+							
+								
+								
+									
+								
+							
+													
+						
+						
+							
+							
+							
+							
+							
+								
+							
+								
+									
+								
+								
+							
+													
+						
+						
+							
+							
+							
+							
+							
+								
+							
+								
+								
+									
+								
+							
+													
+						
+						
+							
+							
+							
+							
+							
+								
+							
+								
+									
+								
+								
+							
+													
+						
+						
+							
+							
+							
+							
+							
+								
+							
+								
+								
+									
+								
+							
+													
+						
+						
+							
+							
+							
+							
+							
+								
+							
+								
+									
+								
+								
+							
+													
+						
+						
+							
+							
+							
+							
+							
+								
+							
+								
+								
+									
+								
+							
+													
+						
+						
+							
+							
+							
+							
+							
+								
+							
+								
+									
+								
+								
+							
+													
+						
+						
+							
+							
+							
+							
+							
+								
+							
+								
+								
+									
+								
+							
+													
+						
+						 
+						
+					</ul>
+					<button type="button" class="btn-anb aside-menu-open full" aria-controls="asideMenu" aria-expanded="false"><span>전체메뉴 보기</span></button>
+				</nav>
+				
+                <div class="header-gnb to-animate all_menu-full" data-duration="dur-03" data-delay="delay-03" data-animate="fadeInUp" style="display: none;">
+					<nav class="gnb gnb-fullsize">
+		                <div class="top">
+		                    <a href="/" class="logo">LOGO</a>
+							<a href="javascript:void(0);" class="gnb-close"><span>닫기</span></a>
+		                </div>
+						
+		            </nav>
+                </div>
+                 
+				<div class="header-utilMenu">
+                    <ul>
+                   	
+						
+						 
+							<li><a href="/reservation/resList"><span>예약조회/수정</span></a>
+                            <li><a id="headerUrlLogin" href="/member/login"><span id="headerTextLogin">LOGIN</span></a></li>
+						
+					
+                    </ul>
+                </div>
+			</div>
+			<!--//통합 gnb DB-->
+        </header>
+        <!-- //Header -->
+        <!--// header -->
+
+        <!-- container -->
+        
+
+
+
+
+
+<!--골프장 gnb-->
+<div class="header_company paganica" data-cname="paganica">
+	<div class="inner">
+		<div class="header-logo">
+			<a href="/paganica/main" class="logo">
+				<span>
+					
+						파가니카CC
+					
+				</span>
+			</a>
+			<button type="button" class="btn-ico expand-toggle" data-type="group" aria-controls="companyGroup" aria-expanded="false"><span><i class="arw arw-toggle1 dark">자세히보기</i></span></button>
+			<div id="companyGroup" class="companyGroup expand-body" aria-hidden="true" style="display: none;">
+				<a href="/shilla/main" class="btn_company shilla">신라CC</a>
+				<a href="/paju/main" class="btn_company paju">파주CC</a>
+				<a href="/club72/main" class="btn_company club72">클럽72CC</a>
+				
+			</div>
+		</div>
+		
+		
+			
+		
+		
+		<div class="header-anb">
+			<nav class="gnb">
+				<ul class="node1-list">
+					
+					<li class="node1-item">
+						<a href="/reservation/golf?sel=J56" class="node1-link" data-menuCode="M1"><span>예약하기</span></a>
+						<div class="node2-menu">
+							<ul class="node2-list">
+								<li class="node2-item"><a href="/reservation/golf?sel=J56"    class="node2-link" data-menuCode="M1-1"><span>일반예약</span></a></li>
+								
+								
+							</ul>
+						</div>
+					</li>
+					<li class="node1-item">
+						<a href="/board/event?sel=J56" class="node1-link" data-menuCode="M2"><span>이벤트</span></a>
+						<div class="node2-menu">
+							<ul class="node2-list">
+								<li class="node2-item"><a href="/board/event?sel=J56"  class="node2-link" data-menuCode="M2-1"><span>이벤트</span></a></li>
+								<li class="node2-item"><a href="/board/notice?sel=J56" class="node2-link" data-menuCode="M2-2"><span>공지사항</span></a></li>
+							</ul>
+						</div>
+					</li>
+					
+					
+					<li class="node1-item">
+						<a href="/paganica/course_hill" class="node1-link" data-menuCode="M3"><span>코스안내</span></a>
+						<div class="node2-menu">
+							<ul class="node2-list">
+								<li class="node2-item"><a href="/paganica/course_hill" class="node2-link" data-menuCode="M3-1"><span>코스공략도</span></a></li>
+								<li class="node2-item"><a href="/paganica/course" class="node2-link" data-menuCode="M3-2"><span>코스전경 및 제원</span></a></li>
+							</ul>
+						</div>
+					</li>
+					<li class="node1-item">
+						<a href="/paganica/reserve" class="node1-link" data-menuCode="M4"><span>이용안내</span></a>
+						<div class="node2-menu">
+							<ul class="node2-list">
+								<li class="node2-item"><a href="/paganica/reserve" class="node2-link" data-menuCode="M4-1"><span>예약안내</span></a></li>
+								<li class="node2-item"><a href="/paganica/charge" class="node2-link" data-menuCode="M4-2"><span>요금안내</span></a></li>
+								<li class="node2-item"><a href="/paganica/use" class="node2-link" data-menuCode="M4-3"><span>이용안내</span></a></li>
+								<li class="node2-item"><a href="/paganica/penalty_clause" class="node2-link" data-menuCode="M4-4"><span>위약/환불안내</span></a></li>
+								<li class="node2-item"><a href="/paganica/contact" class="node2-link" data-menuCode="M4-5"><span>전화번호 및 기타 안내</span></a></li>
+								<li class="node2-item"><a href="/paganica/penalty_guide" class="node2-link" data-menuCode="M4-6"><span>패널티 안내</span></a></li>
+							</ul>
+						</div>
+					</li>
+					<li class="node1-item">
+						<a href="/paganica/facil_restaurant" class="node1-link" data-menuCode="M5"><span>부대시설</span></a>
+						<div class="node2-menu">
+							<ul class="node2-list">
+								<li class="node2-item"><a href="/paganica/facil_restaurant" class="node2-link" data-menuCode="M5-1"><span>레스토랑</span></a></li>
+								<li class="node2-item"><a href="/paganica/facil_house" class="node2-link" data-menuCode="M5-2"><span>티하우스</span></a></li>
+								<li class="node2-item"><a href="/paganica/facil_proshop" class="node2-link" data-menuCode="M5-3"><span>프로샵</span></a></li>
+							</ul>
+						</div>
+					</li>
+					<li class="node1-item">
+						<a href="/paganica/location" class="node1-link" data-menuCode="M6"><span>고객라운지</span></a>
+						<div class="node2-menu">
+							<ul class="node2-list">
+								
+								<li class="node2-item"><a href="/swp/faq" class="node2-link" data-menuCode="M6-2"><span>FAQ</span></a></li>
+								<li class="node2-item"><a href="/board/boardCustomerWrite" class="node2-link" data-menuCode="M6-3"><span>고객의소리</span></a></li>
+								<li class="node2-item"><a href="https://weather.naver.com/today/01110340" target="_blank" class="node2-link" data-menuCode="M6-4"><span>날씨정보</span></a></li>
+								<li class="node2-item"><a href="/paganica/location" class="node2-link" data-menuCode="M6-5"><span>오시는길</span></a></li>
+							</ul>
+						</div>
+					</li>
+					
+				</ul>
+
+			</nav>
+		</div>
+	</div>
+</div>
+<!--골프장 gnb-->
+<script>
+	if(page_types[1] == 'eng'){
+		$('.header-logo').find('.expand-toggle').hide();
+		$('[data-menuCode$="M1"]').parent('li').empty();
+		$('[data-menuCode$="M2"]').parent('li').empty();
+	} 
+ 
+	$(document.body).ready(function(){ 
+		const url = new URL(location.href);   
+		// 레스토랑 메뉴내용 가져오기 ( cms 관리자페이지에서 수정 )
+		$.ajax({
+	        async: false, 
+	        url : "/golf/restMenuInfo",
+	        data : {
+		        	companyCd : url.pathname
+		        },
+	        dataType : "html",
+	        success: function(obj){ 
+	            if( obj != ""  ){ 
+	    			obj = JSON.parse(obj);  
+		            if( obj.MSG != ""  ){ 
+	    				$(".content-body").html( obj.MSG ); 
+
+	    				if( "" == "Y" ){
+		    				$(".rest_bg").hide();
+	    				}
+		            }
+	    		    			
+	            }  
+	        }  
+	    }); 
+	});  
+</script>
+
+
+
+<!-- Container -->
+<div class="container">
+    <!-- Content -->
+    <div id="content" class="content">
+        
+        
+
+
+
+
+
+
+
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+ 
+
+<div class="content-header">
+    
+        <span class="bg bgLoad-01"></span>
+        <script>
+            sub.content_header.bg.set("M3-1");
+        </script>
+    
+	
+	<div class="tit-wrap">
+        
+            <span class="tit_l">코스공략도</span>
+            <ul>
+                <li><a href="/paganica/main"><span class="home">paganica</span></a></li>
+                <li><span>코스안내</span></li>
+                <li>코스공략도</li>
+            </ul>
+        
+    </div>
+	
+</div>
+
+<div class="tap_area">	
+        
+        
+            <script>
+                sub.content_header.SubMenu.list("M3-1");
+            </script>
+        
+</div>
+
+        
+        <div class="content-body course">
+            <div class="con">
+                <div class="course_name">
+                    <div class="course_chk hill active">
+                        <div class="img"></div>
+                        <a href="/paganica/course_hill">
+                            <h4>힐코스</h4>
+                            <p><strong>HILL</strong> COURSE</p>
+                        </a>
+                    </div>
+                    <div class="course_chk forest">
+                        <div class="img"></div>
+                        <a href="/paganica/course_forest">
+                            <h4>포레스트코스</h4>
+                            <p><strong>FOREST</strong> COURSE</p>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="info_wrap hill">
+                    <div class="top_con">
+                        <h3><strong>HILL</strong> COURSE</h3>
+                        <div class="hole_list">
+                            <a href="javascript:hole_chk('1');" class="active">1hole</a>
+                            <a href="javascript:hole_chk('2');">2hole</a>
+                            <a href="javascript:hole_chk('3');">3hole</a>
+                            <a href="javascript:hole_chk('4');">4hole</a>
+                            <a href="javascript:hole_chk('5');">5hole</a>
+                            <a href="javascript:hole_chk('6');">6hole</a>
+                            <a href="javascript:hole_chk('7');">7hole</a>
+                            <a href="javascript:hole_chk('8');">8hole</a>
+                            <a href="javascript:hole_chk('9');">9hole</a>
+                        </div>
+                    </div>
+                    <div class="hole_info grid">
+                        <div class="col col-4">
+                            <div class="hole_num">
+                                <div>
+                                    <span class="par">Par <strong>4</strong></span>
+                                    <span class="hdcp">HDCP <strong>9</strong></span>
+                                </div>
+                                <h2>HILL <span>1</span></h2>
+                            </div>
+                            <div class="hole_sum">
+                                <p class="hole_sum1">
+                                    봉화산에서 발달된 능선자락을 이용<br/>코스로 넓고 완만한 구릉성 지형을<br/>살려 비교적 비거리가 길면서<br/>편안한 코스로 조성하였습니다.<br/>탁 트인 개방감으로 아름다운 전경이<br/>눈앞에 펼쳐지면서 가슴 속까지<br/>시원하게 만드는 코스입니다.
+                                </p>
+                                <p class="hole_sum2">
+                                    가파른 내리막 지형의 파4홀로 그린까지 한눈에<br/>다 들어오며 티샷만 잘 맞으면 내리막경사 때문에<br/>의외로 멀리 나간다.<br/>우측에는 법면이 있으나 우측 벙커만<br/>넘길 수 있으면 남은 거리는 얼마 안된다.<br/>2단 그린으로 뒤쪽 오르막 경사이며 그린 좌측 앞<br/>벙커를 피하고 그린 우측은 굴곡이 심하여<br/>핀 위치를 기준으로 그린 중앙을 공략하는 것이 좋다.
+                                </p>
+                            </div>
+                        </div>
+                        <div class="col col-8">
+                            <div class="full_img">
+                                <img src="/static/pc/@company/paganica/images/sub/course/hill-1-1.jpg" alt="힐코스 1홀" class="img1">
+                            </div>
+                            <div class="green_img">
+                                <p>Green Analysis</p>
+                                <img src="/static/pc/@company/paganica/images/sub/course/hill-1-2.jpg" alt="힐코스 1홀 그린" class="img3">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- //Content -->
+</div>
+<!-- //Container -->
+<script src="/static/pc/@company/paganica/js/course_hill.js"></script>
+<script src="/static/pc/@company/paganica/js/ui.course.js"></script>
+
+
+
+
+<!--골프장 gnb-->
+<div class="footer_company paganica" data-cname="paganica">
+	<a href="javascript:company_common.company_footer.call();" class="company_btn"><span>사업자 정보 확인하기</span></a>
+	<div class="inner">
+
+		<a href="/paganica/main" class="logo"><img src="/static/pc/@company/paganica/images/logo_w.png"></a>
+		
+			<div class="company_info">
+				<!--ul>
+					<li><a href="javascript:;"><span></span></a></li>
+				</ul-->
+				<dl>
+					<dt>상호명</dt>
+					<dd>주식회사 레저플러스 춘천</dd>
+				</dl>
+				<dl>
+					<dt>대표자</dt>
+					<dd>오세길</dd>
+				</dl>
+				<dl>
+					<dt>사업자등록번호</dt>
+					<dd>747-85-01691</dd>                    
+				</dl>
+				<dl>
+					<dt>통신판매업신고번호</dt>
+					<dd>2021-강원춘천-0096</dd>                    
+				</dl>
+			</div>
+		
+
+	</div>
+</div>
+<!--골프장 gnb-->
+
+        <!--// container-->
+
+        <!-- footer -->
+        
+
+
+<style>
+.popup-wrap.kx_custom .popup.demo1 .popup-cont .tab-nav li { width:calc(100%/2);}
+</style>
+
+<!-- sticky_area -->
+<div class="sticky_area">
+    <ul>
+        <li>
+            <div class="quick_menus">
+                <a href="/reservation/golf" class="quick_res"><i></i><span>통합예약</span></a>
+                
+                    
+                    
+                        <a href="/member/login" class="quick_login"><i></i><span>로그인</span></a>
+                    
+                
+                
+            </div>
+            <a href="javascript:void(0);" class="btn_sticky quick">퀵메뉴</a>
+        </li>
+        <li>
+            <a href="javascript:void(0);" class="btn_sticky top">상단으로 이동</a>
+        </li>
+    </ul>
+</div>
+<!-- //sticky_area -->
+
+<!-- Footer -->
+<footer id="footer">
+    <div class="footer-inner">
+        
+        <div class="logo_inner">
+            <a href="/" class="logo gray">LOGO</a>
+        </div>
+        <div class="info_inner">
+        
+            <!-- Company Information -->
+            <div class="company_info">
+                <div class="row-01">
+                    <!-- terms -->
+		            <div class="terms">
+		                <ul>
+                            <li><a href="javascript:ui.popup.open('terms-02');"><span>이용약관</span></a></li>
+		                    <li><a href="javascript:ui.popup.open('terms-01');" class="color-18 f_w-600"><span>개인정보처리방침</span></a></li>
+                            <li><a href="javascript:ui.popup.open('terms-03');"><span>영상정보처리기기운영처리방침</span></a></li>
+		                </ul>
+		            </div>
+		            <!-- //terms -->
+                </div>
+                <div class="row-02">
+                    <dl>
+                        <dt>주소</dt>
+                        <dd>서울시 강동구 고덕비즈밸리로 6길 90 KX그룹 사옥 8층 서울지점<br>강원특별자치도 평창군 대관령면 눈마을길 47, 12층 9호(현대하이랜드)</dd>                    
+                    </dl>
+                    <dl class="text-top">
+                        
+                        <dt>통합 예약 센터</dt>
+                        <dd>1833-8800</dd><br/>
+                        <dt>클럽72 및 골프연습장 &amp; 듄스</dt>
+                        <dd>1599-0072</dd>
+                    </dl>
+                </div>
+                <div class="row-02 m_t-10px" style="max-width:850px;">
+                    <dl>
+                        <dt>상호명</dt>
+                        <dd>(주)레저플러스</dd>                    
+                    </dl>
+                    <dl>
+                        <dt>대표자</dt>
+                        <dd>오세길</dd>                    
+                    </dl>
+                    <dl>
+                        <dt>사업자등록번호</dt>
+                        <dd>394-87-01564</dd>                    
+                    </dl>
+                    <dl>
+                    	<dt>통신판매업 신고번호</dt>
+                    	<dd>2023-경기김포-2439</dd>
+                    </dl>
+                    <dl>
+                        <dt>개인정보 담당</dt>
+                        <dd>임근봉</dd>                    
+                    </dl>
+                </div>
+            </div>
+            <!-- //Company Information -->
+            <p class="copyright">Ⓒ 2023 ONETHECLUB. All rights reserved.</p>
+        </div>
+		<!--Family Site-->
+		<div class="right_inner">
+	        <div class="drop up family_site">
+	            <button type="button" aria-controls="family_site" aria-haspopup="listbox" aria-expanded="false" class="btn drop-toggle"><span>Family Site <i class="ico ico-more3"></i></span></button>
+	            <div id="family_site" class="drop-menu">
+	                <ul class="drop-list" role="listbox">
+	                    <li class="drop-item" role="option"><a href="https://www.golfmon.net" target="_blank">골프몬</a></li>
+	                    <li class="drop-item" role="option"><a href="https://www.bomultour.com/" target="_blank">보물섬 투어</a></li>
+	                    <li class="drop-item" role="option"><a href="https://www.golfscanner.co.kr" target="_blank">골프스캐너</a></li>
+	                    <li class="drop-item" role="option"><a href="https://onetheclub.com/eng/main" target="_blank">클럽72영문[Eng]</a></li>
+	                </ul>
+	            </div>
+	        </div>
+	        <div class="btn_wrap">
+	        	<a href="https://www.instagram.com/1theclub/" target="_blank" class="btn_f_sns insta"><span>인스타그램</span></a>
+	        	<a href="https://pf.kakao.com/_DZstb" target="_blank" class="btn_f_sns kakao"><span>카카오톡</span></a>
+	        </div>
+        </div>
+        <!--//Family Site-->
+    </div>
+</footer>   
+<!-- //Footer -->
+        
+<!-- 개인정보처리방침 팝업 -->
+<div id="terms-01" class="popup-wrap type-basic type01 footer kx_custom" role="dialog">
+    <section class="popup demo1" tabindex="0">
+        <div class="popup-head">
+            <h3 id="popupContentTitle">개인정보처리방침</h3>
+        </div>
+        <div class="popup-body">
+            <div class="popup-cont">
+                <!-- s: Tab Area -->
+                <div class="tab-nav demo1 f_clause">
+                    <ul class="tab-list" role="tablist">
+                        <li id="tabNav11" role="tab" aria-controls="tabContent11" aria-selected="true" class="tab is-selected"><button type="button" class="btn"><span>통합</span></button></li>
+                        <li id="tabNav12" role="tab" aria-controls="tabContent12" aria-selected="false" class="tab"><button type="button" class="btn"><span>신라CC</span></button></li>
+                        <li id="tabNav13" role="tab" aria-controls="tabContent13" aria-selected="false" class="tab"><button type="button" class="btn"><span>파주CC</span></button></li>
+<!--                         <li id="tabNav14" role="tab" aria-controls="tabContent14" aria-selected="false" class="tab"><button type="button" class="btn"><span>떼제베CC</span></button></li> -->
+                    </ul>
+                </div>
+                <div class="tab-container">
+                    <div id="tabContent11" aria-labelledby="tabNav11" aria-hidden="false" class="tab-content is-visible">
+                        <div id="terms_in-01" style="padding:20px;"></div>
+                    </div>
+                    <div id="tabContent12" aria-labelledby="tabNav12" aria-hidden="true" class="tab-content">
+                        <div id="terms_in-01-1" style="padding:20px;"></div>
+                    </div>
+                    <div id="tabContent13" aria-labelledby="tabNav13" aria-hidden="true" class="tab-content">
+                        <div id="terms_in-01-2" style="padding:20px;"></div>
+                    </div>
+<!--                     <div id="tabContent14" aria-labelledby="tabNav14" aria-hidden="true" class="tab-content"> -->
+<!--                         <div id="terms_in-01-3" style="padding:20px;"></div> -->
+<!--                     </div> -->
+                </div>
+                <!-- e: Tab Area -->
+                
+
+            </div>
+        </div>
+        
+        <div class="popup-close">
+            <button type="button" class="btn-ico btn-close" title="팝업닫기" onclick="ui.popup.close('terms-01')"><span><i class="ico ico-close1 white">Close</i></span></button>
+        </div>
+    </section>
+</div>
+<!-- //개인정보처리방침 팝업 -->
+
+<!-- 이용약관 팝업 -->
+<div id="terms-02" class="popup-wrap type-basic type01 footer kx_custom" role="dialog">
+    <section class="popup demo1" tabindex="0">
+        <div class="popup-head">
+            <h3 id="popupContentTitle">이용약관</h3>
+        </div>
+        <div class="popup-body">
+            <div class="popup-cont">
+        <!-- s: Tab Area -->
+                <div class="tab-nav demo1 f_clause">
+                    <ul class="tab-list" role="tablist">
+                        <li id="tabNav11" role="tab" aria-controls="tabContent21" aria-selected="true" class="tab is-selected"><button type="button" class="btn"><span>통합홈페이지</span></button></li>
+                        <li id="tabNav12" role="tab" aria-controls="tabContent22" aria-selected="false" class="tab"><button type="button" class="btn"><span>원더플래티넘</span></button></li>
+                    </ul>
+                </div>
+                <div class="tab-container">
+                    <div id="tabContent21" aria-labelledby="tabNav21" aria-hidden="false" class="tab-content is-visible" style="padding:20px;">
+                        <div id="terms_in-02"></div>
+                        <span class="select_label_st right">
+							<select id="selectAgreement2" class="select demo1 st_1">
+								<option value="1" selected>기존 약관: 2023년 02월 01일 시행</option>
+								<option value="2">변경 약관: 2024년 09월 12일 시행</option>
+							</select>
+						</span>
+                    </div>
+                    <div id="tabContent22" aria-labelledby="tabNav22" aria-hidden="true" class="tab-content" style="padding:20px;">
+                        <div id="terms_in-02-1"></div>
+                        <span class="select_label_st right">
+							<select id="selectAgreement" class="select demo1 st_1">
+								<option value="1" selected>기존 약관: 2023년 10월 23일 시행</option>
+								<option value="2" selected>변경 약관: 2024년 01월 01일 시행</option>
+							</select>
+						</span>
+                    </div>
+                </div>
+                <!-- e: Tab Area -->
+			</div>
+		</div>
+        
+        <div class="popup-close">
+            <button type="button" class="btn-ico btn-close" title="팝업닫기" onclick="ui.popup.close('terms-02')"><span><i class="ico ico-close1 white">Close</i></span></button>
+        </div>
+    </section>
+</div>
+<!-- //이용약관 팝업 -->
+
+<!-- 영상정보처리기기 팝업 -->
+<div id="terms-03" class="popup-wrap type-basic type01 footer kx_custom" role="dialog">
+    <section class="popup demo1" tabindex="0">
+        <div class="popup-head">
+            <h3 id="popupContentTitle">영상정보처리기기운영처리방침</h3>
+        </div>
+        <div class="popup-body">
+            <div class="popup-cont">
+                <!-- s: Tab Area -->
+                <div class="tab-nav demo1 f_clause">
+                    <ul class="tab-list" role="tablist">
+                        <li id="tabNav21" role="tab" aria-controls="tabContent21" aria-selected="true" class="tab is-selected"><button type="button" class="btn"><span>신라CC</span></button></li>
+                        <li id="tabNav22" role="tab" aria-controls="tabContent22" aria-selected="false" class="tab"><button type="button" class="btn"><span>파주CC</span></button></li>
+                        
+                        <li id="tabNav25" role="tab" aria-controls="tabContent25" aria-selected="false" class="tab"><button type="button" class="btn"><span>클럽72CC</span></button></li>
+                    </ul>
+                </div>
+                <div class="tab-container">
+                    <div id="tabContent21" aria-labelledby="tabNav11" aria-hidden="false" class="tab-content is-visible" style="padding:20px;">
+                        <div id="terms_in-03" style="padding:20px;"></div>
+                    </div>
+                    <div id="tabContent22" aria-labelledby="tabNav12" aria-hidden="true" class="tab-content" style="padding:20px;">
+                        <div id="terms_in-03-1" style="padding:20px;"></div>
+                    </div>
+                    <div id="tabContent23" aria-labelledby="tabNav13" aria-hidden="true" class="tab-content">
+                        <div id="terms_in-03-2" style="padding:20px;"></div>
+                    </div>
+                    <div id="tabContent24" aria-labelledby="tabNav14" aria-hidden="true" class="tab-content">
+                        <div id="terms_in-03-3" style="padding:20px;"></div>
+                    </div>
+                    <div id="tabContent25" aria-labelledby="tabNav15" aria-hidden="true" class="tab-content">
+                        <div id="terms_in-03-4" style="padding:20px;"></div>
+                    </div>
+                </div>
+                <!-- e: Tab Area -->
+                
+
+            </div>
+        </div>
+        
+        <div class="popup-close">
+            <button type="button" class="btn-ico btn-close" title="팝업닫기" onclick="ui.popup.close('terms-03')"><span><i class="ico ico-close1 white">Close</i></span></button>
+        </div>
+    </section>
+</div>
+<!-- //영상정보처리기기 팝업 -->
+
+
+<div class="dimmer"></div>
+
+<script>
+$(function(){
+    /*document.getElementById("terms_in-01").innerHTML='<object type="text/html" data="/static/pc/agreeform/agreeform-03.html"></object>';
+    document.getElementById("terms_in-02").innerHTML='<object type="text/html" data="/static/pc/agreeform/agreeform-01.html"></object>';
+    document.getElementById("terms_in-03").innerHTML='<object type="text/html" data="/static/pc/agreeform/agreeform-02.html"></object>';*/
+    //document.getElementById("terms_in-04").innerHTML='<object type="text/html" data="/static/pc/agreeform/agreeform-05.html"></object>';
+	$('#terms_in-01').load('/static/pc/agreeform/agreeform-250211.html', function() {});
+	$('#terms_in-01-1').load('/static/pc/agreeform/agreeform-03_shilla250211.html', function() {}); 
+//     $('#terms_in-01-1').load('/static/pc/agreeform/agreeform-03_shilla.html?ver=231025', function() {});
+	$('#terms_in-01-2').load('/static/pc/agreeform/agreeform-03_paju250211.html', function() {});
+//     $('#terms_in-01-2').load('/static/pc/agreeform/agreeform-03_paju.html?ver=231025', function() {});
+    $('#terms_in-01-3').load('/static/pc/agreeform/agreeform-03_tgv.html?ver=231025', function() {});
+	$('#terms_in-02').load('/static/pc/agreeform/agreeform-01.html', function() {});
+	const targetDate = new Date('2024-01-01');
+	const targetDate2 = new Date('2024-09-12');
+	
+	// 현재 날짜를 가져옵니다.
+	const currentDate = new Date();
+
+	// 특정한 날짜와 현재 날짜를 비교합니다. - 원더플래티넘
+	if (currentDate >= targetDate) {
+		// 24년 1월1일 이후
+		$('#terms_in-02-1').load('/static/pc/agreeform/agreeform-01-3.html', function() {});
+		$("#selectAgreement").val("2").prop("selected",true)
+	}else{
+		$('#terms_in-02-1').load('/static/pc/agreeform/agreeform-01-2.html', function() {});
+		$("#selectAgreement").val("1").prop("selected",true)
+	}
+
+	// 특정한 날짜와 현재 날짜를 비교합니다. - 통합홈페이지
+	if (currentDate >= targetDate2) {
+		// 24년 9월12일 이후
+		$('#terms_in-02').load('/static/pc/agreeform/agreeform-01-0.html', function() {});
+		$("#selectAgreement").val("2").prop("selected",true)
+	}else{
+		$("#selectAgreement2").css('display','none')
+		$('#terms_in-02').load('/static/pc/agreeform/agreeform-01.html', function() {});
+		$("#selectAgreement").val("1").prop("selected",true)
+	}
+	
+    $('#terms_in-03').load('/static/pc/agreeform/agreeform-08_shilla.html', function() {});
+    $('#terms_in-03-1').load('/static/pc/agreeform/agreeform-08_paju.html', function() {});
+    $('#terms_in-03-2').load('/static/pc/agreeform/agreeform-08_tgv.html', function() {});
+    $('#terms_in-03-3').load('/static/pc/agreeform/agreeform-08_paganica.html', function() {});
+    $('#terms_in-03-4').load('/static/pc/agreeform/agreeform-08_club72.html', function() {});
+
+    //- 원더플래티넘
+    $("#selectAgreement").change(function(){
+    	if($(this).val()==1) $('#terms_in-02-1').load('/static/pc/agreeform/agreeform-01-2.html', function() {}); 
+    	else $('#terms_in-02-1').load('/static/pc/agreeform/agreeform-01-3.html', function() {});
+    })
+
+    // - 통합홈페이지
+    $("#selectAgreement2").change(function(){ 
+    	if($(this).val()==1) $('#terms_in-02').load('/static/pc/agreeform/agreeform-01.html', function() {}); 
+    	else $('#terms_in-02').load('/static/pc/agreeform/agreeform-01-0.html', function() {});
+    })
+});
+</script>
+
+
+<link rel="stylesheet" href="/static/pc/css/aos.css" />
+<script src="/static/pc/js/libs/aos.js"></script>
+<script>
+	AOS.init();
+</script>
+
+        <!--// footer -->
+    
+    </div>
+	<div id="ie_chk" class="ie_chk_area dp-none">
+		<button type="button" onclick="javascript:popHide('ie_chk')" class="btn-close"><span class="blind">현재창 닫기</span></button>
+		<div class="con">
+			<p class="tit">
+				<img src="/static/pc/images/common/ico_ie.png" alt="ie" />
+				본사이트는 <strong>Internet Explorer 11</strong>버전<br/>에 <strong class="color-01">최적화</strong> 되어 있습니다.
+			</p>
+			<span>
+				<p class="btxt">‘Explorer 11이하’ 에서는 사용이 원활하지 않을 수 있습니다.</p>
+				<p class="btxt">Internet Explorer 11은 2022년 6월 15일부터 사용 및 지원이 중지됩니다. Microsoft Edge 사용을 권장합니다.</p>
+				<p class="txt">Explorer를 최신 버전으로 업데이트 하시거나, <br /><strong class="color-01">Chrome, 네이버 Whale</strong> 등의 브라우저를 이용해 주시기 바랍니다.</p>
+				<a href="http://windows.microsoft.com/ko-kr/internet-explorer/download-ie" target="_blank" title="새창열림" class="btn-upgrade">지금 업그레이드</a>
+				<p class="chk-uclose"><input type="checkbox" name="ie_chk_close" id="ie_chk_close" onclick="popHide('ie_chk')" /><label for="ie_chk_close">일주일간 표시 안하기</label></p>
+			</span>			
+		</div>
+	</div>
+	<script type="text/javascript">
+	//익스플로러 중지 안내 활성화
+	var agent = navigator.userAgent.toLowerCase();
+	
+	function ie_setCookie(name, value, days) {
+        if (days) {
+                var date = new Date();
+                date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+                var expires = "; expires=" + date.toGMTString();
+        } else {
+               var expires = "";
+        }
+        
+        document.cookie = name + "=" + value + expires + "; path=/";
+	}
+
+	 
+	//일주일간 표시 안하기
+	function ie_getCookie(name) {
+        var i, x, y, ARRcookies = document.cookie.split(";");
+        
+        for (i = 0; i < ARRcookies.length; i++) {     
+            x = ARRcookies[i].substr(0, ARRcookies[i].indexOf("="));
+            y = ARRcookies[i].substr(ARRcookies[i].indexOf("=") + 1);
+            
+            x = x.replace(/^\s+|\s+$/g, "");
+
+            if (x == name) {
+                    return unescape(y);
+            }
+        }
+	}
+	
+	//ie_chk 레이어팝업 닫기
+	function popHide(pop_id){
+		//document.getElementById(pop_id).style.display = "none";
+		$("#"+pop_id).hide(1000);
+		ie_setCookie('ie_chk_close', 'close', 7); //7일 후 만료
+	}
+
+	$(window).ready(function(){ 
+        var ie_Pchk = ie_getCookie('ie_chk_close');
+        //console.log(ie_Pchk);
+        if( ie_Pchk == 'close'){
+        	$("#"+pop_id).hide(1000);
+        }else{
+            if((navigator.appName == 'Netscape' && agent.indexOf('trident') != -1) || (agent.indexOf("msie") != -1)){
+    			$('#ie_chk').removeClass('dp-none');
+            }
+    	}
+    });
+    </script>
+</body>
+</html>

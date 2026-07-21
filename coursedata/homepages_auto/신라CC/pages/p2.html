@@ -1,0 +1,3200 @@
+
+
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+    <meta name="keywords" content="">
+    <meta name="description" content="">
+    <title>경주신라 컨트리클럽</title>    
+	<!-- custom favicon 설정 -->
+    <link rel="shortcut icon" href="/static/common/images/favicon.ico">
+    <script type="text/javascript" src="/static/common/libs/jquery-1.12.4.min.js" charset="UTF-8"></script>
+    <!-- css -->
+    <link rel="stylesheet" href="/static/pc/css/cm_ui.css?ver=20260714">
+    <link rel="stylesheet" href="/static/pc/css/cm_default.css?ver=20260714">
+    <link rel="stylesheet" href="/static/pc/css/custom/cm_default.css?ver=20260714">
+    <link rel="stylesheet" href="/static/pc/css/custom/loading-bar.css">
+    <script type="text/javascript" src="/static/pc/js/include_css.js?ver=20260714" data-ver="20260714" charset="UTF-8"></script>
+    <!-- js -->    
+	<script type="text/javascript" src="/static/common/libs/jquery.min.js" charset="UTF-8"></script>
+	<script type="text/javascript" src="/static/common/libs/jquery-ui.js" charset="UTF-8"></script>
+    <script type="text/javascript" src="/static/common/libs/librarys.min.js" charset="UTF-8"></script>
+	<script type="text/javascript" src="/static/pc/js/libs/loading-bar.min.js"></script>
+    <script type="text/javascript" src="/static/pc/js/ui.custom.js?ver=20260714" charset="UTF-8"></script>
+    <script type="text/javascript" src="/static/pc/js/ui.common.js?ver=20260714" charset="UTF-8"></script>
+    <script type="text/javascript" src="/static/common/js/common.js?ver=20260714"></script>	
+    <script type="text/javascript" src="/static/pc/js/include_js.js?ver=20260714" data-ver="20260714" charset="UTF-8"></script>
+    
+    <script>
+        
+            goSSL();
+        
+
+        //page_type
+	    //ui_custom.page_type.init();
+
+        //--basic Customizing(origin)-s
+        var mPage;
+
+        $(document).ready(function() {
+            //setProtocol();
+
+            initHeader();
+
+            initHeaderListener();
+        });
+        
+        function setProtocol() {
+            if (document.location.protocol == 'http:') {
+                var sUrl = document.location.href;
+                sUrl = sUrl.replace('http:', 'https:');
+                sUrl = sUrl.replace('www.sillacc.co.kr', 'sillacc.co.kr');
+
+                document.location.href = sUrl;
+            }
+        }
+
+        function initHeader() {
+            mPage = "";
+            var open = "";
+
+            if ((mPage != "" || open == "Y") && "" == "") {
+                $('.loginWrap').slideToggle(400);
+            }
+        }
+
+        function initHeaderListener() {
+            $(".nav li").hover(function() {
+                $(this).children("ul").stop().delay(200).animate({
+                    height: "toggle",
+                    opacity: "toggle"
+                }, 200);
+            });
+
+            var chkId = getCookie("chkSaveId");
+            var id = getCookie("cookieId");
+
+            if (chkId != null && chkId != "") {
+                $("#chkSaveId").attr('checked', true);
+            }
+
+            if (id != null && id != "") {
+                $("#txtHeaderId").val(id);
+            }
+
+            $("#txtHeaderId").keypress(function(event) {
+                if (event.keyCode == 13) {
+                    doLogin();
+                }
+            });
+
+            $("#txtHeaderPw").keypress(function(event) {
+                if (event.keyCode == 13) {
+                    doLogin();
+                }
+            });
+        }
+
+        function doLogin() {
+            var sUrl = "/controller/MemberController.asp";
+            var params = {};
+
+            var id = $("#txtHeaderId").val();
+            var pw = $("#txtHeaderPw").val();
+
+            if (id == "") {
+                alert("아이디를 입력하세요.");
+                return;
+            }
+
+            if (pw == "") {
+                alert("비밀번호를 입력하세요.");
+                return;
+            }
+
+            params["method"] = "doLogin";
+            params["coDiv"] = globals.coDiv;
+            params["id"] = id;
+            params["pw"] = pw;
+
+            mAjax(sUrl, params, "POST", true, function(data) {
+                if (data.resultCode == "0000") {
+                    var chkSaveId = $('input:checkbox[id="chkSaveId"]').is(":checked");
+
+                    if (chkSaveId) {
+                        setCookie("cookieId", $("#txtHeaderId").val(), 365);
+                        setCookie("chkSaveId", true, 365);
+                    } else {
+                        setCookie("cookieId", "", 365);
+                        setCookie("chkSaveId", "", 365);
+                    }
+
+                    if (mPage != "") {
+                        location.href = mPage;
+                    } else {
+                        location.reload();
+                    }
+                } else {
+                    alert(data.resultMessage);
+                }
+            });
+        }
+
+        function doLogout() {
+            var sUrl = "/Controller/MemberController.asp";
+            var params = {};
+
+            params["method"] = "doLogout";
+
+            mAjax(sUrl, params, "POST", true, function(data) {
+                if (data.resultCode == "0000") {
+                    alert("로그아웃 되었습니다.");
+                    location.href = "/index.asp"
+                }
+            });
+        }
+
+        function onlyMainMenu(val) {
+            if (val == "1") {
+                $("#onlyMain").show();
+            } else(
+                $("#onlyMain").hide()
+            )
+        }
+        //--basic Customizing(origin)-e
+        
+        
+		$(document).ajaxError(function(event, request, settings, thrownError) {
+			if (request.status == 555) {
+				alert('다른 환경에서 접속되었습니다');
+				location.reload(true);
+				
+			}else if(request.status == 556){
+				alert('로그아웃되었습니다.\n로그인을 다시 해주시기 바랍니다.');
+				location.reload(true);
+				
+			}
+		});
+        
+    </script>
+</head>
+<body>
+	
+    <div class="lds-ring"><div></div><div></div><div></div><div></div></div>
+    <div id="wrapper">
+        <!-- SkipNav -->
+        <div id="skipNav">
+            <a href="#gnb">주요 메뉴 바로가기</a>
+            <a href="#content">컨텐트 바로가기</a>
+        </div>
+        <!-- //SkipNav -->
+        
+        
+        <!-- 
+        <div class="right_area">
+            <a href="#sec0" class="btn right_btn right_menu aside-menu-open full" aria-controls="asideMenu" aria-expanded="false"><span><i class="ico ico-menu white"></i>메뉴</span></a>
+            <a href="/board/notice" class="btn right_btn right_notice"><span><i class="ico ico-notice white"></i>공지사항</span></a>
+            <a href="/reservation/golf" class="btn right_btn right_res"><span><i class="ico ico-res white"></i>실시간예약</span></a>
+        </div>
+ 		-->
+ 		
+        <!-- header -->
+        
+
+
+
+
+
+
+        <!-- Header -->
+        <header id="header" class="ouF-sec">
+            <div class="header-inner in-sec">
+                <div class="header-utilMenu">
+                    <ul>
+                   	
+						
+						
+                            <li><a href="/member/login"><span>로그인</span></a></li>
+                       		<li><a href="/member/joinStep1"><span>회원가입</span></a></li>
+						
+					
+                    </ul>
+                </div>
+                <div class="header-anb">
+                    <div class="header-logo">
+                        <a href="/" class="logo">LOGO</a>
+                    </div>
+                    <nav class="gnb gnb-fulldown">
+                        <ul class="node1-list">
+                	
+                            
+                            
+                            
+                            	
+	                            	
+	                            	
+	                            		
+	                            	
+	                            
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                    <li class="node1-item">
+	                                        
+	                                        
+	                                        
+	                                       
+	                                               <a href="javascript:;" class="node1-link">인터넷예약</a>	
+	                                       
+	                                       		
+	                                        <div class="node2-menu">
+	                                                <ul class="node2-list">
+	                                
+	                                
+	                                
+	                                
+	                                
+	                                    
+	                                        
+	                                    
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+	                            	
+	                            	
+	                            		
+	                            	
+	                            
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										
+	                                        
+	                                        
+	                                        
+	                                        
+											
+												<li class="node2-item">
+													<a href="/swp/guideRes_Member" class="node2-link"><span>예약안내</span></a>	
+	                                            </li>
+	                                       
+																	  
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+	                            	
+	                            	
+	                            		
+	                            	
+	                            
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										
+	                                        
+	                                        
+	                                        
+	                                        
+											
+												<li class="node2-item">
+													<a href="/reservation/golf" class="node2-link"><span>일반예약</span></a>	
+	                                            </li>
+	                                       
+																	  
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+	                            	
+	                            	
+	                            		
+	                            	
+	                            
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										
+	                                        
+	                                        
+	                                        
+	                                        
+											
+												<li class="node2-item">
+													<a href="/reservation/golfNight" class="node2-link"><span>야간예약</span></a>	
+	                                            </li>
+	                                       
+																	  
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+	                            	
+	                            	
+	                            		
+	                            	
+	                            
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										
+	                                        
+	                                        
+	                                        
+	                                        
+											
+												<li class="node2-item">
+													<a href="/reservation/resWait" class="node2-link"><span>대기예약</span></a>	
+	                                            </li>
+	                                       
+																	  
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+	                            	
+	                            	
+	                            		
+	                            	
+	                            
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										
+	                                        
+	                                        
+	                                        
+	                                        
+											
+												<li class="node2-item">
+													<a href="/reservation/resList" class="node2-link"><span>예약확인/취소</span></a>	
+	                                            </li>
+	                                       
+																	  
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+	                            	
+	                            	
+	                            		
+	                            	
+	                            
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										
+	                                        
+	                                        
+	                                        
+	                                        
+											
+												<li class="node2-item">
+													<a href="/myContents/visitList" class="node2-link"><span>이용현황</span></a>	
+	                                            </li>
+	                                       
+																	  
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+	                            	
+	                            	
+	                            		
+	                            	
+	                            
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										
+	                                        
+	                                        
+	                                        
+	                                        
+											
+												<li class="node2-item">
+													<a href="/swp/group_reserve" class="node2-link"><span>단체안내</span></a>	
+	                                            </li>
+	                                       
+																	  
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+	                            	
+	                            	
+	                            		
+	                            	
+	                            
+                            
+                            	
+                            
+	                                
+	                                            </ul>
+	                                        </div>
+	                                    </li>
+	                                
+	                                
+	                                
+	                                    <li class="node1-item">
+	                                        
+	                                        
+	                                        
+	                                       
+	                                               <a href="javascript:;" class="node1-link">이용안내</a>	
+	                                       
+	                                       		
+	                                        <div class="node2-menu">
+	                                                <ul class="node2-list">
+	                                
+	                                
+	                                
+	                                
+	                                
+	                                    
+	                                        
+	                                    
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+	                            	
+	                            	
+	                            		
+	                            	
+	                            
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										
+	                                        
+	                                        
+	                                        
+	                                        
+											
+												<li class="node2-item">
+													<a href="/swp/charge" class="node2-link"><span>이용요금</span></a>	
+	                                            </li>
+	                                       
+																	  
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+	                            	
+	                            	
+	                            		
+	                            	
+	                            
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										
+	                                        
+	                                        
+	                                        
+	                                        
+											
+												<li class="node2-item">
+													<a href="/swp/localRule" class="node2-link"><span>스코어카드&로컬룰</span></a>	
+	                                            </li>
+	                                       
+																	  
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+	                            	
+	                            	
+	                            		
+	                            	
+	                            
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										
+	                                        
+	                                        
+	                                        
+	                                        
+											
+												<li class="node2-item">
+													<a href="/board/weather" class="node2-link"><span>날씨정보</span></a>	
+	                                            </li>
+	                                       
+																	  
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+	                            	
+	                            	
+	                            		
+	                            	
+	                            
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										
+	                                        
+	                                        
+	                                        
+	                                        
+											
+												<li class="node2-item">
+													<a href="/swp/terms_use" class="node2-link"><span>골프장 이용약관</span></a>	
+	                                            </li>
+	                                       
+																	  
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+	                            	
+	                            	
+	                            		
+	                            	
+	                            
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										
+	                                        
+	                                        
+	                                        
+	                                        
+											
+												<li class="node2-item">
+													<a href="/swp/customer_request" class="node2-link"><span>내장객협조사항</span></a>	
+	                                            </li>
+	                                       
+																	  
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+	                            	
+	                            	
+	                            		
+	                            	
+	                            
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										
+	                                        
+	                                        
+	                                        
+	                                        
+											
+												<li class="node2-item">
+													<a href="/swp/selfCart_info" class="node2-link"><span>셀프카트 이용안내</span></a>	
+	                                            </li>
+	                                       
+																	  
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+	                            	
+	                            	
+	                            		
+	                            	
+	                            
+                            
+                            	
+                            
+	                                
+	                                            </ul>
+	                                        </div>
+	                                    </li>
+	                                
+	                                
+	                                
+	                                    <li class="node1-item">
+	                                        
+	                                        
+	                                        
+	                                       
+	                                               <a href="javascript:;" class="node1-link">클럽소개</a>	
+	                                       
+	                                       		
+	                                        <div class="node2-menu">
+	                                                <ul class="node2-list">
+	                                
+	                                
+	                                
+	                                
+	                                
+	                                    
+	                                        
+	                                    
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+	                            	
+	                            	
+	                            		
+	                            	
+	                            
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										
+	                                        
+	                                        
+	                                        
+	                                        
+											
+												<li class="node2-item">
+													<a href="/swp/club" class="node2-link"><span>클럽개요</span></a>	
+	                                            </li>
+	                                       
+																	  
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+	                            	
+	                            	
+	                            		
+	                            	
+	                            
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										
+	                                        
+	                                        
+	                                        
+	                                        
+											
+												<li class="node2-item">
+													<a href="/swp/history" class="node2-link"><span>클럽연혁</span></a>	
+	                                            </li>
+	                                       
+																	  
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+	                            	
+	                            	
+	                            		
+	                            	
+	                            
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										
+	                                        
+	                                        
+	                                        
+	                                        
+											
+												<li class="node2-item">
+													<a href="/swp/ceo" class="node2-link"><span>역대주주대표이사</span></a>	
+	                                            </li>
+	                                       
+																	  
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+	                            	
+	                            	
+	                            		
+	                            	
+	                            
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										
+	                                        
+	                                        
+	                                        
+	                                        
+											
+												<li class="node2-item">
+													<a href="/swp/facilities" class="node2-link"><span>시설안내</span></a>	
+	                                            </li>
+	                                       
+																	  
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+	                            	
+	                            	
+	                            		
+	                            	
+	                            
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										
+	                                        
+	                                        
+	                                        
+	                                        
+											
+												<li class="node2-item">
+													<a href="/swp/contact" class="node2-link"><span>전화번호안내</span></a>	
+	                                            </li>
+	                                       
+																	  
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+	                            	
+	                            	
+	                            		
+	                            	
+	                            
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										
+	                                        
+	                                        
+	                                        
+	                                        
+											
+												<li class="node2-item">
+													<a href="/swp/map" class="node2-link"><span>오시는길</span></a>	
+	                                            </li>
+	                                       
+																	  
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+	                            	
+	                            	
+	                            		
+	                            	
+	                            
+                            
+                            	
+                            
+	                                
+	                                            </ul>
+	                                        </div>
+	                                    </li>
+	                                
+	                                
+	                                
+	                                    <li class="node1-item">
+	                                        
+	                                        
+	                                        
+	                                       
+	                                               <a href="javascript:;" class="node1-link">코스소개</a>	
+	                                       
+	                                       		
+	                                        <div class="node2-menu">
+	                                                <ul class="node2-list">
+	                                
+	                                
+	                                
+	                                
+	                                
+	                                    
+	                                        
+	                                    
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+	                            	
+	                            	
+	                            		
+	                            	
+	                            
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										
+	                                        
+	                                        
+	                                        
+	                                        
+											
+												<li class="node2-item">
+													<a href="/swp/course" class="node2-link"><span>코스공략</span></a>	
+	                                            </li>
+	                                       
+																	  
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+	                            	
+	                            	
+	                            		
+	                            	
+	                            
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										
+	                                        
+	                                        
+	                                        
+	                                        
+											
+												<li class="node2-item">
+													<a href="/swp/cheonma_course" class="node2-link"><span>천마코스</span></a>	
+	                                            </li>
+	                                       
+																	  
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+	                            	
+	                            	
+	                            		
+	                            	
+	                            
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										
+	                                        
+	                                        
+	                                        
+	                                        
+											
+												<li class="node2-item">
+													<a href="/swp/hwarang_course" class="node2-link"><span>화랑코스</span></a>	
+	                                            </li>
+	                                       
+																	  
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+	                            	
+	                            	
+	                            		
+	                            	
+	                            
+                            
+                            	
+                            
+	                                
+	                                            </ul>
+	                                        </div>
+	                                    </li>
+	                                
+	                                
+	                                
+	                                    <li class="node1-item">
+	                                        
+	                                        
+	                                        
+	                                       
+	                                               <a href="javascript:;" class="node1-link">정보마당</a>	
+	                                       
+	                                       		
+	                                        <div class="node2-menu">
+	                                                <ul class="node2-list">
+	                                
+	                                
+	                                
+	                                
+	                                
+	                                    
+	                                        
+	                                    
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+	                            	
+	                            	
+	                            		
+	                            	
+	                            
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										
+	                                        
+	                                        
+	                                        
+	                                        
+											
+												<li class="node2-item">
+													<a href="/board/notice" class="node2-link"><span>공지사항</span></a>	
+	                                            </li>
+	                                       
+																	  
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+	                            	
+	                            	
+	                            		
+	                            	
+	                            
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										
+	                                        
+	                                        
+	                                        
+	                                        
+											
+												<li class="node2-item">
+													<a href="/board/event" class="node2-link"><span>이벤트</span></a>	
+	                                            </li>
+	                                       
+																	  
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+	                            	
+	                            	
+	                            		
+	                            	
+	                            
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										
+	                                        
+	                                        
+	                                        
+	                                        
+											
+												<li class="node2-item">
+													<a href="/swp/member_manage" class="node2-link"><span>회원관리 안내</span></a>	
+	                                            </li>
+	                                       
+																	  
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+	                            	
+	                            	
+	                            		
+	                            	
+	                            
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										
+	                                        
+	                                        
+	                                        
+	                                        
+											
+												<li class="node2-item">
+													<a href="/board/pds" class="node2-link"><span>자료실</span></a>	
+	                                            </li>
+	                                       
+																	  
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+	                            	
+	                            	
+	                            		
+	                            	
+	                            
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										
+	                                        
+	                                        
+	                                        
+	                                        
+											
+												<li class="node2-item">
+													<a href="/golfContents/hioBoard" class="node2-link"><span>명예의전당</span></a>	
+	                                            </li>
+	                                       
+																	  
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+	                            	
+	                            		
+			                            	
+			                            	
+			                            	
+			                            		
+	                            			
+			                            
+	                            	
+	                            	
+	                            
+                            
+                            	    
+                            
+                            
+                            	
+	                            	
+	                            	
+	                            		
+	                            	
+	                            
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										
+	                                        
+	                                        
+												
+	                                        		
+													
+													
+													
+													
+	                                        
+	                                        
+	                                        
+											
+																	  
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+	                            	
+	                            	
+	                            		
+	                            	
+	                            
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										
+	                                        
+	                                        
+												
+	                                        		
+													
+													
+													
+													
+	                                        
+	                                        
+	                                        
+											
+																	  
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+	                            	
+	                            	
+	                            		
+	                            	
+	                            
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										
+	                                        
+	                                        
+												
+	                                        		
+													
+													
+													
+													
+	                                        
+	                                        
+	                                        
+											
+																	  
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+	                            	
+	                            	
+	                            		
+	                            	
+	                            
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										
+	                                        
+	                                        
+												
+	                                        		
+													
+													
+													
+													
+	                                        
+	                                        
+	                                        
+											
+																	  
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+	                            	
+	                            	
+	                            		
+	                            	
+	                            
+                            
+                            	
+                            
+	                                
+	                                            </ul>
+	                                        </div>
+	                                    </li>
+	                                
+	                                
+	                                
+	                                
+	                                
+	                                
+	                                
+	                                    
+	                                        
+	                                    
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+	                            	
+	                            	
+	                            		
+	                            	
+	                            
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+	                            	
+	                            	
+	                            		
+	                            	
+	                            
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+	                            	
+	                            	
+	                            		
+	                            	
+	                            
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            <li class="node1-item"><a href="/board/weather" class="node1-link headWeather"><span>날씨정보<br/>(실시간 영상)</span></a></li>
+                        </ul>
+                    </nav>
+                    
+                </div>
+                
+            </div>
+        </header>
+        <!-- //Header -->
+        <div class="header_bg" style="height: 0px;"></div>
+        <!--// header -->
+
+        <!-- container -->
+        
+
+
+
+
+
+
+<script>
+	include_css.head('sub');
+    include_js.head('sub');
+</script>
+<!-- Container -->
+<div class="container">
+    <!-- Content -->
+    <div id="content" class="content course_content">
+        
+		
+
+
+
+
+
+
+
+
+
+
+
+
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+		
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+		
+		
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+		 
+	
+
+	
+ 
+
+<div class="content-header">
+	<span class="bg sub-04 bgLoad-01"></span>
+	<div class="tit-wrap">
+        <em class="tit_s">COURSE</em>
+        <span class="tit_l">천마코스</span>
+    </div>
+	<div class="tap_area">	
+	    <ul class="tap-std">
+	        
+	        
+		        	
+		        	
+					
+					
+						<li class=""><a href="/swp/course"><span>코스공략</span></a></li>
+					
+						 	                                       
+	        
+		        	
+		        	
+					
+					
+						<li class="on"><a href="/swp/cheonma_course"><span>천마코스</span></a></li>
+					
+						 	                                       
+	        
+		        	
+		        	
+					
+					
+						<li class=""><a href="/swp/hwarang_course"><span>화랑코스</span></a></li>
+					
+						 	                                       
+	        
+	           
+	        
+	           
+	    </ul>
+	</div>
+</div>
+
+		   
+        <div class="content-body">
+            <div class="con m_t-50px">
+                <div class="box course_box">
+                    <h2 class="course_h2">천년의 고도 경주 보문관광 단지내에의 국제적인 명문코스속으로</h2>
+                    <img src="/static/pc/images/sub/course/cheonma/cheonma_top_img.jpg?ver=1" alt="천마코스 페어웨이가 넓고 평탄하며 광활한 남성적인 코스이다." class="m_t-50px">
+                    
+                    <div class="tab-container hole_list cheonma">
+                        <div class="txt_d">
+                            <span class="course_tab_name">CHEONMA</span>
+                            <ul class="f_nts">
+                                <li class="list_number on" id="tab_hole1"><a href="javascript:Hole_number('1');sub.course_slide.call('course-sl-1');"><span>1 hole</span><img src="/static/pc/images/sub/course/cheonma/cheonma_tab_1.jpg" alt="천마 1홀"></a></li>
+                                <li class="list_number" id="tab_hole2"><a href="javascript:Hole_number('2');sub.course_slide.call('course-sl-2');"><span>2 hole</span><img src="/static/pc/images/sub/course/cheonma/cheonma_tab_2.jpg" alt="천마 2홀"></a></li>
+                                <li class="list_number" id="tab_hole3"><a href="javascript:Hole_number('3');sub.course_slide.call('course-sl-3');"><span>3 hole</span><img src="/static/pc/images/sub/course/cheonma/cheonma_tab_3.jpg" alt="천마 3홀"></a></li>
+                                <li class="list_number" id="tab_hole4"><a href="javascript:Hole_number('4');sub.course_slide.call('course-sl-4');"><span>4 hole</span><img src="/static/pc/images/sub/course/cheonma/cheonma_tab_4.jpg" alt="천마 4홀"></a></li>
+                                <li class="list_number" id="tab_hole5"><a href="javascript:Hole_number('5');sub.course_slide.call('course-sl-5');"><span>5 hole</span><img src="/static/pc/images/sub/course/cheonma/cheonma_tab_5.jpg" alt="천마 5홀"></a></li>
+                                <li class="list_number" id="tab_hole6"><a href="javascript:Hole_number('6');sub.course_slide.call('course-sl-6');"><span>6 hole</span><img src="/static/pc/images/sub/course/cheonma/cheonma_tab_6.jpg" alt="천마 6홀"></a></li>
+                                <li class="list_number" id="tab_hole7"><a href="javascript:Hole_number('7');sub.course_slide.call('course-sl-7');"><span>7 hole</span><img src="/static/pc/images/sub/course/cheonma/cheonma_tab_7.jpg" alt="천마 7홀"></a></li>
+                                <li class="list_number" id="tab_hole8"><a href="javascript:Hole_number('8');sub.course_slide.call('course-sl-8');"><span>8 hole</span><img src="/static/pc/images/sub/course/cheonma/cheonma_tab_8.jpg" alt="천마 8홀"></a></li>
+                                <li class="list_number" id="tab_hole9"><a href="javascript:Hole_number('9');sub.course_slide.call('course-sl-9');"><span>9 hole</span><img src="/static/pc/images/sub/course/cheonma/cheonma_tab_9.jpg" alt="천마 9홀"></a></li>
+                                <li class="list_number" id="tab_hole10"><a href="javascript:Hole_number('10');sub.course_slide.call('course-sl-10');"><span>10 hole</span><img src="/static/pc/images/sub/course/cheonma/cheonma_tab_10.jpg" alt="천마 10홀"></a></li>
+                                <li class="list_number" id="tab_hole11"><a href="javascript:Hole_number('11');sub.course_slide.call('course-sl-11');"><span>11 hole</span><img src="/static/pc/images/sub/course/cheonma/cheonma_tab_11.jpg" alt="천마 11홀"></a></li>
+                                <li class="list_number" id="tab_hole12"><a href="javascript:Hole_number('12');sub.course_slide.call('course-sl-12');"><span>12 hole</span><img src="/static/pc/images/sub/course/cheonma/cheonma_tab_12.jpg" alt="천마 12홀"></a></li>
+                                <li class="list_number" id="tab_hole13"><a href="javascript:Hole_number('13');sub.course_slide.call('course-sl-13');"><span>13 hole</span><img src="/static/pc/images/sub/course/cheonma/cheonma_tab_13.jpg" alt="천마 13홀"></a></li>
+                                <li class="list_number" id="tab_hole14"><a href="javascript:Hole_number('14');sub.course_slide.call('course-sl-14');"><span>14 hole</span><img src="/static/pc/images/sub/course/cheonma/cheonma_tab_14.jpg" alt="천마 14홀"></a></li>
+                                <li class="list_number" id="tab_hole15"><a href="javascript:Hole_number('15');sub.course_slide.call('course-sl-15');"><span>15 hole</span><img src="/static/pc/images/sub/course/cheonma/cheonma_tab_15.jpg" alt="천마 15홀"></a></li>
+                                <li class="list_number" id="tab_hole16"><a href="javascript:Hole_number('16');sub.course_slide.call('course-sl-16');"><span>16 hole</span><img src="/static/pc/images/sub/course/cheonma/cheonma_tab_16.jpg" alt="천마 16홀"></a></li>
+                                <li class="list_number" id="tab_hole17"><a href="javascript:Hole_number('17');sub.course_slide.call('course-sl-17');"><span>17 hole</span><img src="/static/pc/images/sub/course/cheonma/cheonma_tab_17.jpg" alt="천마 17홀"></a></li>
+                                <li class="list_number" id="tab_hole18"><a href="javascript:Hole_number('18');sub.course_slide.call('course-sl-18');"><span>18 hole</span><img src="/static/pc/images/sub/course/cheonma/cheonma_tab_18.jpg" alt="천마 18홀"></a></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="hole_content_wrap cheonma">
+                        <!-- 1홀 -->
+                        <div id="hole1" class="hole_content on">
+                            <div class="hole_left">
+                                <div class="green_img"><img src="/static/pc/images/sub/course/cheonma/cheonma_1-1.jpg" alt="홀 지도"></div>
+                                <div class="green_info_wrap">
+                                    <div class="green_info">
+                                        <em>천마</em>
+                                        <span class="f_nts"><i>OUT</i><br/>코스 1홀</span>
+                                        <dl>
+                                            <dt>PAR</dt>
+                                            <dd>4</dd>
+                                            <dt>HDCP</dt>
+                                            <dd>14</dd>
+                                            <dt>C.T</dt>
+                                            <dd>389 meter</dd>
+                                            <dt>R.T</dt>
+                                            <dd>357 meter</dd>
+                                        </dl>
+                                    </div>
+                                    <div class="green_tip">
+                                        <p class="section_tit">Green TIP</p>
+                                        <p class="green_tip_txt">
+                                            좌측이 O.B지역인 내리받이 홀로 티샷은 <br/>
+                                            페어웨이 중앙에서 약간 우측을 <br/>
+                                            겨냥하는것이 그린공략에 용이하다. 그린은 <br/>
+                                            뒷편 오르막으로 그린지표는 완만하다.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="hole_right">
+                                <div class="green_map">
+                                    <img src="/static/pc/images/sub/course/cheonma/cheonma_1-2.png" alt="그린 맵">
+                                    <p class="section_tit">Greenmap</p>
+                                </div>
+                                <div class="swiper-container hole_slide course-sl-1">
+                                    <div class="swiper-wrapper">
+                                        <div class="swiper-slide" style="background:url('/static/pc/images/sub/course/cheonma/cheonma_1-3.jpg')no-repeat;"></div>
+                                        <div class="swiper-slide" style="background:url('/static/pc/images/sub/course/cheonma/cheonma_1-4.jpg')no-repeat;"></div>
+                                        <div class="swiper-slide" style="background:url('/static/pc/images/sub/course/cheonma/cheonma_1-5.jpg?ver=2')no-repeat;"></div>
+                                    </div>
+                                    <div class="swiper-pagination"></div>
+                                </div>
+                            </div>
+
+                            <div class="hole_bottom">
+                                <p class="section_tit">Course view</p>
+                                <video autoplay muted controls loop src="/static/pc/images/sub/course/video/cheonma_out1번.mp4?ver=2"></video>
+                            </div>
+                        </div>
+                        <!-- //1홀 -->
+                        <!-- 2홀 -->
+                        <div id="hole2" class="hole_content">
+                            <div class="hole_left">
+                                <div class="green_img"><img src="/static/pc/images/sub/course/cheonma/cheonma_2-1.jpg" alt="홀 지도"></div>
+                                <div class="green_info_wrap">
+                                    <div class="green_info">
+                                        <em>천마</em>
+                                        <span class="f_nts"><i>OUT</i><br/>코스 2홀</span>
+                                        <dl>
+                                            <dt>PAR</dt>
+                                            <dd>5</dd>
+                                            <dt>HDCP</dt>
+                                            <dd>18</dd>
+                                            <dt>C.T</dt>
+                                            <dd>485 meter</dd>
+                                            <dt>R.T</dt>
+                                            <dd>462 meter</dd>
+                                        </dl>
+                                    </div>
+                                    <div class="green_tip">
+                                        <p class="section_tit">Green TIP</p>
+                                        <p class="green_tip_txt">
+                                            좌측으로 굽어있는 도그랙으로 좌측은 O.B<br/>
+                                            지역이며, I.P지점 인근에 크로스벙커가 <br/>
+                                            포진하고 있다. 티샷은 중앙에서 약간우측이 <br/>
+                                            좋으며 세컨샷은 페어웨이 정중앙이 <br/>
+                                            양호하다. 그린 지표는 완만한 편이다.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="hole_right">
+                                <div class="green_map">
+                                    <img src="/static/pc/images/sub/course/cheonma/cheonma_2-2.png" alt="그린 맵">
+                                    <p class="section_tit">Greenmap</p>
+                                </div>
+                                <div class="swiper-container hole_slide course-sl-2">
+                                    <div class="swiper-wrapper">
+                                        <div class="swiper-slide" style="background:url('/static/pc/images/sub/course/cheonma/cheonma_2-3.jpg?ver=2')no-repeat;"></div>
+                                        <div class="swiper-slide" style="background:url('/static/pc/images/sub/course/cheonma/cheonma_2-4.jpg?ver=2')no-repeat;"></div>
+                                        <div class="swiper-slide" style="background:url('/static/pc/images/sub/course/cheonma/cheonma_2-5.jpg?ver=2')no-repeat;"></div>
+                                    </div>
+                                    <div class="swiper-pagination"></div>
+                                </div>
+                            </div>
+
+                            <div class="hole_bottom">
+                                <p class="section_tit">Course view</p>
+                                <video src="/static/pc/images/sub/course/video/cheonma_out2번.mp4?ver=2" autoplay muted controls loop></video>
+                            </div>
+                        </div>
+                        <!-- //2홀 -->
+                        <!-- 3홀 -->
+                        <div id="hole3" class="hole_content">
+                            <div class="hole_left">
+                                <div class="green_img"><img src="/static/pc/images/sub/course/cheonma/cheonma_3-1.jpg" alt="홀 지도"></div>
+                                <div class="green_info_wrap">
+                                    <div class="green_info">
+                                        <em>천마</em>
+                                        <span class="f_nts"><i>OUT</i><br/>코스 3홀</span>
+                                        <dl>
+                                            <dt>PAR</dt>
+                                            <dd>3</dd>
+                                            <dt>HDCP</dt>
+                                            <dd>16</dd>
+                                            <dt>C.T</dt>
+                                            <dd>174 meter</dd>
+                                            <dt>R.T</dt>
+                                            <dd>146 meter</dd>
+                                        </dl>
+                                    </div>
+                                    <div class="green_tip">
+                                        <p class="section_tit">Green TIP</p>
+                                        <p class="green_tip_txt">
+                                            티잉그라운드 앞이 계곡으로 심리적인 <br/>
+                                            부담을 갖게 하는 홀이다. 그린 앞이 오르막 <br/>
+                                            경사로 짧은샷은 좋지않다.그린 지표는 <br/>
+                                            완만하다.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="hole_right">
+                                <div class="green_map">
+                                    <img src="/static/pc/images/sub/course/cheonma/cheonma_3-2.png" alt="그린 맵">
+                                    <p class="section_tit">Greenmap</p>
+                                </div>
+                                <div class="swiper-container hole_slide course-sl-3">
+                                    <div class="swiper-wrapper">
+                                        <div class="swiper-slide" style="background:url('/static/pc/images/sub/course/cheonma/cheonma_3-3.jpg?ver=1')no-repeat;"></div>
+                                        <div class="swiper-slide" style="background:url('/static/pc/images/sub/course/cheonma/cheonma_3-4.jpg?ver=1')no-repeat;"></div>
+                                        <div class="swiper-slide" style="background:url('/static/pc/images/sub/course/cheonma/cheonma_3-5.jpg?ver=2')no-repeat;"></div>
+                                    </div>
+                                    <div class="swiper-pagination"></div>
+                                </div>
+                            </div>
+
+                            <div class="hole_bottom">
+                                <p class="section_tit">Course view</p>
+                                <video src="/static/pc/images/sub/course/video/cheonma_out3번.mp4?ver=2" autoplay muted controls loop></video>
+                            </div>
+                        </div>
+                        <!-- //3홀 -->
+                        <!-- 4홀 -->
+                        <div id="hole4" class="hole_content">
+                            <div class="hole_left">
+                                <div class="green_img"><img src="/static/pc/images/sub/course/cheonma/cheonma_4-1.jpg" alt="홀 지도"></div>
+                                <div class="green_info_wrap">
+                                    <div class="green_info">
+                                        <em>천마</em>
+                                        <span class="f_nts"><i>OUT</i><br/>코스 4홀</span>
+                                        <dl>
+                                            <dt>PAR</dt>
+                                            <dd>4</dd>
+                                            <dt>HDCP</dt>
+                                            <dd>8</dd>
+                                            <dt>C.T</dt>
+                                            <dd>334 meter</dd>
+                                            <dt>R.T</dt>
+                                            <dd>302 meter</dd>
+                                        </dl>
+                                    </div>
+                                    <div class="green_tip">
+                                        <p class="section_tit">Green TIP</p>
+                                        <p class="green_tip_txt">
+                                            좌측은 O.B지역이나 별무리 없는 홀이다. <br/>
+                                            다만 그린 공략시 그린 좌,우측벙커로 <br/>
+                                            정확성이 요구된다. 그린은 의외로 <br/>
+                                            언줄레이션이 심해 퍼팅에 신중을 기해야 <br/>
+                                            한다.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="hole_right">
+                                <div class="green_map">
+                                    <img src="/static/pc/images/sub/course/cheonma/cheonma_4-2.png" alt="그린 맵">
+                                    <p class="section_tit">Greenmap</p>
+                                </div>
+                                <div class="swiper-container hole_slide course-sl-4">
+                                    <div class="swiper-wrapper">
+                                        <div class="swiper-slide" style="background:url('/static/pc/images/sub/course/cheonma/cheonma_4-3.jpg?ver=1')no-repeat;"></div>
+                                        <div class="swiper-slide" style="background:url('/static/pc/images/sub/course/cheonma/cheonma_4-4.jpg?ver=2')no-repeat;"></div>
+                                        <div class="swiper-slide" style="background:url('/static/pc/images/sub/course/cheonma/cheonma_4-5.jpg?ver=2')no-repeat;"></div>
+                                    </div>
+                                    <div class="swiper-pagination"></div>
+                                </div>
+                            </div>
+
+                            <div class="hole_bottom">
+                                <p class="section_tit">Course view</p>
+                                <video src="/static/pc/images/sub/course/video/cheonma_out4번.mp4?ver=2" autoplay muted controls loop></video>
+                            </div>
+                        </div>
+                        <!-- //4홀 -->
+                        <!-- 5홀 -->
+                        <div id="hole5" class="hole_content">
+                            <div class="hole_left">
+                                <div class="green_img"><img src="/static/pc/images/sub/course/cheonma/cheonma_5-1.jpg" alt="홀 지도"></div>
+                                <div class="green_info_wrap">
+                                    <div class="green_info">
+                                        <em>천마</em>
+                                        <span class="f_nts"><i>OUT</i><br/>코스 5홀</span>
+                                        <dl>
+                                            <dt>PAR</dt>
+                                            <dd>4</dd>
+                                            <dt>HDCP</dt>
+                                            <dd>4</dd>
+                                            <dt>C.T</dt>
+                                            <dd>357 meter</dd>
+                                            <dt>R.T</dt>
+                                            <dd>338 meter</dd>
+                                        </dl>
+                                    </div>
+                                    <div class="green_tip">
+                                        <p class="section_tit">Green TIP</p>
+                                        <p class="green_tip_txt">
+                                            티잉그라운드 앞이 계곡으로 초보자는 <br/>
+                                            심리적인 부담을 갖게 하는 홀이다. 티샷의 <br/>
+                                            목표지점은 페어웨이 중앙이 좋으며 그린 <br/>
+                                            좌,뒤 벙커가 포진되어 정확한 샷이 <br/>
+                                            요구되며, 그린 지표는 원만한 편이다.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="hole_right">
+                                <div class="green_map">
+                                    <img src="/static/pc/images/sub/course/cheonma/cheonma_5-2.png" alt="그린 맵">
+                                    <p class="section_tit">Greenmap</p>
+                                </div>
+                                <div class="swiper-container hole_slide course-sl-5">
+                                    <div class="swiper-wrapper">
+                                        <div class="swiper-slide" style="background:url('/static/pc/images/sub/course/cheonma/cheonma_5-3.jpg')no-repeat;"></div>
+                                        <div class="swiper-slide" style="background:url('/static/pc/images/sub/course/cheonma/cheonma_5-4.jpg')no-repeat;"></div>
+                                        <div class="swiper-slide" style="background:url('/static/pc/images/sub/course/cheonma/cheonma_5-5.jpg?ver=2')no-repeat;"></div>
+                                    </div>
+                                    <div class="swiper-pagination"></div>
+                                </div>
+                            </div>
+
+                            <div class="hole_bottom">
+                                <p class="section_tit">Course view</p>
+                                <video src="/static/pc/images/sub/course/video/cheonma_out5번.mp4?ver=2" autoplay muted controls loop></video>
+                            </div>
+                        </div>
+                        <!-- //5홀 -->
+                        <!-- 6홀 -->
+                        <div id="hole6" class="hole_content">
+                            <div class="hole_left">
+                                <div class="green_img"><img src="/static/pc/images/sub/course/cheonma/cheonma_6-1.jpg" alt="홀 지도"></div>
+                                <div class="green_info_wrap">
+                                    <div class="green_info">
+                                        <em>천마</em>
+                                        <span class="f_nts"><i>OUT</i><br/>코스 6홀</span>
+                                        <dl>
+                                            <dt>PAR</dt>
+                                            <dd>5</dd>
+                                            <dt>HDCP</dt>
+                                            <dd>10</dd>
+                                            <dt>C.T</dt>
+                                            <dd>517 meter</dd>
+                                            <dt>R.T</dt>
+                                            <dd>485 meter</dd>
+                                        </dl>
+                                    </div>
+                                    <div class="green_tip">
+                                        <p class="section_tit">Green TIP</p>
+                                        <p class="green_tip_txt">
+                                            거리가 있는 파 5홀로 티샷은 페어웨이 약간 <br/>
+                                            우측지점이 좋으며 세컨샷은 중앙 약간 <br/>
+                                            좌측이 그린 공략시 용이하다. 그린 지표는 <br/>
+                                            앞으로 내리막 경사며 퍼팅시 라인 읽기가 <br/>
+                                            쉽지 않다.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="hole_right">
+                                <div class="green_map">
+                                    <img src="/static/pc/images/sub/course/cheonma/cheonma_6-2.png" alt="그린 맵">
+                                    <p class="section_tit">Greenmap</p>
+                                </div>
+                                <div class="swiper-container hole_slide course-sl-6">
+                                    <div class="swiper-wrapper">
+                                        <div class="swiper-slide" style="background:url('/static/pc/images/sub/course/cheonma/cheonma_6-3.jpg?ver=1')no-repeat;"></div>
+                                        <div class="swiper-slide" style="background:url('/static/pc/images/sub/course/cheonma/cheonma_6-4.jpg?ver=1')no-repeat;"></div>
+                                        <div class="swiper-slide" style="background:url('/static/pc/images/sub/course/cheonma/cheonma_6-5.jpg?ver=2')no-repeat;"></div>
+                                    </div>
+                                    <div class="swiper-pagination"></div>
+                                </div>
+                            </div>
+
+                            <div class="hole_bottom">
+                                <p class="section_tit">Course view</p>
+                                <video src="/static/pc/images/sub/course/video/cheonma_out6번.mp4?ver=2" autoplay muted controls loop></video>
+                            </div>
+                        </div>
+                        <!-- //6홀 -->
+                        <!-- 7홀 -->
+                        <div id="hole7" class="hole_content">
+                            <div class="hole_left">
+                                <div class="green_img"><img src="/static/pc/images/sub/course/cheonma/cheonma_7-1.jpg" alt="홀 지도"></div>
+                                <div class="green_info_wrap">
+                                    <div class="green_info">
+                                        <em>천마</em>
+                                        <span class="f_nts"><i>OUT</i><br/>코스 7홀</span>
+                                        <dl>
+                                            <dt>PAR</dt>
+                                            <dd>3</dd>
+                                            <dt>HDCP</dt>
+                                            <dd>6</dd>
+                                            <dt>C.T</dt>
+                                            <dd>196 meter</dd>
+                                            <dt>R.T</dt>
+                                            <dd>174 meter</dd>
+                                        </dl>
+                                    </div>
+                                    <div class="green_tip">
+                                        <p class="section_tit">Green TIP</p>
+                                        <p class="green_tip_txt">
+                                            그린 좌,우측 벙커와 전방 해저드로 <br/>
+                                            부담스로운 홀이나 내리막 홀로 샷만 <br/>
+                                            정확하면 어려운 홀은 아니다. 그린 지표는 <br/>
+                                            완만한 홀이며 바람의 영향을 많이 받는 <br/>
+                                            홀이다.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="hole_right">
+                                <div class="green_map">
+                                    <img src="/static/pc/images/sub/course/cheonma/cheonma_7-2.png" alt="그린 맵">
+                                    <p class="section_tit">Greenmap</p>
+                                </div>
+                                <div class="swiper-container hole_slide course-sl-7">
+                                    <div class="swiper-wrapper">
+                                        <div class="swiper-slide" style="background:url('/static/pc/images/sub/course/cheonma/cheonma_7-3.jpg?ver=2')no-repeat;"></div>
+                                        <div class="swiper-slide" style="background:url('/static/pc/images/sub/course/cheonma/cheonma_7-4.jpg?ver=1')no-repeat;"></div>
+                                        <div class="swiper-slide" style="background:url('/static/pc/images/sub/course/cheonma/cheonma_7-5.jpg?ver=1')no-repeat;"></div>
+                                    </div>
+                                    <div class="swiper-pagination"></div>
+                                </div>
+                            </div>
+
+                            <div class="hole_bottom">
+                                <p class="section_tit">Course view</p>
+                                <video src="/static/pc/images/sub/course/video/cheonma_out7번.mp4?ver=2" autoplay muted controls loop></video>
+                            </div>
+                        </div>
+                        <!-- //7홀 -->
+                        <!-- 8홀 -->
+                        <div id="hole8" class="hole_content">
+                            <div class="hole_left">
+                                <div class="green_img"><img src="/static/pc/images/sub/course/cheonma/cheonma_8-1.jpg" alt="홀 지도"></div>
+                                <div class="green_info_wrap">
+                                    <div class="green_info">
+                                        <em>천마</em>
+                                        <span class="f_nts"><i>OUT</i><br/>코스 8홀</span>
+                                        <dl>
+                                            <dt>PAR</dt>
+                                            <dd>4</dd>
+                                            <dt>HDCP</dt>
+                                            <dd>12</dd>
+                                            <dt>C.T</dt>
+                                            <dd>347 meter</dd>
+                                            <dt>R.T</dt>
+                                            <dd>320 meter</dd>
+                                        </dl>
+                                    </div>
+                                    <div class="green_tip">
+                                        <p class="section_tit">Green TIP</p>
+                                        <p class="green_tip_txt">
+                                            거리가 약간 짧은 홀이나 티샷 I.P지점이 <br/>
+                                            완만한 오르막으로 페어웨이 중앙 우측을 <br/>
+                                            겨냥해야 그린 공략시 용이하다. 그린은 심한 <br/>
+                                            언줄레이션은 아니나 브레익을 잘못 읽기 <br/>
+                                            쉬우므로 신중을 기해야 한다.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="hole_right">
+                                <div class="green_map">
+                                    <img src="/static/pc/images/sub/course/cheonma/cheonma_8-2.png" alt="그린 맵">
+                                    <p class="section_tit">Greenmap</p>
+                                </div>
+                                <div class="swiper-container hole_slide course-sl-8">
+                                    <div class="swiper-wrapper">
+                                        <div class="swiper-slide" style="background:url('/static/pc/images/sub/course/cheonma/cheonma_8-3.jpg?ver=2')no-repeat;"></div>
+                                        <div class="swiper-slide" style="background:url('/static/pc/images/sub/course/cheonma/cheonma_8-4.jpg?ver=2')no-repeat;"></div>
+                                        <div class="swiper-slide" style="background:url('/static/pc/images/sub/course/cheonma/cheonma_8-5.jpg?ver=2')no-repeat;"></div>
+                                    </div>
+                                    <div class="swiper-pagination"></div>
+                                </div>
+                            </div>
+
+                            <div class="hole_bottom">
+                                <p class="section_tit">Course view</p>
+                                <video src="/static/pc/images/sub/course/video/cheonma_out8번.mp4?ver=2" autoplay muted controls loop></video>
+                            </div>
+                        </div>
+                        <!-- //8홀 -->
+                        <!-- 9홀 -->
+                        <div id="hole9" class="hole_content">
+                            <div class="hole_left">
+                                <div class="green_img"><img src="/static/pc/images/sub/course/cheonma/cheonma_9-1.jpg" alt="홀 지도"></div>
+                                <div class="green_info_wrap">
+                                    <div class="green_info">
+                                        <em>천마</em>
+                                        <span class="f_nts"><i>OUT</i><br/>코스 9홀</span>
+                                        <dl>
+                                            <dt>PAR</dt>
+                                            <dd>4</dd>
+                                            <dt>HDCP</dt>
+                                            <dd>2</dd>
+                                            <dt>C.T</dt>
+                                            <dd>398 meter</dd>
+                                            <dt>R.T</dt>
+                                            <dd>375 meter</dd>
+                                        </dl>
+                                    </div>
+                                    <div class="green_tip">
+                                        <p class="section_tit">Green TIP</p>
+                                        <p class="green_tip_txt">
+                                            파 4홀로 거리가 있는 홀이다. 티샷은 <br/>
+                                            페어웨이 중앙을 겨냥하여 그린 앞이 <br/>
+                                            오르막경사로 세컨셧은 거리보다 1클럽 더 <br/>
+                                            생각해야 하며, 그린 주변 벙커로 정확한 샷이 <br/>
+                                            요구된다. 그린 지표는 완만한 편이다.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="hole_right">
+                                <div class="green_map">
+                                    <img src="/static/pc/images/sub/course/cheonma/cheonma_9-2.png" alt="그린 맵">
+                                    <p class="section_tit">Greenmap</p>
+                                </div>
+                                <div class="swiper-container hole_slide course-sl-9">
+                                    <div class="swiper-wrapper">
+                                        <div class="swiper-slide" style="background:url('/static/pc/images/sub/course/cheonma/cheonma_9-3.jpg?ver=2')no-repeat;"></div>
+                                        <div class="swiper-slide" style="background:url('/static/pc/images/sub/course/cheonma/cheonma_9-4.jpg?ver=2')no-repeat;"></div>
+                                        <div class="swiper-slide" style="background:url('/static/pc/images/sub/course/cheonma/cheonma_9-5.jpg?ver=1')no-repeat;"></div>
+                                    </div>
+                                    <div class="swiper-pagination"></div>
+                                </div>
+                            </div>
+
+                            <div class="hole_bottom">
+                                <p class="section_tit">Course view</p>
+                                <video src="/static/pc/images/sub/course/video/cheonma_out9번.mp4?ver=2" autoplay muted controls loop></video>
+                            </div>
+                        </div>
+                        <!-- //9홀 -->
+
+                        <!-- 10홀 -->
+                        <div id="hole10" class="hole_content">
+                            <div class="hole_left">
+                                <div class="green_img"><img src="/static/pc/images/sub/course/cheonma/cheonma_10-1.jpg" alt="홀 지도"></div>
+                                <div class="green_info_wrap">
+                                    <div class="green_info in">
+                                        <em>천마</em>
+                                        <span class="f_nts"><i>IN</i><br/>코스 10홀</span>
+                                        <dl>
+                                            <dt>PAR</dt>
+                                            <dd>4</dd>
+                                            <dt>HDCP</dt>
+                                            <dd>1</dd>
+                                            <dt>C.T</dt>
+                                            <dd>384 meter</dd>
+                                            <dt>R.T</dt>
+                                            <dd>347 meter</dd>
+                                        </dl>
+                                    </div>
+                                    <div class="green_tip">
+                                        <p class="section_tit">Green TIP</p>
+                                        <p class="green_tip_txt">
+                                            파 4홀로 거리가 있으며 티샷 I.P지점이 <br/>
+                                            오르막 경사로 티샷거리가 안좋으며 미들 <br/>
+                                            아이언 이상의 거리가 남는 경우가 많다. 그린 <br/>
+                                            우측 벙커로 인해 세컨샷은 약간 좌측이 <br/>
+                                            안전하며 그린 지표는 완만하다.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="hole_right">
+                                <div class="green_map">
+                                    <img src="/static/pc/images/sub/course/cheonma/cheonma_10-2.png" alt="그린 맵">
+                                    <p class="section_tit">Greenmap</p>
+                                </div>
+                                <div class="swiper-container hole_slide course-sl-10">
+                                    <div class="swiper-wrapper">
+                                        <div class="swiper-slide" style="background:url('/static/pc/images/sub/course/cheonma/cheonma_10-3.jpg')no-repeat;"></div>
+                                        <div class="swiper-slide" style="background:url('/static/pc/images/sub/course/cheonma/cheonma_10-4.jpg?ver=2')no-repeat;"></div>
+                                        <div class="swiper-slide" style="background:url('/static/pc/images/sub/course/cheonma/cheonma_10-5.jpg?ver=2')no-repeat;"></div>
+                                        <div class="swiper-slide" style="background:url('/static/pc/images/sub/course/cheonma/cheonma_10-6.jpg?ver=2')no-repeat;"></div>
+                                    </div>
+                                    <div class="swiper-pagination"></div>
+                                </div>
+                            </div>
+
+                            <div class="hole_bottom">
+                                <p class="section_tit">Course view</p>
+                                <video src="/static/pc/images/sub/course/video/cheonma_in1번.mp4?ver=2" autoplay muted controls loop></video>
+                            </div>
+                        </div>
+                        <!-- //10홀 -->
+                        <!-- 11홀 -->
+                        <div id="hole11" class="hole_content">
+                            <div class="hole_left">
+                                <div class="green_img"><img src="/static/pc/images/sub/course/cheonma/cheonma_11-1.jpg" alt="홀 지도"></div>
+                                <div class="green_info_wrap">
+                                    <div class="green_info in">
+                                        <em>천마</em>
+                                        <span class="f_nts"><i>IN</i><br/>코스 11홀</span>
+                                        <dl>
+                                            <dt>PAR</dt>
+                                            <dd>5</dd>
+                                            <dt>HDCP</dt>
+                                            <dd>11</dd>
+                                            <dt>C.T</dt>
+                                            <dd>507 meter</dd>
+                                            <dt>R.T</dt>
+                                            <dd>475 meter</dd>
+                                        </dl>
+                                    </div>
+                                    <div class="green_tip">
+                                        <p class="section_tit">Green TIP</p>
+                                        <p class="green_tip_txt">
+                                            파 5홀이나 서비스 홀이다. 장타자는 투온도 <br/>
+                                            가능하다. 중급이하 골퍼는 안전하게 쓰리온 <br/>
+                                            작전이 원만하며 그린 공략은 샷이 정확하지 <br/>
+                                            않은 때는 좌, 우측 벙커가 위험하다. 그린은 <br/>
+                                            뒤편 오르막 경사로 깃대의 위치가 뒤 <br/>
+                                            일때에는 거리를 감안해야 한다.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="hole_right">
+                                <div class="green_map">
+                                    <img src="/static/pc/images/sub/course/cheonma/cheonma_11-2.png" alt="그린 맵">
+                                    <p class="section_tit">Greenmap</p>
+                                </div>
+                                <div class="swiper-container hole_slide course-sl-11">
+                                    <div class="swiper-wrapper">
+                                        <div class="swiper-slide" style="background:url('/static/pc/images/sub/course/cheonma/cheonma_11-3.jpg')no-repeat;"></div>
+                                        <div class="swiper-slide" style="background:url('/static/pc/images/sub/course/cheonma/cheonma_11-4.jpg')no-repeat;"></div>
+                                        <div class="swiper-slide" style="background:url('/static/pc/images/sub/course/cheonma/cheonma_11-5.jpg?ver=1')no-repeat;"></div>
+                                    </div>
+                                    <div class="swiper-pagination"></div>
+                                </div>
+                            </div>
+
+                            <div class="hole_bottom">
+                                <p class="section_tit">Course view</p>
+                                <video src="/static/pc/images/sub/course/video/cheonma_in2번.mp4?ver=2" autoplay muted controls loop></video>
+                            </div>
+                        </div>
+                        <!-- //11홀 -->
+                        <!-- 12홀 -->
+                        <div id="hole12" class="hole_content">
+                            <div class="hole_left">
+                                <div class="green_img"><img src="/static/pc/images/sub/course/cheonma/cheonma_12-1.jpg" alt="홀 지도"></div>
+                                <div class="green_info_wrap">
+                                    <div class="green_info in">
+                                        <em>천마</em>
+                                        <span class="f_nts"><i>IN</i><br/>코스 12홀</span>
+                                        <dl>
+                                            <dt>PAR</dt>
+                                            <dd>4</dd>
+                                            <dt>HDCP</dt>
+                                            <dd>15</dd>
+                                            <dt>C.T</dt>
+                                            <dd>366 meter</dd>
+                                            <dt>R.T</dt>
+                                            <dd>329 meter</dd>
+                                        </dl>
+                                    </div>
+                                    <div class="green_tip">
+                                        <p class="section_tit">Green TIP</p>
+                                        <p class="green_tip_txt">
+                                            티샷은 페어웨이 중앙을 목표하여 훅이 나면 <br/>
+                                            전방 벙커 및 독립수에 지장을 받으며 그린 앞 <br/>
+                                            해저드가 부담스럽다. 그린 공략은 우측 <br/>
+                                            벙커를 의식 좌측으로 공략하는 것이 <br/>
+                                            안전하다. 그린지표는 완만하다.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="hole_right">
+                                <div class="green_map">
+                                    <img src="/static/pc/images/sub/course/cheonma/cheonma_12-2.png" alt="그린 맵">
+                                    <p class="section_tit">Greenmap</p>
+                                </div>
+                                <div class="swiper-container hole_slide course-sl-12">
+                                    <div class="swiper-wrapper">
+                                        <div class="swiper-slide" style="background:url('/static/pc/images/sub/course/cheonma/cheonma_12-3.jpg')no-repeat;"></div>
+                                        <div class="swiper-slide" style="background:url('/static/pc/images/sub/course/cheonma/cheonma_12-4.jpg')no-repeat;"></div>
+                                        <div class="swiper-slide" style="background:url('/static/pc/images/sub/course/cheonma/cheonma_12-5.jpg')no-repeat;"></div>
+                                    </div>
+                                    <div class="swiper-pagination"></div>
+                                </div>
+                            </div>
+
+                            <div class="hole_bottom">
+                                <p class="section_tit">Course view</p>
+                                <video src="/static/pc/images/sub/course/video/cheonma_in3번.mp4?ver=2" autoplay muted controls loop></video>
+                            </div>
+                        </div>
+                        <!-- //12홀 -->
+                        <!-- 13홀 -->
+                        <div id="hole13" class="hole_content">
+                            <div class="hole_left">
+                                <div class="green_img"><img src="/static/pc/images/sub/course/cheonma/cheonma_13-1.jpg" alt="홀 지도"></div>
+                                <div class="green_info_wrap">
+                                    <div class="green_info in">
+                                        <em>천마</em>
+                                        <span class="f_nts"><i>IN</i><br/>코스 13홀</span>
+                                        <dl>
+                                            <dt>PAR</dt>
+                                            <dd>3</dd>
+                                            <dt>HDCP</dt>
+                                            <dd>7</dd>
+                                            <dt>C.T</dt>
+                                            <dd>210 meter</dd>
+                                            <dt>R.T</dt>
+                                            <dd>192 meter</dd>
+                                        </dl>
+                                    </div>
+                                    <div class="green_tip">
+                                        <p class="section_tit">Green TIP</p>
+                                        <p class="green_tip_txt">
+                                            거리가 있는 파 3홀로 티샷이 정확하지 <br/>
+                                            않으면 원온이 어려운 홀이다. 특히 좌측 <br/>
+                                            내리막 O.B지역으로 주의를 요하는 홀이다. <br/>
+                                            좌그린은 뒤쪽으로 길게 자리하고 있으며 <br/>
+                                            심한 오르막 경사이다. 자칫 3퍼터가 나오기 <br/>
+                                            쉽다.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="hole_right">
+                                <div class="green_map">
+                                    <img src="/static/pc/images/sub/course/cheonma/cheonma_13-2.png" alt="그린 맵">
+                                    <p class="section_tit">Greenmap</p>
+                                </div>
+                                <div class="swiper-container hole_slide course-sl-13">
+                                    <div class="swiper-wrapper">
+                                        <div class="swiper-slide" style="background:url('/static/pc/images/sub/course/cheonma/cheonma_13-3.jpg')no-repeat;"></div>
+                                        <div class="swiper-slide" style="background:url('/static/pc/images/sub/course/cheonma/cheonma_13-4.jpg')no-repeat;"></div>
+                                        <div class="swiper-slide" style="background:url('/static/pc/images/sub/course/cheonma/cheonma_13-5.jpg')no-repeat;"></div>
+                                    </div>
+                                    <div class="swiper-pagination"></div>
+                                </div>
+                            </div>
+
+                            <div class="hole_bottom">
+                                <p class="section_tit">Course view</p>
+                                <video src="/static/pc/images/sub/course/video/cheonma_in4번.mp4?ver=2" autoplay muted controls loop></video>
+                            </div>
+                        </div>
+                        <!-- //13홀 -->
+                        <!-- 14홀 -->
+                        <div id="hole14" class="hole_content">
+                            <div class="hole_left">
+                                <div class="green_img"><img src="/static/pc/images/sub/course/cheonma/cheonma_14-1.jpg" alt="홀 지도"></div>
+                                <div class="green_info_wrap">
+                                    <div class="green_info in">
+                                        <em>천마</em>
+                                        <span class="f_nts"><i>IN</i><br/>코스 14홀</span>
+                                        <dl>
+                                            <dt>PAR</dt>
+                                            <dd>4</dd>
+                                            <dt>HDCP</dt>
+                                            <dd>5</dd>
+                                            <dt>C.T</dt>
+                                            <dd>425 meter</dd>
+                                            <dt>R.T</dt>
+                                            <dd>402 meter</dd>
+                                        </dl>
+                                    </div>
+                                    <div class="green_tip">
+                                        <p class="section_tit">Green TIP</p>
+                                        <p class="green_tip_txt">
+                                            좌측으로 굽어있는 도그랙홀로 티샷은 <br/>
+                                            페어웨이 중앙좌측을 목표로해야만 그린 <br/>
+                                            공략이 유리하다. 세컨샷은 좌, 우측 벙커로 <br/>
+                                            인해 정확성이 요구되며, 그린은 뒤쪽이 <br/>
+                                            오르막경사이며 지표는 완만하다.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="hole_right">
+                                <div class="green_map">
+                                    <img src="/static/pc/images/sub/course/cheonma/cheonma_14-2.png" alt="그린 맵">
+                                    <p class="section_tit">Greenmap</p>
+                                </div>
+                                <div class="swiper-container hole_slide course-sl-14">
+                                    <div class="swiper-wrapper">
+                                        <div class="swiper-slide" style="background:url('/static/pc/images/sub/course/cheonma/cheonma_14-3.jpg')no-repeat;"></div>
+                                        <div class="swiper-slide" style="background:url('/static/pc/images/sub/course/cheonma/cheonma_14-4.jpg')no-repeat;"></div>
+                                        <div class="swiper-slide" style="background:url('/static/pc/images/sub/course/cheonma/cheonma_14-5.jpg')no-repeat;"></div>
+                                    </div>
+                                    <div class="swiper-pagination"></div>
+                                </div>
+                            </div>
+
+                            <div class="hole_bottom">
+                                <p class="section_tit">Course view</p>
+                                <video src="/static/pc/images/sub/course/video/cheonma_in5번.mp4?ver=2" autoplay muted controls loop></video>
+                            </div>
+                        </div>
+                        <!-- //14홀 -->
+                        <!-- 15홀 -->
+                        <div id="hole15" class="hole_content">
+                            <div class="hole_left">
+                                <div class="green_img"><img src="/static/pc/images/sub/course/cheonma/cheonma_15-1.jpg" alt="홀 지도"></div>
+                                <div class="green_info_wrap">
+                                    <div class="green_info in">
+                                        <em>천마</em>
+                                        <span class="f_nts"><i>IN</i><br/>코스 15홀</span>
+                                        <dl>
+                                            <dt>PAR</dt>
+                                            <dd>4</dd>
+                                            <dt>HDCP</dt>
+                                            <dd>13</dd>
+                                            <dt>C.T</dt>
+                                            <dd>343 meter</dd>
+                                            <dt>R.T</dt>
+                                            <dd>311 meter</dd>
+                                        </dl>
+                                    </div>
+                                    <div class="green_tip">
+                                        <p class="section_tit">Green TIP</p>
+                                        <p class="green_tip_txt">
+                                            티샷은 페어웨이 중앙을 겨냥하며 좌, 우측 <br/>
+                                            크로스 벙커를 유념해야 한다. 그린 공략은 <br/>
+                                            그린앞 좌측 벙커를 의식해야 하며, 그린 <br/>
+                                            지표는 완만한 편이다.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="hole_right">
+                                <div class="green_map">
+                                    <img src="/static/pc/images/sub/course/cheonma/cheonma_15-2.png" alt="그린 맵">
+                                    <p class="section_tit">Greenmap</p>
+                                </div>
+                                <div class="swiper-container hole_slide course-sl-15">
+                                    <div class="swiper-wrapper">
+                                        <div class="swiper-slide" style="background:url('/static/pc/images/sub/course/cheonma/cheonma_15-3.jpg')no-repeat;"></div>
+                                        <div class="swiper-slide" style="background:url('/static/pc/images/sub/course/cheonma/cheonma_15-4.jpg')no-repeat;"></div>
+                                        <div class="swiper-slide" style="background:url('/static/pc/images/sub/course/cheonma/cheonma_15-5.jpg')no-repeat;"></div>
+                                    </div>
+                                    <div class="swiper-pagination"></div>
+                                </div>
+                            </div>
+
+                            <div class="hole_bottom">
+                                <p class="section_tit">Course view</p>
+                                <video src="/static/pc/images/sub/course/video/cheonma_in6번.mp4?ver=2" autoplay muted controls loop></video>
+                            </div>
+                        </div>
+                        <!-- //15홀 -->
+                        <!-- 16홀 -->
+                        <div id="hole16" class="hole_content">
+                            <div class="hole_left">
+                                <div class="green_img"><img src="/static/pc/images/sub/course/cheonma/cheonma_16-1.jpg" alt="홀 지도"></div>
+                                <div class="green_info_wrap">
+                                    <div class="green_info in">
+                                        <em>천마</em>
+                                        <span class="f_nts"><i>IN</i><br/>코스 16홀</span>
+                                        <dl>
+                                            <dt>PAR</dt>
+                                            <dd>4</dd>
+                                            <dt>HDCP</dt>
+                                            <dd>9</dd>
+                                            <dt>C.T</dt>
+                                            <dd>402 meter</dd>
+                                            <dt>R.T</dt>
+                                            <dd>366 meter</dd>
+                                        </dl>
+                                    </div>
+                                    <div class="green_tip">
+                                        <p class="section_tit">Green TIP</p>
+                                        <p class="green_tip_txt">
+                                            파 4홀로 거리가 있는 편이며 티샷목표는 <br/>
+                                            페어웨이 중앙 좌측을 겨냥해야 그린 공략이 <br/>
+                                            용이하다. 그린 앞 좌측 벙커를 의식해야 <br/>
+                                            하며, 그린은 뒤편이 오르막으로 지표는 <br/>
+                                            완만한 편이다.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="hole_right">
+                                <div class="green_map">
+                                    <img src="/static/pc/images/sub/course/cheonma/cheonma_16-2.png" alt="그린 맵">
+                                    <p class="section_tit">Greenmap</p>
+                                </div>
+                                <div class="swiper-container hole_slide course-sl-16">
+                                    <div class="swiper-wrapper">
+                                        <div class="swiper-slide" style="background:url('/static/pc/images/sub/course/cheonma/cheonma_16-3.jpg')no-repeat;"></div>
+                                        <div class="swiper-slide" style="background:url('/static/pc/images/sub/course/cheonma/cheonma_16-4.jpg')no-repeat;"></div>
+                                        <div class="swiper-slide" style="background:url('/static/pc/images/sub/course/cheonma/cheonma_16-5.jpg')no-repeat;"></div>
+                                        <div class="swiper-slide" style="background:url('/static/pc/images/sub/course/cheonma/cheonma_16-6.jpg')no-repeat;"></div>
+                                    </div>
+                                    <div class="swiper-pagination"></div>
+                                </div>
+                            </div>
+
+                            <div class="hole_bottom">
+                                <p class="section_tit">Course view</p>
+                                <video src="/static/pc/images/sub/course/video/cheonma_in7번.mp4?ver=2" autoplay muted controls loop></video>
+                            </div>
+                        </div>
+                        <!-- //16홀 -->
+                        <!-- 17홀 -->
+                        <div id="hole17" class="hole_content">
+                            <div class="hole_left">
+                                <div class="green_img"><img src="/static/pc/images/sub/course/cheonma/cheonma_17-1.jpg" alt="홀 지도"></div>
+                                <div class="green_info_wrap">
+                                    <div class="green_info in">
+                                        <em>천마</em>
+                                        <span class="f_nts"><i>IN</i><br/>코스 17홀</span>
+                                        <dl>
+                                            <dt>PAR</dt>
+                                            <dd>3</dd>
+                                            <dt>HDCP</dt>
+                                            <dd>17</dd>
+                                            <dt>C.T</dt>
+                                            <dd>137 meter</dd>
+                                            <dt>R.T</dt>
+                                            <dd>123 meter</dd>
+                                        </dl>
+                                    </div>
+                                    <div class="green_tip">
+                                        <p class="section_tit">Green TIP</p>
+                                        <p class="green_tip_txt">
+                                            짧은 파 3홀이나 그린 앞 벙커가 길게 앉아 <br/>
+                                            있어 정확한 샷이 요구되며 당일 바람에 따라 <br/>
+                                            가변성이 많은 홀이다. 그린은 뒤쪽 <br/>
+                                            오르막으로 지표는 비교적 완만하다.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="hole_right">
+                                <div class="green_map">
+                                    <img src="/static/pc/images/sub/course/cheonma/cheonma_17-2.png" alt="그린 맵">
+                                    <p class="section_tit">Greenmap</p>
+                                </div>
+                                <div class="swiper-container hole_slide course-sl-17">
+                                    <div class="swiper-wrapper">
+                                        <div class="swiper-slide" style="background:url('/static/pc/images/sub/course/cheonma/cheonma_17-3.jpg')no-repeat;"></div>
+                                        <div class="swiper-slide" style="background:url('/static/pc/images/sub/course/cheonma/cheonma_17-4.jpg')no-repeat;"></div>
+                                        <div class="swiper-slide" style="background:url('/static/pc/images/sub/course/cheonma/cheonma_17-5.jpg')no-repeat;"></div>
+                                    </div>
+                                    <div class="swiper-pagination"></div>
+                                </div>
+                            </div>
+
+                            <div class="hole_bottom">
+                                <p class="section_tit">Course view</p>
+                                <video src="/static/pc/images/sub/course/video/cheonma_in8번.mp4?ver=2" autoplay muted controls loop></video>
+                            </div>
+                        </div>
+                        <!-- //17홀 -->
+                        <!-- 18홀 -->
+                        <div id="hole18" class="hole_content">
+                            <div class="hole_left">
+                                <div class="green_img"><img src="/static/pc/images/sub/course/cheonma/cheonma_18-1.jpg" alt="홀 지도"></div>
+                                <div class="green_info_wrap">
+                                    <div class="green_info in">
+                                        <em>천마</em>
+                                        <span class="f_nts"><i>IN</i><br/>코스 18홀</span>
+                                        <dl>
+                                            <dt>PAR</dt>
+                                            <dd>5</dd>
+                                            <dt>HDCP</dt>
+                                            <dd>3</dd>
+                                            <dt>C.T</dt>
+                                            <dd>553 meter</dd>
+                                            <dt>R.T</dt>
+                                            <dd>521 meter</dd>
+                                        </dl>
+                                    </div>
+                                    <div class="green_tip">
+                                        <p class="section_tit">Green TIP</p>
+                                        <p class="green_tip_txt">
+                                            거리가 있는 파 5홀로 티샷은 페어웨이 <br/>
+                                            중앙을 목표하는것이 유리하며 세컨샷은 <br/>
+                                            중앙 좌측을 겨냥해야 우측 그린 앞 해저드를 <br/>
+                                            피할 수 있으며 그린 공략이 용이하다. 그린은 <br/>
+                                            평탄하며 완만하다.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="hole_right">
+                                <div class="green_map">
+                                    <img src="/static/pc/images/sub/course/cheonma/cheonma_18-2.png" alt="그린 맵">
+                                    <p class="section_tit">Greenmap</p>
+                                </div>
+                                <div class="swiper-container hole_slide course-sl-18">
+                                    <div class="swiper-wrapper">
+                                        <div class="swiper-slide" style="background:url('/static/pc/images/sub/course/cheonma/cheonma_18-3.jpg')no-repeat;"></div>
+                                        <div class="swiper-slide" style="background:url('/static/pc/images/sub/course/cheonma/cheonma_18-4.jpg')no-repeat;"></div>
+                                        <div class="swiper-slide" style="background:url('/static/pc/images/sub/course/cheonma/cheonma_18-5.jpg')no-repeat;"></div>
+                                        <div class="swiper-slide" style="background:url('/static/pc/images/sub/course/cheonma/cheonma_18-6.jpg')no-repeat;"></div>
+                                    </div>
+                                    <div class="swiper-pagination"></div>
+                                </div>
+                            </div>
+
+                            <div class="hole_bottom">
+                                <p class="section_tit">Course view</p>
+                                <video src="/static/pc/images/sub/course/video/cheonma_in9번.mp4?ver=2" autoplay muted controls loop></video>
+                            </div>
+                        </div>
+                        <!-- //17홀 -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- //Content -->
+</div>
+
+<script>       
+    sub.course_slide.call('course-sl-1');
+
+    function Hole_number(target){
+        $(".hole_content").removeClass("on");
+        $('#hole'+target).addClass("on");
+
+        $(".list_number").removeClass("on");
+        $('#tab_hole'+target).addClass('on');
+    }
+</script>
+<script type="text/javascript" src="/static/pc/js/custom/ui.course.js" charset="UTF-8"></script>
+<!-- //Container -->
+        <!--// container-->
+
+        <!-- footer -->
+        
+
+
+
+
+
+
+
+<!-- Footer -->
+<footer id="footer" class="out-sec">
+    <div class="footer-inner in-sec">
+        
+        <div class="logo_inner">
+            <a href="/" class="logo gray">LOGO</a>
+        </div>
+        <div class="info_inner">
+        
+            <!-- Company Information -->
+            <div class="company_info">
+                <div class="row-01">
+                    <!-- terms -->
+		            <div class="terms">
+		                <ul>
+		                    <li><a href="/" class="home"><span>HOME</span></a></li>
+		                    <li><a href="javascript:ui.popup.open('terms-01');"><span class="f_w-900 color-04">개인정보처리방침</span></a></li>
+		                    <li><a href="javascript:ui.popup.open('terms-02');"><span>이용약관</span></a></li>
+		                    <li><a href="javascript:ui.popup.open('terms-03');"><span>이메일무단수집거부</span></a></li>
+		                    <li><a href="javascript:ui.popup.open('terms-04');"><span>골프장이용방침</span></a></li>
+		                    <li><a href="javascript:ui.popup.open('terms-05');"><span>영상정보처리기기 운영</span></a></li>
+		                    <li><a href="javascript:ui.popup.open('terms-06');"><span>인터넷서비스이용약관</span></a></li>
+		                </ul>
+		            </div>
+		            <!-- //terms -->
+                </div>
+                <div class="row-02">
+                    <dl>
+                        <dt class="m_r-30px">(주)경주신라컨트리클럽</dt>
+                        <dd>경상북도 경주시 보문로 319(신평동)</dd>                    
+                    </dl>
+                    <dl>
+                        <dt>대표전화:</dt>
+                        <dd>054-740-7114</dd>                    
+                    </dl>
+                </div>
+                <!-- Copyright -->
+                <p class="copyright">Copyright © 2004  sillacc.co.kr   inc. all right reserved</p>
+                <!-- //Copyright -->
+            </div>
+            <!-- //Company Information -->
+        
+        </div>    
+		<!-- top btn -->
+		<div class="sticky_area">
+		    <a href="javascript:void(0);" class="btn_sticky sticky01"><span>TOP</span></a>
+		</div>
+		<!-- //top btn -->
+		
+    </div>
+</footer>   
+<!-- //Footer -->
+        
+<!-- 개인정보처리방침 팝업 -->
+<div id="terms-01" class="popup-wrap type-basic type01 footer" role="dialog">
+    <section class="popup demo1" tabindex="0">
+        <div class="popup-head">
+            <h3 id="popupContentTitle">개인정보취급방침</h3>
+        </div>
+        <div class="popup-body">
+            <div class="popup-cont" id="terms_in-01">
+                
+
+            </div>
+        </div>
+        <div class="popup-foot">
+            <div class="btn-area flex-center">
+                <button type="button" id="fnPopClose" class="btn demo1 secondary" onclick="ui.popup.close('terms-01')"><span>닫기</span></button>
+            </div>
+        </div>
+        <div class="popup-close">
+            <button type="button" class="btn-ico btn-close" title="팝업닫기" onclick="ui.popup.close('terms-01')"><span><i class="ico ico-close1 white">Close</i></span></button>
+        </div>
+    </section>
+</div>
+<!-- //개인정보처리방침 팝업 -->
+
+<!-- 이용약관 팝업 -->
+<div id="terms-02" class="popup-wrap type-basic type01 footer" role="dialog">
+    <section class="popup demo1" tabindex="0">
+        <div class="popup-head">
+            <h3 id="popupContentTitle">이용약관</h3>
+        </div>
+        <div class="popup-body">
+            <div class="popup-cont" id="terms_in-02">
+                
+
+            </div>
+        </div>
+        <div class="popup-foot">
+            <div class="btn-area flex-center">
+                <button type="button" id="fnPopClose" class="btn demo1 secondary" onclick="ui.popup.close('terms-02')"><span>닫기</span></button>
+            </div>
+        </div>
+        <div class="popup-close">
+            <button type="button" class="btn-ico btn-close" title="팝업닫기" onclick="ui.popup.close('terms-02')"><span><i class="ico ico-close1 white">Close</i></span></button>
+        </div>
+    </section>
+</div>
+<!-- //이용약관 팝업 -->
+
+<!-- 이메일무단수집거부 팝업 -->
+<div id="terms-03" class="popup-wrap type-basic type01 footer" role="dialog">
+    <section class="popup demo1" tabindex="0">
+        <div class="popup-head">
+            <h3 id="popupContentTitle">이메일무단수집거부</h3>
+        </div>
+        <div class="popup-body">
+            <div class="popup-cont" id="terms_in-03">
+                
+
+            </div>
+        </div>
+        <div class="popup-foot">
+            <div class="btn-area flex-center">
+                <button type="button" id="fnPopClose" class="btn demo1 secondary" onclick="ui.popup.close('terms-03')"><span>닫기</span></button>
+            </div>
+        </div>
+        <div class="popup-close">
+            <button type="button" class="btn-ico btn-close" title="팝업닫기" onclick="ui.popup.close('terms-03')"><span><i class="ico ico-close1 white">Close</i></span></button>
+        </div>
+    </section>
+</div>
+<!-- //이메일무단수집거부 팝업 -->
+
+<!-- 골프장이용방침 팝업 -->
+<div id="terms-04" class="popup-wrap type-basic type01 footer" role="dialog">
+    <section class="popup demo1" tabindex="0">
+        <div class="popup-head">
+            <h3 id="popupContentTitle">골프장이용방침</h3>
+        </div>
+        <div class="popup-body">
+            <div class="popup-cont" id="terms_in-04">
+                
+
+            </div>
+        </div>
+        <div class="popup-foot">
+            <div class="btn-area flex-center">
+                <button type="button" id="fnPopClose" class="btn demo1 secondary" onclick="ui.popup.close('terms-04')"><span>닫기</span></button>
+            </div>
+        </div>
+        <div class="popup-close">
+            <button type="button" class="btn-ico btn-close" title="팝업닫기" onclick="ui.popup.close('terms-04')"><span><i class="ico ico-close1 white">Close</i></span></button>
+        </div>
+    </section>
+</div>
+<!-- //골프장이용방침 팝업 -->
+
+<!-- 영상정보처리기기 운영 팝업 -->
+<div id="terms-05" class="popup-wrap type-basic type01 footer" role="dialog">
+    <section class="popup demo1" tabindex="0">
+        <div class="popup-head">
+            <h3 id="popupContentTitle">영상정보처리기기 운영</h3>
+        </div>
+        <div class="popup-body">
+            <div class="popup-cont" id="terms_in-05">
+                
+
+            </div>
+        </div>
+        <div class="popup-foot">
+            <div class="btn-area flex-center">
+                <button type="button" id="fnPopClose" class="btn demo1 secondary" onclick="ui.popup.close('terms-05')"><span>닫기</span></button>
+            </div>
+        </div>
+        <div class="popup-close">
+            <button type="button" class="btn-ico btn-close" title="팝업닫기" onclick="ui.popup.close('terms-05')"><span><i class="ico ico-close1 white">Close</i></span></button>
+        </div>
+    </section>
+</div>
+<!-- //영상정보처리기기 운영 팝업 -->
+
+<!-- 인터넷서비스이용약관 운영 팝업 -->
+<div id="terms-06" class="popup-wrap type-basic type01 footer" role="dialog">
+    <section class="popup demo1" tabindex="0">
+        <div class="popup-head">
+            <h3 id="popupContentTitle">인터넷서비스이용약관</h3>
+        </div>
+        <div class="popup-body">
+            <div class="popup-cont" id="terms_in-06">
+                
+
+            </div>
+        </div>
+        <div class="popup-foot">
+            <div class="btn-area flex-center">
+                <button type="button" id="fnPopClose" class="btn demo1 secondary" onclick="ui.popup.close('terms-06')"><span>닫기</span></button>
+            </div>
+        </div>
+        <div class="popup-close">
+            <button type="button" class="btn-ico btn-close" title="팝업닫기" onclick="ui.popup.close('terms-06')"><span><i class="ico ico-close1 white">Close</i></span></button>
+        </div>
+    </section>
+</div>
+<!-- //인터넷서비스이용약관 운영 팝업 -->
+
+
+<div class="dimmer"></div>
+
+<script>
+$(function(){
+    document.getElementById("terms_in-01").innerHTML='<object type="text/html" data="/static/pc/agreeform/agreeform-03.html?ver=260610"></object>';
+    document.getElementById("terms_in-02").innerHTML='<object type="text/html" data="/static/pc/agreeform/agreeform-01.html"></object>';
+    document.getElementById("terms_in-03").innerHTML='<object type="text/html" data="/static/pc/agreeform/agreeform-06.html"></object>';
+    document.getElementById("terms_in-04").innerHTML='<object type="text/html" data="/static/pc/agreeform/agreeform-07.html"></object>';
+    document.getElementById("terms_in-05").innerHTML='<object type="text/html" data="/static/pc/agreeform/agreeform-08.html?ver=260610"></object>';
+    document.getElementById("terms_in-06").innerHTML='<object type="text/html" data="/static/pc/agreeform/agreeform-02.html"></object>';
+    //document.getElementById("terms_in-04").innerHTML='<object type="text/html" data="/static/pc/agreeform/agreeform-05.html"></object>';
+});
+</script>
+        <!--// footer -->
+    
+    </div>
+
+    
+	<!-- 로딩 div-->
+	<div id="loadingDarkDiv" style=" display:none; background-color:#f1f1f1; opacity:0.5;filter:Alpha(opacity:'30');width:100%;height:100%;top:0;left:0;position:fixed;z-index:9000;"></div>
+	<div id="loadingDiv" style=" display:none; top: 45%; left: 52%;  margin-left:-100px;z-index: 9999; border: 3px #2B97D6;position:fixed">
+		<p style="text-align: center;">
+			<img src="/static/common/images/loading_img.gif" alt="loading" />
+			<font color="#0054FF"><span id="percentage"></span></font>
+		</p>
+	</div>
+	<div id="ie_chk" class="ie_chk_area dp-none">
+		<button type="button" onclick="javascript:popHide('ie_chk')" class="btn-close"><span class="blind">현재창 닫기</span></button>
+		<div class="con">
+			<p class="tit">
+				<img src="/static/pc/images/common/ico_ie.png" alt="ie" />
+				본사이트는 <strong>Internet Explorer 11</strong>버전<br/>에 <strong class="color-01">최적화</strong> 되어 있습니다.
+			</p>
+			<span>
+				<p class="btxt">‘Explorer 11이하’ 에서는 사용이 원활하지 않을 수 있습니다.</p>
+				<p class="btxt">Internet Explorer 11은 2022년 6월 15일부터 사용 및 지원이 중지됩니다. Microsoft Edge 사용을 권장합니다.</p>
+				<p class="txt">Explorer를 최신 버전으로 업데이트 하시거나, <br /><strong class="color-01">Chrome, 네이버 Whale</strong> 등의 브라우저를 이용해 주시기 바랍니다.</p>
+				<a href="http://windows.microsoft.com/ko-kr/internet-explorer/download-ie" target="_blank" title="새창열림" class="btn-upgrade">지금 업그레이드</a>
+				<p class="chk-uclose"><input type="checkbox" name="ie_chk_close" id="ie_chk_close" onclick="popHide('ie_chk')" /><label for="ie_chk_close">일주일간 표시 안하기</label></p>
+			</span>			
+		</div>
+	</div>
+	<script type="text/javascript">
+		//익스플로러 중지 안내 활성화
+		var agt = navigator.userAgent.toLowerCase();
+		if (agt.indexOf("msie") != -1) {
+			$('#ie_chk').removeClass('dp-none');
+		}
+		
+		//ie_chk 레이어팝업 닫기
+		function popHide(pop_id){
+			//document.getElementById(pop_id).style.display = "none";
+			$("#"+pop_id).hide(1000);
+		}
+	
+	</script>
+</body>
+</html>

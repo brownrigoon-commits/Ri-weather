@@ -1,0 +1,666 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,target-densitydpi=medium-dpi, viewport-fit=cover" />
+    <meta name="format-detection" content="telephone=no, address=no, email=no">
+	<meta name="title" content="포웰CC, 4 well">
+	<meta name="author" content="포웰CC">
+	<meta name="Keywords" content="포웰CC, 4well country club">
+	<meta name="description" content="포웰CC">
+	<meta name="copyright" content="All Contents Copyright©4well country club">
+	<meta property="og:type" content="website">
+	<meta property="og:title" content="포웰CC, 4well country club">
+	<meta property="og:description" content="포웰CC, 4well country club,">
+	<meta property="og:url" content="">
+    <title>포웰CC</title>
+    <link rel="stylesheet" type="text/css" href="/css/import.css?v=3">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="/js/common.js"></script>    
+
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.2/css/all.min.css">
+     <!-- <script src="//cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>    
+    <script src="https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.js"></script>
+   <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.css"/> -->
+
+
+    <script src="/js/slick.min.js"></script>    
+    <script src="/js/swiper.min.js"></script>    
+    <link rel="stylesheet" type="text/css" href="/css/slick.css">
+    <link rel="stylesheet" type="text/css" href="/css/swiper.css">
+
+
+	<!--공통 스크립트-->
+	<script src="/js/jquery.preloaders.js"></script>
+	<script src="/js/tools.js"></script>
+	<script src="/js/globals.js"></script>
+	<script src="/js/jquery-barcode.js"></script>
+<script>
+
+	$(document).ready(function(data) {
+		if ("" != "") {
+			sessionCheck();
+		}
+		//setProtocol();
+	});
+
+	function sessionCheck() {
+		var sUrl = "/controller/SessionManager.asp";
+		var params = {"method" : "sessionConfirm"};
+
+		mAjax(sUrl, params, "POST", false, function(data) {
+			if(data.resultCode == "2000") {
+				alert(data.resultMessage);
+				location.reload();
+			}
+		});
+	}
+
+	function doLogout() {
+		var sUrl = "/controller/MemberController.asp";
+		var params = {};
+
+		params["method"] = "doLogout";
+
+		mAjax(sUrl, params, "POST", true, function(data) {
+			if(data.resultCode == "0000") {
+				alert("로그아웃 되었습니다.");
+
+				location.href = "/index.asp";
+			}
+		});
+	}
+
+	function setProtocol() {
+		if(document.location.href.indexOf("4wellcc.co.kr") > 0) {
+			document.location.href = document.location.href.replace('4wellcc.co.kr', '4wellcc.com');
+		} else if(document.location.href.indexOf("4wellcc.com") > 0) {
+			if (document.location.protocol == 'http:') {
+				document.location.href = document.location.href.replace('http:', 'https:');
+			}
+		}
+	}
+</script>
+    
+    
+        <link rel="stylesheet" href="/css/contents.css?v=6">
+	
+<script src="/1dba6f43-e141-4072-9d29-3a531d8bf1dc/nextory.js"></script></head>
+<body>
+    <div id="loading"> 
+      <img src="/images/loading.gif">
+    </div>
+    <div id="wrap">
+        <!--header-->
+        <header>
+            <div class="menu-bg"></div>
+            <div class="header-bg"></div>
+            <div class="header-line"></div>
+            <h1 class="logo"><a href="/index.asp"><img src="/Images/logo.svg"></a></h1>
+            <nav>
+				<ul class="nav-menu">
+                    <li class="gnb"><a href="/club/about.asp">클럽소개</a>
+                        <ul class="lnb">
+                            <li><a href="/club/about.asp">클럽소개</a></li>
+                            <li><a href="/club/greeting.asp">인사말</a></li>
+                            <li><a href="/club/map.asp">오시는길</a></li>
+                            <li><a href="/club/story.asp">골프이야기</a></li>
+                        </ul>
+					</li>
+					<li class="gnb"><a href="/course/courseIntro.asp">코스소개</a>
+                        <ul class="lnb">
+                            <li><a href="/course/courseIntro.asp">코스정보</a></li>
+                            <li><a href="/course/course.asp">코스공략도</a></li>
+                        </ul>
+					</li>
+                    <li class="gnb"><a href="/information/fee.asp">이용안내</a>
+                        <ul class="lnb">
+                            <li><a href="/information/fee.asp" class="on">요금안내</a></li>
+                            <li><a href="/information/reserInfo.asp">예약안내</a></li>
+                            <li><a href="/information/penalty.asp">위약안내</a></li>
+                            <li><a href="/information/transfer.asp">명의개서</a></li>
+                            <li><a href="/information/list.asp?type=1">공지사항</a></li>
+                            <li><a href="/information/list.asp?type=4">자료실</a></li>
+                            <li><a href="/information/faq.asp">FAQ</a></li>
+                        </ul>
+					</li>
+                    <li class="gnb"><a href="/facil/facil.asp">시설안내</a>
+                        <ul class="lnb">
+                            <li class="move"><a href="/facil/facil.asp#type1">클럽하우스</a></li>
+                            <li class="move"><a href="/facil/facil.asp#type2">프로샵</a></li>
+                            <li class="move"><a href="/facil/facil.asp#type3">레스토랑</a></li>
+                            <li class="move"><a href="/facil/facil.asp#type4">스타트하우스</a></li>
+                            <li class="move"><a href="/facil/facil.asp#type5">카페</a></li>
+                            <li class="move"><a href="/facil/facil.asp#type6">티하우스</a></li>
+                            <li class="move"><a href="/facil/facil.asp#type7">VIP락카룸</a></li>
+                        </ul>
+					</li>
+					
+                    <li class="gnb"><a href="/member/weekendReser.asp">회원전용</a>
+                        <ul class="lnb">
+                            <li><a href="/member/weekendReser.asp">주말우선예약</a></li>
+                            <li><a href="/member/urgentReser.asp">긴급예약</a></li>
+                            <li><a href="/member/partnerInfo.asp">분양회원제휴안내</a></li>
+                        </ul>
+					</li>
+					
+                    <li class="gnb"><a href="/reservation/reservation.asp">골프예약</a>
+                        <ul class="lnb">
+                            <li><a href="/reservation/reservation.asp">인터넷예약</a></li>
+                            <li><a href="/reservation/reserGroup.asp">단체예약</a></li>
+                            <li><a href="/reservation/reserWait.asp">대기예약</a></li>
+                        </ul>
+					</li>
+                    <li class="gnb"><a href="/mypage/modify.asp">나의정보</a>
+                        <ul class="lnb">
+                            <li><a href="/mypage/modify.asp">회원정보수정</a></li>
+                            <li><a href="/mypage/reserCheck.asp">예약조회</a></li>
+                            <li><a href="/mypage/waitCheck.asp">대기예약조회</a></li>
+                            <li><a href="/mypage/cancelCheck.asp">예약취소조회</a></li>
+                            <li><a href="/mypage/delete.asp">회원탈퇴</a></li>
+							
+                            <li><a href="/mypage/coupon.asp">쿠폰함</a></li>
+							
+                        </ul>
+					</li>
+				</ul>
+			</nav>
+			
+            <a href="/join/login.asp" class="header-user login">로그인</a>
+			
+            
+            <div class="btn-menu">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+        </header>
+        <!--//header-->
+
+        <!--contents-->
+        <script>
+            $(document).ready(function(){
+                if("" != "") {
+                    normalTab("")
+                }    
+            })
+        </script>
+        <div class="contents-wide">
+            <div class="wide-area-top">
+                <div class="bg"><img src="/images/bg_course.jpg"></div>
+                <h2 class="con-tit">COURSE</h2>
+                <div class="head-menu-area">
+                    <p class="top-nav">홈 &ensp;>&ensp; COURSE &ensp;>&ensp; <span>코스공략도</span></p>
+                    <div class="head-menu">
+                        <a href="/course/courseIntro.asp">코스정보</a>
+                        <a href="/course/course.asp" class="on">코스공략도</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="common-con">
+                <div class="course-tab">
+                    <span id="basic1" class="on" onclick="javascript:normalTab(1)">스카이 코스</span>
+                    <span id="basic2" onclick="javascript:normalTab(2)">힐 코스</span>
+                </div>
+                <div class="course-wrap" id="tabCon1">
+                    <div class="course-photo"><img src="/images/img_course_sky.jpg"></div>
+                    <div class="course-header">
+                        <h2>코스공략도  <span class="skyblue">Sky Course</span></h2>
+                        <p class="move-text1">
+                            스카이 코스는 전체적으로 남성적인 느낌이 강한 코스입니다.<br>
+                            스카이 코스의 4번 홀은 웅장함을 가진 다른 코스와 달리 이성적인 판단을 필요로 합니다.<br>
+                            쉬워 보이지만 끝까지 긴장감을 늦출 수 없는 그린은 설계자의 의도대로 골퍼들에게 재미를 선사합니다.<br>
+                            스카이코스는 끈기와 집중력을 요구하는 코스로 쉽게 정복할 수 있는 것이 아니라서 더 매력적인 코스입니다. 
+                        </p>
+                    </div>
+                    <div class="course-list">
+                        <div class="course-page"></div>
+                        
+                        <div class="swiper mySwiper">
+                            <div class="swiper-wrapper">
+                                <div class="swiper-slide">
+                                    <div class="course-box">
+                                        <div class="course-info">
+                                            <h2>1 Hole<span>par4</span></h2>
+                                            <h3>SKY COURSE</h3>
+                                            <p>
+                                                페어웨이 우측은 해저드이고 좌측엔 OB지역이 있습니다. 티샷은 그린 앞 좌측 벙커를 겨냥하는 것이 좋습니다.<br>
+                                                샷은 그린 좌측앞에 벙커가 있어 그린 우측 공략이 바람직합니다. 그린 뒤쪽은 폭이 좁으며 해저드가 있습니다. 
+                                            </p>
+                                            <div class="swiper-btn">
+                                                <span class="prev"></span>
+                                                <span class="next"></span>
+                                            </div>
+                                        </div>
+                                        <div class="hole-img"><img src="/images/course/hole_sky01.jpg"></div>
+                                    </div>
+                                </div>
+                                
+                                <div class="swiper-slide">
+                                    <div class="course-box">
+                                        <div class="course-info">
+                                            <h2>2 Hole<span>par4</span></h2>
+                                            <h3>SKY COURSE</h3>
+                                            <p>
+                                                그린까지 힘껏 내리치는 홀이지만 비거리에 대한 욕심 보다는 중앙으로의 정확한 샷이 중요합니다. 거리를 내려는 욕심이라면 좌측 OB, 우측 해저드를 감안해야 합니다.<br>
+                                                세컨샷은 좌, 우측 마운드에 떨어진 볼이 굴러서 쉽게 온 그린하게 되어 있습니다.<br>
+                                                그린은 작으나 완만한 언듀레이션이 있습니다. 
+                                            </p>
+                                            <div class="swiper-btn">
+                                                <span class="prev"></span>
+                                                <span class="next"></span>
+                                            </div>
+                                        </div>
+                                        <div class="hole-img"><img src="/images/course/hole_sky02.jpg"></div>
+                                    </div>
+                                </div>
+                                
+                                <div class="swiper-slide">
+                                    <div class="course-box">
+                                        <div class="course-info">
+                                            <h2>3 Hole<span>par3</span></h2>
+                                            <h3>SKY COURSE</h3>
+                                            <p>
+                                                좌우가 모두 경사인데다가 중앙에는 연못이 위치하고 있어 거리감과 신중한 클럽 선택이 필요합니다. 좌측에 OB, 우측엔 해저드가 있어 욕심부리지 말고 그린 전방에 떨어뜨리는 전략이 가장 효과적인 티샷 방법입니다. 그린은 매우 까다로운 2단 그린이며, 내리막 퍼팅을 주의해야 합니다. 
+                                            </p>
+                                            <div class="swiper-btn">
+                                                <span class="prev"></span>
+                                                <span class="next"></span>
+                                            </div>
+                                        </div>
+                                        <div class="hole-img"><img src="/images/course/hole_sky03.jpg"></div>
+                                    </div>
+                                </div>
+                                
+                                <div class="swiper-slide">
+                                    <div class="course-box">
+                                        <div class="course-info">
+                                            <h2>4 Hole<span>par5</span></h2>
+                                            <h3>SKY COURSE</h3>
+                                            <p>
+                                                기량을 마음껏 펼쳐 도전할만한 모험과 보상의 대표적인 홀 입니다. 도전에 따른 성취감이 가장 큰 홀이라고 할 수 있습니다.<br>
+                                                티샷은 페어웨이 중앙 좌측을 공략하는 것이 좋으며 세컨샷은 IP2 지점이 시각적으로 좁아 보이지만 IP2 지점 페어웨이가 넓어 아이언으로 공략하는 것에는 무리가 없습니다. 그린까지는 약간의 오르막이 있습니다.
+                                            </p>
+                                            <div class="swiper-btn">
+                                                <span class="prev"></span>
+                                                <span class="next"></span>
+                                            </div>
+                                        </div>
+                                        <div class="hole-img"><img src="/images/course/hole_sky04.jpg"></div>
+                                    </div>
+                                </div>
+                                
+                                <div class="swiper-slide">
+                                    <div class="course-box">
+                                        <div class="course-info">
+                                            <h2>5 Hole<span>par4</span></h2>
+                                            <h3>SKY COURSE</h3>
+                                            <p>
+                                                아늑한 조형으로 앞 홀에서의 긴장감을 풀어주며 지금까지의 기량을 점검하고 남은 홀들을 위한 재충전 기회를 줍니다.<br>
+                                                페어웨이 폭이 좁으며 우측 OB, 좌측 해저드가 있어 정확한 티샷이 요구됩니다. 티샷은 페어웨이 중앙 좌측이나, 클럽하우스 방향이 좋습니다. 그린 주위 벙커는 세컨샷에는 아무런 지장을 주지 않으니, 편안한 마음으로 샷을 하여 무난한 퍼팅으로 마무리 하도록 합니다. 
+                                            </p>
+                                            <div class="swiper-btn">
+                                                <span class="prev"></span>
+                                                <span class="next"></span>
+                                            </div>
+                                        </div>
+                                        <div class="hole-img"><img src="/images/course/hole_sky05.jpg"></div>
+                                    </div>
+                                </div>
+                                
+                                <div class="swiper-slide">
+                                    <div class="course-box">
+                                        <div class="course-info">
+                                            <h2>6 Hole<span>par4</span></h2>
+                                            <h3>SKY COURSE</h3>
+                                            <p>
+                                                대표적인 LAY-UP홀로써 산의 아름다움을 만끽할 수 있는 홀입니다. 페어웨이의 벙커만 조심하면 가벼운 마음으로 샷을 즐길 수 있습니다.<br>
+                                                전체 좌,우측에 해저드가 있으며 IP지점에 벙커가 많아 무리한 티샷은 피하는 것이 좋습니다. <br>
+                                                그린 앞 벙커가 많고 그린의 폭이 좁으므로 신중한 거리 계산이 필요한 홈 입니다. 그린을 넘어가면 해저드가 있으니 주의해야 합니다.
+                                            </p>
+                                            <div class="swiper-btn">
+                                                <span class="prev"></span>
+                                                <span class="next"></span>
+                                            </div>
+                                        </div>
+                                        <div class="hole-img"><img src="/images/course/hole_sky06.jpg"></div>
+                                    </div>
+                                </div>
+                                
+                                <div class="swiper-slide">
+                                    <div class="course-box">
+                                        <div class="course-info">
+                                            <h2>7 Hole<span>par3</span></h2>
+                                            <h3>SKY COURSE</h3>
+                                            <p>
+                                                거리, 페어웨이의 폭, 그리고 티 전방과 그린 우측 및 후방의 낭떠러지를 조심해야 합니다.<br>
+                                                티 앞 계곡 부위를 넘어서 그린을 공략하여야 합니다.<br>
+                                                그린 앞의 벙커는 도전적인 샷을 요구하지만 우측, 좌측 해저드를 조심해서 마음을 비우고 샷에 임해야 합니다.<br>
+                                                티샷은 그린 중앙 좌측이 유리합니다. 
+                                            </p>
+                                            <div class="swiper-btn">
+                                                <span class="prev"></span>
+                                                <span class="next"></span>
+                                            </div>
+                                        </div>
+                                        <div class="hole-img"><img src="/images/course/hole_sky07.jpg"></div>
+                                    </div>
+                                </div>
+                                
+                                <div class="swiper-slide">
+                                    <div class="course-box">
+                                        <div class="course-info">
+                                            <h2>8 Hole<span>par5</span></h2>
+                                            <h3>SKY COURSE</h3>
+                                            <p>
+                                                3단 섹션으로 나뉜 그린은 언듀레이션이 급하지 않아 쉬운 퍼팅으로 온 그린에 보탬을 줍니다. 페어웨이가 충분히 넓으나 티샷은 페어웨이 중앙 좌측이 안전합니다.<br>
+                                                좌측에 해저드가 있고 우측은 OB지역이 있고 세컨샷 IP지점 좌측에 해저드가 있으니 거리 계산에 신중을 기해야 합니다. 써드샷에는 오르막 경사와 거리가 있음을 유의해야 합니다.
+                                            </p>
+                                            <div class="swiper-btn">
+                                                <span class="prev"></span>
+                                                <span class="next"></span>
+                                            </div>
+                                        </div>
+                                        <div class="hole-img"><img src="/images/course/hole_sky08.jpg"></div>
+                                    </div>
+                                </div>
+                                
+                                <div class="swiper-slide">
+                                    <div class="course-box">
+                                        <div class="course-info">
+                                            <h2>9 Hole<span>par4</span></h2>
+                                            <h3>SKY COURSE</h3>
+                                            <p>
+                                                마지막 홀로서 우측이 OB이고 좌측이 해저드인 내리막 경사가 있는 파 4홀입니다. 가장 높은 곳에서 내려쳐야 하니 횡단 경사를 조심해야 합니다. 부담 없이 플레이하며 유종의 미를 거둘 수 있는 코스입니다. 티샷은 페어웨이 약간 우측이 유리합니다.<br>
+                                                세컨샷은 그린 뒤가 OB이므로 짧게 공략해 오르막 퍼팅 공략이 유리합니다. 그린이 무난하여 즐거운 마음으로 라운드를 마무리 지을 수 있습니다. 
+                                            </p>
+                                            <div class="swiper-btn">
+                                                <span class="prev"></span>
+                                                <span class="next"></span>
+                                            </div>
+                                        </div>
+                                        <div class="hole-img"><img src="/images/course/hole_sky09.jpg"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!--힐코스-->
+                <div class="course-wrap" id="tabCon2">
+                    <div class="course-photo"><img src="/images/img_course_hill.jpg"></div>
+                    <div class="course-header">
+                        <h2>코스공략도  <span class="skyblue">Hill Course</span></h2>
+                        <p class="move-text1">
+                            힐 코스는 전체적으로 날렵하게 디자인된 코스입니다. 4번 홀은 워터 해저드 우측의 큰 마운드를 넘겨야 하는 중거리 Par3홀<br>
+                            이며, 6번 홀은 전방에 워터 해저드와 수풀이 서서히 열리는 듯한 풍경으로 마치 연극 무대를 마주하는 듯한 호기심을 불러 <br>
+                            일으킵니다. 7번 홀에서는 폭포 아래로 피어난 아름다운 야생화 군락을 마주하게 됩니다. <br>
+                            야간에는 멀리 고속도로를 오가는 차량의 불빛이 마치 반딧불처럼 아름답게 보여 자연과 도시의 중간에서 라운드를 즐기는 <br>
+                            듯한 묘한 기분을 선사합니다. 연못과 수풀이 만드는 연극무대 같은 경관이 인상깊은 홀입니다.
+                        </p>
+                    </div>
+                    <div class="course-list">
+                        <div class="course-page-other"></div>
+                        
+                        <div class="swiper mySwiper1">
+                            <div class="swiper-wrapper">
+                                <div class="swiper-slide">
+                                    <div class="course-box">
+                                        <div class="course-info">
+                                            <h2>1 Hole<span>par4</span></h2>
+                                            <h3>HILL COURSE</h3>
+                                            <p>
+                                                급한 내리막의 우측 도그렉 홀로서 긴장감을 최대한 완화해 슬라이스를 주의해야 합니다. 넓은 IP를 가진 짧은 파 4홀로 티에서 그린을 직접 공략할 수도 있습니다.<br>
+                                                오른쪽 해저드를 조심한다면 넓은 페어웨이에서 부담 없이 그린을 공략할 수 있습니다. 그린 옆 벙커는 난이도가 높아 벙커 안에 들어가면 샷이 조금 힘드니 주의해야 하지만 그린은 길고 완만해 그린에서 퍼팅은 비교적 쉽습니다. 
+                                            </p>
+                                            <div class="swiper-btn">
+                                                <span class="prev"></span>
+                                                <span class="next"></span>
+                                            </div>
+                                        </div>
+                                        <div class="hole-img"><img src="/images/course/hole_hill01.jpg"></div>
+                                    </div>
+                                </div>
+                                
+                                <div class="swiper-slide">
+                                    <div class="course-box">
+                                        <div class="course-info">
+                                            <h2>2 Hole<span>par4</span></h2>
+                                            <h3>HILL COURSE</h3>
+                                            <p>
+                                                낙구지역이 좌로 굽어 있지만 넓은 공간을 확보하고 있어 1홀에서의 긴장을 풀면서 안전한 샷을 할 수 있습니다.<br>
+                                                굵은 윤관의 마운드를 접하여 앞으로 전개될 홀들을 정복하기 위한 전초전으로써 도전을 위한 홀입니다. IP지점이 충분히 넓고 약간 좌로 굽어 있어 우측 해저드만 조심한다면 내리막코스의 이점을 살려 부담없이 장타를 날릴 수 있습니다. <br>
+                                                그린 양쪽 벙커를 감안하여 그린 공략에 신중을 기해야 합니다. 
+                                            </p>
+                                            <div class="swiper-btn">
+                                                <span class="prev"></span>
+                                                <span class="next"></span>
+                                            </div>
+                                        </div>
+                                        <div class="hole-img"><img src="/images/course/hole_hill02.jpg"></div>
+                                    </div>
+                                </div>
+                                
+                                <div class="swiper-slide">
+                                    <div class="course-box">
+                                        <div class="course-info">
+                                            <h2>3 Hole<span>par4</span></h2>
+                                            <h3>HILL COURSE</h3>
+                                            <p>
+                                                페어웨이 폭이 약간 좁으며, 양 낙구지역에는 양측에서 모두 타이트하게 중앙 침투를 위한 정확한 샷이 요구되는 홀입니다.<br>
+                                                IP지점에 3개의 벙커가 위치하고 있어 정확한 티샷을 요구하는 파 4홀로 장타자라면 우드 티샷을 권장합니다. <br>
+                                                티샷만 성공한다면 슛 아이언으로 쉽게 온 그린이 가능합니다. 그린 뒤 공간이 적어 전체 OB지역이 있으니 주의해야 합니다.
+                                            </p>
+                                            <div class="swiper-btn">
+                                                <span class="prev"></span>
+                                                <span class="next"></span>
+                                            </div>
+                                        </div>
+                                        <div class="hole-img"><img src="/images/course/hole_hill03.jpg"></div>
+                                    </div>
+                                </div>
+                                
+                                <div class="swiper-slide">
+                                    <div class="course-box">
+                                        <div class="course-info">
+                                            <h2>4 Hole<span>par3</span></h2>
+                                            <h3>HILL COURSE</h3>
+                                            <p>
+                                                소나무와 각양각색의 꽃들로 인해 티에서 바라보는 전경이 아름다워 골퍼들에게 시각적인 만족을 주는 홀입니다. <br>
+                                                그린 양쪽 두 개의 벙커와 너무 긴 샷이 넘어가는 것을 막기 위해 그린 후방에 2단 벙커가 있으니 신중한 클럽 선택이 필요합니다. 티샷은 그린 중앙이 좋으며, 큰 마운드만 넘긴다면 우측 어프러치 샷 공간이 넓습니다. 
+                                            </p>
+                                            <div class="swiper-btn">
+                                                <span class="prev"></span>
+                                                <span class="next"></span>
+                                            </div>
+                                        </div>
+                                        <div class="hole-img"><img src="/images/course/hole_hill04.jpg"></div>
+                                    </div>
+                                </div>
+                                
+                                <div class="swiper-slide">
+                                    <div class="course-box">
+                                        <div class="course-info">
+                                            <h2>5 Hole<span>par5</span></h2>
+                                            <h3>HILL COURSE</h3>
+                                            <p>
+                                                무리 없는 샷으로 물을 건너 좌측으로 보내주면 시원하게 펼쳐지는 페어웨이에서 마음껏 즐길 수 있습니다. 티샷은 페어웨이 중앙 약간 좌측이 좋습니다. IP지역은 상당히 넓으나 좌측 OB와 우측 해저드에 주의해야 합니다. 그린 앞에는 4개의 벙커가 있고 그린의 폭이 좁아 정확한 거리계산과 신중한 클럽 선택이 필요합니다. 
+                                            </p>
+                                            <div class="swiper-btn">
+                                                <span class="prev"></span>
+                                                <span class="next"></span>
+                                            </div>
+                                        </div>
+                                        <div class="hole-img"><img src="/images/course/hole_hill06.jpg"></div>
+                                    </div>
+                                </div>
+                                
+                                <div class="swiper-slide">
+                                    <div class="course-box">
+                                        <div class="course-info">
+                                            <h2>6 Hole<span>par4</span></h2>
+                                            <h3>HILL COURSE</h3>
+                                            <p>
+                                                Z자 형태로 굽어 있어 물을 건너는 티샷이 중요합니다. 티샷은 좌측 두 개의 항아리 벙커를 피해 페어웨이 중앙으로 공략하는 것이 안전하며 우측 벽면 뒤 페어웨이가 넓습니다. 페어웨이가 무난하여 그린 주위 3개의 깊은 벙커를 두었으며 2단 그린이므로 거리 계산과 클럽 선택에 신중을 기해야 합니다. 또한 오르막 퍼팅을 남기는 그린 공략이 필요합니다. 
+                                            </p>
+                                            <div class="swiper-btn">
+                                                <span class="prev"></span>
+                                                <span class="next"></span>
+                                            </div>
+                                        </div>
+                                        <div class="hole-img"><img src="/images/course/hole_hill05.jpg"></div>
+                                    </div>
+                                </div>
+                                
+                                <div class="swiper-slide">
+                                    <div class="course-box">
+                                        <div class="course-info">
+                                            <h2>7 Hole<span>par4</span></h2>
+                                            <h3>HILL COURSE</h3>
+                                            <p>
+                                                그린 앞에 항아리 모양의 작은 분지가 있고, 우측에 연못이 위치하고 있어 신중한 샷 선택이 필요합니다. 티샷은 페어웨이 중앙 우측이 좋습니다. <br>
+                                                정확한 티샷만 보장 된다면 거리가 길지 않으므로 온 그린에 큰 문제는 없습니다. 그린이 커서 도전적인 퍼팅이 요구됩니다.
+                                            </p>
+                                            <div class="swiper-btn">
+                                                <span class="prev"></span>
+                                                <span class="next"></span>
+                                            </div>
+                                        </div>
+                                        <div class="hole-img"><img src="/images/course/hole_hill07.jpg"></div>
+                                    </div>
+                                </div>
+                                
+                                <div class="swiper-slide">
+                                    <div class="course-box">
+                                        <div class="course-info">
+                                            <h2>8 Hole<span>par3</span></h2>
+                                            <h3>HILL COURSE</h3>
+                                            <p>
+                                                약간 오르막이며, 그린 후방의 암반을 건드리지 않도록 과도한 샷을 주의해야 합니다. 약간의 오르막과 그린 뒤 암벽이 있는 홀로 클럽 선택을 신중히 하는 것이 좋습니다.<br>
+                                                티샷은 그린 중앙보다 그린 중앙 좌측을 공략하는 것이 좋습니다.<br>
+                                                그린 좌측 벙커 중앙을 넘기면 숨은 그린이 있습니다. 
+                                            </p>
+                                            <div class="swiper-btn">
+                                                <span class="prev"></span>
+                                                <span class="next"></span>
+                                            </div>
+                                        </div>
+                                        <div class="hole-img"><img src="/images/course/hole_hill08.jpg"></div>
+                                    </div>
+                                </div>
+                                
+                                <div class="swiper-slide">
+                                    <div class="course-box">
+                                        <div class="course-info">
+                                            <h2>9 Hole<span>par5</span></h2>
+                                            <h3>HILL COURSE</h3>
+                                            <p>
+                                                비거리에 대한 욕심을 버리고 첫 관문을 지나면 환하게 맞이하는 양측의 벚나무들과 함께 가벼운 기분으로 전반 9홀을 마칠 수 있습니다. 좌측 OB, 우측 해저드 구역이긴 하나 티샷에는 큰 부담이 없는 홀입니다.<br>
+                                                세컨샷은 그린 앞 좌측 벙커 방향이 안전합니다. 그린 앞 벙커가 많지만 그린이 편안하여 벙커샷도 무난할 것입니다. 
+                                            </p>
+                                            <div class="swiper-btn">
+                                                <span class="prev"></span>
+                                                <span class="next"></span>
+                                            </div>
+                                        </div>
+                                        <div class="hole-img"><img src="/images/course/hole_hill09.jpg"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <script>
+                var swiper = new Swiper(".mySwiper", {
+                    effect : 'fade',
+                    speed : 500,
+                    loop: true,
+                    pagination: {
+                        el: ".course-page",
+                        clickable: true,
+                        renderBullet: function (index, className) {
+                            return "<span class='" + className + "' tabindex='" + index + "'><b>Hole" + (index + 1) + "</b></span>";
+                        },
+                    },
+                    navigation: {
+                        nextEl: ".next",
+                        prevEl: ".prev",
+                    },
+                    observer: true,
+                    observeParents: true,
+                });
+                var swiper1 = new Swiper(".mySwiper1", {
+                    effect : 'fade',
+                    speed : 500,
+                    loop: true,
+                    pagination: {
+                        el: ".course-page-other",
+                        clickable: true,
+                        renderBullet: function (index, className) {
+                            return "<span class='" + className + "' tabindex='" + index + "'><b>Hole" + (index + 1) + "</b></span>";
+                        },
+                    },
+                    navigation: {
+                        nextEl: ".next",
+                        prevEl: ".prev",
+                    },
+                    observer: true,
+                    observeParents: true,
+                });
+            </script> 
+        </div>
+        
+    
+        <!--aside-->
+        <aside>
+            <a href="/join/login.asp">
+                <p><img src="/images/ic_aside_login.svg"></p>
+                <span>로그인</span>
+            </a>
+            <a href="/reservation/reservation.asp">
+                <p><img src="/images/ic_aside_reser.svg"></p>
+                <span>실시간예약</span>
+            </a>
+            <a href="/reservation/reserGroup.asp">
+                <p><img src="/images/ic_aside_group.svg"></p>
+                <span>단체예약</span>
+            </a>
+            <a href="/club/map.asp">
+                <p><img src="/images/ic_aside_map.svg"></p>
+                <span>오시는길</span>
+            </a>
+        </aside>
+        <!--//aside-->        <!--footer-->
+        <footer>
+            <div class="fnb">
+                <div class="f-logo"></div>
+                <div class="f-info">
+                    <h2>(주) 메가비엠씨</h2>
+                    <address>경남 김해시 진례면 고모로 134번길 54-49<br>대표 손주은 TEL.055-340-9000 FAX. 055-340-9009</address>
+                    <p>사업자등록번호 : 483-85-02364<br><br>Copyright © 2023 4wellCC. All Rights Reserved</p>
+                </div>
+                <div class="f-link">
+                    <a href="/information/term.asp">이용약관</a>
+                    <em>|</em>
+                    <a href="/information/policy.asp" class="yellow">개인정보처리방침</a>
+                    <em>|</em>
+                    <a href="/information/media.asp">영상정보처리기기운영</a>
+                </div>
+                <div class="top">
+                    <p><img src="/images/ic_up.svg"></p>
+                    <b>TOP</b>
+                </div>
+            </div>
+        </footer>
+        <!--/footer-->
+    </div>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a1e7b29d1e2ba7d7',t:'MTc4NDYxMDYxMA=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script><script defer src="https://static.cloudflareinsights.com/beacon.min.js/v4513226cdae34746b4dedf0b4dfa099e1781791509496" integrity="sha512-ZE9pZaUXND66v380QUtch/5sE9tPFh2zg45pR2PB0CVkCtOREv2AJKkSidISWkysEuQ0EH8faUU5du78bx87UQ==" data-cf-beacon='{"version":"2024.11.0","token":"de9f4891b32a4c7ba3c624fc918787fa","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+</body>
+</html>

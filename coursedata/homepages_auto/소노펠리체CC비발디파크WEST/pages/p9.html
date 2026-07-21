@@ -1,0 +1,2659 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ko" xml:lang="ko">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+<title>소노펠리체 컨트리클럽</title>
+
+<meta http-equiv="content-language" content="kr" />
+<meta http-equiv="content-style-type" content="text/css" />
+<meta http-equiv="pragma" content="no-cache" />
+<meta http-equiv="cache-control" content="no-cache" />
+<meta http-equiv="imagetoolbar" content="no" />
+<meta name="naver-site-verification" content="51dca4b149d9424e0b2f0f9bda65a467e6f732d4" />
+<meta name="description" content="소노펠리체 컨트리클럽 홈페이지 입니다, 골프예약, 소노펠리체 비발디파크 EAST, WEST, 델피노, 비발디파크 MOUNTAIN, 골프클럽, 소노호텔앤리조트, 골프">
+<meta name="keywords" content="소노펠리체 컨트리클럽, 소노호텔앤리조트, 골프, 소노CC">
+<meta name="robots" content="index,follow">
+<meta name="google-site-verification" content="Pl6N1HivmC79Q21nIqRvIWb8-tyuSeXQMidEAyf679o" />
+<link rel="shortcut icon" type="image/x-icon" href="/img/golf/favicon.ico" />
+<link type="text/css" rel="stylesheet" href="/css_common/dev.css"/>
+<link type="text/css" rel="stylesheet" href="/css_common/print-preview.css" media="screen"/>
+<link type="text/css" rel="stylesheet" href="/css/ajaxtags.css"/>
+<link type="text/css" rel="stylesheet" href="/css/displaytag.css"/>
+<link type="text/css" rel="stylesheet" href="/jquery/themes/blue/jquery.ui.all.css">
+<link rel="canonical" href="https://www.sonofelicecc.com" />
+<!-- <link type="text/css" rel="stylesheet" href="/css_front/reset.css" media="all" /> -->
+<!-- <link type="text/css" rel="stylesheet" href="/css_front/common.css" media="all" /> -->
+<!-- <link type="text/css" rel="stylesheet" href="/css_front/layout.css" media="all" /> -->
+<!-- <link type="text/css" rel="stylesheet" href="/css_front/content.css" media="all" /> -->
+<!-- <link type="text/css" rel="stylesheet" href="/css_front/board.css" media="all" /> -->
+<!-- <link type="text/css" rel="stylesheet" href="/css_front/pkg.css" media="all" /> -->
+
+<script src="/js/dmDefault.js"></script>
+<!-- <script src="/jquery/plugin/jquery.print_preview.js"></script> -->
+<script src="/js/front/dmFrontDefault.js"></script>
+<script src="/js/dm_default.js" id="dmjssrc" pggubun="_front"></script>
+<script src="/js/dm.js"></script>
+<script src="/js/dm_board.js"></script>
+
+<script type="text/javascript">
+var usernm 		= '';
+var userName	= '';
+var curMenuId 	= '';
+var msg = '';
+
+if(msg != '' && msg != null && msg !='null'){
+	alert(msg);
+}010
+</script>
+<link rel="stylesheet" type="text/css" href="/css/golf/contens.css" id="stylesheet" />
+<script type="text/javascript" src="/js/golf/common.js"></script>
+
+<script type="text/javascript" src="/js/golf/fakeselect.js"></script>
+<script type="text/javascript" defer="defer">
+//<![CDATA[
+
+$(function(){
+	
+	$('ul.courseTab').intiTab({
+		mode: 'click',
+		displayParent : 'div.tab-wrapper'
+	});
+	
+
+	var hole = $('.tabBox1 ul.courseTab li a.current').attr("hole");
+	var on_flag = '01';
+	var jiyuk_cd = $('#jiyuk_cd').val();
+	getCmtList(on_flag, jiyuk_cd, hole);
+});
+
+function getCmtList(on_flag, jiyuk_cd, hole_cd) {
+	$('#coursCmdList').remove();		
+	$.post(	"/course.courseList.dp/dmparse.dm",
+			{"course_cd":on_flag,"jiyuk_cd":jiyuk_cd,"hole_cd":hole_cd},
+			function(data) {
+				if(data == null || data.length == 0) return;
+				$('.coursCmd').after("<ul class='coursCmdList' id='coursCmdList'></ul>");
+				var date = "";
+				var list = "";
+				$.each(data,function(index,item){
+					if(item.u_sys_date == '' || item.u_sys_date == null){
+						date = item.f_sys_date;
+					}else{
+						date = item.u_sys_date;
+					}
+						
+					list = "<li id='update"+item.seq+"'><dl><dt>"+item.member_name+"</dt><dd><span>"+date+"</span><span>"+item.comm+"</span></dd></dl>";
+				    	if('' == item.member_no){		
+						    list+="<span class=btnRt id='upSpan'><a href='#none' class=btnEdit onClick='fnUpdateView(\""+item.seq+"\");'>수정</a> "+
+						    "<em>|</em> <a href='#none' onClick='fnDelete(\""+item.seq+"\");'>삭제</a></span>";
+					    }
+					list += "</li>";
+					$("#coursCmdList").append(list); 
+				});
+			},
+			'json'
+	);
+}
+
+
+function fnInsert(){	
+	if(!confirm('로그인 하시면 댓글을 입력하실 수 있습니다.\n로그인 하시겠습니까?')) return;
+	location.href="/login.dp/dmparse.dm?url="+location.pathname+location.search;
+	
+}
+
+
+var len = 0;
+function fnKeyup() {
+	var field = $("#comment").val();
+    len = field.length;
+	if(len >  400){
+		 alert("글자가 초과하였습니다.");
+		 $("#comment").val(field.substring(0,400));
+		 return event.keyCode != 13;
+		 
+	}else{
+		$("#txt strong span").html("<span>["+len+"/400]</span>");
+	}	
+}
+function fnUpdateKeyup() {
+	var field = $("#updateComment").val();
+    len = field.length;
+	if(len >  400){
+		 alert("글자가 초과하였습니다.");
+		 $("#updateComment").val(field.substring(0,400));
+		 return event.keyCode != 13;
+	}	
+}
+
+//]]>
+</script>
+</head>
+<body>	
+<script type="text/javascript">
+
+</script>
+
+<!-- 스킵네비 -->
+<a href="#container" class="skipmap">본문바로가기</a>
+<a href="#topmenu" class="skipmap">주메뉴바로가기</a>
+<a href="#right_tab" class="skipmap">빠른서비스 바로가기</a>
+<hr/>
+<!-- //스킵네비 -->
+
+<!-- wrap -->
+<div id="wrap">
+	<!-- header -->
+	<div id="header">
+		<div class="headerBox">
+			<div class="headerBox_s">
+				<!-- <ul class="topLk">
+					<li><h1><a href="/main.dp/dmparse.dm"><img src="/img/golf/common/logo.gif" alt="SONOFELICE COUNTRY CLUB" /></a></h1></li>
+					<li><a href="/sn"><img src="/img/golf/common/logo_1.png" alt="비발디파크 EAST" /></a></li>
+					<li><a href="/vc"><img src="/img/golf/common/logo_2.png" alt="비발디파크 WEST" /></a></li>
+					<li><a href="/dp"><img src="/img/golf/common/logo_3.png" alt="델피노" /></a></li>
+					<li><a href="/vp"><img src="/img/golf/common/logo_4.png" alt="비발디파크 MOUNTAIN" /></a></li>
+				</ul> -->
+				<ul class="topLk">
+					<li><a><img src="/img/golf/common/top/01_set.jpg"/></a></li>
+					<li><a><img src="/img/golf/common/top/02_in.jpg" alt="국내" /></a></li>
+					<li><a href="/sn"><img src="/img/golf/common/top/03_vp_east.jpg" alt="비발디파크 EAST" /></a></li>
+					<li><a href="/vc"><img src="/img/golf/common/top/04_vp_west.jpg" alt="비발디파크 WEST" /></a></li>
+					<li><a href="/dp"><img src="/img/golf/common/top/05_dp.jpg" alt="델피노" /></a></li>
+					<li><a href="/course.sonoParkGolfInfo.dp/dmparse.dm"><img src="/img/golf/common/top/06_vp_pg.jpg" alt="파크골프" /></a></li>
+					<!-- <li><a href="/vp"><img src="/img/golf/common/top/06_vp_mt.jpg" alt="비발디파크 MOUNTAIN" /></a></li> -->
+					<li><a><img src="/img/golf/common/top/07_out.jpg" alt="해외" /></a></li>
+					<li><a href="https://sonofeliceccguam.com/mangilao/" target="_blank"><img src="/img/golf/common/top/08_guam_mangilao.jpg" alt="망길라오" /></a></li>
+					<li><a href="https://sonofeliceccguam.com/talofofo/" target="_blank"><img src="/img/golf/common/top/08_guam_talofofo.jpg" alt="탈로포포" /></a></li>
+					<li><a href="https://www.sonofelicecchp.com" target="_blank"><img src="/img/golf/common/top/10_hp.jpg" alt="하이퐁" /></a></li>
+					<!-- <li><a><img src="/img/golf/common/top/11_end.jpg"/></a></li> -->
+				</ul>
+				<ul class="ritBx">
+					<li class="logo"><h1><a href="/main.dp/dmparse.dm"><img src="/img/golf/common/top/logo.png" alt="SONOFELICE COUNTRY CLUB" /></a></h1></li>
+					
+						<li><a href="/login.dp/dmparse.dm">로그인</a></li>
+						<li><a href="https://www.sonohotelsresorts.com/member/joinType">멤버십</a></li>
+					
+					<li><a href="/info.siteMap.dp/dmparse.dm">사이트맵</a></li>
+				</ul>
+				
+			</div>
+			<div id="gnbWrap">
+				<ul class="gnbBox">
+					<li class="mnDtBx1 menuGnb1"><a href="#none" class="mnDt1"><span>컨트리클럽 안내</span></a> <!-- 2013-06-10 -->
+						<div class="gndSubMenu">
+							<dl>
+								<dt><a href="/info.clubInfoList.dp/dmparse.dm">컨트리클럽소개</a></dt>
+								<dt><a href="/history.historyList.dp/dmparse.dm">연혁</a></dt>
+								<dt><a href="/facility.facilityList.dp/dmparse.dm?bizpSid=60">레스토랑</a></dt>
+								<dt><a href="/daemyung.golf.etc.location_east.ds/dmparse.dm">찾아오시는 길</a></dt>
+								<dt><a href="/lounge.lostAndFound.dp/dmparse.dm">분실물 안내</a></dt>
+							</dl>
+						</div>
+					</li>
+					<li class="mnDtBx1 menuGnb2"><a href="#none" class="mnDt1"><span>코스안내</span></a>
+						<div class="gndSubMenu">
+							<dl>
+								<dt><a href="/course.sonoCourseInfo.dp/dmparse.dm">비발디파크 EAST</a></dt>
+								<dt><a href="/course.vivaldiCCCourseInfo.dp/dmparse.dm">비발디파크 WEST</a></dt>
+								<dt><a href="/course.delpinoCourseInfo.dp/dmparse.dm">델피노</a></dt>	
+								<dt><a href="/course.sonoPar3CourseInfo.dp/dmparse.dm">소노펠리체 Par3</a></dt>
+								<dt><a href="/course.sonoParkGolfInfo.dp/dmparse.dm">비발디파크 파크골프</a></dt>
+							</dl>
+						</div>
+					</li>
+					<li class="mnDtBx1 menuGnb3"><a href="#none" class="mnDt1"><span>온라인예약</span></a>
+						<div class="gndSubMenu">
+							<dl>
+								<dt><a href="/rsv.choice.dp/dmparse.dm">골프예약</a></dt>
+								<dt><a href="/rsvguide.rsvPee.dp/dmparse.dm">이용요금</a></dt>
+								<dt><a href="/rsv.rangersChoice.dp/dmparse.dm">HOT타임 예약</a></dt>
+								<dt><a href="/rsvguide.rsvGuide.dp/dmparse.dm">예약안내</a></dt>
+								<dd>
+									<ul>
+										<li><a href="/rsvguide.rsvGuide.dp/dmparse.dm">예약정책안내</a></li>
+									</ul>
+								</dd>
+								<dt><a href="/lounge.golfJoinList.dp/dmparse.dm">동반라운드 게시판</a></dt>
+								<dt><a href="https://mice.sonohotelsresorts.com/daemyung.renewmice.general.SCPIR.SCPIR000.ds/dmparse.dm" target="_blank">단체문의</a></dt>
+							</dl>
+						</div>
+					</li>
+					<li class="mnDtBx1 menuGnb4"><a href="#none" class="mnDt1"><span>고객라운지</span></a>
+						<div class="gndSubMenu">
+							<dl>
+								<dt><a href="/newnotice.noticeList.dp/dmparse.dm">공지사항</a></dt>
+								<dt><a href="/newevent.eventList.dp/dmparse.dm">이벤트</a></dt>
+								<dt><a href="/rsv.packageList.dp/dmparse.dm">패키지</a></dt>
+								<dt><a href="/faq.faqList.dp/dmparse.dm">FAQ</a></dt>
+							</dl>
+						</div>
+					</li>
+					<li class="mnDtBx1 menuGnb5"><a href="#none" class="mnDt1"><span>D멤버스 G클럽</span></a>
+						<div class="gndSubMenu">
+							<dl>
+								<dt><a href="/dcard.dcardInfo.dp/dmparse.dm">D멤버스 G클럽 소개</a></dt>
+								<dt><a href="/dcard.dcardBenefit.dp/dmparse.dm">D멤버스 G클럽 혜택</a></dt>
+								<dt><a href="/daemyung.golf.dcard.intro.dp/dmparse.dm">D멤버스 G클럽 신청<br/>(신규/연장)</a></dt>
+								<dt><a href="/dcard.dcardRangers.dp/dmparse.dm">HOT타임</a></dt>
+								<dd>
+									<ul>
+										<li><a href="/rsv.rangersChoice.dp/dmparse.dm">HOT타임 예약</a></li>
+										<li><a href="/dcard.dcardRangers.dp/dmparse.dm">HOT타임 안내</a></li>
+									</ul>
+								</dd>
+								<dt><a href="/dcard.dcardDpoint.dp/dmparse.dm">D포인트</a></dt>
+								<dd>
+									<ul>
+										<li><a href="/dcard.dcardDpoint.dp/dmparse.dm">D포인트란</a></li>
+										<li><a href="/dcard.dcardDpointUse.dp/dmparse.dm">D포인트 사용안내</a></li>
+									</ul>
+								</dd>
+							</dl>
+						</div>
+					</li>
+
+					<li class="mnDtBx1 menuGnb6"><a href="#none" class="mnDt1"><span>My페이지</span></a>
+						<div class="gndSubMenu">
+							<dl>
+								<dt><a href="/mypage.reservationCount.dp/dmparse.dm?storeCd=2180">예약가능 횟수조회</a></dt>
+								<dt><a href="/rsv.infoList.dp/dmparse.dm">예약조회/변경</a></dt>
+								<dt><a href="/rsv.infoWaitList.dp/dmparse.dm">대기접수조회/취소</a></dt>
+								<dt><a href="/daemyung.golf.dcard.DCardHistory.dp/dmparse.dm">My D멤버스 G클럽</a></dt>
+								<dd>
+									<ul>
+										<li><a href="/daemyung.golf.dcard.pointSearch.dp/dmparse.dm">D포인트 확인</a></li>
+										<li><a href="/daemyung.golf.dcard.cooponSearch.dp/dmparse.dm?useCase=1">D쿠폰 확인</a></li>
+										<li><a href="/daemyung.golf.dcard.DCardHistory.dp/dmparse.dm">D멤버스 G클럽 신청내역조회</a></li>
+									</ul>
+								</dd>
+								<dt><a href="/rsvguide.memCardConView.dp/dmparse.dm">무기명카드 바코드전송</a></dt>
+							</dl>
+						</div>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</div>
+	<!-- //header -->
+
+	<!-- container -->
+	<div id="container">
+		<div id="location">
+			<ul>
+				<li>Home&nbsp;&rsaquo;&nbsp;</li>
+				<li>코스안내&nbsp;&rsaquo;&nbsp;</li>
+					<li>비발디파크 EAST</li>	
+			</ul>
+		</div>
+		<div class="subtitle">
+			
+			<h1>
+				<!-- <img src="/img/golf/title/title_course3.gif" alt="소노펠리체 CC" /> -->
+				<span style="font-size:30px;font-weight:bold;letter-spacing:-2px;">비발디파크 EAST</span>	</h1>	
+		</div>
+		<div class="contents">
+			<div class="eventTab2">
+				<ul>
+					<li class="first"><a href="/course.sonoCourseInfo.dp/dmparse.dm?on_flag=00">코스특징</a></li>
+					<li><a href="/course.sonoCourseInfo.dp/dmparse.dm?on_flag=01" class="on">OUT코스</a></li> 
+					<li><a href="/course.sonoCourseInfo.dp/dmparse.dm?on_flag=02">IN코스</a></li> 
+				</ul>
+			</div>
+			<div class="tabBox1">
+				<ul class="courseTab">
+						<li class="fir"><a href="javascript:getCmtList('01','60','01');" class="current" hole="01">01홀</a></li>		<li ><a href="javascript:getCmtList('01','60','02');"  hole="02">02홀</a></li>		<li ><a href="javascript:getCmtList('01','60','03');"  hole="03">03홀</a></li>		<li ><a href="javascript:getCmtList('01','60','04');"  hole="04">04홀</a></li>		<li ><a href="javascript:getCmtList('01','60','05');"  hole="05">05홀</a></li>		<li ><a href="javascript:getCmtList('01','60','06');"  hole="06">06홀</a></li>		<li ><a href="javascript:getCmtList('01','60','07');"  hole="07">07홀</a></li>		<li ><a href="javascript:getCmtList('01','60','08');"  hole="08">08홀</a></li>		<li class="end"><a href="javascript:getCmtList('01','60','09');"  hole="09">09홀</a></li>		</ul>	<form id="commentInfo" action="/course.sonoCourseInfo.dp/dmparse.dm?on_flag=01" method="post"><input id="seq" name="seq" type="hidden" value="0"/><input id="hole_cd" name="hole_cd" type="hidden" value="01"/>
+					<input type="hidden" name="course_cd"  id="course_cd" value="01"/>
+					<input type="hidden" name="jiyuk_cd"  id="jiyuk_cd" value="60"/>
+				</form>
+				
+				<div class="tab-wrapper mt30">
+						<!-- 01홀 -->
+					<div class="seWrapper">
+						
+<div class="courseMap_bx">
+	<div class="img hole01">
+	<img src="/img/golf/img/img_course_ball.jpg"  >
+	<img src="/img/golf/sonofelice/courseImg1_01.jpg" alt="코스이미지" />
+		<!-- <img src="/img/golf/bg/bg_ball.png" width="15" height="15" alt="" class="ball1" />
+		<img src="/img/golf/bg/bg_ball2.png" width="14" height="14" alt="" class="ball2" /> -->
+	</div>
+<script type="text/javascript">
+$(function(){
+	$('.hole01 .ball1').css({
+		top:'153px',
+		left:'122px'
+	});
+	$('.hole01 .ball2').css({
+		top:'438px',
+		left:'98px'
+	});
+	
+	function hole01(){
+		htime = setInterval(function(){
+			$('.hole01 .ball1').stop(true);
+			$('.hole01 .ball2').stop(true);
+			$('.hole01 .ball1').animate({
+				top:'153px',
+				left:'122px'
+			},0,function(){
+				$(this).delay(500).animate({
+					top:'171px',
+					left:'328px',
+					width:'30px',
+					height:'30px'
+				},1000,'linear',function(){
+					$(this).animate({
+						top:'200px',
+						left:'520px',
+						width:'15px',
+						height:'15px'
+					},1000,'linear',function(){
+						$(this).delay(500).animate({
+							top:'177px',
+							left:'657px',
+							width:'30px',
+							height:'30px'
+						},1000,'linear',function(){
+							$(this).animate({
+								top:'172px',
+								left:'783px',
+								width:'15px',
+								height:'15px'
+							},1000,'linear',function(){
+							});
+						});
+					});
+				});
+			});
+			$('.hole01 .ball2').animate({
+				top:'438px',
+				left:'98px'
+			},0,function(){
+				$(this).delay(500).animate({
+					top:'410px',
+					left:'146px'
+				},250,'linear',function(){
+					$(this).animate({
+						top:'386px',
+						left:'199px'
+					},250,'linear',function(){
+						$(this).animate({
+							top:'368px',
+							left:'256px'
+						},250,'linear',function(){
+							$(this).animate({
+								top:'358px',
+								left:'316px'
+							},250,'linear',function(){
+								$(this).animate({
+									top:'360px',
+									left:'381px'
+								},250,'linear',function(){
+									$(this).animate({
+										top:'376px',
+										left:'440px'
+									},250,'linear',function(){
+										$(this).animate({
+											top:'402px',
+											left:'488px'
+										},250,'linear',function(){
+											$(this).animate({
+												top:'432px',
+												left:'524px'
+											},250,'linear',function(){
+												$(this).delay(500).animate({
+													top:'410px',
+													left:'554px'
+												},250,'linear',function(){
+													$(this).animate({
+														top:'389px',
+														left:'587px'
+													},250,'linear',function(){
+														$(this).animate({
+															top:'372px',
+															left:'622px'
+														},250,'linear',function(){
+															$(this).animate({
+																top:'361px',
+																left:'659px'
+															},250,'linear',function(){
+																$(this).animate({
+																	top:'358px',
+																	left:'702px'
+																},250,'linear',function(){
+																	$(this).animate({
+																		top:'367px',
+																		left:'742px'
+																	},250,'linear',function(){
+																		$(this).animate({
+																			top:'387px',
+																			left:'777px'
+																		},250,'linear',function(){
+																			$(this).animate({
+																				top:'413px',
+																				left:'805px'
+																			},250,'linear',function(){
+																			});
+																		});
+																	});
+																});
+															});
+														});
+													});
+												});
+											});
+										});
+									});
+								});
+							});
+						});
+					});
+				});
+			});
+		},6000);
+	};
+
+	hole01();
+	
+	$('.courseTab li:eq(0) a').click(function(){
+		$('.hole01 .ball1').css({
+			top:'153px',
+			left:'122px'
+		});
+		$('.hole01 .ball2').css({
+			top:'438px',
+			left:'98px'
+		});
+		clearInterval(htime);
+		hole01();
+	});
+	
+});
+</script>
+
+	<div class="holeTxt sonofelHole">
+		<div class="holePar">
+			<strong class="num">01</strong><span class="num_txt">HOLE Par4</span>
+			<span class="num_txt2">OUT COURSE <em>384</em> Meters</span>
+			<ul class="itemLit">
+				<li class="bul_cous1"><span>BLACK</span> <em>384&nbsp;&nbsp;m</em></li>
+				<li class="bul_cous2"><span>BLUE</span> <em>366&nbsp;&nbsp;m</em></li>
+				<li class="bul_cous3"><span>WHITE</span> <em>344&nbsp;&nbsp;m</em></li>
+				<li class="bul_cous4"><span>GOLD</span> <em>320&nbsp;&nbsp;m</em></li>
+				<li class="bul_cous5"><span>RED</span> <em>282&nbsp;&nbsp;m</em></li>
+			</ul>
+		</div>
+		<div class="frBx1">
+			<dl class="frTip">
+				<dt>COURSE TIP</dt>
+				<dd>티 우측 연못이 있어 시원한 느낌으로 시작할 수 있는 첫 홀입니다. 완만한 오르막으로 페어웨이가 넓어 티샷은 어려움이 없으며, 페어웨이의 벙커 난이도가 심하지 않습니다. 그린 우측을 편안히 조성하여 미스샷을 하더라도 무리 없이 시작할 수 있는 OUT코스의 첫 홀입니다.</dd>
+			</dl>
+			<!--
+			<ul class="holeImgList1">
+				<li><a href="#none" class="inLayerOpen1"><span></span><img src="/img/golf/hole/img_coures1_01_01.jpg" alt="코스이미지1" /></a></li>
+				<li><a href="#none" class="inLayerOpen1"><span></span><img src="/img/golf/hole/img_coures1_01_02.jpg" alt="코스이미지2" /></a></li>
+				<li><a href="#none" class="inLayerOpen1"><span></span><img src="/img/golf/hole/img_coures1_01_03.jpg" alt="코스이미지3" /></a></li>
+				<li><a href="#none" class="inLayerOpen1"><span></span><img src="/img/golf/hole/img_coures1_01_04.jpg" alt="코스이미지4" /></a></li>
+			</ul>
+			 -->
+		</div>
+	</div>
+</div>
+
+<div class="mt50">
+	<fieldset>
+		<legend>코스맵</legend>
+		<table cellspacing="0" border="1" summary="HOLE, YARDS, PAR의 내용" class="courseTb1">
+			<colgroup>
+				<col width="15%">
+				<col width="8%">
+				<col width="8%">
+				<col width="8%">
+				<col width="8%">
+				<col width="8%">
+				<col width="8%">
+				<col width="8%">
+				<col width="8%">
+				<col width="8%">
+				<col width="12%">
+			</colgroup>
+			<tbody>
+				<tr class="firBd">
+					<th scope="row">HOLE</th>
+					<td class="tbOn">1</td>
+					<td>2</td>
+					<td>3</td>
+					<td>4</td>
+					<td>5</td>
+					<td>6</td>
+					<td>7</td>
+					<td>8</td>
+					<td>9</td>
+					<td class="txtb">Total</td>
+				</tr>
+				<tr>
+					<th scope="row">METERS</th>
+					<td class="tbOn">384</td>
+					<td>412</td>
+					<td>620</td>
+					<td>366</td>
+					<td>154</td>
+					<td>340</td>
+					<td>363</td>
+					<td>150</td>
+					<td>538</td>
+					<td class="txtb">3,326</td>
+				</tr>
+				<tr>
+					<th scope="row">PAR</th>
+					<td class="tbOn">4</td>
+					<td>4</td>
+					<td>5</td>
+					<td>4</td>
+					<td>3</td>
+					<td>4</td>
+					<td>4</td>
+					<td>3</td>
+					<td>5</td>
+					<td class="txtb">36</td>
+				</tr>
+			</tbody>
+		</table>
+	</fieldset>
+</div>	</div>	<!-- //01홀 -->		<!-- 02홀 -->
+					<div class="seWrapper">
+						
+<div class="courseMap_bx">
+	<div class="img hole02">
+		<img src="/img/golf/img/img_course_ball.jpg"  >
+		<img src="/img/golf/sonofelice/courseImg1_02.jpg" alt="코스이미지" />
+		<!-- <img src="/img/golf/bg/bg_ball.png" width="15" height="15" alt="" class="ball1" />
+		<img src="/img/golf/bg/bg_ball2.png" width="14" height="14" alt="" class="ball2" /> -->
+	</div>
+<script type="text/javascript">
+$(function(){
+	$('.hole02 .ball1').css({
+		top:'136px',
+		left:'98px'
+	});
+	$('.hole02 .ball2').css({
+		top:'405px',
+		left:'98px'
+	});
+	
+	function hole02(){
+		htime = setInterval(function(){
+			$('.hole02 .ball1').stop(true);
+			$('.hole02 .ball2').stop(true);
+			$('.hole02 .ball1').animate({
+				top:'136px',
+				left:'98px'
+			},0,function(){
+				$(this).delay(500).animate({
+					top:'158px',
+					left:'300px',
+					width:'30px',
+					height:'30px'
+				},1000,'linear',function(){
+					$(this).animate({
+						top:'195px',
+						left:'496px',
+						width:'15px',
+						height:'15px'
+					},1000,'linear',function(){
+						$(this).delay(500).animate({
+							top:'170px',
+							left:'644px',
+							width:'30px',
+							height:'30px'
+						},1000,'linear',function(){
+							$(this).animate({
+								top:'162px',
+								left:'794px',
+								width:'15px',
+								height:'15px'
+							},1000,'linear',function(){
+							});
+						});
+					});
+				});
+			});
+			$('.hole02 .ball2').animate({
+				top:'405px',
+				left:'98px'
+			},0,function(){
+				$(this).delay(500).animate({
+					top:'384px',
+					left:'151px'
+				},250,'linear',function(){
+					$(this).animate({
+						top:'368px',
+						left:'204px'
+					},250,'linear',function(){
+						$(this).animate({
+							top:'357px',
+							left:'260px'
+						},250,'linear',function(){
+							$(this).animate({
+								top:'354px',
+								left:'318px'
+							},250,'linear',function(){
+								$(this).animate({
+									top:'358px',
+									left:'376px'
+								},250,'linear',function(){
+									$(this).animate({
+										top:'374px',
+										left:'427px'
+									},250,'linear',function(){
+										$(this).animate({
+											top:'401px',
+											left:'469px'
+										},250,'linear',function(){
+											$(this).animate({
+												top:'433px',
+												left:'497px'
+											},250,'linear',function(){
+												$(this).delay(500).animate({
+													top:'415px',
+													left:'536px'
+												},250,'linear',function(){
+													$(this).animate({
+														top:'401px',
+														left:'575px'
+													},250,'linear',function(){
+														$(this).animate({
+															top:'390px',
+															left:'616px'
+														},250,'linear',function(){
+															$(this).animate({
+																top:'384px',
+																left:'658px'
+															},250,'linear',function(){
+																$(this).animate({
+																	top:'385px',
+																	left:'704px'
+																},250,'linear',function(){
+																	$(this).animate({
+																		top:'394px',
+																		left:'744px'
+																	},250,'linear',function(){
+																		$(this).animate({
+																			top:'411px',
+																			left:'780px'
+																		},250,'linear',function(){
+																			$(this).animate({
+																				top:'436px',
+																				left:'805px'
+																			},250,'linear',function(){
+																			});
+																		});
+																	});
+																});
+															});
+														});
+													});
+												});
+											});
+										});
+									});
+								});
+							});
+						});
+					});
+				});
+			});
+		},6000);
+	};
+	
+	$('.courseTab li:eq(1) a').click(function(){
+		$('.hole02 .ball1').css({
+			top:'136px',
+			left:'98px'
+		});
+		$('.hole02 .ball2').css({
+			top:'405px',
+			left:'98px'
+		});
+		clearInterval(htime);
+		hole02();
+	});
+	
+});
+</script>
+	<div class="holeTxt sonofelHole">
+		<div class="holePar">
+			<strong class="num">02</strong><span class="num_txt">HOLE Par4</span>
+			<span class="num_txt2">OUT COURSE <em>412</em> Meters</span>
+			<ul class="itemLit">
+				<li class="bul_cous1"><span>BLACK</span> <em>412&nbsp;&nbsp;m</em></li>
+				<li class="bul_cous2"><span>BLUE</span> <em>390&nbsp;&nbsp;m</em></li>
+				<li class="bul_cous3"><span>WHITE</span> <em>366&nbsp;&nbsp;m</em></li>
+				<li class="bul_cous4"><span>GOLD</span> <em>330&nbsp;&nbsp;m</em></li>
+				<li class="bul_cous5"><span>RED</span> <em>288&nbsp;&nbsp;m</em></li>
+			</ul>
+		</div>
+		<div class="frBx1">
+			<dl class="frTip">
+				<dt>COURSE TIP</dt>
+				<dd>내리막의 Par4홀로서 우측벙커 좌측을 공략하는 것이 그린 공략에 유리합니다.<br>어프로치는 해저드를 넘기기에 크게 부담이 없으나, 그린 우측에 벙커가 있어 좌측으로 공략하는 것이 안전합니다.</dd>
+			</dl>
+		</div>
+	</div>
+</div>
+
+<div class="mt50">
+	<fieldset>
+		<legend>코스맵</legend>
+		<table cellspacing="0" border="1" summary="HOLE, YARDS, PAR의 내용" class="courseTb1">
+			<colgroup>
+				<col width="15%">
+				<col width="8%">
+				<col width="8%">
+				<col width="8%">
+				<col width="8%">
+				<col width="8%">
+				<col width="8%">
+				<col width="8%">
+				<col width="8%">
+				<col width="8%">
+				<col width="12%">
+			</colgroup>
+			<tbody>
+				<tr class="firBd">
+					<th scope="row">HOLE</th>
+					<td>1</td>
+					<td class="tbOn">2</td>
+					<td>3</td>
+					<td>4</td>
+					<td>5</td>
+					<td>6</td>
+					<td>7</td>
+					<td>8</td>
+					<td>9</td>
+					<td class="txtb">Total</td>
+				</tr>
+				<tr>
+					<th scope="row">METERS</th>
+					<td>384</td>
+					<td class="tbOn">412</td>
+					<td>620</td>
+					<td>366</td>
+					<td>154</td>
+					<td>340</td>
+					<td>363</td>
+					<td>150</td>
+					<td>538</td>
+					<td class="txtb">3,326</td>
+				</tr>
+				<tr>
+					<th scope="row">PAR</th>
+					<td>4</td>
+					<td class="tbOn">4</td>
+					<td>5</td>
+					<td>4</td>
+					<td>3</td>
+					<td>4</td>
+					<td>4</td>
+					<td>3</td>
+					<td>5</td>
+					<td class="txtb">36</td>
+				</tr>
+			</tbody>
+		</table>
+	</fieldset>
+</div>	</div>	<!-- //02홀 -->		<!-- 03홀 -->
+					<div class="seWrapper">
+						
+<div class="courseMap_bx">
+	<div class="img hole03">
+		<img src="/img/golf/img/img_course_ball.jpg"  >
+		<img src="/img/golf/sonofelice/courseImg1_03.jpg" alt="코스이미지" />
+		<!-- <img src="/img/golf/bg/bg_ball.png" width="15" height="15" alt="" class="ball1" />
+		<img src="/img/golf/bg/bg_ball2.png" width="14" height="14" alt="" class="ball2" /> -->
+	</div>
+<script type="text/javascript">
+$(function(){
+	$('.hole03 .ball1').css({
+		top:'180px',
+		left:'63px'
+	});
+	$('.hole03 .ball2').css({
+		top:'405px',
+		left:'98px'
+	});
+	
+	function hole03(){
+		htime = setInterval(function(){
+			$('.hole03 .ball1').stop(true);
+			$('.hole03 .ball2').stop(true);
+			$('.hole03 .ball1').animate({
+				top:'180px',
+				left:'63px'
+			},0,function(){
+				$(this).delay(500).animate({
+					top:'148px',
+					left:'237px',
+					width:'30px',
+					height:'30px'
+				},1000,'linear',function(){
+					$(this).animate({
+						top:'135px',
+						left:'402px',
+						width:'15px',
+						height:'15px'
+					},1000,'linear',function(){
+						$(this).delay(500).animate({
+							top:'188px',
+							left:'520px',
+							width:'30px',
+							height:'30px'
+						},1000,'linear',function(){
+							$(this).animate({
+								top:'247px',
+								left:'635px',
+								width:'15px',
+								height:'15px'
+							},1000,'linear',function(){
+								$(this).delay(500).animate({
+									top:'201px',
+									left:'727px',
+									width:'30px',
+									height:'30px'
+								},1000,'linear',function(){
+									$(this).animate({
+										top:'169px',
+										left:'828px',
+										width:'15px',
+										height:'15px'
+									},1000,'linear',function(){
+									});
+								});
+							});
+						});
+					});
+				});
+			});
+			$('.hole03 .ball2').animate({
+				top:'405px',
+				left:'98px'
+			},0,function(){
+				$(this).delay(500).animate({
+					top:'386px',
+					left:'129px'
+				},250,'linear',function(){
+					$(this).animate({
+						top:'371px',
+						left:'172px'
+					},250,'linear',function(){
+						$(this).animate({
+							top:'361px',
+							left:'217px'
+						},250,'linear',function(){
+							$(this).animate({
+								top:'358px',
+								left:'265px'
+							},250,'linear',function(){
+								$(this).animate({
+									top:'364px',
+									left:'308px'
+								},250,'linear',function(){
+									$(this).animate({
+										top:'379px',
+										left:'347px'
+									},250,'linear',function(){
+										$(this).animate({
+											top:'402px',
+											left:'377px'
+										},250,'linear',function(){
+											$(this).animate({
+												top:'430px',
+												left:'401px'
+											},250,'linear',function(){
+												$(this).delay(500).animate({
+													top:'413px',
+													left:'426px'
+												},250,'linear',function(){
+													$(this).animate({
+														top:'400px',
+														left:'456px'
+													},250,'linear',function(){
+														$(this).animate({
+															top:'390px',
+															left:'487px'
+														},250,'linear',function(){
+															$(this).animate({
+																top:'385px',
+																left:'519px'
+															},250,'linear',function(){
+																$(this).animate({
+																	top:'387px',
+																	left:'555px'
+																},250,'linear',function(){
+																	$(this).animate({
+																		top:'399px',
+																		left:'588px'
+																	},250,'linear',function(){
+																		$(this).animate({
+																			top:'419px',
+																			left:'616px'
+																		},250,'linear',function(){
+																			$(this).animate({
+																				top:'440px',
+																				left:'635px'
+																			},250,'linear',function(){
+																				$(this).delay(500).animate({
+																					top:'422px',
+																					left:'656px'
+																				},250,'linear',function(){
+																					$(this).animate({
+																						top:'408px',
+																						left:'682px'
+																					},250,'linear',function(){
+																						$(this).animate({
+																							top:'396px',
+																							left:'710px'
+																						},250,'linear',function(){
+																							$(this).animate({
+																								top:'388px',
+																								left:'738px'
+																							},250,'linear',function(){
+																								$(this).animate({
+																									top:'388px',
+																									left:'767px'
+																								},250,'linear',function(){
+																									$(this).animate({
+																										top:'395px',
+																										left:'794px'
+																									},250,'linear',function(){
+																										$(this).animate({
+																											top:'411px',
+																											left:'818px'
+																										},250,'linear',function(){
+																											$(this).animate({
+																												top:'431px',
+																												left:'835px'
+																											},250,'linear',function(){
+																											});
+																										});
+																									});
+																								});
+																							});
+																						});
+																					});
+																				});
+																			});
+																		});
+																	});
+																});
+															});
+														});
+													});
+												});
+											});
+										});
+									});
+								});
+							});
+						});
+					});
+				});
+			});
+		},8000);
+	};
+	
+	$('.courseTab li:eq(2) a').click(function(){
+		$('.hole03 .ball1').css({
+			top:'180px',
+			left:'63px'
+		});
+		$('.hole03 .ball2').css({
+			top:'407px',
+			left:'88px'
+		});
+		clearInterval(htime);
+		hole03();
+	});
+	
+});
+</script>
+	<div class="holeTxt sonofelHole">
+		<div class="holePar">
+			<strong class="num">03</strong><span class="num_txt">HOLE Par5</span>
+			<span class="num_txt2">OUT COURSE <em>620</em> Meters</span>
+			<ul class="itemLit">
+				<li class="bul_cous1"><span>BLACK</span> <em>620&nbsp;&nbsp;m</em></li>
+				<li class="bul_cous2"><span>BLUE</span> <em>597&nbsp;&nbsp;m</em></li>
+				<li class="bul_cous3"><span>WHITE</span> <em>537&nbsp;&nbsp;m</em></li>
+				<li class="bul_cous4"><span>GOLD</span> <em>515&nbsp;&nbsp;m</em></li>
+				<li class="bul_cous5"><span>RED</span> <em>481&nbsp;&nbsp;m</em></li>
+			</ul>
+		</div>
+		<div class="frBx1">
+			<dl class="frTip">
+				<dt>COURSE TIP</dt>
+				<dd>내리막으로 펼쳐진 수경관과 어우러져 호쾌한 장타를 날려봄직한 가장 긴 Par5홀입니다. 내리막을 고려하고 자신의 비거리에 따라 티샷의 공략지점을 선택하여야 하는 전략적인 홀이며, 세컨샷은 가로지르는 해저드를 넘겨야 그린어프로치가 유리합니다. 그린은 하늘과 맞닿아 있어 시원한 경관이 일품인 홀입니다.</dd>
+			</dl>
+		</div>
+	</div>
+</div>
+
+<div class="mt50">
+	<fieldset>
+		<legend>코스맵</legend>
+		<table cellspacing="0" border="1" summary="HOLE, YARDS, PAR의 내용" class="courseTb1">
+			<colgroup>
+				<col width="15%">
+				<col width="8%">
+				<col width="8%">
+				<col width="8%">
+				<col width="8%">
+				<col width="8%">
+				<col width="8%">
+				<col width="8%">
+				<col width="8%">
+				<col width="8%">
+				<col width="12%">
+			</colgroup>
+			<tbody>
+				<tr class="firBd">
+					<th scope="row">HOLE</th>
+					<td>1</td>
+					<td>2</td>
+					<td class="tbOn">3</td>
+					<td>4</td>
+					<td>5</td>
+					<td>6</td>
+					<td>7</td>
+					<td>8</td>
+					<td>9</td>
+					<td class="txtb">Total</td>
+				</tr>
+				<tr>
+					<th scope="row">METERS</th>
+					<td>384</td>
+					<td>412</td>
+					<td class="tbOn">620</td>
+					<td>366</td>
+					<td>154</td>
+					<td>340</td>
+					<td>363</td>
+					<td>150</td>
+					<td>538</td>
+					<td class="txtb">3,326</td>
+				</tr>
+				<tr>
+					<th scope="row">PAR</th>
+					<td>4</td>
+					<td>4</td>
+					<td class="tbOn">5</td>
+					<td>4</td>
+					<td>3</td>
+					<td>4</td>
+					<td>4</td>
+					<td>3</td>
+					<td>5</td>
+					<td class="txtb">36</td>
+				</tr>
+			</tbody>
+		</table>
+	</fieldset>
+</div>	</div>	<!-- //03홀 -->		<!-- 04홀 -->
+					<div class="seWrapper">
+						
+<div class="courseMap_bx">
+	<div class="img hole04">
+		<img src="/img/golf/img/img_course_ball.jpg"  >
+		<img src="/img/golf/sonofelice/courseImg1_04.jpg" alt="코스이미지" />
+		<!-- <img src="/img/golf/bg/bg_ball.png" width="15" height="15" alt="" class="ball1" />
+		<img src="/img/golf/bg/bg_ball2.png" width="14" height="14" alt="" class="ball2" /> -->
+	</div>
+<script type="text/javascript">
+$(function(){
+	$('.hole04 .ball1').css({
+		top:'264px',
+		left:'89px'
+	});
+	$('.hole04 .ball2').css({
+		top:'483px',
+		left:'98px'
+	});
+	
+	function hole04(){
+		htime = setInterval(function(){
+			$('.hole04 .ball1').stop(true);
+			$('.hole04 .ball2').stop(true);
+			$('.hole04 .ball1').animate({
+				top:'264px',
+				left:'89px'
+			},0,function(){
+				$(this).delay(500).animate({
+					top:'191px',
+					left:'344px',
+					width:'30px',
+					height:'30px'
+				},1000,'linear',function(){
+					$(this).animate({
+						top:'149px',
+						left:'560px',
+						width:'15px',
+						height:'15px'
+					},1000,'linear',function(){
+						$(this).delay(500).animate({
+							top:'208px',
+							left:'684px',
+							width:'30px',
+							height:'30px'
+						},1000,'linear',function(){
+							$(this).animate({
+								top:'272px',
+								left:'796px',
+								width:'15px',
+								height:'15px'
+							},1000,'linear',function(){
+							});
+						});
+					});
+				});
+			});
+			$('.hole04 .ball2').animate({
+				top:'483px',
+				left:'98px'
+			},0,function(){
+				$(this).delay(500).animate({
+					top:'457px',
+					left:'156px'
+				},250,'linear',function(){
+					$(this).animate({
+						top:'436px',
+						left:'218px'
+					},250,'linear',function(){
+						$(this).animate({
+							top:'420px',
+							left:'277px'
+						},250,'linear',function(){
+							$(this).animate({
+								top:'410px',
+								left:'342px'
+							},250,'linear',function(){
+								$(this).animate({
+									top:'406px',
+									left:'407px'
+								},250,'linear',function(){
+									$(this).animate({
+										top:'416px',
+										left:'471px'
+									},250,'linear',function(){
+										$(this).animate({
+											top:'440px',
+											left:'529px'
+										},250,'linear',function(){
+											$(this).animate({
+												top:'475px',
+												left:'571px'
+											},250,'linear',function(){
+												$(this).delay(500).animate({
+													top:'461px',
+													left:'596px'
+												},250,'linear',function(){
+													$(this).animate({
+														top:'450px',
+														left:'626px'
+													},250,'linear',function(){
+														$(this).animate({
+															top:'440px',
+															left:'658px'
+														},250,'linear',function(){
+															$(this).animate({
+																top:'435px',
+																left:'690px'
+															},250,'linear',function(){
+																$(this).animate({
+																	top:'435px',
+																	left:'722px'
+																},250,'linear',function(){
+																	$(this).animate({
+																		top:'440px',
+																		left:'756px'
+																	},250,'linear',function(){
+																		$(this).animate({
+																			top:'454px',
+																			left:'784px'
+																		},250,'linear',function(){
+																			$(this).animate({
+																				top:'472px',
+																				left:'805px'
+																			},250,'linear',function(){
+																			});
+																		});
+																	});
+																});
+															});
+														});
+													});
+												});
+											});
+										});
+									});
+								});
+							});
+						});
+					});
+				});
+			});
+		},6000);
+	};
+	
+	$('.courseTab li:eq(3) a').click(function(){
+		$('.hole04 .ball1').css({
+			top:'264px',
+			left:'89px'
+		});
+		$('.hole04 .ball2').css({
+			top:'483px',
+			left:'98px'
+		});
+		clearInterval(htime);
+		hole04();
+	});
+	
+});
+</script>
+	<div class="holeTxt sonofelHole">
+		<div class="holePar">
+			<strong class="num">04</strong><span class="num_txt">HOLE Par4</span>
+			<span class="num_txt2">OUT COURSE <em>366</em> Meters</span>
+			<ul class="itemLit">
+				<li class="bul_cous1"><span>BLACK</span> <em>366&nbsp;&nbsp;m</em></li>
+				<li class="bul_cous2"><span>BLUE</span> <em>335&nbsp;&nbsp;m</em></li>
+				<li class="bul_cous3"><span>WHITE</span> <em>314&nbsp;&nbsp;m</em></li>
+				<li class="bul_cous4"><span>GOLD</span> <em>287&nbsp;&nbsp;m</em></li>
+				<li class="bul_cous5"><span>RED</span> <em>260&nbsp;&nbsp;m</em></li>
+			</ul>
+		</div>
+		<div class="frBx1">
+			<dl class="frTip">
+				<dt>COURSE TIP</dt>
+				<dd>완만한 오르막의 우측 도그렉 홀이며, 페어웨이 양쪽 벙커가 있어 차분한 티샷이 요구됩니다. 티샷이 짧을수록 어프로치 거리에 대한 부담이 있는 홀이며, 어프로치 샷의 정확도가 요구되는 홀입니다.</dd>
+			</dl>
+		</div>
+	</div>
+</div>
+
+<div class="mt50">
+	<fieldset>
+		<legend>코스맵</legend>
+		<table cellspacing="0" border="1" summary="HOLE, YARDS, PAR의 내용" class="courseTb1">
+			<colgroup>
+				<col width="15%">
+				<col width="8%">
+				<col width="8%">
+				<col width="8%">
+				<col width="8%">
+				<col width="8%">
+				<col width="8%">
+				<col width="8%">
+				<col width="8%">
+				<col width="8%">
+				<col width="12%">
+			</colgroup>
+			<tbody>
+				<tr class="firBd">
+					<th scope="row">HOLE</th>
+					<td>1</td>
+					<td>2</td>
+					<td>3</td>
+					<td class="tbOn">4</td>
+					<td>5</td>
+					<td>6</td>
+					<td>7</td>
+					<td>8</td>
+					<td>9</td>
+					<td class="txtb">Total</td>
+				</tr>
+				<tr>
+					<th scope="row">METERS</th>
+					<td>384</td>
+					<td>412</td>
+					<td>620</td>
+					<td class="tbOn">366</td>
+					<td>154</td>
+					<td>340</td>
+					<td>363</td>
+					<td>150</td>
+					<td>538</td>
+					<td class="txtb">3,326</td>
+				</tr>
+				<tr>
+					<th scope="row">PAR</th>
+					<td>4</td>
+					<td>4</td>
+					<td>5</td>
+					<td class="tbOn">4</td>
+					<td>3</td>
+					<td>4</td>
+					<td>4</td>
+					<td>3</td>
+					<td>5</td>
+					<td class="txtb">36</td>
+				</tr>
+			</tbody>
+		</table>
+	</fieldset>
+</div>	</div>	<!-- //04홀 -->		<!-- 05홀 -->
+					<div class="seWrapper">
+						
+<div class="courseMap_bx">
+	<div class="img hole05">
+		<img src="/img/golf/img/img_course_ball.jpg"  >
+		<img src="/img/golf/sonofelice/courseImg1_05.jpg" alt="코스이미지" />
+		<!-- <img src="/img/golf/bg/bg_ball.png" width="15" height="15" alt="" class="ball1" />
+		<img src="/img/golf/bg/bg_ball2.png" width="14" height="14" alt="" class="ball2" /> -->
+	</div>
+<script type="text/javascript">
+$(function(){
+	$('.hole05 .ball1').css({
+		top:'200px',
+		left:'168px'
+	});
+	$('.hole05 .ball2').css({
+		top:'455px',
+		left:'100px'
+	});
+	
+	function hole05(){
+		htime = setInterval(function(){
+			$('.hole05 .ball1').stop(true);
+			$('.hole05 .ball2').stop(true);
+			$('.hole05 .ball1').animate({
+				top:'200px',
+				left:'168px'
+			},0,function(){
+				$(this).delay(500).animate({
+					top:'190px',
+					left:'420px',
+					width:'30px',
+					height:'30px'
+				},1000,'linear',function(){
+					$(this).animate({
+						top:'195px',
+						left:'642px',
+						width:'15px',
+						height:'15px'
+					},1000,'linear',function(){
+					});
+				});
+			});
+			$('.hole05 .ball2').animate({
+				top:'455px',
+				left:'100px'
+			},0,function(){
+				$(this).delay(500).animate({
+					top:'431px',
+					left:'175px'
+				},250,'linear',function(){
+					$(this).animate({
+						top:'414px',
+						left:'247px'
+					},250,'linear',function(){
+						$(this).animate({
+							top:'403px',
+							left:'325px'
+						},250,'linear',function(){
+							$(this).animate({
+								top:'401px',
+								left:'406px'
+							},250,'linear',function(){
+								$(this).animate({
+									top:'409px',
+									left:'492px'
+								},250,'linear',function(){
+									$(this).animate({
+										top:'431px',
+										left:'570px'
+									},250,'linear',function(){
+										$(this).animate({
+											top:'463px',
+											left:'634px'
+										},250,'linear',function(){
+											$(this).animate({
+												top:'502px',
+												left:'687px'
+											},250,'linear',function(){
+											});
+										});
+									});
+								});
+							});
+						});
+					});
+				});
+			});
+		},4000);
+	};
+	
+	$('.courseTab li:eq(4) a').click(function(){
+		$('.hole05 .ball1').css({
+			top:'200px',
+			left:'168px'
+		});
+		$('.hole05 .ball2').css({
+			top:'455px',
+			left:'100px'
+		});
+		clearInterval(htime);
+		hole05();
+	});
+	
+});
+</script>
+	<div class="holeTxt sonofelHole">
+		<div class="holePar">
+			<strong class="num">05</strong><span class="num_txt">HOLE Par3</span>
+			<span class="num_txt2">OUT COURSE <em>154</em> Meters</span>
+			<ul class="itemLit">
+				<li class="bul_cous1"><span>BLACK</span> <em>154&nbsp;&nbsp;m</em></li>
+				<li class="bul_cous2"><span>BLUE</span> <em>154&nbsp;&nbsp;m</em></li>
+				<li class="bul_cous3"><span>WHITE</span> <em>136&nbsp;&nbsp;m</em></li>
+				<li class="bul_cous4"><span>GOLD</span> <em>94&nbsp;&nbsp;m</em></li>
+				<li class="bul_cous5"><span>RED</span> <em>90&nbsp;&nbsp;m</em></li>
+			</ul>
+		</div>
+		<div class="frBx1">
+			<dl class="frTip">
+				<dt>COURSE TIP</dt>
+				<dd>내리막 Par3홀로서 14m 아래에 있는 그린은 온그린의 욕구를 자극합니다. 바람의 영향을 고려한 아이언의 정확도가 관건입니다.</dd>
+			</dl>
+		</div>
+	</div>
+</div>
+
+<div class="mt50">
+	<fieldset>
+		<legend>코스맵</legend>
+		<table cellspacing="0" border="1" summary="HOLE, YARDS, PAR의 내용" class="courseTb1">
+			<colgroup>
+				<col width="15%">
+				<col width="8%">
+				<col width="8%">
+				<col width="8%">
+				<col width="8%">
+				<col width="8%">
+				<col width="8%">
+				<col width="8%">
+				<col width="8%">
+				<col width="8%">
+				<col width="12%">
+			</colgroup>
+			<tbody>
+				<tr class="firBd">
+					<th scope="row">HOLE</th>
+					<td>1</td>
+					<td>2</td>
+					<td>3</td>
+					<td>4</td>
+					<td class="tbOn">5</td>
+					<td>6</td>
+					<td>7</td>
+					<td>8</td>
+					<td>9</td>
+					<td class="txtb">Total</td>
+				</tr>
+				<tr>
+					<th scope="row">METERS</th>
+					<td>384</td>
+					<td>412</td>
+					<td>620</td>
+					<td>366</td>
+					<td class="tbOn">154</td>
+					<td>340</td>
+					<td>363</td>
+					<td>150</td>
+					<td>538</td>
+					<td class="txtb">3,326</td>
+				</tr>
+				<tr>
+					<th scope="row">PAR</th>
+					<td>4</td>
+					<td>4</td>
+					<td>5</td>
+					<td>4</td>
+					<td class="tbOn">3</td>
+					<td>4</td>
+					<td>4</td>
+					<td>3</td>
+					<td>5</td>
+					<td class="txtb">36</td>
+				</tr>
+			</tbody>
+		</table>
+	</fieldset>
+</div>	</div>	<!-- //05홀 -->		<!-- 06홀 -->
+					<div class="seWrapper">
+						
+<div class="courseMap_bx">
+	<div class="img hole06">
+		<img src="/img/golf/img/img_course_ball.jpg"  >
+		<img src="/img/golf/sonofelice/courseImg1_06.jpg" alt="코스이미지" />
+		<!-- <img src="/img/golf/bg/bg_ball.png" width="15" height="15" alt="" class="ball1" />
+		<img src="/img/golf/bg/bg_ball2.png" width="14" height="14" alt="" class="ball2" /> -->
+	</div>
+<script type="text/javascript">
+$(function(){
+	$('.hole06 .ball1').css({
+		top:'153px',
+		left:'84px'
+	});
+	$('.hole06 .ball2').css({
+		top:'431px',
+		left:'98px'
+	});
+	
+	function hole06(){
+		htime = setInterval(function(){
+			$('.hole06 .ball1').stop(true);
+			$('.hole06 .ball2').stop(true);
+			$('.hole06 .ball1').animate({
+				top:'153px',
+				left:'84px'
+			},0,function(){
+				$(this).delay(500).animate({
+					top:'164px',
+					left:'350px',
+					width:'30px',
+					height:'30px'
+				},1000,'linear',function(){
+					$(this).animate({
+						top:'186px',
+						left:'579px',
+						width:'15px',
+						height:'15px'
+					},1000,'linear',function(){
+						$(this).delay(500).animate({
+							top:'183px',
+							left:'678px',
+							width:'30px',
+							height:'30px'
+						},1000,'linear',function(){
+							$(this).animate({
+								top:'195px',
+								left:'772px',
+								width:'15px',
+								height:'15px'
+							},1000,'linear',function(){
+							});
+						});
+					});
+				});
+			});
+			$('.hole06 .ball2').animate({
+				top:'431px',
+				left:'98px'
+			},0,function(){
+				$(this).delay(500).animate({
+					top:'403px',
+					left:'156px'
+				},250,'linear',function(){
+					$(this).animate({
+						top:'379px',
+						left:'216px'
+					},250,'linear',function(){
+						$(this).animate({
+							top:'359px',
+							left:'280px'
+						},250,'linear',function(){
+							$(this).animate({
+								top:'346px',
+								left:'344px'
+							},250,'linear',function(){
+								$(this).animate({
+									top:'342px',
+									left:'414px'
+								},250,'linear',function(){
+									$(this).animate({
+										top:'351px',
+										left:'481px'
+									},250,'linear',function(){
+										$(this).animate({
+											top:'378px',
+											left:'540px'
+										},250,'linear',function(){
+											$(this).animate({
+												top:'415px',
+												left:'581px'
+											},250,'linear',function(){
+												$(this).delay(500).animate({
+													top:'398px',
+													left:'603px'
+												},250,'linear',function(){
+													$(this).animate({
+														top:'384px',
+														left:'629px'
+													},250,'linear',function(){
+														$(this).animate({
+															top:'373px',
+															left:'655px'
+														},250,'linear',function(){
+															$(this).animate({
+																top:'365px',
+																left:'683px'
+															},250,'linear',function(){
+																$(this).animate({
+																	top:'362px',
+																	left:'714px'
+																},250,'linear',function(){
+																	$(this).animate({
+																		top:'368px',
+																		left:'744px'
+																	},250,'linear',function(){
+																		$(this).animate({
+																			top:'380px',
+																			left:'771px'
+																		},250,'linear',function(){
+																			$(this).animate({
+																				top:'396px',
+																				left:'794px'
+																			},250,'linear',function(){
+																			});
+																		});
+																	});
+																});
+															});
+														});
+													});
+												});
+											});
+										});
+									});
+								});
+							});
+						});
+					});
+				});
+			});
+		},6000);
+	};
+	
+	$('.courseTab li:eq(5) a').click(function(){
+		$('.hole06 .ball1').css({
+			top:'153px',
+			left:'84px'
+		});
+		$('.hole06 .ball2').css({
+			top:'431px',
+			left:'98px'
+		});
+		clearInterval(htime);
+		hole06();
+	});
+	
+});
+</script>
+	<div class="holeTxt sonofelHole">
+		<div class="holePar">
+			<strong class="num">06</strong><span class="num_txt">HOLE Par4</span>
+			<span class="num_txt2">OUT COURSE <em>340</em> Meters</span>
+			<ul class="itemLit">
+				<li class="bul_cous1"><span>BLACK</span> <em>340&nbsp;&nbsp;m</em></li>
+				<li class="bul_cous2"><span>BLUE</span> <em>340&nbsp;&nbsp;m</em></li>
+				<li class="bul_cous3"><span>WHITE</span> <em>324&nbsp;&nbsp;m</em></li>
+				<li class="bul_cous4"><span>GOLD</span> <em>298&nbsp;&nbsp;m</em></li>
+				<li class="bul_cous5"><span>RED</span> <em>266&nbsp;&nbsp;m</em></li>
+			</ul>
+		</div>
+		<div class="frBx1">
+			<dl class="frTip">
+				<dt>COURSE TIP</dt>
+				<dd>페어웨이 중앙에 벙커가 있어 티샷의 방향을 선택해야 하지만 짧은 어프로치 거리를 남겨두고 있어 거리에 대해 욕심낼 필요는 없습니다. 페어웨이 우측 해저드가 있어 좌측으로 공략하는 것이 좋으며, 그린 앞 크로스 벙커와 오르막 경사를 고려하여 한 클럽 길게 잡는 것이 안정적입니다.</dd>
+			</dl>
+		</div>
+	</div>
+</div>
+
+<div class="mt50">
+	<fieldset>
+		<legend>코스맵</legend>
+		<table cellspacing="0" border="1" summary="HOLE, YARDS, PAR의 내용" class="courseTb1">
+			<colgroup>
+				<col width="15%">
+				<col width="8%">
+				<col width="8%">
+				<col width="8%">
+				<col width="8%">
+				<col width="8%">
+				<col width="8%">
+				<col width="8%">
+				<col width="8%">
+				<col width="8%">
+				<col width="12%">
+			</colgroup>
+			<tbody>
+				<tr class="firBd">
+					<th scope="row">HOLE</th>
+					<td>1</td>
+					<td>2</td>
+					<td>3</td>
+					<td>4</td>
+					<td>5</td>
+					<td class="tbOn">6</td>
+					<td>7</td>
+					<td>8</td>
+					<td>9</td>
+					<td class="txtb">Total</td>
+				</tr>
+				<tr>
+					<th scope="row">METERS</th>
+					<td>384</td>
+					<td>412</td>
+					<td>620</td>
+					<td>366</td>
+					<td>154</td>
+					<td class="tbOn">340</td>
+					<td>363</td>
+					<td>150</td>
+					<td>538</td>
+					<td class="txtb">3,326</td>
+				</tr>
+				<tr>
+					<th scope="row">PAR</th>
+					<td>4</td>
+					<td>4</td>
+					<td>5</td>
+					<td>4</td>
+					<td>3</td>
+					<td class="tbOn">4</td>
+					<td>4</td>
+					<td>3</td>
+					<td>5</td>
+					<td class="txtb">36</td>
+				</tr>
+			</tbody>
+		</table>
+	</fieldset>
+</div>	</div>	<!-- //06홀 -->		<!-- 07홀 -->
+					<div class="seWrapper">
+						
+<div class="courseMap_bx">
+	<div class="img hole07">
+		<img src="/img/golf/img/img_course_ball.jpg"  >
+		<img src="/img/golf/sonofelice/courseImg1_07.jpg" alt="코스이미지" />
+		<!-- <img src="/img/golf/bg/bg_ball.png" width="15" height="15" alt="" class="ball1" />
+		<img src="/img/golf/bg/bg_ball2.png" width="14" height="14" alt="" class="ball2" /> -->
+	</div>
+<script type="text/javascript">
+$(function(){
+	$('.hole07 .ball1').css({
+		top:'243px',
+		left:'119px'
+	});
+	$('.hole07 .ball2').css({
+		top:'406px',
+		left:'101px'
+	});
+	
+	function hole07(){
+		htime = setInterval(function(){
+			$('.hole07 .ball1').stop(true);
+			$('.hole07 .ball2').stop(true);
+			$('.hole07 .ball1').animate({
+				top:'243px',
+				left:'119px'
+			},0,function(){
+				$(this).delay(500).animate({
+					top:'186px',
+					left:'361px',
+					width:'30px',
+					height:'30px'
+				},1000,'linear',function(){
+					$(this).animate({
+						top:'155px',
+						left:'566px',
+						width:'15px',
+						height:'15px'
+					},1000,'linear',function(){
+						$(this).delay(500).animate({
+							top:'202px',
+							left:'669px',
+							width:'30px',
+							height:'30px'
+						},1000,'linear',function(){
+							$(this).animate({
+								top:'256px',
+								left:'769px',
+								width:'15px',
+								height:'15px'
+							},1000,'linear',function(){
+							});
+						});
+					});
+				});
+			});
+			$('.hole07 .ball2').animate({
+				top:'406px',
+				left:'101px'
+			},0,function(){
+				$(this).delay(500).animate({
+					top:'383px',
+					left:'163px'
+				},250,'linear',function(){
+					$(this).animate({
+						top:'367px',
+						left:'231px'
+					},250,'linear',function(){
+						$(this).animate({
+							top:'359px',
+							left:'300px'
+						},250,'linear',function(){
+							$(this).animate({
+								top:'360px',
+								left:'372px'
+							},250,'linear',function(){
+								$(this).animate({
+									top:'373px',
+									left:'436px'
+								},250,'linear',function(){
+									$(this).animate({
+										top:'397px',
+										left:'489px'
+									},250,'linear',function(){
+										$(this).animate({
+											top:'431px',
+											left:'532px'
+										},250,'linear',function(){
+											$(this).animate({
+												top:'468px',
+												left:'561px'
+											},250,'linear',function(){
+												$(this).delay(500).animate({
+													top:'451px',
+													left:'588px'
+												},250,'linear',function(){
+													$(this).animate({
+														top:'437px',
+														left:'617px'
+													},250,'linear',function(){
+														$(this).animate({
+															top:'427px',
+															left:'649px'
+														},250,'linear',function(){
+															$(this).animate({
+																top:'420px',
+																left:'684px'
+															},250,'linear',function(){
+																$(this).animate({
+																	top:'422px',
+																	left:'721px'
+																},250,'linear',function(){
+																	$(this).animate({
+																		top:'433px',
+																		left:'756px'
+																	},250,'linear',function(){
+																		$(this).animate({
+																			top:'450px',
+																			left:'784px'
+																		},250,'linear',function(){
+																			$(this).animate({
+																				top:'470px',
+																				left:'805px'
+																			},250,'linear',function(){
+																			});
+																		});
+																	});
+																});
+															});
+														});
+													});
+												});
+											});
+										});
+									});
+								});
+							});
+						});
+					});
+				});
+			});
+		},6000);
+	};
+	
+	$('.courseTab li:eq(6) a').click(function(){
+		$('.hole07 .ball1').css({
+			top:'243px',
+			left:'119px'
+		});
+		$('.hole07 .ball2').css({
+			top:'406px',
+			left:'101px'
+		});
+		clearInterval(htime);
+		hole07();
+	});
+	
+});
+</script>
+	<div class="holeTxt sonofelHole">
+		<div class="holePar">
+			<strong class="num">07</strong><span class="num_txt">HOLE Par4</span>
+			<span class="num_txt2">OUT COURSE <em>363</em> Meters</span>
+			<ul class="itemLit">
+				<li class="bul_cous1"><span>BLACK</span> <em>363&nbsp;&nbsp;m</em></li>
+				<li class="bul_cous2"><span>BLUE</span> <em>340&nbsp;&nbsp;m</em></li>
+				<li class="bul_cous3"><span>WHITE</span> <em>320&nbsp;&nbsp;m</em></li>
+				<li class="bul_cous4"><span>GOLD</span> <em>275&nbsp;&nbsp;m</em></li>
+				<li class="bul_cous5"><span>RED</span> <em>247&nbsp;&nbsp;m</em></li>
+			</ul>
+		</div>
+		<div class="frBx1">
+			<dl class="frTip">
+				<dt>COURSE TIP</dt>
+				<dd>내리막으로 펼쳐진 해저드와 파노라마 차경이 조화롭게 어우러져 있으며, 아름다움에 도취하여 판단력을 잃을 수 있어 차분한 플레이를 요구하는 홀입니다. 우측으로 해저드를 감싸고 있는 도그렉 홀로서, 비거리에 대한 욕심보다는 방향성이 중요한 홀입니다. 물이 감싸고 있는 반도형 그린으로 신중한 그린공략이 요구됩니다.</dd>
+			</dl>
+		</div>
+	</div>
+</div>
+
+<div class="mt50">
+	<fieldset>
+		<legend>코스맵</legend>
+		<table cellspacing="0" border="1" summary="HOLE, YARDS, PAR의 내용" class="courseTb1">
+			<colgroup>
+				<col width="15%">
+				<col width="8%">
+				<col width="8%">
+				<col width="8%">
+				<col width="8%">
+				<col width="8%">
+				<col width="8%">
+				<col width="8%">
+				<col width="8%">
+				<col width="8%">
+				<col width="12%">
+			</colgroup>
+			<tbody>
+				<tr class="firBd">
+					<th scope="row">HOLE</th>
+					<td>1</td>
+					<td>2</td>
+					<td>3</td>
+					<td>4</td>
+					<td>5</td>
+					<td>6</td>
+					<td class="tbOn">7</td>
+					<td>8</td>
+					<td>9</td>
+					<td class="txtb">Total</td>
+				</tr>
+				<tr>
+					<th scope="row">METERS</th>
+					<td>384</td>
+					<td>412</td>
+					<td>620</td>
+					<td>366</td>
+					<td>154</td>
+					<td>340</td>
+					<td class="tbOn">363</td>
+					<td>150</td>
+					<td>538</td>
+					<td class="txtb">3,326</td>
+				</tr>
+				<tr>
+					<th scope="row">PAR</th>
+					<td>4</td>
+					<td>4</td>
+					<td>5</td>
+					<td>4</td>
+					<td>3</td>
+					<td>4</td>
+					<td class="tbOn">4</td>
+					<td>3</td>
+					<td>5</td>
+					<td class="txtb">36</td>
+				</tr>
+			</tbody>
+		</table>
+	</fieldset>
+</div>	</div>	<!-- //07홀 -->		<!-- 08홀 -->
+					<div class="seWrapper">
+						
+<div class="courseMap_bx">
+	<div class="img hole08">
+		<img src="/img/golf/img/img_course_ball.jpg"  >
+		<img src="/img/golf/sonofelice/courseImg1_08.jpg" alt="코스이미지" />
+		<!-- <img src="/img/golf/bg/bg_ball.png" width="15" height="15" alt="" class="ball1" />
+		<img src="/img/golf/bg/bg_ball2.png" width="14" height="14" alt="" class="ball2" /> -->
+	</div>
+<script type="text/javascript">
+$(function(){
+	$('.hole08 .ball1').css({
+		top:'244px',
+		left:'174px'
+	});
+	$('.hole08 .ball2').css({
+		top:'493px',
+		left:'134px'
+	});
+	
+	function hole08(){
+		htime = setInterval(function(){
+			$('.hole08 .ball1').stop(true);
+			$('.hole08 .ball2').stop(true);
+			$('.hole08 .ball1').animate({
+				top:'244px',
+				left:'174px'
+			},0,function(){
+				$(this).delay(500).animate({
+					top:'214px',
+					left:'449px',
+					width:'30px',
+					height:'30px'
+				},1000,'linear',function(){
+					$(this).animate({
+						top:'204px',
+						left:'701px',
+						width:'15px',
+						height:'15px'
+					},1000,'linear',function(){
+					});
+				});
+			});
+			$('.hole08 .ball2').animate({
+				top:'493px',
+				left:'134px'
+			},0,function(){
+				$(this).delay(500).animate({
+					top:'460px',
+					left:'202px'
+				},250,'linear',function(){
+					$(this).animate({
+						top:'434px',
+						left:'277px'
+					},250,'linear',function(){
+						$(this).animate({
+							top:'415px',
+							left:'356px'
+						},250,'linear',function(){
+							$(this).animate({
+								top:'406px',
+								left:'434px'
+							},250,'linear',function(){
+								$(this).animate({
+									top:'407px',
+									left:'515px'
+								},250,'linear',function(){
+									$(this).animate({
+										top:'420px',
+										left:'592px'
+									},250,'linear',function(){
+										$(this).animate({
+											top:'444px',
+											left:'662px'
+										},250,'linear',function(){
+											$(this).animate({
+												top:'475px',
+												left:'719px'
+											},250,'linear',function(){
+											});
+										});
+									});
+								});
+							});
+						});
+					});
+				});
+			});
+		},4000);
+	};
+	
+	$('.courseTab li:eq(7) a').click(function(){
+		$('.hole08 .ball1').css({
+			top:'244px',
+			left:'174px'
+		});
+		$('.hole08 .ball2').css({
+			top:'493px',
+			left:'134px'
+		});
+		clearInterval(htime);
+		hole08();
+	});
+	
+});
+</script>
+	<div class="holeTxt sonofelHole">
+		<div class="holePar">
+			<strong class="num">08</strong><span class="num_txt">HOLE Par3</span>
+			<span class="num_txt2">OUT COURSE <em>150</em> Meters</span>
+			<ul class="itemLit">
+				<li class="bul_cous1"><span>BLACK</span> <em>150&nbsp;&nbsp;m</em></li>
+				<li class="bul_cous2"><span>BLUE</span> <em>150&nbsp;&nbsp;m</em></li>
+				<li class="bul_cous3"><span>WHITE</span> <em>119&nbsp;&nbsp;m</em></li>
+				<li class="bul_cous4"><span>GOLD</span> <em>-&nbsp;&nbsp;m</em></li>
+				<li class="bul_cous5"><span>RED</span> <em>89&nbsp;&nbsp;m</em></li>
+			</ul>
+		</div>
+		<div class="frBx1">
+			<dl class="frTip">
+				<dt>COURSE TIP</dt>
+				<dd>완만한 오르막의 Par3홀이며 티잉그라운드 앞부터 그린까지 이어지는 벙커들이 위협적으로 배치되어 벙커를 넘기는 과감한 그린공략이 요구되는 홀입니다.</dd>
+			</dl>
+		</div>
+	</div>
+</div>
+
+<div class="mt50">
+	<fieldset>
+		<legend>코스맵</legend>
+		<table cellspacing="0" border="1" summary="HOLE, YARDS, PAR의 내용" class="courseTb1">
+			<colgroup>
+				<col width="15%">
+				<col width="8%">
+				<col width="8%">
+				<col width="8%">
+				<col width="8%">
+				<col width="8%">
+				<col width="8%">
+				<col width="8%">
+				<col width="8%">
+				<col width="8%">
+				<col width="12%">
+			</colgroup>
+			<tbody>
+				<tr class="firBd">
+					<th scope="row">HOLE</th>
+					<td>1</td>
+					<td>2</td>
+					<td>3</td>
+					<td>4</td>
+					<td>5</td>
+					<td>6</td>
+					<td>7</td>
+					<td class="tbOn">8</td>
+					<td>9</td>
+					<td class="txtb">Total</td>
+				</tr>
+				<tr>
+					<th scope="row">METERS</th>
+					<td>384</td>
+					<td>412</td>
+					<td>620</td>
+					<td>366</td>
+					<td>154</td>
+					<td>340</td>
+					<td>363</td>
+					<td class="tbOn">150</td>
+					<td>538</td>
+					<td class="txtb">3,326</td>
+				</tr>
+				<tr>
+					<th scope="row">PAR</th>
+					<td>4</td>
+					<td>4</td>
+					<td>5</td>
+					<td>4</td>
+					<td>3</td>
+					<td>4</td>
+					<td>4</td>
+					<td class="tbOn">3</td>
+					<td>5</td>
+					<td class="txtb">36</td>
+				</tr>
+			</tbody>
+		</table>
+	</fieldset>
+</div>	</div>	<!-- //08홀 -->		<!-- 09홀 -->
+					<div class="seWrapper">
+						
+<div class="courseMap_bx">
+	<div class="img hole09">
+		<img src="/img/golf/img/img_course_ball.jpg"  >
+		<img src="/img/golf/sonofelice/courseImg1_09.jpg" alt="코스이미지" />
+		<!-- <img src="/img/golf/bg/bg_ball.png" width="15" height="15" alt="" class="ball1" />
+		<img src="/img/golf/bg/bg_ball2.png" width="14" height="14" alt="" class="ball2" /> -->
+	</div>
+<script type="text/javascript">
+$(function(){
+	$('.hole09 .ball1').css({
+		top:'133px',
+		left:'50px'
+	});
+	$('.hole09 .ball2').css({
+		top:'391px',
+		left:'98px'
+	});
+	
+	function hole09(){
+		htime = setInterval(function(){
+			$('.hole09 .ball1').stop(true);
+			$('.hole09 .ball2').stop(true);
+			$('.hole09 .ball1').animate({
+				top:'133px',
+				left:'50px'
+			},0,function(){
+				$(this).delay(500).animate({
+					top:'142px',
+					left:'250px',
+					width:'30px',
+					height:'30px'
+				},1000,'linear',function(){
+					$(this).animate({
+						top:'163px',
+						left:'426px',
+						width:'15px',
+						height:'15px'
+					},1000,'linear',function(){
+						$(this).delay(500).animate({
+							top:'159px',
+							left:'536px',
+							width:'30px',
+							height:'30px'
+						},1000,'linear',function(){
+							$(this).animate({
+								top:'170px',
+								left:'657px',
+								width:'15px',
+								height:'15px'
+							},1000,'linear',function(){
+								$(this).delay(500).animate({
+									top:'170px',
+									left:'725px',
+									width:'30px',
+									height:'30px'
+								},1000,'linear',function(){
+									$(this).animate({
+										top:'187px',
+										left:'799px',
+										width:'15px',
+										height:'15px'
+									},1000,'linear',function(){
+									});
+								});
+							});
+						});
+					});
+				});
+			});
+			$('.hole09 .ball2').animate({
+				top:'391px',
+				left:'98px'
+			},0,function(){
+				$(this).delay(500).animate({
+					top:'374px',
+					left:'140px'
+				},250,'linear',function(){
+					$(this).animate({
+						top:'361px',
+						left:'184px'
+					},250,'linear',function(){
+						$(this).animate({
+							top:'351px',
+							left:'233px'
+						},250,'linear',function(){
+							$(this).animate({
+								top:'350px',
+								left:'280px'
+							},250,'linear',function(){
+								$(this).animate({
+									top:'357px',
+									left:'327px'
+								},250,'linear',function(){
+									$(this).animate({
+										top:'373px',
+										left:'367px'
+									},250,'linear',function(){
+										$(this).animate({
+											top:'397px',
+											left:'400px'
+										},250,'linear',function(){
+											$(this).animate({
+												top:'425px',
+												left:'419px'
+											},250,'linear',function(){
+												$(this).delay(500).animate({
+													top:'410px',
+													left:'446px'
+												},250,'linear',function(){
+													$(this).animate({
+														top:'397px',
+														left:'477px'
+													},250,'linear',function(){
+														$(this).animate({
+															top:'388px',
+															left:'510px'
+														},250,'linear',function(){
+															$(this).animate({
+																top:'385px',
+																left:'545px'
+															},250,'linear',function(){
+																$(this).animate({
+																	top:'389px',
+																	left:'580px'
+																},250,'linear',function(){
+																	$(this).animate({
+																		top:'400px',
+																		left:'611px'
+																	},250,'linear',function(){
+																		$(this).animate({
+																			top:'416px',
+																			left:'637px'
+																		},250,'linear',function(){
+																			$(this).animate({
+																				top:'437px',
+																				left:'657px'
+																			},250,'linear',function(){
+																				$(this).delay(500).animate({
+																					top:'428px',
+																					left:'674px'
+																				},250,'linear',function(){
+																					$(this).animate({
+																						top:'420px',
+																						left:'692px'
+																					},250,'linear',function(){
+																						$(this).animate({
+																							top:'413px',
+																							left:'711px'
+																						},250,'linear',function(){
+																							$(this).animate({
+																								top:'409px',
+																								left:'731px'
+																							},250,'linear',function(){
+																								$(this).animate({
+																									top:'409px',
+																									left:'752px'
+																								},250,'linear',function(){
+																									$(this).animate({
+																										top:'414px',
+																										left:'773px'
+																									},250,'linear',function(){
+																										$(this).animate({
+																											top:'424px',
+																											left:'792px'
+																										},250,'linear',function(){
+																											$(this).animate({
+																												top:'437px',
+																												left:'805px'
+																											},250,'linear',function(){
+																											});
+																										});
+																									});
+																								});
+																							});
+																						});
+																					});
+																				});
+																			});
+																		});
+																	});
+																});
+															});
+														});
+													});
+												});
+											});
+										});
+									});
+								});
+							});
+						});
+					});
+				});
+			});
+		},8000);
+	};
+	
+	$('.courseTab li:eq(8) a').click(function(){
+		$('.hole09 .ball1').css({
+			top:'133px',
+			left:'50px'
+		});
+		$('.hole09 .ball2').css({
+			top:'391px',
+			left:'98px'
+		});
+		clearInterval(htime);
+		hole09();
+	});
+	
+});
+</script>
+	<div class="holeTxt sonofelHole">
+		<div class="holePar">
+			<strong class="num">09</strong><span class="num_txt">HOLE Par5</span>
+			<span class="num_txt2">OUT COURSE <em>538</em> Meters</span>
+			<ul class="itemLit">
+				<li class="bul_cous1"><span>BLACK</span> <em>538&nbsp;&nbsp;m</em></li>
+				<li class="bul_cous2"><span>BLUE</span> <em>511&nbsp;&nbsp;m</em></li>
+				<li class="bul_cous3"><span>WHITE</span> <em>481&nbsp;&nbsp;m</em></li>
+				<li class="bul_cous4"><span>GOLD</span> <em>438&nbsp;&nbsp;m</em></li>
+				<li class="bul_cous5"><span>RED</span> <em>412&nbsp;&nbsp;m</em></li>
+			</ul>
+		</div>
+		<div class="frBx1">
+			<dl class="frTip">
+				<dt>COURSE TIP</dt>
+				<dd>빌리지, 클럽하우스, 수경관이 아름답게 조화를 이루고 있는 홀입니다. 티샷은 내리막 경사를 이용하여 호쾌한 장타를 날려봄직하며, 세컨샷은 우측 해저드가 있어 심리적으로 부담이됩니다. 장타자라면 도전적으로 투온과 이글의 기회를 만들 수 있으나, 우측 해저드와 비치 벙커가 있어 고민하게 할 것입니다. 대 반전의 드라마가 펼쳐질 수 있는 힐링코스의 마지막 홀입니다.</dd>
+			</dl>
+		</div>
+	</div>
+</div>
+
+<div class="mt50">
+	<fieldset>
+		<legend>코스맵</legend>
+		<table cellspacing="0" border="1" summary="HOLE, YARDS, PAR의 내용" class="courseTb1">
+			<colgroup>
+				<col width="15%">
+				<col width="8%">
+				<col width="8%">
+				<col width="8%">
+				<col width="8%">
+				<col width="8%">
+				<col width="8%">
+				<col width="8%">
+				<col width="8%">
+				<col width="8%">
+				<col width="12%">
+			</colgroup>
+			<tbody>
+				<tr class="firBd">
+					<th scope="row">HOLE</th>
+					<td>1</td>
+					<td>2</td>
+					<td>3</td>
+					<td>4</td>
+					<td>5</td>
+					<td>6</td>
+					<td>7</td>
+					<td>8</td>
+					<td class="tbOn">9</td>
+					<td class="txtb">Total</td>
+				</tr>
+				<tr>
+					<th scope="row">METERS</th>
+					<td>384</td>
+					<td>412</td>
+					<td>620</td>
+					<td>366</td>
+					<td>154</td>
+					<td>340</td>
+					<td>363</td>
+					<td>150</td>
+					<td class="tbOn">538</td>
+					<td class="txtb">3,326</td>
+				</tr>
+				<tr>
+					<th scope="row">PAR</th>
+					<td>4</td>
+					<td>4</td>
+					<td>5</td>
+					<td>4</td>
+					<td>3</td>
+					<td>4</td>
+					<td>4</td>
+					<td>3</td>
+					<td class="tbOn">5</td>
+					<td class="txtb">36</td>
+				</tr>
+			</tbody>
+		</table>
+	</fieldset>
+</div>	</div>	<!-- //09홀 -->		</div>	</div>	
+			<!-- 덧글입력 -->
+			<p class="coursTxt1 pt50 pb10">의견을 작성해주세요.(최대 한글 400자 이내)</p>
+			<div class="coursCmd">
+				<fieldset id="txt">
+					<legend>덧글입력</legend>
+					<strong>덧글 입력 <span>[0/400]</span></strong>
+					<textarea onkeyup="fnKeyup();" rows="5" cols="90" name="comment" id="comment" readonly="readonly">로그인 후 이용하실 수 있습니다. 광고성 글, 비방, 욕설 등은 관리자에 의해 삭제될 수 있습니다.</textarea>
+					<a href="javascript:fnInsert();"><img id="insertImg" src="/img/golf/btn/btn_cmdInput.gif" alt="입력" class="ml5" /></a>
+				</fieldset>
+			</div>
+				</div>	<!-- //contents -->	</div>	<!-- //container -->
+	<!-- //container -->	
+<div id="right_tab">
+	<ul>
+		<li><a href="javascript:window.print();" class="hoverPng"><img src="/img/golf/common/sideMn1_off.png" title="프린트" /></a></li>
+		<li><a href="/rsv.rangersChoice.dp/dmparse.dm" class="hoverPng"><img src="/img/golf/common/sideMnHot_off.png" title="HOT타임예약" /></a></li>		
+		
+		<li><a href="#header" class="btn_top"><span class="vnone">TOP</span></a></li>
+	</ul>
+</div>     
+</div>
+<!-- //wrap -->
+
+
+<!-- footWrap -->
+<div id="footWrap" >
+	<div class="footBox">
+		<div class="footLk">
+			<ul>
+				<li class="linkFt">
+					<a href="#DM" onclick="window.open('https://www.daemyungsono.com/','_blank')">회사소개</a><em>|</em>
+					<a href="/daemyung.golf.etc.location_east.ds/dmparse.dm">찾아오시는 길</a><em>|</em>
+					<a href="/daemyung.golf.termsAndConditions.ds/dmparse.dm" onclick="window.open(this.href, '이용약관', 'width=900 height=700'); return false;">이용약관</a><em>|</em>
+					
+					<a class="txtb" style="color:#f5e961;" onclick="openPopup()">개인정보처리방침</a><em>|</em>
+					<a class="txtb" style="color:#f5e961;" href="https://sonolc.sonohotelsresorts.com/daemyung.common.popup.imageInformation_hr_tab.ds/dmparse.dm" onclick="window.open(this.href, '영상정보처리기기운영관리방침', 'width=635 height=675'); return false;" class="hoverGif">영상정보처리기기운영관리방침</a>
+				</li>
+				<li class="addressFt">
+					(주)소노인터내셔널 <em>|</em>강원특별자치도 홍천군 서면 한치골길 262<em>|</em>대표이사 : 이광수, 이병천<br/>
+					대표전화 1644-0063 <em>|</em>사업자등록번호 : 223-81-08341<em>|</em>통신판매업신고 : 2004-강원홍천-00008<em>|</em><a href="#none"  onclick="window.open('http://www.ftc.go.kr/info/bizinfo/communicationViewPopup.jsp?wrkr_no=2238108341','window','width=750, height=700, left=0, top=0, scrollbars=1, resizable=no')" title="새창 이동">통신판매사업자 정보</a>
+					<br/><span>이메일 <a href="mailto:webmaster@daemyungsono.com" target="_top">webmaster@daemyungsono.com</a></span>
+					<!-- <span class="copyright" style="padding-top:0;">COPYRIGHT© SONO INTERNATIONAL. All Rights Reserved.</span> -->
+					<span class="copyright" style="padding-top:0;">COPYRIGHT© SONO INTERNATIONAL Co., Ltd. All Rights Reserved.</span>
+				</li>
+			</ul>
+			<div class="goSite">
+				<fieldset>
+					<legend>패밀리사이트검색</legend>
+					<strong>Family Site&nbsp;</strong>
+					<select style="width:156px" class="ftSelect" id="siteSelect">
+						<option value='https://www.sonohospitality.com'>대명소노그룹</option>
+						<option value='https://www.sonohospitality.com/fo/hotline/hotlineEthical.do'>대명소노그룹 윤리경영</option>
+						<option value='http://www.daemyungwelfare.org/'>대명복지재단</option>
+						<option value='https://www.sonohotelsresorts.com/'>소노호텔앤리조트</option>
+						<option value='https://www.sonofeliceeclub.com/'>승마클럽</option>
+						<option value='https://www.daemyungimready.com'>소노아임레디</option>
+						<option value='https://www.sonoseason.com/'>소노스퀘어</option>
+						<option value='https://www.sonofeliceconvention.com'>소노펠리체 컨벤션</option>
+						<option value='https://sonolc.sonohotelsresorts.com'>회원권분양</option>
+						<option value='https://www.samaksancablecar.com/home/index.php'>춘천삼악산케이블카</option>
+					</select>
+					<input src="/img/golf/common/btn_go.gif" alt="Go" type="image" onclick="window.open($('#siteSelect').val(), '_blank');" />
+				</fieldset>
+				<div class="footNS"><!-- nortonSecured -->
+					<a onclick="window.open('https://sealinfo.verisign.com/splash?form_file=fdf/splash.fdf&dn=www.dgolfclub.com&lang=ko','window','width=515, height=416, left=0, top=0, scrollbars=0, resizable=no')" href="#none"><img alt="norton secured" src="/img/golf/common/btn_footer_norton.png" width="81" height="43" complete="complete"/></a>
+				</div><!-- // nortonSecured -->
+			</div>
+		</div>
+	</div>
+</div>
+<!-- footWrap -->
+<div id="loadingScreen">
+	<div class='loadingimg'></div>
+	<div class='message'></div>
+</div>
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-EWF8YM6K79"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-EWF8YM6K79');
+</script>
+
+<!-- SSO 인증체크 일괄처리로 임포트 방식으로 변경 -->
+
+
+<script type="text/javascript" defer="defer">
+$(document).ready(function(){
+	$.ajax({
+		type : "POST",
+		url : "/ssoChk.dp/dmparse.dm",
+		processData : false,
+		contentType : false,
+		data : '',
+		success : function(data) {
+			//로그인 여부 먼제 체크
+			if (data.loginChkSSO == "Y") {
+				if(data.rst < 0) {
+					switch(data.rst)
+					{
+						case -1205:
+							alert("잘못된 인증토큰입니다.");
+						break;
+						
+						case -2902:
+							alert("세션만료 되었습니다.");
+						break;
+						
+						case -9404:
+							alert("사용자 인증에 실패하였습니다.");
+						break;
+						
+						case -9405:
+							alert("10분 이상 사이트 이용이 없어\n자동 로그아웃 되었습니다.");
+						break;
+						
+						case -1:
+							alert("이미 다른곳에서 로그인중 입니다.\n예약 선점 방지를 위해 중복 로그인을 허용하지 않습니다.");
+						break;
+						
+						default:
+							alert("사용자 인증 오류입니다.\nError Code("+data.rst+")");
+						break;
+					}
+				}
+				
+				if (data.successSSO == false) {
+					//SSO 세션이 만료되었다면 로그아웃처리도 다시한번 돌림
+					ssoLogOut();
+				}
+			}
+		},
+		error : function(xhr, err) {
+			ssoLogOut();
+		}
+	});
+});
+</script>
+<script type="text/javascript" defer="defer">
+function openPopup() {
+	window.open(
+		"https://www.sonohotelsresorts.com/footer/policy/plain/PRIVACY_POLICY",
+		"PRIVACY_POLICY",// 팝업 이름
+		"width=800,height=700,scrollbars=yes,resizable=yes"
+	);
+}
+
+function ssoLogOut() {
+	location.href = "/logout.dp/dmparse.dm"
+}
+</script>
+
+</body>
+</html>

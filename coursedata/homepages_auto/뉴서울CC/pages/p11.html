@@ -1,0 +1,1803 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=2.0,minimum-scale=1.0,target-densitydpi=medium-dpi" />
+    <meta name="format-detection" content="telephone=no,email=no,address=no">
+    <meta name="title" content="NEWSEOUL, NEWSEOUL">
+    <title>뉴서울CC > 이용안내 > 코스안내 > 문화OUT 코스 6번홀</title>
+    <link rel="shortcut icon" href="/resources/images/favicon.ico">
+
+    <!-- Basic set  -->
+    <link rel="stylesheet" type="text/css" href="/resources/css/import.css?v=2">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.css" />
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <script src='//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js'></script>
+    <script src="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.js"></script>
+	<script src="/resources/js/common.js?v=1.3"></script>
+    
+    <!-- Accordion Menu -->
+    <script src="https://code.jquery.com/jquery-latest.min.js"></script>
+	<script type="text/javascript" src="/resources/js/jquery.preloaders.js"></script>
+	<script type="text/javascript" src="/resources/js/tools.js"></script>
+	<script type="text/javascript" src="/resources/js/globals.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+
+	<script>
+    
+        var mouseEnter = "N";
+
+		$(document).ready(function() {
+            var id = "";
+            var pw = "";
+            var gubun = "";
+
+            if ("" == "" && id != "" && id != null && pw != "" && pw != null && gubun != "" && gubun != null) {
+                autoLogin(id,pw,gubun);
+                return;
+            }
+			//checkMobile();
+			sessionCheck();
+			tabCheck();
+		});
+
+        function autoLogin(id,pw,gubun) {
+            var sUrl = "/controller/MemberController.asp";
+            var params = {};
+
+            params["method"] = "doLogin";
+            params["coDiv"] = globals.coDiv;
+            params["id"] = id;
+            params["pw"] = pw;
+            params["gubun"] = gubun;
+            params["check"] = "Y";
+
+            mAjax(sUrl, params, "POST", true, function(data) {
+                if(data.resultCode == "0000") {
+                    location.reload();
+                } else {
+                    alert(data.resultMessage);
+                }
+            });
+        }
+
+		function checkMobile() {
+			var mobileKeyWords = new Array('iPhone', 'iPod', 'iPad', 'BlackBerry', 'Android', 'Windows CE', 'MOT', 'SAMSUNG', 'SonyEricsson');
+
+			for (var word in mobileKeyWords) {
+				if ( navigator.userAgent.match(mobileKeyWords[word]) != null ) {
+					location.href = "/mobile/index.asp";
+					break;
+				}
+			}
+		}
+
+		function sessionCheck() {
+            var path = location.href.toLowerCase();
+			var sUrl = "/controller/SessionManager.asp";
+			var params = {"method" : "sessionConfirm", "path" : path};
+            
+			mAjax(sUrl, params, "POST", false, function(data) {
+                var path = location.href.toLowerCase();
+				if(data.resultCode == "2000") {
+					alert(data.resultMessage);
+					location.reload();
+				} else if (data.resultCode == "3000" && path.indexOf("/member/myinfo/mypage.asp") < 0) {
+					alert("회원님의 개인정보 보호를 위하여 비밀번호를 변경후 사용해 주시기 바랍니다.");
+					location.href = "/member/myinfo/mypage.asp";
+				}
+			});
+		}
+
+		function tabCheck() {
+			$(".depth2-tabs").children("li").each(function() {
+				if($(this).attr("class") == "on") {
+					var title = $(this).children("a").attr("title");
+					$(this).children("a").attr({"title":title + "(선택됨)"});
+				}
+			});
+			$(".depth3-tabs").children("li").each(function() {
+				if($(this).attr("class") == "on") {
+					var title = $(this).children("a").attr("title");
+					$(this).children("a").attr({"title":title + "(선택됨)"});
+				}
+			});
+			$(".depth4-tabs").children("li").each(function() {
+				if($(this).attr("class") == "on") {
+					var title = $(this).children("a").attr("title");
+					$(this).children("a").attr({"title":title + "(선택됨)"});
+				}
+			});
+			$(".depth2-tabs-wrap").children("li").each(function() {
+				if($(this).attr("class") == "on") {
+					var title = $(this).children("a").attr("title");
+					$(this).children("a").attr({"title":title + "(선택됨)"});
+				}
+			});
+			$(".depth3-tabs-wrap").children("li").each(function() {
+				if($(this).attr("class") == "on") {
+					var title = $(this).children("a").attr("title");
+					$(this).children("a").attr({"title":title + "(선택됨)"});
+				}
+			});
+			$(".depth4-tabs-wrap").children("li").each(function() {
+				if($(this).attr("class") == "on") {
+					var title = $(this).children("a").attr("title");
+					$(this).children("a").attr({"title":title + "(선택됨)"});
+				}
+			});
+			
+			$(".contents-basic").attr({"id":"contentSkip", "tabindex":"-1"});
+			
+			$(".skip a").on("click", function() {
+				setTimeout(function() {
+					$(".contents-basic").focus();
+				}, 50);
+			});
+		}
+
+        function moveToNav() {
+            $("#btn-menu").trigger("click");
+            $(".site").focus();
+        }
+
+        // 메뉴(230129)
+        $(document).ready(function(){
+            $('.header-btm .depth01').focusin(function(){
+                $('.header-btm .depth02').stop().slideDown();
+                $('.header-btm').find('.gnb-bg').stop().slideDown();
+                $('#header').addClass('active');
+            });
+            $('.header-btm .depth01').focusout(function(){
+                $('.header-btm .depth02').stop().slideUp();
+                $('.header-btm').find('.gnb-bg').stop().slideUp();
+                $('#header').removeClass('active');
+            });
+            $('.header-btm .depth01').mouseenter(function(){
+                $('.header-btm .depth02').stop().slideDown();
+                $('.header-btm').find('.gnb-bg').stop().slideDown();
+                $('#header').addClass('active');
+            });
+            $('.header-btm .depth01').mouseleave(function(){
+                $('.header-btm .depth02').stop().slideUp();
+                $('.header-btm').find('.gnb-bg').stop().slideUp();
+                $('#header').removeClass('active');
+            });     
+        });   
+	</script>    
+</head>
+<body>    
+    <!-- 웹접근성 건너뛰기 -->
+    <div class="skip">
+        <a href="#contentSkip">본문 바로가기</a>
+    </div>
+	<div id="wrap">   
+        <!-- Header -->           
+        <div id="header_sub" class="active">   
+            <div class="header-top">     
+                <!-- s : 251021 날씨 영역 추가 -->         
+                <!-- <div class="weather-box">
+                    <ul class="weather">
+                        <li class="drop">
+                            <a>
+                                <span class="icon">
+                                    <img src="/resources/images/main/weather/sun.png" alt="">
+                                </span>
+                                <p><span class="temperature"> 11.0˚</span>오늘 10.21 화 맑음</p>
+                            </a>
+                            <span class="arrow">▼</span>
+                        </li>
+                        <li>
+                            <a>
+                                <span class="weatIcon"><img src="/resources/images/main/weather/cloud-notif.png"></span>
+                                <p><span class="temperature">18.0˚</span>내일 10.22 수 맑음</p>
+                            </a>
+                        </li>
+                        <li>
+                            <a>
+                                <span class="weatIcon"><img src="/resources/images/main/weather/wind.png"></span>
+                                <p><span class="temperature">18.0˚</span>모레 10.23 목 맑음</p>
+                            </a>
+                        </li>
+                    </ul>
+                </div>       -->
+                <!-- // e : 251021 날씨 영역 추가 --> 
+                <div class="sns-box">
+                    <a href="https://blog.naver.com/newseoul-cc" target="_blank" rel="noopener noreferrer" title="네이버블로그 새 창 열림"><img src="/resources/images/ic_blog.svg" alt="네이버블로그"></a>
+                    <a href="https://www.instagram.com/newseoulcc/" target="_blank" rel="noopener noreferrer" title="인스타그램 새 창 열림"><img src="/resources/images/ic_instar.svg" alt="인스타그램"></a>
+                    <a href="https://www.youtube.com/@NEWSeoul-CC" target="_blank" rel="noopener noreferrer" title="유튜브 새 창 열림"><img src="/resources/images/ic_youtube.svg" alt="유투브"></a>
+                </div>
+                <div class="login-links">
+					
+                    <a href="/join/login.asp" class="login" title="로그인">로그인</a>
+					
+                    <a href="#" class="site" title="사이트맵" id="btn-menu">사이트맵</a> 
+                    <nav id="top_nav_m">
+                        <div class="in">  
+                            <div class="inner">
+                                <div class="tit">
+                                    <span>클럽소개</span>
+                                </div>
+                                <div class="depth2Set">
+                                    <ul class="depth2">			
+                                        <li>
+                                            <div class="t">
+                                                <a href="/club/greeting.asp" title="인사말">
+                                                    <span>인사말</span>
+                                                </a>
+                                            </div>
+                                        </li>	
+                                    </ul>
+                                    <ul class="depth2">			
+                                        <li>
+                                            <div class="t">
+                                                <a href="/club/clubInfo.asp" title="클럽소개 및 연혁">
+                                                    <span>클럽소개 및 연혁</span>
+                                                </a>
+                                            </div>
+                                        </li>	
+                                    </ul>
+                                    <ul class="depth2">			
+                                        <li>
+                                            <div class="t">
+                                                <a href="/club/gallery.asp" title="문화 갤러리">
+                                                    <span>문화 갤러리</span>
+                                                </a>
+                                            </div>
+                                        </li>	
+                                    </ul>
+                                    <ul class="depth2">			
+                                        <li>
+                                            <div class="t">
+                                                <a href="/board/list20.asp" title="코스의사계">
+                                                    <span>코스의사계</span>
+                                                </a>
+                                            </div>  
+                                        </li>	
+                                    </ul>
+                                    <ul class="depth2">			
+                                        <li>
+                                            <div class="t">
+                                                <a href="/club/partInfo.asp" title="부서안내">
+                                                    <span>부서안내</span>
+                                                </a>
+                                            </div>                                       
+                                        </li>	
+                                    </ul>
+                                </div>
+                                <div class="depth2Set">
+                                    <ul class="depth2">			
+                                        <li>
+                                            <div class="t">
+                                                <a href="/club/map.asp" title="오시는길">
+                                                    <span>오시는길</span>
+                                                </a>
+                                            </div>                                       
+                                        </li>	
+                                    </ul>
+                                    <ul class="depth2">			
+                                        <li></li>	
+                                    </ul>
+                                    <ul class="depth2">			
+                                        <li></li>	
+                                    </ul>
+                                    <ul class="depth2">			
+                                        <li></li>	
+                                    </ul>
+                                    <ul class="depth2">			
+                                        <li></li>	
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="inner">
+                                <div class="tit">
+                                    <span>이용안내</span>
+                                </div>
+                                <div class="depth2Set">
+                                    <ul class="depth2">			
+                                        <li>
+                                            <div class="t">
+                                                <a href="/guide/reserInfo.asp" title="예약안내">
+                                                    <span>예약안내</span>
+                                                </a>
+                                            </div>
+                                        </li>	
+                                    </ul>
+                                    <ul class="depth2">			
+                                        <li>
+                                            <div class="t">
+                                                <a href="/guide/membership.asp" title="클럽가입안내">
+                                                    <span>클럽가입안내</span>
+                                                </a>
+                                            </div>
+                                            <ul class="depth3">
+                                                <li>
+                                                    <a class="" href="/guide/membership.asp" title="클럽가입안내">
+                                                        <span>클럽가입안내</span>
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a class="" href="/board/list6.asp" title="양식자료실">
+                                                        <span>양식자료실</span>
+                                                    </a>
+                                                </li>	
+                                                <li>
+                                                    <a class="" href="/guide/term.asp" title="이용약관">
+                                                        <span>이용약관</span>
+                                                    </a>
+                                                </li>	
+                                                <li>
+                                                    <a class="" href="/guide/management.asp" title="클럽운영규정">
+                                                        <span>클럽운영규정</span>
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a class="" href="/guide/privacy.asp" title="개인정보보호정책">
+                                                        <span>개인정보보호정책</span>
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </li>	
+                                    </ul>
+                                    <ul class="depth2">			
+                                        <li>
+                                            <div class="t">
+                                                <a href="/guide/course/courseInfo.asp" title="코스안내">
+                                                    <span>코스안내</span>
+                                                </a>
+                                            </div>
+                                            <ul class="depth3">
+                                                <li>
+                                                    <a class="" href="/guide/course/courseInfo.asp" title="코스조감도">
+                                                        <span>코스조감도</span>
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a class="" href="/guide/course/culture_out_01.asp" title="문화OUT코스">
+                                                        <span>문화OUT코스</span>
+                                                    </a>
+                                                </li>	                                            
+                                                <li>
+                                                    <a class="" href="/guide/course/culture_in_10.asp" title="문화IN코스">
+                                                        <span>문화IN코스</span>
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a class="" href="/guide/course/art_out_01.asp" title="예술OUT코스">
+                                                        <span>예술OUT코스</span>
+                                                    </a>
+                                                </li>	                                                    
+                                                <li>
+                                                    <a class="" href="/guide/course/art_in_10.asp" title="예술IN코스">
+                                                        <span>예술IN코스</span>
+                                                    </a>
+                                                </li>	
+                                            </ul>
+                                        </li>	
+                                    </ul>
+                                    <ul class="depth2">			
+                                        <li>
+                                            <div class="t">
+                                                <a href="/guide/facil/clubhouse.asp" title="부대시설안내">
+                                                    <span>부대시설안내</span>
+                                                </a>
+                                            </div>
+                                            <ul class="depth3">
+                                                <li>
+                                                    <a class="" href="/guide/facil/clubhouse.asp" title="클럽하우스">
+                                                        <span>클럽하우스</span>
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a class="" href="/guide/facil/restaurant.asp" title="대식당">
+                                                        <span>대식당</span>
+                                                    </a>
+                                                </li>	
+                                                <li>
+                                                    <a class="" href="/guide/facil/vip.asp" title="VIP룸">
+                                                        <span>VIP룸</span>
+                                                    </a>
+                                                </li>	
+                                                <li>
+                                                    <a class="" href="/guide/facil/start.asp" title="스타트하우스">
+                                                        <span>스타트하우스</span>
+                                                    </a>
+                                                </li>	
+                                                <li>
+                                                    <a class="" href="/guide/facil/snack.asp" title="무인그늘집">
+                                                        <span>무인그늘집</span>
+                                                    </a>
+                                                </li>	
+                                                <li>
+                                                    <a class="" href="/guide/facil/shop.asp" title="골프샵">
+                                                        <span>골프샵</span>
+                                                    </a>
+                                                </li>	
+                                                <li>
+                                                    <a class="" href="/guide/facil/parking.asp" title="주차장">
+                                                        <span>주차장</span>
+                                                    </a>
+                                                </li>	
+                                            </ul>
+                                        </li>	
+                                    </ul>                                        
+                                    <ul class="depth2">			
+                                        <li>
+                                            <div class="t">
+                                                <a href="/guide/fee.asp" title="이용요금안내">
+                                                    <span>이용요금안내</span>
+                                                </a>
+                                            </div>
+                                        </li>	
+                                    </ul>
+                                </div>
+                                <div class="depth2Set">                                
+                                    <ul class="depth2">			
+                                        <li>
+                                            <div class="t">
+                                                <a href="/board/list27.asp" title="고객의 말씀">
+                                                    <span>고객의 말씀</span>
+                                                </a>
+                                            </div>
+                                        </li>	
+                                    </ul> 
+                                    <ul class="depth2">			
+                                        <li></li>	
+                                    </ul>
+                                    <ul class="depth2">			
+                                        <li></li>	
+                                    </ul>   
+                                    <ul class="depth2">			
+                                        <li></li>	
+                                    </ul>   
+                                    <ul class="depth2">			
+                                        <li></li>	
+                                    </ul>                                        
+                                </div>
+                                <!-- <div class="depth2Set">
+                                    <ul class="depth2">			
+                                        <li>
+                                            <div class="t">
+                                                <a href="/guide/fee.asp" title="이용요금안내">
+                                                    <span>이용요금안내</span>
+                                                </a>
+                                            </div>
+                                        </li>	
+                                    </ul>
+                                    <ul class="depth2">			
+                                        <li></li>	
+                                    </ul>
+                                    <ul class="depth2">			
+                                        <li></li>	
+                                    </ul>
+                                    <ul class="depth2">			
+                                        <li class="borderNone"></li>	
+                                    </ul>
+                                </div> -->
+                            </div>
+                            <div class="inner">
+                                <div class="tit">
+                                    <span>회원라운지</span>
+                                </div>
+                                <div class="depth2Set">
+                                    <ul class="depth2">			
+                                        <li>
+                                            <div class="t">
+                                                <a href="/member/reser/reser.asp" title="예약 및 확인">
+                                                    <span>예약 및 확인</span>
+                                                </a>
+                                            </div>
+                                            <ul class="depth3">
+                                                <li>
+                                                    <a class="" href="/member/reser/reser.asp" title="실시간예약">
+                                                        <span>실시간예약</span>
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a class="" href="/member/reser/reserJoin.asp" title="회원의날 조인예약">
+                                                        <span>회원의날 조인예약</span>
+                                                    </a>
+                                                </li>	
+                                                <li>
+                                                    <a class="" href="/member/reser/reserCheck.asp" title="예약확인 및 취소">
+                                                        <span>예약확인 및 취소</span>
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a class="" href="/member/reser/wating.asp" title="대기자등록">
+                                                        <span>대기자등록</span>
+                                                    </a>
+                                                </li>	
+                                                <li>
+                                                    <a class="" href="/member/reser/watingList.asp" title="대기자조회">
+                                                        <span>대기자조회</span>
+                                                    </a>
+                                                </li>	
+                                            </ul>
+                                        </li>	
+                                    </ul>
+                                    <ul class="depth2">			
+                                        <li>
+                                            <div class="t">
+                                                <a href="/member/myInfo/reserInfo.asp" title="내 정보조회">
+                                                    <span>내 정보조회</span>
+                                                </a>
+                                            </div>
+                                            <ul class="depth3">
+                                                <li>
+                                                    <a class="" href="javascript:$('#chart09').click();" title="회원정보">
+                                                        <span data-tooltip="chart09" id="chart09">회원정보</span>
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a class="" href="/member/myInfo/reserInfo.asp" title="예약정보">
+                                                        <span>예약정보</span>
+                                                    </a>
+                                                </li>	                                            
+                                                <li>
+                                                    <a class="" href="/member/myInfo/cancelInfo.asp" title="취소정보">
+                                                        <span>취소정보</span>
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a class="" href="/member/myInfo/penalInfo.asp" title="위약정보">
+                                                        <span>위약정보</span>
+                                                    </a>
+                                                </li>	                                                
+                                                <li>
+                                                    <a class="" href="/member/myInfo/scoreInfo.asp" title="스코어정보">
+                                                        <span>스코어정보</span>
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a class="" href="/member/myInfo/visitInfo.asp" title="내장정보">
+                                                        <span>내장정보</span>
+                                                    </a>
+                                                </li>
+                                                <!-- <li>
+                                                    <a class="" href="/member/board/mylist.asp" title="MY게시글">
+                                                        <span>MY게시글</span>
+                                                    </a>
+                                                </li>	 -->
+                                            </ul>
+                                        </li>	
+                                    </ul>       
+                                    <ul class="depth2">			
+                                        <li>
+                                            <div class="t">
+                                                <a href="/board/list24.asp" title="회원자유게시판">
+                                                    <span>회원자유게시판</span>
+                                                </a>
+                                            </div>
+                                        </li>	
+                                    </ul>                            
+                                    <ul class="depth2">			
+                                        <li>
+                                            <div class="t">
+                                                <a href="/member/board/joinList.asp" title="조인방">
+                                                    <span>조인방</span>
+                                                </a>
+                                            </div>
+                                        </li>	
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="inner">
+                                <div class="tit">
+                                    <span>뉴서울소식</span>
+                                </div>
+                                <div class="depth2Set">
+                                    <ul class="depth2">			
+                                        <li>
+                                            <div class="t">
+                                                <a href="/board/list1.asp" title="공지사항">
+                                                    <span>공지사항</span>
+                                                </a>
+                                            </div>
+                                        </li>	
+                                    </ul>
+                                    <ul class="depth2">			
+                                        <li>
+                                            <div class="t">
+                                                <a href="/board/list92.asp" title="보도자료">
+                                                    <span>보도자료</span>
+                                                </a>
+                                            </div>
+                                        </li>	
+                                    </ul>									
+                                    <ul class="depth2">			
+                                        <li>
+                                            <div class="t">
+                                                <a href="/board/list19.asp" title="카드뉴스">
+                                                    <span>카드뉴스</span>
+                                                </a>
+                                            </div>
+                                            <ul class="depth3">
+                                                <li>
+                                                    <a class="" href="/board/list19.asp" title="뉴스">
+                                                        <span>뉴스</span>
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a class="" href="/board/list21.asp" title="사회공헌활동">
+                                                        <span>사회공헌활동</span>
+                                                    </a>
+                                                </li>	
+                                            </ul>
+                                        </li>	
+                                    </ul>   
+                                    <!--ul class="depth2">			
+                                        <li>
+                                            <div class="t">
+                                                <a href="/board/list2.asp" title="홀인원소식">
+                                                    <span>홀인원소식</span>
+                                                </a>
+                                            </div>
+                                        </li>	
+                                    </ul-->
+                                    
+                                    <ul class="depth2">			
+                                        <li>
+                                            <div class="t">
+                                                <a href="/board/list35.asp" title="명예의전당">
+                                                    <span>명예의전당</span>
+                                                </a>
+                                            </div>
+                                        </li>	
+                                    </ul>   
+                                    <ul class="depth2">			
+                                        <li>
+                                            <div class="t">
+                                                <a href="/board/list93.asp" title="예술나무숲(후원인)">
+                                                    <span>예술나무숲(후원인)</span>
+                                                </a>
+                                            </div>
+                                        </li>	
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="inner">
+                                <div class="tit">
+                                    <span>고객참여</span>
+                                </div>
+                                <div class="depth2Set">
+                                    <ul class="depth2">			
+                                        <li>
+                                            <div class="t">
+                                                <a href="/board/list26.asp" title="자주묻는질문">
+                                                    <span>자주묻는질문</span>
+                                                </a>
+                                            </div>
+                                        </li>	
+                                    </ul>
+                                    <ul class="depth2">			
+                                        <li>
+                                            <div class="t">
+                                                <a href="/board/list5.asp" title="분실물 보관안내">
+                                                    <span>분실물 보관안내</span>
+                                                </a>
+                                            </div>
+                                        </li>	
+                                    </ul> 
+                                </div>
+                            </div>
+                            <div class="inner">
+                                <div class="tit">
+                                    <span>정보공개</span>
+                                </div>
+                                <div class="depth2Set">
+                                    <ul class="depth2">			
+                                        <li>
+                                            <div class="t">
+                                                <a href="/info/info01_1.asp" title="정보공개제도안내">
+                                                    <span>정보공개제도안내</span>
+                                                </a>
+                                            </div>
+                                        </li>	
+                                    </ul>
+                                    <ul class="depth2">				
+                                        <li>
+                                            <div class="t">
+                                                <a href="/board/list9.asp" title="정보공개자료">
+                                                    <span>정보공개자료</span>
+                                                </a>
+                                            </div>
+                                        </li>	
+                                    </ul>
+                                    <ul class="depth2">				
+                                        <li>
+                                            <div class="t">
+                                                <a href="/board/list17.asp" title="입찰공고">
+                                                    <span>입찰공고</span>
+                                                </a>
+                                            </div>
+                                        </li>	
+                                    </ul>                                        
+                                    <ul class="depth2">				
+                                        <li>
+                                            <div class="t">
+                                                <a href="/info/info05.asp" title="경영공시(한국문화진흥)">
+                                                    <span>경영공시(한국문화진흥)</span>
+                                                </a>
+                                            </div>
+                                        </li>	
+                                    </ul>
+                                </div>
+                                <div class="depth2Set">
+                                    <ul class="depth2">			
+                                        <li>
+                                            <div class="t">
+                                                <a href="/info/info06_1.asp" title="경영공시(뉴서울CC)">
+                                                    <span>경영공시(뉴서울CC)</span>
+                                                </a>
+                                            </div>
+                                            <ul class="depth3">
+                                                <li>
+                                                    <a class="" href="/info/info06_1.asp" title="일반현황">
+                                                        <span>일반현황</span>
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a class="" href="/info/info06_2.asp" title="미션·비젼">
+                                                        <span>미션·비젼</span>
+                                                    </a>
+                                                </li>	
+                                                <li>
+                                                    <a class="" href="/info/info06_3.asp" title="사업성과및재무현황">
+                                                        <span>사업성과및재무현황</span>
+                                                    </a>
+                                                </li>	
+                                                <li>
+                                                    <a class="" href="/info/info06_4_01.asp" title="정관">
+                                                        <span>정관</span>
+                                                    </a>
+                                                </li>	
+                                                <li>
+                                                    <a class="" href="/board/list10.asp" title="고객만족도조사">
+                                                        <span>고객만족도조사</span>
+                                                    </a>
+                                                </li>	
+                                                <li>
+                                                    <a class="" href="/info/info06_6_01.asp" title="윤리경영">
+                                                        <span>윤리경영</span>
+                                                    </a>
+                                                </li>	
+                                                <li>
+                                                    <a class="" href="/board/list11.asp" title="기타공시">
+                                                        <span>기타공시</span>
+                                                    </a>
+                                                </li>	
+                                            </ul>
+                                        </li>	
+                                    </ul>
+                                    <ul class="depth2">					
+                                        <li>
+                                            <div class="t">
+                                                <a href="/board/list31.asp" title="뉴서울공공정보공개">
+                                                    <span>뉴서울공공정보공개</span>
+                                                </a>
+                                            </div>
+                                            <ul class="depth3">
+                                                <li>
+                                                    <a class="" href="/info/info07_3.asp" title="공공데이터개방">
+                                                        <span>공공데이터개방</span>
+                                                    </a>
+                                                </li>	
+                                                <li>
+                                                    <a class="" href="/board/list31.asp" title="뉴서울레시피">
+                                                        <span>뉴서울레시피</span>
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a class="" href="/board/list32.asp" title="뉴서울수목관리">
+                                                        <span>뉴서울수목관리</span>
+                                                    </a>
+                                                </li>		
+                                            </ul>
+                                        </li>	
+                                    </ul>
+                                    <ul class="depth2">						
+                                        <li>
+                                            <div class="t">
+                                                <a href="/board/list16.asp" title="채용정보">
+                                                    <span>채용정보</span>
+                                                </a>
+                                            </div>
+                                            <ul class="depth3">
+                                                <li>
+                                                    <a class="" href="/board/list16.asp" title="채용공고">
+                                                        <span>채용공고</span>
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a class="" href="/info/info08_2.asp" title="채용안내">
+                                                        <span>채용안내</span>
+                                                    </a>
+                                                </li>	
+                                                <li>
+                                                    <a class="" href="/info/info08_3.asp" title="채용분야">
+                                                        <span>채용분야</span>
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a class="" href="/info/info08_4.asp" title="채용절차">
+                                                        <span>채용절차</span>
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a class="" href="/info/info08_5.asp" title="인재Pool">
+                                                        <span>인재Pool</span>
+                                                    </a>
+                                                </li>	
+                                                <li>
+                                                    <a class="" href="/board/list161.asp" title="전형별 합격자 발표">
+                                                        <span>전형별 합격자 발표</span>
+                                                    </a>
+                                                </li>		
+                                            </ul>
+                                        </li>	
+                                    </ul>                                        
+                                    <ul class="depth2">			
+                                        <li>
+                                            <div class="t">
+                                                <a href="/info/info10_01.asp" title="안전·윤리·인권경영">
+                                                    <span>안전·윤리·인권경영</span>
+                                                </a>
+                                            </div>
+                                        </li>	
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </nav>     
+                    <a href="javascript:void(0)" title="닫기" class="x-btn" id="xBtn" style="visibility: hidden;">닫기</a> 
+                </div>
+            </div>                   
+            <!-- 헤더 수정건 -->
+            <div class="header-btm">
+                <div class="gnb-bg"></div>
+                <ul class="depth01">                       
+                    <!-- 가운데로고 -->             
+                    <li class="depth01-list logoarea">
+                        <a href="/index.asp" title="메인으로가기">
+                            <span class="logo_wh">
+                                <img src="/resources/images/main/logo_wh.svg" alt="New Seoul COUNTRY CLUB">
+                            </span>
+                            <span class="logo_color">
+                                <img src="/resources/images/main/logo_color.svg" alt="New Seoul COUNTRY CLUB">
+                            </span>
+                        </a>
+                    </li>
+                    <!-- 클럽소개 -->
+                    <li class="depth01-list">
+                        <a href="/club/greeting.asp" title="클럽소개" class="on">클럽소개</a>
+                        </a>
+                            <ul class="depth02">
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/club/greeting.asp" title="대표이사 인사말">
+                                        <span>대표이사 인사말</span>
+                                    </a>
+                                </li>      
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/club/clubInfo.asp" title="클럽소개 및 연혁">
+                                        <span>클럽소개 및 연혁</span>
+                                    </a>
+                                </li>   
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/club/gallery.asp" title="문화 갤러리">
+                                        <span>문화 갤러리</span>
+                                    </a>
+                                </li>   
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/board/list20.asp" title="코스의사계">
+                                        <span>코스의사계</span>
+                                    </a>
+                                </li>   
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/club/partInfo.asp" title="부서안내">
+                                        <span>부서안내</span>
+                                    </a>
+                                </li>   
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/club/map.asp" title="오시는길">
+                                        <span>오시는길</span>
+                                    </a>
+                                </li>   
+                            </ul>
+                    </li>
+                    <!-- 이용안내 -->
+                    <li class="depth01-list">
+                        <a href="/guide/reserInfo.asp" title="이용안내" class="on">이용안내</a>
+                            <ul class="depth02">
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/guide/reserInfo.asp" title="예약안내">
+                                        <span>예약안내</span>
+                                    </a>
+                                </li>     
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/guide/membership.asp" title="클럽가입안내">
+                                        <span>클럽가입안내</span>
+                                    </a>
+                                </li> 
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/guide/fee.asp" title="이용요금안내">
+                                        <span>이용요금안내</span>
+                                    </a>
+                                </li> 
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/guide/course/courseInfo.asp" title="코스안내">
+                                        <span>코스안내</span>
+                                    </a>
+                                </li> 
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/guide/facil/clubhouse.asp" title="부대시설안내">
+                                        <span>부대시설안내</span>
+                                    </a>
+                                </li>                                  
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/board/list26.asp" title="자주묻는질문">
+                                        <span>자주묻는질문</span>
+                                    </a>
+                                </li> 
+                            </ul>
+                    </li>
+                    <!-- 회원라운지 -->
+                    <li class="depth01-list">
+                        <a href="/member/reser/reser.asp" title="회원라운지" class="on">회원라운지</a>
+                        </a>
+                            <ul class="depth02">
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/member/reser/reser.asp" title="예약 및 확인">
+                                        <span>예약 및 확인</span>
+                                    </a>
+                                </li>    
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/member/myInfo/reserInfo.asp" title="내정보조회">
+                                        <span>내정보조회</span>
+                                    </a>
+                                </li> 
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/board/list24.asp" title="회원자유게시판">
+                                        <span>회원자유게시판</span>
+                                    </a>
+                                </li> 
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/member/board/joinList.asp" title="조인방">
+                                        <span>조인방</span>
+                                    </a>
+                                </li>   
+                            </ul>
+                    </li>
+                    <!-- 가운데 공백 -->
+                    <li class="depth01-list"></li>
+                    <!-- 뉴서울소식 -->
+                    <li class="depth01-list">
+                        <a href="/board/list1.asp" title="뉴서울소식" class="on">뉴서울소식</a>
+                        </a>
+                            <ul class="depth02">
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/board/list1.asp" title="공지사항">
+                                        <span>공지사항</span>
+                                    </a>
+                                </li>
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/board/list92.asp" title="보도자료">
+                                        <span>보도자료</span>
+                                    </a>
+                                </li>								
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/board/list19.asp" title="카드뉴스">
+                                        <span>카드뉴스</span>
+                                    </a>
+                                </li>    
+                                <!--li class="depth02-list">
+                                    <a class="depth02-link" href="/board/list2.asp" title="홀인원소식">
+                                        <span>홀인원소식</span>
+                                    </a>
+                                </li-->  
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/board/list35.asp" title="명예의전당">
+                                        <span>명예의전당</span>
+                                    </a>
+                                </li>  
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/board/list93.asp" title="예술나무숲(후원인)">
+                                        <span>예술나무숲(후원인)</span>
+                                    </a>
+                                </li>
+                            </ul>
+                    </li>
+                    <!-- 고객참여 -->
+                    <li class="depth01-list">
+                        <a href="/board/list5.asp" title="고객참여" class="on">고객참여</a>
+                        </a>
+                            <ul class="depth02">    
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/board/list5.asp" title="분실물보관안내">
+                                        <span>분실물보관안내</span>
+                                    </a>
+                                </li> 
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/board/list27.asp" title="고객의말씀">
+                                        <span>고객의말씀</span>
+                                    </a>
+                                </li>  
+                            </ul>
+                    </li>
+                    <!-- 정보공개 -->
+                    <li class="depth01-list">
+                        <a href="/info/info01_1.asp" title="정보공개" class="on">정보공개</a>
+                        </a>
+                            <ul class="depth02">
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/info/info01_1.asp" title="정보공개제도안내">
+                                        <span>정보공개제도안내</span>
+                                    </a>
+                                </li>   
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/board/list9.asp" title="정보공개자료">
+                                        <span>정보공개자료</span>
+                                    </a>
+                                </li> 
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/board/list17.asp" title="입찰공고">
+                                        <span>입찰공고</span>
+                                    </a>
+                                </li> 
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/info/info05.asp" title="경영공시(한국문화진흥)">
+                                        <span>경영공시(한국문화진흥)</span>
+                                    </a>
+                                </li> 
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/info/info06_1.asp" title="경영공시(뉴서울CC)">
+                                        <span>경영공시(뉴서울CC)</span>
+                                    </a>
+                                </li> 
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/board/list31.asp" title="뉴서울공공정보공개">
+                                        <span>뉴서울공공정보공개</span>
+                                    </a>
+                                </li> 
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/board/list16.asp" title="채용정보">
+                                        <span>채용정보</span>
+                                    </a>
+                                </li> 
+                                <li class="depth02-list">
+                                    <a class="depth02-link" href="/info/info10_01.asp" title="안전·윤리·인권경영">
+                                        <span>안전·윤리·인권경영</span>
+                                    </a>
+                                </li>    
+                            </ul>
+                    </li>
+                </ul>
+            </div>  
+        </div> 
+        <!-- //Header -->  
+<script>
+$(document).ready(function() {
+    // 스크롤 위치를 가져와서 설정.
+    var scrollPos = localStorage.getItem('scrollPos');
+    if (scrollPos) {
+      $('html, body').animate({scrollTop: scrollPos}, 1000);
+      localStorage.removeItem('scrollPos');
+    }
+    // 스크롤 위치가 변경될 때마다 localStorage에 저장.
+    $(window).scroll(function() {
+      localStorage.setItem('scrollPos', $(window).scrollTop());
+    });
+});
+</script>
+
+<!-- Only content -->
+<link rel="stylesheet" type="text/css" href="/resources/css/content.css">
+<!-- //Only content -->
+
+<div class="contents-basic">
+    <div class="basic-top">
+		<h2>문화OUT 코스</h2>
+		<ul class="mini-index">
+			<li>
+				<a href="/index.asp" title="홈">
+					<img src="/resources/images/member/icon_basic_home.svg" alt=""> 홈
+				</a>
+			<li>
+				<a href="/guide/reserInfo.asp" title="이용안내">이용안내</a>
+			</li>
+			<li>
+				<a href="/guide/course/courseInfo.asp" title="코스안내">코스안내</a>
+			</li>
+			<li>
+				<a href="/guide/course/culture_out_01.asp" title="문화OUT 코스">문화OUT 코스</a>
+			</li>
+		</ul>
+	</div>
+
+	<!-- depth 3 -->
+	<ul class="depth3-tabs wp70">
+		<li class="">
+			<a href="/guide/course/courseInfo.asp" title="코스조감도">코스조감도</a>
+		</li>
+		<li class="on">
+			<a href="/guide/course/culture_out_01.asp" title="문화OUT 코스" aria-current="page">문화OUT 코스</a>
+		</li>
+		<li class="">
+			<a href="/guide/course/culture_in_10.asp" title="문화IN 코스">문화IN 코스</a>
+		</li>
+		<li class="">
+			<a href="/guide/course/art_out_01.asp" title="예술OUT 코스">예술OUT 코스</a>
+		</li>
+		<li class="">
+			<a href="/guide/course/art_in_10.asp" title="예술IN 코스">예술IN 코스</a>
+		</li>
+	</ul>
+	
+	<div class="course-wrap">
+		<img src="/resources/images/course/culture_out_bg.png" alt="" class="course-bg">
+		<p class="list-tit">스케일과 전략성을 겸비한 걸작 문화코스</p>
+		<p class="notice pre-line">총 연장 6,471m 페어웨이가 넓고 길며, 자연지형과 지세를 살려 스케일이 웅대할 뿐 아니라 각 홀마다 언듀레이션이
+			다체롭고, 포대그린이 많아 정교한 그린공략이 요구되는 전략적인 코스입니다.</p>
+
+		<ul class="course-list">
+			<li class="">
+				<a href="/guide/course/culture_out_01.asp" title="문화아웃1홀">Hole1</a>
+			</li>
+			<li class="">
+				<a href="/guide/course/culture_out_02.asp" title="문화아웃2홀">Hole2</a>
+			</li>
+			<li class="">
+				<a href="/guide/course/culture_out_03.asp" title="문화아웃3홀">Hole3</a>
+			</li>
+			<li class="">
+				<a href="/guide/course/culture_out_04.asp" title="문화아웃4홀">Hole4</a>
+			</li>
+			<li class="">
+				<a href="/guide/course/culture_out_05.asp" title="문화아웃5홀">Hole5</a>
+			</li>
+			<li class="on">
+				<a href="/guide/course/culture_out_06.asp" title="문화아웃6홀" aria-current="page">Hole6</a>
+			</li>
+			<li class="">
+				<a href="/guide/course/culture_out_07.asp" title="문화아웃7홀">Hole7</a>
+			</li>
+			<li class="">
+				<a href="/guide/course/culture_out_08.asp" title="문화아웃8홀">Hole8</a>
+			</li>
+			<li class="">
+				<a href="/guide/course/culture_out_09.asp" title="문화아웃9홀">Hole9</a>
+			</li>
+		</ul>
+		<div class="course-box" data-aos="fade-up" data-aos-duration="1000" transition-delay="0">
+			<div class="course-attack">
+				<h3 class="hole">
+					6 Hole<span>문화OUT 코스</span>
+				</h3>
+
+				<ul class="par">
+					<li>PAR<span class="big">5</span></li>
+					<li>HDCP<span class="big">12</span></li>
+					<li>Meter<span class="big">463</span></li>
+				</ul>
+
+				<ul class="distance">
+					<li><span class="tee-name">블루티</span>좌 447 / 우 463</li>
+					<li><span class="tee-name">화이트티</span>좌 427 / 우 443</li>
+					<li><span class="tee-name">레드티</span>좌 381 / 우 397</li>
+				</ul>
+
+				<ul class="attack">
+					<li>
+						<span class="tit">TEE-SHOT</span>
+						IP지점에서 그린까지 좌측으로 거의 90도 각도로 꺾여있는 파 5홀입니다. IP지점을 지나면 급경사 내리막 비B러프 지역이므로 안전한게 공략하기 위해서는 적절한 클럽 선택이 필요합니다. 장타자들은 왼쪽 OB지경점에 주의하려 좌측 소나무들 위로 공략하면 2 ON도 가능하지만 프로들도 우드로 공략을 하는 홀이므로 클럽 선택에 신중을 기해야 합니다.
+					</li>
+					<li>
+						<span class="tit">2ND-SHOT</span>
+						써드지점 페어웨이가 비교적 좁아서 OB가 자주 발생하므로 티샷 못지않은 신중한 세컨샷이 필요합니다.
+					</li>
+					<li>
+						<span class="tit">3ND-SHOT</span>
+						그린 왼쪽 앞의 벙커에 주의해야 하며 좌그린은 높은 그린턱을 감안하는 어프러치가 필요합니다.
+					</li>
+					<li>
+						<span class="tit">GREEN</span>
+						그린 왼쪽 앞의 벙커에 주의해야 하며 좌그린은 높은 그린턱을 감안하는 어프러치가 필요합니다.
+					</li>
+				</ul>
+
+				<img src="/resources/images/course/culture_out_green_06.png" alt="문화6번홀그린">
+			</div>
+			<div class="course-img">
+				<img src="/resources/images/course/culture_out_06.jpg" alt="문화6번홀">
+			</div>
+		</div>
+		<script>
+			AOS.init();
+		</script>	
+	</div>
+</div>
+<table class="info-table mb100">
+	</li>		
+		<tr>
+			<th><img src="/resources/images/main/copyright_img.png" alt="공공누리 공공저작물 자유이용허락 출처표시"></th>
+			<td>본 자료에 대한 자세한 내용을 원하시면 마케팅팀 장영민 주임(☏031-760-8056)에게 문의 바랍니다.</td>
+		</tr>
+	</li>
+</table>
+<script>
+	function surveyPage() {
+		if("" == "") {
+			alert("로그인 후 이용 가능합니다.");
+			location.href = "/join/login.asp";
+			return;
+		}
+
+		var sUrl = "/controller/BoardController.asp";
+
+		$("#method2").val("surveyPage");
+		$("#coDiv2").val(globals.coDiv);
+
+		var formData = new FormData($("#pageForm")[0]);
+
+		progressStart();
+
+		mFileAjax(sUrl, formData, function(data) {
+			progressStop();
+			if(data.resultCode == "0000") {
+				alert("제출되었습니다.");
+				location.reload();
+			} else {
+				alert(data.resultMessage);
+			}
+		});
+	}
+
+	function SubmitBoard() {
+		var sUrl = "/controller/BoardController.asp";
+
+		$("#method3").val("SubmitBoard");
+		$("#coDiv3").val(globals.coDiv);
+
+		var title = $("#txtTitle").val();
+
+		var formData = new FormData($("#surveyForm")[0]);
+
+		progressStart();
+
+		mFileAjax(sUrl, formData, function(data) {
+			progressStop();
+			if(data.resultCode == "0000") {
+				alert("제출되었습니다.");
+				location.href = "/index.asp";
+			} else {
+				alert(data.resultMessage);
+			}
+		});
+	}
+
+	function doMemberInfo() {
+
+		if("" == "") {
+			alert("로그인 후 이용 가능합니다.");
+			location.href = "/join/login.asp";
+			return;
+		}
+
+		var sUrl = "/controller/MemberController.asp";
+		var params = {};
+		var pw = $("#checkPw").val();
+
+		if (pw == "") {
+			alert("비밀번호를 입력해주세요.");
+			return;
+		}
+
+		params["method"] = "doMemberInfo";
+		params["pw"] = pw;
+
+		mAjax(sUrl, params, "POST", false, function(data) {
+			if(data.resultCode == "0000") {
+				location.href = "/member/myInfo/mypage.asp";
+			} else {
+				alert(data.resultMessage);
+			}
+		});
+	}
+
+	function checkLogin() {
+		alert("로그인 후 이용 가능합니다.");
+		location.href = "/join/login.asp";
+	}
+</script>
+	<!-- Footer -->
+	<div id="footer">
+        <div class="survey-area">
+			<form id="pageForm" method="post" enctype="multipart/form-data">
+            <div class="survey-box">
+                <img src="/resources/images/info/survey_icon.svg" alt="">
+                <div>
+					<div id="clk_timezone"></div>
+                    <span class="ask">이 페이지에서 제공하는 정보에 대하여 어느 정도 만족하십니까?</span>
+					
+
+<style>
+#clk_timezone{
+    font-size:15px;
+}
+</style>
+</head>
+<body>
+
+<!-- <div id="clk_timezone"></div> -->
+
+<script>
+
+// 서버 기준 시작 시간
+const clk_serverStartTime = new Date('2026-07-21 13:15:25').getTime();
+
+// 클라이언트 시작 시간
+const clk_clientStartTime = Date.now();
+
+function clk_updateClock(){
+
+    // 클라이언트 경과시간
+    const elapsed = Date.now() - clk_clientStartTime;
+
+    // 서버시간 기준 현재시간
+    const currentServerTime = new Date(clk_serverStartTime + elapsed);
+
+    const hh = String(currentServerTime.getHours()).padStart(2, '0');
+    const mm = String(currentServerTime.getMinutes()).padStart(2, '0');
+    const ss = String(currentServerTime.getSeconds()).padStart(2, '0');
+
+    $('#clk_timezone').text(hh + ':' + mm + ':' + ss);
+
+}
+
+
+// 오차 최소화
+function startClock(){
+
+    clk_updateClock();
+
+    const now = new Date();
+
+    const delay = 1000 - now.getMilliseconds();
+
+    setTimeout(startClock, delay);
+
+}
+
+
+// 시작
+startClock();
+
+</script>
+                    <span class="answer">
+                        <label><input type="radio" name="survey1" value="5" checked> 매우 만족(5점)</label>
+                        <label><input type="radio" name="survey1" value="4"> 만족(4점) </label>
+                        <label><input type="radio" name="survey1" value="3"> 보통(3점)</label>
+                        <label><input type="radio" name="survey1" value="2"> 불만족(2점)</label>
+                        <label><input type="radio" name="survey1" value="1"> 매우불만족(1점) </label>
+                    </span>
+                </div>
+                <button type="button" onclick="surveyPage();">전송</button>
+            </div>
+			<input type="hidden" id="method2" name="method" />
+			<input type="hidden" id="coDiv2" name="coDiv" />
+			<input type="hidden" id="httpUrl" name="httpUrl" value="www.newseoulgolf.co.kr/guide/course/culture_out_06.asp">
+			</form>
+
+        </div>
+        <div class="footer-area" id="footerArea">
+            <div class="footer-box">
+                <div class="footer-top">
+                    <ul class="terms-links">
+                        <li class="on">
+                            <a href="/guide/privacy.asp?ver=172.20.10.1" title="개인정보처리방침">개인정보처리방침</a>
+                        </li>
+                        <li>
+                            <a href="/guide/copyright.asp" title="저작권정책">저작권정책</a>
+                        </li>
+                        <li>
+<!--                             <a href="javascript:checkLogin();" title="고객만족도조사">고객만족도조사</a> -->
+                            <a href="javascript:void(0);" data-tooltip="chart11" title="고객만족도조사">고객만족도조사</a>
+                        </li>
+                        <!-- <li>
+                            <a href="/board/list27.asp" title="홈페이지 불편신고">홈페이지 불편신고</a>
+                        </li> -->
+                        <li>
+                            <a href="javascript:void(0);" data-tooltip="chart12" title="민원접수/부패·공익신고">민원접수/부패·공익신고</a>
+                        </li>
+                        <li>
+                            <a href="javascript:void(0);" data-tooltip="chart13" title="성희롱 온라인 창구">성희롱/직장내괴롭힘 온라인 창구</a>
+                        </li>
+                        <li>
+                            <!--a href="javascript:void(0);" data-tooltip="chart14" title="로그인">[로그인]</a-->							
+                        </li>
+                    </ul>
+                    <button class="top-btn">TOP<img src="/resources/images/main/top_btn.svg" alt=""></button>
+                </div>
+
+                <div class="footer-btm">                
+                    <h4>한국문화진흥주식회사 뉴서울컨트리클럽</h4>     
+                    <div class="btm-left">               
+                        <ul class="adress">
+                            <li>(12767) 경기 광주 삼지곡길 95(삼동1번지)</li>
+                            <li>대표이사 정상윤    대표전화 031-762-5672~5    이메일 webmaster@newseoulgolf.co.kr</li>
+                        </ul>
+                        <ul class="copy">
+                            <li>사업자번호 126-82-02529    통신판매업신고 제2017-경기광주-0175호</li>
+                            <li>Copyright(C)2023 newseoulgolf All rights reserved.</li>
+                        </ul>
+                    </div>
+                    <div class="btm-right">                        
+                        <a href="https://www.wa.or.kr/board/list.asp?BoardID=0006" title="(사)한국장애인단체총연합회 한국웹접근성인증평가원 웹 접근성 우수사이트 인층마크(WA인증마크) 새 창 열림" target="_blank" class="btm-mark">
+                            <img src="/resources/images/main/mark(2026).svg" alt="접근성인증마크" class="btm-img">
+                        </a>
+                        <ul class="tel">
+                            <li><span>예약안내</span>   031.760.8000 / 764.5858</li>
+                            <li><span>예약팩스</span>   031.763.0519</li>
+                            <li><span>프런트</span>   031.760.8073~4</li>
+                            <li><span>회원관리</span>   031.760.8058</li>
+                        </ul>
+                        <div class="family-area">
+                            <div class="family-site">
+                                <a href="javascript:void(0);" class="family-site-btn" title="열기">
+                                    <span>패밀리 사이트 바로가기</span>
+                                </a>
+                                <div class="family-box">
+                                    <ul>
+                                        <li>
+                                            <a href="http://www.mcst.go.kr" target="_blank" title="새창열림">문화체육관광부</a>
+                                        </li>
+                                        <li>
+                                            <a href="http://www.arko.or.kr" target="_blank" title="새창열림">한국문화예술위원회</a>
+                                        </li>
+                                        <li>
+                                            <a href="http://www.mecenat.or.kr" target="_blank" title="새창열림">한국메세나협의회</a>
+                                        </li>
+                                        <li>
+                                            <a href="http://www.alio.go.kr" target="_blank" title="새창열림">공공기관알리오</a>
+                                        </li>
+                                        <li>
+                                            <a href="http://www.acrc.go.kr" target="_blank" title="새창열림">국민권익위원회</a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+	</div>	
+	<!-- //Footer -->
+	
+	</div> <!-- wrap 닫히는 부분 -->
+    <!-- (S) : 비밀번호 레이어 팝업 -->
+    <div class="pop-members-info wp30 height35 chart09" tabindex="0" data-tooltip-con="chart09" data-focus="chart09" data-focus-prev="chart09-close">
+        <div class="layer-con">
+            <h3>비밀번호 확인</h3>
+            <p class="titCon">본인확인을 위해 비밀번호를 다시한번 입력해 주시기 바랍니다.</p>
+
+            <table class="waitInput-table mb20">
+                <caption>비밀번호확인</caption>
+                <tbody>
+                    <tr> 
+                        <th class="wp30">비밀번호 입력</th>
+                        <td class="waitInput-box wp70">
+                            <input type="password" id="checkPw" placeholder="비밀번호 입력" maxlength="20" title="비밀번호 입력">
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="two-btn mt50">
+                <a href="javascript:doMemberInfo();" title="확인" class="blue">확인</a>
+                <a href="javascript:void(0);" title="취소" class="grey tooltip-close" data-focus="chart09-close" data-focus-next="chart09">취소</a>
+            </div>
+        </div>
+    </div>
+    <div id="overlay" class="overlay" onclick="overlayClose(9)" style="display: none;"></div>
+    <!-- (E) : 비밀번호 레이어 팝업 -->
+
+    <!-- (S) : 저작권정책 레이어 팝업 -->
+    <div class="pop-members-info chart10 height55" tabindex="0" data-tooltip-con="chart10" data-focus="chart10" data-focus-prev="chart10-close">
+        <div class="layer-con">
+            <h3>저작권 정책</h3>
+            <ul class="sub">
+                <li>
+                    저작권법 제24조의2(공공저작물의 자유이용)에 따라 뉴서울컨트리클럽 홈페이지에서 제공하는 자료 중에서 뉴서울컨트리클럽에 저작재산권의 전부를 보유한 저작물의 경우에는 별도의 이용허락 없이 자유이용이 가능합니다.
+                </li>
+                <li>
+                    단,  <span class="red">자유이용</span>이 가능한 자료는 "<span class="red">공공저작물 자유이용허락 표시 기준(공공누리, KOGL) 제1유형</span>"을 부착하여 개방하고 있으므로 공공누리 표시가 부착된 저작물인지를 확인한 이후에 자유롭게 이용하시기 바랍니다.
+                </li>
+                <li>
+                    자유이용의 경우, 이용자께서는 반드시 저작물의 출처를 구체적으로 표시하여야 합니다.
+                </li>
+                <li>
+                    공공누리가 부착되지 않은 자료들을 사용하고자 할 경우에는 뉴서울컨트리클럽 홈페이지 담당자와 사전에 협의한 이후에 이용하여 주시기 바랍니다.
+                </li>
+            </ul>
+
+            <ul class="sub">
+                <li>
+                    &lt;문의&gt;
+                </li>
+                <li>
+                    책임관 : 경영전략본부장 김정연 (031-760-8030)
+                </li>
+                <li>
+                    실무담당자 : 경영기획팀 목대영 (031-760-8034)
+                </li>
+                <li>
+                    <img src="/resources/images/main/copyright_img.png" alt="공공누리 공공저작물 자유이용허락 출처표시">
+                </li>
+            </ul>
+
+            <div class="two-btn mt50">
+                <a href="javascript:void(0);" title="닫기" class="grey tooltip-close" data-focus="chart10-close" data-focus-next="chart10">닫기</a>
+            </div>
+        </div>
+    </div>
+    <div id="overlay" class="overlay" onclick="overlayClose(10)" style="display: none;"></div>
+    <!-- (E) : 저작권정책 레이어 팝업 -->
+
+    <!-- (S) : 고객만족도 레이어 팝업 -->
+    <div class="pop-members-info chart11 height80" tabindex="0" data-tooltip-con="chart11" data-focus="chart11" data-focus-prev="chart11-close" >
+        <div class="layer-con">
+            <h3>뉴서울컨트리클럽 홈페이지 고객만족도 조사</h3>
+            <p class="titCon">
+                뉴서울컨트리클럽 홈페이지에 대한 전반적인 만족도 설문조사에 참여해보세요.
+            </p>
+
+            <div class="custo-survey-box">
+				<form id="surveyForm" method="post" enctype="multipart/form-data">
+                <ul>
+                    <li>
+                        <div>
+                            <p class="question">
+                                <span class="red">[필수]</span> 뉴서울컨트리클럽 홈페이지에 대한 전반적인 만족도는 어떻습니까?
+                            </p>
+                            <p class="answer">
+                                <input type="radio" name="sv1" value="5" id="agree1" checked><label for="agree1">매우만족</label>
+                                <input type="radio" name="sv1" value="4" id="agree2"><label for="agree2">만족</label>
+                                <input type="radio" name="sv1" value="3" id="agree3"><label for="agree3">보통</label>
+                                <input type="radio" name="sv1" value="2" id="agree4"><label for="agree4">불만족</label>
+                                <input type="radio" name="sv1" value="1" id="agree5"><label for="agree5">매우불만족</label>
+                            </p>
+                        </div>
+                    </li>
+                    <li>
+                        <div>
+                            <p class="question">
+                                <span class="red">[필수]</span> "라운딩예약의 편리성"에 대한 만족도는 어떻습니까?
+                            </p>
+                            <p class="answer">
+                                <input type="radio" name="sv2" value="5" id="agree6" checked><label for="agree6">매우만족</label>
+                                <input type="radio" name="sv2" value="4" id="agree7"><label for="agree7">만족</label>
+                                <input type="radio" name="sv2" value="3" id="agree8"><label for="agree8">보통</label>
+                                <input type="radio" name="sv2" value="2" id="agree9"><label for="agree9">불만족</label>
+                                <input type="radio" name="sv2" value="1" id="agree10"><label for="agree10">매우불만족</label>
+                            </p>
+                        </div>
+                    </li>
+                    <li>
+                        <div>
+                            <p class="question">
+                                <span class="red">[필수]</span> "메인 화면의 디자인"에 대한 만족도는 어떻습니까?
+                            </p>
+                            <p class="answer">
+                                <input type="radio" name="sv3" value="5" id="agree11" checked><label for="agree11">매우만족</label>
+                                <input type="radio" name="sv3" value="4" id="agree12"><label for="agree12">만족</label>
+                                <input type="radio" name="sv3" value="3" id="agree13"><label for="agree13">보통</label>
+                                <input type="radio" name="sv3" value="2" id="agree14"><label for="agree14">불만족</label>
+                                <input type="radio" name="sv3" value="1" id="agree15"><label for="agree15">매우불만족</label>
+                            </p>
+                        </div>
+                    </li>
+                    <li>
+                        <div>
+                            <p class="question">
+                                <span class="red">[필수]</span> "홈페이지 접속 속도"에 대한 만족도는 어떻습니까?
+                            </p>
+                            <p class="answer">
+                                <input type="radio" name="sv4" value="5" id="agree16" checked><label for="agree16">매우만족</label>
+                                <input type="radio" name="sv4" value="4" id="agree17"><label for="agree17">만족</label>
+                                <input type="radio" name="sv4" value="3" id="agree18"><label for="agree18">보통</label>
+                                <input type="radio" name="sv4" value="2" id="agree19"><label for="agree19">불만족</label>
+                                <input type="radio" name="sv4" value="1" id="agree20"><label for="agree20">매우불만족</label>
+                            </p>
+                        </div>
+                    </li>
+                    <li>
+                        <div>
+                            <p class="question">
+                                <span class="red">[필수]</span> "라운딩예약의 신속성"에 대한 만족도는 어떻습니까?
+                            </p>
+                            <p class="answer">
+                                <input type="radio" name="sv5" value="5" id="agree21" checked><label for="agree21">매우만족</label>
+                                <input type="radio" name="sv5" value="4" id="agree22"><label for="agree22">만족</label>
+                                <input type="radio" name="sv5" value="3" id="agree23"><label for="agree23">보통</label>
+                                <input type="radio" name="sv5" value="2" id="agree24"><label for="agree24">불만족</label>
+                                <input type="radio" name="sv5" value="1" id="agree25"><label for="agree25">매우불만족</label>
+                            </p>
+                        </div>
+                    </li>
+                    <li>
+                        <div>
+                            <p class="question">
+                                <span class="red">[필수]</span> 뉴서울컨트리클럽 홈페이지에 방문하시는 주요 목적은 무엇입니까?
+                            </p>
+                            <p class="answer">
+                                <input type="radio" name="sv6" value="5" id="agree26" checked><label for="agree26">라운딩예약</label>
+                                <input type="radio" name="sv6" value="4" id="agree27"><label for="agree27">코스정보</label>
+                                <input type="radio" name="sv6" value="3" id="agree28"><label for="agree28">민원상담</label>
+                                <input type="radio" name="sv6" value="2" id="agree29"><label for="agree29">뉴스/이벤트</label>
+                                <input type="radio" name="sv6" value="1" id="agree30"><label for="agree30">기타</label>
+                            </p>
+                        </div>
+                    </li>
+                    <li>
+                        <div>
+                            <p class="question">
+                                <span class="red">[필수]</span> 귀하는 어느 정도 뉴서울컨트리클럽 홈페이지를 방문하십니까?
+                            </p>
+                            <p class="answer">
+                                <input type="radio" name="sv7" value="5" id="agree31" checked><label for="agree31">일1회이상</label>
+                                <input type="radio" name="sv7" value="4" id="agree32"><label for="agree32">주1회이상</label>
+                                <input type="radio" name="sv7" value="3" id="agree33"><label for="agree33">월1회이상</label>
+                                <input type="radio" name="sv7" value="2" id="agree34"><label for="agree34">연1회이상</label>
+                            </p>
+                        </div>
+                    </li>
+					<li>
+                        <div>
+                            <p class="question">
+                                <span class="red">[필수]</span> 귀하의 회원 여부에 대해 답변 부탁드립니다.
+                            </p>
+                            <p class="answer">
+                                <input type="radio" name="sv8" value="5" id="agree35"><label for="agree35">특별회원</label>
+                                <input type="radio" name="sv8" value="4" id="agree36" checked><label for="agree36">회원</label>
+                                <input type="radio" name="sv8" value="3" id="agree37"><label for="agree37">가족회원</label>
+                                <input type="radio" name="sv8" value="2" id="agree38"><label for="agree38">비회원</label>
+								<input type="radio" name="sv8" value="1" id="agree39"><label for="agree39">기타</label>
+                            </p>
+                        </div>
+                    </li>
+                    <li>
+                        <div>
+                            <p class="question">
+                                [선택] 기타 의견을 적어주세요.
+                            </p>
+                            <p class="answer">
+                                <textarea id="txtTitle" name="txtTitle" placeholder="내용을 입력해주세요." cols="30" rows="5" title="기타의견내용입력"></textarea>
+                            </p>
+                        </div>
+                    </li>                    
+                </ul>
+				<input type="hidden" id="method3" name="method" />
+				<input type="hidden" id="coDiv3" name="coDiv" />
+				</form>
+            </div>
+
+            <div class="two-btn mt50">
+				<a href="" title="취소" class="grey tooltip-close" data-focus="chart02-close" data-focus-next="chart02">취소</a>
+				<a href="javascript:SubmitBoard();" title="제출" class="blue">제출</a>
+			</div>
+        </div>
+    </div>
+    <div id="overlay" class="overlay" onclick="overlayClose(11)" style="display: none;"></div>
+    <!-- (E) : 고객만족도 레이어 팝업 -->
+
+    <!-- (S) : 민원접수/부패·공익신고 레이어 팝업 -->
+    <div class="pop-members-info chart12 height35 wp30" tabindex="0" data-tooltip-con="chart12" data-focus="chart12" data-focus-prev="chart12-close">
+        <div class="layer-con">
+            <h3>민원접수/부패·공익신고</h3>
+            <div class="footer-links" align="center">
+                <a href="https://bit.ly/4sAlqoy" title="일반신고" class="">신고하기<img src="/resources/images/main/icon_down_blue.svg"></a>
+            </div>
+
+            <div class="two-btn mt50">
+                <a href="javascript:void(0);" title="닫기" class="grey tooltip-close" data-focus="chart12-close" data-focus-next="chart12">닫기</a>
+            </div>
+        </div>
+    </div>
+    <div id="overlay" class="overlay" onclick="overlayClose(12)" style="display: none;"></div>
+    <!-- (E) : 민원접수/부패·공익신고 레이어 팝업 -->
+
+    <!-- (S) : 성희롱 온라인 창구 레이어 팝업 -->
+    <div class="pop-members-info chart13 height55 wp30" tabindex="0" data-tooltip-con="chart13" data-focus="chart13" data-focus-prev="chart13-close">
+        <div class="layer-con">
+            <h3>성희롱/직장내괴롭힘 온라인 창구</h3>
+            <p class="titCon">
+                한국문화진흥주식회사 에서는 익명 또는 기명으로 신고서를 접수하고 있습니다.<br>
+	    아래 신고하기 버튼을 눌러 신고해주시길 바랍니다.
+            </p>
+            <div class="footer-links">
+                <a href="https://bit.ly/4sAlqoy" title="성희롱 신고" target="_blank">신고하기<img src="/resources/images/main/icon_down_blue.svg"></a>
+            </div>
+            <div class="two-btn mt50">
+                <a href="javascript:void(0);" title="닫기" class="grey tooltip-close" data-focus="chart13-close" data-focus-next="chart13">닫기</a>
+            </div>
+        </div>
+    </div>
+    <div id="overlay" class="overlay" onclick="overlayClose(13)" style="display: none;"></div>
+    <!-- (E) : 성희롱 온라인 창구 레이어 팝업 -->
+
+
+
+	<script type="text/javascript" src="/resources/js/core.min.js"></script>
+	<script type="text/javascript" src="/resources/js/sha256.min.js"></script>
+	<script type="text/javascript" src="/resources/js/login.js?ver=1.1"></script>
+	<script type="text/javascript">
+		var cnt_show_login_layer = 0;
+		function show_login_layer() {
+			if ( cnt_show_login_layer++ > 0 )
+				return;
+
+			login_init();
+		}
+	</script>
+    <div onfocus="show_login_layer();" class="pop-members-info chart14 height80 wp40" tabindex="0" data-tooltip-con="chart14" data-focus="chart14" data-focus-prev="chart14-close">	
+        <div class="layer-con not-scroll">
+            <div class="info-wrap pt40">	
+				<div class="login-wrap">	
+				    <h2 class="title">로그인</h2>
+					<ul class="login-list">
+						<li class="tab-link current" id="loginDiv1" data-tab="1" onclick="loginType(1, '정회원', '단체');">
+							<a href="#none" id="loginTitle1" title="정회원">정회원</a>
+						</li>
+						<li class="tab-link" id="loginDiv2" data-tab="3" onclick="loginType(3, '단체', '정회원');">
+							<a href="#none" id="loginTitle2" title="단체">단체</a>
+						</li>
+					</ul>
+					<input type="hidden" id="member" value="1">
+						
+					<div class="tab-content current"> 
+						<h3>ID</h3>
+						<ul>
+							<li><input type="text" placeholder="아이디" id="txtId" maxlength="12" class="borderB" title="아이디"></li>
+						</ul>
+						<h3>PW</h3>
+						<ul>
+							<li><input type="password" placeholder="자동로그인 상태입니다." id="txtPwAuto" class="borderB" title="자동로그인 상태" onFocus="pwFocus();" hidden></li>
+							<li><input type="password" placeholder="비밀번호" id="txtPw" maxlength="20" class="borderB" title="비밀번호"></li>
+						</ul>		
+						<div class="save-info">
+							자동 로그인
+							<div class="check-select">
+								<span>
+									<input type="checkbox" id="chkSaveId"><label for="chkSaveId" title="자동 로그인">자동 로그인</label>
+								</span>
+							</div>
+						</div>					
+						<a href="javascript:doLogin()" title="로그인" class="wp100 btn-login on">로그인</a>
+					</div>
+			
+					<div class="btn-idpw">
+						<a href="/join/findID.asp" title="아이디찾기">아이디 찾기</a>
+						<a href="/join/findID.asp" title="비밀번호찾기">비밀번호 찾기</a>
+					</div>
+				</div>		
+			</div>       
+        </div>          
+        <p class="x-btn">
+			<button type="button" class="tooltip-close" data-focus="chart14-close" data-focus-next="chart14" aria-label="팝업 닫기">
+				<img src="/resources/images/club/x_btn_big.svg" alt="" aria-hidden="true">
+			</button>
+			<!--a href="#" class="tooltip-close" data-focus="chart14-close" data-focus-next="chart14">
+                <img src="/resources/images/club/x_btn_big.svg" title="닫기버튼">
+            </a-->
+        </p>
+    </div>
+    <div id="overlay" class="overlay" onclick="overlayClose(14)" style="display: none;"></div>
+
+<script async src="https://nscc.botnhuman.com/resources/bnh/analyze/js/DiCO5r3LGPy587zVawQ3n8WgueCcQ2juPQBRTY8NEYpUUqGQtrZvILhpLkGDPiH9jyrAAsrHPku2cpEvj13ZMMRq8JgcX75y94f7AGavswl9nDYPSupnuXeGkpLgBO4ReK62RD0oI6mn3vK3CjsLB6hMSvZW24h0ximZEvSWBNE9ZMFIR3IjNuPwEut63LoB8HBIv6PY.js?v=20260721" ></script>
+
+</body>
+</html>

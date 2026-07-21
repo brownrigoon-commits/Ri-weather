@@ -1,0 +1,996 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html lang="ko">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=euc-kr" />
+    <meta http-equiv="Cache-Control" content="no-cache" />
+    <meta http-equiv="Imagetoolbar" content="no" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<!--[if lt IE 8]><meta http-equiv="refresh" content="0; url=/ieupdate/ieupdate.html" /><![endif]-->
+	<meta name="viewport"content="width=1001" />
+	<meta name="author" content="" />
+	<meta name="description" content="" />
+	<meta name="keywords" content="" />
+	<title>기장동원로얄컨트리클럽 :: 기장동원로얄컨트리클럽에 오신걸 환영합니다</title>
+
+	<link rel="shortcut icon" href="/image/common_icon_and.ico" />
+	<link rel="apple-touch-icon-precomposed" href="/image/common_icon_and.ico" />
+	<link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Lato:300,400,700" />
+	<!--<link rel="stylesheet" type="text/css" href="/css/common.css?ver=2" />-->
+	<link rel="stylesheet" type="text/css" href="/css/common_240102.css" />
+	<link rel="stylesheet" type="text/css" href="/css/cm_maincalender.css" />
+	<link rel="stylesheet" type="text/css" href="/css/cm_reservation.css" />
+	<link rel="stylesheet" type="text/css" href="/css/cm_quickreservation.css" />
+	<link rel="stylesheet" type="text/css" href="/css/sub.css?ver=240103" />
+	<link rel="stylesheet" type="text/css" href="/css/cminfor.css" />
+	<link rel="stylesheet" type="text/css" href="/css/login_modal.css" />
+	<link rel="stylesheet" type="text/css" href="/css/jquery-ui.tooltip.css" />
+
+<!-- link type="text/css" rel="stylesheet" href="/css/user.css" -->
+
+<script language="javascript" type="text/javascript" src="/cm_JavaScript/common.js"></script>
+
+<script language="javascript" type="text/javascript" src="/js/common.js"></script>
+
+<script language="javascript" type="text/javascript" src="/cm_JavaScript/jquery/jquery-1.11.1.js"></script>
+<script language='javascript' type='text/javascript' src='/cm_JavaScript/jQuery/jquery.DOMWindow.js'></script>
+
+<script language="javascript" type="text/javascript" src="/cm_JavaScript/jquery/jquery-ui-1.11.1/jquery-ui.min.js"></script>
+
+<!-- <script language="javascript" type="text/javascript" src="/cm_JavaScript/body_size.js"></script> -->
+
+<script language="JavaScript" type="text/javascript" src="/cm_JavaScript/class.tooltip.js"></script>
+<script language="JavaScript" type="text/javascript" src="/cm_JavaScript/jquery/jquery-ui-1.11.1/jquery-ui.tooltip.js"></script>
+
+<script language="javascript" type="text/JavaScript" src="/js/loginfrom_modal.js"></script>
+
+<script type="text/javascript" src="/js/rolling_zone.js"></script>
+<script type="text/javascript" src="/js/menu.layer.js?ver=1"></script>
+<script language="JavaScript" type="text/JavaScript">
+//<!--
+	/* Common */
+	//주소창 숨겨서 최적사이즈 맞추기
+	if (window.addEventListener != null)
+	{
+		window.addEventListener('load', function(){
+		setTimeout(scrollTo, 0, 0, 0);//페이지 이동이나 새로고침시 화면 1px씩 올라가는것 때문에 setTimeout(scrollTo, 0, 0, 1);을 수정
+		}, false); 
+	}
+
+
+
+	var flg2 = true;
+
+	/*##############################################################################################*/
+	// 퀵레이어 오픈 
+	function quick_layout_info_html(mId){
+
+		//
+		if (mId == ""){	mId = "quickModalPop";}
+		
+		var body_height = window.innerHeight
+		if (body_height <500){
+			document.getElementById(""+mId+"").style.position = "absolute";
+		}else{
+			document.getElementById(""+mId+"").style.position = "fixed";
+		}	
+		//alert(window.innerHeight);
+
+		//
+		if (flg2){
+		}else{
+			// 모달팝업 숨김
+			$('.quick_reserv').removeClass("on");
+			$("#"+mId+"").css("display","none");
+			flg2 =!flg2;
+			return;
+		}
+		//
+		var actionurl = "/cm_include/_ajax/ajax_quick_layout_info.asp";
+
+		//	
+		var tt = 0;
+		if (tt == 1){
+			$("#quick_layoutform_info").attr("action", actionurl);
+			$("#quick_layoutform_info").submit();
+		}else{
+			$.ajax({
+				async: false,
+				type: "post",
+				url : actionurl,
+				data : $("#quick_layoutform_info").serialize(),
+				dataType : "html",
+				success: function(obj){
+					$("#quick_layout_info").html(obj);
+					// 모달팝업 오픈
+					$('.quick_reserv').addClass("on");
+					$("#"+mId+"").css("display","block");
+					flg2 =!flg2;
+				},
+				error: function(xhr, option, error){
+					  alert(xhr.status+" | "+error); //오류코드 | 오류내용
+				}
+				/*error : function(success){
+					meg = "서버와 통신중 에러가 발생하였습니다."
+					alert("처리결과 : "+meg);
+				}*/
+				, beforeSend: function() {
+					//통신을 시작할때 처리	
+					$("#quick_layout_info").html('<img src="/image/loading.gif" alt="loading"/>');
+				}
+				, complete: function() {
+					//통신이 완료(success)된 후 처리
+					//$("#quick_layout_info").html('');
+				}
+			});
+		}
+	}
+
+	// 모달로그인 숨김
+	function quick_layout_close(mId){
+		//
+		if (mId == ""){	mId = "quickModalPop";}
+		// 모달팝업 숨김
+		$('.quick_reserv').removeClass("on");
+		$("#"+mId+"").css("display","none");
+		flg2 =!flg2;
+	}
+
+
+
+	/*##########################################################################################*/
+	// 메인 이벤트리스트 세팅 부분.
+	function main_event_board_list(site, list_id, list_code, list_type, list_num, list_size, list_sdate, list_edate){
+
+		//alert(site +" | "+ list_id +" | "+ list_code +" | "+ list_type +" | "+ list_num +" | "+ list_size +" | "+ list_sdate +" | "+ list_edate +"");
+
+		// 설정부분.....
+		$("#main_event_code").val(list_code);
+		$("#main_event_type").val(list_type);
+		$("#main_event_num").val(list_num);
+		$("#main_event_size").val(list_size);
+		$("#main_event_sdate").val(list_sdate);
+		$("#main_event_edate").val(list_edate);
+
+		//
+		var actionurl = "/cm_include/_ajax/"+site+"/ajax_main_event_board_list.asp";
+
+		var tt = 0;
+		if (tt == 1){
+			$("#main_event_board_form").attr("action", actionurl);
+			$("#main_event_board_form").submit();
+		}else{
+			$.ajax({
+				async: false,
+				type: "post",
+				url : actionurl,
+				data : $("#main_event_board_form").serialize(),
+				dataType : "html",
+				success: function(obj){
+					$("#"+list_id+"").html(obj);	
+					//
+					if (list_id == "main_event_list"){
+						//event_rolling();
+					}	
+				},
+				error: function(xhr, option, error){
+					  alert(xhr.status+" | "+error); //오류코드 | 오류내용
+				}
+				/*error : function(success){
+					meg = "서버와 통신중 에러가 발생하였습니다."
+					alert("처리결과 : "+meg);
+				}*/
+				, beforeSend: function() {
+					//통신을 시작할때 처리	
+					$("#"+list_id+"").html('<img src="/image/loading.gif" alt="loading"/>');
+				}
+				, complete: function() {
+					//통신이 완료(success)된 후 처리
+					//$('#main_event_list').html('');
+				}
+			});
+		}
+	}
+
+
+	/*##############################################################################################*/
+	// 모바일 URL문자 발송
+	function MobileUrlSand_info(flagcd){
+
+		//alert(hand_phone+" | "+isNaN(hand_phone));
+
+		//var hand_phone = $("#send_handphone").val().replace(/-/gi,"");
+
+		var hand_phone
+
+		if (flagcd == 0 )
+		{
+			 hand_phone = $("#send_handphone").val()+""+$("#send_handphone2").val()+""+$("#send_handphone3").val()
+
+		}else{
+			 hand_phone = $("#send_handphone").val().replace(/-/gi,"");
+		}
+		
+		if(hand_phone == ""){
+			alert("핸드폰 번호를 입력하세요");
+			$("#send_handphone").focus();
+			return;
+		}else if(isNaN(hand_phone)){
+			alert("핸드폰 번호는 숫자만 입력해 주세요.");
+			$("#send_handphone").val("");
+			$("#send_handphone").focus();
+			return;
+		}else{
+			$("#mul_hand_phone").val(hand_phone);
+		}
+
+		//
+		actionurl = "/cm_include/function.MobileUrlSand.asp";
+		
+		var tt = 0;
+		if (tt == 1){
+			$("#MobileUrlSand_from").attr("action", actionurl);
+			$("#MobileUrlSand_from").submit();
+		}else{
+			
+			// 한글 깨짐 방지 복구처리
+			$("#mul_user_name").val(escape($("#mul_user_name").val()));
+
+			$.ajax({
+				async: false,
+				type: "POST",
+				url : actionurl,
+				data : $("#MobileUrlSand_from").serialize(),
+				dataType : "json",
+				success:function(success){
+					//
+					switch(success.result){
+						case "1":
+							alert(unescape(success.gomsg));
+							break;
+						case "0":
+							alert(unescape(success.gomsg));
+							break;
+					}				
+					// 초기화 처리
+					$("#send_handphone").val("");
+					if (flagcd == 0 ){
+						$("#send_handphone2").val("");
+						$("#send_handphone3").val("");
+					}
+					//
+					$("#mul_hand_phone").val("");
+					$("#mul_user_name").val("");
+				},
+				error: function(xhr, option, error){
+					  alert(xhr.status+" | "+error); //오류코드 | 오류내용
+				}
+				/*error : function(success){
+					meg = "서버와 통신중 에러가 발생하였습니다."
+					alert("처리결과 : "+meg);
+				}*/
+			});
+		}
+	}
+
+
+
+
+	/*##################################################################################################################################################################*/
+	//------------------------------------------------------------
+	// Div 달력 팝업
+	//------------------------------------------------------------
+	function mainDivCalendrShow(course_cnt, resdate, courseinfo, teaminfo, e, calltype) {
+		//alert("popDivCalendrShow");
+
+		//alert((posx)+"|"+(posy));
+		var temcnt  = e;
+		var cnt = course_cnt;
+		var cntinfo = courseinfo.split("|");
+		var teaminfo = teaminfo.split("|");  
+
+		if (calltype == "L"){
+		}else{
+			
+			//타이틀
+			//$("#popcalendardiv #bookgtitle").empty().append("[예약가능팀수("+totalcnt+"팀)]");
+			$("#res_date").empty().append(resdate);
+			if (courseinfo != "")
+			{
+				for (i=1; i<=cnt; i++)
+				{
+					$("#courseinfoname_"+i).empty().append(cntinfo[i-1]);
+					$("#courseinfoteam_"+i).empty().append(teaminfo[i-1]);
+
+					temcnt = temcnt + Number(teaminfo[i-1]);
+				}
+			}else{
+				for (i=1; i<=cnt; i++)
+				{
+					$("#courseinfoteam_"+i).empty().append(0);
+
+					temcnt = temcnt + Number(teaminfo[i-1]);
+				}
+			}
+
+			//$("#res_team").empty().append(temcnt);
+		}
+	}
+
+	function mainDivCalendrHide(course_cnt, courseinfo) {
+		var cnt = course_cnt
+		var cntinfo = courseinfo.split("|");
+		//
+
+		for (i=1; i<=cnt; i++)
+		{
+//			$("#courseinfoname_"+i).empty().append(cntinfo[i-1]);
+//			$("#courseinfoteam_"+i).empty().append(0);
+		}
+	}
+
+
+	// 모달로그인 오픈
+	function login_modal_open(mId){
+
+		if (mId == ""){
+			mId = "loginModalPop";
+		}
+
+		var body_height = window.innerHeight
+		if (body_height <500){
+			document.getElementById(""+mId+"").style.position = "absolute";
+		}else{
+			document.getElementById(""+mId+"").style.position = "fixed";
+		}	
+		//alert(window.innerHeight);
+
+		var actionurl = "/cm_include/_ajax/ajax_login_modal_info.asp";
+
+		var tt = 0;
+		if (tt == 1){
+			$("#login_modal_from").attr("action", actionurl);
+			$("#login_modal_from").submit();
+		}else{
+			$.ajax({
+				async: false,
+				type: "post",
+				url : actionurl,
+				data : $("#login_modal_from").serialize(),
+				dataType : "html",
+				success: function(obj){
+					$("#login_modal_info").html(obj);
+					// 모달로그인 오픈
+					$("#"+mId+"").css("display","block");
+				},
+				error: function(xhr, option, error){
+					  alert(xhr.status+" | "+error); //오류코드 | 오류내용
+				}
+				/*error : function(success){
+					meg = "서버와 통신중 에러가 발생하였습니다."
+					alert("처리결과 : "+meg);
+				}*/
+				, beforeSend: function() {
+					//통신을 시작할때 처리	
+					$("#login_modal_info").html('<img src="/image/loading.gif" alt="loading"/>');
+				}
+				, complete: function() {
+					//통신이 완료(success)된 후 처리
+					//$("#login_modal_info").html('');
+				}
+			});
+		}
+
+	}
+
+	// 모달로그인 숨김
+	function login_modal_close(mId){
+		// 모달팝업 숨김
+		$("#"+mId+"").css("display","none");
+	}
+
+
+	//자동실행 - body onload의 대체
+	$(function(){
+
+		// 퀵레이어 오픈 
+		var loh = location.href.indexOf("#");
+		//
+		if(loh != -1){
+			// URL해쉬 처리한값 처리
+			var tmp = location.href.substr(loh + 1).split("&");
+			//
+			for(var i=0; i<tmp.length; i++){
+				var loe = tmp[i].indexOf("=");
+				if(loe != -1){
+					var val = decodeURIComponent(tmp[i].substr(loe + 1));
+					if(val != ''){
+						switch(tmp[i].substr(0, loe)){
+							case "quick_layout":
+								quick_layout_info_html("");
+								break;
+						}
+					}
+				}
+			}	
+		}
+
+		// 모든 페이지에 보일때 오픈 달력 처리 부분
+		//main_calendar_change("", "", "", "");
+		
+		// 모든 페이지에 보일때 게시판&이벤트 처리 부분
+		//main_multi_board_list("site", "main_board_list", "NOTICE", "L", "1", "5", "", "")
+		//main_event_board_list("site", "main_event_list", "EVENT", "I", "1", "5", "", "")
+
+		// 모든 페이지에 보일때 잔여타임&조인방 처리 부분
+		//main_golftime_list("golf", "main_res_time_list", "COURSE", "5")
+		//main_joinroom_list("golf", "main_join_room_list", "1", "5")
+	});	
+//-->
+</script>
+
+<script type="text/javascript" src="/js/jquery.sliderkit.1.9.2.pack.js"></script>		
+<script language="JavaScript" type="text/JavaScript">
+	$(window).load(function(){ 
+
+		$(".contentslider-std").sliderkit({
+			auto:0,
+			autospeed:2000,
+			tabs:1,
+			circular:1,
+			panelfx:"sliding",
+			panelfxfirst:"fading",
+			panelfxeasing:"easeInOutExpo",
+			fastchange:0,
+			keyboard:1
+		});
+
+		var mySliderkit = $(".contentslider-std").data('sliderkit');
+
+		$('.sliderkit-btn.ctrl').click(function(event) {
+			event.preventDefault();
+			event.returnValue = false;
+			var thisId = $(this).attr('id');
+			changeBtn(thisId);
+			$(this).hide();
+		});
+
+		function changeBtn(btnId) {
+			var cnt = btnId;
+			if( cnt == "play"){
+				$("#stop").css("display", "block");
+				mySliderkit.autoScrollStart();
+				return false;
+			}else if( cnt == "stop"){
+				$("#play").css("display", "block");
+				mySliderkit.autoScrollStop();
+				return false;
+			}
+		}
+	});	
+</script>	
+
+</head>
+
+<!-- <body id="SUB"> -->
+<body>
+<script language="JavaScript" type="text/JavaScript">
+//<!--
+	//
+	var gnb_code1 = "course";
+	var lnb_code1 = "course";
+	//var gnbIdx = Number(1); 
+
+	//
+	var gnb_code2 = "course_guide";
+	var lnb_code2 = "course_guide";
+	//var gnb2Idx = Number(2); 
+
+	//
+	var gnb_code3 = "course_one";
+	var lnb_code3 = "course_one";
+	//var gnb2Idx = Number(0);
+
+//-->
+</script>
+	
+<div id="wrap" class="sub">
+	<div class="skip_navi">
+		<ul>
+			<li><a href="#gnb">GNB 바로가기</a></li>
+			<li><a href="#body">본문 바로가기</a></li>
+			<li><a href="#footer">하단 바로가기</a></li>
+		</ul>
+	</div>
+
+	<!-- 헤더 -->
+	<div id="header">
+		<div class="head">
+			<h1><a href="/index.asp"><img src="/image/common/logo.png" alt="기장동원" /></a></h1>
+			<!-- <div class="login_area">             
+				<a href="/index.asp">HOME</a> ㆍ 			
+				
+				<a href="/login/login.asp">로그인</a> ㆍ
+				<a href="/memberInfor/joinTerms.asp">회원가입</a> ㆍ
+				
+				<a href="/pagesite/club/location.asp">찾아오시는길</a>
+			</div> -->
+
+			<!-- gnb -->
+			<div class="gnb">				
+				<ul> 
+<li class="gnb01" id="gnb_club"> 
+							<h2><a href="/pagesite/club/intro.asp"  >클럽소개</a></h2> 
+							<ul class="dep2"> 
+										<li class="g01_1" id="gnb2_club_intro"><a href="/pagesite/club/intro.asp"   class="g01_1   ">클럽소개</a></li> 
+										<li class="g01_2" id="gnb2_club_greet"><a href="/pagesite/club/greet.asp"   class="g01_2   ">인사말</a></li> 
+										<li class="g01_3" id="gnb2_club_facilities"><a href="/pagesite/club/facilities/house.asp"   class="g01_3   ">시설안내</a></li> 
+										<li class="g01_6" id="gnb2_club_location"><a href="/pagesite/club/location.asp"   class="g01_6   ">오시는길</a></li> 
+							</ul> 
+						</li> 
+						<li class="gnb02" id="gnb_course"> 
+							<h2><a href="/pagesite/course/intro.asp"  >코스소개</a></h2> 
+							<ul class="dep2"> 
+										<li class="g02_1" id="gnb2_course_intro"><a href="/pagesite/course/intro.asp"   class="g02_1   ">코스안내</a></li> 
+										<li class="g02_2" id="gnb2_course_routine"><a href="/pagesite/course/routine.asp"   class="g02_2   ">코스루틴</a></li> 
+										<li class="g02_3" id="gnb2_course_guide"><a href="/pagesite/course/one/hole01.asp"   class="g02_3   ">코스공략</a></li> 
+										<li class="g02_4" id="gnb2_course_gallery"><a href="/pagesite/course/gallery.asp"   class="g02_4   ">코스갤러리</a></li> 
+							</ul> 
+						</li> 
+						<li class="gnb03" id="gnb_use"> 
+							<h2><a href="/pagesite/use/guide.asp"  >운영안내</a></h2> 
+							<ul class="dep2"> 
+										<li class="g03_1" id="gnb2_use_guide"><a href="/pagesite/use/guide.asp"   class="g03_1   ">이용안내</a></li> 
+										<li class="g03_2" id="gnb2_use_charge"><a href="/pagesite/use/charge.asp"   class="g03_2   ">요금안내</a></li> 
+										<li class="g03_3" id="gnb2_use_penalty"><a href="/pagesite/use/penalty2.asp"   class="g03_3   ">위약규정</a></li> 
+										<li class="g03_8" id="gnb2_use_member"><a href="/pagesite/use/member.asp"   class="g03_8   ">멤버쉽카드</a></li> 
+										<li class="g03_9" id="gnb2_use_restaurant"><a href="/pagesite/use/restaurant.asp"   class="g03_9   ">레스토랑</a></li> 
+							</ul> 
+						</li> 
+						<li class="gnb04" id="gnb_reservation"> 
+							<h2><a href="/pagesite/reservation/live.asp"  >예 약</a></h2> 
+							<ul class="dep2"> 
+										<li class="g04_1" id="gnb2_use_reservation"><a href="/pagesite/use/reservation.asp"   class="g04_1   ">예약안내</a></li> 
+										<li class="g04_2" id="gnb2_reservation_live"><a href="/pagesite/reservation/live.asp"   class="g04_2   ">실시간예약</a></li> 
+										<li class="g04_3" id="gnb2_reservation_stand"><a href="/pagesite/reservation/stand.asp"   class="g04_3   ">대기예약</a></li> 
+										<li class="g04_4" id="gnb2_reservation_confirm"><a href="/pagesite/reservation/confirm.asp"   class="g04_4  long_type ">예약확인/취소</a></li> 
+							</ul> 
+						</li> 
+						<li class="gnb05" id="gnb_lounge"> 
+							<h2><a href="/pagesite/lounge/info/edit.asp"  >라운지</a></h2> 
+							<ul class="dep2"> 
+										<li class="g05_1" id="gnb2_lounge_info"><a href="/pagesite/lounge/info/edit.asp"   class="g05_1   ">회원정보</a></li> 
+										<li class="g05_2" id="gnb2_lounge_honor"><a href="/pagesite/lounge/honor.asp"   class="g05_2   ">명예의전당</a></li> 
+										<li class="g05_3" id="gnb2_lounge_customer"><a href="/pagesite/lounge/customer.asp"   class="g05_3   ">고객의소리</a></li> 
+							</ul> 
+						</li> 
+						<li class="gnb06" id="gnb_information"> 
+							<h2><a href="/pagesite/information/notice.asp"  >정보마당</a></h2> 
+							<ul class="dep2"> 
+										<li class="g06_1" id="gnb2_information_notice"><a href="/pagesite/information/notice.asp"   class="g06_1   ">공지사항</a></li> 
+										<li class="g06_2" id="gnb2_information_event"><a href="/pagesite/information/event.asp"   class="g06_2   ">이벤트</a></li> 
+										<li class="g06_4" id="gnb2_information_lost"><a href="/pagesite/information/lost.asp"   class="g06_4   ">분실물안내</a></li> 
+										<li class="g06_5" id="gnb2_information_data"><a href="/pagesite/information/data.asp"   class="g06_5   ">자료실</a></li> 
+										<li class="g06_8" id="gnb2_information_weather"><a href="/pagesite/information/weather.asp"   class="g06_8   ">날씨</a></li> 
+							</ul> 
+						</li> 
+						<li class="gnb07" id="gnb_driving"> 
+							<h2><a href="/pagesite/driving/info.asp"  >연습장</a></h2> 
+							<ul class="dep2"> 
+										<li class="g07_1" id="gnb2_driving_info"><a href="/pagesite/driving/info.asp"   class="g07_1   ">연습장소개</a></li> 
+										<li class="g07_2" id="gnb2_driving_guide"><a href="/pagesite/driving/guide.asp"   class="g07_2  long_type ">연습장 이용안내</a></li> 
+										<li class="g07_3" id="gnb2_driving_lesson"><a href="/pagesite/driving/lesson.asp"   class="g07_3   ">아카데미</a></li> 
+										<li class="g07_4" id="gnb2_driving_screen"><a href="/pagesite/driving/screen.asp"   class="g07_4   ">스크린골프</a></li> 
+										<li class="g07_5" id="gnb2_driving_notice"><a href="/pagesite/driving/notice.asp"   class="g07_5  long_type ">공지/이벤트</a></li> 
+							</ul> 
+						</li> 
+ 
+					</ul>
+
+			</div>
+			<div class="gnb_all">
+				<ul> 
+<li class="gnb01" id="gnb_club"> 
+							<h2><a href="/pagesite/club/intro.asp"  >클럽소개</a></h2> 
+							<ul class="dep2"> 
+										<li class="g01_1" id="gnb2_club_intro"><a href="/pagesite/club/intro.asp"   class="g01_1   ">클럽소개</a></li> 
+										<li class="g01_2" id="gnb2_club_greet"><a href="/pagesite/club/greet.asp"   class="g01_2   ">인사말</a></li> 
+										<li class="g01_3" id="gnb2_club_facilities"><a href="/pagesite/club/facilities/house.asp"   class="g01_3   ">시설안내</a></li> 
+										<li class="g01_6" id="gnb2_club_location"><a href="/pagesite/club/location.asp"   class="g01_6   ">오시는길</a></li> 
+							</ul> 
+						</li> 
+						<li class="gnb02" id="gnb_course"> 
+							<h2><a href="/pagesite/course/intro.asp"  >코스소개</a></h2> 
+							<ul class="dep2"> 
+										<li class="g02_1" id="gnb2_course_intro"><a href="/pagesite/course/intro.asp"   class="g02_1   ">코스안내</a></li> 
+										<li class="g02_2" id="gnb2_course_routine"><a href="/pagesite/course/routine.asp"   class="g02_2   ">코스루틴</a></li> 
+										<li class="g02_3" id="gnb2_course_guide"><a href="/pagesite/course/one/hole01.asp"   class="g02_3   ">코스공략</a></li> 
+										<li class="g02_4" id="gnb2_course_gallery"><a href="/pagesite/course/gallery.asp"   class="g02_4   ">코스갤러리</a></li> 
+							</ul> 
+						</li> 
+						<li class="gnb03" id="gnb_use"> 
+							<h2><a href="/pagesite/use/guide.asp"  >운영안내</a></h2> 
+							<ul class="dep2"> 
+										<li class="g03_1" id="gnb2_use_guide"><a href="/pagesite/use/guide.asp"   class="g03_1   ">이용안내</a></li> 
+										<li class="g03_2" id="gnb2_use_charge"><a href="/pagesite/use/charge.asp"   class="g03_2   ">요금안내</a></li> 
+										<li class="g03_3" id="gnb2_use_penalty"><a href="/pagesite/use/penalty2.asp"   class="g03_3   ">위약규정</a></li> 
+										<li class="g03_8" id="gnb2_use_member"><a href="/pagesite/use/member.asp"   class="g03_8   ">멤버쉽카드</a></li> 
+										<li class="g03_9" id="gnb2_use_restaurant"><a href="/pagesite/use/restaurant.asp"   class="g03_9   ">레스토랑</a></li> 
+							</ul> 
+						</li> 
+						<li class="gnb04" id="gnb_reservation"> 
+							<h2><a href="/pagesite/reservation/live.asp"  >예 약</a></h2> 
+							<ul class="dep2"> 
+										<li class="g04_1" id="gnb2_use_reservation"><a href="/pagesite/use/reservation.asp"   class="g04_1   ">예약안내</a></li> 
+										<li class="g04_2" id="gnb2_reservation_live"><a href="/pagesite/reservation/live.asp"   class="g04_2   ">실시간예약</a></li> 
+										<li class="g04_3" id="gnb2_reservation_stand"><a href="/pagesite/reservation/stand.asp"   class="g04_3   ">대기예약</a></li> 
+										<li class="g04_4" id="gnb2_reservation_confirm"><a href="/pagesite/reservation/confirm.asp"   class="g04_4  long_type ">예약확인/취소</a></li> 
+							</ul> 
+						</li> 
+						<li class="gnb05" id="gnb_lounge"> 
+							<h2><a href="/pagesite/lounge/info/edit.asp"  >라운지</a></h2> 
+							<ul class="dep2"> 
+										<li class="g05_1" id="gnb2_lounge_info"><a href="/pagesite/lounge/info/edit.asp"   class="g05_1   ">회원정보</a></li> 
+										<li class="g05_2" id="gnb2_lounge_honor"><a href="/pagesite/lounge/honor.asp"   class="g05_2   ">명예의전당</a></li> 
+										<li class="g05_3" id="gnb2_lounge_customer"><a href="/pagesite/lounge/customer.asp"   class="g05_3   ">고객의소리</a></li> 
+							</ul> 
+						</li> 
+						<li class="gnb06" id="gnb_information"> 
+							<h2><a href="/pagesite/information/notice.asp"  >정보마당</a></h2> 
+							<ul class="dep2"> 
+										<li class="g06_1" id="gnb2_information_notice"><a href="/pagesite/information/notice.asp"   class="g06_1   ">공지사항</a></li> 
+										<li class="g06_2" id="gnb2_information_event"><a href="/pagesite/information/event.asp"   class="g06_2   ">이벤트</a></li> 
+										<li class="g06_4" id="gnb2_information_lost"><a href="/pagesite/information/lost.asp"   class="g06_4   ">분실물안내</a></li> 
+										<li class="g06_5" id="gnb2_information_data"><a href="/pagesite/information/data.asp"   class="g06_5   ">자료실</a></li> 
+										<li class="g06_8" id="gnb2_information_weather"><a href="/pagesite/information/weather.asp"   class="g06_8   ">날씨</a></li> 
+							</ul> 
+						</li> 
+						<li class="gnb07" id="gnb_driving"> 
+							<h2><a href="/pagesite/driving/info.asp"  >연습장</a></h2> 
+							<ul class="dep2"> 
+										<li class="g07_1" id="gnb2_driving_info"><a href="/pagesite/driving/info.asp"   class="g07_1   ">연습장소개</a></li> 
+										<li class="g07_2" id="gnb2_driving_guide"><a href="/pagesite/driving/guide.asp"   class="g07_2  long_type ">연습장 이용안내</a></li> 
+										<li class="g07_3" id="gnb2_driving_lesson"><a href="/pagesite/driving/lesson.asp"   class="g07_3   ">아카데미</a></li> 
+										<li class="g07_4" id="gnb2_driving_screen"><a href="/pagesite/driving/screen.asp"   class="g07_4   ">스크린골프</a></li> 
+										<li class="g07_5" id="gnb2_driving_notice"><a href="/pagesite/driving/notice.asp"   class="g07_5  long_type ">공지/이벤트</a></li> 
+							</ul> 
+						</li> 
+ 
+					</ul>
+
+			</div>
+			<a href="#" class="overimg bt_menu"><img src="/image/common/bt_gnb.png" alt="menu" /></a>
+			<a href="/memberInfor/myinfo.asp" class="overimg bt_my"><img src="/image/common/bt_my.png" alt="my" /></a>
+			<!-- /gnb -->
+		</div>
+		<!-- /헤더 -->
+	</div>
+	<!-- 상단 종료 -->
+
+		<!-- 바디 시작 -->
+		<!-- content -->
+	<div id="body">	
+	
+		<!-- top bg -->
+		<div id="course_navi"></div><!-- 상단 이미지 -->		
+	
+		<div class="content_sub">	
+
+			<!-- 서브 메뉴 -->			
+			 						<ul class="lnb_menu" id="course"> 
+ 
+ 							<li id="lnb_course_intro"> 
+								<a href="/pagesite/course/intro.asp" class="lnb_c01"  >코스안내</a> 
+							</li> 
+							<li id="lnb_course_routine"> 
+								<a href="/pagesite/course/routine.asp" class="lnb_c02"  >코스루틴</a> 
+							</li> 
+							<li id="lnb_course_guide"> 
+								<a href="/pagesite/course/one/hole01.asp" class="lnb_c03"  >코스공략</a> 
+							</li> 
+							<li id="lnb_course_gallery"> 
+								<a href="/pagesite/course/gallery.asp" class="lnb_c04"  >코스갤러리</a> 
+							</li> 
+ 
+						</ul> 
+ 
+
+
+			<div class="tit_area">
+				<h3>코스공략</h3>
+
+				<span class="his_map">				
+					<a href="/index.asp"><img src="/image/common/icon_home.png" alt="HOME" />Home</a> l
+					<a href="/pagesite/course/intro.asp">코스소개</a> l
+					<a href="/pagesite/course/one/hole01.asp" class="on">코스공략</a>
+				</span>
+			</div>
+
+			<div class="tit_area2">
+				<span class="txt">드넓은 하늘이 마치 맞닿을 듯한 탁트인 풍경과 자연이 주는 편안함이 공존하는 코스를 선사해 드립니다.</span>
+				<span class="line_quick">
+					<a href="/pagesite/member/join.asp" class="overimg"><img src="/image/common/line_q01.png" alt="로그인" /></a>
+					<a href="/pagesite/reservation/confirm.asp" class="overimg"><img src="/image/common/line_q02.png" alt="예약확인취소" /></a>
+					<a href="/pagesite/reservation/live.asp" class="overimg"><img src="/image/common/line_q03.png" alt="실시간예약" /></a>
+					<a href="/pagesite/club/location.asp" class="overimg"><img src="/image/common/line_q04.png" alt="오시는길" /></a>
+				</span>
+			</div>
+
+			<div class="content_sub_in">
+				<!-- 컨텐츠 -->
+				<div class="content">
+
+
+		<div id="content_body" class="clear">
+			<!-- 데이타 시작 -->
+			<div class="hole_view">
+				<ul class="hole_list">
+					<li><a href="./hole01.asp">1HoleㆍPar 4</a></li>
+					<li><a href="./hole02.asp">2HoleㆍPar 4</a></li>
+					<li><a href="./hole03.asp">3HoleㆍPar 5</a></li>
+					<li><a href="./hole04.asp">4HoleㆍPar 3</a></li>
+					<li><a href="./hole05.asp">5HoleㆍPar 5</a></li>
+					<li><a href="./hole06.asp">6HoleㆍPar 3</a></li>
+					<li><a href="./hole07.asp" class="on">7HoleㆍPar 4</a></li>
+					<li><a href="./hole08.asp">8HoleㆍPar 5</a></li>
+					<li><a href="./hole09.asp">9HoleㆍPar 4</a></li>
+				</ul>
+				<div class="hole_con">
+					<div id="tab1">
+						<strong class="hole_tit">07 Hole <span>Par 4</span><a href="#mv" class="bt_mv">동영상보기</a></strong>
+						
+						<div class="mv">
+							<video id="myVideo" loop muted autoplay controls>
+								<source src="/image/course/one/out7.mp4" type="video/mp4">
+								<source src="/image/course/one/out7.webm" type="video/webm">
+							</video>
+							<a href="#mv" class="bt_close">닫기</a>
+						</div>
+						<dl class="tip">
+							<dt>PRO TIP</dt>
+							<dd>
+								<ul class="ul_type01">
+									<li>넓은 해저드를 가지고 있는 약간의 내리막 경사가 있는 파4홀</li>
+									<li>그린사이의 중앙벙커를 보고 공략, 티샷이 성공적이면 세컨샷이 짧기 때문에 좋은 스코어를 기대하는 홀 </li>					
+									<li>세컨샷 시 그린 뒤가 내리막이며 카트도로 아래로 공간이 전혀 없으므로, 길게 칠 경우 로스트 위험이 있으니 주의 바람</li>
+									<li>세컨 I.P에서 우측 벙커입구까지의 거리는 70m</li>	
+								</ul>
+							</dd>
+						</dl>
+						
+						<table class="board_write tee" summary="코스별 거리를 알려드립니다.">
+						<colgroup>
+							<col  />
+							<col style="width:30%" />
+							<col style="width:30%" />
+						</colgroup>
+						<thead>
+						<tr>
+							<th></th>
+							<th>(좌)</th>
+							<th>(우)</th>
+						</tr>
+						</thead>
+						<tbody>
+						<tr>
+							<th class="bu_color"><span></span> Blue</th>
+							<td>320m</td>
+							<td>347m</td>
+						</tr>
+						<tr>
+							<th class="wh_color"><span></span> White</th>
+							<td>298m</td>
+							<td>325m</td>
+						</tr>
+						<tr>
+							<th class="gl_color"><span></span> Gold</th>
+							<td>276m</td>
+							<td>303m</td>
+						</tr>
+						<tr>
+							<th class="rd_color"><span></span> Red</th>
+							<td>216m</td>
+							<td>243m</td>
+						</tr>
+						</tbody>
+						</table>
+						<img src="/image/course/one/hole7.png" alt="7Hole | Par 5" />
+					</div>
+				</div>
+			</div>
+			<!-- 데이타 종료 -->
+		</div>
+
+
+
+				</div>
+				
+				<ul class="go_site">
+					<li><a href="https://www.dongwonresort.co.kr/index.asp" class="overimg" target="_blank" title="새창열림"><img src="/image/common/sub_go_site01.png" alt="통영동원로얄cc" /></a></li>
+					<li><a href="https://dongwonresort.co.kr/youthhostel" class="overimg" target="_blank" title="새창열림"><img src="/image/common/sub_go_site02.png" alt="통영동원리조트" /></a></li>
+					<li><a href="http://www.dongwonroyalcc.co.kr" class="overimg" target="_blank" title="새창열림"><img src="/image/common/sub_go_site03.png" alt="양산" /></a></li>
+					<li><a href="/pagesite/join/guide.asp" class="overimg" title="조인예약"><img src="/image/common/sub_go_site04.png" alt="조인하기" /></a></li>
+					<li><a href="/myContents/lost_List.asp" class="overimg" title="분실물 안내"><img src="/image/common/sub_go_site05.png" alt="분실물 안내" /></a></li>
+				</ul>
+			</div>
+		</div>
+	</div>
+	<!-- /content -->
+
+			
+	<!-- footer -->
+	<div id="footer">
+		<div class="foot_in">
+			<div class="addr">
+				<dl style="margin-bottom:10px;"> 
+					<dd><a href="/pagesite/clause/guide.asp" style="color:#fff; font-size:13px;">골프장 이용약관</a></dd>
+					<dd><a href="/pagesite/clause/internet.asp" style="color:#fff; font-size:13px;">인터넷 이용약관</a></dd>
+					<dd><a href="/pagesite/clause/info.asp" style="color:#fff; font-size:13px;">개인정보처리방침</a></dd>
+				</dl>
+				<dl> 
+					<dt class="hide">지번주소 :</dt>
+					<dd>부산광역시 기장군 기장읍 만화리 산 104-5</dd>
+					<dt>TEL </dt>
+					<dd>051-750-6000</dd>
+					<dt>FAX</dt>
+					<dd>051-750-6001</dd>
+				</dl>
+				<dl>              
+					<dt>통신판매신고업 :</dt>
+					<dd>제 2016-부산기장-0206호</dd>
+					<dt>사업자등록번호 :</dt>
+					<dd>410-85-51547</dd>
+					<dt>상호 :</dt>
+					<dd>(주)남양종합개발 부산지점</dd>
+					<dt>대표자 :</dt>
+					<dd>장재익</dd>
+				</dl>
+				<dl>
+					<dt class="hide">Copyright</dt>
+					<dd class="copy">Copyright(C) DONGWON ROYAL COUNTRY CLUB. All Rights Reserved.</dd>
+				</dl>
+			</div>			
+		</div>
+	</div>
+</div>
+
+
+	<!-- quick reservation -->
+	<a href="javascript:quick_layout_info_html('')" class="quick_reserv"></a>
+	<div class="quick_layer" id="quickModalPop" >
+		<span class="bg"></span>
+		<div class="quick_layer_in">
+			<div id="quick_layout_info"></div>
+		</div>
+	</div>
+
+</div>
+
+<!-- 모달로그인 -->
+ <div class="login_modal_layer" id="loginModalPop" style="display:none;">
+	<div class="login_modal_bg"></div>
+	<div class="login_modal_con">
+		<div class="login_modal_con_in">
+			<div id="login_modal_info"></div>
+		</div>
+	</div>
+</div>
+
+<form name="login_modal_from" id="login_modal_from" method="post">
+	<input type="hidden" id="loginModalId" name="loginModalId" value="loginModalPop"/>
+</form>
+
+
+<script language="javascript" src="/js/golfRes.js"></script>
+
+<form name="quick_layoutform_info" id="quick_layoutform_info" method="post">
+	<input type="hidden" id="quick_golfrestype" name="golfrestype" value="real" />
+	<input type="hidden" id="quick_toDay" name="pointdate" value="" />	
+	<input type="hidden" id="quick_toopenyn" name="openyn" value="" />
+	<input type="hidden" id="quick_calnum" name="calnum" value="1"/>
+	<input type="hidden" id="quick_usrmemcd" name="usrmemcd" value="11" />
+	<input type="hidden" id="quick_settype" name="settype" value="T">
+</form>
+
+<form name="main_event_board_form" id="main_event_board_form" method="post">
+	<input type="hidden" id="main_event_code" name="main_event_code" value="" />	
+	<input type="hidden" id="main_event_type" name="main_event_type" value="L" />	
+	<input type="hidden" id="main_event_num"  name="main_event_num"  value="1" />	
+	<input type="hidden" id="main_event_size" name="main_event_size" value="5" />
+	<input type="hidden" id="main_event_sdate" name="sdate" value="" />
+	<input type="hidden" id="main_event_edate" name="edate" value="" />
+</form>
+
+<form name="MobileUrlSand_from" id="MobileUrlSand_from" method="post">
+	<input type="hidden" id="callType" name="callType" value="AJAX" />
+	<input type="hidden" id="mul_kind" name="kind" value="S" />
+	<input type="hidden" id="mul_comcode" name="comcode" value="" />
+	<input type="hidden" id="mul_user_name" name="user_name" value="" />
+	<input type="hidden" id="mul_user_member_cd" name="user_member_cd" value="" />
+	<input type="hidden" id="mul_hand_phone" name="hand_phone" value="" />
+	<input type="hidden" id="mul_msend_url" name="msend_url" value="m.dongwongolf.co.kr" />
+</form>
+
+<!--
+<div id="ie_chk" class="ie_chk_area dp-none">
+    <button type="button" onClick="javascript:popHide('ie_chk')" class="btn-close"><span class="blind">현재창 닫기</span></button>
+    <div class="con">
+        <p class="tit">
+            <img src="/image/common/ico_ie.png" alt="ie" />
+            본사이트는 <strong>Internet Explorer 11</strong>버전<br/>에 <strong class="color-01">최적화</strong> 되어 있습니다.
+        </p>
+        <span>
+            <p class="btxt">‘Explorer 11이하’ 에서는 사용이 원활하지 않을 수 있습니다.</p>
+            <p class="btxt">Internet Explorer 11은 2022년 6월 15일부터 사용 및 지원이 중지됩니다. Microsoft Edge 사용을 권장합니다.</p>
+            <p class="txt">Explorer를 최신 버전으로 업데이트 하시거나, <br /><strong class="color-01">Chrome, 네이버 Whale</strong> 등의 브라우저를 이용해 주시기 바랍니다.</p>
+            <a href="http://windows.microsoft.com/ko-kr/internet-explorer/download-ie" target="_blank" title="새창열림" class="btn-upgrade">지금 업그레이드</a>
+            <p class="chk-uclose"><input type="checkbox" name="ie_chk_close" id="ie_chk_close" onClick="popHide('ie_chk')" /><label for="ie_chk_close">일주일간 표시 안하기</label></p>
+        </span>			
+    </div>
+</div>
+-->
+<script type="text/javascript">
+//익스플로러 중지 안내 활성화
+var agent = navigator.userAgent.toLowerCase();
+
+function ie_setCookie(name, value, days) {
+    if (days) {
+            var date = new Date();
+            date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+            var expires = "; expires=" + date.toGMTString();
+    } else {
+           var expires = "";
+    }
+    
+    document.cookie = name + "=" + value + expires + "; path=/";
+}
+
+ 
+//일주일간 표시 안하기
+function ie_getCookie(name) {
+    var i, x, y, ARRcookies = document.cookie.split(";");
+    
+    for (i = 0; i < ARRcookies.length; i++) {     
+        x = ARRcookies[i].substr(0, ARRcookies[i].indexOf("="));
+        y = ARRcookies[i].substr(ARRcookies[i].indexOf("=") + 1);
+        
+        x = x.replace(/^\s+|\s+$/g, "");
+
+        if (x == name) {
+                return unescape(y);
+        }
+    }
+}
+
+//ie_chk 레이어팝업 닫기
+function popHide(pop_id){
+    //document.getElementById(pop_id).style.display = "none";
+    $("#"+pop_id).hide(1000);
+    ie_setCookie('ie_chk_close', 'close', 7); //7일 후 만료
+}
+
+$(window).ready(function(){ 
+    var ie_Pchk = ie_getCookie('ie_chk_close');
+    //console.log(ie_Pchk);
+    if( ie_Pchk == 'close'){
+        $('#ie_chk').hide(1000);
+    }else{
+        if((navigator.appName == 'Netscape' && agent.indexOf('trident') != -1) || (agent.indexOf("msie") != -1)){
+            $('#ie_chk').removeClass('dp-none');
+        }
+    }
+});
+</script>
+
+</body>
+</html>
+<!-- ////////////////////////////////////////////////////////////////////////////////
+	Copyright(c)2026. cminfortek.com. All rights reserved.
+	이 사이트에 게제한 모든 소스와 정보에 대한 모든 권리는 씨엠인포텍(주)에게 있습니다.
+	사전 동의없이는 어떠한 형식과 방법으로든 무단 도용을 금합니다.
+	만일 위와 같은 권고에도 불구하고 무단 도용시 법적인 제재를 받으실 수 있습니다.
+	================================================================================
+	개인정보보호책임자 : XXXX (master@cminfor.co.kr)
+	기술 책임자 : XXXX (master@cminfor.co.kr)
+	컨텐츠 책임자 : XXXX (service@cminfor.co.kr)
+//////////////////////////////////////////////////////////////////////////////// -->

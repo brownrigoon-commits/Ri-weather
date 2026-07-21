@@ -1,0 +1,516 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=Edge">
+	<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0,user-scalable=no,target-densitydpi=medium-dpi" />
+	<meta name="apple-mobile-web-app-capable" content="no" />
+	<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+	<meta name="format-detection" content="telephone=no,email=no,address=no">
+	<meta name="title" content="유성C.C">
+	<meta name="author" content="유성C.C">
+	<meta name="Keywords" content="유성C.C">
+	<meta name="description" content="유성C.C">
+	<meta name="copyright" content="All Contents Copyright©yuseong country club">
+	<meta property="og:type" content="website">
+	<meta property="og:title" content="유성C.C">
+	<meta property="og:description" content="유성C.C">
+	<meta property="og:url" content="">
+	<link rel="canonical" href="">
+	<title>유성C.C</title>
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+	<script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
+	<script src="/js/tools.js"></script>
+	<script src="/js/globals.js"></script>
+	<script src="/js/jquery.preloaders.js"></script>
+	<link rel="stylesheet" type="text/css" href="/css/import.css?v=2">
+	<link rel="stylesheet" type="text/css" href="/css/contents.css?v=5.2">
+	<script type="text/javascript" src="/js/common.js"></script>
+
+	<script>
+		$(document).ready(function() {
+			setProtocol();
+
+			checkMobile();
+
+			initTop();
+
+			//initWeather();
+		});
+
+		function setProtocol() {
+			if (document.location.protocol == 'http:') {
+				document.location.href = document.location.href.replace('http:', 'https:');
+    		}
+		}
+
+		function initTop() {
+			var url = "/club/honorHoleList.asp";
+
+			if(url.indexOf("index.asp") > 0){
+				$("#header").removeClass("subBg");
+				$("#header").addClass("mainBg");
+			} else {
+				$("#header").removeClass("mainBg");
+				$("#header").addClass("subBg");
+			}
+
+			if("" == "Y") {
+				$("#btnPopup").show();
+				$("#btnPush").show();
+				$("#btnBenner").show();
+			}
+		}
+
+		function checkMobile() {
+			var mobileKeyWords = new Array('iPhone', 'iPod', 'iPad', 'BlackBerry', 'Android', 'Windows CE', 'MOT', 'SAMSUNG', 'SonyEricsson');
+
+			for (var word in mobileKeyWords) {
+				if ( navigator.userAgent.match(mobileKeyWords[word]) != null ) {
+					location.href = "/mobile/index.asp";
+					break;
+				}
+			}
+		}
+
+		function doLogout() {
+			var sUrl = "/controller/MemberController.asp";
+			var params = {};
+
+			params["method"] = "doLogout";
+
+			mAjax(sUrl, params, "POST", true, function(data) {
+				if(data.resultCode == "0000") {
+					alert("로그아웃 되었습니다.");
+
+					location.href = "/index.asp";
+				}
+			});
+		}
+
+		function initWeather() {
+			var sUrl = "/controller/CommonController.asp";
+			var params = {};
+
+			params["method"] = "getWeather";
+
+			mAjax(sUrl, params, "GET", false, function(data) {
+				if(data.resultCode == "0000") {
+					var temp = data.temp;
+					var wfKor = data.wfKor;
+					var wfEn = data.wfEn;
+
+					temp = Math.round(temp);
+
+					var img = "/images/weather/wt_b.png";
+
+					$("#txtTemp").empty().append(temp);
+
+					if(wfEn == "Clear") {
+						img = "/images/weather/wt_s.png";
+					} else if(wfEn == "Partly Cloudy") {
+						img = "/images/weather/wt_pc.png";
+					} else if(wfEn == "Mostly Cloudy") {
+						img = "/images/weather/wt_mc.png";
+					} else if(wfEn == "Cloudy") {
+						img = "/images/weather/wt_c.png";
+					} else if(wfEn == "Rain") {
+						img = "/images/weather/wt_r.png";
+					} else if(wfEn == "Snow/Rain") {
+						img = "/images/weather/wt_ras.png";
+					} else if(wfEn == "Snow") {
+						img = "/images/weather/wt_sn.png";
+					} else if(wfEn == "Shower") {
+						img = "/images/weather/wt_ss.png";
+					}
+
+					$("#imgWeather").attr("src", img);
+				}
+			});
+		}
+	</script>
+</head>
+
+<body>
+	<div id="wrap">
+		<!--header-->
+		<div id="header">
+			<div class="headerWrap">
+				<div class="HWarpL"><a href="/" class="RBtn"><img src="../images/icon_home.png"> Main</a></div>
+				<div class="HWarpC"><a href="/"><img src="../images/logo.jpg"></a></div>
+				<div class="HWarpR">
+					
+					<a href="/members/login.asp" class="RBtn1"><img src="../images/icon_lockon.jpg"> 로그인</a>
+					<a href="/members/join.asp" class="RBtn1"><img src="../images/icon_user.jpg"> 회원가입</a>
+					
+				</div>
+			</div>
+			<div class="HNavWrap">
+				<div class="HNavBox">
+					<div class="Hblank">빈영역</div>
+					<div class="nav">
+						<ul>
+							<li>
+								<a href="/club/clubInfo.asp">클럽소개</a>
+								<ul>
+									<li><a href="/club/clubInfo.asp">인사말</a></li>
+									<li><a href="/club/clubGroup.asp">조직구성도</a></li>
+									<li><a href="/club/history.asp">클럽연혁</a></li>
+									<li><a href="/club/map.asp">오시는길</a></li>
+								</ul>
+							</li>
+							<li>
+								<a href="/course/allcourse.asp">코스소개</a>
+								<ul>
+									<li><a href="/course/allcourse.asp">전체코스</a></li>
+									<li><a href="/course/course01.asp">코스공략법</a></li>
+								</ul>
+							</li>
+							<li>
+								<a href="/guide/guide.asp">이용안내</a>
+								<ul>
+									<li><a href="/guide/guide.asp">이용안내</a></li>
+									<li><a href="/guide/charge.asp">이용요금</a></li>
+									<li><a href="/guide/reserInfo.asp">예약접수안내</a></li>
+									<!-- <li><a href="/guide/userGuide.asp">내장객 안내사항</a></li> -->
+									<li><a href="/guide/golfTerms.asp">골프장 이용약관</a></li>
+								</ul>
+							</li>
+							<li>
+								<a href="/reservation/reservation.asp">인터넷예약</a>
+								<ul>
+									<li><a href="/reservation/reservation.asp">예약하기</a></li>
+									<li><a href="/reservation/reservationList.asp">예약확인</a></li>
+								</ul>
+							</li>
+							<li style="display:none">
+								<a href="/ticket/ticketdeal.asp">회원권 거래</a>
+								<ul>
+									<li><a href="/ticket/ticketinfo.asp">회원권 정보</a></li>
+									<li><a href="/ticket/ticketdeal.asp">회원권 거래</a></li>
+								</ul>
+							</li>
+							<li>
+								<a href="/facil/facil02.asp">부대시설</a>
+								<ul>
+									<!-- <li><a href="/facil/facil01.asp">연습장</a></li> -->
+									<li><a href="/facil/facil02.asp">대식당</a></li>
+									<li><a href="/facil/facil03.asp">티하우스&amp;그늘집</a></li>
+									<li><a href="/facil/facil04.asp">프로샵</a></li>
+								</ul>
+							</li>
+							<li>
+								<a href="/facil/facil01.asp">연습장</a>
+								<ul>
+									<li><a href="/facil/facil01.asp">연습장</a></li>
+								</ul>
+							</li>
+							<!-- <li>
+								<a href="/club/honorHoleList.asp">클럽존</a>
+								<ul>
+									<li><a href="/club/honorHoleList.asp">명예의 전당</a></li>
+									<li><a href="/board/list.asp?type=5">골프강좌</a></li>
+								</ul>
+							</li> -->
+							<li>
+								<a href="/board/list.asp?type=1">클럽뉴스</a>
+								<ul>
+									<li><a href="/board/list.asp?type=1">클럽뉴스</a></li>
+									<!-- <li><a href="/board/list.asp?type=2">Q&amp;A</a></li> -->
+									<li><a href="/board/list.asp?type=3">포토갤러리</a></li>
+									<li><a href="/club/honorList.asp">역대클럽 챔피온</a></li>
+									<li><a href="/board/list.asp?type=4">자료실</a></li>
+									<!-- <li><a href="/club/employ.asp">채용정보</a></li> -->
+									<li><a href="/board/list.asp?type=6" id="btnPopup" style="display:none">팝업관리</a></li>
+									<li><a href="/board/list.asp?type=7" id="btnPush" style="display:none">푸쉬관리</a></li>
+									<li><a href="/board/list.asp?type=8" id="btnBenner" style="display:none">배너관리</a></li>
+								</ul>
+							</li>
+							<li class="lamp"><span></span></li>
+						</ul>
+					</div>
+					<!-- 기상청 날씨정보
+					<div class="HWether">
+						<img id="imgWeather" src="/images/weather/wt_b.png">
+						<div class="wetherNum" id="txtTemp"></div>
+					</div>
+					-->
+				</div>
+			</div>
+		</div>
+		<!--//header-->
+
+	<div class="subV"></div>
+	<div id="contents">
+		<!--현재페이지위치-->
+		<div class="lnbWrap">
+			<div class="lnb">
+				<img src="../images/icon_navihome.jpg"> HOME > <span>명예의전당</span>
+			</div>
+		</div>
+
+		<div class="container">
+
+			<div class="commonTab3" id="rTab">
+				<!--<a href="/club/honorList.asp">역대클럽 챔피온</a>-->
+				<a href="/club/honorHoleList.asp" class="on" style="width: 50%;">역대 홀인원</a>
+				<a href="/board/list.asp?type=5" style="width: 50%;">골프강좌</a>
+			</div>
+
+			<h2 class="commonTitle"> 명예의전당</h2>
+
+			<div class="grayBg">
+				<table class="honorTable" width="700">
+					<colgroup>
+						<col width="12%">
+						<col width="22%">
+						<col width="22%">
+						<col width="22%">
+						<col width="22%">
+					</colgroup>
+
+					<thead>
+						<tr>
+							<th scope="col">년도</th>
+							<th scope="col">4번홀</th>
+							<th scope="col">7번홀</th>
+							<th scope="col">13번홀</th>
+							<th scope="col">15번홀</th>
+						</tr>
+					</thead>
+
+					<tbody>
+						<tr>
+							<td>1977</td>
+							<td>박문성</td>
+							<td>-</td>
+							<td>-</td>
+							<td>-</td>
+						</tr>
+						<tr>
+							<td>1979</td>
+							<td>윤이중</td>
+							<td>채동환, 변태섭</td>
+							<td>안수학</td>
+							<td>서춘종, 박종윤</td>
+						</tr>
+						<tr>
+							<td>1987</td>
+							<td>조석명, 김영진, 최선국</td>
+							<td>변태섭</td>
+							<td>-</td>
+							<td>-</td>
+						</tr>
+						<tr>
+							<td>1988</td>
+							<td>-</td>
+							<td>한혁우, 윤여림</td>
+							<td>권순복, 윤여림, 구홍서, 짐종성</td>
+							<td>신기철, 긴진술, 이종규, 이세종, 유재익</td>
+						</tr>
+						<tr>
+							<td>1989</td>
+							<td>최명권, 임옥수, 이시구, 원종규</td>
+							<td>장재복, 최재오, 이윤권</td>
+							<td>최동호, 남효승, 김종명</td>
+							<td>정경용, 남용욱, 이준호, 김철홍, 윤지병</td>
+						</tr>
+						<tr>
+							<td>1990</td>
+							<td>이교원, 정원돈, 이부춘</td>
+							<td>-</td>
+							<td>최성희, 김우영, 최재풍, 정연화</td>
+							<td>임낙철, 임채호</td>
+						</tr>
+						<tr>
+							<td>1991</td>
+							<td>김종표</td>
+							<td>서병철, 김윤철, 김봉구, 김영철</td>
+							<td>정연화, 이광두, 김휘중, 박희원</td>
+							<td>안수일, 이종우, 오현승, 조경선</td>
+						</tr>
+						<tr>
+							<td>1992</td>
+							<td>종용발, 김기표, 하기수, 김창규</td>
+							<td>오덕균, 윤용희, 임헌길, 김태열, 강용운, 김성열, 이철주, 장시영</td>
+							<td>정조일, 박응진, 이성환, 조경배, 이병남, 윤상현, 김홍수, 심혁재</td>
+							<td>남공희, 김숙자, 한용석, 오우현</td>
+						</tr>
+						<tr>
+							<td>1993</td>
+							<td>종용발, 윤상현, 오창준, 김태일, 신기철, 서종현, 김학수, 구자오</td>
+							<td>-</td>
+							<td>김봉득, 이정로, 고영빈, 박호섭, 김신호, 김호선</td>
+							<td>교종성</td>
+						</tr>
+						<tr>
+							<td>1994</td>
+							<td>이용복, 송중국, 박영만, 임태수, 김용장, 정진경, 김기중, 김상춘, 윤수영, 유기환</td>
+							<td>김홍일, 김형섭</td>
+							<td>이봉석, 장재민, 이완복, 홍익선, 박만하, 황민의</td>
+							<td>한광석, 이근수, 서인석, 우진명, 김명자</td>
+						</tr>
+						<tr>
+							<td>1995</td>
+							<td>류지윤, 오철, 김효진, 한광수, 김훈</td>
+							<td>이병주</td>
+							<td>박창남, 임훈재, 김종태, 김미화, 장시영, 김중식, 정종한</td>
+							<td>김광수, 신상범, 진수정</td>
+						</tr>
+						<tr>
+							<td>1996</td>
+							<td>김창섭, 김진선, 이광열</td>
+							<td>이석조, 손상근, 이원규, 박영수</td>
+							<td>김광수, 송기성, 원주연, 김병윤, 권동현, 윤정수</td>
+							<td>정기서, 이석조, 윤길중, 강준석, 박희보, 이용훈, 이원택, 김재성</td>
+						</tr>
+						<tr>
+							<td>1997</td>
+							<td>김영재, 송인호, 조현순, 윤두호, 김치경, 이왕복, 이원익, 이상원</td>
+							<td>김종열, 백낙환, 김현수, 조달지, 정항모</td>
+							<td>한정호, 임채훈, 김용모, 김관성, 신승우, 윤상용</td>
+							<td>신은철, 엄성태, 강일병</td>
+						</tr>
+						<tr>
+							<td>1998</td>
+							<td>장남식, 김명자, 구응회, 김선림, 유준상</td>
+							<td>이창호, 서병문, 김봉배</td>
+							<td>박영환, 김경진, 이재웅, 주용수</td>
+							<td>이상배, 남용육, 김칠용, 홍종승, 송우영</td>
+						</tr>
+						<tr>
+							<td>1999</td>
+							<td>장준홍, 박종성, 강태석, 강춘규, 육동환, 장세두, 이동만</td>
+							<td>한민규, 김신윤, 장수일, 이윤희</td>
+							<td>홍성호, 이도영, 한정민, 김길환, 윤용감, 박세준, 김수균, 남승화</td>
+							<td>이하규, 이회식, 손태윤, 서지희, 김태종, 정영신, 고태영</td>
+						</tr>
+						<tr>
+							<td>2000</td>
+							<td>권순웅, 장상경, 김근배, 곽명헌, 배경윤, 김광철</td>
+							<td>서경석, 조성호, 송용관</td>
+							<td>황인수, 권이현, 송계현, 정귀엽, 차만석, 유영미, 김현자, 최정숙, 장봉진, 홍종승</td>
+							<td>정지곤, 장광용, 김연식, 김종섭, 나희권</td>
+						</tr>
+						<tr>
+							<td>2001</td>
+							<td>조형기, 유승곤, 조명호, 이관형, 이교정, 김경호, 문순일</td>
+							<td>문수영, 손대석, 엄상근, 이창기, 진광례, 윤정중, 안병기</td>
+							<td>정진은, 강병덕, 김대현, 김영모, 권오승, 유이근, 박찬호</td>
+							<td>최수융, 박권종, 박영환, 김덕중, 강형모, 김옥자</td>
+						</tr>
+						<tr>
+							<td>2002</td>
+							<td>오성, 임봉수, 조정익, 박주만, 지영구, 안병기</td>
+							<td>박서열, 우덕성, 이재호</td>
+							<td>김태현, 김광성, 임태수, 박성균, 김준희, 오용석, 김칠현, 이종태</td>
+							<td>이동철, 조명호, 홍윤표, 윤상진, 김선림, 이문한, 이용남, 김두경, 임한용</td>
+						</tr>
+						<tr>
+							<td>2003</td>
+							<td>주임식, 이덕하, 권혁주, 전병곤, 이철호</td>
+							<td>유승곤, 이종원, 임세환</td>
+							<td>윤득용, 오형섭, 김건배, 남현우, 이청로, 이동희, 한연섭, 김철희, 김윤희, 박정식, 김관성, 조기택</td>
+							<td>장태원, 임진수, 노세규, 조광희, 박희성, 이규성, 김창희, 윤상현, 김중범</td>
+						</tr>
+						<tr>
+							<td>2004</td>
+							<td>남기호, 송명옥</td>
+							<td>손외수, 최석규, 유재욱</td>
+							<td>김욱수, 김수현, 박기범, 최정기, 엄재근, 채하나, 박철희</td>
+							<td>고선영, 이규석, 손보은, 최진택, 박영현, 김재원, 김인중</td>
+						</tr>
+						<tr>
+							<td>2005</td>
+							<td>홍성진, 임정수, 조정무, 김성기</td>
+							<td>오준석, 김세현, 오혜리, 전찬수</td>
+							<td>김정곤, 김재만, 김원배, 김근배, 최혜용</td>
+							<td>천경용, 고혁규, 박선옥, 정종대, 정이철</td>
+						</tr>
+						<tr>
+							<td>2006</td>
+							<td>박영주, 진광례, 민경희, 전갑길, 한태희, 이종재</td>
+							<td>김정수, 김윤섭</td>
+							<td>민재규, 이정현</td>
+							<td>홍유석, 유재욱</td>
+						</tr>
+						<tr>
+							<td>2007</td>
+							<td>김영희, 윤희중, 강태석, 김환정, 진광례, 김원오, 방갑진, 김광택</td>
+							<td>차만석, 반정환, 김학헌, 김성규</td>
+							<td>김준, 이유희, 권동현, 박소정, 장석조, 김성수</td>
+							<td>권오철, 양택수, 서병팔, 이필재, 김정수, 김시환, 이경수</td>
+						</tr>
+						<tr>
+							<td>2008</td>
+							<td>최진택, 김선벽, 장정민, 박은용, 장상경, 백창흠</td>
+							<td>김남수, 임한용, 이홍</td>
+							<td>윤세창, 김영만, 최수융, 서동현, 임한용, 김진선</td>
+							<td>송명학, 호은숙, 한길수, 장중수, 홍석호</td>
+						</tr>
+						<tr>
+							<td>2009</td>
+							<td>임정균, 고귀헌, 육순오, 신용주, 표상숙, 육경학, 김동성, 송무영</td>
+							<td>조용정</td>
+							<td>김영림, 신경식, 송희용, 유재욱, 박헌진, 전승연, 박보미, 이정훈</td>
+							<td>이철연, 이송희, 김찬식</td>
+						</tr>
+						<tr>
+							<td>2010</td>
+							<td>박병태</td>
+							<td>박현종, 우광수, 이규광, 이윤순, 장영열</td>
+							<td>김건교, 이성조, 이요한</td>
+							<td>조휘연, 조경, 공한식, 이현, 서석원, 임한용, 이종명, 오인숙, 박찬용, 임재승</td>
+						</tr>
+						<tr>
+							<td>2011</td>
+							<td>김경수, 서광선, 류병래, 이덕희, 최승현, 임부택, 이기민, 이주항, 장동욱, 윤명호, 박규석</td>
+							<td>이정숙, 오영근, 허헌, 장현동, 김경배</td>
+							<td>김재천, 이수기, 정윤재, 김동문, 박태집, 김경태, 정상모, 오순영, 홍고테루오</td>
+							<td>박재현, 손창호, 손호송, 김기배</td>
+						</tr>
+						<tr>
+							<td>2012</td>
+							<td>김홍호, 이재희</td>
+							<td></td>
+							<td></td>
+							<td>허지희, 백창현, 정지웅, 정동국</td>
+						</tr>
+                    </tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+
+	<!--footer-->
+<div id="footer">
+	<div class="footerWrap">
+		<div class="footerTop">
+			<p class="top">
+				<a href="/guide/terms.asp">개인정보 수집 &bull; 이용 동의서</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;<a href="/guide/policy.asp">개인정보 취급방침</a>
+			</p>
+		</div>
+		<div class="footerBox">
+			<p class="footerlogo"></p>
+			<div class="footerInfo">
+				<ul>
+					<li>
+						회사명 : 유성관광 | 대표자 : 강은모 | 사업자등록번호 : 314-81-00704 | 통신판매신고 : 제 2009-대전유성-0164호<br>
+						대전광역시 유성구 현충원로 200(도로명주소) | 대전광역시 유성구 덕명동 215-7번지 (지번주소)<br>
+						대표전화 : 042)822-7103 | 팩스번호 : 042-823-4288<br>
+						COPYRIGHT ⓒ YUSUNGCC ALL RIGHT RESERVED.
+					</li>
+				</ul>
+			</div>
+			<div class="snsBox">
+				<!--<img src="/images/facebook.png"> <img src="/images/twitter.png"> <img src="/images/instagram.png">-->
+			</div>
+		</div>
+	</div>
+</div>
+<!--//footer-->
+</div>
+
+</body>
+</html>

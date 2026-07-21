@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+    <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <meta name="format-detection" content="telephone=no">
+        <title>유니아일랜드</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+        <script src="/js/jquery.min.js"></script>
+        <script src="/js/utils/ajax.js"></script>
+        <script src="/js/utils/common.js"></script>
+        <script src="/js/utils/date.js"></script>
+        <script src="/js/utils/popup.js"></script>
+        <script src="/js/utils/string.js"></script>
+        <script src="/js/utils/template.js"></script>
+        <script src="/js/jquery.preloaders.js"></script>
+        <script src="/js/const.js"></script>
+        <script src="/pc/js/view.js"></script>
+        <script src="/pc/js/swiper.js"></script>
+        <script src="//cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
+        <link rel="stylesheet" href="/pc/css/common.css" type="text/css">
+        <link rel="stylesheet" href="/pc/css/swiper.css"/>
+        <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css"/>
+        <link rel="stylesheet" href="/pc/css/layout.css" type="text/css">
+        <link rel="stylesheet" href="/pc/css/contents.css" type="text/css">
+
+        <!-- favicon -->
+        <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
+
+    </head>
+
+    <header class="">
+        <h1 class="logo"><a href="/index">로고</a></h1>
+        <nav>
+            <ul class="gnb">
+                <li>
+                    <a href="/reservation/main">인터넷예약</a>
+                    <ul class="lnb">
+                        <li><a href="/reservation/main">실시간예약</a></li>
+                        <li><a href="/reservation/guide">예약안내</a></li>
+                        <li><a href="/reservation/check">예약확인</a></li>
+                        <li><a href="/reservation/group">단체예약</a></li>
+                        <li><a href="/reservation/fee">요금안내</a></li>
+                        <li><a href="https://www.teeupnjoy.com/hp/clubid/643.do">조인예약</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="/guide/info-guide">이용안내</a>
+                    <ul class="lnb">
+                        <li><a href="/guide/info-guide">이용안내</a></li>
+                        <li><a href="/guide/penalty">위약안내</a></li>
+                        <li><a href="/guide/mobile">모바일안내</a></li>
+                        <li><a href="/guide/self">셀프라운드안내</a></li>
+                        <li><a href="/guide/local">로컬룰</a></li>
+                        <li><a href="/guide/use-guide">이용규정</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="/facility/facil01">시설안내</a>
+                    <ul class="lnb">
+                        <li><a href="/facility/facil01">그늘집</a></li>
+                        <li><a href="/facility/facil02">레스토랑</a></li>
+                        <li><a href="/facility/menu">레스토랑 메뉴</a></li>
+                        <li><a href="/facility/facil03">연회장</a></li>
+                        <!--<li><a href="/facility/facil04">그늘막</a></li>-->
+                        <li><a href="/facility/facil05">락카룸</a></li>
+                        <li><a href="/facility/facil06">프로샵</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="/club/intro">클럽소개</a>
+                    <ul class="lnb">
+                        <li><a href="/club/intro">유니아일랜드소개</a></li>
+                        <li><a href="/club/club">클럽소개</a></li>
+                        <li><a href="/club/greeting">인사말</a></li>
+                        <li><a href="/club/map">오시는 길</a></li>
+                        <li><a href="/club/tell">주요연락처</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="/board/list">클럽소식</a>
+                    <ul class="lnb">
+                        <li><a href="/board/list">공지사항</a></li>
+                        <li><a href="/board/list-event">이벤트</a></li>
+                        <li><a href="/board/qna">자주하는 질문</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="/course/main">코스안내</a>
+                    <ul class="lnb">
+                        <li><a href="/course/main">코스개요</a></li>
+                        <li><a href="/course/courseOut">코스공략</a></li>
+                        <li><a href="/course/gallery">코스갤러리</a></li>
+                        <li><a href="/course/webcam">실시간웹캠</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="https://uniislandspaville.com/" target="_blank">THE SPAVILLE</a>
+                </li>
+                <!--<li>
+                    <a href="/pension/pension">펜션안내</a>
+                    <ul class="lnb">
+                        <li><a href="/pension/pension">주변펜션</a></li>
+                    </ul>
+                </li>-->
+            </ul>
+        </nav>
+        <div class="btn-top-box">
+            <a href="/member/login" style="display:none">로그인</a>
+            <a href="/member/join" style="display:none">회원가입</a>
+            <!--로그인했을때-->
+            <a href="javascript:void(0)" style="display:none">로그아웃</a>
+            <a href="/mypage/modify" style="display:none">정보수정</a>
+        </div>
+        <script>
+            if (isLoggedIn()) {
+                $(".btn-top-box").find("a").eq(2).show();
+                $(".btn-top-box").find("a").eq(2).on("click", function () {
+                    ajax.logout().then(() => {
+                        alert("로그아웃 되었습니다.");
+                        location.href = "/";
+                    }).catch(() => {
+                    });
+                });
+                $(".btn-top-box").find("a").eq(3).show();
+            } else {
+                $(".btn-top-box").find("a").eq(0).show();
+                $(".btn-top-box").find("a").eq(1).show();
+            }
+        </script>
+    </header>
+
+
+<body>
+
+    <div class="common-wrap">
+        <div class="header-title-box">
+            <h4>코스안내</h4>
+            <h2>코스갤러리</h2>
+        </div>
+        <div class="common-tab-wrap">
+            <a href="/course/main">코스개요</a>
+            <a href="/course/courseOut">코스공략</a>
+            <a href="/course/gallery" class="on">코스갤러리</a>
+            <a href="/course/webcam">실시간 웹캠</a>
+        </div>
+
+        <div class="swiper gallery-slide"><!--관리자에서 등록할수 있게 업체측 요청-->
+            <div class="swiper-wrapper">
+                <div class="swiper-slide"><img src="/pc/images/course/images/img_01.jpg"></div>
+                <div class="swiper-slide"><img src="/pc/images/course/images/img_02.jpg"></div>
+                <div class="swiper-slide"><img src="/pc/images/course/images/img_03.jpg"></div>
+                <div class="swiper-slide"><img src="/pc/images/course/images/img_04.jpg"></div>
+                <div class="swiper-slide"><img src="/pc/images/course/images/img_05.jpg"></div>
+                <div class="swiper-slide"><img src="/pc/images/course/images/img_06.jpg"></div>
+                <div class="swiper-slide"><img src="/pc/images/course/images/img_07.jpg"></div>
+                <div class="swiper-slide"><img src="/pc/images/course/images/img_08.jpg"></div>
+                <div class="swiper-slide"><img src="/pc/images/course/images/img_09.jpg"></div>
+                <div class="swiper-slide"><img src="/pc/images/course/images/img_10.jpg"></div>
+                <div class="swiper-slide"><img src="/pc/images/course/images/img_11.jpg"></div>
+                <div class="swiper-slide"><img src="/pc/images/course/images/img_12.jpg"></div>
+                <div class="swiper-slide"><img src="/pc/images/course/images/img_13.jpg"></div>
+                <div class="swiper-slide"><img src="/pc/images/course/images/img_14.jpg"></div>
+                <div class="swiper-slide"><img src="/pc/images/course/images/img_15.jpg"></div>
+            </div>
+            <div class="swiper-button-next"></div>
+            <div class="swiper-button-prev"></div>
+            <div class="swiper-pagination"></div>
+        </div>
+    </div>
+
+    <script>
+        new Swiper(".gallery-slide", {
+            effect: "fade",
+            autoplay: {
+                delay: 3000,
+                disableOnInteraction: false,
+            },
+            loop: true,
+            pagination: {
+                el: ".swiper-pagination",
+                type: "fraction",
+            },
+            navigation: {
+                nextEl: ".swiper-button-next",
+                prevEl: ".swiper-button-prev",
+            },
+        });
+    </script>
+
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a1e79d36ea47d1e1',t:'MTc4NDYwOTczNA=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script><script defer src="https://static.cloudflareinsights.com/beacon.min.js/v4513226cdae34746b4dedf0b4dfa099e1781791509496" integrity="sha512-ZE9pZaUXND66v380QUtch/5sE9tPFh2zg45pR2PB0CVkCtOREv2AJKkSidISWkysEuQ0EH8faUU5du78bx87UQ==" data-cf-beacon='{"version":"2024.11.0","token":"de9f4891b32a4c7ba3c624fc918787fa","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+</body>
+
+
+    <footer>
+        <div class="footer-link">
+            <a href="/privacy/privacy">개인정보처리방침</a>
+            <a href="/privacy/terms">골프장 이용약관</a>
+            <a href="/privacy/video">영상정보처리기기방침</a>
+            <a href="javascript:popRegistration('/pc/popup/registration.html')">사업자정보확인</a>
+        </div>
+        <!--<h3></h3>-->
+
+        <p>대표자 : 윤희준 | 주소 : 인천광역시 강화군 삼산면 어류정길 177번길 15(매음리) 해륜개발주식회사<br>
+            전화번호 : 032-933-9330 | 팩스 : 032-933-1768 | 사업자등록번호 : 137-81-58007 | 통신판매업신고 : 번호 제 2019-인천강화-0014호<br><br><br>
+            <span>COPYRIGHT ⓒ 2019 UNIISLAND GOLF & SPA RESORT.</span>
+        </p>
+        <a href="#" class="btn-up"><img src="/pc/images/btn_top.svg"></a>
+    </footer>
+    <script>
+        function popRegistration(path) {
+            popup.open(path, function ($el, $overlay, open, close) {
+                $el.find(".btn-pop-wrap > a").on("click", close)
+                open();
+            });
+        }
+    </script>
+
+</html>

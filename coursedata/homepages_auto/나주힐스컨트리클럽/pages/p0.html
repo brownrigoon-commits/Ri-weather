@@ -1,0 +1,443 @@
+
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<title>나주힐스</title>
+	<meta name="description" content="">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="apple-touch-icon" sizes="180x180" href="https://najuhills.s3.amazonaws.com/static/img/favicon/apple-touch-icon.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="https://najuhills.s3.amazonaws.com/static/img/favicon/favicon-32x32.png">
+	<link rel="icon" type="image/png" sizes="16x16" href="https://najuhills.s3.amazonaws.com/static/img/favicon/favicon-16x16.png">
+	<link rel="manifest" href="https://najuhills.s3.amazonaws.com/static/img/favicon/site.webmanifest">
+	<link rel="mask-icon" href="https://najuhills.s3.amazonaws.com/static/img/favicon/safari-pinned-tab.svg" color="#0cbf5b">
+
+	<meta property="og:url" content="" />
+	<meta property="og:title" content="나주힐스" />
+	<meta property="og:description" content="전남 나주의 국제 규격을 코스를 자랑하는 골프장, 나주힐스CC에 오신 것을 환영합니다." />
+	<meta property="og:image" content="https://najuhills.s3.amazonaws.com/static/img/favicon/opengraph.png" />
+    <meta name="title" content="나주힐스CC"/>
+    <meta name="description" content="전남 나주의 국제 규격을 코스를 자랑하는 골프장, 나주힐스CC에 오신 것을 환영합니다."/>
+    <meta name="Keywords" content="나주골프장, 전남골프장, 전라남도골프장, 전라도골프장, 나주힐스, 나주힐스골프장, 나주힐스컨트리클럽, 나주힐스cc">
+    <meta name="naver-site-verification" content="110f4b60d7bb2cb12b082af676bfe858f845d1a6" />
+	<link rel="stylesheet" href="https://najuhills.s3.amazonaws.com/static/css/bootstrap.min.css">
+	<link rel="stylesheet" href="https://najuhills.s3.amazonaws.com/static/css/swiper.min.css">
+	<link href="https://najuhills.s3.amazonaws.com/static/fullcalendar/core/main.css" rel='stylesheet' />
+    <link href="https://najuhills.s3.amazonaws.com/static/fullcalendar/daygrid/main.css" rel='stylesheet' />
+    <link rel="stylesheet" href="https://najuhills.s3.amazonaws.com/static/css/swipebox.min.css">
+	<link rel="stylesheet" href="https://najuhills.s3.amazonaws.com/static/css/style.css?v=8.1.3">
+	
+    <script src="https://najuhills.s3.amazonaws.com/static/fullcalendar/core/main.js"></script>
+    <script src="https://najuhills.s3.amazonaws.com/static/fullcalendar/interaction/main.js"></script>
+    <script src="https://najuhills.s3.amazonaws.com/static/fullcalendar/daygrid/main.js"></script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-LV3C4L22PD"></script>
+    <script>
+		window.dataLayer = window.dataLayer || [];
+		function gtag(){dataLayer.push(arguments);}
+		gtag('js', new Date());
+
+		gtag('config', 'G-LV3C4L22PD');
+    </script>
+
+	
+<!-- end fullcalendar -->
+    
+    <style>
+        .fc-day-grid-container {
+            min-height: 245px;
+        }
+        .selected_date {
+            background-color: #0cbf5b!important;
+        }
+        .more_btn {
+            text-decoration: none;
+            color:#878d91;
+        }
+        .more_btn:hover {
+            color: #222323;
+        }
+        .fc-sun > .fc-day-number { color:red !important; }
+        .fc-sat > .fc-day-number { color:red !important;  }
+    </style>
+	<script>
+		document.addEventListener('DOMContentLoaded', function () {
+			var tee_time_list = [{"date": "2026-08-11", "open_count": 33}, {"date": "2026-08-10", "open_count": 28}, {"date": "2026-08-09", "open_count": 22}, {"date": "2026-08-08", "open_count": 16}, {"date": "2026-08-07", "open_count": 25}, {"date": "2026-08-06", "open_count": 22}, {"date": "2026-08-05", "open_count": 24}, {"date": "2026-08-04", "open_count": 23}, {"date": "2026-08-03", "open_count": 15}, {"date": "2026-08-02", "open_count": 20}, {"date": "2026-08-01", "open_count": 12}, {"date": "2026-07-31", "open_count": 24}, {"date": "2026-07-30", "open_count": 28}, {"date": "2026-07-29", "open_count": 27}, {"date": "2026-07-28", "open_count": 22}, {"date": "2026-07-27", "open_count": 19}, {"date": "2026-07-26", "open_count": 12}, {"date": "2026-07-25", "open_count": 8}, {"date": "2026-07-24", "open_count": 11}, {"date": "2026-07-23", "open_count": 12}, {"date": "2026-07-22", "open_count": 21}, {"date": "2026-07-21", "open_count": 17}];
+            var event_list = [];
+            for(var i=0; i<tee_time_list.length; i++){
+            	var title = '';
+            	var className = 'reserv';
+                if (tee_time_list[i]['open_count'] == 0){
+                	title = '마감';
+                    className = 'full'
+                }else {
+                	title = '가능';
+                }
+
+                event_list.push({
+                    title: title,
+                    start: tee_time_list[i]['date'],
+                    end: tee_time_list[i]['date'],
+                    className: className,
+                });
+
+            }
+			var calendarEl = document.getElementById('calendar');
+
+			var calendar = new FullCalendar.Calendar(calendarEl, {
+				defaultDate: '2026-07-21',
+				plugins: ['dayGrid', 'interaction'],
+				views: {
+					dayGridMonth: {  // name of view
+						titleFormat: { year: 'numeric', month: 'short'},
+						// other view-specific options here
+                        selectable: true,
+                        r: false,
+					}
+				},
+                header: {
+                  left:   'prev',
+                  center: 'title',
+                  right:  'next'
+                },
+				events: event_list,
+				timeZone: 'local',
+				locale: 'ko',
+                selectable: true,
+                draggable: true,
+                longPressDelay: 1,
+                eventClick: function(event){
+					calendar.select(event.event);
+                },
+                select: function (event) {
+                    var start_date = event.startStr;
+                    var start_date_arr = start_date.split('-');
+
+                    var end_date = event.endStr;
+                    var end_date_arr = end_date.split('-');
+                    var startDateCompare = new Date(start_date_arr[0], parseInt(start_date_arr[1])-1, start_date_arr[2]);
+                    startDateCompare.setDate(startDateCompare.getDate()+1);
+                    var endDateCompare = new Date(end_date_arr[0], parseInt(end_date_arr[1])-1, end_date_arr[2]);
+
+                    var time_body = $('#time_body');
+                    $('.selected_date').removeClass('selected_date');
+                    time_body.empty();
+                    if(startDateCompare.getTime() < endDateCompare.getTime()) {
+                        calendar.unselect();
+                    }else {
+                        location.replace('/reservation/?date=' + start_date)
+                    }
+                },dayRender: function (date) {
+                    var holiday_list = ["2026-08-09", "2026-08-08", "2026-08-02", "2026-08-01", "2026-07-26", "2026-07-25"];
+                    var d = date.date;
+                    var year = d.getFullYear();
+                    var month = d.getMonth();
+                    var day = d.getDate();
+                    for (var i=0; i<holiday_list.length; i++){
+                    	if (year+'-'+('0' +(month+1)).slice(-2)+'-'+('0' +day).slice(-2)){
+                            $('.fc-day-top[data-date='+ holiday_list[i] +']').find('.fc-day-number').css('color', 'red');
+						}
+					}
+				}
+			});
+			calendar.render();
+		});
+    </script>
+    <style>
+        .hidden {
+            display: none !important;
+        }
+    </style>
+
+</head>
+
+<body>
+
+	<header>
+		<div class="container-fluid signbox">
+			<div class="container">
+				<div class="row">
+					<div class="col-12 text-right">
+						
+                            <a href="/login/" class="link black">로그인</a> | <a href="/signup/" class="link black">회원가입</a>
+                        
+					</div>
+				</div>				
+			</div>
+		</div>
+		<div class="container">
+			<nav class="navbar navbar-expand-lg">
+				<div class="row">
+					<div class="col">
+						<a class="navbar-brand" href="/"><img src="https://najuhills.s3.amazonaws.com/static/img/logo_website.png" alt="나주힐스 로고"></a>
+
+						<div class="collapse navbar-collapse" id="navbarNav">
+							<button data-toggle="collapse" data-target="#navbarNav" class="closebg"></button>
+							<div>
+								<button data-toggle="collapse" data-target="#navbarNav" class="close float-right">&times;</button>
+								<div class="sign">
+                                    
+                                        <a href="/login/" class="link black">로그인</a> | <a href="/signup/" class="link black">회원가입</a>
+                                    
+								</div>
+								<ul class="navbar-nav">
+								<li class="nav-item">
+									<a class="nav-link" href="/">나주힐스CC</a>
+									<div class="submenu">
+										<a class="sub-item" href="/welcome">인사말</a>
+										<a class="sub-item" href="/club">클럽소개</a>
+										<a class="sub-item" href="/location">오시는길</a>
+									</div>
+								</li>
+								<li class="nav-item">
+									<a class="nav-link" href="#">운영안내</a>
+									<div class="submenu">
+										<a class="sub-item" href="/usage-guide">이용안내</a>
+										<a class="sub-item" href="/usage-fee">이용요금</a>
+										<a class="sub-item" href="/usage-terms">이용약관</a>
+										<a class="sub-item" href="/usage-rules">로컬룰</a>
+									</div>
+								</li>
+								<li class="nav-item">
+									<a class="nav-link" href="#">실시간예약</a>
+									<div class="submenu">
+										<a class="sub-item" href="/reservation/">예약신청</a>
+										<a class="sub-item" href="/reservation_list/">예약확인/취소</a>
+
+										<a class="sub-item" href="/usage-reserv/">예약안내</a>
+									</div>
+								</li>
+								<li class="nav-item">
+									<a class="nav-link" href="/course-intro/">코스안내</a>
+									<div class="submenu">
+										<a class="sub-item" href="/course-intro/">코스개요</a>
+										<a class="sub-item" href="/course-full/">코스소개</a>
+										<a class="sub-item" href="/course-score/">스코어카드</a>
+									</div>
+								</li>
+								<li class="nav-item">
+									<a class="nav-link" href="#">고객서비스</a>
+									<div class="submenu">
+										<a class="sub-item" href="/board/notice/">공지사항</a>
+										<a class="sub-item" href="/board/event/">이벤트</a>
+										<a class="sub-item" href="/board/review/">라운드후기</a>
+										<a class="sub-item" href="/weather/">날씨정보</a>
+									</div>
+								</li>
+							</ul>
+							</div>
+						</div>
+						<a href="/reservation/" class="btn btn-grey-border btn-lg resrv">온라인 예약하기</a>
+
+						<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+							<img src="https://najuhills.s3.amazonaws.com/static/img/icon_ui_menu.png" alt="">
+						</button>
+					</div>
+				</div>
+			</nav>
+		</div>
+	</header>
+	
+	<main>
+        
+
+		
+	
+	
+		<div class="container">
+			<div class="row">
+				<div class="col">
+					<div class="jumbotron" style="background-image: url(https://najuhills.s3.amazonaws.com/static/img/photos/najucc_04.jpg)">
+						<h2>국제규격코스를 합리적 가격으로 만나보세요</h2>
+						<h1>NAJU HILLS COUNTRY CLUB</h1>
+						<div class="d-none d-lg-block">
+							<a class="btn btn-lg btn-theme-solid" href="/reservation/">
+								<img src="https://najuhills.s3.amazonaws.com/static/img/icon_reservation.png">
+								온라인 예약하기
+							</a>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="section container">
+			<div class="row">
+
+				<div class="col-12 col-lg-4">
+                 
+                     <div class="borderbox membership">
+						<h4 class="h6">멤버십 라운지</h4>
+                         <form action="/login/" method="post">
+                             <input type="hidden" name="csrfmiddlewaretoken" value="0YvhYiRLYQoloyzYGvv3ryLbBYVPuH43KVNFkJWOpJuziFTLC0CIrxVvIEcWrmjt">
+                             <div class="form-group">
+                                 <input type="text" name="username" class="form-control" placeholder="najuhills" required id="id_username">
+                                 <!--							<small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>-->
+                             </div>
+                             <div class="form-group">
+                                 <input type="password" name="password" class="form-control" placeholder="******" required id="id_password">
+                             </div>
+                             <button type="submit" class="btn btn-theme-border btn-lg btn-block">로그인</button>
+                         </form>
+                         <hr>
+                         <div class="links">
+                             <a href="/find_id/">아이디 찾기</a> |
+                             <a href="/find_pw/">비밀번호 찾기</a> |
+                             <a href="/signup/">회원가입</a>
+                         </div>
+                     </div>
+                    
+                    <div class="notice-prev">
+                    	<span class="label">공지사항</span>
+                        <a href="/board/notice/" class="d-inline-block float-right more_btn">MORE</a>
+						<div class="board">
+							<div class="list">
+                                
+                                    <div class="post">
+                                        <div class="title">
+                                            <a href="/board/notice/3724/">
+                                                2026년 혹서기 할인안내
+                                            </a>
+                                        </div>
+                                        
+                                            <div class="date p-stt">2026/06/28</div>
+                                        
+                                    </div>
+                                
+                                    <div class="post">
+                                        <div class="title">
+                                            <a href="/board/notice/3722/">
+                                                7월 17일 (금) 제헌절은 공...
+                                            </a>
+                                        </div>
+                                        
+                                            <div class="date p-stt">2026/06/25</div>
+                                        
+                                    </div>
+                                
+                                    <div class="post">
+                                        <div class="title">
+                                            <a href="/board/notice/3645/">
+                                                5월 1일 금요일은 공휴요금 적...
+                                            </a>
+                                        </div>
+                                        
+                                            <div class="date p-stt">2026/04/07</div>
+                                        
+                                    </div>
+                                
+                            </div>
+						</div>
+                    </div>
+				</div>
+				<div class="col-12 col-lg-4">
+					<div class="borderbox tinycal step-date">
+						<h4 class="h6">온라인 골프 예약</h4>
+						<div id='calendar'></div>
+					</div>
+				</div>
+				<div class="col-12 col-lg-4">
+					<div class="borderbox weather">
+						<h4 class="h6">2026년 07월 21일 (화)</h4>
+						<hr>
+						<div class="today">
+							<img src="https://najuhills.s3.amazonaws.com/static/img/icon_w/맑음.png" alt="">
+							<div class="temperature">
+								<p class="now h1">31℃</p>
+								<span class="lowest">26˚</span> / <span class="highest">31˚</span>
+							</div>
+						</div>
+						<hr>
+						<div class="tomorrow">
+							<img src="https://najuhills.s3.amazonaws.com/static/img/icon_w/비.png" alt="">
+							<span>내일</span>
+							<div class="temperature">
+								<span class="lowest">26˚</span> / <span class="highest">32˚</span>
+								<p class="now">강수확률 60%</p>
+							</div>
+						</div>
+
+
+
+
+
+
+
+
+					</div>
+				</div>
+			</div>
+		</div>
+		<a class="btn btn-floating d-lg-none" href="/reservation/">
+			<img src="https://najuhills.s3.amazonaws.com/static/img/icon_reservation.png">
+			온라인 예약하기
+		</a>
+
+	</main>
+	<footer>
+		<div class="container">
+			<div class="row">
+				<div class="col-12 col-md-3">
+					<img src="https://najuhills.s3.amazonaws.com/static/img/logo_website_footer.png">
+				</div>
+				<div class="col-12 col-md-9">
+					<ul class="links">
+						<li><a href="/club">클럽소개</a></li>
+						<li><a href="/usage-terms">이용약관</a></li>
+						<li><a href="/personal">개인정보취급방침</a></li>
+						<li><a href="/location">오시는길</a></li>
+					</ul>
+					<p>
+						나주힐스컨트리클럽   |   대표이사 : 김태식   |   사업자등록번호 : 412-81-288178<br/>
+						통신판매업 신고번호 : 제 58호   |   개인정보관리책임자 & 청소년보호책임자 : 김태식<br/>
+						주소 : 전라남도 나주시 세지면 성산리 820번지   |   예약문의 : 061-337-5700 (09:00-19:00)<br/>
+						COPYRIGHT(C)2009 NAJU HILLS COUNTRYCLUB. ALL RIGHT RESERVED.
+					</p>
+				</div>
+			</div>
+		</div>
+	</footer>
+	
+
+	<script type="text/javascript" src="https://najuhills.s3.amazonaws.com/static/js/jquery-3.4.1.min.js"></script>
+	<script type="text/javascript" src="https://najuhills.s3.amazonaws.com/static/js/bootstrap.bundle.min.js"></script>
+	<script type="text/javascript" src="https://najuhills.s3.amazonaws.com/static/js/swiper.min.js"></script>
+	<script type="text/javascript" src="https://najuhills.s3.amazonaws.com/static/js/custom.js"></script>
+	<script type="text/javascript" src="https://najuhills.s3.amazonaws.com/static/js/jquery.swipebox.min.js"></script>
+    <script>$('.toast').toast('show');</script>
+	
+    <script>
+        $(document).ready(function () {
+            $('.close_banner').on('click', function () {
+                close_banner($(this).parents('.banner'));
+			});
+            $('.close_today').on('click', function () {
+            	setCookie('banner_' + $(this).data('id'), 'true', 1);
+            	close_banner($(this).parents('.banner'));
+			});
+            function close_banner(banner_ele) {
+                banner_ele.remove()
+			}
+
+			function setCookie(name, value, expirehours) {
+				var todayDate = new Date();
+				todayDate.setHours(todayDate.getHours() + expirehours);
+				document.cookie = name + "=" + escape(value) + "; path=/; expires=" + todayDate.toGMTString() + ";"
+			}
+
+            var cookiedata = document.cookie;
+            var banner_ids = [];
+            for (var i=0; i<banner_ids.length; i++){
+            	if(cookiedata.indexOf("banner_" + banner_ids[i] + "=true") < 0){
+            		$('#banner_'+banner_ids[i]).removeClass('hidden')
+                }
+            }
+
+		})
+        var a = True
+    </script>
+
+
+</body>
+
+</html>

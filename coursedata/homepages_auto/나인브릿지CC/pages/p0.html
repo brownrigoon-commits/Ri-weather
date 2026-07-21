@@ -1,0 +1,405 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ko" lang="ko" style="overflow-y:auto;">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=euc-kr" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+
+<meta name="Description" content="나인브릿지 | 회원로그인">
+<meta name="Keywords" content="나인브릿지, 회원로그인">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<title>로그인 - 나인브릿지</title>
+<!-- 2022.11.22 GA 태그 추가 -->
+<script>
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+	ga('create', 'UA-48144982-6', 'ninebridges.co.kr');
+	ga('send', 'pageview');
+</script>
+<!-- 2022.11.11 GA4 Tag add -->
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-3VNLT1FJL0"></script>
+<script>
+	window.dataLayer = window.dataLayer || [];
+	function gtag(){dataLayer.push(arguments);}
+	gtag('js', new Date());
+
+	gtag('config', 'G-3VNLT1FJL0');
+</script>
+    <meta http-equiv="Content-Type" content="text/html; charset=euc-kr" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1" />
+    <link rel="stylesheet" type="text/css" href="../css/common.css?v202607211312" />
+    <link rel="stylesheet" type="text/css" href="../css/jquery.mCustomScrollbar.css" />
+	<script type="text/javascript" src="../js/jquery-1.9.1.min.js"></script>
+	<script type="text/javascript" src="../js/jquery.easing.1.3.js"></script>
+	<script type="text/javascript" src="../js/rolling.js"></script>
+	<script type="text/javascript" src="../js/common.js?v202607211312"></script>
+	<script type="text/javascript" src="/cjnbcommon/js/jquery.common.js"></script>
+	<script type="text/javascript" src="../js/supersized.core.3.2.1.min.js"></script>
+
+
+
+<script type="text/javascript">
+
+	jQuery(function($){
+		$.supersized({
+			// Functionality
+			start_slide            :   1,			// Start slide (0 is random)
+			new_window		:	1,			// Image links open in new window/tab
+			image_protect		:	1,			// Disables image dragging and right click with Javascript
+			// Size & Position
+			min_width			:   0,			// Min width allowed (in pixels)
+			min_height			:   0,			// Min height allowed (in pixels)
+			vertical_center		:   1,			// Vertically center background
+			horizontal_center	:   1,			// Horizontally center background
+			fit_always				:	0,			// Image will never exceed browser width or height (Ignores min. dimensions)
+			fit_portrait         	:   1,			// Portrait images will not exceed browser height
+			fit_landscape		:   0,			// Landscape images will not exceed browser width
+			// Components
+			slides 					:  	[			// Slideshow Images
+												{image : '../images/member/bg_clubhouse.jpg', title : 'visual_1'}
+					 						]
+		});
+	});
+
+
+	function goLogin() {
+		var f = document.mainForm;
+		var repeat_flag = "False";
+	
+		if (repeat_flag) {
+			if (document.getElementById("txtCaptcha")) {
+				if( f.txtCaptcha.value == "" ){
+					alert("이미지에 보이는 숫자를 입력하세요");
+					f.txtCaptcha.focus();
+					return false;
+				}
+			}
+		}
+
+		//if (validate(f)) {
+		//	return true;
+		//}
+		//return false;
+	}
+	
+	function doNotReload(){
+	    if((event.ctrlKey == true && (event.keyCode == 78 || event.keyCode == 82)) || (event.keyCode == 116) ) {
+ 	     event.keyCode = 0;
+ 	     event.cancelBubble = true;
+ 	     event.returnValue = false;
+	    } 
+	}
+	document.onkeydown = doNotReload;
+
+	// 2014.07.25 -- 캡차 관련 함수 --------------------------S
+	function RefreshImage(valImageId) {
+		var objImage = document.getElementById(valImageId)
+		if (objImage == undefined) {
+			return;
+		}
+		var now = new Date();
+		objImage.src = objImage.src.split('?')[0] + '?x=' + now.toUTCString();
+	}
+
+	var mp3Array = new Array();
+
+	// 캡차이미지에 ALT값 세팅
+	function setAlt(val) {
+		 mp3Array[0]	= val.substr(0,1);
+		 mp3Array[1]	= val.substr(1,1);
+		 mp3Array[2]	= val.substr(2,1);
+		 mp3Array[3]	= val.substr(3,1);
+		 mp3Array[4]	= val.substr(4,1);
+		 mp3Array[5]	= val.substr(5,1);
+		 //$("#imgCaptcha").attr("alt",val);
+	}
+
+	// 히든프레임에 캡챠이미지 ALT값 세팅 함수 호출 ASP 로딩(초기 및 Get a new challenge 클릭시)
+	function initAlt() {
+		$("#hiddenFrame").attr("src","/cjnbmember/CAPTCHA/captcha_ifrm.asp");
+	}
+
+	function fnAudio(mode){
+		setTimeout("fnAudio1('"+mode+"');",1500);
+	}
+
+	function fnAudio1(mode){
+		var div = "<audio src='/cjnbmember/CAPTCHA/sound/"+mode+"/"+mp3Array[0]+".mp3' type='audio/mpeg' autoplay><embed src='/cjnbmember/CAPTCHA/sound/"+mode+"/"+mp3Array[0]+".mp3' height='0' width='0' type='application/x-mplayer2'></embed></audio>";	
+		$("#hiddenDiv").html(div);
+		setTimeout("fnAudio2('"+mode+"');",1500);
+	}
+
+	function fnAudio2(mode){
+		var div = "<audio src='/cjnbmember/CAPTCHA/sound/"+mode+"/"+mp3Array[1]+".mp3' type='audio/mpeg' autoplay><embed src='/cjnbmember/CAPTCHA/sound/"+mode+"/"+mp3Array[1]+".mp3' height='0' width='0' type='application/x-mplayer2'></embed></audio>";
+		$("#hiddenDiv").html(div);
+		setTimeout("fnAudio3('"+mode+"');",1500);
+	}
+
+	function fnAudio3(mode){
+		var div = "<audio src='/cjnbmember/CAPTCHA/sound/"+mode+"/"+mp3Array[2]+".mp3' type='audio/mpeg' autoplay><embed src='/cjnbmember/CAPTCHA/sound/"+mode+"/"+mp3Array[2]+".mp3' height='0' width='0' type='application/x-mplayer2'></embed></audio>";
+		$("#hiddenDiv").html(div);
+		setTimeout("fnAudio4('"+mode+"');",1500);
+	}
+
+	function fnAudio4(mode){
+		var div = "<audio src='/cjnbmember/CAPTCHA/sound/"+mode+"/"+mp3Array[3]+".mp3' type='audio/mpeg' autoplay><embed src='/cjnbmember/CAPTCHA/sound/"+mode+"/"+mp3Array[3]+".mp3' height='0' width='0' type='application/x-mplayer2'></embed></audio>";
+		$("#hiddenDiv").html(div);
+		setTimeout("fnAudio5('"+mode+"');",1500);
+	}
+
+	function fnAudio5(mode){
+		var div = "<audio src='/cjnbmember/CAPTCHA/sound/"+mode+"/"+mp3Array[4]+".mp3' type='audio/mpeg' autoplay><embed src='/cjnbmember/CAPTCHA/sound/"+mode+"/"+mp3Array[4]+".mp3' height='0' width='0' type='application/x-mplayer2'></embed></audio>";
+		$("#hiddenDiv").html(div);
+		setTimeout("fnAudio6('"+mode+"');",1500);
+	}
+
+	function fnAudio6(mode){
+		var div = "<audio src='/cjnbmember/CAPTCHA/sound/"+mode+"/"+mp3Array[5]+".mp3' type='audio/mpeg' autoplay><embed src='/cjnbmember/CAPTCHA/sound/"+mode+"/"+mp3Array[5]+".mp3' height='0' width='0' type='application/x-mplayer2'></embed></audio>";
+		$("#hiddenDiv").html(div);
+	}
+	// 2014.07.25 -- 캡차 관련 함수 --------------------------E
+
+	$(document).ready(function() {
+		textTypeAll();	
+		autoTabAll();
+
+		// 2014.07.25 - 히든프레임에 캡챠이미지 ALT값 세팅 함수 호출 ASP 로딩
+		initAlt();
+	});
+</script>
+<!--// 2014.07.25 -- 캡차 관련 css -->
+	<!-- 2022.11.22 GA 태그 추가 -->
+	<script>
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+	ga('create', 'UA-48144982-6', 'ninebridges.co.kr');
+	ga('send', 'pageview');
+</script>
+<!-- 2022.11.11 GA4 Tag add -->
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-3VNLT1FJL0"></script>
+<script>
+	window.dataLayer = window.dataLayer || [];
+	function gtag(){dataLayer.push(arguments);}
+	gtag('js', new Date());
+
+	gtag('config', 'G-3VNLT1FJL0');
+</script>
+</head>
+<body >
+
+
+<script>
+	function closeWin(no){
+		$('#popservice_'+no).css("display","none");
+	}
+	/* 쿠기값처리 */
+	function getCookie(name) {
+		var Found = false
+		var start, end
+		var i = 0
+		while(i <= document.cookie.length) {
+			start = i
+			end = start + name.length
+			if(document.cookie.substring(start, end) == name) {
+			Found = true
+			break
+			}
+			i++
+		}
+		if(Found == true) {
+			start = end + 1
+			end = document.cookie.indexOf(";", start)
+			if(end < start)
+			end = document.cookie.length
+			return document.cookie.substring(start, end)
+		}
+		return ""
+	}
+
+	function setCookie( name, value, expiredays ){				
+		var todayDate = new Date();
+		todayDate.setDate( todayDate.getDate() + expiredays );
+		document.cookie = name + "=" + escape( value ) + "; path=/;expires=" + todayDate.toGMTString() + ";"
+	}
+</script>
+
+	<!-- skip navigation -->
+	<p class="skip"><a href="#content">본문 바로가기</a></p>
+
+	<div id="contentWrap">
+		<h2 class="section" id="content">컨텐트</h2>
+		<div class="loginCont">
+			<div class="login_wrap">
+				<div class="login_toplink">
+					<h1><a href="/index.asp"><span class="hidden">NINE BRIDGES</span></a></h1>
+				</div>
+				<div class="login_title">
+					<ul class="login_symbols">
+						<li>
+							<a href="https://golf.com/travel/courses/top-100-golf-courses-world-2023-24/?amp=1" target="_blank" title="새창열림">
+								<img src="/images/member/img_logo_top100.png" alt="Golf TOP100">
+							</a>
+						</li>
+						<li>
+							<a href="https://www.platinumclubsoftheworld.com/" target="_blank" title="새창열림">
+								<img src="/images/member/img_logo_platinum.png" alt="Platinum Clubs of the World">
+							</a>
+						</li>
+						<li> 
+							<a href="https://sustainable.golf/" target="_blank" title="새창열림">
+								<img src="/images/member/img_logo_geo.png" alt="GEO Certified">
+							</a>
+						</li>
+					</ul>
+					<h2><span>A Top 100 Course<br>in the World</span></h2>
+				</div>
+				<div class="login_footer">
+					<ul class="footerNavi">
+						<li><a href="https://cjlogistics.com" target="_blank" title="대한통운 공식홈페이지">회사소개</a></li>
+						<li><a href="/etc/privacy_info.asp" class="bold">개인정보처리방침</a></li>
+						<li><a href="/etc/operation_policy.asp" class="bold">영상정보처리기기 운영방침</a></li>
+						<li><a href="/etc/use_promise.asp">온라인이용약관</a></li>
+						<li><a href="/etc/golf_use_promise.asp">골프장이용안내</a></li>
+						<li><a href="/etc/sitemap.asp">SITEMAP</a></li>
+						<li><a href="/etc/legal.asp">법적고지</a></li>
+						<li><a href="/etc/email_reject.asp">이메일무단수집거부</a></li>
+					</ul>
+					<address>
+						CJ대한통운(주) | 제주특별자치도 서귀포시 안덕면 광평로 34-156 클럽나인브릿지 | 대표자 신영수<br>
+						사업자등록번호 110-81-05034 | 고객센터 064-793-9999 | 팩스 064-793-9929 | 개인정보보호책임자 정우필
+					</address>
+					<p class="copyright">&#9400;Nine Bridges. ALL RIGHTS RESERVED.</p>
+				</div>
+				<div class="loginArea">
+					<div class="login_header">
+						<ul>
+							<li><a href="/lounge/fee.asp">Rate & Fee</a></li>
+							<li><a href="/lounge/notice.asp">Notice</a></li>
+							<li><a href="/introduction/location.asp">Location</a></li>
+							<li><a href="/lounge/faq.asp">FAQ</a></li>
+							<li><a href="/etc/weather.asp">Weather</a></li>
+							<li><a href="/eng/">English</a></li>
+						</ul>
+					</div>
+
+					<div class="login_form">
+						<form name="mainForm" method="post" action="/cjnbmember/h81login_proc.asp" onSubmit="return goLogin()">
+							<input type="hidden" name="sTrgtUrl" value=""/>
+						<fieldset class="login">
+							<legend>로그인 관련 정보를 입력해주세요</legend>
+							<h3 class="login_formtit">MEMBER LOGIN</h3>
+							<div id="errorMsg"></div>
+							<ul class="login_input">
+								<!-- <li class="ip_wrap">
+									<label for="name"><strong class="fff">성명</strong></label>
+									<input type="text" class="input_txt3" id="name" name="UserCode1" hname="성명" required="required" maxlength="50" placeholder="성명" />
+								</li> -->
+								<li class="ip_wrap">
+									<!-- <label for="number"><strong class="fff">아이디</strong></label> -->
+									<input type="text" id="number" name="ms_web_id" hname="아이디" required="required" maxlength="15" placeholder="아이디" aria-label="아이디"/>
+								</li>
+								<li class="ip_wrap">
+									<!-- <label for="pw"><strong class="fff">비밀번호</strong></label> -->
+									<input type="password" id="pw" name="UserPswd3" hname="비밀번호" required="required" textType="pwd" maxlength="20" autocomplete="off" placeholder="비밀번호" aria-label="비밀번호"/>									
+								</li>
+							</ul>
+							<p class="check"><input type="checkbox" name="rememberId" id="check1" value="Y"  /><label for="check1">아이디 저장</label></p>
+							
+
+							<div class="btn_click">
+								<input name="" title="로그인" type="submit" complete="complete" value="로그인"/>
+							</div>
+						</fieldset>
+						<div id="hiddenDiv"></div>
+						</form>				
+						<!-- <p class="loginTxt fff">클럽의 회원님께서는 별도의 회원가입절차 없이 로그인 하실 수 있습니다. 비밀번호가 기억나지 않으시면 예약실로 문의해 주시기 바랍니다.</p> -->
+						<div class="login_findpw">
+							<a href="/cjnbmember/find_password.asp">비밀번호 찾기</a>
+						</div>
+						<!--div class="login_rsrv">
+							<p class="tit">Reservation</p>
+							<p class="tel">Telephone. 064-793-9100</p>
+						</div-->
+					</div>
+					<div class="login_brand">
+						<!-- 2025-04-16 로고 수정 S -->
+						<ul class="rollUL">
+							<li class="h_img"><a href="https://www.bibigo.com/kr" target="_blank" title="비비고 새창열기"><img src="/images/common/banner_bibigo.png?v20250416" alt="bibigo"></a></li><!-- 2024-06-18 수정 -->
+							<!-- <li class="h_img"><a href="https://www.cj.co.kr/kr/about/business/cjfeedncare" target="_blank" title="CJ Feed&amp;Care 새창열기"><img src="/images/common/banner_19.png" alt="CJ Feed&amp;Care"></a></li> 2024-06-18 삭제 -->
+							<li class="h_img"><a href="http://www.cjfreshway.com/" target="_blank" title="CJ프레시웨이 새창열기"><img src="/images/common/banner_cjfreshway.png" alt="CJ Freshway"></a></li>
+							<li class="h_img"><a href="https://www.oliveyoung.co.kr/store/main/main.do?oy=0" target="_blank" title="올리브영 새창열기"><img src="/images/common/banner_oliveyoung.png" alt="Oliveyoung"></a></li>
+							<!-- <li class="h_img"><a href="https://www.cgv.co.kr/" target="_blank" title="CGV 새창열기"><img src="/images/common/banner_20.png" alt="CGV"></a></li> 2024-06-18 삭제 -->
+							<li class="h_img"><a href="https://display.cjonstyle.com/p/homeTab/main?hmtabMenuId=H00005" target="_blank" title="cj onstyle 새창열기"><img src="/images/common/banner_cjonstyle.png?v20250416" alt="cj onstyle"></a></li><!-- 2024-06-18 추가 -->
+							<li class="h_img"><a href="https://www.cjenm.com/ko/" target="_blank" title="CJ ENM 새창열기"><img src="/images/common/banner_cjenm.png?v20250416" alt="CJ ENM"></a></li>
+							<li class="h_img"><a href="https://www.studiodragon.net/ko/" target="_blank" title="studio dragon 새창열기"><img src="/images/common/banner_studiodragon.png?v20250416" alt="studio dragon"></a></li><!-- 2024-06-18 추가 -->
+							<li class="h_img"><a href="https://www.cjlogistics.com/ko/main" target="_blank" title="CJ대한통운 새창열기"><img src="/images/common/banner_cjlogistics.png" alt="CJ Logistics"></a></li>
+						</ul>
+						<!-- // 2025-04-16 로고 수정 E -->
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+<!-- 2014.07.25 - 캡챠 iframe 추가 : S -->
+<iframe src="" name="hiddenFrame" id="hiddenFrame" style="width:0px;height:0px;" title="캡챠 아이프레임"></iframe>
+<!-- 2014.07.25 - 캡챠 iframe 추가 : E -->
+
+
+<script>
+	$(document).ready(function() {
+	   var $ipWrap = $('.ip_wrap'); 
+
+	   $ipWrap.each(function(){
+		   var _this = $(this);
+		   var _thisIp = _this.children('input');
+		   
+		   _thisIp.bind('keyup', function(){
+			   setClear();
+		   });
+		   _thisIp.bind('focus', function(){
+			   $('.btn_ipclear').remove();
+			   setClear();
+		   });
+		   
+		   _this.bind('click', function(e) {
+			   e.stopPropagation();
+		   });
+
+		   $(document).click(function(e){
+			   if(!$(e.target).closest('.ip_wrap').length){
+				   _this.find('.btn_ipclear').remove();
+			   }
+		   });
+		   
+		   function setClear(){
+			   if (_thisIp.val().length) { 
+				   if(!_this.find('.btn_ipclear').length){
+					   _this.append('<button type="button" class="btn_ipclear"><span class="hidden">지우기</span></button>');
+				   }
+			   }else {
+				   if(_this.find('.btn_ipclear')){ 
+					   _this.find('.btn_ipclear').remove();
+				   }
+			   }	
+
+			   if(_this.find('.btn_ipclear')){
+				   _this.find('.btn_ipclear').bind('click', function() {
+					   _thisIp.val('');
+					   _this.find('.btn_ipclear').remove();
+				   });
+			   }
+		   }
+		   
+	   })
+   });
+</script>
+</body>
+</html>

@@ -1,0 +1,596 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="user-scalable=yes, initial-scale=0.3, maximum-scale=1.0, minimum-scale=0.1, width=device-width" />
+<meta name="title" content="한양CC">
+<meta name="author" content="한양CC">
+<meta name="Keywords" content="한양CC, 서울한양컨트리클럽, ">
+<meta name="description" content="한양CC, 서울한양컨트리클럽, ">
+<meta name="copyright" content="All Contents Copyright©pineBeach">
+<meta name="format-detection" content="telephone=no, address=no, email=no"/>
+<meta property="og:type" content="mobile">
+<meta property="og:title" content="한양CC, 서울한양컨트리클럽">
+<meta property="og:description" content="한양CC, 서울한양컨트리클럽">
+<meta property="og:url" content="">
+<title>서울한양컨트리클럽</title>
+<link rel="stylesheet" type="text/css" href="/css/import.css?v=2">
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+<script src="//code.jquery.com/jquery-3.3.1.min.js"></script>
+<script type="text/javascript" src="/js/common.js"></script>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.8.2/css/all.min.css" />
+
+<link rel="stylesheet" type="text/css" href="css/main.css?v=4.2">
+<link rel="stylesheet" type="text/css" href="css/motion.css?v=3">
+<link rel="stylesheet" type="text/css" href="css/animate.css?v=3">
+
+
+<!-- 메인 배경 줌아웃 zoomOut -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.6.0/slick.min.css" rel="stylesheet"/>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.6.0/slick.min.js"></script>
+<script src="/js/jquery.preloaders.js"></script>
+<script src="/js/tools.js"></script>
+<script src="/js/globals.js"></script>
+<script type="text/javascript">
+
+function slideSwitch() {
+    var $active = $('#slideshow IMG.active');
+
+    if ( $active.length == 0 ) $active = $('#slideshow IMG:last');
+
+    // use this to pull the images in the order they appear in the markup
+    var $next =  $active.next().length ? $active.next()
+        : $('#slideshow IMG:first');
+
+    // uncomment the 3 lines below to pull the images in random order
+    
+    // var $sibs  = $active.siblings();
+    // var rndNum = Math.floor(Math.random() * $sibs.length );
+    // var $next  = $( $sibs[ rndNum ] );
+
+
+    $active.addClass('last-active');
+
+    $next.css({opacity: 0.0})
+        .addClass('active')
+        .animate({opacity: 1.0}, 3000, function() {
+            $active.removeClass('active last-active');
+        });
+}
+
+$(function() {
+    setInterval( "slideSwitch()", 5000 );
+});
+
+</script>
+<script src="/js/slider.js"></script><script type="text/javascript">
+		jQuery(document).ready(function(){
+			jQuery('#demo').skdslider({'delay':6000, 'fadeSpeed': 1000});
+		});
+</script>
+
+<script language="JavaScript">
+
+//-->
+</script>
+<link href="/css/webwidget_slideshow_dot.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="/js/webwidget_slideshow_dot.js"></script>
+<script type="text/javascript">
+    $(document).ready(function() {
+		chkMobile();
+		getPopupList();
+		getMainNotice();
+		sessionCheck();
+		//setProtocol();
+        $('.hero-slider').slick({
+            dots: true,
+            infinite: true,
+            speed: 2000,
+            dots: false,
+            arrows: true,
+            autoplay: true,
+            autoplaySpeed: 6000,
+            fade: false,
+            pauseOnHover: false,
+            pauseOnFocus: false,
+			prevArrow : "<button type='button' id='aaaa' class='slick-prev mainPrev'>Previous</button>",		// 이전 화살표 모양 설정
+			nextArrow : "<button type='button' id='bbbb' class='slick-next mainNext'>Next</button>"	// 다음 화살표 모양 설정
+        });
+    });
+
+	function setProtocol() {
+		if (document.location.protocol == 'http:') {
+			document.location.href = document.location.href.replace('http:', 'https:');
+		}
+	}
+
+	function sessionCheck() {
+		var sUrl = "/controller/SessionManager.asp";
+		var params = {"method" : "sessionConfirm"};
+
+		mAjax(sUrl, params, "POST", false, function(data) {
+			if(data.resultCode == "2000") {
+				alert(data.resultMessage);
+				location.reload();
+			}
+		});
+	}
+
+	function chkMobile() {
+	  var mobileKeyWords = new Array('iPhone', 'iPod', 'iPad', 'BlackBerry', 'Android', 'Windows CE', 'MOT', 'SAMSUNG', 'SonyEricsson');
+	  for (var word in mobileKeyWords) {
+			if (navigator.userAgent.match(mobileKeyWords[word]) != null) {
+				location.href = "https://hanyangcc.com/mobile/index.asp";
+			  break;
+			}
+	  }
+	}
+
+	function getPopupList() {
+		var sUrl = "/controller/BoardController.asp";
+		var params = {};
+
+		params["method"] = "getBoardList";
+
+		params["coDiv"]    = globals.coDiv;
+		params["type"]     = "98";
+		params["startCnt"] = 0;
+		params["pageCnt"]  = 10;
+
+		mAjax(sUrl, params, "POST", false, function(data) {
+			if(data.resultCode == "0000") {
+				var rows = data.rows;
+
+		  for(i=0; i<rows.length; i++) {
+			var popId = "han_popup_" + rows[i].IDX;
+			var loc = rows[i].CONTENT.split("|");
+			var top  = loc[0];
+			var left = loc[1];
+			var link = rows[i].LINK;
+			var file = rows[i].FILE_PATH2 + "/" + rows[i].FILE_NAME2;
+
+			if(getCookie(popId) != "Y") {
+			  var pop = "";
+			  pop += " <div id='{0}' class='main_popup' style='position: absolute; z-index:10000; top:{1}px; left:{2}px; display: none;'>	";
+			  pop += "   <a href='{3}'><img src='{4}' /></a>																																							";
+			  pop += "   <div class='popup_bottom'>																																												";
+			  pop += "     <a href='javascript:closePopup(\"{0}\", 1)'>오늘하루 그만보기</a>																									 ";
+			  pop += "     <a class='pull-right' href='javascript:closePopup(\"{0}\", 0);'>닫기</a>																				 ";
+			  pop += "   </div>																																																					  ";
+			  pop += " </div>																																																							";
+
+			  pop = String.format(pop, popId, top, left, link, file);
+
+			  $("#popContainer").append(pop);
+
+			  $("#" + popId).show('fade');
+			}
+		  }
+			} else {
+				alert(data.resultMessage);
+			}
+		});
+	}
+
+	function closePopup(id, day) {
+		$("#" + id).hide('fade');
+
+		if(day > 0) {
+			setCookie(id, "Y", day);
+		}
+	}
+
+	function doLogout() {
+		var sUrl = "/Controller/MemberController.asp";
+		var params = {};
+
+		params["method"] = "doLogout";
+
+		mAjax(sUrl, params, "POST", true, function(data) {
+			if(data.resultCode == "0000") {
+				alert("로그아웃 되었습니다.");
+				location.href = "/index.asp"
+			}
+		});
+	}
+
+	function getMainNotice() {
+		var sUrl = "/controller/BoardController.asp";
+		var params = {};
+
+		params["method"] = "getBoardList";
+
+		params["coDiv"]    = globals.coDiv;
+		params["type"]     = "1";
+		params["startCnt"] = 0;
+		params["pageCnt"]  = 2;
+
+		mAjax(sUrl, params, "POST", false, function(data) {
+			if(data.resultCode == "0000") {
+
+				var rows = data.rows;
+
+				if (rows.length == 0) {
+
+					var notice = ""
+				    notice += " <li class='title'>NOTICE</li>	";
+				    notice += " <li class='miniTt'>한양CC 새로운 소식</li>";
+				    notice += " <li class='list' onclick='location.href='#'>등록된 공지사항이 없습니다.<span class='date'></span></li>	";
+				    notice += " <li class='list'><span class='date'></span></li>	";
+
+				    notice = String.format(notice, title, inputDate, link);
+
+				    $("#mainNotice").empty().append(notice);
+					$("#mainNotice").append(notice);
+					return;
+				}
+
+				var notice = ""
+				notice += " <li class='title'>NOTICE</li>	";
+				notice += " <li class='miniTt'>한양CC 새로운 소식</li>";
+
+			    for(i=0; i<rows.length; i++) {
+
+					var link = "/board/view.asp?type=1&idx=" + rows[i].IDX;
+					var title = rows[i].TITLE;
+					var inputDate = rows[i].INPUT_DATETIME;
+
+				    notice += " <li class='list'><a href='{0}'>{1}</a><span class='date'>{2}</span></li>	";
+
+				    notice = String.format(notice, link, title, inputDate);
+
+			    }
+				$("#mainNotice").empty().append(notice);
+			} else {
+				alert(data.resultMessage);
+			}
+		});
+	}
+</script>
+
+
+</head>
+
+<body>
+	<div id="popContainer"></div>
+<div class="siteAll"><div class="toggleMenu"><span></span></div></div>
+<div id="wrap">
+	<div class="hero-slider">
+		  <div class="columns">
+			<div class="hero-image" >
+				<img src="/images/main/mainBg03.jpg" alt="">
+			</div>
+		  </div>
+	  </div>
+	<div id="mainWrap">
+		<div class="mainHeader">
+			<!--메뉴-->
+			<div class="headerBox">
+
+				<a href="index.asp" class="logoBox"><img src="images/logo.svg"  alt="한양CC 로고"></a>
+
+				<!--서울한양cc일때--><ul class="countryLink">
+
+					<li class="seoul" onclick="location.href='https://www.seoulcc.co.kr/index.asp'">서울CC</li>
+					<li class="fine" onclick="location.href='https://www.hypine.co.kr/index.asp'">한양파인</li>
+
+				</ul>
+				
+				<ul class="mainList">
+					<li><a href="/club/intro.asp">클럽소개</a></li>
+					<li><a href="/reservation/reservation.asp">인터넷예약</a></li>
+					<li><a href="/course/intro.asp">코스안내</a></li>
+					<li><a href="/facility/fac01.asp">시설안내</a></li>
+					<li><a href="/reservation/reservation.asp">이용안내</a></li>
+					<li><a href="/board/list.asp?type=1">고객센터</a></li>
+					<li><a href="/en/index.asp" target="_blank">English</a></li>
+				</ul>
+
+				<ul class="rightBtn">
+					
+					<li class="topJoin">
+					<a href="/member/login.asp" class="">로그인</a>
+					<!-- <span class="bar"></span><a href="/member/join01.asp" class="">회원가입</a> -->
+					</li>
+					
+					
+					<li><a href="#" class="memBtn"><img id="climate_0DayLater" style="display:none;" src="" alt="날씨:오늘"></a></li>
+					<script type="text/javascript" src="/js/weather.js"></script>					
+				</ul>
+				<div class="gnbBtn"></div>
+			</div>
+		</div><!-- mainHeader End -->
+		<div id="menu">
+	<div class="main-nav">
+		<img src="../images/logo.svg" alt="로고" class="hambergerLogo">
+		<ul class="titleBox">
+			<li><a class="title" href="/club/intro.asp">클럽소개</a></li>
+			<li><a href="/club/intro.asp">골프장개요</a></li>
+					<li><a href="/club/history.asp">골프장연혁</a></li>
+					<li><a href="/club/greeting.asp">인사말</a></li>
+					<li><a href="/club/friedship.asp">자매컨트리클럽</a></li>
+					<li><a href="/club/location.asp">오시는길</a></li>
+		</ul>
+		<ul class="titleBox">
+			<li><a class="title" href="/reservation/reservation.asp">인터넷예약</a></li>
+			<li><a href="/reservation/reservation.asp">예약하기</a></li>
+					<li><a href="/reservation/reserCheck.asp">예약확인및취소</a></li>
+					<li><a href="/reservation/break.asp">위약정보</a></li>
+					<li><a href="/reservation/joinList.asp">조인방</a></li>
+					<li><a href="/reservation/notice.asp">미예약시간공지</a></li>
+		</ul>
+		<ul class="titleBox">
+			<li><a class="title" href="/course/intro.asp">코스안내</a></li>
+			<li><a href="/course/intro.asp">코스개요</a></li>
+					<li><a href="/course/course.asp">코스공략도</a></li>
+					<li><a href="/course/score.asp">스코어보드</a></li>
+		</ul>
+		<ul class="titleBox">
+			<li><a class="title" href="/facility/fac01.asp">시설안내</a></li>
+			<li><a href="/facility/fac01.asp">클럽하우스</a></li>
+					<li><a href="/facility/fac02.asp">대식당</a></li>
+					<li><a href="/facility/fac03.asp">프런트</a></li>
+					<li><a href="/facility/fac04.asp">프로샵</a></li>
+					<li><a href="/facility/fac05.asp">락카실</a></li>
+					<li><a href="/facility/fac06.asp">그늘집</a></li>
+		</ul>
+		<ul class="titleBox">
+			<li><a class="title" href="/guide/guide.asp">이용안내</a></li>
+			<li><a href="/guide/guide.asp">운영안내</a></li>
+			<li><a href="/guide/fee.asp">요금안내</a></li>
+					<li><a href="/guide/membership.asp">입회안내</a></li>
+					<li><a href="/guide/reserGuide.asp">예약안내</a></li>
+					<li><a href="/guide/local.asp">로컬룰</a></li>
+					<!--<li><a href="/guide/online.asp">온라인 예약방법</a></li>
+					<li><a href="/guide/mobile.asp">모바일 예약방법</a></li>-->
+		</ul>
+		<ul class="titleBox">
+			<li><a class="title" href="/board/list.asp?type=1">고객센터</a></li>
+			<li><a href="/board/list.asp?type=1">공지사항</a></li>
+			<li><a href="/board/list.asp?type=8">홀인원&이글방</a></li>
+			<li><a href="/board/list.asp?type=9">사진자료실</a></li>
+			<li><a href="/board/list.asp?type=5">회원작품코너</a></li>
+			<li><a href="/board/list.asp?type=6">회원게시판</a></li>
+			<li><a href="/survey/survey01.asp">설문조사</a></li>
+		</ul>
+	</div>
+</div>
+
+
+		<a href="https://www.kaltour.com/ProductPlan/Index?exiSeq=5276" target="_blank" title="한진관광바로가기" class="quick-btn" style="position: absolute; top: 80px; left: 50%; width: 100%; transform: translate(30px);">
+			<img src="/images/main/한진_btn.jpg" alt="바로가기버튼">
+		</a>
+
+		<div class="mainTxt text-focus-in">
+			<img src="images/mainTxt.png" alt="한양CC 골프 앤 리조트">		
+		</div>
+
+	</div>
+	<div class="mainCon">
+		<section>
+			<div class="imgOver" onclick="location.href='/club/intro.asp'">
+				<div class="mImg">
+					<p><img src="/images/main/mainConBg.jpg"></p>
+					<div class="mText">
+						<h1>GOLF & HEALING</h1>
+						<h3>한양CC는 독창적이고 혁신적인 서비스와 마인드로 고객님의 삶의 <br>
+						가치를 극대화 시켜 드립니다. </h3>
+					</div>
+				</div>
+			</div>
+		</section>
+		<section>
+			<div class="mainListBox">
+				<div class="mainIconList">
+					<div class="mainIconText">
+						<h1>SHORTCUT</h1>
+					</div>
+					<ul>
+						<li>
+							<a href="/reservation/reserCheck.asp">
+							<p><img src="/images/main/mIcon01.png"></p>
+							<h3>예약확인<br><span>package</span></h3>
+							</a>
+						</li>
+						<li>
+							<a href="/reservation/reservation.asp">
+							<p><img src="/images/main/mIcon02.png"></p>
+							<h3>실시간예약<br><span>reservation</span></h3>
+							</a>
+						</li>
+						<li>
+							<a href="/reservation/joinList.asp">
+							<p><img src="/images/main/mIcon03.png"></p>
+							<h3>조인예약<br><span>join</span></h3>
+							</a>
+						</li>
+						<li>
+							<a href="https://weather.naver.com/today/02281116" target="_blank">
+							<p><img src="/images/main/mIcon04.png"></p>
+							<h3>오늘날씨<br><span>WEATHER</span></h3>
+							</a>
+						</li>
+					</ul>
+				</div>
+				<div class="mimgBox">
+					<div class="effect-layla">
+						<img src="/images/main/mainCourseBg.jpg">
+						<p class="mimgTxt">
+							<span class="title">COURSE</span>
+							다이나믹한 코스에서 새로운 도전을 시작해 보시기 바랍니다.
+						</p>
+						<a href="/course/course.asp">코스안내 보기</a>
+					</div>
+				</div>
+			</div>
+		</section>
+	</div>
+	<div class="mainCon2">
+		<div class="mainFaciltyBox">
+			<ul class="facilityBox">
+				<li class="textBox"  data-scroll="toggle(.fromTopIn, .fromTopOut)" >
+					<div class="bar"></div>
+					<p class="mainFacTitle">FACILITY</p>
+					<p class="mainFacTxt">고객님을 위한 한양CC의 최고의 <br>
+					시설과 서비스로 언제나 고객님만 <br>
+					생각합니다. </p>
+				</li>
+				<li>
+					<div class="grid" onclick="location.href='/facility/fac01.asp'">
+						<figure class="effect-zoe">
+							<img src="/images/main/mainFacImg1.jpg" alt="facility"/>
+							<figcaption>
+								<span class="title">클럽하우스 입구</span>
+								소중한 분들과 함께 필드를 바라보며, 고객 여러분을 편안한 휴식공간으로 인도할 것입니다.
+
+							</figcaption>
+							<p class="description"></p>
+						</figure>
+					</div>
+				</li>
+				<li>
+					<div class="grid" onclick="location.href='/facility/fac02.asp'">
+						<figure class="effect-zoe">
+							<img src="/images/main/mainFacImg2.jpg" alt="facility"/>
+							<figcaption>
+								<span class="title">클럽 레스토랑</span>
+								고급스러운 분위기와 최고의 쉐프가 건강하고 맛있는 식사를 대접합니다.
+
+							</figcaption>
+							<p class="description box2"></p>
+						</figure>
+					</div>
+				</li>
+				<li>
+					<div class="grid" onclick="location.href='/facility/fac04.asp'">
+						<figure class="effect-zoe">
+							<img src="/images/main/mainFacImg3.jpg" alt="facility"/>
+							<figcaption>
+								<span class="title">프로샵</span>
+								골퍼의 품격을 한층 높여주는 “프로샵＂에서 다양한 골프용품을 만나세요.
+							</figcaption>
+							<p class="description box3"></p>
+						</figure>
+					</div>
+				</li>
+			</ul>
+		</div>
+	</div>
+
+	<div class="mainCon3">
+		<div class="mapNoticeBox">
+			<ul class="mainBottomBox mainMap">
+				<li class="title">MAP</li>
+				<li class="miniTt">한양CC 오시는길 안내</li>
+				<li class="add">주소 : 경기도 고양시 덕양구 고양대로 1643번길 164(원당동)</li>
+				<li class="add">예약문의 : 031-960-6900</li>
+			</ul>
+			<ul class="mainBottomBox mainNotice" id="mainNotice">
+			</ul>
+		</div>
+
+		<div class="mainMapWrap">
+				<!-- * 카카오맵 - 지도퍼가기 -->
+				<!-- 1. 지도 노드 -->
+				<div id="daumRoughmapContainer1607907279501" class="root_daum_roughmap root_daum_roughmap_landing"></div>
+
+				<!--
+					2. 설치 스크립트
+					* 지도 퍼가기 서비스를 2개 이상 넣을 경우, 설치 스크립트는 하나만 삽입합니다.
+				-->
+				<script charset="UTF-8" class="daum_roughmap_loader_script" src="https://ssl.daumcdn.net/dmaps/map_js_init/roughmapLoader.js"></script>
+
+				<!-- 3. 실행 스크립트 -->
+				<script charset="UTF-8">
+					new daum.roughmap.Lander({
+						"timestamp" : "1607907279501",
+						"key" : "23gat",
+						"mapHeight" : "550"
+					}).render();
+				</script>
+				<div class="mainMapInfo fromLeftIn"  data-scroll="toggle(.fromLeftIn, .fromLeftOut)">
+					<h1><span><i class="fas fa-map-marker-alt"></i> HANYANG CC</span></h1>
+					<h3>Golf Healing Life</h3>
+					<p>경기도 고양시 고양대로 1643번길 164(원당동)</p>
+					<h4>예약관련 문의</h4>
+					<h2>031.960.6900</h2>
+					<h5>24시간 운영중인 홈페이지 예약과 모바일 예약을 이용하시면 더욱 편리합니다. </h5>
+				</div>
+		</div>
+
+
+
+	</div>
+
+
+	<!--textmotion-->
+       <script src="js/ScrollTrigger.js"></script>
+       <script>
+          window.counter = function($) {
+			// this refers to the html element with the data-scroll-showCallback tag
+            var span = this.querySelector('span');
+            var current = parseInt(span.textContent);
+
+                 span.textContent = current + 1;
+            };
+
+            document.addEventListener('DOMContentLoaded', function($){
+            var trigger = new ScrollTrigger({
+                addHeight: true
+                 });
+             });
+       </script>
+
+
+
+</div>
+
+
+<!-- footer 영역 -->
+<div id="footerWrap">
+			<div class="footerBox">
+
+				<img src="../images/logo.png" alt="" class="logo_g">
+
+				<!--<ul class="snsLink">
+					<li class=""><a href="javascript:alert('준비중입니다.')"><img src="../images/sns_f.png" alt=""></a></li>
+					<li class=""><a href="javascript:alert('준비중입니다.')"><img src="../images/sns_t.png" alt=""></a></li>
+					<li class=""><a href="javascript:alert('준비중입니다.')"><img src="../images/sns_i.png" alt=""></a></li>
+				</ul>-->
+				<ul class="termsBox">
+					<li class=""><a href="/member/terms.asp">홈페이지이용약관</a></li>
+					<li class="bar"></li>
+					<li class=""><a href="/member/terms02.asp">골프장이용약관</a></li>
+					<li class="bar"></li>
+                    <li class=""><a href="/member/terms03.asp">골프장시설이용규칙</a></li>
+					<li class="bar"></li>
+					<li class=""><a href="/member/email.asp?h">이메일무단수집거부</a></li>
+					<li class="bar"></li>
+                  
+				<li class=""><a href="/member/policy.asp?ver=172.16.33.35">개인정보처리방침</a></li>
+
+					<li class="bar"></li>
+					<li class=""><a href="/member/videoinfor.asp">영상정보처리기기운영방침</a>
+				</ul>
+				<p class="addBox">
+
+					(주)한양컨트리클럽 대표자:박용식<br>
+					 경기도 고양시 덕양구 고양대로 1643번길 164(원당동) <br>
+					 대표전화: 031)960-6900   FAX:031)964-6900 <br>
+					 사업자등록번호: 128-81-00438   통신판매업신고: 2009-경기고양-10120 <br>										 
+					 <!-- Copyright 2008 By Seoul.Hanyang Country Club All right Reserved. -->
+
+				</p>
+			</div>
+			<p id="topArrow" style=""><a href="#top"></a></p>
+
+			
+		</div>
+
+</body>
+</html>

@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+    <head>
+        <link rel="icon" href="/pc/images/valley/favicon.ico" type="image/x-icon" sizes="16x16">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <title>서원밸리</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+        <script src="/js/jquery.min.js"></script>
+        <script src="/js/utils/ajax.js?v=12"></script>
+        <script src="/js/utils/common.js"></script>
+        <script src="/js/utils/date.js?v=1"></script>
+        <script src="/js/utils/popup.js?v=1"></script>
+        <script src="/js/utils/string.js?v=1"></script>
+        <script src="/js/utils/template.js"></script>
+        <script src="/js/jquery.preloaders.js"></script>
+        <script src="/js/const-valley.js"></script>
+        <script src="/pc/js/valley/view.js"></script>
+        <script src="/pc/js/valley/swiper.js"></script>
+        <link rel="stylesheet" href="/pc/css/common.css" type="text/css">
+        <link rel="stylesheet" href="/pc/css/valley/layout.css" type="text/css">
+        <link rel="stylesheet" href="/pc/css/valley/contents.css" type="text/css">
+        <link rel="stylesheet" href="/pc/css/valley/swiper.css" type="text/css">
+    </head>
+
+    <header id="headerSet">
+        <div class="h-notice">
+            <ul>
+                <!--위아래로 슬라이드 반복-->
+                <!--//위아래로 슬라이드 반복
+                <li>
+                    <a href="#">서원밸리 코스 상황 안내합니다. 티박스 및 그린 명일 오전 내 제설 작업 예정에 있습니다. 공지를 참조해주세요</a>
+                </li>-->
+            </ul>
+            <button class="top-close">닫기</button>
+            <script>
+                ajax.get("/pub-api/common-code", {clubId: CLUB_ID, division: "NOTIFY"}).then((data) => {
+                    const $ul = $("div.h-notice").children("ul");
+                    $ul.empty();
+
+                    if (data.length > 0) {
+                        data.forEach((notify, _) => {
+                            const $notify = $(`
+                                    <li>
+                                        <a href="javascript:void(0)">${notify.value4}</a>
+                                    </li>`);
+
+                            if (notify.value4) {
+                                if (getCookie("valleyNotifyClosedAt")) {
+                                    const closedAt = new Date(getCookie("valleyNotifyClosedAt"));
+                                    const modifiedAt = new Date(notify.modifiedAt);
+                                    const nowDate = new Date().toKoreanTime();
+
+                                    if (closedAt.yyyymmdd() < nowDate.yyyymmdd() || modifiedAt.yyyymmddhhmmss() > closedAt.yyyymmddhhmmss()) {
+                                        $ul.append($notify);
+                                    }
+                                } else {
+                                    $ul.append($notify);
+                                }
+                            }
+                        });
+                        if ($ul.children("li").length === 0) {
+                            $("header").addClass("move-up");
+                        }
+                    }
+                });
+
+                $("div.h-notice").children("button.top-close").on("click", function () {
+                    $("header").addClass("move-up");
+                    setCookie("valleyNotifyClosedAt", new Date().toKoreanTime(), 1);
+                });
+            </script>
+        </div>
+        <ul class="h-top">
+            <li>
+                <h1 class="logo" id="setLogo"><a href="/valley/main">로고</a></h1>
+            </li>
+            <li>
+                <ul class="bold">
+                    <script>
+                        ajax.get("/pub-api/weather")
+                            .then((data) => {
+                                if (data) {
+                                    $("li.weather img").attr("src", `/pc/images/weather/${data.wfEn.replaceAll("/", "&")}.svg`);
+                                    $("li.weather img").attr("alt", data.wfKor);
+                                    $("li.weather").append(data.temp + "º");
+                                }
+                            }).catch((e) => {
+                        });
+                    </script>
+                    <li class="weather">파주시 광탄면<span><img src="/pc/images/weather/Clear.svg" alt=""></span></li>
+                    <li class="account">
+                        <ul>
+                            <script>
+                                if (isLoggedIn()) {
+                                    document.write(`
+                                    <li><span class="btn btn-logout">로그아웃</span></li>
+                                    <li><span class="btn-mypage"><img src="/pc/images/valley/ic_user.svg">마이페이지</span></li>`);
+
+                                    $(".btn-logout").on("click", function () {
+                                        ajax.logout().then(() => {
+                                            location.reload();
+                                        })
+                                    });
+
+                                    ajax.get("/sec-api/member/summary").then((data) => {
+                                        const $mypagePopup = $("div.pop-mypage");
+
+                                        $mypagePopup.children("h2.name").append(data.member.name + "님");
+                                        $mypagePopup.find("a.booking").html(data.bookingCount);
+                                        $mypagePopup.find("a.coupon").html(data.couponCount);
+                                        $mypagePopup.find("a.wait").html(data.bookingWaitCount);
+                                        $mypagePopup.find("a.score").html(data.bestScore);
+                                    });
+                                } else {
+                                    document.write(`<li><span class="btn btn-login">로그인</span></li>`);
+                                }
+                            </script>
+                        </ul>
+                    </li>
+                    <li><a href="javascript:void(0);" class="btn-reservation">reservation</a></li>
+                    <script>
+                        $(".btn-reservation").on("click", function () {
+                            if (isLoggedIn()) {
+                                location.href = "/valley/reservation/main";
+                            } else {
+                                $(".btn-login").trigger("click");
+                            }
+                        });
+                    </script>
+                </ul>
+            </li>
+            <!--mypage-->
+            <div class="pop-mypage">
+                <h2 class="name"><img src="/pc/images/valley/ic_user_open.svg"></h2>
+                <dl>
+                    <dt>- 예약현황</dt>
+                    <dd><a class="booking" href="/valley/mypage/reservation-check-list"></a>건</dd>
+                </dl>
+                <dl>
+                    <dt>- 대기예약</dt>
+                    <dd><a class="wait" href="/valley/mypage/reservation-wait-list"></a>건</dd>
+                </dl>
+                <dl>
+                    <dt>- 베스트 스코어</dt>
+                    <dd><a class="score" href="/valley/group/mypage"></a>타</dd>
+                </dl>
+                <a href="/valley/mypage/modify" class="btn-top-modify">정보수정</a>
+                <div class="btn close-mypage">닫기</div>
+            </div>
+
+            <!--all menu btn-->
+            <div class="btn-navi">
+                <button class="toggle-menu">
+                    <span></span>
+                </button>
+            </div>
+
+            <!--all menu-->
+            <div id="menu" class="">
+                <div class="navigation">
+                    <div class="navi-wrap">
+                        <h1 class="navi-logo"></h1>
+                        <ul class="navi-menu">
+                            <div class="border"></div>
+                            <li class="navi-gnb">
+                                <h2><a href="javascript:void(0)">About Seowon</a></h2>
+                                <ul class="navi-lnb">
+                                    <li><a href="/valley/about/about">스토리</a></li>
+                                    <li><a href="/valley/about/lpga">토너먼트</a></li>
+                                    <li><a href="/valley/about/green-concert">ESG</a></li>
+                                    <li><a href="/valley/about/essay">서원에세이</a></li>
+                                    <li><a href="/valley/about/clubhouse">클럽하우스</a></li>
+                                    <li><a href="/valley/about/way">오시는길</a></li>
+                                </ul>
+                            </li>
+                            <li class="navi-gnb">
+                                <h2><a href="javascript:void(0)">Course</a></h2>
+                                <ul class="navi-lnb">
+                                    <li><a href="/valley/course/info">코스소개</a></li>
+                                    <li><a href="/valley/course/seowon">서원코스</a></li>
+                                    <li><a href="/valley/course/valley">밸리코스</a></li>
+                                </ul>
+                            </li>
+                            <li class="navi-gnb">
+                                <h2><a href="javascript:void(0)">Reservation</a></h2>
+                                <ul class="navi-lnb">
+                                    <li><a href="/valley/reservation/main">실시간예약</a></li>
+                                    <li><a href="/valley/reservation/guide">이용안내</a></li>
+                                    <li><a href="/valley/reservation/fee">이용요금</a></li>
+                                </ul>
+                            </li>
+                            <li class="navi-gnb">
+                                <h2><a href="javascript:void(0)">Our Special</a></h2>
+                                <ul class="navi-lnb">
+                                    <li><a href="https://www.seowongolf.co.kr/inrange/index">서원 인레인지<br><span>(연습장)</span></a></li>
+                                    <li><a href="https://seowonatrium.co.kr/">서원 아트리움<br><span>(웨딩,모임)</span></a></li>
+                                    <li><a href="https://seowonatrium.co.kr/familyparty">서원정/서원더뷰</a></li>
+                                    <!--<li><a href="javascript:alert('준비중입니다.');">서향대<br></a></li>-->
+                                </ul>
+                            </li>
+                            <li class="navi-gnb">
+                                <h2><a href="javascript:void(0)">Membership</a></h2>
+                                <ul class="navi-lnb">
+                                    <li><a href="/valley/board/list">공지사항</a></li>
+                                    <li><a href="/valley/board/event">이벤트</a></li>
+                                    <li><a href="/valley/board/qa">Q&amp;A</a></li>
+                                    <li><a href="/valley/board/archive">자료실</a></li>
+                                </ul>
+                            </li>
+                            <li class="navi-gnb">
+                                <h2><a href="javascript:void(0)">My Page</a></h2>
+                                <ul class="navi-lnb">
+                                    <li><a href="/valley/mypage/reservation-check">예약현황</a></li>
+                                    <li><a href="/valley/mypage/coupon-list">쿠폰함</a></li>
+                                    <li><a href="/valley/group/mypage">나의 활동</a></li>
+                                    <li><a href="/valley/mypage/list">고객의 소리</a></li>
+                                    <li><a href="/valley/mypage/modify">회원정보수정</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </ul>
+
+        
+    <div class="slide-login">
+        <div class="h-login-tit"><span>LOGIN</span></div>
+        <div class="login-wrap">
+            <div class="login-box">
+                <ul>
+                    <li class="login id"><span><img src="/pc/images/hills/ic_login_user.svg"></span><input type="text"
+                                                                                                           placeholder="아이디">
+                    </li>
+                    <li class="login pw"><span><img src="/pc/images/hills/ic_login_pw.svg"></span><input type="password"
+                                                                                                         placeholder="비밀번호">
+                    </li>
+                </ul>
+                <div class="idpw-row">
+                    <ul>
+                        <li class="check-id"><input type="checkbox" id="chkSaveId"><label for="chkSaveId">아이디 저장하기</label></li>
+                        <li class="check-id"><input type="checkbox" id="chkAutoLogin"><label for="chkAutoLogin">로그인 유지</label></li>
+                    </ul>
+                </div>
+                <a href="javascript:void(0)" class="btn-slide-login">로그인</a>
+            </div>
+            <p class="search-idpw">
+                <a href="/valley/member/find-id">아이디 찾기</a>
+                <span>&middot;</span>
+                <a href="/valley/member/find-pw">비밀번호 찾기</a>
+            </p>
+        </div>
+        <div class="close-login">닫기</div>
+    </div>
+
+    <script>
+        $(document).ready(function () {
+            const $container = $("div.slide-login");
+
+            // 팝업 오픈
+            $(".btn-login").on("click", function () {
+                $container.toggleClass("open");
+            });
+
+            // 팝업 닫기
+            $container.on("click", "div.close-login", function () {
+                $("div.slide-login").removeClass("open");
+            });
+
+            // 회원/비회원 탭 메뉴
+            $container.on("click", "ul.tab-login > li", function () {
+                $(this).addClass("on");
+                $(this).siblings("li").removeClass("on");
+
+                $container.find("div.login-box").hide();
+                $container.find("div.login-box").eq($(this).index()).show();
+            });
+
+            // 로그인 탭
+            const $loginContainer = $container.find("div.login-box").eq(0);
+            const $id = $loginContainer.find("input[type=text]");
+            const $pw = $loginContainer.find("input[type=password]");
+            const $saveId = $loginContainer.find("#chkSaveId");
+
+            if (getCookie("valleySaveId")) {
+                $id.val(getCookie("valleySaveId"));
+                $saveId.attr("checked", true);
+            }
+
+            $loginContainer.on("keypress", "input", function (e) {
+                if (e.keyCode === 13) {
+                    $loginContainer.children("a").click();
+                }
+            });
+
+            $loginContainer.children("a").on("click", function () {
+                const $autoLogin = $loginContainer.find("#chkAutoLogin");
+
+                if ($id.val() === "") {
+                    alert("아이디를 입력하세요.")
+                    return;
+                } else if ($pw.val() === "") {
+                    alert("비밀번호를 입력하세요.")
+                    return;
+                }
+
+                if ($autoLogin.is(":checked")) {
+                    setCookie(`${CLUB_ID}-autoLogin`, true, 30);
+                } else {
+                    removeCookie(`${CLUB_ID}-autoLogin`);
+                }
+
+                ajax.login(CLUB_ID, $id.val(), $pw.val(), $autoLogin.is(":checked")).then(() => {
+                    if ($saveId.is(":checked")) {
+                        setCookie("valleySaveId", $id.val(), 30);
+                    } else {
+                        removeCookie("valleySaveId");
+                    }
+
+                    location.reload();
+                }).catch(() => {
+                })
+            });
+        });
+    </script>
+
+    </header>
+
+
+<body>
+
+    
+    <aside id="asideSet">
+        <ul>
+            <li>
+                <a href="/hills/main">
+                    <p>SEOWON HILLS</p>
+                    <span>서원힐스</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://www.seowongolf.co.kr/inrange/index">
+                    <p>SEOWON INRANGE</p>
+                    <span>서원 인레인지</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://seowonatrium.co.kr/">
+                    <p>WEDDING / BANQUET</p>
+                    <span>서원 아트리움</span>
+                </a>
+            </li>
+            <li>
+                <!--<a href="/valley/about/green-concert">-->
+                <a href="https://www.greenconcert.co.kr/">
+                    <p>GREEN CONCERT</p>
+                    <span>그린 콘서트</span>
+                </a>
+            </li>
+            <!--<li>
+                <a href="/valley/about/clubhouse">
+                    <p>SEOWON SHOP</p>
+                    <span>서원샵</span>
+                </a>
+            </li>-->
+        </ul>
+    </aside>
+
+
+    <script>
+        $(document).ready(function () {
+            $("#valleyCon1").show();
+            initCommonTabMenu(".course-guide-tab > ul > li", ".course-guide-cont");
+        });
+    </script>
+
+    <div class="contents-wrap">
+        <h2 class="subTitle">밸리코스</h2>
+        
+
+    <script>
+        let firstMenu, secMenu;
+
+        const firstMenuList = {
+            "about": "ABOUT SEOWON",
+            "course": "COURSE",
+            "reservation": "RESERVATION",
+            // "special": "OUR SPECIAL",
+            "board": "MEMBERSHIP",
+            "mypage": "MY PAGE",
+            "policy": "이용약관"
+        }
+
+        const secMenuList = {
+            "about": {
+                "/valley/about/about": ["스토리", true],
+                "/valley/about/history": ["스토리", false],
+                "/valley/about/awards": ["스토리", false],
+                "/valley/about/kpga": ["토너먼트", false],
+                "/valley/about/klpga": ["토너먼트", false],
+                "/valley/about/lpga": ["토너먼트", true],
+                "/valley/about/kga": ["토너먼트", false],
+                "/valley/about/green-concert": ["ESG", true],
+                "/valley/about/wedding": ["ESG", false],
+                "/valley/about/academy": ["ESG", false],
+                "/valley/about/essay": ["서원에세이", true],
+                "/valley/about/clubhouse": ["클럽하우스", true],
+                "/valley/about/way": ["오시는길", true]
+            },
+            "course": {
+                "/valley/course/info": ["코스소개", true],
+                "/valley/course/seowon": ["서원코스", true],
+                "/valley/course/valley": ["밸리코스", true]
+            },
+            "reservation": {
+                "/valley/reservation/main": ["실시간예약", true],
+                "/valley/reservation/check": ["실시간예약", false],
+                "/valley/reservation/reservation-food": ["실시간예약", false],
+                "/valley/reservation/guide": ["이용안내", true],
+                "/valley/reservation/penalty": ["이용안내", false],
+                "/valley/reservation/rules": ["이용안내", false],
+                "/valley/reservation/fee": ["이용요금", true]
+            },
+            /*"special": {
+                "javascript:alert('준비중입니다.')": ["서원 인레인지", true],
+                "/valley/special/atrium": ["서원 아트리움", true],
+                "/valley/special/special": ["서원정/서원더뷰", true],
+                "/valley/special/special": ["서향대", true]
+            },*/
+            "board": {
+                "/valley/board/list": ["공지사항", true],
+                "/valley/board/view": ["공지사항", false],
+                "/valley/board/event": ["이벤트", true],
+                "/valley/board/qa": ["Q&A", true],
+                "/valley/board/archive": ["자료실", true]
+            },
+            "mypage": {
+                "/valley/mypage/reservation-check": ["예약현황", true],
+                "/valley/mypage/penalty-list": ["예약현황", false],
+                "/valley/mypage/reservation-check-list": ["예약현황", false],
+                "/valley/mypage/cancel-list": ["예약현황", false],
+                "/valley/mypage/reservation-wait-list": ["예약현황", false],
+                "/valley/mypage/change": ["예약현황", false],
+                "/valley/mypage/reservation-weekend-list": ["예약현황", false],
+                "/valley/mypage/coupon-list": ["쿠폰함", true],
+                // "/valley/group/group": ["MY 연단체", false],
+                "/valley/group/mypage": ["나의 활동", true],
+                "/valley/mypage/team": ["나의 활동", false],
+                "/valley/mypage/list": ["고객의 소리", true],
+                "/valley/mypage/view": ["고객의 소리", false],
+                "/valley/mypage/write": ["고객의 소리", false],
+                "/valley/mypage/modify": ["회원정보 수정", true],
+            },
+
+            "policy": {
+                "/valley/policy/policy01": ["사이트 이용약관", true],
+                "/valley/policy/policy02": ["개인정보처리방침", true],
+                "/valley/policy/policy03": ["영상처리 운영방침", true],
+                "/valley/policy/policy04": ["이메일무단수집금지", true],
+            }
+        }
+
+        $(document).ready(function () {
+            initMenus();
+        });
+
+        function initMenus() {
+            const url = window.location.href;
+
+            for (let key in secMenuList) {
+                for (let page in secMenuList[key]) {
+                    if (url.indexOf(page) > 0) {
+                        $("#category").html(firstMenuList[key]);
+                        $("#category2").html(secMenuList[key][page][0]);
+                        firstMenu = key;
+                        secMenu = page;
+                        break;
+                    }
+                }
+                if (firstMenu != null && firstMenu != "") {
+                    break;
+                }
+            }
+
+            $("#categorySelect2").empty();
+
+            for (let key in secMenuList[firstMenu]) {
+                if (secMenuList[firstMenu][key][1]) {
+                    $("#categorySelect2").append(`<li><a href='${key}'>${secMenuList[firstMenu][key][0]}</a></li>`);
+                }
+            }
+
+            for (let key in secMenuList) {
+                for (let page in secMenuList[key]) {
+                    $("#categorySelect").append(`<li><a href='${page}'>${firstMenuList[key]}</a></li>`);
+                    break;
+                }
+            }
+        }
+    </script>
+
+    <div class="sub-tab-wrap">
+        <h3 class="sub-tab-title selectArrow">HOME</h3>
+        <ul class="select-box subTab-box" id="firstBox">
+            <li class="selected-option selectArrow">
+                <span id="category"></span>
+                <ul class="options" id="categorySelect"></ul>
+            </li>
+        </ul>
+        <ul class="select-box subTab-box" id="secondBox">
+            <li class="selected-option">
+                <span id="category2"></span>
+                <ul class="options" id="categorySelect2"></ul>
+            </li>
+        </ul>
+    </div>
+
+
+
+        <div class="course-guide-wrap sub-wrap">
+            <div class="course-guide-tab">
+                <ul>
+                    <li class="on"><p><b>HOLE</b><span>1</span></p></li>
+                    <li><p><b>HOLE</b><span>2</span></p></li>
+                    <li><p><b>HOLE</b><span>3</span></p></li>
+                    <li><p><b>HOLE</b><span>4</span></p></li>
+                    <li><p><b>HOLE</b><span>5</span></p></li>
+                    <li><p><b>HOLE</b><span>6</span></p></li>
+                    <li><p><b>HOLE</b><span>7</span></p></li>
+                    <li><p><b>HOLE</b><span>8</span></p></li>
+                    <li><p><b>HOLE</b><span>9</span></p></li>
+                </ul>
+            </div>
+
+            <div class="course-guide-cont" id="valleyCon1">
+                <div class="course-guide-box">
+                    <div class="course-guide-in1">
+                        <ul>
+                            <li>
+                                <p><b>HOLE</b></p>
+                                <p><strong>1</strong></p>
+                                <p><span>PAR<small>4</small></span><span>HDCP<small>14</small></span></p>
+                            </li>
+                            <li>
+                                전체적으로 왼쪽으로 굽은 도그렉홀로 티샷은 오른쪽의 큰 잣나무 부근을 겨냥합니다.
+                                티샷 낙하지점의 페어웨이 기복이 심해 주의해야 하지만 티샷에만 성공하면 세컨 샷 공략은 무난한 홀로 안정된 플레이가 가능합니다.
+                            </li>
+                            <li>
+                                <table>
+                                    <thead>
+                                    <tr>
+                                        <th>BLUE</th>
+                                        <th>WHITE</th>
+                                        <th>GOLD</th>
+                                        <th>RED</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr>
+                                        <td>378</td>
+                                        <td>353</td>
+                                        <td>327</td>
+                                        <td>301</td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="course-guide-in2"></div>
+                    <div class="course-guide-in3"></div>
+                </div>
+            </div>
+
+            <div class="course-guide-cont" id="valleyCon2">
+                <div class="course-guide-box">
+                    <div class="course-guide-in1">
+                        <ul>
+                            <li>
+                                <p><b>HOLE</b></p>
+                                <p><strong>2</strong></p>
+                                <p><span>PAR<small>3</small></span><span>HDCP<small>16</small></span></p>
+                            </li>
+                            <li>
+                                그린과 왼쪽 연못 사이에 굽은 그라스벙커와 샌드벙커가 교대로 도사리고 있어 정확한 샷이 요구되는 홀입니다.
+                                티샷이 그린 왼쪽으로 가게되면 파 플레이도 어려워지므로 주의해야 합니다.
+                            </li>
+                            <li>
+                                <table>
+                                    <thead>
+                                    <tr>
+                                        <th>BLUE</th>
+                                        <th>WHITE</th>
+                                        <th>GOLD</th>
+                                        <th>RED</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr>
+                                        <td>205</td>
+                                        <td>179</td>
+                                        <td>150</td>
+                                        <td>124</td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="course-guide-in2"></div>
+                    <div class="course-guide-in3"></div>
+                </div>
+            </div>
+
+            <div class="course-guide-cont" id="valleyCon3">
+                <div class="course-guide-box">
+                    <div class="course-guide-in1">
+                        <ul>
+                            <li>
+                                <p><b>HOLE</b></p>
+                                <p><strong>3</strong></p>
+                                <p><span>PAR<small>5</small></span><span>HDCP<small>6</small></span></p>
+                            </li>
+                            <li>
+                                약간 오른쪽으로 굽은 도그렉홀로 상당히 긴 홀입니다.
+                                티샷은 300야드 거리의 왼쪽 느티나무 선상의 우측 언덕 끝지점을 겨냥하되 왼쪽의 샌드벙커를 주의해야 합니다.
+                                그린 앞에는 대형 벙커가 있으므로 세컨 샷과 서드 샷 모두 정확도가 요구됩니다.
+                            </li>
+                            <li>
+                                <table>
+                                    <thead>
+                                    <tr>
+                                        <th>BLUE</th>
+                                        <th>WHITE</th>
+                                        <th>GOLD</th>
+                                        <th>RED</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr>
+                                        <td>589</td>
+                                        <td>551</td>
+                                        <td>507</td>
+                                        <td>468</td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="course-guide-in2"></div>
+                    <div class="course-guide-in3"></div>
+                </div>
+            </div>
+
+            <div class="course-guide-cont" id="valleyCon4">
+                <div class="course-guide-box">
+                    <div class="course-guide-in1">
+                        <ul>
+                            <li>
+                                <p><b>HOLE</b></p>
+                                <p><strong>4</strong></p>
+                                <p><span>PAR<small>4</small></span><span>HDCP<small>10</small></span></p>
+                            </li>
+                            <li>
+                                코스가 평탄해 부담감 없이 플레이할 수 있는 코스로 자작, 단풍, 느티나무 수림대가 형성되어 있어 편안한 분위기를 더합니다.
+                                슬라이스를 주의해야 하며 세컨 샷은 카트도로 끝의 그늘집을 보고 날립니다.
+                            </li>
+                            <li>
+                                <table>
+                                    <thead>
+                                    <tr>
+                                        <th>BLUE</th>
+                                        <th>WHITE</th>
+                                        <th>GOLD</th>
+                                        <th>RED</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr>
+                                        <td>401</td>
+                                        <td>373</td>
+                                        <td>341</td>
+                                        <td>306</td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="course-guide-in2"></div>
+                    <div class="course-guide-in3"></div>
+                </div>
+            </div>
+
+            <div class="course-guide-cont" id="valleyCon5">
+                <div class="course-guide-box">
+                    <div class="course-guide-in1">
+                        <ul>
+                            <li>
+                                <p><b>HOLE</b></p>
+                                <p><strong>5</strong></p>
+                                <p><span>PAR<small>4</small></span><span>HDCP<small>2</small></span></p>
+                            </li>
+                            <li>
+                                티잉그라운드 앞에서 내려다보이는 해저드가 다소 부담스러운 홀입니다.
+                                그러나 기량에 따라 적절한 공략지점을 선택하면 순조롭게 플레이할 수 있습니다.
+                                티샷은 해저드의 오른쪽 끝지점을 보고 날리는 것이 좋고 해저드 뒤의 벙커를 주의해야 합니다.
+                            </li>
+                            <li>
+                                <table>
+                                    <thead>
+                                    <tr>
+                                        <th>BLUE</th>
+                                        <th>WHITE</th>
+                                        <th>GOLD</th>
+                                        <th>RED</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr>
+                                        <td>428</td>
+                                        <td>394</td>
+                                        <td>363</td>
+                                        <td>319</td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="course-guide-in2"></div>
+                    <div class="course-guide-in3"></div>
+                </div>
+            </div>
+
+            <div class="course-guide-cont" id="valleyCon6">
+                <div class="course-guide-box">
+                    <div class="course-guide-in1">
+                        <ul>
+                            <li>
+                                <p><b>HOLE</b></p>
+                                <p><strong>6</strong></p>
+                                <p><span>PAR<small>4</small></span><span>HDCP<small>8</small></span></p>
+                            </li>
+                            <li>
+                                왼쪽 산자락의 화려한 관목과 그린 오른쪽의 연못이 한 눈에 내려다 보이는 홀로 훅과 슬라이스가 모두 염려되는 홀입니다.
+                                티샷지점으로부터 210~250야드 거리의 페어웨이 오른쪽에 벙커가 있고 OB지역과 근접해 있으므로 왼쪽을 공략합니다.
+                                세컨 샷은 그린 우측의 해저드를 주의해야 합니다.
+                            </li>
+                            <li>
+                                <table>
+                                    <thead>
+                                    <tr>
+                                        <th>BLUE</th>
+                                        <th>WHITE</th>
+                                        <th>GOLD</th>
+                                        <th>RED</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr>
+                                        <td>420</td>
+                                        <td>383</td>
+                                        <td>348</td>
+                                        <td>327</td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="course-guide-in2"></div>
+                    <div class="course-guide-in3"></div>
+                </div>
+            </div>
+
+            <div class="course-guide-cont" id="valleyCon7">
+                <div class="course-guide-box">
+                    <div class="course-guide-in1">
+                        <ul>
+                            <li>
+                                <p><b>HOLE</b></p>
+                                <p><strong>7</strong></p>
+                                <p><span>PAR<small>5</small></span><span>HDCP<small>4</small></span></p>
+                            </li>
+                            <li>
+                                가장 긴 롱기스트 홀. 페어웨이가 넓고 완만하게 펼쳐져 있어 장타자에게 유리합니다.
+                                골퍼들에게 마음껏 실력을 펼치고픈 도전 욕구를 불러 일으켜 역전의 기회가 있는 홀로 티샷은 페어웨이 중앙보다 약간 왼쪽을 공략합니다.
+                            </li>
+                            <li>
+                                <table>
+                                    <thead>
+                                    <tr>
+                                        <th>BLUE</th>
+                                        <th>WHITE</th>
+                                        <th>GOLD</th>
+                                        <th>RED</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr>
+                                        <td>569</td>
+                                        <td>535</td>
+                                        <td>492</td>
+                                        <td>454</td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="course-guide-in2"></div>
+                    <div class="course-guide-in3"></div>
+                </div>
+            </div>
+
+            <div class="course-guide-cont" id="valleyCon8">
+                <div class="course-guide-box">
+                    <div class="course-guide-in1">
+                        <ul>
+                            <li>
+                                <p><b>HOLE</b></p>
+                                <p><strong>8</strong></p>
+                                <p><span>PAR<small>3</small></span><span>HDCP<small>18</small></span></p>
+                            </li>
+                            <li>
+                                계단식으로 배치된 티잉그라운드와 메타세콰이아가 늘어선 풍경이 아름다우면서 도전욕을 자극합니다.
+                                왼쪽의 연못으로 인해 아일랜드 그린을 연상시키는 홀로 정확한 거리감이 필요하지만 오른쪽이 개방되어 있으므로 편안하게 공략하면 좋은 결과를 기대할 수 있습니다.
+                            </li>
+                            <li>
+                                <table>
+                                    <thead>
+                                    <tr>
+                                        <th>BLUE</th>
+                                        <th>WHITE</th>
+                                        <th>GOLD</th>
+                                        <th>RED</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr>
+                                        <td>184</td>
+                                        <td>177</td>
+                                        <td>137</td>
+                                        <td>127</td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="course-guide-in2"></div>
+                    <div class="course-guide-in3"></div>
+                </div>
+            </div>
+
+            <div class="course-guide-cont" id="valleyCon9">
+                <div class="course-guide-box">
+                    <div class="course-guide-in1">
+                        <ul>
+                            <li>
+                                <p><b>HOLE</b></p>
+                                <p><strong>9</strong></p>
+                                <p><span>PAR<small>4</small></span><span>HDCP<small>12</small></span></p>
+                            </li>
+                            <li>
+                                인코스의 마지막 홀로 평탄한 코스이므로 편안한 마음으로 파를 기록할 수 있습니다.
+                                티샷은 티잉그라운드에서 180야드 거리에 있는 벙커를 기준으로 날리되 필요 이상의 욕심을 부리기 보다 차분한 마음으로 라운드를 마무리합니다.
+                            </li>
+                            <li>
+                                <table>
+                                    <thead>
+                                    <tr>
+                                        <th>BLUE</th>
+                                        <th>WHITE</th>
+                                        <th>GOLD</th>
+                                        <th>RED</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr>
+                                        <td>379</td>
+                                        <td>339</td>
+                                        <td>311</td>
+                                        <td>279</td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="course-guide-in2"></div>
+                    <div class="course-guide-in3"></div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+
+
+    <footer>
+        <h1>로고</h1>
+        <ul>
+            <li><h2>Customer Service</h2></li>
+            <li>전화번호 &nbsp;&nbsp;&nbsp; 031-940-9400(서원밸리 9401 / 서원힐스 9402 / 연습장 9550) &nbsp;&nbsp;&nbsp; 문의시간 : 8시~18시</li>
+            <li class="footer-page">
+                <a href="/valley/policy/policy01" class="bold">이용약관</a>
+                <a href="/valley/policy/policy02">개인정보처리방침</a>
+                <a href="/valley/policy/policy03">영상정보처리기기운영·관리방침</a>
+                <a href="/valley/policy/policy04">이메일무단수집금지</a>
+            </li>
+            <li><p>· 상호 : 서원레저(주) · 대표자명 : 정석천 · 사업장소재지 : 경기도 파주시 광탄면 서원길 333 · 연락처 : 031-940-9400(서원밸리 9401 / 서원힐스 9402 / 연습장 9550)<br>
+                · 사업자등록번호 : 110-81-34204 · 통신판매번호 : 2009-경기파주-1997<br>
+                · 기상정보 출처: 기상청 홈페이지<br><br>
+                ⓒ 서원레저(주) ALL RIGHT RESERVED</p>
+            </li>
+        </ul>
+    </footer>
+
+</body>
+</html>
+

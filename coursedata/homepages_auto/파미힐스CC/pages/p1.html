@@ -1,0 +1,1423 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>파미힐스CC</title>
+    <link rel="stylesheet" href="/css/import.css?v=4" type="text/css">
+    <link rel="stylesheet" href="/css/main.css?v=6" type="text/css">
+    <link rel="stylesheet" href="/css/jquery.bxslider.css" type="text/css">
+    <link rel="stylesheet" href="/css/swiper.min.css" type="text/css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="/js/common.js?v=2.2"></script>
+    <script src="/js/jquery.bxslider.js"></script>
+    <script src="/js/swiper.min.js"></script>
+	<script src="/js/globals.js"></script>
+	<script src="/js/tools.js?v=3"></script>
+	<script src="/js/jquery.preloaders.js"></script>
+    <script type="text/javascript" src="//cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
+	
+		<script>
+			$(document).ready(function(){
+				/*if (document.location.protocol == 'http:') {
+					document.location.href = "https://www.palmyhillscc.co.kr/course/course_specifications_south.asp?id=";
+				}*/
+
+				var id = "";
+				if (id != "") {
+					var sUrl = "/controller/MemberController.asp";
+					var params = {};
+
+					params["method"] = "doLoginW";
+					params["coDiv"] = globals.coDiv.a;
+					params["id"] = id;
+
+					mAjax(sUrl, params, "POST", true, function(data) {
+						location.href = "https://www.palmyhillscc.co.kr/course/course_specifications_south.asp";
+					});
+					return;
+				}
+
+				if ("" != "") {
+					sessionCheck();
+				}
+			});
+		</script>
+	
+	<script>
+		var screenWidth = screen.availWidth;
+		var mobileKeyWords = new Array('iPhone', 'iPod', 'iPad', 'BlackBerry', 'Android', 'Windows CE', 'MOT', 'SAMSUNG', 'SonyEricsson');
+		if ("" != "MtoPc") {
+			/*if (screenWidth <= 1024) {
+				location.href = "/mobile/index.asp";
+			}*/
+			for (var word in mobileKeyWords) {
+				if (navigator.userAgent.match(mobileKeyWords[word]) != null) {
+					location.href = "/mobile/index.asp";
+					break;
+				}
+			}
+			if (navigator.userAgent.indexOf("iPad") > -1 || navigator.userAgent.indexOf("iPod") > -1) {
+				location.href = "/mobile/index.asp";
+			}
+		}
+
+		function sessionCheck() {
+			var sUrl = "/controller/SessionManager.asp";
+			var params = {"method" : "sessionConfirm"};
+
+			mAjax(sUrl, params, "POST", false, function(data) {
+				if(data.resultCode == "2000") {
+					alert(data.resultMessage);
+					location.reload();
+				}
+			});
+		}
+	</script>
+    
+		<link rel="stylesheet" type="text/css" href="/css/contents.css?v=9">
+		<script>
+			$(document).ready(function(){
+				$("header").addClass('subMain');
+                $(".wrap").removeClass('main-wrap');
+			});
+		</script>
+	
+	<script>
+		function doLogout() {
+			var sUrl = "/controller/MemberController.asp";
+			var params = {};
+
+			params["method"] = "doLogout";
+
+			mAjax(sUrl, params, "POST", true, function(data) {
+				if(data.resultCode == "0000") {
+					setCookie("loginId", "", 1);
+					alert("로그아웃 되었습니다.");
+
+					location.href = "/index.asp";
+				}
+			});
+		}
+	</script>
+</head>
+<body>
+    <div class="wrap">
+        <header id="header">
+            <h1 class="logo">
+                <a href="/index.asp">
+                    <img src="/images/main/logo_main.svg" alt="파미힐스 로고">
+                </a>
+            </h1>
+            <div class="logo02">
+                <a href="/index.asp">
+                <h2>PALMY HILLS</h2>
+                <P>COUNTRY CLUB</P></a>
+            </div>
+            <ul class="login-tab">
+			
+                <li><a href="/join/login.asp">로그인</a></li>
+                <li><a href="/join/join01.asp">회원가입</a></li>
+			
+            </ul>
+            <nav class="nav">
+                <ul class="gnb">
+                    <li class="gnb-list">
+                        <a href="/club/club_info.asp">클럽소개</a>
+                        <ul class="sub">
+                            <li><a href="/club/club_info.asp">소개 및 개요</a></li>
+                            <li><a href="/club/history.asp">연혁</a></li>
+                            <li><a href="/club/ceo.asp">대표이사 인사말</a></li>
+                            <li><a href="/club/ceo_history.asp">역대 공동대표이사</a></li>
+                            <li><a href="/club/way.asp">오시는 길</a></li>
+                            <li><a href="https://www.weather.go.kr/w/weather/forecast/short-term.do" target="_blank">날씨정보</a></li>
+
+                        </ul>
+                    </li>
+                    <li class="gnb-list">
+                        <a href="/course/course_specifications_south.asp">코스소개</a>
+                        <ul class="sub">
+                            <li><a href="/course/course_specifications_south.asp">코스제원</a></li>
+                            <li><a href="/course/course_info_south.asp">코스안내</a></li>
+                            <li><a href="/course/local_rule.asp">로컬룰</a></li>
+							<li><a href="/member/weather.asp?id=">기상영상</a></li>
+                        </ul>
+                    </li>
+                    <li class="gnb-list">
+                        <a href="/info/list.asp?type=8">고객안내</a>
+                        <ul class="sub">
+							<li><a href="/info/list.asp?type=23">입찰공고 및 결과</a></li>
+                            <li><a href="/info/list.asp?type=8">새소식</a></li>
+                            <li><a href="/info/facility_south.asp">시설안내</a></li>
+                            <li><a href="/info/contact.asp">구내번호</a></li>
+                            <li><a href="/info/fee.asp">요금표</a></li>
+                            <li><a href="/info/list.asp?type=20">문서양식</a></li>
+							<li><a href="/info/list.asp?type=25">회원권 직거래</a></li>
+                            <li><a href="/info/list.asp?type=24">분실물</a></li>
+							<li><a href="/info/list.asp?type=26">단체팀 성적</a></li>
+                        </ul>
+                    </li>
+                    <li class="gnb-list">
+                        <a href="/affiliate/affiliate_reservation.asp">제휴사</a>
+                        <ul class="sub">
+                            <li><a href="/affiliate/affiliate_reservation.asp">제휴사 예약</a></li>
+                            <li><a href="/affiliate/thailand.asp">태국 골프장</a></li>
+                            <li><a href="/affiliate/greenland_resort.asp">그린랜드</a></li>
+                            <li><a href="/affiliate/ardenhill_resort.asp">아덴힐<br>리조트앤골프</a></li>
+                            <li><a href="/affiliate/lareine_resort.asp">라헨느</a></li>
+                            <li><a href="/affiliate/fourizon.asp">포라이즌</a></li>
+                            <li><a href="/affiliate/raon.asp">라온GC</a></li>
+                        </ul>
+                    </li>
+                    <li class="gnb-list">
+                        <a href="/reservation/reservation_system.asp">인터넷예약</a>
+                        <ul class="sub">
+                            <li><a href="/reservation/reservation_system.asp">예약제도</a></li>
+                            <li><a href="/reservation/reservation.asp">실시간예약</a></li>
+                            <li><a href="/reservation/waiting_reservation.asp">대기예약</a></li>
+                            <li><a href="/reservation/reservation_check.asp">조회/취소</a></li>
+                            <li><a href="/reservation/general_meeting.asp">주주총회</a></li>
+                            
+                        </ul>
+                    </li>
+                    <li class="gnb-list">
+                        <a href="/mypage/modify.asp">마이페이지</a>
+                        <ul class="sub">
+                            <li><a href="/mypage/modify.asp">회원정보변경</a></li>
+                            <li><a href="/mypage/placement_status.asp">위약현황</a></li>
+                            <li><a href="/mypage/built_in_status.asp">내장현황</a></li>
+                            <li><a href="/mypage/score_status.asp">스코어현황</a></li>
+                            <li><a href="/mypage/list.asp?type=21">대표회원과함께</a></li>
+                        </ul>
+                    </li>
+                    <li class="gnb-list">
+                        <a href="/board/list.asp?type=1">정보마당</a>
+                        <ul class="sub">
+							<li><a href="/board/list.asp?type=1">회원 공지사항</a></li>
+							<li><a href="/board/list.asp?type=2">자유게시판</a></li>
+							<li><a href="/board/list.asp?type=3">회의록</a></li>
+							<li><a href="/board/list.asp?type=6">조인방</a></li>
+							<li><a href="/board/hall_of_fame.asp">명예의 전당</a></li>
+							<li><a href="/board/list.asp?type=4">읽을거리</a></li>
+							<li><a href="/board/list.asp?type=7">선거관리위원회</a></li>
+							<li><a href="/board/historical_audit.asp?type=8">역대감사</a></li>
+							<li><a href="/board/all_time_representative.asp?type=9">역대대표회원</a></li>
+							<li><a href="/board/list.asp?type=10">자료실</a></li>
+                        </ul>
+                    </li>
+					
+                </ul>
+            </nav>
+        <div class="sub-bg"></div> 
+    </header>
+
+<div class="join-wrap">
+    <div class="background9-wrap">
+        <section class="background9">
+            <div class="background9-inner">
+                <!-- <p>COURSE INTRODUCTION</p> -->
+                <span>코스제원</span>
+            </div>
+        </section>
+    </div>
+
+    <div class="sub-tab-wrap">
+        <div class="sub-tab-top">
+            <div class="sub-tab-left">
+                <h2>코스제원</h2>
+                <!-- <p>COURSE SPECIFICATIONS</p> -->
+            </div>
+                <ul class="sub-tab-right">
+                    <li class="tab-icon">
+                        <img src="/images/contents/Home_Btn.svg" alt="홈버튼">
+                    </li>
+                    <li class="arrow-after"></li>
+                    <li>코스소개</li>
+                    <li class="arrow-after"></li>
+                    <li>코스제원</li>
+                </ul>
+            </div>
+        </div>
+            <ul class="sub06-menu-tab colorAdd02">
+                <li id="menuBr" class="on"><a href="/course/course_specifications_south.asp">코스제원</a></li>
+                <li><a href="/course/course_info_south.asp">코스안내</a></li>
+                <li id="menuBr2"><a href="/course/local_rule.asp">로컬룰</a></li>
+				<li id="menuBr3"><a href="/member/weather.asp">기상영상</a></li>
+            </ul>
+
+            <div class="course-contents">
+                <ul class="reser-info-tab">
+                    <li><a href="/course/course_specifications_south.asp" class="on">
+                        남코스</a>
+                    </li>
+                    <li><a href="/course/course_specifications_east.asp">
+                        동코스</a>
+                    </li>
+                </ul>
+                <h2 class="join-check-title">
+                    <img src="/images/contents/Course_1.svg" alt="">
+                    남코스
+                </h2>
+                    <div class="fee-table01">
+                        <table>
+                            <colgroup>
+                                <col width="*">
+                                <col width="*">
+                                <col width="*">
+                                <col width="*">
+                            </colgroup>
+                            <thead>
+                                <tr>
+                                    <th scope="col">HOLE</th>
+                                    <th scope="col">PAR</th>
+                                    <th scope="col">REGULAR</th>
+                                    <th scope="col">LADY</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>1</td>
+                                    <td>4</td>
+                                    <td>324</td>
+                                    <td>294</td>
+                                </tr>
+                                <tr>
+                                    <td>2</td>
+                                    <td>4</td>
+                                    <td>293</td>
+                                    <td>258</td>
+                                </tr>
+                                <tr>
+                                    <td>3</td>
+                                    <td>5</td>
+                                    <td>506</td>
+                                    <td>410</td>
+                                </tr>
+                                <tr>
+                                    <td>4</td>
+                                    <td>3</td>
+                                    <td>170</td>
+                                    <td>136</td>
+                                </tr>
+                                <tr>
+                                    <td>5</td>
+                                    <td>4</td>
+                                    <td>328</td>
+                                    <td>300</td>
+                                </tr>
+                                <tr>
+                                    <td>6</td>
+                                    <td>3</td>
+                                    <td>130</td>
+                                    <td>102</td>
+                                </tr>
+                                <tr>
+                                    <td>7</td>
+                                    <td>4</td>
+                                    <td>373</td>
+                                    <td>295</td>
+                                </tr>
+                                <tr>
+                                    <td>8</td>
+                                    <td>5</td>
+                                    <td>474</td>
+                                    <td>443</td>
+                                </tr>
+                                <tr>
+                                    <td>9</td>
+                                    <td>4</td>
+                                    <td>323</td>
+                                    <td>286</td>
+                                </tr>
+                                <tr>
+                                    <td>10</td>
+                                    <td>4</td>
+                                    <td>270</td>
+                                    <td>251</td>
+                                </tr>
+                                <tr>
+                                    <td>11</td>
+                                    <td>3</td>
+                                    <td>156</td>
+                                    <td>124</td>
+                                </tr>
+                                <tr>
+                                    <td>12</td>
+                                    <td>4</td>
+                                    <td>270</td>
+                                    <td>246</td>
+                                </tr>
+                                <tr>
+                                    <td>13</td>
+                                    <td>4</td>
+                                    <td>334</td>
+                                    <td>280</td>
+                                </tr>
+                                <tr>
+                                    <td>14</td>
+                                    <td>5</td>
+                                    <td>491</td>
+                                    <td>383</td>
+                                </tr>
+                                <tr>
+                                    <td>15</td>
+                                    <td>3</td>
+                                    <td>127</td>
+                                    <td>111</td>
+                                </tr>
+                                <tr>
+                                    <td>16</td>
+                                    <td>4</td>
+                                    <td>358</td>
+                                    <td>289</td>
+                                </tr>
+                                <tr>
+                                    <td>17</td>
+                                    <td>5</td>
+                                    <td>492</td>
+                                    <td>399</td>
+                                </tr>
+                                <tr>
+                                    <td>18</td>
+                                    <td>4</td>
+                                    <td>303</td>
+                                    <td>269</td>
+                                </tr>
+                                <tr>
+                                    <td class="course-back">TOTAL</td>
+                                    <td class="course-back">72</td>
+                                    <td class="course-back">5,722</td>
+                                    <td class="course-back">4,876</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+    <footer id="footer">
+        <div class="footer-logo">
+            <img src="/images/main/logo_footer2.svg" alt="파미힐스 로고">
+        </div>
+            <ul class="footer-contents">
+                <li><a href="javascript:void(0)" onclick="javascript:normalOpen(13)" >이용약관│</a></li>
+                <li><a href="javascript:void(0)" onclick="javascript:normalOpen(14)" >인터넷 서비스 이용약관│</a></li>
+                <li><a href="javascript:void('1.7')" onclick="javascript:normalOpen(15)" >개인정보처리방침│</a></li>
+                <li><a href="javascript:void(0)" onclick="javascript:normalOpen(16)" >이메일수집거부│</a></li>
+                <li><a href="javascript:void(0)" onclick="javascript:normalOpen(17)" >영상정보처리기기 운영·관리 방침│</a></li>
+                <li><a href="javascript:void(0)" onclick="javascript:normalOpen(18)" >골프장 이용 방침</a></li>
+            </ul>
+            <div class="footer-contents2">
+                <p>사업자등록번호 : 513-81-21932&nbsp; &nbsp; &nbsp; 통신판매신고번호 : 2009-경북칠곡-0047&nbsp; &nbsp; &nbsp;  (주)한길 대표이사 : 이치헌, 임호훈, 강석찬&nbsp; &nbsp; &nbsp;주소 : 경상북도 칠곡군 왜관읍 봉계로 263<br>
+                    Tel : 054-971-9900&nbsp; &nbsp; &nbsp; Fax : 054-971-9905&nbsp; &nbsp; &nbsp; <strong>예약전화 : 1577-9003</strong><br>
+                    <span title="7">2011 Palmyhills Country Club. All Right Reserved</span></p>
+            </div>
+            <div class="footer-popup" id="layerPop13" style="display:none;">
+                <div class="footer-pop-header">
+                    <h3>이용약관</h3>
+                    <img src="/images/contents/close-circle.svg" alt="" onclick="popupClose(13)">
+                </div>
+                <div class="footer-popup-check1">
+                    제1조(목적) 
+                    이 약관은 골프장사업자(이하 “사업자”라 한다)와 골프장의 시설물을 이용하려는 모든 내장객(이하 “이용자”라 한다)간의 골프장 시설물 이용 및 이에 따르는 책임에 관한 사항을 규정함을 목적으로 한다.
+                    
+                    제2조(적용) 
+                    이 약관은 사업자와 골프장의 회원 또는 비회원인 이용자에게 적용된다.
+                    
+                    제3조(계약의 성립) 
+                    골프장 이용계약은 이용자가 골프장이용을 청약하는 의사표시와 서명을 하고 예약자확인 절차를 마친 때에 성립된다. 
+                    예약을 하지 않은 경우에는 입장절차를 마친 때 성립한다. 
+                    
+                    제4조(약관의 명시, 설명의무)
+                     ① 사업자는 이 약관을 프론트 기타 이용자가 보기 쉬운 곳에 게시하여야 하며, 이용자가 회원가입계약 또는 골프장 이용계약을 체결할 때 요구하면 이 약관의 사본을 교부하여야 한다.
+                     ② 사업자는 이 약관에 정하여져 있는 중요한 내용을 회원가입계약 또는 골프장 이용계약을 체결할 때 이용자가 이해할 수 있도록 설명하여야 한다. 
+                    다만, 그 전에설명을 들었던 이용자에게는 이 약관의 변경된 내용이 없으면 그의 동의를 얻어설명하지 아니할 수 있다.
+                     ③ 사업자가 제1항 또는 제2항의 의무를 위반한 경우에는 당해 약관조항을 계약의 내용으로 주장할 수 없다. 
+                    
+                    제5조(예약)
+                     ① 이용자는 이용예정일로부터 ( )일 전까지 예약할 수 있다.
+                     ② 비회원 이용자가 예약을 하는 경우에는 사업자는 팀별 이용예정인원수에 해당하는 제7조 제1항 제1호의 골프코스 이용에 따른 요금 총액의 ( )%를 예약금으로 지급할 것을 요구할 수 있다.
+                     ※ ( )%는 10% 이내이어야 함
+                     ③ 비회원 이용자가 제2항의 규정에 의하여 예약금을 지급해야 할 경우에는 예약당일 ( )시까지 지급해야 하며, 그 지급이 없으면 예약을 무효로 한다.
+                     ④ 이용자가 예약을 불이행하는 경우에는 사업자는 합리적인 범위내에서 벌점부과 또는 일정기간의 예약정지나 이용제한 등의 조치를 취할 수 있다.
+                    
+                    제6조(예약금의 환불 등)
+                     ① 비회원 이용자가 주말이나 공휴일인 이용예정일로부터 4일전까지, 평일인 이용예정일로부터 3일전까지 예약을 취소한 경우에는 예약금의 전액을 환불한다.
+                     ② 이용자가 개인 사정의 변경이나 단순 변심 등 정당한 사유없이 예약을 취소하는 경우에는 취소일을 기준으로 다음과 같이 손해를 배상한다. 
+                    다만, 이용자가 예약금을 지불한 경우에는 손해배상액에서 예약금을 공제하고 배상한다. 
+                    1. 주말이나 공휴일인 이용예정일 3일전 ~ 2일전 : 3일전 50,000원, 2일전 100,000원
+                    2. 이용예정일 1일 전 : 150,000원
+                    3. 이용자가 이용예정일 당일 예약을 취소하거나 아무런 통보 없이 이용예정일에 골프장을 이용하지 않을 경우 : 200,000원
+                     ③ 강설, 폭우, 안개 기타 천재지변 등의 불가항력적인 사유로, 사업자가 이용예정일에 골프장 이용이 불가능하다고 판단되어 임시휴장을 하는 경우에는 예약금을 환불하여야 한다.
+                     ④ 사업자의 책임있는 사유로 이용자의 예약을 취소하는 경우에는 취소일을 기준으로 다음과 같이 손해를 배상한다. 
+                    1. 주말이나 공휴일인 이용예정일 3일전 ~ 2일전 : 3일전 50,000원, 2일전 100,000원
+                    2. 이용예정일 1일 전 : 150,000원
+                    3. 이용예정일 당일 예약 취소를 통보하는 경우 : 200,000원
+                     ⑤ 위 제2항 및 제4항의 팀별 이용요금은 팀별 이용예정인원수에 해당하는 제7조 제1항 제1호의 골프코스 이용요금으로 한다.
+                    
+                    제7조(이용요금)
+                     ① 골프장 이용요금은 다음 내역의 합계금액으로 한다. 
+                    1. 골프코스 이용에 따른 요금
+                    2. 락커, 샤워실 등 클럽하우스 시설 이용에 부과되는 요금
+                    3. 제세공과금 : 부가가치세와 회원제골프장의 경우에는 개별소비세와 농어촌특별세, 교육세를 포함한다. 
+                    4. 카트이용요금 등 기타 사업자가 정한 특별요금
+                     ② 골프장 이용 시 기본적으로 발생되는 비용으로서 제1항 제2호의 클럽하우스 시설이용에 부과되는 요금 및 제1항 제3호의 제세공과금을 기본요금이라 한다.
+                     ③ 사업자는 제1항 각 호의 세부내역을 프론트 기타 이용자가 보기 쉬운 곳에 게시하여야 한다. 
+                    
+                    제8조(요금의 환불)
+                     ① 입장절차를 마친 이용자가 경기 전 임의로 이용계약을 취소한 경우에는 이용요금의 50%를 환불하고, 경기 개시 후 임의로 이용계약을 중단 또는 취소한 경우 9홀까지(18홀 기준)는 이용요금에서 기본요금을 제외한 금액의 25%를 환불한다.
+                     ② 강설, 폭우, 안개 등 천재지변 또는 그밖에 불가항력적인 사유로 입장에 관한 절차를 마친 이용자팀 전원이 경기를 마치지 못하게 된 경우에는 다음과 같이 이용요금을 환불한다. 
+                    1. 1번째 홀까지 경기를 마치지 못한 경우 : 이용요금 - 기본요금
+                    2. 2번째 홀 이후 : (이용요금 - 기본요금) × {1-(기 이용한 홀 수/전체 홀 수)}
+                    
+                    제9조(이용시간 및 휴장)
+                     ① 이 골프장 이용시간은 일출 20분전부터 일몰 20분 후까지로 하되, 조명시설이 설치된 골프장은 ( )까지로 한다.
+                     ② 이 골프장의 정기 휴장일은 다음과 같다. ( )
+                     ③ 강설, 폭우, 안개 기타 천재지변 등의 불가항력적인 경우를 제외하고 임시휴장을 할 경우에는 사업자는 사전에 이를 일간지 또는 인터넷 홈페이지 등에 게시하고 당해 기간에 이용하기로 예약한 이용자에게 고지하여야 한다. 
+                    
+                    제10조(이용의 거절) 
+                    사업자는 다음 각 호의 경우에 골프장 이용을 거절할 수 있다. 
+                    1. 예약된 시간을 지키지 아니한 때
+                    2. 경기능력이 현저히 부족하여 다른 이용자에게 방해가 될 때
+                    3. 도박성 내기를 하는 등 미풍양속에 어긋나는 행동을 한 때
+                    4. 대한골프협회규칙, 기타 이용자 에티켓과 관련하여 사업자가 미리 고지한 준수사항을 위반할 때
+                    
+                    제11조(초과이용)
+                     ① 이용자는 1회 입장시 원칙적으로 ( )홀을 초과할 수 없다.
+                     ② 이용자가 제1항의 규정에 의한 홀을 초과하여 이용할 경우에는 사업자의 승낙을 받아야 하며, 이 경우 사업자는 추가요금의 지급을 요구할 수 있다. 
+                    
+                    제12조(경기규칙의 적용)
+                     ① 모든 이용자는 대한골프협회와 사업자가 정한 경기규칙을 지켜야 한다.
+                     ② 제1항의 두 규칙사이에 충돌이 있을 때에는 사업자가 정한 경기규칙이 우선한다. 
+                    
+                    제13조(공중질서 유지)
+                     ① 모든 이용자는 공공의 질서와 풍속을 지켜야 하며, 특히 도박적인 내기는 삼가하여야 한다.
+                     ② 사업자는 제1항의 규정을 위반하는 이용자에 대하여는 경기진행을 중단시키고 퇴장시킬 수 있다. 
+                    
+                    제14조(이용자 안전준칙)
+                     ① 비거리는 경기보조원의 조언에 관계없이 이용자 자신의 판단으로 선행조에 맞추지 않을 정도로 타구하여야 한다.
+                     ② 이용자는 타인의 전방에 진입하여서는 아니된다.
+                     ③ 경기진행중 후속팀에 사인을 보낸 때에는 후속팀의 타구가 끝날 때까지 안전한장소에 대피하여야 한다.
+                     ④ 퍼팅을 끝마쳤을 때에는 퍼팅 그린에서 즉시 비켜나서 안전한 진입로를 이용하여 다음 홀로 향하여야 한다.
+                     ⑤ 페어웨이, 그린, 벙커 등에서 타구 등으로 손상시킨 부분이 있으면 이를 복구하도록 노력하여야 한다. 
+                    
+                    제15조(대피) 
+                    이용자는 경기진행 중 다음 각 호의 사유가 발생한 경우에는 경기를 중지하고 그 사유가 끝날 때까지 안전한 장소로 대피하여야 한다. 
+                    1. 민방위훈련이 실시될 때
+                    2. 낙뢰가 예상될 때
+                    3. 기타 이용자의 안전을 위해 필요하다고 인정되어 사업자가 대피를 요청할 때
+                    
+                    제16조(배상책임) 
+                    이용자가 고의 또는 과실로 골프장의 그린, 벙커, 건축물, 카트, 대여채, 대여화 등 각종 시설물과 비품을 훼손한 때에는 그 손해를 배상하여야 한다. 
+                    
+                    제17조(안전사고 책임 등)
+                     ① 경기도중 이용자의 고의․과실로 인하여 다른 이용자, 경기보조자 등 제3자에게 손해를 입힌 경우 이용자는 이에 대한 책임을 부담한다.
+                     ② 경기도중 사업자의 지휘․감독을 받는 경기보조자의 고의․과실로 인하여 사고가 발생한 경우에는 사업자도 이에 대한 책임을 진다.
+                     ③ 사고의 발생에 대하여 사업자에게 귀책사유가 있는 경우에는 사업자도 책임을 진다. 
+                    
+                    제18조 (귀중품의 보관 등)
+                     ① 이용자는 필요한 경우 귀중품 등 각종 물품에 대하여 그 품명과 가액을 기재하여 사업자의 확인하에 사업자에게 보관시켜야 한다.
+                     ② 제1항의 규정에 따라 사업자에게 보관시키지 아니한 경우에는 사업자는 그 물품의 분실, 훼손에 대하여 귀책사유가 없는 한 책임을 지지 아니한다. 
+                    
+                    제19조(안전관리와 편의의 제공)
+                     ① 사업자는 이용자가 골프장과 부대시설을 안전하고 편리하게 이용할 수 있도록 관리하고 이용자에게 최대한 편의를 제공한다.
+                     ② 사업자는 골프장 이용함에 있어 이용자에게 물품·음식물 등의 구매를 강제할 수 없다.
+                    
+                    제20조(면책) 
+                    천재지변 기타 불가항력적인 사유로 이용자에게 손해가 발생한 때에는사업자는 이에 대한 책임을 지지 아니한다.
+                    
+                    제21조(기타)
+                     ① 이 약관에 명시되지 아니한 사항 또는 이 약관의 해석상 다툼이 있는 사항에 대해서는 사업자와 이용자가 합의하여 결정하되, 합의가 이루어지지 아니한 경우에는 관계법령 및 공정한 일반관행에 따른다.
+                     ② 이 계약과 관련된 분쟁에 관한 소는 민사소송법상의 관할 법원에 제기한다. 
+                </div>
+            </div>
+
+            <div class="footer-popup2" id="layerPop14" style="display:none;">
+                <div class="footer-pop-header">
+                    <h3>인터넷 서비스 이용약관</h3>
+                    <img src="/images/contents/close-circle.svg" alt="" onclick="popupClose(14)">
+                </div>
+                <div class="footer-popup-check1">
+                        제1조 목적
+                        이 약관은 ㈜한길 파미힐스컨트리클럽(이하 ‘회사’)이 제공하는 인터넷 서비스를 이용함에 있어 서비스의 이용조건 및 절차에 관한 사항과 기타 필요한 사항을 규정함을 목적으로 합니다.
+                        
+                        제2조 약관의 효력과 변경
+                        1. 서비스는 본 약관에 규정된 조항을 변경 없이 이용자가 수락하는 것을 조건으로 제공됩니다. 이용자께서 본 서비스를 사용하면 본 약관에 대하여 이용자가 동의한다는 것을 의미합니다.
+                        2. 회사는 약관의 규제 등에 관한 법률, 전자거래 기본법, 전자서명법, 정보통신망 이용 촉진 등에 관한 법률, 방문판매 등에 관한 법률, 소비자 보호법 등 관련법을 위배하지 않는 범위에서 이 약관을 개정할 수 있습니다.
+                        3. 회사는 이 약관을 변경할 수 있으며, 변경된 약관은 변경을 공지 또는 통지함으로써 효력을 발생합니다.
+                        
+                        제3조 약관 외 사항의 처리
+                        본 약관에 명시되지 않은 사항은 사회에서 인정되는 범위 안에서 상호 협의 조정토록 노력하며 불가시 관계법령에 따라 처리하고 이 약관이 관계 법령과 배치되는 부분은 관계법령을 우선합니다.
+                        
+                        제4조 용어의 정의
+                        이 약관에서 사용하는 용어의 정의는 다음과 같습니다.
+                        1. 회원(인터넷 회원) : 회사에 개인 정보 및 아이디(이하 ID)를 등록한 자로서 회사의 정보를 지속적으로 받으며, 회사가 제공하는 서비스를 계속적으로 이용할 수 있는 자를 말합니다.
+                        2. 아이디(ID) : 회원의 식별과 서비스를 이용을 위하여 회원이 등록하여 회사의 승인을 얻은 것을 말합니다.
+                        3. 비밀번호 : 회원이 등록한 아이디(ID)와 일치된 회원임을 확인하고 회원 자신의 비밀을 보호하기 위하여 회원이 정한 문자와 숫자의 조합을 말합니다.
+                        4. 탈퇴 : 회원이 스스로 회사에 해지 요청을 하여 이용 계약을 해약하는 것
+                        
+                        제5조 이용계약의 성립
+                        1. 서비스 이용 신청시에 회원이 ‘동의합니다’ 버튼을 클릭하면 이 약관에 동의하는 것으로 간주됩니다.
+                        2. 이용계약의 성립시기는 서비스 이용희망자의 이용약관 동의 후 신청에 대하여 회사의 승낙이 회원에게 도달한 시점으로 합니다.
+                        
+                        제6조 이용신청 및 승낙
+                        1. 본 서비스를 이용하기 위해서는 회사 소정의 가입신청 양식에서 요구하는 필수 이용자 정보를 기록하여 신청합니다.
+                        2. 가입신청 양식에 기재하는 모든 이용자 정보는 모두 실제 데이터인 것으로 간주한다. 실명이나 실제 정보를 입력하지 않은 사용자는 법적인 보호를 받을 수 없으며 서비스의 제한을 받을 수 있습니다.
+                        3 회사는 다음 각 호에 해당하는 회원가입 신청에 대하여는 이를 승낙하지 아니합니다.
+                        ① 타인의 명의를 사용하여 신청하였을 경우
+                        ② 가입신청 양식의 내용을 허위로 기재하여 신청하였을 경우
+                        ③ 사회의 공공질서 혹은 부정한 목적 달성을 위해 신청하였을 경우
+                        ④ 기타 회사 소정의 이용신청요건을 충족하지 못하는 경우
+                        
+                        제7조 서비스 이용 및 제한
+                        1. 서비스 이용은 회사의 업무상 또는 기술상 특별한 지장이 없는 한 연중무휴, 1일 24시간을 원칙으로 합니다.
+                        2. 회사에서 제공하는 서비스 중 일부는 회원에 가입하여 회사에서 인정한 ID와 비밀번호를 통해서만 서비스를 받을 수 있습니다.
+                        
+                        제8조 회원의 구분 및 자격
+                        1. 회원구분
+                        ① 회원 : 회사의 약관에 동의하고 가입한 회원제 회원
+                        ② 인터넷 회원 : 회사의 약관에 동의하고 홈페이지를 통해 가입한 인터넷 회원
+                        2. 회원의 자격
+                        ① 회원의 자격 : 회원제 회원 인터넷 예약 자격 부여
+                        ② 인터넷 회원의 자격 : 인터넷 회원 인터넷 예약 자격 부여
+                        
+                        제9조 회원의 혜택
+                        1. 회원은 추후 회사에서 주관하는 각종 이벤트에 참가할 수 있습니다.
+                        2. 회원은 정보서비스 중 회원(인터넷 회원)을 대상으로 한 서비스 이용의 혜택을 받을 수 있다.
+                        3. 회원은 회사에서 주관하는 각종 이벤트에서 여러 가지 혜택을 누릴 수 있다. 이와 동시에 발생하는 각종 권리 의무관계는 회원 가입 시 동의한 것으로 갈음한다.
+                        
+                        제10조 회사의 의무
+                        1. 회사는 약관 및 관계법령에 따라 본 서비스를 실시하여야 합니다.
+                        2. 회사는 특별한 사정이 없는 한 이용자가 신청한 개시일에 서비스를 이용할 수 있도록 합니다.
+                        3. 회사는 약관에서 정한 바에 따라 계속·안정적으로 서비스를 제공할 의무를 갖습니다.
+                        4. 회사는 회원의 개인 신상정보를 본인의 승낙 없이 타인에게 누설, 배포하여서는 아니 됩니다. (단, 전기통신관련법 등 관계법령에 의하여 관계 국가기관 등의 요구가 있을 경우에는 예외로 합니다.)
+                        5. 회사는 회원으로부터 제기되는 의견이나 불만이 정당하다고 인정할 경우에는 즉각적인 조치를 취해야 합니다. (단, 즉각적인 조치가 불가피한 경우에는 회원에게 그 사유와 처리 일정을 통보함을 원칙으로 합니다.)
+                        6. 서비스는 1년 365일, 1일 24시간 운영됨을 원칙으로 하나 서비스 개선을 위한 개정 및 하드웨어의 교체 등을 위해 일시 중지 될 수 있으며, 이 경우 홈페이지에 서비스의 일시 중지됨을 회사는 사전에 통지하여야 합니다. (단, 천재지변이나 불의의 사고 시에는 예외로 합니다.)
+                        
+                        제11조 회원의 의무
+                        1. 회원 ID 및 비밀번호에 관한 모든 관리 책임은 회원에게 있습니다.
+                        2. 회원은 본인의 ID가 부정하게 사용된 사실을 알았을 경우 반드시 회사에 그 사실을 통보하여야 합니다.
+                        3. 회사는 항상 상호신뢰를 바탕으로 회사 및 회원의 이익을 도모해야 하며, 잘못된 정보를 제공하는 등의 행위를 해서는 안됩니다.
+                        4. 회원은 약관 및 관계법령에서 규정한 사항을 준수하여야 합니다.
+                        5. 회원은 서비스의 이용권한, 기타 이용계약상 지위를 타인에 양도, 증여할 수 없으며 이를 담보로 제공할 수 없습니다.
+                        6. 회원은 최초의 개인신상정보 내용과 변동사항이 있을 경우 반드시 변경 내용을 회사에 통지해야 하며, 만약 이를 이행하지 않았을 경우 발생하는 불이익에 대해서는 회사가 책임지지않습니다.
+                        
+                        제12조 탈퇴 및 자격 제한
+                        1. 회원이 이용계약을 해지하고자 하는 때에는 본인이 직접 전화, 팩스, 이메일을 통해 해지신청을 해야 하며, 접수된 해지신청 건에 대하여 회사는 즉시 처리하도록 합니다.
+                        2. 회사는 회원이 다음 사항에 해당하는 행위를 하였을 경우 사전 통지 없이 회원자격을 박탈 또는 일시 정지 시킬 수 있습니다.
+                        ① 국익 또는 공익을 저해할 목적으로 정보를 제공한 경우
+                        ② 서비스 운영을 고의로 방해한 경우
+                        ③ 타인의 개인정보, 회원 ID 및 비밀번호를 부정하게 사용하는 경우
+                        ④ 같은 사용자가 다른 ID로 이중등록을 한 경우
+                        ⑤ 타인의 명예를 손상시키거나 불이익을 주는 경우
+                        ⑥ 부정한 용도로 본 서비스를 이용하고자 하는 경우
+                        ⑦ 영리를 추구할 목적으로 본 서비스를 이용하고자 하는 경우
+                        ⑧ 법령 또는 약관을 위반하여 이용계약이 해지된 적이 있는 이용자가 신청하는 경우
+                        ⑨ 당 클럽의 근무 직원에 대한 폭언 또는 폭행을 행사하거나 적절하지 못한 행위를 함으로써 당 클럽의 품위를 손상시킨 경우
+                        ⑩ 기타 관련법령이나 회사가 정한 이용약관에 위배되는 경우
+                        
+                        제13조 저작권의 귀속 및 이용제한
+                        1. 회사가 작성한 저작물에 대한 저작권 기타 지적재산권은 회사에 귀속합니다.
+                        2. 서비스를 이용함으로써 얻은 회사 또는 타인의 지적재산권을 회사 또는 타인의 사전 승낙 없이 복제, 송신, 출판, 배포, 방송 기타방법에 의하여 영리목적으로 이용하거나 제3자에게 이용하게 하여서는 안됩니다.
+                        
+                        제14조 정보의 제공 조항
+                        1. 회원의 정보는 철저히 보안 유지될 것이며, 규정에 따라 공유 제공될 수 있습니다.
+                        2. 회사는 회원의 서비스 이용 중 필요가 있다고 인정되는 다양한 정보에 대해서 이메일, 메시지, 우편 등의 다양한 방법으로 회원에게 제공할 수 있으며, 회원은 원하지 않을 경우 가입신청 메뉴와 회원 정보수정 메뉴에서 미수신을 할 수 있습니다.
+                        3. 회사는 본 서비스 상에 게재되어 있거나 본 서비스를 통한 광고주의 판촉활동에 회원이 참여하거나 교신 또는 거래의 결과로써 발생하는 모든 손실 또는 손해에 대해 책임을 지지 않습니다.
+                        
+                        제15조 책임의 부인
+                        1. 회사는 서비스 요금이 무료인 서비스 이용과 관련하여 회원에게 발생한 어떠한 손해도 책임을 지지 않습니다.(손해배상)
+                        2. 면책사항
+                        가. 회사는 천재지변 또는 이에 준하는 불가항력으로 인하여 서비스를 제공할 수 없는 경우에는 서비스 제공에 관한 책임이 변제됩니다.
+                        나. 회사는 회원의 귀책사유로 인하여 서비스 이용의 장애가 발생한 경우에 책임이 면제됩니다.
+                        다. 회사는 회원이 회사의 서비스 제공으로부터 기대되는 이익을 얻지 못하였거나 서비스 자료에 대한 취사 선택 또는 이용으로 발생하는 손해 등에 대한 책임이 면제됩니다.
+                        라. 회사는 회원이 서비스에 게재한 정보, 자료, 사실의 신뢰도, 정확성 등 그 내용에 관한 책임이 면제됩니다.
+                        
+                        제16조 분쟁의 해결
+                        1. 회사는 이용자로부터 제출되는 불만사항 및 의견은 우선적으로 그 사항을 처리합니다. 다만 신속한 처리가 곤란한 경우에는 이용자에게 그 사유와 처리 일정을 즉시 통보합니다.
+                        2. 회사와 이용자 간에 발생한 분쟁은 전자거래 기본법 제28조 및 동 시행령 제15조에 의하여 설치된 전자거래 분쟁 조정에 따를 수 있습니다.
+                        3. 본 약관 상의 분쟁에 대해 소송이 제기될 경우 민사소송법상의 관할법원으로 정합니다.
+                        
+                        제17조 제휴사 정보제공
+                        회사는 서비스제공과 사용자 편의를 위해 필요한 고객의 기본정보(가입 신청서에 기재된 신청인의 정보)를 회사와 관련된 제휴사에 제공할 수 있습니다.
+                </div>
+            </div>
+
+            <div class="footer-popup3" id="layerPop15" style="display:none;">
+                <div class="footer-pop-header">
+                    <h3>개인정보 처리방침</h3>
+                    <img src="/images/contents/close-circle.svg" alt="" onclick="popupClose(15)">
+                </div>
+                <div class="footer-popup-check1">
+                        ㈜한길 파미힐스컨트리클럽(이하 '회사')은 이용자의 개인정보를 매우 중요시하며, 개인정보보호법, 정보통신망 이용촉진 및 정보보호에 관한 법률 등 개인정보보호 관련 법률 및 하위 법령들을 준수하고 있습니다.
+                                        회사는 개인정보 처리방침을 통하여 귀하께서 제공하는 개인정보가 어떠한 용도와 방식으로 이용되고 있으며, 개인정보보호를 위해 어떠한 조치가 취해지고 있는지 알려드립니다. 회사의 개인정보 처리방침을 정부의 법률 및 지침 변경에 따라 변경될 수 있습니다.
+
+                                        1. 개인정보의 수집 및 이용목적
+
+                                        (1)회원가입 및 관리
+                                        회원 서비스 제공에 따른 본인 식별 및 인증, 회원자격 유지 및 관리, 서비스 부정이용 방지, 각종 고지통지, 고충처리등 민원처리
+                                        (2)고객사무 처리
+                                        고객의 신원 확인, 요청 및 문의사항 확인, 사실조사를 위한 연락 및 통지, 처리결과 통보, 각종증명서 발송
+                                        (3)골프장 이용 예약
+                                        골프장 이용을 위한 예약을 목적으로 개인정보를 처리합니다
+                                        (4)재화 또는 서비스 제공
+                                        서비스 제공에 관한 계약 이행 및 요금정산, 콘텐츠 제공, 요금추심
+                                        (5)마케팅 및 광고에 활용
+                                        신규 서비스 개발 및 특화, 이벤트 등 광고성 정보 전달, 인구통계학적 특성에 따른 서비스 제공, 접속 빈도 파악 또는 회원의 서비스 이용에 대한 통계
+                                        (6)보안신고(제보)
+                                        보안신고(제보) 민원 처리 및 결과 회신을 위해 개인정보를 처리합니다.
+
+                                        2. 수집하는 개인정보의 항목
+
+                                        (1) 회사는 다음의 개인정보를 수집하고 있습니다.
+                                        <div class="join01-table01">
+                                            <table>
+                                                <colgroup>
+                                                    <col style="width: 10%;">
+                                                    <col style="width: 10%;">
+                                                    <col width="*">
+                                                    <col width="*">
+                                                </colgroup>
+                                                <thead>
+                                                    <tr>
+                                                        <th scope="col" colspan="2">구분</th>
+                                                        <th scope="col">수집항목</th>
+                                                        <th scope="col">이용목적</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <th rowspan="5">회원</th>
+                                                        <th rowspan="3">필수</th>
+                                                        <td>성명(법인명), 사진, 주민등록번호(사업자번호),주민등록초본, 신분증,  생년월일
+                                                        </td>
+                                                        <td>회원 가입 및 관리, 세무신고</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>휴대전화번호</td>
+                                                        <td>인터넷 예약 확인, 긴급고지사항 등의 SMS 발송</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>주소</td>
+                                                        <td>각종 인증서 및 확인서,
+                                                            고지사항 발송</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th rowspan="2">선택</th>
+                                                        <td>집전화번호, 이메일주소</td>
+                                                        <td>고지사항 발송</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>근무처 주소, 근무처 전화번호, 직위, 차량 번호</td>
+                                                        <td>회원 맞춤 서비스 제공</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th rowspan="2">인터넷 회원</th>
+                                                        <th>필수</th>
+                                                        <td>성명,생년월일,휴대전화번호</td>
+                                                        <td>이용자 식별, 예약정보 전송,
+                                                            고지사항 발송</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th>선택</th>
+                                                        <td>주소,이메일주소</td>
+                                                        <td>고지사항 발송</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        (2) 회사는 다음과 같은 방법으로 개인정보를 수집합니다.
+                                        ① 홈페이지, 서면양식(골프장입회신청서, 방명록, 이벤트), 전화(예약실)
+                                        ② 협력회사(골프장 예약 제휴사)로부터의 제공
+                                        ③ 생성정보 수집 툴을 통한 수집
+
+                                        3. 개인정보의 제3자 제공에 관한 사항
+
+                                        (1) 회사는 이용자들의 개인정보를 "개인정보의 수집 및 이용목적"에서 고지한 범위 내에서 사용하며, 이용자의 사전 동의 없이는 동 범위를 초과하여 이용하거나 원칙적으로 이용자의 개인정보를 외부에 공개하지 않습니다. 다만, 아래의 경우에는 예외로 합니다.
+                                        ① 이용자가 사전에 동의 한 경우
+                                        ② 법령의 규정에 의거하거나, 수사 목적으로 법령에 정해진 절차와 방법에 따라 수사 기관의 요구가 있는 경우
+                                        (2) 회사는 다음과 같이 개인정보를 제3자에게 제공하고 있습니다.
+                                        <div class="join01-table01 join0101">
+                                            <table>
+                                                <colgroup>
+                                                    <col width="*">
+                                                    <col width="*">
+                                                    <col width="*">
+                                                    <col width="*">
+                                                </colgroup>
+                                                <thead>
+                                                    <tr>
+                                                        <th scope="col">제공받는 자</th>
+                                                        <th scope="col">제공항목</th>
+                                                        <th scope="col">제공받는 자의 이용목적</th>
+                                                        <th scope="col">제공받는 자의 보유,이용기간</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <td>한국골프장경영협회</td>
+                                                        <td>성명, 생년월일,
+                                                            회원번호, 입회일자</td>
+                                                        <td>회원증 발급</td>
+                                                        <td>체육시설의 설치 및
+                                                            이용에 관한 법률 10년</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>국세청</td>
+                                                        <td>성명, 주민등록번호, 주소,
+                                                            회원번호, 입회일자, 취득가, 매도가</td>
+                                                        <td>양도소득세부과</td>
+                                                        <td>국세기본법 5년</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>관할시청</td>
+                                                        <td>성명, 주민등록번호, 주소,
+                                                            회원번호, 입회일자, 취득가, 매도가</td>
+                                                        <td>취득세부과</td>
+                                                        <td>국세기본법 5년</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>태국 골프장
+                                                            그린랜드
+                                                            아덴힐 리조트앤골프
+                                                            라헨느
+                                                            포라이즌
+                                                            라온GC</td>
+                                                        <td>성명, 회원번호,
+                                                            휴대전화번호, 생년월일</td>
+                                                        <td>예약, 우대요금적용</td>
+                                                        <td>수집목적 달성시 까지</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+
+                                        4. 개인정보의 취급위탁
+
+                                        회사는 서비스 향상을 위해서 아래와 같이 개인정보를 위탁하고 있으며, 관계 법령에 따라 위탁계약 시 개인정보가 안전하게 관리될 수 있도록 필요한 사항을 규정하고 있습니다.
+                                        (1) 회사는 다음과 같이 개인정보 처리업무를 위탁하고 있습니다.
+                                        <div class="join01-table01 join0202">
+                                            <table>
+                                                <colgroup>
+                                                    <col style="width:30%;">
+                                                    <col style="width:70%;">
+                                                </colgroup>
+                                                <thead>
+                                                    <tr>
+                                                        <th scope="col">수탁업체</th>
+                                                        <th scope="col">위탁업무 내용</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <td>㈜그린잇</td>
+                                                        <td>통합전산시스템 및 홈페이지 유지보수</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        (2) 회사는 위탁계약 체결 시 정보통신망 이용촉진 및 정보보호 등에 관한 법 제25조에 따라 위탁업무 수행목적 외 개인정보 처리금지, 기술적·관리적 보호조치, 재위탁 제한, 수탁자에 대한 관리·감독, 손해배상 등 책임에 관한 사항을 계약서 등 문서에 명시하고, 수탁자가 개인정보를 안전하게 처리 하도록 감독합니다.
+                                        (3) 위탁업무의 내용이나 수탁자가 변경될 경우에는 지체없이 본 개인정보 처리방침을 통하여 공개합니다.
+
+                                        5. 개인정보의 처리 및 보유기간
+
+                                        (1) 회사는 법령에 따른 개인정보 보유·이용기간 또는 정보주체로부터 개인정보를 수집 시에 동의 받은 개인정보 보유·이용기간 내에서 개인정보를 처리·보유합니다.
+                                        (2) 각각의 개인정보 처리 및 보유 기간은 다음과 같습니다.
+                                        ① 처리 및 보유기간
+                                        - 회원의 가입정보의 경우, 회원가입을 탈퇴하거나 회원에서 제명된 때 : 10년
+                                        ② 상법, 전자상거래 등에서의 소비자보호에 관한 법률 등 관계법령의 규정에 의하여 보존할 필요가 있는 경우 회사는 관계법령에서 정한 일정한 기간 동안 보관합니다.
+                                        - 영업에 관한 중요 서류 : 10년 (상법)
+                                        - 계약 또는 청약철회 등에 관한 기록 : 5년 (전자상거래 등에서의 소비자보호에 관한 법률)
+                                        - 대금결제 및 재화 등의 공급에 관한 기록 : 5년 (전자상거래 등에서의 소비자보호에 관한 법률)
+                                        - 전자금융 거래에 관한 기록 : 5년 (전자금융거래법)
+                                        - 소비자의 불만 · 분쟁처리에 관한 기록 : 3년 (전자상거래 등에서의 소비자보호에 관한 법률)
+                                        - 표시 · 광고에 관한 기록 : 6개월 (전자상거래등에서의 소비자보호에 관한 법률)
+                                        - 웹사이트 방문 기록 : 3개월 (통신비밀보호법)
+                                        ③ 회사는 정보통신망 이용촉진 및 정보보호 등에 관한 법률 제29조 제2항에 따라 12개월간이용내역(로그인, 내장기록 등)이 없는 인터넷 회원의 개인정보를 파기하며, 이를 인터넷 회원에게 알립니다.
+
+                                        6. 이용자의 권리와 그 행사방법
+
+                                        (1) 이용자는 언제든지 등록되어 있는 개인정보를 열람하거나 정정하실 수 있습니다. 개인정보 열람 및 정정을 하고자 할 경우에는 "회원정보변경"을 클릭하여 직접 열람 또는 정정할 수 있으며, 삭제는 개인정보관리책임자 및 담당자에게 서면, 전화, 이메일로 연락하시면 본인임을 확인한 이후에 탈퇴처리하겠습니다.
+                                        (2) 정보주체가 개인정보의 오류 등에 대한 정정 또는 삭제를 요구한 경우에는 회사는 정정 또는 삭제를 완료할 때까지 당해 개인정보를 이용하거나 제공하지 않습니다.
+
+                                        7. 쿠키(cookie)의 운영에 관한 사항
+
+                                        (1) 쿠키란?
+                                        쿠키란 웹사이트를 운영하는데 이용되는 서버가 이용자의 웹브라우저(인터넷 익스플로러, 크롬 등)에 보내는 아주 작은 텍스트 파일로서 이용자의 컴퓨터 하드디스크에 저장됩니다. 이용자가 웹 사이트에 방문할 경우 웹 사이트 서버는 이용자의 하드 디스크에 저장되어 있는 쿠키의 내용을 읽어 이용자의 환경설정을 유지하고 맞춤화된 서비스를 제공하기 위해 이용됩니다. 쿠키는 개인을 식별하는 정보를 자동적·능동적으로 수집하지 않으며, 이용자는 언제든지 이러한 쿠키의 저장을 거부하거나 삭제할 수 있습니다.
+                                        (2) 쿠키 사용 목적
+                                        이용자들이 방문한 각 서비스와 웹 사이트들에 대한 방문 및 이용형태, 보안접속 여부, 이용자 규모 등을 파악하여 이용자에게 광고를 포함한 최적화된 맞춤형 정보를 제공하기 위해 사용합니다.
+                                        (3) 쿠키 설정 거부 방법(Internet Explorer의 경우)
+                                        이용자는 쿠키 설치에 대한 선택권을 가지고 있습니다. 따라서 이용자는 웹 브라우저에서 옵션을 설정함으로써 모든 쿠키를 허용하거나, 쿠키가 저장될 때마다 확인을 거치거나, 아니면 모든 쿠키의 저장을 거부할 수도 있습니다. 다만, 이용자께서 쿠키 설치를 거부하였을 경우 서비스 제공에 어려움이 있을 수 있습니다.
+                                        웹 브라우저 상단의 ‘도구’ 〉인터넷 옵션 〉개인정보 〉개인정보취급 수준 설정
+
+                                        8. 개인정보 파기절차 및 방법
+
+                                        (1) 파기절차
+                                        이용자가 서비스 이용 등을 위해 입력하신 정보는 목적이 달성된 후 별도의 DB로 옮겨져 (종이의 경우 별도의 서류함) 내부 방침 및 기타 관련 법령에 의한 정보보호 사유에 따라 일정 기간 저장된 후 파기됩니다. DB로 옮겨진 개인정보는 법률에 의한 경우가 아니고서는 다른 목적으로 이용되지 않습니다.
+                                        (2) 파기방법
+                                        종이에 출력된 개인정보는 분쇄기로 분쇄하거나 소각을 통하여 파기하며 전자적 파일 형태로 저장된 개인정보는 기록을 재생할 수 없는 기술적 방법을 사용합니다.
+
+                                        9. 개인정보의 안전성 확보 조치
+
+                                        (1) 내부관리계획의 수립 및 시행
+                                        개인정보의 안전한 처리를 위하여 내부관리계획을 수립하고 시행하고 있습니다.
+                                        (2) 개인정보의 암호화
+                                        법에서 요구하는 중요 개인정보는 암호화되어 저장 및 관리되고 있습니다.
+                                        3) 해킹 등에 대비한 기술적 대책
+                                        해킹이나 컴퓨터 바이러스 등에 의한 개인정보 유출 및 훼손을 막기 위하여 보안프로그램을 설치하고 주기적인 갱신ㆍ점검을 하며 외부로부터 접근이 통제된 구역에 시스템을 설치하고 기술적ㆍ물리적으로 감시 및 차단하고 있습니다.
+                                        (4) 개인정보에 대한 접근 제한
+                                        개인정보를 처리하는 데이터베이스시스템에 대한 접근권한의 부여, 변경, 말소를 통하여 개인정보에 대한 접근통제를 위하여 필요한 조치를 하고 있으며 침입차단시스템을 이용하여 외부로부터의 무단 접근을 통제하고 있습니다.
+                                        (5) 접속기록의 보관
+                                        개인정보처리시스템에 접속한 기록을 최소 6개월 이상 보관, 관리하고 있습니다.
+
+                                        10. 개인정보 관리 책임자 및 담당자
+
+                                        (1) 개인정보보호책임자
+                                        성명 : 이성철
+                                        직위 : 상무
+                                        전화 : 054-979-3510
+                                        팩스 : 054-971-9905
+                                        (2) 개인정보보호담당자
+                                        소속 : 본부
+                                        전화 : 054-979-3512
+                                        E-mail : palmy9900@bill36524.com
+                                        (3) 개인정보침해에 대한 신고나 상담이 필요하신 경우에는 아래 기관에 문의하시기 바랍니다.
+                                        - 개인정보침해신고센터 (privacy.kisa.or.kr / 국번없이 118)
+                                        - 대검찰청 사이버수사과 (www.spo.go.kr / 국번없이 1301)
+                                        - 경찰청 사이버안전국 (cyberbureau.police.go.kr / 국번없이 182)
+
+                                        11. 개인정보 처리방침 변경
+
+                                        본 개인정보처리방침은 2020년 7월 1일부터 적용되며, 법령 및 방침에 따른 변경내용의 추가, 삭제 및 정정이 있는 경우에는 공지하겠습니다.
+                                        제정일자 : 2011년 06월 01일
+                                        개정일자 : 2018년 07월 01일
+                                        개정일자 : 2020년 07월 01일
+                </div>
+            </div>
+
+            <div class="footer-popup4" id="layerPop16" style="display:none;">
+                <div class="footer-pop-header">
+                    <h3>이메일수집거부</h3>
+                    <img src="/images/contents/close-circle.svg" alt="" onclick="popupClose(16)">
+                </div>
+                <div class="footer-popup-check1">
+                        본 웹사이트에 게시된 이메일 주소가 전자우편 수집 프로그램이나 그 밖의 기술적 장치를 이용하여 무단으로 수집되는 것을 거부하며 이를 위반 시 정보통신망법에 의해 형사 처벌됨을 유념 하시기 바랍니다.
+                </div>
+            </div>
+
+            <div class="footer-popup5" id="layerPop17" style="display:none;">
+                <div class="footer-pop-header">
+                    <h3>영상정보처리기기 운영·관리 방침</h3>
+                    <img src="/images/contents/close-circle.svg" alt="" onclick="popupClose(17)">
+                </div>
+                <div class="footer-popup-check1">
+                        ㈜한길 파미힐스컨트리클럽(이하 “클럽”이라 함)은 영상정보처리기기 운영·관리 방침을 통해 본 클럽에서 처리하는 영상정보가 어떠한 용도와 방식으로 이용 관리되고 있는지 알려드립니다.
+
+                        1. 영상정보처리기기의 설치 근거 및 설치 목적
+                        본 클럽은「개인정보 보호법」제25조 제1항에 따라 다음과 같은 목적으로 영상정보처리기기를 설치 및 운영합니다.
+                        - 시설안전 및 화재 예방
+                        - 고객의 안전을 위한 범죄 예방
+                        - 차량도난 및 파손방지
+                        ※ 주차대수 30대를 초과하는 규모의 경우 「주차장법 시행규칙」제6조제1항을 근거로 설치
+                        
+                        2. 설치 대수, 설치 위치 및 촬영범위 : 첨부 [표1] 참조
+                        
+                        3. 관리책임자 및 접근권한자 : 첨부 [표1] 참조
+                        
+                        4. 영상정보의 촬영시간, 보관기간, 보관장소 및 처리방법 : 첨부 [표1] 참조
+                        
+                        5. 영상정보처리기기 설치 및 관리 등의 위탁에 관한 사항
+                        본 클럽은 영상정보처리기기 설치 및 관리 등을 위탁하고 있지 않습니다.
+                        
+                        6. 개인영상정보의 확인 방법 및 장소에 관한 사항
+                        - 확인 방법 : 영상정보 관리책임자에게 미리 연락하고 본 클럽을 방문하시면 확인 가능합니다.
+                        - 확인 장소 : 보관장소에서 확인
+                        
+                        7. 정보주체의 영상정보 열람 등 요구에 대한 조치
+                        귀하는 개인영상정보에 관하여 열람 또는 존재확인·삭제를 원하는 경우 언제든지 영상정보처리기기 운영자에게 요구하실 수 있습니다. 단, 귀하가 촬영된 개인영상정보 및 명백히 정보주체의 급박한 생명, 신체, 재산의 이익을 위하여 필요한 개인영상정보에 한정됩니다. 본 클럽은 개인영상정보에 관하여 열람 또는 존재확인, 삭제를 요구한 경우 지체 없이 필요한 조치를 하겠습니다.
+                        
+                        8. 영상정보의 안전성 확보조치
+                        본 클럽에서 처리하는 영상정보는 암호화 조치 등을 통하여 안전하게 관리되고 있습니다. 또한 본 클럽은 개인영상정보보호를 위한 관리적 대책으로서 개인정보에 대한 접근 권한을 최소화하고 있고, 개인영상정보의 위·변조 방지를 위하여 개인영상정보의 생성 일시, 열람 시 열람 목적, 열람자, 열람 일시 등을 기록하여 관리하고 있습니다. 이 외에도 개인영상정보의 안전한 물리적 보관을 위하여 잠금장치를 설치하고 있습니다.
+                        
+                        9. 개인정보 처리방침 변경에 관한 사항
+                        이 영상정보처리기기 운영·관리방침은 2018년 12월 3일에 제정되었으며 법령ㆍ정책 또는 보안기술의 변경에 따라 내용의 추가ㆍ삭제 및 수정이 있을 시에는 시행하기 최소 7일전에 본 기관 홈페이지를 통해 변경사유 및 내용 등을 공지하도록 하겠습니다.
+                        - 공고일자 : 2018년 12월 3일 / 시행일자 : 2018년 12월 3일
+                        
+                        첨부 : [표1] CCTV 정보
+                        <div class="join01-table01 join0303">
+                            <table>
+                                <colgroup>
+                                    <col>
+                                    <col>
+                                    <col>
+                                    <col>
+                                    <col>
+                                    <col>
+                                    <col>
+                                </colgroup>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">설치
+                                            대수</th>
+                                        <th scope="col">설치위치
+                                        촬영범위</th>
+                                        <th scope="col">관리책임자
+                                        (직위/이름/소속/연락처)</th>
+                                        <th scope="col">접근권한자
+                                            (직위/이름/소속/연락처)</th>
+                                        <th scope="col">촬영시간</th>
+                                        <th scope="col">보관기간</th>
+                                        <th scope="col">보관장소</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>2</td>
+                                        <td>남코스
+                                            정문</td>
+                                        <td>상무 이성철
+                                            본부
+                                            971-9900(내510)</td>
+                                        <td>부장 최상억
+                                            시설팀
+                                            971-9900(내590)</td>
+                                        <td>24시간</td>
+                                        <td>30일</td>
+                                        <td>1 남코스
+                                            주전기실</td>
+                                    </tr>
+                                    <tr>
+                                        <td>1</td>
+                                        <td>남코스
+                                            필드 출입로</td>
+                                        <td>상무 이성철
+                                            본부
+                                            971-9900(내510)</td>
+                                        <td>과장 민경진
+                                            운영팀
+                                            971-9900(내550)</td>
+                                        <td>24시간</td>
+                                        <td>30일</td>
+                                        <td rowspan="4">2 남코스
+                                            경기팀</td>
+                                    </tr>
+                                    <tr>
+                                        <td>7</td>
+                                        <td>남코스
+                                            카트고 내부</td>
+                                        <td>상무 이성철
+                                            본부
+                                            971-9900(내510)</td>
+                                        <td>과장 민경진
+                                            운영팀
+                                            971-9900(내550)</td>
+                                        <td>24시간</td>
+                                        <td class="bdr1">30일</td>
+                                    </tr>
+                                    <tr>
+                                        <td>1</td>
+                                        <td>남코스
+                                            클럽하우스 로비</td>
+                                        <td>상무 이성철
+                                            본부
+                                            971-9900(내510)</td>
+                                        <td>과장 민경진
+                                            운영팀
+                                            971-9900(내550)</td>
+                                        <td>24시간</td>
+                                        <td class="bdr1">30일</td>
+                                    </tr>
+                                    <tr>
+                                        <td>1</td>
+                                        <td>남코스
+                                            클럽하우스 정면</td>
+                                        <td>상무 이성철
+                                            본부
+                                            971-9900(내510)</td>
+                                        <td>과장 민경진
+                                            운영팀
+                                            971-9900(내550)</td>
+                                        <td>24시간</td>
+                                        <td class="bdr1">30일</td>
+                                    </tr>
+                                    <tr>
+                                        <td>6</td>
+                                        <td>남코스
+                                            유류고, 장비고 등</td>
+                                        <td>상무 이성철
+                                            본부
+                                            971-9900(내510)</td>
+                                        <td>부장 최상억
+                                            시설팀
+                                            971-9900(내570)</td>
+                                        <td>24시간</td>
+                                        <td>30일</td>
+                                        <td rowspan="2">3 남코스
+                                            관리팀</td>
+                                    </tr>
+                                    <tr>
+                                        <td>3</td>
+                                        <td>남코스
+                                            쓰레기수집장</td>
+                                        <td>상무 이성철
+                                            본부
+                                            971-9900(내510)</td>
+                                        <td>부장 최상억
+                                            시설팀
+                                            971-9900(내570)</td>
+                                        <td>24시간</td>
+                                        <td class="bdr1">30일</td>
+                                    </tr>
+                                    <tr>
+                                        <td>2</td>
+                                        <td>남코스
+                                            클럽하우스 캐노피</td>
+                                        <td>상무 이성철
+                                            본부
+                                            971-9900(내510)</td>
+                                        <td>부장 최상억
+                                            시설팀
+                                            971-9900(내590)</td>
+                                        <td>24시간</td>
+                                        <td>30일</td>
+                                        <td rowspan="3">3 남코스
+                                            지원팀</td>
+                                    </tr>
+                                    <tr>
+                                        <td>1</td>
+                                        <td>남코스
+                                            시설입구히터펌프</td>
+                                        <td>상무 이성철
+                                            본부
+                                            971-9900(내510)</td>
+                                        <td>부장 최상억
+                                            시설팀
+                                            971-9900(내590)</td>
+                                        <td>24시간</td>
+                                        <td class="bdr1">30일</td>
+                                    </tr>
+                                    <tr>
+                                        <td>2</td>
+                                        <td>남코스
+                                            골프카 출입구</td>
+                                        <td>상무 이성철
+                                            본부
+                                            971-9900(내510)</td>
+                                        <td>과장 민경진
+                                            경기팀
+                                            971-9900(내550)</td>
+                                        <td>24시간</td>
+                                        <td class="bdr1">30일</td>
+                                    </tr>
+                                    <tr>
+                                        <td>1</td>
+                                        <td>남코스
+                                            프론트 정면</td>
+                                        <td>상무 이성철
+                                            본부
+                                            971-9900(내510)</td>
+                                        <td>부장 김대일
+                                            운영팀
+                                            971-9900(내510)</td>
+                                        <td>24시간</td>
+                                        <td>30일</td>
+                                        <td>5 남코스
+                                            프론트</td>
+                                    </tr>
+                                    <tr>
+                                        <td>16</td>
+                                        <td>남코스
+                                            주차장</td>
+                                        <td>상무 이성철
+                                            본부
+                                            971-9900(내510)</td>
+                                        <td>부장 김대일
+                                            운영팀
+                                            971-9900(내510)</td>
+                                        <td>24시간</td>
+                                        <td>30일</td>
+                                        <td>6 남코스
+                                            백보관소</td>
+                                    </tr>
+                                    <tr>
+                                        <td>2</td>
+                                        <td>동코스
+                                            백보관소</td>
+                                        <td>상무 이성철
+                                            본부
+                                            971-9900(내510)</td>
+                                        <td>과장 민경진
+                                            운영팀
+                                            971-9900(내550)</td>
+                                        <td>24시간</td>
+                                        <td>30일</td>
+                                        <td rowspan="4">7 동코스
+                                            경기팀</td>
+                                    </tr>
+                                    <tr>
+                                        <td>3</td>
+                                        <td>동코스
+                                            필드 출입로</td>
+                                        <td>상무 이성철
+                                            본부
+                                            971-9900(내510)</td>
+                                        <td>과장 민경진
+                                            운영팀
+                                            971-9900(내550)</td>
+                                        <td>24시간</td>
+                                        <td class="bdr1">30일</td>
+                                    </tr>
+                                    <tr>
+                                        <td>1</td>
+                                        <td>동코스
+                                            클럽하우스 로비</td>
+                                        <td>상무 이성철
+                                            본부
+                                            971-9900(내510)</td>
+                                        <td>과장 민경진
+                                            운영팀
+                                            971-9900(내550)</td>
+                                        <td>24시간</td>
+                                        <td class="bdr1">30일</td>
+                                    </tr>
+                                    <tr>
+                                        <td>1</td>
+                                        <td>동코스
+                                            클럽하우스 정면</td>
+                                        <td>상무 이성철
+                                            본부
+                                            971-9900(내510)</td>
+                                        <td>과장 민경진
+                                            운영팀
+                                            971-9900(내550)</td>
+                                        <td>24시간</td>
+                                        <td class="bdr1">30일</td>
+                                    </tr>
+                                    <tr>
+                                        <td>2</td>
+                                        <td>동코스
+                                            클럽하우스 캐노피</td>
+                                        <td>상무 이성철
+                                            본부
+                                            971-9900(내510)</td>
+                                        <td>과장 민경진
+                                            운영팀
+                                            971-9900(내550)</td>
+                                        <td>24시간</td>
+                                        <td>30일</td>
+                                        <td rowspan="2">8 동코스
+                                            팀장실</td>
+                                    </tr>
+                                    <tr>
+                                        <td>4</td>
+                                        <td>동코스
+                                            카트고 내부</td>
+                                        <td>상무 이성철
+                                            본부
+                                            971-9900(내510)</td>
+                                        <td>과장 민경진
+                                            운영팀
+                                            971-9900(내550)</td>
+                                        <td>24시간</td>
+                                        <td class="bdr1">30일</td>
+                                    </tr>
+                                    <tr>
+                                        <td>1</td>
+                                        <td>동코스
+                                            프론트 정면</td>
+                                        <td>상무 이성철
+                                            본부
+                                            971-9900(내510)</td>
+                                        <td>부장 김대일
+                                            운영팀
+                                            971-9900(내530)</td>
+                                        <td>24시간</td>
+                                        <td>30일</td>
+                                        <td>9 동코스
+                                            프론트</td>
+                                    </tr>
+                                    <tr>
+                                        <td>5</td>
+                                        <td>동코스<br>
+                                            주차장</td>
+                                        <td>상무 이성철
+                                            본부
+                                            971-9900(내510)</td>
+                                        <td>부장 김대일
+                                            운영팀
+                                            971-9900(내530)</td>
+                                        <td>24시간</td>
+                                        <td>30일</td>
+                                        <td>10 동코스
+                                            백보관소</td>
+                                    </tr>
+                                    <tr>
+                                        <td>62</td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                </div>
+            </div>
+
+            <div class="footer-popup6" id="layerPop18" style="display:none;">
+                <div class="footer-pop-header">
+                    <h3>골프장 이용 방침</h3>
+                    <img src="/images/contents/close-circle.svg" alt="" onclick="popupClose(18)">
+                </div>
+                <div class="footer-popup-check1">
+                    1. 안전하고 쾌적한 환경을 위한 사항
+                    ① 쾌적하고 깨끗한 환경유지 및 화재 예방을 위하여 다른 이용객에게 혐오감을 유발하거나 회사의 영업에 방해를 줄 수 있는 음식물 등의 반입 및 사용을 금지한다.
+                    ② 반입된 음식물의 섭취는 깨끗한 환경유지를 위하여 회사가 지정한 장소에서 행해져야 하며, 이를 위반하여 다른 이용객 및 회사에게 피해를 주어서는 아니된다.
+                    ③ 다른 이용객에게 혐오감을 주는 문신이나 복장, 타인에게 방해가 되는 고성방가 · 방뇨 · 흡연 등으로 골프장을 이용 중인 다른 이용자 또는 직원 및 캐디의 신체나 정신 재산상 피해를 발생하였거나 해가 될 우려가
+                    있는 행동을 하는 자는 입장을 제한할 수 있으며 환불없이 강제퇴장 조치 될 수 있다.
+                    ④ 골프와 무관한 물품 및 동물 등의 반입을 금지한다.
+                    - 드론, 무선조종 장난감, 전동휠 전동 제품 (단, 장애인 전동휠체어 제외)
+                    - 강아지, 고양이, 새 등 애완동물 (단, 시각장애인 안내견은 제외)
+                    - 음식을 데우거나 조리하는 버너 등 위험물
+                    - 나이프(칼), 낫, 못, 각목, 폭발물 등
+                    ⑤ 골프장 내 불법적인 행위는 금지한다.
+                    - 폭언, 폭력, 성희롱, 성추행, 갑질, 도둑질, 반사회적인 행위 등
+                    - 정당한 사유 없이 골프장의 시설 및 잔디를 포함한 모든 식물을 훼손하는 행위
+                    - 사전 허가 없이 상업목적으로 회사의 시설물을 촬영하거나 다른 이용객을 촬영하는 행위
+                    - 골프장 운영을 방해하는 행위
+                    - 영리 또는 비영리를 불문하고 일체의 선전, 홍보 행위
+                    - 회사의 허가 없이 회사의 시설물(식물 포함) 및 대여시설의 무단 반출 행위
+                    
+                    
+                    2. 골프 경기에 관한 사항
+                    ① 이용객은 위험이 예상되는 장소(경사가 급한 법면, 폰드, 카트도로의 급커브 구간, 코스내 도로와 인접하지 않은 반대편 가장자리 등)에서는 이용객이 스스로 안전을 도모하며, 위험한 행동을 하지 않는다.
+                    ② 비거리는 캐디의 조언에 관계없이 이용객 자신의 판단으로 선행조에 맞추지 않을 정도로 타구하여야 하며, 1개 홀 이상을 비우는 지연플레이를 하는 경우 입장을 불허한다.
+                    ③ 이용객은 타자의 전방에 진입하여서는 아니되며, 안전한 장소로 신속하게 이동한다.
+                    ④ 경기진행 중 후속팀에 사인을 보낸 때에는 후속팀의 타구가 끝날 때까지 안전한 장소에 대피하여야 한다.
+                    ⑤ 퍼팅을 끝마쳤을 때에는 퍼팅그린에서 즉시 비켜나서 안전한 진입로를 이용하여 다음 홀로 향하여야 한다.
+                    ⑥ 페어웨이, 그린, 벙커 등에서 타구 등으로 손상시킨 부분이 있으면 이를 복구하도록 노력하여야 한다.
+                    ⑦ 파3홀에서 사인 플레이시 뒤팀은 앞팀이 사용중인 퍼팅 그린의 긴 방향으로 약2배 이상 거리를 두고 플레이 준비한다. (거리를 모를 경우 약50m 이상 거리두기)
+                    
+                    3. 흡연 및 음주에 관한 사항
+                    ① 클럽하우스와 그늘집 등에서는 흡연이 금지되며, 흡연구역(재떨이가 설치된 지정된 장소 등)에서만 흡연이 허용된다.
+                    ② 회사는 흡연구역 외에서 흡연행위를 제한할 수 있으며, 이용객이 정당한 사유 없이 응하지 않을 경우 퇴장을 요청할 수 있다.
+                    ③ 회사는 이용객의 음주 상황에 따라 주류 판매를 제한할 수 있으며, 이용객이 정당한 사유 없이 응하지 않을 경우 퇴장을 요청할 수 있다.
+                    ④ 코스 내, 골프카에서 흡연 및 음주는 할 수 없다.
+                    
+                    4. 직원 응대에 관한 사항
+                    ① 이용객은 어떠한 경우에도 회사의 직원 또는 캐디에게 폭력, 폭언, 성희롱 또는 성추행을 할 수 없다. 만약 회사로부터 제공받은 서비스에 관해 불만이 있거나 기타 사유가 있는 경우 회사의 운영팀에 이를 고지해야
+                    한다. 고지받은 회사는 사실관계를 조사한 후, 해당 이용객에게 답변한다.
+                    ② 이용객이 회사의 직원 또는 캐디에게 폭언, 폭력, 성희롱, 성추행한 것이 확인되었을 경우 회사는 이용객의 골프장 시설이용을 제한할 수 있다.
+                    
+                    5. 시설물 이용에 관한 사항
+                    ① 회사는 이용객 본인 및 다른 이용객의 안전을 위하여 나이, 건강상태 등의 신체조건을 고려하여 시설물 이용을 제한할 수 있다.
+                    ② 회사는 영업시간 중이더라도 긴급히 안전을 위해 필요하다고 판단한 경우, 이용객들에게 고지한 후, 시설물을 점검할 수 있다. 이 때 이용객들은 질서있게 회사의 안내에 따라야 한다.
+                    ③ 이용객은 경기 진행 중 다음 각호의 사유가 발생한 경우에는 경기를 중지하고 그 사유가 끝날 때까지 안전한 장소로 대피하여야 한다.
+                    - 낙뢰가 예상될 때
+                    - 기타 이용자의 안전을 위해 필요하다고 인정되어 캐디가 대피를 요청할 때
+                    ④ 주차선 내 주차하고, 인접 주차된 차량에 닫지 않도록 주의하여 주차한다.
+                    ⑤ 골프장 전경 등의 사진, 동영상을 촬영하여 영업에 이용하는 경우 회사의 승낙을 얻어야 한다.
+                    
+                    6. 고객의 책임
+                    ① 이용객이 고의 또는 과실로 회사의 시설물이나 비품을 훼손한 경우에는 그 손해를 배상하여야 한다.
+                    ② 이용객의 고의 또는 과실로 다른 이용객, 회사 직원 등 제3자에게 손해를 입힌 경우 이용객은 이에 대한 책임을 부담한다.
+                    ③ 코로나19 등 감염병 예방을 위하여 감염자와 감염자의 밀접접촉자는 관련증빙 내용을 제시하고 의사표시한 후 적절한 조치에 응해야 한다.
+                    ④ 단계별 방역지침 준수 위반에 해당되는 경우 골프장 측의 구상권 청구시 배상책임이 있다.
+                    ⑤ 예약 정보를 타인에게 양도하여 발생되는 문제는 양도한 고객에게 책임이 있다.
+                    
+                    골프 에티켓
+                    
+                    1. 복장
+                    - 여성 : 칼라가 있는 상의, 치마·반바지·바지 중 선택, 모자
+                    - 남성 : 칼라가 있는 상의, 긴바지, 모자, 반바지 착용허용 (2021.6.7. 운영위원회)
+                    
+                    2. 연습 스윙
+                    - 안전한 피니시 방향을 확인
+                    - 지면을 건드리지 않도록 유의
+                    - 충분한 몸 풀기 및 체조
+                    
+                    3. 티오프
+                    - 30분 전 등록 완료, 10분 전 카트에 도착하여 준비
+                    - 티 오프하는 사람만 티 그라운드에 올라가기
+                    - 티 그라운드와 도로 사이 경사면도 티 그라운드에 준하여 올라가지 않기(인조매트로 설치된 부분은 제외)
+                    - 어드레스를 시작하면 소음을 내지 말고, 움직임은 절제
+                    - 티오프 시간 경과시 홀 점프 원칙 (뒷팀 먼저 티오프 불가) 지정된 시간에 티오프
+                    
+                    4. 티샷
+                    - 티샷은 전 홀에서 성적이 가장 좋았던 사람 순서대로
+                    - 세컨샷부터는 홀에서 먼 사람부터
+                    - 그린에서도 홀컵에서 먼 사람부터
+                    - OB된 볼에 대하여 집착하지 않기
+                    
+                    5. 벙커샷
+                    - 벙커샷을 끝낸 후에는 반드시 벙커를 정리
+                    - 평평한 모래 면으로 복귀시켜야 다른 사람이 편하게 이용
+                    - 출입은 잦은 곳에서 낮은 곳으로 이동
+                    
+                    6. 페어웨이에 디보트
+                    - 페어웨이에서 과다한 연습으로 디보트를 만들지 않기
+                    - 자신이 만든 디보트는 반드시 수리하기
+                    - 시간이 허락한다면 수리되지 못한 디보트 자국도 수리
+                    
+                    7. 그린 주변에서
+                    - 카트에서 자기의 볼 위치로 가기 전에 미리 거리를 예측, 확인해 보고 클럽을 한두 개 준비
+                    - 경기자보다 먼저 그린 쪽으로 진행하지 않기(경기자에게 정신적인 부담을 주지 않고, 자신의 안전도 보장받을 수 있도록 행동)
+                    - 경기자를 주시하고 있다가 피니시까지 기다렸다가 움직이기(모든 스윙과 퍼팅에도 해당)
+                    - 그린에서 브레이크를 읽을 때 다른 사람의 퍼팅 라인을 밟지 않도록 주의
+                    - 연습그린 주변에서 어프로치 금지
+                      
+                    8. 퍼팅
+                    - 볼 마크는 플레이어 본인이 마크 후 집어 올리기
+                    - 라이는 플레이어 본인이 판단하기
+                    - 홀 핀을 잡아주어야 할 경우에는 홀 컵에서 제일 가까운 곳에 볼이 위치한 사람이 처리
+                    - 홀 컵에서 단거리를 이용하여 그린 밖으로 이동
+                    
+                    9. 캐디에게
+                    - 이름 부르기
+                    - 반말하지 않기
+                    - 불필요한 심부름 자제
+                    - 동반 진행자, 조언자, 도우미, 코치, 안전확인, 기록자로서 역할 등
+                    - 클럽을 던지거나 비신사적인 행동 금지
+                    - 지나친 농담과 듣기 거북한 호칭 및 신체접촉 삼가
+                    
+                    10. 골프카에서
+                    - 이동간 손잡이를 꼭 잡기
+                    - 운전, 조작, 물품의 위치이동 금지
+                    - 개인 소지품 이외 타인의 물품에 손대지 않기
+                    - 코스 내 쓰레기는 골프카에 비치된 쓰레기통으로
+                    - 안전을 위하여 골프 카트 조작은 담당 캐디만 가능
+                    - 반드시 카트가 정차한 상태에서 타고 내리기
+                    
+                    11. 캐디가 사랑하는 골퍼
+                    - 티잉그라운드에서 단독으로 스포트라이트를 받고 싶어하는 고객
+                    - 캐디 이름을 언니로 개명해서 부르지 않는 고객
+                    - 그린 위에서 발레리나가 되어 사뿐히 걸어주시는 고객
+                    - 주인을 버리고 떠나간 볼은 쿨하게 보내주시는 고객
+                    - 카 이동시 뒤 돌아보지 않고 손잡이를 꼭 잡아주는 고객
+                    - 멀리건은 캐디의 동의 구하는 고객
+                    - 사용후 흔적을 남기지 말아야 할 곳을 아시는 고객(화장실과 벙커)
+                    - 라운드 동료 후 자신의 물건을 카트에 기부하시지 않은 고객
+                    - 코스 내에서 흡연을 하지 않는 고객
+                    
+                    12. 경기 에티켓
+                    - 라운드 도중 과도한 레슨 삼가
+                    - 벙커 정리 및 볼마크는 본인 스스로
+                    - 투 볼 플레이 금지
+                    - 경기진행을 위해 최대한 협조 (싸인플레이)
+                    - 라운드 중 경기보조원님의 진행요청에 협조
+                    - 과도한 연습은 연습장에서
+                    
+                    13. 로컬룰
+                    - 파미힐스 홈페이지 >>> 코스소개 >>> 로컬룰
+
+                </div>
+            </div>
+            <div id="overlay" class="overlay" onclick="overlayClose()" style="display: none;"></div>
+    </footer>
+</div>
+</body>
+</html> 

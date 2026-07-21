@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+    <head>
+        <link rel="icon" href="/pc/images/valley/favicon.ico" type="image/x-icon" sizes="16x16">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <title>서원밸리</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+        <script src="/js/jquery.min.js"></script>
+        <script src="/js/utils/ajax.js?v=12"></script>
+        <script src="/js/utils/common.js"></script>
+        <script src="/js/utils/date.js?v=1"></script>
+        <script src="/js/utils/popup.js?v=1"></script>
+        <script src="/js/utils/string.js?v=1"></script>
+        <script src="/js/utils/template.js"></script>
+        <script src="/js/jquery.preloaders.js"></script>
+        <script src="/js/const-valley.js"></script>
+        <script src="/pc/js/valley/view.js"></script>
+        <script src="/pc/js/valley/swiper.js"></script>
+        <link rel="stylesheet" href="/pc/css/common.css" type="text/css">
+        <link rel="stylesheet" href="/pc/css/valley/layout.css" type="text/css">
+        <link rel="stylesheet" href="/pc/css/valley/contents.css" type="text/css">
+        <link rel="stylesheet" href="/pc/css/valley/swiper.css" type="text/css">
+    </head>
+
+    <header id="headerSet">
+        <div class="h-notice">
+            <ul>
+                <!--위아래로 슬라이드 반복-->
+                <!--//위아래로 슬라이드 반복
+                <li>
+                    <a href="#">서원밸리 코스 상황 안내합니다. 티박스 및 그린 명일 오전 내 제설 작업 예정에 있습니다. 공지를 참조해주세요</a>
+                </li>-->
+            </ul>
+            <button class="top-close">닫기</button>
+            <script>
+                ajax.get("/pub-api/common-code", {clubId: CLUB_ID, division: "NOTIFY"}).then((data) => {
+                    const $ul = $("div.h-notice").children("ul");
+                    $ul.empty();
+
+                    if (data.length > 0) {
+                        data.forEach((notify, _) => {
+                            const $notify = $(`
+                                    <li>
+                                        <a href="javascript:void(0)">${notify.value4}</a>
+                                    </li>`);
+
+                            if (notify.value4) {
+                                if (getCookie("valleyNotifyClosedAt")) {
+                                    const closedAt = new Date(getCookie("valleyNotifyClosedAt"));
+                                    const modifiedAt = new Date(notify.modifiedAt);
+                                    const nowDate = new Date().toKoreanTime();
+
+                                    if (closedAt.yyyymmdd() < nowDate.yyyymmdd() || modifiedAt.yyyymmddhhmmss() > closedAt.yyyymmddhhmmss()) {
+                                        $ul.append($notify);
+                                    }
+                                } else {
+                                    $ul.append($notify);
+                                }
+                            }
+                        });
+                        if ($ul.children("li").length === 0) {
+                            $("header").addClass("move-up");
+                        }
+                    }
+                });
+
+                $("div.h-notice").children("button.top-close").on("click", function () {
+                    $("header").addClass("move-up");
+                    setCookie("valleyNotifyClosedAt", new Date().toKoreanTime(), 1);
+                });
+            </script>
+        </div>
+        <ul class="h-top">
+            <li>
+                <h1 class="logo" id="setLogo"><a href="/valley/main">로고</a></h1>
+            </li>
+            <li>
+                <ul class="bold">
+                    <script>
+                        ajax.get("/pub-api/weather")
+                            .then((data) => {
+                                if (data) {
+                                    $("li.weather img").attr("src", `/pc/images/weather/${data.wfEn.replaceAll("/", "&")}.svg`);
+                                    $("li.weather img").attr("alt", data.wfKor);
+                                    $("li.weather").append(data.temp + "º");
+                                }
+                            }).catch((e) => {
+                        });
+                    </script>
+                    <li class="weather">파주시 광탄면<span><img src="/pc/images/weather/Clear.svg" alt=""></span></li>
+                    <li class="account">
+                        <ul>
+                            <script>
+                                if (isLoggedIn()) {
+                                    document.write(`
+                                    <li><span class="btn btn-logout">로그아웃</span></li>
+                                    <li><span class="btn-mypage"><img src="/pc/images/valley/ic_user.svg">마이페이지</span></li>`);
+
+                                    $(".btn-logout").on("click", function () {
+                                        ajax.logout().then(() => {
+                                            location.reload();
+                                        })
+                                    });
+
+                                    ajax.get("/sec-api/member/summary").then((data) => {
+                                        const $mypagePopup = $("div.pop-mypage");
+
+                                        $mypagePopup.children("h2.name").append(data.member.name + "님");
+                                        $mypagePopup.find("a.booking").html(data.bookingCount);
+                                        $mypagePopup.find("a.coupon").html(data.couponCount);
+                                        $mypagePopup.find("a.wait").html(data.bookingWaitCount);
+                                        $mypagePopup.find("a.score").html(data.bestScore);
+                                    });
+                                } else {
+                                    document.write(`<li><span class="btn btn-login">로그인</span></li>`);
+                                }
+                            </script>
+                        </ul>
+                    </li>
+                    <li><a href="javascript:void(0);" class="btn-reservation">reservation</a></li>
+                    <script>
+                        $(".btn-reservation").on("click", function () {
+                            if (isLoggedIn()) {
+                                location.href = "/valley/reservation/main";
+                            } else {
+                                $(".btn-login").trigger("click");
+                            }
+                        });
+                    </script>
+                </ul>
+            </li>
+            <!--mypage-->
+            <div class="pop-mypage">
+                <h2 class="name"><img src="/pc/images/valley/ic_user_open.svg"></h2>
+                <dl>
+                    <dt>- 예약현황</dt>
+                    <dd><a class="booking" href="/valley/mypage/reservation-check-list"></a>건</dd>
+                </dl>
+                <dl>
+                    <dt>- 대기예약</dt>
+                    <dd><a class="wait" href="/valley/mypage/reservation-wait-list"></a>건</dd>
+                </dl>
+                <dl>
+                    <dt>- 베스트 스코어</dt>
+                    <dd><a class="score" href="/valley/group/mypage"></a>타</dd>
+                </dl>
+                <a href="/valley/mypage/modify" class="btn-top-modify">정보수정</a>
+                <div class="btn close-mypage">닫기</div>
+            </div>
+
+            <!--all menu btn-->
+            <div class="btn-navi">
+                <button class="toggle-menu">
+                    <span></span>
+                </button>
+            </div>
+
+            <!--all menu-->
+            <div id="menu" class="">
+                <div class="navigation">
+                    <div class="navi-wrap">
+                        <h1 class="navi-logo"></h1>
+                        <ul class="navi-menu">
+                            <div class="border"></div>
+                            <li class="navi-gnb">
+                                <h2><a href="javascript:void(0)">About Seowon</a></h2>
+                                <ul class="navi-lnb">
+                                    <li><a href="/valley/about/about">스토리</a></li>
+                                    <li><a href="/valley/about/lpga">토너먼트</a></li>
+                                    <li><a href="/valley/about/green-concert">ESG</a></li>
+                                    <li><a href="/valley/about/essay">서원에세이</a></li>
+                                    <li><a href="/valley/about/clubhouse">클럽하우스</a></li>
+                                    <li><a href="/valley/about/way">오시는길</a></li>
+                                </ul>
+                            </li>
+                            <li class="navi-gnb">
+                                <h2><a href="javascript:void(0)">Course</a></h2>
+                                <ul class="navi-lnb">
+                                    <li><a href="/valley/course/info">코스소개</a></li>
+                                    <li><a href="/valley/course/seowon">서원코스</a></li>
+                                    <li><a href="/valley/course/valley">밸리코스</a></li>
+                                </ul>
+                            </li>
+                            <li class="navi-gnb">
+                                <h2><a href="javascript:void(0)">Reservation</a></h2>
+                                <ul class="navi-lnb">
+                                    <li><a href="/valley/reservation/main">실시간예약</a></li>
+                                    <li><a href="/valley/reservation/guide">이용안내</a></li>
+                                    <li><a href="/valley/reservation/fee">이용요금</a></li>
+                                </ul>
+                            </li>
+                            <li class="navi-gnb">
+                                <h2><a href="javascript:void(0)">Our Special</a></h2>
+                                <ul class="navi-lnb">
+                                    <li><a href="https://www.seowongolf.co.kr/inrange/index">서원 인레인지<br><span>(연습장)</span></a></li>
+                                    <li><a href="https://seowonatrium.co.kr/">서원 아트리움<br><span>(웨딩,모임)</span></a></li>
+                                    <li><a href="https://seowonatrium.co.kr/familyparty">서원정/서원더뷰</a></li>
+                                    <!--<li><a href="javascript:alert('준비중입니다.');">서향대<br></a></li>-->
+                                </ul>
+                            </li>
+                            <li class="navi-gnb">
+                                <h2><a href="javascript:void(0)">Membership</a></h2>
+                                <ul class="navi-lnb">
+                                    <li><a href="/valley/board/list">공지사항</a></li>
+                                    <li><a href="/valley/board/event">이벤트</a></li>
+                                    <li><a href="/valley/board/qa">Q&amp;A</a></li>
+                                    <li><a href="/valley/board/archive">자료실</a></li>
+                                </ul>
+                            </li>
+                            <li class="navi-gnb">
+                                <h2><a href="javascript:void(0)">My Page</a></h2>
+                                <ul class="navi-lnb">
+                                    <li><a href="/valley/mypage/reservation-check">예약현황</a></li>
+                                    <li><a href="/valley/mypage/coupon-list">쿠폰함</a></li>
+                                    <li><a href="/valley/group/mypage">나의 활동</a></li>
+                                    <li><a href="/valley/mypage/list">고객의 소리</a></li>
+                                    <li><a href="/valley/mypage/modify">회원정보수정</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </ul>
+
+        
+    <div class="slide-login">
+        <div class="h-login-tit"><span>LOGIN</span></div>
+        <div class="login-wrap">
+            <div class="login-box">
+                <ul>
+                    <li class="login id"><span><img src="/pc/images/hills/ic_login_user.svg"></span><input type="text"
+                                                                                                           placeholder="아이디">
+                    </li>
+                    <li class="login pw"><span><img src="/pc/images/hills/ic_login_pw.svg"></span><input type="password"
+                                                                                                         placeholder="비밀번호">
+                    </li>
+                </ul>
+                <div class="idpw-row">
+                    <ul>
+                        <li class="check-id"><input type="checkbox" id="chkSaveId"><label for="chkSaveId">아이디 저장하기</label></li>
+                        <li class="check-id"><input type="checkbox" id="chkAutoLogin"><label for="chkAutoLogin">로그인 유지</label></li>
+                    </ul>
+                </div>
+                <a href="javascript:void(0)" class="btn-slide-login">로그인</a>
+            </div>
+            <p class="search-idpw">
+                <a href="/valley/member/find-id">아이디 찾기</a>
+                <span>&middot;</span>
+                <a href="/valley/member/find-pw">비밀번호 찾기</a>
+            </p>
+        </div>
+        <div class="close-login">닫기</div>
+    </div>
+
+    <script>
+        $(document).ready(function () {
+            const $container = $("div.slide-login");
+
+            // 팝업 오픈
+            $(".btn-login").on("click", function () {
+                $container.toggleClass("open");
+            });
+
+            // 팝업 닫기
+            $container.on("click", "div.close-login", function () {
+                $("div.slide-login").removeClass("open");
+            });
+
+            // 회원/비회원 탭 메뉴
+            $container.on("click", "ul.tab-login > li", function () {
+                $(this).addClass("on");
+                $(this).siblings("li").removeClass("on");
+
+                $container.find("div.login-box").hide();
+                $container.find("div.login-box").eq($(this).index()).show();
+            });
+
+            // 로그인 탭
+            const $loginContainer = $container.find("div.login-box").eq(0);
+            const $id = $loginContainer.find("input[type=text]");
+            const $pw = $loginContainer.find("input[type=password]");
+            const $saveId = $loginContainer.find("#chkSaveId");
+
+            if (getCookie("valleySaveId")) {
+                $id.val(getCookie("valleySaveId"));
+                $saveId.attr("checked", true);
+            }
+
+            $loginContainer.on("keypress", "input", function (e) {
+                if (e.keyCode === 13) {
+                    $loginContainer.children("a").click();
+                }
+            });
+
+            $loginContainer.children("a").on("click", function () {
+                const $autoLogin = $loginContainer.find("#chkAutoLogin");
+
+                if ($id.val() === "") {
+                    alert("아이디를 입력하세요.")
+                    return;
+                } else if ($pw.val() === "") {
+                    alert("비밀번호를 입력하세요.")
+                    return;
+                }
+
+                if ($autoLogin.is(":checked")) {
+                    setCookie(`${CLUB_ID}-autoLogin`, true, 30);
+                } else {
+                    removeCookie(`${CLUB_ID}-autoLogin`);
+                }
+
+                ajax.login(CLUB_ID, $id.val(), $pw.val(), $autoLogin.is(":checked")).then(() => {
+                    if ($saveId.is(":checked")) {
+                        setCookie("valleySaveId", $id.val(), 30);
+                    } else {
+                        removeCookie("valleySaveId");
+                    }
+
+                    location.reload();
+                }).catch(() => {
+                })
+            });
+        });
+    </script>
+
+    </header>
+
+
+<body>
+
+    <script src="/js/fullpage.parallax.min.js"></script>
+    <script src="/js/fullpage.extensions.min.js"></script>
+    <script src="/pc/js/valley/main.js"></script>
+    <script src="/pc/js/valley/slick.js"></script>
+    <link rel="stylesheet" href="/pc/css/fullpage.css" type="text/css">
+    <link rel="stylesheet" href="/pc/css/valley/main.css" type="text/css">
+    
+    <aside id="asideSet">
+        <ul>
+            <li>
+                <a href="/hills/main">
+                    <p>SEOWON HILLS</p>
+                    <span>서원힐스</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://www.seowongolf.co.kr/inrange/index">
+                    <p>SEOWON INRANGE</p>
+                    <span>서원 인레인지</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://seowonatrium.co.kr/">
+                    <p>WEDDING / BANQUET</p>
+                    <span>서원 아트리움</span>
+                </a>
+            </li>
+            <li>
+                <!--<a href="/valley/about/green-concert">-->
+                <a href="https://www.greenconcert.co.kr/">
+                    <p>GREEN CONCERT</p>
+                    <span>그린 콘서트</span>
+                </a>
+            </li>
+            <!--<li>
+                <a href="/valley/about/clubhouse">
+                    <p>SEOWON SHOP</p>
+                    <span>서원샵</span>
+                </a>
+            </li>-->
+        </ul>
+    </aside>
+
+
+    <main id="fullpage">
+        <section class="section" id="section0">
+            <div class="fp-bg">
+                <div class="main-slide">
+                    <div class="swiper-wrapper">
+                        <div class="swiper-slide">
+                            <div class="img-scale main-bg1"></div>
+                        </div>
+                        <div class="swiper-slide">
+                            <div class="img-scale main-bg2"></div>
+                        </div>
+                        <div class="swiper-slide">
+                            <div class="img-scale main-bg3"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--main text & bn 배너영역-->
+            <div class="group-text-bn">
+                <div class="main-text">
+                    <ul class="ani-up">
+                        <li><h4>Private Golf Club</h4></li>
+                        <li><h3>SEOWON VALLEY</h3></li>
+                        <li><h2>고향의 '情'이 느껴지는 편안함</h2></li>
+                    </ul>
+                </div>
+                <div class="main-bn ani-up" hidden>
+                    <div class="swiper main-bn-slide">
+                        <div class="swiper-wrapper">
+                        </div>
+                        <div class="btn-bn-left">◀</div>
+                        <div class="btn-bn-right">▶</div>
+                    </div>
+                    <div class="swiper-control-bar">
+                        <ul>
+                            <li>
+                                <button type="button" class="play"></button>
+                            </li>
+                            <li>
+                                <button type="button" class="pause"></button>
+                            </li>
+                            <li>
+                                <div class="swiper-scrollbar"></div>
+                            </li>
+                        </ul>
+                    </div>
+                    <button type="button" class="close-main-bn">오늘하루 그만보기</button>
+                </div>
+            </div>
+            <!--mouse scroll-->
+            <div class="mouse-scroll">
+                <div class="mouse">
+                    <div class="wheel"></div>
+                </div>
+                <div class="mouse-txt">
+                    <p>SCROLLS</p>
+                </div>
+            </div>
+        </section>
+        <section class="section" id="section1">
+            <div class="main-course-slide-wrap">
+                <div class="slickArrow">
+                    <span class="prev"></span>
+                    <span class="next"></span>
+                </div>
+                <div class="main-course-slide">
+                    <div class="backOverlay overlay3"></div>
+                    <div class="main-course-txt-wrap">
+                        <div class="main-course-txt">
+                            <h2>상서롭고 복된 땅 서원</h2>
+                        </div>
+                        <h3>조선시대 임금님의 사냥터였던 파주의 옛 지명인 "서원" 은 상서롭고 복된 땅이라는 의미로 행운의 기운이 가득하며, 금병산 자락에 감싸인 고도70~170m의 정남향의
+                            분지형 코스로 조용함과 아늑함을 선사합니다.</h3>
+                        <!--                        <ul class="main-course-txt-tab">
+                                                    <li class="on">VALLEY COURSE</li>
+                                                    <li class="cursor">SEOWON COURSE</li>
+                                                </ul>-->
+                        <!--                        <h3>10대 코스가 선정될 만큼
+                                                    아름다운 경관을 자랑하는 코스</h3>-->
+                        <!--<a href="/valley/course/info" class="viewAll"><b>VIEW ALL</b> →</a>-->
+                    </div>
+                    <ul class="course-slider1">
+                        <li><img src="/pc/images/valley/valley_course.jpg" alt=""></li>
+                        <li><img src="/pc/images/valley/seowon_course.png" alt=""></li>
+                    </ul>
+                    <!--                    <ul class="course-slider1" style="display:none">
+                                            <li><img src="/pc/images/valley/seowon_course.jpg" alt=""></li>
+                                            <li><img src="/pc/images/valley/seowon_course.jpg" alt=""></li>
+                                        </ul>-->
+                </div>
+                <div class="main-course-slide2">
+                    <div class="backOverlay overlay1"></div>
+                    <ul class="course-slider2">
+                        <li><img src="/pc/images/valley/valley_course2.jpg" alt=""></li>
+                        <li><img src="/pc/images/valley/seowon_course2.png" alt=""></li>
+                    </ul>
+                </div>
+                <!--                <div class="main-course-slide2">
+                                    <div class="backOverlay overlay1"></div>
+                                    <ul class="course-slider2">
+                                        <li><img src="/pc/images/valley/valley_course2.jpg" alt=""></li>
+                                        <li><img src="/pc/images/valley/valley_course2.jpg" alt=""></li>
+                                    </ul>
+                                </div>-->
+                <div class="wrapping">
+                    <div class="main-course-slide3">
+                        <ul class="course-slider3">
+                            <li class="main-course-txt">
+                                <span class="txt1">
+                                    <p>회원제 토너먼트 코스 명성에 걸맞는
+                                        최상의 코스 품질과 행운의 기운을
+                                        느껴보세요.</p>
+                                    <a href="/valley/course/info" class="viewAll"><b>VIEW ALL</b> →</a>
+                                </span>
+                            </li>
+                        </ul>
+                    </div>
+                    <!--                    <div class="main-course-slide3">
+                                            <ul class="course-slider3">
+                                                <li class="main-course-txt">
+                                                    <span class="txt1">
+                                                        <h1>시원스럽고
+                                                            난이도가 높은 밸리코스</h1>
+                                                        <h2>기복이 작으면서도 난이도가 높아
+                                                            도전하는 쾌감을 만끽할 수 있습니다.</h2>
+                                                        <a href="" class="viewAll"><b>VIEW ALL</b> →</a>
+                                                    </span>
+                                                    <span class="txt2" style="display: none;">
+                                                        <h1>아기자기하고
+                                                            화려한 서원코스</h1>
+                                                        <h2>전체적으로 공략이 시워보이지만
+                                                            정고한 샷을 요구합니다.</h2>
+                                                        <a href="" class="viewAll"><b>VIEW ALL</b> →</a>
+                                                    </span>
+                                                </li>
+                                            </ul>
+                                        </div>-->
+                    <div class="main-course-slide4">
+                        <div class="backOverlay overlay2"></div>
+                        <ul class="course-slider4">
+                            <li><img src="/pc/images/valley/valley_course3.jpg" alt=""></li>
+                            <li><img src="/pc/images/valley/seowon_course3.jpg" alt=""></li>
+                        </ul>
+                    </div>
+                    <!--                    <div class="main-course-slide4">
+                                            <div class="backOverlay overlay2"></div>
+                                            <ul class="course-slider4">
+                                                <li><img src="/pc/images/valley/valley_course3.jpg" alt=""></li>
+                                                <li><img src="/pc/images/valley/valley_course3.jpg" alt=""></li>
+                                            </ul>
+                                        </div>-->
+                </div>
+            </div>
+        </section>
+        <section class="section" id="section2">
+            <div class="main-slide-box">
+                <div class="main-gallery">
+                    <div class="backOverlay overlay1"></div>
+                    <ul>
+                        <!-- 그린콘서트 -->
+                        <li>
+                            <span><img src="/pc/images/valley/img.main.001_1.png" alt="그린콘서트"></span>
+                            <span><img src="/pc/images/valley/img.main.001_2.png" alt="그린콘서트"></span>
+                        </li>
+                        <!-- 웨딩 -->
+                        <li>
+                            <span><img src="/pc/images/valley/img.main.002_1.png" alt="웨딩"></span>
+                            <span><img src="/pc/images/valley/img.main.002_2.png" alt="웨딩"></span>
+                        </li>
+                        <!-- 아트리움 -->
+                        <li>
+                            <span><img src="/pc/images/valley/img.main.003_1.png" alt="스타트하우스"></span>
+                            <span><img src="/pc/images/valley/img.main.003_2.png" alt="스타트하우스"></span>
+                        </li>
+                        <!-- 서원더뷰 -->
+                        <li>
+                            <span><img src="/pc/images/valley/img.main.004_1.png" alt=""></span>
+                            <span><img src="/pc/images/valley/img.main.004_2.png" alt=""></span>
+                        </li>
+                        <!-- 대회 -->
+                        <li>
+                            <span><img src="/pc/images/valley/img.main.005_1.png" alt=""></span>
+                            <span><img src="/pc/images/valley/img.main.005_2.png" alt=""></span>
+                        </li>
+                        <!-- 대보골프단 -->
+                        <li>
+                            <span><img src="/pc/images/valley/img.main.006_1.png" alt=""></span>
+                            <span><img src="/pc/images/valley/img.main.006_2.png" alt=""></span>
+                        </li>
+                        <!-- 인레인지 -->
+                        <li>
+                            <span><img src="/pc/images/valley/img.main.007_1.png" alt=""></span>
+                            <span><img src="/pc/images/valley/img.main.007_2.png" alt=""></span>
+                        </li>
+                        <!-- 서향대 -->
+                        <li>
+                            <span><img src="/pc/images/valley/img.main.008_1.png" alt=""></span>
+                            <span><img src="/pc/images/valley/img.main.008_2.png" alt=""></span>
+                        </li>
+                    </ul>
+
+                </div>
+                <div class="way-info">
+                    <dl>
+                        <dt class="way-info-map">
+                            <div id="daumRoughmapContainer1709857909660"
+                                 class="root_daum_roughmap root_daum_roughmap_landing"></div>
+                            <script charset="UTF-8" class="daum_roughmap_loader_script"
+                                    src="https://ssl.daumcdn.net/dmaps/map_js_init/roughmapLoader.js"></script>
+                            <script charset="UTF-8">
+                                new daum.roughmap.Lander({
+                                    "timestamp": "1709857909660",
+                                    "key": "2iek9",
+                                }).render();
+                            </script>
+                        </dt>
+                        <dd>
+                            <p>
+                                <i>경기도 파주시 광탄면 서원길 333</i>
+                                <i><strong>031-940-9400(서원밸리 9401 / 서원힐스 9402 / 연습장 9550)</strong></i>
+                                <a href="/valley/about/way" class="viewAll"><b>VIEW ALL</b> →</a>
+                            </p>
+                        </dd>
+                    </dl>
+                </div>
+                <div class="main-gallery-img">
+                    <div class="backOverlay overlay1"></div>
+                    <ul>
+                        <!-- 그린콘서트 -->
+                        <li><img src="/pc/images/valley/img.main.001_3.png" alt=""></li>
+                        <!-- 다문화 가정 합동 결혼식 -->
+                        <li><img src="/pc/images/valley/img.main.002_3.png" alt=""></li>
+                        <!-- 아트리움 -->
+                        <li><img src="/pc/images/valley/img.main.003_3.png" alt=""></li>
+                        <!-- 서원더뷰 -->
+                        <li><img src="/pc/images/valley/img.main.004_3.png" alt=""></li>
+                        <!-- 프로대회 -->
+                        <li><img src="/pc/images/valley/img.main.005_3.png" alt=""></li>
+                        <!-- 대보골프단 -->
+                        <li><img src="/pc/images/valley/img.main.006_3.jpg" alt=""></li>
+                        <!-- 서원 인레인지 -->
+                        <li><img src="/pc/images/valley/img.main.007_3.png" alt=""></li>
+                        <!-- 서향대 -->
+                        <li><img src="/pc/images/valley/img.main.008_3.png" alt=""></li>
+                    </ul>
+                    <span class="btnset"></span>
+                    <div class="gallery-txtbox">
+                        <!-- 그린콘서트 -->
+                        <dl class="concert on" style="background-color: rgba(34, 34, 34, 0.6)">
+                            <div class="gallery-txtbox-in">
+                                <dt><strong>서원밸리 자선 그린 콘서트</strong></dt>
+                                <dd>
+                                    <p>
+                                        <i>매년 5월 마지막 주 토요일, 즐거움과 행복이
+                                            가득한 따듯한 나눔 이야기가 펼쳐집니다.
+                                            제 23회 그린콘서트 행사일 :<br>2027년 5월 29일 토요일예정</i>
+                                    </p>
+                                    <a href="/valley/about/green-concert" class="viewAll"><b>VIEW ALL</b> →</a>
+                                </dd>
+                            </div>
+                        </dl>
+                        <!-- 다문화 가정 합동 결혼식 -->
+                        <dl class="wedding" style="background-color: rgba(34, 34, 34, 0.6)">
+                            <div class="gallery-txtbox-in">
+                                <dt><strong>다문화가정 합동 결혼식</strong></dt>
+                                <dd>
+                                    <p>
+                                        <i>다문화 가정을 위한 잊지못할 결혼식.
+                                            서원 아트리움이 함께합니다.</i>
+                                    </p>
+                                    <a href="/valley/about/wedding" class="viewAll"><b>VIEW ALL</b> →</a>
+                                </dd>
+                            </div>
+                        </dl>
+                        <!-- 아트리움 -->
+                        <dl class="atrium" style="background-color: rgba(34, 34, 34, 0.6)">
+                            <div class="gallery-txtbox-in">
+                                <dt><strong>당신이 꿈꾸는 결혼식,<br>
+                                    서원 아트리움</strong></dt>
+                                <dd>
+                                    <p>
+                                        <i>도심에서 가장 가까운 비밀정원.
+                                            하늘과 숲, 그리고 웨딩의 완벽한 조화</i>
+                                    </p>
+                                    <a href="https://seowonatrium.co.kr/" class="viewAll"><b>VIEW ALL</b> →</a>
+                                </dd>
+                            </div>
+                        </dl>
+                        <!-- 서원더뷰 -->
+                        <dl class="view" style="background-color: rgba(34, 34, 34, 0.6)">
+                            <div class="gallery-txtbox-in">
+                                <dt><strong>서원 더 뷰, 서원정,<br>
+                                    그린콘서트 홀</strong></dt>
+                                <dd>
+                                    <p>
+                                        <i>특별한 기념일, 상견례 명소로 여유롭고 품격있는 연회장, 고급스럽게 준비한 음식으로 사랑하는 사람들과 더 특별한 시간을
+                                            마련해드립니다.</i>
+                                    </p>
+                                    <a href="https://seowonatrium.co.kr/familyparty" class="viewAll"><b>VIEW ALL</b> →</a>
+                                </dd>
+                            </div>
+                        </dl>
+                        <!-- 프로대회 -->
+                        <dl class="pro" style="background-color: rgba(34, 34, 34, 0.6)">
+                            <div class="gallery-txtbox-in">
+                                <dt><strong>프로 대회</strong></dt>
+                                <dd>
+                                    <p>
+                                        <i>서원밸리컨트리클럽에서는 국내 유일 LPGA, KLPGA, KPGA 등 다양한 프로대회가 개최되고 있으며, 최상의 토너먼트 코스를 만나보실
+                                            수 있습니다.</i>
+                                    </p>
+                                    <!--<a href="/valley/about/kpga" class="viewAll"><b>VIEW ALL</b> →</a>-->
+                                    <a href="https://www.seowongolf.co.kr/hills/about/kpga" class="viewAll"><b>VIEW
+                                        ALL</b> →</a>
+                                </dd>
+                            </div>
+                        </dl>
+                        <!-- 대보골프단 -->
+                        <dl class="academy" style="background-color: rgba(34, 34, 34, 0.6)">
+                            <div class="gallery-txtbox-in">
+                                <dt><strong>대보골프단</strong></dt>
+                                <dd>
+                                    <p>
+                                        <i>대한민국의 골프 스포츠 미래인 우리 대보<br>골프단 선수들에게 많은 관심과 응원 부탁드립니다.</i>
+                                    </p>
+                                    <!--<a href="/valley/about/academy" class="viewAll"><b>VIEW ALL</b> →</a>-->
+                                    <a href="https://www.seowongolf.co.kr/hills/about/academy" class="viewAll"><b>VIEW
+                                        ALL</b> →</a>
+                                </dd>
+                            </div>
+                        </dl>
+                        <!-- 서원 인레인지 -->
+                        <dl class="inrange" style="background-color: rgba(34, 34, 34, 0.6)">
+                            <div class="gallery-txtbox-in">
+                                <dt><strong>서원 인레인지</strong></dt>
+                                <dd>
+                                    <p>
+                                        <i>정확한 샷 분석, 모든 경사를 연습할 수 있는 퍼팅랩, 숏게임장까지! 편리하고 효율적인 최신식 연습 시스템으로 최상의 연습 효과를 경험하실
+                                            수 있습니다.</i>
+                                    </p>
+                                    <a href="https://legacy.seowongolf.co.kr/hills/academi/rangeFare.do"
+                                       class="viewAll"><b>VIEW ALL</b> →</a>
+                                </dd>
+                            </div>
+                        </dl>
+                        <!-- 서향대 -->
+                        <dl class="special" style="background-color: rgba(34, 34, 34, 0.6)">
+                            <div class="gallery-txtbox-in">
+                                <dt><strong>서향대</strong></dt>
+                                <dd>
+                                    <p>
+                                        <i>찾아주시는 고객님들께 고향에서 어머니가 해주셨던 손맛과 정성이 담긴 음식을 제공하기위해 매년 '장'을 직접 담아 올리고 있습니다.</i>
+                                    </p>
+                                    <a href="javascript:void(0);" class="viewAll"><b>VIEW ALL</b> →</a>
+                                </dd>
+                            </div>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section class="section" id="section3">
+            <div class="main-notice-wrap">
+                <div class="main-notice-area">
+                    <div class="main-notice-title ani-up">
+                        <h2>NOTICE & EVENT</h2>
+                        <a href="/valley/board/event" class="viewAll"><b>VIEW ALL</b> →</a>
+                    </div>
+                    <div class="swiper main-notice-slide ani-up-3s">
+                        <div class="swiper-wrapper">
+                        </div>
+                    </div>
+                    <div class="btn-notice-left ani-up-3s">left</div>
+                    <div class="btn-notice-right ani-up-3s">right</div>
+                </div>
+            </div>
+
+            <!--footer-->
+            <footer>
+                <h1>로고</h1>
+                <ul>
+                    <li><h2>Customer Service</h2></li>
+                    <li>전화번호 &nbsp;&nbsp;&nbsp; 031-940-9400(서원밸리 9401 / 서원힐스 9402 / 연습장 9550) &nbsp;&nbsp;&nbsp; 문의시간 : 8시~18시
+                    </li>
+                    <li class="footer-page">
+                        <a href="/valley/policy/policy01" class="bold">이용약관</a>
+                        <a href="/valley/policy/policy02">개인정보처리방침</a>
+                        <a href="/valley/policy/policy03">영상정보처리기기운영·관리방침</a>
+                        <a href="/valley/policy/policy04">이메일무단수집금지</a>
+                    </li>
+                    <li><p>· 상호 : 서원레저(주) 대표자명 : 정석천 사업장소재지 : 경기도 파주시 광탄면 서원길 333 연락처 : 031-940-9400(서원밸리 9401 / 서원힐스 9402 / 연습장 9550)<br>
+                        사업자등록번호 : 110-81-34204 통신판매번호 : 2009-경기파주-1997<br>
+                        · 기상정보 출처: 기상청 홈페이지<br><br>
+                        ⓒ 서원레저(주) ALL RIGHT RESERVED</p>
+                    </li>
+                </ul>
+            </footer>
+        </section>
+    </main>
+
+    <script>
+
+        $(document).ready(function () {
+            getPost();
+            getBanner();
+            getPopup();
+            ajax.get("/pub-api/entry", {clubId: CLUB_ID, date: new Date().toKoreanTime().yyyymmdd()})
+            $("div.main-bn").find(".close-main-bn").on("click", function () {
+                closeBanner(1);
+            });
+        });
+
+        function getPost() {
+            const postType = ["NOTICE", "EVENT"]
+
+            ajax.get("/pub-api/posts/specific", {clubId: CLUB_ID, types: postType}).then((data) => {
+                const $div = $("div.main-notice-slide").find("div.swiper-wrapper");
+
+                if (data.content.length > 0) {
+                    data.content.forEach((post, _) => {
+                        const $post = $(`
+                            <div class="swiper-slide main-notice-box">
+                                <figure>
+                                    <img src="${CLOUD_URL}renewal-valley/20240502/a666d295-97e8-48f7-ae1e-2052412340b1.jpeg" alt="">
+                                </figure>
+                                <div class="main-notice-box-in">
+                                    <h3>${post.type === "NOTICE" ? "notice" : "event"}</h3>
+                                    <h2>${post.title}</h2>
+                                    <p>${post.createdAt.substring(0, 10)}</p>
+                                </div>
+                                <a href="javascript:void(0)"></a>
+                            </div>`);
+
+                        $post.find("a").attr("href", `/valley/board/view/${post.id}`);
+                        if (post.postFiles.length > 0) {
+                            $post.find("img").attr("src", CLOUD_URL + post.postFiles[0].filePath);
+                        }
+
+                        $div.append($post);
+                    });
+                }
+            });
+        }
+
+        function getBanner() {
+            if (getCookie("valleyBanner") !== "Y") {
+                ajax.get("/pub-api/banners", {clubId: CLUB_ID, type: "HOMEPAGE"}).then((data) => {
+                    const $div = $("div.main-bn").find("div.swiper-wrapper");
+                    $div.empty();
+
+                    if (data.content.length > 0) {
+                        data.content.sort((a, b) => {
+                            return b.sort - a.sort;
+                        }).forEach((banner, _) => {
+                            const $banner = $(`
+                            <div class="swiper-slide">
+                                <a href="${banner.link ? banner.link : "#"}" title="${banner.title}">
+                                    <img src="" alt="배너">
+                                </a>
+                            </div>
+                                `);
+
+                            if (banner.bannerFiles.length > 0) {
+                                $banner.find("img").attr("src", CLOUD_URL + banner.bannerFiles[0].filePath);
+                            }
+
+                            $div.append($banner)
+                        });
+
+                        $("div.main-bn").show();
+
+                        const mainBnSlider = new Swiper('.main-bn-slide', {
+                            slidesPerView: 1,
+                            speed: 700,
+                            loop: true,
+                            autoplay: {
+                                delay: 7000,
+                            },
+                            allowTouchMove: false,
+                            pagination: {
+                                el: ".swiper-pagination",
+                                clickable: true,
+                            },
+                            scrollbar: {
+                                el: ".swiper-scrollbar",
+                            },
+                            navigation: {
+                                nextEl: '.btn-bn-right',
+                                prevEl: '.btn-bn-left',
+                            },
+                        });
+                        $(".pause").click(function () {
+                            mainBnSlider.autoplay.stop();
+                        });
+                        $(".play").click(function () {
+                            mainBnSlider.autoplay.start();
+                        });
+                    }
+                });
+            }
+        }
+
+        function closeBanner(day) {
+            $("div.main-bn").hide();
+
+            if (day > 0) {
+                setCookie("valleyBanner", "Y", day);
+            }
+        }
+
+        function getPopup() {
+            popup.open("/pc/popup/valley/main-popup.html", function ($el, $overlay, open, close) {
+                ajax.get("/pub-api/popups", {clubId: CLUB_ID, type: "HOMEPAGE"}).then((data) => {
+                    if (data.content.length > 0) {
+                        $el.find(".main-pop-wrap").empty();
+
+                        data.content.sort((a, b) => {
+                            return b.sort - a.sort;
+                        }).forEach((popup, _) => {
+                            if (getCookie("valleyPopup" + popup.id) !== "Y") {
+                                const $popup = $(`
+                                    <div class="main-popup">
+                                        <figure>
+                                            <img src="${CLOUD_URL + popup.filePath}" onclick="location.href='${popup.link ? popup.link : "#"}'">
+                                        </figure>
+                                        <ul>
+                                            <li><button type="button">오늘 하루 그만보기</button></li>
+                                            <li><button type="button"><img src="/pc/images/valley/ic_pop_close.svg"></button></li>
+                                        </ul>
+                                    </div>`);
+
+                                $popup.find("button").eq(0).on("click", function () {
+                                    setCookie("valleyPopup" + popup.id, "Y", 1);
+                                    if ($popup.siblings("div").length === 0) {
+                                        $popup.remove();
+                                        close();
+                                    } else {
+                                        $popup.remove();
+                                    }
+                                });
+
+                                $popup.find("button").eq(1).on("click", function () {
+                                    if ($popup.siblings("div").length === 0) {
+                                        $popup.remove();
+                                        close();
+                                    } else {
+                                        $popup.remove();
+                                    }
+                                });
+
+                                $el.append($popup)
+                            }
+                        });
+                        if ($el.children(".main-popup").length > 0) {
+                            open();
+                        }
+                    }
+                });
+            });
+        }
+    </script>
+
+</body>
+</html>

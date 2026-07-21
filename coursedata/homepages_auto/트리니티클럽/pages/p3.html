@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta content="width=device-width, initial-scale=1" name="viewport"/>
+        <title>트리니티클럽</title>
+        <link href="/static/favicon.ico" rel="icon">
+        <link href="/css/common.css" rel="stylesheet">
+        <link href="/css/layout.css" rel="stylesheet">
+        <link href="/css/contents.css" rel="stylesheet">
+        <link href="/css/swiper.css" rel="stylesheet">
+        <script src="/js/jquery.min.js"></script>
+        <script src="/js/utils/ajax.js?v=9"></script>
+        <script src="/js/utils/common.js?v=2"></script>
+        <script src="/js/utils/date.js"></script>
+        <script src="/js/utils/string.js"></script>
+        <script src="/js/utils/template.js"></script>
+        <script src="/js/jquery.preloaders.js"></script>
+        <script src="/js/const.js"></script>
+        <script src="/js/view.js"></script>
+        <script src="/js/swiper.js"></script>
+        <script src="/js/popup.js"></script>
+    </head>
+
+    <header class="header">
+       <div class="gnb-wrap">
+           <div class="inner">
+               <div class="logo">
+                   <a href="/main">
+                       <img alt="trinity club" src="/images/header_logo.png">
+                   </a>
+               </div>
+               <div class="gnb">
+                   <ul>
+                       <li class="title">introduction</li>
+                       <li><a href="/introduction/club-intro">클럽소개</a></li>
+                       <li><a href="/introduction/greeting">인사말</a></li>
+                       <li><a href="/introduction/bi">bi소개</a></li>
+                       <li><a href="/introduction/location">찾아오시는길</a></li>
+                   </ul>
+                   <ul>
+                       <li class="title">course</li>
+                       <li><a href="/course/course-info">전체코스</a></li>
+                       <li><a href="/course/out-course">out코스</a></li>
+                       <li><a href="/course/in-course">in코스</a></li>
+                   </ul>
+                   <ul>
+                       <li class="title">clubhouse</li>
+                       <li><a href="/clubhouse/clubhouse">설계철학</a></li>
+                       <li><a href="/clubhouse/lobby">로비&라운지</a></li>
+                       <li><a href="/clubhouse/restaurants">레스토랑</a></li>
+                       <li><a href="/clubhouse/golfshop">골프샵</a></li>
+                       <li><a href="/clubhouse/sauna">사우나&스파</a></li>
+                       <li><a href="/clubhouse/gallery">클럽하우스 갤러리</a></li>
+                   </ul>
+                   <ul>
+                       <li class="title">reservation</li>
+                       <li><a href="/reservation/info">예약안내</a></li>
+                       <li><a href="/reservation/reservation">예약</a></li>
+                       <li><a href="/reservation/reservation-check">예약확인/변경</a></li>
+                       <li><a href="/reservation/faq">faq</a></li>
+                   </ul>
+                   <ul>
+                       <li class="title">community</li>
+                       <li><a href="/board/list">클럽소식</a></li>
+                       <li><a href="/board/calendar">이벤트 / 캘린더</a></li>
+                       <!-- 어드민 로그인시 노출 -->
+                       <li hidden><a href="/board/popup">팝업관리</a></li>
+                   </ul>
+               </div>
+               <div class="util">
+                   <ul>
+                       <li><a href="/member/login" style="display:none">login</a></li>
+                       <li><a href="javascript:void(0)" style="display:none">logout</a></li>
+                       <li><a href="/member/check-pw">mypage</a></li>
+                   </ul>
+               </div>
+               <script>
+                   if (isLoggedIn()) {
+                       $(".util").find("a").eq(1).show();
+                       $(".util").find("a").eq(1).on("click", function () {
+                           ajax.logout().then(() => {
+                               alert("로그아웃 되었습니다.");
+                               location.href = "/";
+                           }).catch(() => {
+                           });
+                       });
+                   } else {
+                       $(".util").find("a").eq(0).show();
+                   }
+               </script>
+           </div>
+       </div>
+    </header>
+    <!-- quick menu -->
+    <div class="quick-wrap">
+        <ul>
+            <li><a href="/weather/weather">weather</a></li>
+            <li><a href="/introduction/location">location</a></li>
+            <li><a href="/reservation/info">reservation</a></li>
+        </ul>
+    </div>
+
+    <script>
+        //quick menu on/off
+        $(document).ready(function () {
+            const currentPage = window.location.pathname.split('/').pop();
+            const $quickMenu = $(".quick-wrap");
+
+            $quickMenu.find("li").each(function () {
+                const menuLink = $(this).find("a").attr("href").split('/').pop();
+
+                if (currentPage === menuLink) {
+                    $(this).addClass("on");
+                } else {
+                    $(this).removeClass("on");
+                }
+            });
+        });
+    </script>
+
+
+<body>
+
+    <div class="contents-wrapper">
+        <!-- sun-header -->
+        <div class="sub-header">
+            <h1 class="logo"><img alt="트리니티" src="/images/logo.png"/></h1>
+            <div class="text">
+                <b><img alt="" src="/images/login-title.png"></b>
+            </div>
+        </div>
+        <!-- contents -->
+        <div class="contents-container">
+            <div class="login-top"></div>
+            <div class="login-wrap">
+                <h4 class="login-title">LOGIN</h4>
+                <p class="sub-title">클럽 회원만 로그인 가능합니다.
+                    <span>클럽 회원님께서는 별도의 회원가입절차 없이 로그인 하실 수 있습니다.</span>
+                </p>
+                <div class="loginBox">
+                    <div class="input">
+                        <ul>
+                            <li class="id">
+                                <span>id</span>
+                                <input type="text" maxlength="13">
+                            </li>
+                            <li class="pw">
+                                <span>pw</span>
+                                <input type="password" maxlength="13"></li>
+                            <li class="btn">
+                                <button>로그인</button>
+                            </li>
+                        </ul>
+                        <span class="sub-text">비밀번호가 기억나지 않으실 경우<br> 예약실 (031-887-7900)로 문의해 주시기 바랍니다.</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function () {
+            if (isLoggedIn()) {
+                alert("이미 로그인이 되어있습니다.");
+                location.href = "/main";
+            }
+
+            const $id = $(".loginBox").find("input").eq(0);
+            const $pw = $(".loginBox").find("input").eq(1);
+
+            $id.keypress(function (event) {
+                if (event.keyCode === 13) {
+                    $(".loginBox").find("li").eq(2).click();
+                }
+            });
+
+            $pw.keypress(function (event) {
+                if (event.keyCode === 13) {
+                    $(".loginBox").find("li").eq(2).click();
+                }
+            });
+
+            $(".loginBox").find("li").eq(2).on("click", function () {
+
+                if ($id.val() === "") {
+                    alert("아이디를 입력하세요.");
+                    return;
+                } else if ($pw.val() === "") {
+                    alert("비밀번호를 입력하세요.");
+                    return;
+                }
+
+                ajax.login($id.val(), $pw.val()
+                ).then(() => {
+                    if ($id.val() === $pw.val()) {
+                        alert("비밀번호 변경후 이용해주세요.")
+                        location.href = "/member/check-pw";
+                    } else {
+                        location.href = "/main";
+                    }
+                }).catch(() => {
+                });
+            });
+        });
+    </script>
+
+</body>
+
+
+    <footer class="footer-wrap">
+        <div class="menu">
+            <div class="inner">
+                <ul>
+                    <li class="title">introduction</li>
+                    <li><a href="/introduction/club-intro">클럽소개</a></li>
+                    <li><a href="/introduction/greeting">인사말</a></li>
+                    <li><a href="/introduction/bi">bi소개</a></li>
+                    <li><a href="/introduction/location">찾아오시는길</a></li>
+                </ul>
+                <ul>
+                    <li class="title">course</li>
+                    <li><a href="/course/course-info">전체코스</a></li>
+                    <li><a href="/course/out-course">out코스</a></li>
+                    <li><a href="/course/in-course">in코스</a></li>
+                </ul>
+                <ul>
+                    <li class="title">clubhouse</li>
+                    <li><a href="/clubhouse/clubhouse">설계철학</a></li>
+                    <li><a href="/clubhouse/lobby">로비&라운지</a></li>
+                    <li><a href="/clubhouse/restaurants">레스토랑</a></li>
+                    <li><a href="/clubhouse/golfshop">골프샵</a></li>
+                    <li><a href="/clubhouse/sauna">사우나&스파</a></li>
+                    <li><a href="/clubhouse/gallery">클럽하우스 갤러리</a></li>
+                </ul>
+                <ul>
+                    <li class="title">reservation</li>
+                    <li><a href="/reservation/info">예약안내</a></li>
+                    <li><a href="/reservation/reservation">예약</a></li>
+                    <li><a href="/reservation/reservation-check">예약확인/변경</a></li>
+                    <li><a href="/reservation/faq">faq</a></li>
+                </ul>
+                <ul>
+                    <li class="title">community</li>
+                    <li><a href="/board/list">클럽소식</a></li>
+                    <li><a href="/board/calendar">이벤트 / 캘린더</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="info">
+            <ul class="address">
+                <li>
+                    <p>경기도 여주시 가남읍 가남로 320-21</p>
+                    <p>대표전화 031-887-7900</p>
+                    <p>예약전화 031-887-7900</p>
+                </li>
+                <li>ALL CONTENTS COPYRIGHT ⓒ TRINITY COUNTRY CLUB</li>
+            </ul>
+            <ul class="policy">
+                <li><a href="/policy/policy">이용약관</a></li>
+                <li class="on"><a href="/policy/privacy-policy">개인정보처리방침</a></li>
+                <li><a href="/policy/media-policy">영상정보처리기기·운영방침</a></li>
+            </ul>
+        </div>
+    </footer>
+
+</html>

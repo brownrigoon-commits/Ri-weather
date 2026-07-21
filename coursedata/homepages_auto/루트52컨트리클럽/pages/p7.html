@@ -1,0 +1,454 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=Edge">
+	<meta name="apple-mobile-web-app-capable" content="no" />
+	<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+	<meta name="format-detection" content="telephone=no,email=no,address=no">
+	<meta name="title" content="ROUTE52">
+	<meta name="author" content="ROUTE52">
+	<meta name="Keywords" content="ROUTE52">
+	<meta name="description" content="ROUTE52">
+	<meta name="copyright" content="All Contents COPYRIGHTⓒ  All RIGHTS RESERVED.">
+	<meta property="og:type" content="website">
+	<meta property="og:title" content="ROUTE52">
+	<meta property="og:description" content="ROUTE52">
+	<meta property="og:url" content="">
+	<link rel="canonical" href="">
+	<title>ROUTE 52</title>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+	<!-- <script src="https://cdn.jsdelivr.net/bxslider/4.2.12/jquery.bxslider.min.js"></script> -->
+	<script src="/js/jquery.bxslider.js"></script>
+	<script src="/js/globals.js?v=2"></script>
+	<script src="/js/common.js"></script>
+	<script src="/js/tools.js"></script>
+	<script src="/js/jquery.preloaders.js"></script>
+	<script src="/js/scrolloverflow.js"></script>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.8.2/css/all.min.css" />
+	<link rel="stylesheet" type="text/css" href="/css/import.css">
+	<link rel="stylesheet" type="text/css" href="/css/contents.css">
+	<script>
+		/*navi menu*/
+		$(document).ready(function() {
+			$(".nav li").hover(function () {
+				$(this).children("ul").stop().delay(200).animate({height: "toggle", opacity: "toggle"}, 200);
+			});
+		});
+
+		var _vDate = new Date('04/13/2021 09:00 AM'); // 전달 받은 일자 
+		var _second = 1000; 
+		var _minute = _second * 60; 
+		var _hour = _minute * 60; 
+		var _day = _hour * 24; 
+		var timer; 
+
+		$(document).ready(function() {
+			chkMobile();
+			//setProtocol();
+			showRemaining();
+			timer = setInterval(showRemaining, 1000); 
+
+			 if(getCookie("notToday") != "Y"){
+				$("#timer").show();
+			 }
+		});
+
+		function chkMobile() {
+		  var mobileKeyWords = new Array('iPhone', 'iPod', 'iPad', 'BlackBerry', 'Android', 'Windows CE', 'MOT', 'SAMSUNG', 'SonyEricsson');
+		  for (var word in mobileKeyWords) {
+			if (navigator.userAgent.match(mobileKeyWords[word]) != null) {
+			  location.href = "/mobile/index.asp";
+			  break;
+			}
+		  }
+		}
+
+		function setProtocol() {
+			if (document.location.protocol == 'http:') {
+				document.location.href = document.location.href.replace('http:', 'https:');
+			}
+		}
+
+		function showRemaining() { 
+			var now = new Date(); 
+			var distDt = _vDate - now; 
+
+			if (distDt < 0) { 
+				clearInterval(timer); 
+				$("#timer").hide();
+				return; 
+			} 
+
+			var days = Math.floor(distDt / _day); 
+			var hours = Math.floor((distDt % _day) / _hour); 
+			var minutes = Math.floor((distDt % _hour) / _minute); 
+			var seconds = Math.floor((distDt % _minute) / _second); 
+
+			if (days.toString().length == 1) {
+				days = "0" + days.toString();
+			}
+			if (hours.toString().length == 1) {
+				hours = "0" + hours.toString();
+			}
+			if (minutes.toString().length == 1) {
+				minutes = "0" + minutes.toString();
+			}
+			if (seconds.toString().length == 1) {
+				seconds = "0" + seconds.toString();
+			}
+			$("#days1").empty().append(days.toString().substr(0,1));
+			$("#days2").empty().append(days.toString().substr(1,1));
+			$("#hours1").empty().append(hours.toString().substr(0,1));
+			$("#hours2").empty().append(hours.toString().substr(1,1));
+			$("#minutes1").empty().append(minutes.toString().substr(0,1));
+			$("#minutes2").empty().append(minutes.toString().substr(1,1));
+			$("#seconds1").empty().append(seconds.toString().substr(0,1));
+			$("#seconds2").empty().append(seconds.toString().substr(1,1));
+		}
+
+		 function closePopupNotToday(){
+			setCookie('notToday','Y', 1);
+			$("#timer").slideUp();
+		 }
+
+		function doLogout() {
+			var sUrl = "/Controller/MemberController.asp";
+			var params = {};
+
+			params["method"] = "doLogout";
+
+			mAjax(sUrl, params, "POST", true, function(data) {
+				if(data.resultCode == "0000") {
+					location.href = "https://reserv.kakao.golf/route?type=LOGOUT&golfcode=KG20210217ROOT52"
+				}
+			});
+		}
+	</script>
+</head>
+<body>
+<div id="wrap">
+	<div id="header">
+		<div class="sub_top">
+			<div class="top_menu_left">
+				<a class="sub_Log" href="/"><img src="/images/sub_Logo.png"></a>	
+			</div>
+			<ul class="top_menu_box">
+				<li><a href="/club/intro.asp">introduce</a></li>
+				<li><a href="/course/courseIntro.asp">course</a></li>
+				<li><a href="/guide/guide.asp">guide</a></li>
+				<li><a href="https://reserv.kakao.golf/route?type=RESERV&golfcode=KG20210217ROOT52">reservation</a></li>
+				<li><a href="/member/entrance.asp">member lounge</a></li>
+				<li><a href="/customer/customerCenter.asp">customer center</a></li>
+				<li><a href="/board/list.asp?type=1">notice</a></li>
+				<li><a href="/board/list.asp?type=2">event</a></li>
+			</ul>
+			<div class="top_menu_btn">
+				<button class="toggle-menu"><span></span></button>
+			</div>
+			<div class="top_menu_right">
+				<ul>
+					<li><a href="https://reserv.kakao.golf/route?type=RESERV&golfcode=KG20210217ROOT52"><img src="/images/h_icon_01.png"></a></li>
+					<li><a href="http://www.weather.go.kr/weather/forecast/timeseries.jsp?searchType=INTEREST&wideCode=4100000000&cityCode=4165000000&dongCode=4165052000" target="_blank"><img src="/images/h_icon_02.png"></a></li>
+				</ul>
+			</div>
+			<!--hamberger전체메뉴-->
+			<div id="menu">
+				<div id="all_overlay" class="main-nav">
+					<h1>ROUTE 52 menu</h1>
+					<ul>
+						<li>
+							<a href="/club/intro.asp" class="big">introduce</a>
+							<a href="/club/intro.asp" class="small">클럽 소개</a>
+							<a href="/club/fac01.asp" class="small">클럽하우스</a>
+							<a href="/club/map.asp" class="small">오시는 길</a>
+						</li>
+						<li>
+							<a href="/course/courseIntro.asp" class="big">course</a>	
+							<a href="/course/courseIntro.asp" class="small">코스 소개</a>
+							<a href="/course/course01.asp" class="small">코스 공략</a>
+							<a href="/board/list.asp?type=3" class="small">코스 갤러리</a>
+						</li>					
+						<li>
+							<a href="/guide/guide.asp" class="big">guide</a>
+							<a href="/guide/guide.asp" class="small">예약안내</a>
+							<a href="/board/list.asp?type=5" class="small">이용요금</a>
+							<a href="/guide/companion.asp" class="small">연단체 이용 규정</a>
+							<a href="/guide/lost.asp" class="small">분실물 안내</a>
+						</li>
+						<li>
+							<a href="https://reserv.kakao.golf/route?type=RESERV&golfcode=KG20210217ROOT52" class="big">reservation</a>
+							<a href="https://reserv.kakao.golf/route?type=RESERV&golfcode=KG20210217ROOT52" class="small">실시간 예약</a>
+							<a href="https://reserv.kakao.golf/route?type=LIST&golfcode=KG20210217ROOT52" class="small">예약확인 및 취소</a>
+							<a href="/board/list.asp?type=4" class="small">조인 게시판</a>
+						</li>
+						<li>
+							<a href="/member/entrance.asp" class="big">member lounge</a>
+							<a href="/member/entrance.asp" class="small">내장 현황</a>
+							<a href="/member/coupon.asp" class="small">마이쿠폰</a>
+							<a href="/member/punishList.asp" class="small">위약 현황</a>
+							<a href="javascript:alert('준비중입니다.')" class="small">스코어 현황</a>
+							<a href="https://reserv.kakao.golf/route?type=MYINFO&golfcode=KG20210217ROOT52" class="small">회원정보관리</a>
+						</li>
+                        <li>
+                            <a href="/customer/customerCenter.asp" class="big">customer center</a>
+                            <a href="/customer/customerCenter.asp" class="small">고객센터</a>
+                        </li>
+						<li>
+							<a href="/board/list.asp?type=1" class="big">notice &amp; event</a>
+							<a href="/board/list.asp?type=1" class="small">공지사항</a>
+							<a href="/board/list.asp?type=2" class="small">이벤트</a>
+							<a href="/guide/menu.asp">레스토랑 메뉴</a>
+						</li>			
+					</ul>
+					<div class="layer_btn">
+					
+						<a href="https://reserv.kakao.golf/login?type=LOGIN&golfcode=KG20210217ROOT52&resultUrl=http://www.route52cc.com/api/path.asp">로그인</a>
+						<a href="https://reserv.kakao.golf/login?type=LOGIN&golfcode=KG20210217ROOT52&resultUrl=http://www.route52cc.com/api/path.asp">회원가입</a>
+					
+					</div>
+				</div>
+				<!--//hamberger전체메뉴-->			
+			</div>
+
+			<div class="m_scroll">
+				<ul>
+				
+					<li><a href="https://reserv.kakao.golf/login?type=LOGIN&golfcode=KG20210217ROOT52&resultUrl=http://www.route52cc.com/api/path.asp">로그인</a></li>
+					<li><a href="https://reserv.kakao.golf/route?type=RESERV&golfcode=KG20210217ROOT52">예약<br>하기</a></li>
+                    <li><a href="https://reserv.kakao.golf/route?type=LIST&golfcode=KG20210217ROOT52">예약확인<br>및 취소</a></li>
+					<li><a href="https://reserv.kakao.golf/login?type=LOGIN&golfcode=KG20210217ROOT52&resultUrl=http://www.route52cc.com/api/path.asp">회원<br>가입</a></li>
+					<li><a href="javascript:void(0)" class="commonTop"><span class="arrow arrow-top"></span><br>TOP</a></li>
+				
+				</ul>
+			</div>
+		</div>
+		<script>
+
+  var bigMenu, midMenu;
+  var bigMenus = {
+	"club" : "INTRODUCE",
+	"course" : "COURSE",
+	"guide" : "GUIDE",
+	"member" : "MEMBER LOUNGE",
+	/*"reservation" : "RESERVATION",*/	
+	"board" : "NOTICE",
+	"event" : "EVENT",
+	"restaurant_menu" : "RESTAURANT MENU",
+	/*"etc" : "ROUTE 52",*/
+  }
+
+  var midMenus = {
+	"club" : {
+	  "/club/intro.asp" : ["클럽 소개", true],
+      "/club/fac01.asp" : ["클럽 하우스", true],
+      "/club/map.asp" : ["오시는 길", true]
+    },
+	"course": {
+		"/course/courseIntro.asp" : ["코스 소개", true],
+		"/course/course01.asp" : ["코스 공략", true],
+		"/course/course02.asp" : ["코스 공략", false],
+		"/course/course03.asp" : ["코스 공략", false],
+		"/course/course04.asp" : ["코스 공략", false],
+		"/course/course05.asp" : ["코스 공략", false],
+		"/course/course06.asp" : ["코스 공략", false],
+		"/course/course07.asp" : ["코스 공략", false],
+		"/course/course08.asp" : ["코스 공략", false],
+		"/course/course09.asp" : ["코스 공략", false],
+		"/course/course10.asp" : ["코스 공략", false],
+		"/course/course11.asp" : ["코스 공략", false],
+		"/course/course12.asp" : ["코스 공략", false],
+		"/course/course13.asp" : ["코스 공략", false],
+		"/course/course14.asp" : ["코스 공략", false],
+		"/course/course15.asp" : ["코스 공략", false],
+		"/course/course16.asp" : ["코스 공략", false],
+		"/course/course17.asp" : ["코스 공략", false],
+		"/course/course18.asp" : ["코스 공략", false]
+	},"guide" : {
+      "/guide/guide.asp" : ["예약안내", true],
+      "/board/list.asp?type=5" : ["요금안내", true],
+	  "/guide/companion.asp" : ["연단체 이용 규정", true],
+	  "/guide/lost.asp" : ["분실물 안내", true]
+    },
+	"member" : {
+      "/member/entrance.asp" : ["내장 현황", true],
+      "/member/coupon.asp" : ["마이쿠폰", true],
+      "/member/punishList.asp" : ["위약 현황", true],
+      "/member/score.asp" : ["스코어 현황", false]
+    },
+	  
+	  /*,
+    "reservation" : {
+      "/reservation/reservation.asp" : ["실시간예약", true],
+      "/reservation/package.asp" : ["패키지예약", true],
+      "/reservation/joinList.asp" : ["조인게시판", true],
+      "/reservation/joinView.asp" : ["조인게시판", false],
+      "/reservation/joinWrite.asp" : ["조인게시판", false],
+      "/reservation/joinWrite2.asp" : ["조인게시판", false],
+      "/reservation/joinCalendar.asp" : ["조인게시판", false],		
+      "/reservation/reservation2.asp" : ["예약확인및취소", true]
+    },*/
+	"board" : {
+      "/board/list.asp?type=1" : ["공지사항", true],
+      "/board/view.asp?type=1" : ["공지사항", false],
+    },
+	"event" : {
+      "/board/list.asp?type=2" : ["이벤트", true],
+      "/board/view.asp?type=2" : ["이벤트", false]
+    },
+	"restaurant_menu" : {
+	  "/guide/menu.asp" : ["레스토랑 메뉴", true]
+    }/*,
+	  "etc" : {
+	  "/member/login.asp" : ["로그인", true],
+      "/member/idpw.asp" : ["ID/PW 찾기", true],
+	  "/member/policy.asp" : ["개인정보취급방침", true],
+      "/member/terms.asp" : ["이용약관", true]      
+    }*/
+  }
+
+	$(document).ready(function() {
+		initMenus();
+	});
+
+	function initMenus() {
+		var url = window.location.href;
+
+		for(var key in midMenus) {
+			for(var page in midMenus[key]) {
+				if(url.indexOf(page) > 0) {
+					$("#txtBigMenuName").html(bigMenus[key]);
+					$("#txtMidMenuName").html(midMenus[key][page][0]);
+					bigMenu = key;
+					midMenu = page;
+					break;
+				}
+			}
+
+			if(bigMenu != null && bigMenu != "") {
+				break;
+			}
+		}
+
+		$("#menuContainer").empty();
+
+		for(var key in midMenus[bigMenu]) {
+			if(midMenus[bigMenu][key][1]){
+				$("#menuContainer").append(String.format("<li><a href='{0}'>{1}</a></li>", key, midMenus[bigMenu][key][0]));
+			}
+		}
+
+		for(var key in midMenus) {
+			for(var page in midMenus[key]) {
+				$("#bigMenuContainer").append(String.format("<li><a href='{0}'>{1}</a></li>", page, bigMenus[key]));
+				break;
+			}
+		}
+	}
+</script>
+<div class="naviLine" id="onlySub">
+  <div class="naviBox">
+    <div class="nav">
+      <ul>
+        <li>
+          <a class="home" href="#">
+            <img src="/images/home.png" alt="홈">
+          </a>
+        </li>
+        <li>
+          <a href="#"><txt id="txtBigMenuName">ROUTE 52</txt><span><img src="/images/arw.png" alt="대메뉴선택"></span>
+          </a>
+          <ul class="menu" id="bigMenuContainer">
+          </ul>
+        </li>
+        <li>
+          <a href="#"><txt id="txtMidMenuName">ROUTE 52</txt><span><img src="/images/arw.png" alt="중메뉴선택"></span>
+          </a>
+          <ul class="menu" id="menuContainer">
+          </ul>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+	</div>
+	
+		<div id="contents">
+			<div id="container">				
+				<div class="contentWrap">
+					<!--title-->
+					<div class="titleBox">
+						<h2>COURSE</h2>
+						<h3>코스 공략</h3>
+						<p class="bgTit">COURSE</p>
+					</div>					
+				</div>
+				<div class="courseWrap">
+					<div class="courseBox">
+						<div class="holeNumBox">
+							<div class="holeNum">5</div>
+							<ul class="holeText">
+								<li class="hole1">hole</li>
+								<li class="hole2">A5</li>
+							</ul>
+							<p>PAR 3</p>
+						</div>
+						
+						<div class="courseInfo">
+							<div class="cInfoLeft">
+								<div class="blackBox">Black <strong>165</strong>
+								</div>
+								<div class="blueBox">blue <strong>165</strong>
+								</div>
+								<ul>
+									<li><span class="whiteBull"></span> White <strong>140</strong> </li>
+									<li><span class="yellowBull"></span> Yellow <strong>114</strong> </li>
+									<li><span class="redBull"></span> Red <strong>105</strong> </li>
+								</ul>
+							</div>
+							<div class="cInfoRight">
+								<a href="course01.asp" class="">A1</a>
+								<a href="course02.asp" class="">A2</a>
+								<a href="course03.asp" class="">A3</a>
+								<a href="course04.asp" class="">A4</a>
+								<a href="course05.asp" class="on">A5</a>
+								<a href="course06.asp" class="">A6</a>
+								<a href="course07.asp" class="">A7</a>
+								<a href="course08.asp" class="">A8</a>
+								<a href="course09.asp" class="">A9</a>
+								<a href="course10.asp" class="button">▶ B COURSE</a>
+							</div>
+						</div>					
+					</div>
+				</div>
+				<div class="courseWrap4">
+					<img src="/images/course_new/a05.jpg">
+					<div class="cMovie">
+						<iframe width="560" height="315" src="https://www.youtube.com/embed/qNps95scO7A?autoplay=1&mute=1&modestbranding=1&rel=0" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+					</div>
+				</div>
+				<div class="padding30"></div>
+			</div>							
+		</div>
+
+<div id="footer">		
+		<div class="footerBox">
+			<a href="/guide/guideTerms.asp">이용약관</a> | <a href="/guide/terms2.asp">인터넷 서비스 이용약관</a> | <a href="/guide/policy.asp">개인정보취급방침</a>
+		</div>
+		<h1>ROUTE52</h1>
+		<p class="footerText">
+		여주시 북내면 중암1길 36 루트52컨트리클럽 &nbsp;&nbsp;&nbsp; 대표이사 유용승 &nbsp;&nbsp;&nbsp; 전화번호 031-882-0052&nbsp;&nbsp;&nbsp; 팩스번호 031-770-9599 <br>
+사업자등록 번호 474-81-01489 케이알레저주식회사 &nbsp;&nbsp;&nbsp; 통신판매업 신고번호 2021-경기여주-0106
+		</p>
+		<p class="footerCopy">Copyright© ROUTE52 COUNTRY club CO., LTD. All rights reserved.</p>
+		<div class="snsBox">
+			<a href="javascript:alert('준비중입니다.')"><i class="fab fa-facebook-f"></i></a>
+			<a href="javascript:alert('준비중입니다.')"><i class="fab fa-twitter"></i></a>
+			<a href="javascript:alert('준비중입니다.')"><i class="fab fa-instagram"></i></a>
+		</div>
+	</div>
+</div>
+</body>
+</html>

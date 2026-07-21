@@ -1,0 +1,810 @@
+
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head><meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><meta charset="utf-8" /><title>
+	알프스대영
+</title><link rel="stylesheet" type="text/css" href="../css/common.css" /><link rel="stylesheet" type="text/css" href="../css/main.css" /><link rel="stylesheet" type="text/css" href="../css/slick.css" /><link rel="stylesheet" type="text/css" href="../css/slick-theme.css" /><link rel="stylesheet" type="text/css" href="../css/jquery.bxslider.css" />
+    <script src="../js/jquery.min.js"></script>
+    <script src="../js/jquery.easing.1.3.js"></script>
+    <script src="../js/common.js"></script>
+    <script src="../js/slick.js"></script>
+    <script src="../js/jquery.bxslider.min.js"></script>
+    <script type="text/javascript" src="/js/popup.js"></script>
+    <script type="text/javascript">
+
+        function isMobile() {
+            var UserAgent = navigator.userAgent;
+            if (UserAgent.match(/iPhone|iPod|iPad|Android|Windows CE|BlackBerry|Symbian|Windows Phone|webOS|Opera Mini|Opera Mobi|POLARIS|IEMobile|lgtelecom|nokia|SonyEricsson/i) != null || UserAgent.match(/LG|SAMSUNG|Samsung/) != null) {
+                return true;
+            } else {
+                return false;
+            }
+        } 
+        
+
+        $(document).ready(function () {
+            $('.one-time').slick({
+                autoplay: true,
+                dots: true,
+                arrows: false,
+                infinite: true,
+                speed: 300,
+                slidesToShow: 1,
+                adaptiveHeight: true
+            });
+            $('.one-time2').slick({
+                autoplay: true,
+                dots: true,
+                arrows: false,
+                infinite: true,
+                speed: 300,
+                slidesToShow: 1,
+                adaptiveHeight: true
+            });
+            $('.center').slick({
+                autoplay: true,
+                centerMode: true,
+                centerPadding: '0',
+                slidesToShow: 3
+            });
+            var slider = $(".bxslider").bxSlider({
+                pager: true,
+                pause: 4000,
+                auto: true,
+                controls: false,
+                onSlideAfter: function () {
+                    slider.stopAuto();
+                    slider.startAuto();
+                }
+            });
+
+            if (isMobile()) {
+                location.href = '/Mobile';
+            }
+
+        });
+
+        /*빌리지예약 모달창*/
+        function wrapWindowByMask() {
+            //화면의 높이와 너비를 구한다.
+            var maskHeight = $(document).height();
+            var maskWidth = $(window).width();
+
+            //마스크의 높이와 너비를 화면 것으로 만들어 전체 화면을 채운다.
+            $('#mask').css({
+                'width': maskWidth,
+                'height': maskHeight
+            });
+            //마스크의 투명도 처리
+            $('#mask').fadeTo("slow", 0.8);
+        }
+
+        $(document).ready(function () {
+            //wrapWindowByMask();
+            //불투명 배경 띄우기
+            $('.openMask').click(function (e) {
+                e.preventDefault();
+                wrapWindowByMask();
+            });
+        });
+
+        // 팝업 , 불투명 배경 띄우기
+        function clicktest() {
+            $('#village').show();
+            wrapWindowByMask();
+        }
+
+        function btnexit() {
+            $('#village').hide();
+            $('#mask').hide();
+
+        }
+
+    </script>
+    <script type="text/javascript" src="/js/cmmfun.js"></script>
+    <script type="text/javascript">
+        //var mobileKeyWords = new Array('iPhone', 'iPod', 'iPad', 'BlackBerry', 'Android', 'Windows CE', 'LG', 'MOT', 'SAMSUNG', 'SonyEricsson');
+        ////alert(navigator.userAgent);
+        //for (var m = 0; m < mobileKeyWords.length; m++) {
+        //    //alert(navigator.userAgent.match(mobileKeyWords[m]) + "." + mobileKeyWords[m]);
+        //    if (navigator.userAgent.match(mobileKeyWords[m]) != null) {
+        //        parent.window.location.href = '/Mobile';
+        //        break;
+        //    }
+
+        //}
+
+        function LoginSubmit() {
+            var obj = document.getElementById("aspnetForm");
+
+            var strMsg = "";
+
+            var lGubun = "NO";
+            for (var i = 0; i < obj.rbtLoginGubun.length; i++) {
+                if (obj.rbtLoginGubun[i].checked) {
+                    lGubun = obj.rbtLoginGubun[i].value;
+                    break;
+                }
+            }
+            var strMsg = "";
+            if (IsEmptyChk(document.getElementById("txtUserID").value)) {
+                if (lGubun == "ID") {
+                    strMsg = "아이디를 입력해 주십시요.";
+                } else {
+                    strMsg = "휴대폰번호를 숫자만 입력해 주십시요.";
+                }
+            }
+
+            if (IsEmptyChk(document.getElementById("txtUserID").value)) {
+                alert(strMsg);
+                document.getElementById("txtUserID").focus();
+                return false;
+            }
+
+            if (IsEmptyChk(document.getElementById("txtPassword").value)) {
+                alert("비밀번호를 입력해 주십시요.");
+                document.getElementById("txtPassword").focus();
+                return false;
+            }
+            return true;
+        }
+
+        function moveCalendar(gubun) {
+            var obj = document.getElementById("aspnetForm");
+            var yy = obj.strYear.value;
+            var mm = obj.strMonth.value;
+            var sParam = "strYear=" + yy + "&strMonth=" + (parseInt(mm) + gubun);
+            SetCalendar(sParam);
+        }
+
+        function SetCalendar(param) {
+            //document.getElementById("?" + param);
+            jQuery.ajax({
+                type: "POST",
+                url: "MainCalendar.aspx",
+                data: param,
+                success: function(returnVal) {
+                    var reResult = returnVal;
+                    document.getElementById("dvCalendar").innerHTML = reResult;
+                },
+                error: function(response, textStatus, errorThrown) {
+                    alert(errorThrown);
+                }
+            });
+        }
+
+        function GetCalendarData(cnt) {
+            if (cnt != "") {
+                if (parseInt(cnt) > 0) {
+                    document.getElementById("spReserveCount").innerHTML = "<span class=\"tee_open\">OPEN TEE " + cnt + "</span>";
+                } else {
+                    document.getElementById("spReserveCount").innerHTML = "<span class=\"close\">CLOSE</span>";
+                }
+            } else {
+                document.getElementById("spReserveCount").innerHTML = "";
+            }
+        }
+
+        //창형식으로 팝업을 띠울경우
+        function popup() {
+           
+        }
+
+        jQuery(function($) {
+            popup();
+            SetCalendar("");
+        });
+
+        function MM_openBrWindow(theURL, winName, features) { //v2.0
+            window.open(theURL, winName, features);
+        }
+
+    </script>
+
+<style>
+.modal_pop {
+    z-index: 9999;
+    position: fixed;
+    top: 465px;
+    right: 0;
+}
+    
+.modal_pop01 {
+    z-index: 9999;
+    position: fixed;
+    top: 520px;
+    left: 0;
+}
+
+.modal_pop02 {
+    z-index: 9999;
+    position: fixed;
+    top: 175px;
+    left: 0;
+}
+
+.modal_pop03 {
+    z-index: 9999;
+    position: fixed;
+    top: 530px;
+    right: 0;
+}
+
+.modal_pop04 {
+    z-index: 9999;
+    position: fixed;
+    top: 175px;
+    right: 0;
+}
+
+.modal_pop05 {
+    z-index: 9999;
+    position: fixed;
+    top: 175px;
+    left: 355px;
+}
+
+    
+.modal_pop06 {
+    z-index: 9999;
+    position: fixed;
+    top: 175px;
+    right: 355px;
+}
+    
+.close_btn a {
+    border: 1px solid #141657;
+    display: inline-block;
+    width: 100%;
+    height: 30px;
+    line-height: 30px;
+    font-size: 12px;
+    font-family: "NanumSquar Bold";
+    color: #fff;
+    background-color: #1d2088;
+    text-align: center;
+}
+</style>
+
+</head>
+    
+<body>
+    <form name="aspnetForm" method="post" action="./" id="aspnetForm">
+<div>
+<input type="hidden" name="__EVENTTARGET" id="__EVENTTARGET" value="" />
+<input type="hidden" name="__EVENTARGUMENT" id="__EVENTARGUMENT" value="" />
+<input type="hidden" name="__VIEWSTATE" id="__VIEWSTATE" value="/wEPDwULLTExMTAxMDk4MjYPZBYCAgMPZBYGAgEPDxYCHgRUZXh0BVo8c2NyaXB0IHR5cGU9InRleHQvamF2YXNjcmlwdCI+Ci8vPCFbQ0RBVEFbCmNvb2tpZWRhdGEgPSBkb2N1bWVudC5jb29raWU7Ci8vXV0+Cjwvc2NyaXB0PgpkZAIDD2QWDgIBDxYCHwAFhwI8bGk+PGEgaHJlZj0iLi4vTWVtYmVyL0xvZ2luLmFzcHgiPjxpbWcgc3JjPSIuLi9pbWFnZXMvdG9wX2xvZ2luX2J0bi5wbmciIC8+PC9saT48bGk+PGEgaHJlZj0iLi4vTWVtYmVyL0pvaW5TdGVwMS5hc3B4Ij48aW1nIHNyYz0iLi4vaW1hZ2VzL3RvcF9qb2luX2J0bi5wbmciIC8+PC9hPjwvbGk+PGxpPjxhIGhyZWY9Ii4uL01lbWJlci9Kb2luX01lbWJlci5hc3B4Ij48aW1nIHNyYz0iLi4vaW1hZ2VzL3RvcF9qb2luX21lbV9idG4ucG5nIiAvPjwvYT48L2xpPmQCAw8WAh8ABRgyMDI264WEIDA37JuUIDIx7J28KO2ZlClkAgUPDxYGHghJbWFnZVVybAUdL2ltYWdlcy9tYWluX3dlYXRoZXIvUmFpbi5wbmceDUFsdGVybmF0ZVRleHQFA+u5hB4HVG9vbFRpcAUD67mEZGQCBw8WAh8ABRIyNjxzcGFuPuKEgzwvc3Bhbj5kAgkPFgIfAAUD67mEZAILDxYCHwAFBjIuMSBtbWQCDQ8WAh8ABdwdPGRpdiBjbGFzcz0iZ25iX3dyYXAiPiAgICA8ZGl2IGNsYXNzPSJnbmIiPiAgICAgICAgPGRpdiBjbGFzcz0iZ25iX2lubmVyIj4gICAgICAgICAgICA8dWwgY2xhc3M9ImNsZWFyZml4Ij4gICAgICAgICAgICAgICAgPGxpPjxhIGhyZWYgPSIvQWJvdXQvR3JlZXRpbmcuYXNweCI+7YG065+97IaM6rCcPC9hPjwvbGk+ICAgICAgICAgICAgICAgIDxsaT48YSBocmVmID0iL0NvdXJzZS9Db3Vyc2VJbnRyby5hc3B4Ij7svZTsiqTshozqsJw8L2E+PC9saT4gICAgICAgICAgICAgICAgPGxpPjxhIGhyZWYgPSIvR3VpZGUvVXNlSW5mby5hc3B4Ij7snbTsmqnslYjrgrQ8L2E+PC9saT4gICAgICAgICAgICAgICAgPGxpPjxhIGhyZWYgPSIvUmVzZXJ2YXRpb24vUmVzZXJ2YXRpb25JbmZvLmFzcHgiPuyYiOyVveyEnOu5hOyKpDwvYT48L2xpPiAgICAgICAgICAgICAgICA8bGk+PGEgaHJlZiA9Ii9Cb2FyZC9Cb2FyZExpc3QuYXNweD9jZmdpZD1ldmVudCI+6rOg6rCd65287Jq07KeAPC9hPjwvbGk+ICAgICAgICAgICAgICAgIDxsaT48YSBocmVmID0iL0ZhY2lsaXRpZXMvUmVzdGF1cmFudC5hc3B4Ij5GJkI8L2E+PC9saT4gICAgICAgICAgICAgICAgPGxpPjxhIGhyZWYgPSIvR29sZlRlbC9SZXNlcnZlSW5mby5hc3B4Ij7qs6jtlITruYzrpqzsp4A8L2E+PC9saT4gICAgICAgICAgICAgICAgPGxpIGNsYXNzPSJsYXN0Ij4gICAgICAgICAgICAgICAgICAgIDxhIGhyZWYgPSIvUmVzZXJ2YXRpb24vUmVzZXJ2YXRpb24uYXNweCI+7JiI7JW97ZWY6riwPGJyIC8+CQkgICAgICAgICAgICA8c3Bhbj5SRVNFUlZBVElPTjwvc3Bhbj48L2E+ICAgICAgICAgICAgICAgIDwvbGk+ICAgICAgICAgICAgPC91bD4gICAgICAgIDwvZGl2PiAgICA8L2Rpdj4gICAgPGRpdiBjbGFzcz0iZ25iX3N1Yl93cmFwIj4gICAgICAgIDxkaXYgY2xhc3M9ImduYl9zdWIgY2xlYXJmaXgiPiAgICAgICAgICAgIDx1bCBjbGFzcz0iY2F0ZWdvcnkxIj4gICAgICAgICAgICAgICAgPGxpPjxhIGhyZWYgPSIvQWJvdXQvR3JlZXRpbmcuYXNweCI+7J247IKs66eQPC9hPjwvbGk+ICAgICAgICAgICAgICAgIDxsaT48YSBocmVmID0iL0Fib3V0L0NsdWJJbmZvLmFzcHgiPu2BtOufveyGjOqwnDwvYT48L2xpPiAgICAgICAgICAgICAgICA8bGk+PGEgaHJlZiA9Ii9BYm91dC9DbHViVGVsLmFzcHgiPuyjvOyalOyXsOudveyymDwvYT48L2xpPiAgICAgICAgICAgICAgICA8bGk+PGEgaHJlZiA9Ii9BYm91dC9Mb2NhdGlvbi5hc3B4Ij7smKTsi5zripTquLg8L2E+PC9saT4gICAgICAgICAgICA8L3VsPiAgICAgICAgICAgIDx1bCBjbGFzcz0iY2F0ZWdvcnkyIj4gICAgICAgICAgICAgICAgPGxpPjxhIGhyZWYgPSIvQ291cnNlL0NvdXJzZUludHJvLmFzcHgiPuy9lOyKpOyViOuCtDwvYT48L2xpPiAgICAgICAgICAgICAgICA8bGk+PGEgaHJlZiA9Ii9Db3Vyc2UvQmx1ZUNvdXJzZS5hc3B4Ij5PVVQo67iU66OoKSDsvZTsiqQ8L2E+PC9saT4gICAgICAgICAgICAgICAgPGxpPjxhIGhyZWYgPSIvQ291cnNlL0Nvc21vc0NvdXJzZS5hc3B4Ij5JTijsvZTsiqTrqqjsiqQpIOy9lOyKpDwvYT48L2xpPiAgICAgICAgICAgICAgICA8bGk+PGEgaHJlZiA9Ii9Db3Vyc2UvQ291cnNlR2FsbGVyeS5hc3B4Ij7svZTsiqTqsKTrn6zrpqw8L2E+PC9saT4gICAgICAgICAgICA8L3VsPiAgICAgICAgICAgIDx1bCBjbGFzcz0iY2F0ZWdvcnkzIj4gICAgICAgICAgICAgICAgPGxpPjxhIGhyZWYgPSIvR3VpZGUvVXNlSW5mby5hc3B4Ij7spIDsiJjsgqztla08L2E+PC9saT4gICAgICAgICAgICAgICAgPGxpPjxhIGhyZWYgPSIvR3VpZGUvRmVlcy5hc3B4Ij7snbTsmqnsmpTquIg8L2E+PC9saT4gICAgICAgICAgICAgICAgPGxpPjxhIGhyZWYgPSIvR3VpZGUvUGFuYWx0eWxSdWxlLmFzcHgiPuychOyVveq3nOyglTwvYT48L2xpPiAgICAgICAgICAgICAgICA8bGk+PGEgaHJlZiA9Ii9HdWlkZS9Mb2NhbFJ1bGUuYXNweCI+66Gc7Lus66OwPC9hPjwvbGk+ICAgICAgICAgICAgICAgIDxsaT48YSBocmVmID0iL0d1aWRlL1dlYXRoZXIuYXNweCI+64Kg7JSo7KCV67O0PC9hPjwvbGk+ICAgICAgICAgICAgPC91bD4gICAgICAgICAgICA8dWwgY2xhc3M9ImNhdGVnb3J5NCI+ICAgICAgICAgICAgICAgIDxsaT48YSBocmVmID0iL1Jlc2VydmF0aW9uL1Jlc2VydmF0aW9uSW5mby5hc3B4Ij7smIjslb3slYjrgrQ8L2E+PC9saT4gICAgICAgICAgICAgICAgPGxpPjxhIGhyZWYgPSIvUmVzZXJ2YXRpb24vUmVzZXJ2YXRpb24uYXNweCI+7Iuk7Iuc6rCE7JiI7JW9PC9hPjwvbGk+ICAgICAgICAgICAgICAgIDxsaT48YSBocmVmID0iL1Jlc2VydmF0aW9uL1Jlc2VydmF0aW9uTGlzdC5hc3B4Ij7smIjslb3sobDtmowgLyDst6jshow8L2E+PC9saT4gICAgICAgICAgICAgICAgPGxpPjxhIGhyZWYgPSIvUmVzZXJ2YXRpb24vUmVzZXJ2YXRpb25XYWl0TGlzdC5hc3B4Ij7rjIDquLDsi6Dssq0g7KGw7ZqML+y3qOyGjDwvYT48L2xpPiAgICAgICAgICAgIDwvdWw+ICAgICAgICAgICAgPHVsIGNsYXNzPSJjYXRlZ29yeTUiPiAgICAgICAgICAgICAgICA8bGk+PGEgaHJlZiA9Ii9Cb2FyZC9Cb2FyZExpc3QuYXNweD9jZmdpZD1ub3RpY2UiPuqzteyngOyCrO2VrTwvYT48L2xpPiAgICAgICAgICAgICAgICA8bGk+PGEgaHJlZiA9Ii9Cb2FyZC9Cb2FyZExpc3QuYXNweD9jZmdpZD1ldmVudCI+7J2067Kk7Yq47JWI64K0PC9hPjwvbGk+ICAgICAgICAgICAgICAgIDxsaT48YSBocmVmID0iL0JvYXJkL0JvYXJkTGlzdC5hc3B4P2NmZ2lkPWxvc3QiPuu2hOyLpOusvOyEvO2EsDwvYT48L2xpPiAgICAgICAgICAgICAgICA8bGk+PGEgaHJlZiA9Ii9Cb2FyZC9Ib25vckxpc3QuYXNweCI+7ZmA7J247JuQ6rCk65+s66asPC9hPjwvbGk+ICAgICAgICAgICAgPC91bD4gICAgICAgICAgICA8dWwgY2xhc3M9ImNhdGVnb3J5NiI+ICAgICAgICAgICAgICAgIDxsaT48YSBocmVmID0iL0ZhY2lsaXRpZXMvUmVzdGF1cmFudC5hc3B4Ij7roIjsiqTthqDrnpE8L2E+PC9saT4gICAgICAgICAgICAgICAgPGxpPjxhIGhyZWYgPSIvRmFjaWxpdGllcy9TdGFydEhvdXNlLmFzcHgiPuyKpO2DgO2KuO2VmOyasOyKpDwvYT48L2xpPiAgICAgICAgICAgICAgICA8bGk+PGEgaHJlZiA9Ii9GYWNpbGl0aWVzL01lbnUuYXNweCI+66mU64m0PC9hPjwvbGk+ICAgICAgICAgICAgPC91bD4gICAgICAgICAgICA8dWwgY2xhc3M9ImNhdGVnb3J5NyI+ICAgICAgICAgICAgICAgIDxsaT48YSBocmVmID0iL0dvbGZUZWwvYWxwc1ZpbGxhZ2UuYXNweCI+67mM66as7KeAIOyYiOyVveusuOydmDwvYT48L2xpPiAgICAgICAgICAgICAgICA8bGk+PGEgaHJlZiA9Ii9Hb2xmVGVsL0ZBUS5hc3B4Ij5GQVE8L2E+PC9saT4gICAgICAgICAgICAgICAgPGxpPjxhIGhyZWYgPSIvR29sZlRlbC9Vc2VJbmZvLmFzcHgiPuqwneyLpCDsnbTsmqnslYjrgrQ8L2E+PC9saT4gICAgICAgICAgICAgICAgPGxpPjxhIGhyZWYgPSIvR29sZlRlbC9HYWxsZXJ5LmFzcHgiPuqwneyLpCDsgqzsp4Q8L2E+PC9saT4gICAgICAgICAgICAgICAgPGxpPjxhIGhyZWYgPSIvR29sZlRlbC9CYW5xdWV0LmFzcHgiPuyXsO2ajC/sl7DsiJg8L2E+PC9saT4gICAgICAgICAgICAgICAgPGxpPjxhIGhyZWYgPSIvR29sZlRlbC9GYWNpbGl0ZXMwMS5hc3B4Ij7tjrjsnZjsi5zshKQ8L2E+PC9saT4gICAgICAgICAgICAgICAgPGxpPjxhIGhyZWYgPSIvR29sZlRlbC9WaWxsYWdlcGFuYWx0eWxSdWxlLmFzcHgiPuychOyVveq3nOyglTwvYT48L2xpPiAgICAgICAgICAgIDwvdWw+ICAgICAgICA8L2Rpdj4gICAgPC9kaXY+PC9kaXY+ZAIJD2QWAgIBDxYCHwAF1hkgICAgICAgICAgICAgICAgPGRsPiAgICAgICAgICAgICAgICAgICAgPGR0PiDtgbTrn73shozqsJwgPC9kdD4gICAgICAgICAgICAgICAgICAgIDxkZD48YSBocmVmID0iL0Fib3V0L0dyZWV0aW5nLmFzcHgiPiAtIOyduOyCrOunkDwvYT48L2RkPiAgICAgICAgICAgICAgICAgICAgPGRkPjxhIGhyZWYgPSIvQWJvdXQvQ2x1YkluZm8uYXNweCI+IC0g7YG065+97IaM6rCcPC9hPjwvZGQ+ICAgICAgICAgICAgICAgICAgICA8ZGQ+PGEgaHJlZiA9Ii9BYm91dC9DbHViVGVsLmFzcHgiPiAtIOyjvOyalOyXsOudveyymDwvYT48L2RkPiAgICAgICAgICAgICAgICAgICAgPGRkPjxhIGhyZWYgPSIvQWJvdXQvTG9jYXRpb24uYXNweCI+IC0g7Jik7Iuc64qU6ri4PC9hPjwvZGQ+ICAgICAgICAgICAgICAgIDwvZGwgPiAgICAgICAgICAgICAgICA8ZGw+ICAgICAgICAgICAgICAgICAgICA8ZHQ+IOy9lOyKpOyGjOqwnCA8L2R0PiAgICAgICAgICAgICAgICAgICAgPGRkPjxhIGhyZWYgPSIvQ291cnNlL0NvdXJzZUludHJvLmFzcHgiPiAtIOy9lOyKpOyViOuCtDwvYT48L2RkPiAgICAgICAgICAgICAgICAgICAgPGRkPjxhIGhyZWYgPSIvQ291cnNlL0JsdWVDb3Vyc2UuYXNweCI+IC0gT1VUKOu4lOujqCkg7L2U7IqkPC9hPjwvZGQ+ICAgICAgICAgICAgICAgICAgICA8ZGQ+PGEgaHJlZiA9Ii9Db3Vyc2UvQ29zbW9zQ291cnNlLmFzcHgiPiAtIElOKOy9lOyKpOuqqOyKpCkg7L2U7IqkPC9hPjwvZGQ+ICAgICAgICAgICAgICAgICAgICA8ZGQ+PGEgaHJlZiA9Ii9Db3Vyc2UvQ291cnNlR2FsbGVyeS5hc3B4Ij4gLSDsvZTsiqTqsKTrn6zrpqw8L2E+PC9kZD4gICAgICAgICAgICAgICAgPC9kbCA+ICAgICAgICAgICAgICAgIDxkbD4gICAgICAgICAgICAgICAgICAgIDxkdD4g7J207Jqp7JWI64K0IDwvZHQ+ICAgICAgICAgICAgICAgICAgICA8ZGQ+PGEgaHJlZiA9Ii9HdWlkZS9Vc2VJbmZvLmFzcHgiPiAtIOykgOyImOyCrO2VrTwvYT48L2RkPiAgICAgICAgICAgICAgICAgICAgPGRkPjxhIGhyZWYgPSIvR3VpZGUvRmVlcy5hc3B4Ij4gLSDsnbTsmqnsmpTquIg8L2E+PC9kZD4gICAgICAgICAgICAgICAgICAgIDxkZD48YSBocmVmID0iL0d1aWRlL1BhbmFsdHlsUnVsZS5hc3B4Ij4gLSDsnITslb3qt5zsoJU8L2E+PC9kZD4gICAgICAgICAgICAgICAgICAgIDxkZD48YSBocmVmID0iL0d1aWRlL0xvY2FsUnVsZS5hc3B4Ij4gLSDroZzsu6zro7A8L2E+PC9kZD4gICAgICAgICAgICAgICAgICAgIDxkZD48YSBocmVmID0iL0d1aWRlL1dlYXRoZXIuYXNweCI+IC0g64Kg7JSo7KCV67O0PC9hPjwvZGQ+ICAgICAgICAgICAgICAgIDwvZGwgPiAgICAgICAgICAgICAgICA8ZGw+ICAgICAgICAgICAgICAgICAgICA8ZHQ+IOyYiOyVveyEnOu5hOyKpCA8L2R0PiAgICAgICAgICAgICAgICAgICAgPGRkPjxhIGhyZWYgPSIvUmVzZXJ2YXRpb24vUmVzZXJ2YXRpb25JbmZvLmFzcHgiPiAtIOyYiOyVveyViOuCtDwvYT48L2RkPiAgICAgICAgICAgICAgICAgICAgPGRkPjxhIGhyZWYgPSIvUmVzZXJ2YXRpb24vUmVzZXJ2YXRpb24uYXNweCI+IC0g7Iuk7Iuc6rCE7JiI7JW9PC9hPjwvZGQ+ICAgICAgICAgICAgICAgICAgICA8ZGQ+PGEgaHJlZiA9Ii9SZXNlcnZhdGlvbi9SZXNlcnZhdGlvbkxpc3QuYXNweCI+IC0g7JiI7JW97KGw7ZqMIC8g7Leo7IaMPC9hPjwvZGQ+ICAgICAgICAgICAgICAgICAgICA8ZGQ+PGEgaHJlZiA9Ii9SZXNlcnZhdGlvbi9SZXNlcnZhdGlvbldhaXRMaXN0LmFzcHgiPiAtIOuMgOq4sOyLoOyyrSDsobDtmowv7Leo7IaMPC9hPjwvZGQ+ICAgICAgICAgICAgICAgIDwvZGwgPiAgICAgICAgICAgICAgICA8ZGw+ICAgICAgICAgICAgICAgICAgICA8ZHQ+IOqzoOqwneudvOyatOyngCA8L2R0PiAgICAgICAgICAgICAgICAgICAgPGRkPjxhIGhyZWYgPSIvQm9hcmQvQm9hcmRMaXN0LmFzcHg/Y2ZnaWQ9bm90aWNlIj4gLSDqs7Xsp4Dsgqztla08L2E+PC9kZD4gICAgICAgICAgICAgICAgICAgIDxkZD48YSBocmVmID0iL0JvYXJkL0JvYXJkTGlzdC5hc3B4P2NmZ2lkPWV2ZW50Ij4gLSDsnbTrsqTtirjslYjrgrQ8L2E+PC9kZD4gICAgICAgICAgICAgICAgICAgIDxkZD48YSBocmVmID0iL0JvYXJkL0JvYXJkTGlzdC5hc3B4P2NmZ2lkPWxvc3QiPiAtIOu2hOyLpOusvOyEvO2EsDwvYT48L2RkPiAgICAgICAgICAgICAgICAgICAgPGRkPjxhIGhyZWYgPSIvQm9hcmQvSG9ub3JMaXN0LmFzcHgiPiAtIO2ZgOyduOybkOqwpOufrOumrDwvYT48L2RkPiAgICAgICAgICAgICAgICA8L2RsID4gICAgICAgICAgICAgICAgPGRsPiAgICAgICAgICAgICAgICAgICAgPGR0PiBGJkIgPC9kdD4gICAgICAgICAgICAgICAgICAgIDxkZD48YSBocmVmID0iL0ZhY2lsaXRpZXMvUmVzdGF1cmFudC5hc3B4Ij4gLSDroIjsiqTthqDrnpE8L2E+PC9kZD4gICAgICAgICAgICAgICAgICAgIDxkZD48YSBocmVmID0iL0ZhY2lsaXRpZXMvU3RhcnRIb3VzZS5hc3B4Ij4gLSDsiqTtg4DtirjtlZjsmrDsiqQ8L2E+PC9kZD4gICAgICAgICAgICAgICAgICAgIDxkZD48YSBocmVmID0iL0ZhY2lsaXRpZXMvTWVudS5hc3B4Ij4gLSDrqZTribQ8L2E+PC9kZD4gICAgICAgICAgICAgICAgPC9kbCA+ICAgICAgICAgICAgICAgIDxkbD4gICAgICAgICAgICAgICAgICAgIDxkdD4g6rOo7ZSE67mM66as7KeAIDwvZHQ+ICAgICAgICAgICAgICAgICAgICA8ZGQ+PGEgaHJlZiA9Ii9Hb2xmVGVsL2FscHNWaWxsYWdlLmFzcHgiPiAtIOu5jOumrOyngCDsmIjslb3rrLjsnZg8L2E+PC9kZD4gICAgICAgICAgICAgICAgICAgIDxkZD48YSBocmVmID0iL0dvbGZUZWwvRkFRLmFzcHgiPiAtIEZBUTwvYT48L2RkPiAgICAgICAgICAgICAgICAgICAgPGRkPjxhIGhyZWYgPSIvR29sZlRlbC9Vc2VJbmZvLmFzcHgiPiAtIOqwneyLpCDsnbTsmqnslYjrgrQ8L2E+PC9kZD4gICAgICAgICAgICAgICAgICAgIDxkZD48YSBocmVmID0iL0dvbGZUZWwvR2FsbGVyeS5hc3B4Ij4gLSDqsJ3si6Qg7IKs7KeEPC9hPjwvZGQ+ICAgICAgICAgICAgICAgICAgICA8ZGQ+PGEgaHJlZiA9Ii9Hb2xmVGVsL0JhbnF1ZXQuYXNweCI+IC0g7Jew7ZqML+yXsOyImDwvYT48L2RkPiAgICAgICAgICAgICAgICAgICAgPGRkPjxhIGhyZWYgPSIvR29sZlRlbC9GYWNpbGl0ZXMwMS5hc3B4Ij4gLSDtjrjsnZjsi5zshKQ8L2E+PC9kZD4gICAgICAgICAgICAgICAgICAgIDxkZD48YSBocmVmID0iL0dvbGZUZWwvVmlsbGFnZXBhbmFsdHlsUnVsZS5hc3B4Ij4gLSDsnITslb3qt5zsoJU8L2E+PC9kZD4gICAgICAgICAgICAgICAgPC9kbCA+ZGQjWoEG9MPCDpYVubsHnDRr9ipu9WLtaUU625J3UVg9VQ==" />
+</div>
+
+<script type="text/javascript">
+//<![CDATA[
+var theForm = document.forms['aspnetForm'];
+if (!theForm) {
+    theForm = document.aspnetForm;
+}
+function __doPostBack(eventTarget, eventArgument) {
+    if (!theForm.onsubmit || (theForm.onsubmit() != false)) {
+        theForm.__EVENTTARGET.value = eventTarget;
+        theForm.__EVENTARGUMENT.value = eventArgument;
+        theForm.submit();
+    }
+}
+//]]>
+</script>
+
+
+<div>
+
+	<input type="hidden" name="__VIEWSTATEGENERATOR" id="__VIEWSTATEGENERATOR" value="65401229" />
+	<input type="hidden" name="__EVENTVALIDATION" id="__EVENTVALIDATION" value="/wEdAAfu/zK9TwPOxghtE4dkOy23EcpPRZs5lTK/C/S2yqM4k6pJr5YQ3uMYs8MOHirwOQ7yZc1Ey13gjaAYrK2CZw139Tt6KoVd96dN6zOjIKoOlHY2+Mc6SrnAqio3oCKbxYaXA84tsSFQdU+YsQ53E6p8ezC78Cbatz+/8cJ4O/F1NuRmH3S/33ZnIlaRBxQYw1g=" />
+</div>             
+       	<script>
+	    function btnexit() {
+	        $('#open_pop').hide();
+	        $('#mask').hide();
+	    };
+            
+        function btnexit1() {
+	        $('#open_pop1').hide();
+	        $('#mask1').hide();
+	    };  
+
+          function btnexit2() {
+	        $('#open_pop2').hide();
+	        $('#mask2').hide();
+	    };       
+        
+        function btnexit3() {
+            $('#open_pop3').hide();
+            $('#mask3').hide();
+        };
+        
+        function btnexit4() {
+            $('#open_pop4').hide();
+            $('#mask4').hide();
+        };
+
+        function btnexit5() {
+            $('#open_pop5').hide();
+            $('#mask5').hide();
+        };
+            
+        function btnexit6() {
+            $('#open_pop6').hide();
+            $('#mask6').hide();
+        };
+	</script>
+
+		
+
+<body>
+        <!--모달 팝업-->				               
+        <div id="mask2"></div> 
+        <div class="modal_pop02" id="open_pop2">
+            <div>
+                <a href="/Board/BoardView.aspx?post=1938&cfgid=event&page=1">
+                    <img src="/Upload/260619app.jpg" width="352px" alt="하계주중 이벤트">
+                </a>
+            </div>
+            <div class="close_btn">
+                <a onclick="btnexit2();"  style="cursor:pointer;">닫기</a>
+            </div>
+        </div>
+        
+        <!--<div id="mask4"></div> 
+        <div class="modal_pop04" id="open_pop4">
+            <div>
+                <a href="/Board/BoardView.aspx?post=1938&cfgid=event&page=1">
+                    <img src="/Upload/260619app.jpg" width="352px" alt="하계주중 이벤트">
+                </a>
+            </div>
+            <div class="close_btn">
+                <a onclick="btnexit4();"  style="cursor:pointer;">닫기</a>
+            </div>
+        </div> -->         
+
+        <div id="mask1"></div> 
+        <div class="modal_pop01" id="open_pop1">
+            <div>
+                <a href="/Board/BoardView.aspx?post=1943&cfgid=event&page=1">
+                    <img src="/Upload/260624app.jpg" width="352px" alt="7~8월이벤트">
+                </a>
+            </div>
+            <div class="close_btn">
+                <a onclick="btnexit1();"  style="cursor:pointer;">닫기</a>
+            </div> 
+        </div>
+
+        
+        
+<!--
+        <div id="mask5"></div> 
+            <div class="modal_pop05" id="open_pop5">
+                <div>
+                    <a href="/Board/BoardView.aspx?post=1894&cfgid=notice&page=1">
+                        <img src="/Upload/251230_pop2.jpg" width="352px" alt="새해인사">
+                    </a>
+                </div>
+            <div class="close_btn">
+                <a onclick="btnexit5();"  style="cursor:pointer;">닫기</a>
+            </div>
+        </div>
+-->
+    
+        <!--<div id="mask3"></div> 
+            <div class="modal_pop03" id="open_pop3">
+                <div>
+                    <a href="/Board/BoardView.aspx?post=1888&cfgid=notice&page=1">
+                        <img src="/Upload/251205adgb_2.jpg" width="352px" alt="스타벅스입점">
+                    </a>
+                </div>
+            <div class="close_btn">
+                <a onclick="btnexit3();"  style="cursor:pointer;">닫기</a>
+            </div>
+        </div>-->
+    
+    
+
+				
+        <!--<div style="position:relative; z-index:20000;">
+            <span id="lblPopup"><script type="text/javascript">
+//<![CDATA[
+cookiedata = document.cookie;
+//]]>
+</script>
+</span>
+        </div>-->
+        <div class="wrap_sub">
+            <!--헤더-->
+            <div class="header">
+
+                
+
+<!--탑메뉴-->
+<div class="top_inner scon clearfix">
+	<h1><a href="/"><img src="../images/logo.png" alt="header로고"/></a></h1>
+	<ul class="clearfix">
+        <li><a href="../Member/Login.aspx"><img src="../images/top_login_btn.png" /></li><li><a href="../Member/JoinStep1.aspx"><img src="../images/top_join_btn.png" /></a></li><li><a href="../Member/Join_Member.aspx"><img src="../images/top_join_mem_btn.png" /></a></li>
+		<li><a href="../GolfTel/ReserveInfo.aspx"><img src="../images/top_village_btn.png" /></a></li>
+	</ul>
+	<div class="weather_wrap clearfix">
+		<div class="time">2026년 07월 21일(화)</div>
+		<div class="weather_icon"><img id="Top1_imgWeatherIcon1" title="비" src="/images/main_weather/Rain.png" alt="비" style="width:70px;border-width:0px;" /></div>
+		<div class="temperature">26<span>℃</span>&nbsp;&nbsp;
+            비
+			<!--2.1 mm%-->
+		</div> 
+	</div>
+</div>
+<!--탑메뉴-->
+<!--gnb-->
+<div class="gnb_wrap">    <div class="gnb">        <div class="gnb_inner">            <ul class="clearfix">                <li><a href ="/About/Greeting.aspx">클럽소개</a></li>                <li><a href ="/Course/CourseIntro.aspx">코스소개</a></li>                <li><a href ="/Guide/UseInfo.aspx">이용안내</a></li>                <li><a href ="/Reservation/ReservationInfo.aspx">예약서비스</a></li>                <li><a href ="/Board/BoardList.aspx?cfgid=event">고객라운지</a></li>                <li><a href ="/Facilities/Restaurant.aspx">F&B</a></li>                <li><a href ="/GolfTel/ReserveInfo.aspx">골프빌리지</a></li>                <li class="last">                    <a href ="/Reservation/Reservation.aspx">예약하기<br />		            <span>RESERVATION</span></a>                </li>            </ul>        </div>    </div>    <div class="gnb_sub_wrap">        <div class="gnb_sub clearfix">            <ul class="category1">                <li><a href ="/About/Greeting.aspx">인사말</a></li>                <li><a href ="/About/ClubInfo.aspx">클럽소개</a></li>                <li><a href ="/About/ClubTel.aspx">주요연락처</a></li>                <li><a href ="/About/Location.aspx">오시는길</a></li>            </ul>            <ul class="category2">                <li><a href ="/Course/CourseIntro.aspx">코스안내</a></li>                <li><a href ="/Course/BlueCourse.aspx">OUT(블루) 코스</a></li>                <li><a href ="/Course/CosmosCourse.aspx">IN(코스모스) 코스</a></li>                <li><a href ="/Course/CourseGallery.aspx">코스갤러리</a></li>            </ul>            <ul class="category3">                <li><a href ="/Guide/UseInfo.aspx">준수사항</a></li>                <li><a href ="/Guide/Fees.aspx">이용요금</a></li>                <li><a href ="/Guide/PanaltylRule.aspx">위약규정</a></li>                <li><a href ="/Guide/LocalRule.aspx">로컬룰</a></li>                <li><a href ="/Guide/Weather.aspx">날씨정보</a></li>            </ul>            <ul class="category4">                <li><a href ="/Reservation/ReservationInfo.aspx">예약안내</a></li>                <li><a href ="/Reservation/Reservation.aspx">실시간예약</a></li>                <li><a href ="/Reservation/ReservationList.aspx">예약조회 / 취소</a></li>                <li><a href ="/Reservation/ReservationWaitList.aspx">대기신청 조회/취소</a></li>            </ul>            <ul class="category5">                <li><a href ="/Board/BoardList.aspx?cfgid=notice">공지사항</a></li>                <li><a href ="/Board/BoardList.aspx?cfgid=event">이벤트안내</a></li>                <li><a href ="/Board/BoardList.aspx?cfgid=lost">분실물센터</a></li>                <li><a href ="/Board/HonorList.aspx">홀인원갤러리</a></li>            </ul>            <ul class="category6">                <li><a href ="/Facilities/Restaurant.aspx">레스토랑</a></li>                <li><a href ="/Facilities/StartHouse.aspx">스타트하우스</a></li>                <li><a href ="/Facilities/Menu.aspx">메뉴</a></li>            </ul>            <ul class="category7">                <li><a href ="/GolfTel/alpsVillage.aspx">빌리지 예약문의</a></li>                <li><a href ="/GolfTel/FAQ.aspx">FAQ</a></li>                <li><a href ="/GolfTel/UseInfo.aspx">객실 이용안내</a></li>                <li><a href ="/GolfTel/Gallery.aspx">객실 사진</a></li>                <li><a href ="/GolfTel/Banquet.aspx">연회/연수</a></li>                <li><a href ="/GolfTel/Facilites01.aspx">편의시설</a></li>                <li><a href ="/GolfTel/VillagepanaltylRule.aspx">위약규정</a></li>            </ul>        </div>    </div></div>
+<!--gnb-->
+
+
+            </div>
+            <!--헤더-->
+            <!--서브컨텐츠시작-->
+            <div class="main_con_wrap scon">
+                <div class="main_visual">
+                    <ul class="bxslider">
+                        <li><img src="../images/main_visual01.jpg" alt="메인이미지" title="자연의 조화가 아름답게 어우러진  알프스대영 입니다."></li>
+                        <li><img src="../images/main_visual02.jpg" alt="메인이미지" title="자연의 조화가 아름답게 어우러진  알프스대영 입니다."></li>
+                        <li><img src="../images/main_visual03.jpg" alt="메인이미지" title="자연의 조화가 아름답게 어우러진  알프스대영 입니다."></li>
+                        <li><img src="../images/main_visual04.jpg" alt="메인이미지" title="자연의 조화가 아름답게 어우러진  알프스대영 입니다."></li>
+                        <li><img src="../images/main_visual05.jpg" alt="메인이미지" title="자연의 조화가 아름답게 어우러진  알프스대영 입니다."></li>
+                    </ul>
+                </div>
+                <div class="main_con_inner01 clearfix">
+                    <div class="main_notice">
+                        <h2>Notice</h2>
+                        <div class="notice_con">
+                           
+                            <div class="one-time">
+                                <div><a href="/Board/BoardView.aspx?post=1948&cfgid=notice&page=1"><img src="../images/260629adgb.jpg" alt="7~8월 그린피"></a></div>
+                                <div><a href="/Board/BoardView.aspx?post=1947&cfgid=notice&page=1"><img src="../images/260628adb.jpg" alt="7월3부영업일정"></a></div>
+                                <div><a href="/Board/BoardView.aspx?post=1897&cfgid=notice&page=1"><img src="../images/260109ad_bn_.jpg" alt="홀인원시상품"></a></div>
+                                <div><a href="/Board/BoardView.aspx?post=1856&cfgid=notice&page=1"><img src="../images/250807adb.jpg" alt="부대서비스 이용요금 안내 공지"></a></div>
+                                <div><a href="/Board/BoardView.aspx?post=1831&cfgid=notice&page=1"><img src="../images/250627adgb.jpg" alt="리무진카트"></a></div>
+                                <div><a href="/Board/BoardView.aspx?post=1803&cfgid=notice&page=1"><img src="../images/250401ap_bn.jpg" alt="유공납세자"></a></div>
+                                <div><a href="/Board/BoardView.aspx?post=1796&cfgid=notice&page=1"><img src="../images/250324apk_bn.jpg" alt="키오스크정산안내"></a></div>
+                                <div><a href="/Board/BoardView.aspx?post=1833&cfgid=notice&page=1"><img src="../images/250304ad_bn.jpg" alt="제주맥주팝업오픈"></a></div>
+                                <div><a href="/Board/BoardView.aspx?post=1818&cfgid=notice&page=1"><img src="../images/250530ad_bn.jpg" alt="청우카드종료"></a></div>
+                                <div><a href="/Board/BoardView.aspx?post=1500&cfgid=notice&page=1"><img src="../images/240131dyp.jpg" alt="5인플레이"></a></div>
+                                <div><a href="/Board/BoardView.aspx?post=1281&cfgid=notice&page=1"><img src="../images/230412adb.jpg" alt="인터넷회원 필수가입"></a></div>
+                                <div><a href="/Board/BoardView.aspx?post=1250&cfgid=notice&page=1"><img src="../images/230327adb.jpg" alt="예약규제"></a></div>
+                                </div>
+                        </div>
+                    </div>
+                    <div class="main_event">
+                        <h2>Event</h2>
+                        <div class="event_con">
+                            <div class="one-time2">
+                                <div><a href="/Board/BoardView.aspx?post=1938&cfgid=event&page=1"><img src="../images/260622ap_bn.jpg" alt="하계패키지"></a></div>
+                                <div><a href="/Board/BoardView.aspx?post=1944&cfgid=event&page=1"><img src="../images/260624p_bn01.jpg" alt="7~8월 3인프리패스"></a></div>
+                                <div><a href="/Board/BoardView.aspx?post=1934&cfgid=event&page=1"><img src="../images/260528ap_bn02.jpg" alt="상시 행운"></a></div>
+                                <div><a href="/Board/BoardView.aspx?post=1935&cfgid=event&page=1"><img src="../images/260528ap_bn03.jpg" alt="상시 빌리지"></a></div>
+<!--
+                                <div><a href="/Board/BoardView.aspx?post=1930&cfgid=event&page=1"><img src="../images/260429ap_bn.jpg" alt="여름얼리버드"></a></div>
+                                <div><a href="/Board/BoardView.aspx?post=1926&cfgid=event&page=1"><img src="../images/260417ap_bn.jpg" alt="5월 이벤트"></a></div>
+                                <div><a href="/Board/BoardView.aspx?post=1923&cfgid=event&page=1"><img src="../images/260417ap_bn01.jpg" alt="5월 하이앤드"></a></div>
+                                <div><a href="/Board/BoardView.aspx?post=1924&cfgid=event&page=1"><img src="../images/260417ap_bn02.jpg" alt="5월 행운"></a></div>
+                                <div><a href="/Board/BoardView.aspx?post=1925&cfgid=event&page=1"><img src="../images/260417ap_bn03.jpg" alt="5월 빌리지"></a></div>
+                                <div><a href="/Board/BoardView.aspx?post=1912&cfgid=event&page=1"><img src="../images/260317ap_bn.jpg" alt="4월 이벤트"></a></div>
+                                <div><a href="/Board/BoardView.aspx?post=1907&cfgid=event&page=1"><img src="../images/260317ap_bn01.jpg" alt="4월 식목"></a></div>
+                                <div><a href="/Board/BoardView.aspx?post=1908&cfgid=event&page=1"><img src="../images/260317ap_bn02.jpg" alt="4월 1박2일"></a></div>
+                                <div><a href="/Board/BoardView.aspx?post=1909&cfgid=event&page=1"><img src="../images/260317ap_bn03.jpg" alt="4월 뭉치면"></a></div>
+                                <div><a href="/Board/BoardView.aspx?post=1910&cfgid=event&page=1"><img src="../images/260317ap_bn04.jpg" alt="4월 럭키데이"></a></div>
+                                <div><a href="/Board/BoardView.aspx?post=1911&cfgid=event&page=1"><img src="../images/260317ap_bn05.jpg" alt="4월 라운드여운"></a></div>
+-->
+                                <!-- <div><a href="/Board/BoardView.aspx?post=1832&cfgid=event&page=1"><img src="../Upload/250630adb.jpg" alt="제주맥주 팝업스토어"></a></div> -->
+                            </div>
+                        </div>
+                    </div>
+                    <div class="main_calendar" id="dvCalendar">
+
+                    </div>
+                </div>
+                <!--빌리지예약 모달창-->
+                <div id="mask"></div>
+                <div class="modal_village" id="village">
+                    <h1>빌리지예약</h1>
+                    <div><img src="../images/village_photo.png" /></div>
+                    <p>빌리지예약을 원하시는 분은 <span>033-340-8032</span> 으로 연락바랍니다.</p>
+                    <div class="close_btn"><a onclick="btnexit();" style="cursor:pointer;">닫기</a></div>
+                </div>
+                <!--빌리지예약 모달창-->
+                <div class="main_con_inner02 clearfix">
+                    <ul class="main_icon clearfix">
+                        <li><a href="../Reservation/Reservation.aspx"><img src="../images/main_icon01.gif" /></a></li>
+                        <li><a onclick="clicktest();" style="cursor:pointer;"><img src="../images/main_icon02.png" /></a></li>
+                        <li><a href="/Guide/Weather.aspx"><img src="../images/main_icon03.png" /></a></li>
+                        <li><a href="../About/Location.aspx"><img src="../images/main_icon04.png" /></a></li>
+                        <li><a href="https://pf.kakao.com/_vtTej"><img src="../images/main_icon05.png" /></a></li>
+                    </ul>
+                    <div class="main_login">
+
+                        <div id="plLogin">
+	
+                            <div class="login_check">
+                                <span id="rbtLoginGubun"><span style="padding-right:30px;"><input id="rbtLoginGubun_0" type="radio" name="rbtLoginGubun" value="ID" checked="checked" /><label for="rbtLoginGubun_0">아이디</label></span><input id="rbtLoginGubun_1" type="radio" name="rbtLoginGubun" value="HP" /><label for="rbtLoginGubun_1">핸드폰번호</label></span>
+                            </div>
+                            <div class="id_pw_input_wrap clearfix">
+                                <ul class="id_pw_input">
+                                    <li>
+                                        <input name="txtUserID" type="text" id="txtUserID" placeholder="   - 없이 입력하세요" />
+                                    </li>
+                                    <li class="mt5">
+                                        <input name="txtPassword" type="password" id="txtPassword" placeholder="  비밀번호를 입력하세요" />
+                                    </li>
+                                </ul>
+                                <div class="main_login_btn">
+                                    <a onclick="if(!LoginSubmit()) return false;" id="lbtLogin" href="javascript:__doPostBack(&#39;lbtLogin&#39;,&#39;&#39;)">로그인</a>
+                                </div>
+                            </div>
+                            <div class="etc_btn_wrap">
+                                <a href="/Member/AskIDnPW.aspx" class="join_btn"><img src="../images/main_idpw_btn.png" alt="아이디 패스워드찾기" /></a>
+                                <a href="/Member/JoinStep1.aspx" class="login_info_search"><img src="../images/main_join_btn.png" alt="회원가입 버튼" /></a>
+                            </div>
+                        
+</div>
+                        
+                    </div>
+                </div>
+
+                <div class="main_con_inner02 clearfix">
+                    <ul class="down">
+                        <li><a href="/Upload/1박2일 문의_2023.xlsx" target="_blank">1박2일 패키지 문의</a></li>
+                        <li><a href="/Upload/단체행사 문의_2023.xlsx" target="_blank">골프 단체 행사 문의</a></li>
+                        <li><a href="/images/행사 및 단체-1.xlsx" target="_blank">빌리지 숙박/행사 단체문의</a></li>
+                    </ul>
+                </div>
+
+
+                <div class="gallery_wrap">
+                    <div class="center slider">
+                        <div>
+                            <h3><img src="../images/main_gallery01.jpg" alt="알프스대영" /></h3>
+                            <p class="photogallery-text"><span>알프스대영</span><br />자연의 조화가 아름답게 어우러진 알프스대영</p>
+                        </div>
+                        <div>
+                            <h3><img src="../images/main_gallery02.jpg" alt="히든 클리프 호텔 주변 원시림" /></h3>
+
+                            <p class="photogallery-text"><span>알프스대영</span><br />자연의 조화가 아름답게 어우러진 알프스대영</p>
+                        </div>
+                        <div>
+                            <h3><img src="../images/main_gallery03.jpg" alt="히든 클리프 호텔 주변 원시림" /></h3>
+                            <p class="photogallery-text"><span>알프스대영</span><br />자연의 조화가 아름답게 어우러진 알프스대영</p>
+                        </div>
+                        <div>
+                            <h3><img src="../images/main_gallery04.jpg" alt="히든 클리프 호텔 주변 원시림" /></h3>
+                            <p class="photogallery-text"><span>알프스대영</span><br />자연의 조화가 아름답게 어우러진 알프스대영</p>
+                        </div>
+                        <div>
+                            <h3><img src="../images/main_gallery05.jpg" alt="히든 클리프 호텔 주변 원시림" /></h3>
+                            <p class="photogallery-text"><span>알프스대영</span><br />자연의 조화가 아름답게 어우러진 알프스대영</p>
+                        </div>
+                        <div>
+                            <h3><img src="../images/main_gallery06.jpg" alt="히든 클리프 호텔 주변 원시림" /></h3>
+                            <p class="photogallery-text"><span>알프스대영</span><br />자연의 조화가 아름답게 어우러진 알프스대영</p>
+                        </div>
+                        <div>
+                            <h3><img src="../images/main_gallery07.jpg" alt="히든 클리프 호텔 주변 원시림" /></h3>
+                            <p class="photogallery-text"><span>알프스대영</span><br />자연의 조화가 아름답게 어우러진 알프스대영</p>
+                        </div>
+                        <div>
+                            <h3><img src="../images/main_gallery08.jpg" alt="히든 클리프 호텔 주변 원시림" /></h3>
+                            <p class="photogallery-text"><span>알프스대영</span><br />자연의 조화가 아름답게 어우러진 알프스대영</p>
+                        </div>
+                        <div>
+                            <h3><img src="../images/main_gallery09.jpg" alt="히든 클리프 호텔 주변 원시림" /></h3>
+                            <p class="photogallery-text"><span>알프스대영</span><br />자연의 조화가 아름답게 어우러진 알프스대영</p>
+                        </div>
+                        <div>
+                            <h3><img src="../images/main_gallery10.jpg" alt="히든 클리프 호텔 주변 원시림" /></h3>
+                            <p class="photogallery-text"><span>알프스대영</span><br />자연의 조화가 아름답게 어우러진 알프스대영</p>
+                        </div>
+                        <div>
+                            <h3><img src="../images/main_gallery11.jpg" alt="히든 클리프 호텔 주변 원시림" /></h3>
+                            <p class="photogallery-text"><span>알프스대영</span><br />자연의 조화가 아름답게 어우러진 알프스대영</p>
+                        </div>
+                        <div>
+                            <h3><img src="../images/main_gallery12.jpg" alt="히든 클리프 호텔 주변 원시림" /></h3>
+                            <p class="photogallery-text"><span>알프스대영</span><br />자연의 조화가 아름답게 어우러진 알프스대영</p>
+                        </div>
+                        <div>
+                            <h3><img src="../images/main_gallery13.jpg" alt="히든 클리프 호텔 주변 원시림" /></h3>
+                            <p class="photogallery-text"><span>알프스대영</span><br />자연의 조화가 아름답게 어우러진 알프스대영</p>
+                        </div>
+                        <div>
+                            <h3><img src="../images/main_gallery14.jpg" alt="히든 클리프 호텔 주변 원시림" /></h3>
+                            <p class="photogallery-text"><span>알프스대영</span><br />자연의 조화가 아름답게 어우러진 알프스대영</p>
+                        </div>
+
+
+
+                        <div>
+                            <h3><img src="../images/photo01.jpg" alt="알프스대영 코스이미지" /></h3>
+                            <p class="photogallery-text"><span>알프스대영</span><br />자연의 조화가 아름답게 어우러진 알프스대영</p>
+                        </div>
+                        <div>
+                            <h3><img src="../images/photo02.jpg" alt="알프스대영 코스이미지" /></h3>
+                            <p class="photogallery-text"><span>알프스대영</span><br />자연의 조화가 아름답게 어우러진 알프스대영</p>
+                        </div>
+                        <div>
+                            <h3><img src="../images/photo03.jpg" alt="알프스대영 코스이미지" /></h3>
+                            <p class="photogallery-text"><span>알프스대영</span><br />자연의 조화가 아름답게 어우러진 알프스대영</p>
+                        </div>
+                        <div>
+                            <h3><img src="../images/photo04.jpg" alt="알프스대영 코스이미지" /></h3>
+                            <p class="photogallery-text"><span>알프스대영</span><br />자연의 조화가 아름답게 어우러진 알프스대영</p>
+                        </div>
+                        <div>
+                            <h3><img src="../images/photo05.jpg" alt="알프스대영 코스이미지" /></h3>
+                            <p class="photogallery-text"><span>알프스대영</span><br />자연의 조화가 아름답게 어우러진 알프스대영</p>
+                        </div>
+                        <div>
+                            <h3><img src="../images/photo06.jpg" alt="알프스대영 코스이미지" /></h3>
+                            <p class="photogallery-text"><span>알프스대영</span><br />자연의 조화가 아름답게 어우러진 알프스대영</p>
+                        </div>
+                        <div>
+                            <h3><img src="../images/photo07.jpg" alt="알프스대영 코스이미지" /></h3>
+                            <p class="photogallery-text"><span>알프스대영</span><br />자연의 조화가 아름답게 어우러진 알프스대영</p>
+                        </div>
+                        <div>
+                            <h3><img src="../images/photo08.jpg" alt="알프스대영 코스이미지" /></h3>
+                            <p class="photogallery-text"><span>알프스대영</span><br />자연의 조화가 아름답게 어우러진 알프스대영</p>
+                        </div>
+                        <div>
+                            <h3><img src="../images/photo09.jpg" alt="알프스대영 코스이미지" /></h3>
+                            <p class="photogallery-text"><span>알프스대영</span><br />자연의 조화가 아름답게 어우러진 알프스대영</p>
+                        </div>
+                        <div>
+                            <h3><img src="../images/photo10.jpg" alt="알프스대영 코스이미지" /></h3>
+                            <p class="photogallery-text"><span>알프스대영</span><br />자연의 조화가 아름답게 어우러진 알프스대영</p>
+                        </div>
+                        <div>
+                            <h3><img src="../images/photo11.jpg" alt="알프스대영 코스이미지" /></h3>
+                            <p class="photogallery-text"><span>알프스대영</span><br />자연의 조화가 아름답게 어우러진 알프스대영</p>
+                        </div>
+                        <div>
+                            <h3><img src="../images/photo12.jpg" alt="알프스대영 코스이미지" /></h3>
+                            <p class="photogallery-text"><span>알프스대영</span><br />자연의 조화가 아름답게 어우러진 알프스대영</p>
+                        </div>
+                        <div>
+                            <h3><img src="../images/photo13.jpg" alt="알프스대영 코스이미지" /></h3>
+                            <p class="photogallery-text"><span>알프스대영</span><br />자연의 조화가 아름답게 어우러진 알프스대영</p>
+                        </div>
+                        <div>
+                            <h3><img src="../images/photo14.jpg" alt="알프스대영 코스이미지" /></h3>
+                            <p class="photogallery-text"><span>알프스대영</span><br />자연의 조화가 아름답게 어우러진 알프스대영</p>
+                        </div>
+                        <div>
+                            <h3><img src="../images/photo15.jpg" alt="알프스대영 코스이미지" /></h3>
+                            <p class="photogallery-text"><span>알프스대영</span><br />자연의 조화가 아름답게 어우러진 알프스대영</p>
+                        </div>
+                        <div>
+                            <h3><img src="../images/photo16.jpg" alt="알프스대영 코스이미지" /></h3>
+                            <p class="photogallery-text"><span>알프스대영</span><br />자연의 조화가 아름답게 어우러진 알프스대영</p>
+                        </div>
+                        <div>
+                            <h3><img src="../images/photo17.jpg" alt="알프스대영 코스이미지" /></h3>
+                            <p class="photogallery-text"><span>알프스대영</span><br />자연의 조화가 아름답게 어우러진 알프스대영</p>
+                        </div>
+                        <div>
+                            <h3><img src="../images/photo18.jpg" alt="알프스대영 코스이미지" /></h3>
+                            <p class="photogallery-text"><span>알프스대영</span><br />자연의 조화가 아름답게 어우러진 알프스대영</p>
+                        </div>
+                        <div>
+                            <h3><img src="../images/photo19.jpg" alt="알프스대영 코스이미지" /></h3>
+                            <p class="photogallery-text"><span>알프스대영</span><br />자연의 조화가 아름답게 어우러진 알프스대영</p>
+                        </div>
+                        <div>
+                            <h3><img src="../images/photo20.jpg" alt="알프스대영 코스이미지" /></h3>
+                            <p class="photogallery-text"><span>알프스대영</span><br />자연의 조화가 아름답게 어우러진 알프스대영</p>
+                        </div>
+
+                        <div>
+                            <h3><img src="../images/photo21.jpg" alt="알프스대영 코스이미지" /></h3>
+                            <p class="photogallery-text"><span>알프스대영</span><br />자연의 조화가 아름답게 어우러진 알프스대영</p>
+                        </div>
+                        <div>
+                            <h3><img src="../images/photo22.jpg" alt="알프스대영 코스이미지" /></h3>
+                            <p class="photogallery-text"><span>알프스대영</span><br />자연의 조화가 아름답게 어우러진 알프스대영</p>
+                        </div>
+                        <div>
+                            <h3><img src="../images/photo23.jpg" alt="알프스대영 코스이미지" /></h3>
+                            <p class="photogallery-text"><span>알프스대영</span><br />자연의 조화가 아름답게 어우러진 알프스대영</p>
+                        </div>
+                        <div>
+                            <h3><img src="../images/photo24.jpg" alt="알프스대영 코스이미지" /></h3>
+                            <p class="photogallery-text"><span>알프스대영</span><br />자연의 조화가 아름답게 어우러진 알프스대영</p>
+                        </div>
+                        <div>
+                            <h3><img src="../images/photo25.jpg" alt="알프스대영 코스이미지" /></h3>
+                            <p class="photogallery-text"><span>알프스대영</span><br />자연의 조화가 아름답게 어우러진 알프스대영</p>
+                        </div>
+                        <div>
+                            <h3><img src="../images/photo26.jpg" alt="알프스대영 코스이미지" /></h3>
+                            <p class="photogallery-text"><span>알프스대영</span><br />자연의 조화가 아름답게 어우러진 알프스대영</p>
+                        </div>
+                        <div>
+                            <h3><img src="../images/photo27.jpg" alt="알프스대영 코스이미지" /></h3>
+                            <p class="photogallery-text"><span>알프스대영</span><br />자연의 조화가 아름답게 어우러진 알프스대영</p>
+                        </div>
+                        <div>
+                            <h3><img src="../images/photo28.jpg" alt="알프스대영 코스이미지" /></h3>
+                            <p class="photogallery-text"><span>알프스대영</span><br />자연의 조화가 아름답게 어우러진 알프스대영</p>
+                        </div>
+                        <div>
+                            <h3><img src="../images/photo29.jpg" alt="알프스대영 코스이미지" /></h3>
+                            <p class="photogallery-text"><span>알프스대영</span><br />자연의 조화가 아름답게 어우러진 알프스대영</p>
+                        </div>
+                        <div>
+                            <h3><img src="../images/photo30.jpg" alt="알프스대영 코스이미지" /></h3>
+                            <p class="photogallery-text"><span>알프스대영</span><br />자연의 조화가 아름답게 어우러진 알프스대영</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!--서브컨텐츠끝-->
+            <!--푸터-->
+            
+    <div class="footer scon">
+		<div class="footer_contents">
+			<div class="footer_contents_inner">
+				<ul class="clearfix">
+					<li class="footer_phone"><img src="../images/footer_phone.png" alt="footer 문의전화"/></li>
+					<li class="footer_mail"><a href="mailto:alpsdy@daum.net" taget="_blank"><img src="../images/footer_mail.png" alt="footer 메일주소"/></a></li>
+					<li class="footer_menu"><a href="/Member/Agreement.aspx">이용약관</a></li>
+					<li class="footer_menu"><a href="/Policy/AgreementIT.aspx">인터넷서비스 이용약관</a></li>
+					<li class="footer_menu"><b><a href="/Policy/PrivatePolicy.aspx" style="color:#fff">개인정보처리방침</a></b></li>
+					<li class="footer_menu"><a href="/Member/EmailPolicy.aspx">이메일무단수집거부</a></li>
+					<!-- <li class="footer_facebook"><a href="#"><img src="../images/footer_facebook.png" alt="페이스북 아이콘"/></a></li> -->
+					<li class="footer_instargram"><a href="https://www.instagram.com/Muha_alpsdy/" target="_blank"><img src="../images/footer_instargram.png" alt="인스타 아이콘"/></a></li>
+				</ul>
+			</div>
+		</div>
+		<!--푸터 네비-->
+		<div class="footer_nav_wrap">
+			<div class="footer_nav  clearfix">
+				                <dl>                    <dt> 클럽소개 </dt>                    <dd><a href ="/About/Greeting.aspx"> - 인사말</a></dd>                    <dd><a href ="/About/ClubInfo.aspx"> - 클럽소개</a></dd>                    <dd><a href ="/About/ClubTel.aspx"> - 주요연락처</a></dd>                    <dd><a href ="/About/Location.aspx"> - 오시는길</a></dd>                </dl >                <dl>                    <dt> 코스소개 </dt>                    <dd><a href ="/Course/CourseIntro.aspx"> - 코스안내</a></dd>                    <dd><a href ="/Course/BlueCourse.aspx"> - OUT(블루) 코스</a></dd>                    <dd><a href ="/Course/CosmosCourse.aspx"> - IN(코스모스) 코스</a></dd>                    <dd><a href ="/Course/CourseGallery.aspx"> - 코스갤러리</a></dd>                </dl >                <dl>                    <dt> 이용안내 </dt>                    <dd><a href ="/Guide/UseInfo.aspx"> - 준수사항</a></dd>                    <dd><a href ="/Guide/Fees.aspx"> - 이용요금</a></dd>                    <dd><a href ="/Guide/PanaltylRule.aspx"> - 위약규정</a></dd>                    <dd><a href ="/Guide/LocalRule.aspx"> - 로컬룰</a></dd>                    <dd><a href ="/Guide/Weather.aspx"> - 날씨정보</a></dd>                </dl >                <dl>                    <dt> 예약서비스 </dt>                    <dd><a href ="/Reservation/ReservationInfo.aspx"> - 예약안내</a></dd>                    <dd><a href ="/Reservation/Reservation.aspx"> - 실시간예약</a></dd>                    <dd><a href ="/Reservation/ReservationList.aspx"> - 예약조회 / 취소</a></dd>                    <dd><a href ="/Reservation/ReservationWaitList.aspx"> - 대기신청 조회/취소</a></dd>                </dl >                <dl>                    <dt> 고객라운지 </dt>                    <dd><a href ="/Board/BoardList.aspx?cfgid=notice"> - 공지사항</a></dd>                    <dd><a href ="/Board/BoardList.aspx?cfgid=event"> - 이벤트안내</a></dd>                    <dd><a href ="/Board/BoardList.aspx?cfgid=lost"> - 분실물센터</a></dd>                    <dd><a href ="/Board/HonorList.aspx"> - 홀인원갤러리</a></dd>                </dl >                <dl>                    <dt> F&B </dt>                    <dd><a href ="/Facilities/Restaurant.aspx"> - 레스토랑</a></dd>                    <dd><a href ="/Facilities/StartHouse.aspx"> - 스타트하우스</a></dd>                    <dd><a href ="/Facilities/Menu.aspx"> - 메뉴</a></dd>                </dl >                <dl>                    <dt> 골프빌리지 </dt>                    <dd><a href ="/GolfTel/alpsVillage.aspx"> - 빌리지 예약문의</a></dd>                    <dd><a href ="/GolfTel/FAQ.aspx"> - FAQ</a></dd>                    <dd><a href ="/GolfTel/UseInfo.aspx"> - 객실 이용안내</a></dd>                    <dd><a href ="/GolfTel/Gallery.aspx"> - 객실 사진</a></dd>                    <dd><a href ="/GolfTel/Banquet.aspx"> - 연회/연수</a></dd>                    <dd><a href ="/GolfTel/Facilites01.aspx"> - 편의시설</a></dd>                    <dd><a href ="/GolfTel/VillagepanaltylRule.aspx"> - 위약규정</a></dd>                </dl >
+			</div>
+		</div>
+		<!--푸터 네비-->
+		<!--풋 인포-->
+		<div class="footer_info">
+			<h1><img src="../images/foot_logo.png" alt="footer 로고"/></h1>
+			<p>
+				강원도 횡성군 우천면 한우로 1295   <span class="ml20"> 대표이사 :</span> 강혜란 <span> 개인정보관리 책임자 : </span>김승배 <br />
+				<span >사업자등록번호 :</span>  211-87-06551    <span class="ml20">통신판매신고번호</span> : 제2009-강원횡성-0032호 <br />
+				Copyright ⓒ삼대양레저(주) All Rights Reservation.
+			</p>
+			<div class="tel">대표전화 : 033-340-8000 /  FAX : 033-340-8100 </div>
+		</div>
+		<!--풋 인포-->
+	</div>
+            <!--푸터-->
+
+            <!--퀵메뉴-->
+            <div class="quick" id="quick">
+                <ul>
+                    <li><img src="../images/quick_icon01.png" alt="골프예약" /> <a href="/Reservation/Reservation.aspx">골프예약</a></li>
+                    <li><img src="../images/quick_icon03.png" alt="대영베이스" /> <a href="https://basecc.co.kr/" target="_blank">대영베이스</a></li>
+                    <li><img src="../images/quick_icon04.png" alt="대영힐스" /> <a href="http://dyhills.basecc.co.kr/" target="_blank">대영힐스</a></li>
+                    <li><img src="../images/quick_icon05.png" alt="오시는길" /> <a href="/About/Location.aspx">오시는길</a></li>
+                    <li><img src="../images/quick_icon06.png" alt="실시간상담" /> <a href="https://pf.kakao.com/_vtTej">실시간상담</a></li>
+                </ul>
+            </div>
+            <!--퀵메뉴-->
+        </div>
+
+    <script defer src="https://static.cloudflareinsights.com/beacon.min.js/v4513226cdae34746b4dedf0b4dfa099e1781791509496" integrity="sha512-ZE9pZaUXND66v380QUtch/5sE9tPFh2zg45pR2PB0CVkCtOREv2AJKkSidISWkysEuQ0EH8faUU5du78bx87UQ==" data-cf-beacon='{"version":"2024.11.0","token":"de9f4891b32a4c7ba3c624fc918787fa","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a1e738769a31d1ce',t:'MTc4NDYwNTYwNw=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></form>
+</body>
+
+</html>

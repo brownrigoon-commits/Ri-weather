@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+    <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <meta name="format-detection" content="telephone=no">
+        <title>유니아일랜드</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+        <script src="/js/jquery.min.js"></script>
+        <script src="/js/utils/ajax.js"></script>
+        <script src="/js/utils/common.js"></script>
+        <script src="/js/utils/date.js"></script>
+        <script src="/js/utils/popup.js"></script>
+        <script src="/js/utils/string.js"></script>
+        <script src="/js/utils/template.js"></script>
+        <script src="/js/jquery.preloaders.js"></script>
+        <script src="/js/const.js"></script>
+        <script src="/pc/js/view.js"></script>
+        <script src="/pc/js/swiper.js"></script>
+        <script src="//cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
+        <link rel="stylesheet" href="/pc/css/common.css" type="text/css">
+        <link rel="stylesheet" href="/pc/css/swiper.css"/>
+        <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css"/>
+        <link rel="stylesheet" href="/pc/css/layout.css" type="text/css">
+        <link rel="stylesheet" href="/pc/css/contents.css" type="text/css">
+
+        <!-- favicon -->
+        <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
+
+    </head>
+
+    <header class="">
+        <h1 class="logo"><a href="/index">로고</a></h1>
+        <nav>
+            <ul class="gnb">
+                <li>
+                    <a href="/reservation/main">인터넷예약</a>
+                    <ul class="lnb">
+                        <li><a href="/reservation/main">실시간예약</a></li>
+                        <li><a href="/reservation/guide">예약안내</a></li>
+                        <li><a href="/reservation/check">예약확인</a></li>
+                        <li><a href="/reservation/group">단체예약</a></li>
+                        <li><a href="/reservation/fee">요금안내</a></li>
+                        <li><a href="https://www.teeupnjoy.com/hp/clubid/643.do">조인예약</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="/guide/info-guide">이용안내</a>
+                    <ul class="lnb">
+                        <li><a href="/guide/info-guide">이용안내</a></li>
+                        <li><a href="/guide/penalty">위약안내</a></li>
+                        <li><a href="/guide/mobile">모바일안내</a></li>
+                        <li><a href="/guide/self">셀프라운드안내</a></li>
+                        <li><a href="/guide/local">로컬룰</a></li>
+                        <li><a href="/guide/use-guide">이용규정</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="/facility/facil01">시설안내</a>
+                    <ul class="lnb">
+                        <li><a href="/facility/facil01">그늘집</a></li>
+                        <li><a href="/facility/facil02">레스토랑</a></li>
+                        <li><a href="/facility/menu">레스토랑 메뉴</a></li>
+                        <li><a href="/facility/facil03">연회장</a></li>
+                        <!--<li><a href="/facility/facil04">그늘막</a></li>-->
+                        <li><a href="/facility/facil05">락카룸</a></li>
+                        <li><a href="/facility/facil06">프로샵</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="/club/intro">클럽소개</a>
+                    <ul class="lnb">
+                        <li><a href="/club/intro">유니아일랜드소개</a></li>
+                        <li><a href="/club/club">클럽소개</a></li>
+                        <li><a href="/club/greeting">인사말</a></li>
+                        <li><a href="/club/map">오시는 길</a></li>
+                        <li><a href="/club/tell">주요연락처</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="/board/list">클럽소식</a>
+                    <ul class="lnb">
+                        <li><a href="/board/list">공지사항</a></li>
+                        <li><a href="/board/list-event">이벤트</a></li>
+                        <li><a href="/board/qna">자주하는 질문</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="/course/main">코스안내</a>
+                    <ul class="lnb">
+                        <li><a href="/course/main">코스개요</a></li>
+                        <li><a href="/course/courseOut">코스공략</a></li>
+                        <li><a href="/course/gallery">코스갤러리</a></li>
+                        <li><a href="/course/webcam">실시간웹캠</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="https://uniislandspaville.com/" target="_blank">THE SPAVILLE</a>
+                </li>
+                <!--<li>
+                    <a href="/pension/pension">펜션안내</a>
+                    <ul class="lnb">
+                        <li><a href="/pension/pension">주변펜션</a></li>
+                    </ul>
+                </li>-->
+            </ul>
+        </nav>
+        <div class="btn-top-box">
+            <a href="/member/login" style="display:none">로그인</a>
+            <a href="/member/join" style="display:none">회원가입</a>
+            <!--로그인했을때-->
+            <a href="javascript:void(0)" style="display:none">로그아웃</a>
+            <a href="/mypage/modify" style="display:none">정보수정</a>
+        </div>
+        <script>
+            if (isLoggedIn()) {
+                $(".btn-top-box").find("a").eq(2).show();
+                $(".btn-top-box").find("a").eq(2).on("click", function () {
+                    ajax.logout().then(() => {
+                        alert("로그아웃 되었습니다.");
+                        location.href = "/";
+                    }).catch(() => {
+                    });
+                });
+                $(".btn-top-box").find("a").eq(3).show();
+            } else {
+                $(".btn-top-box").find("a").eq(0).show();
+                $(".btn-top-box").find("a").eq(1).show();
+            }
+        </script>
+    </header>
+
+
+<body>
+
+    <script src="/pc/js/main.js"></script>
+    <link rel="stylesheet" href="/pc/css/main.css" type="text/css">
+
+    <section class="section01">
+        <div class="swiper main-slide">
+            <div class="swiper-wrapper">
+                <div class="swiper-slide">
+                    <div class="img-scale main-bg1"></div>
+                </div>
+                <div class="swiper-slide">
+                    <div class="img-scale main-bg2"></div>
+                </div>
+                <div class="swiper-slide">
+                    <div class="img-scale main-bg3"></div>
+                </div>
+                <div class="swiper-slide">
+                    <div class="img-scale main-bg4"></div>
+                </div>
+                <div class="swiper-slide">
+                    <div class="img-scale main-bg5"></div>
+                </div>
+                <div class="swiper-slide">
+                    <div class="img-scale main-bg6"></div>
+                </div>
+            </div>
+            <div class="main-slide-controller">
+                <div class="main-slide-text">
+                    <h4 class="ani-right-3s">United & Unique Universe</h4>
+                    <h2 class="ani-right-6s">하나되어 특별한 세계 유니아일랜드</h2>
+                </div>
+                <div class="slide-controller">
+                    <div class="swiper-prev"><img src="/pc/images/main_slide_left.svg"></div>
+                    <div class="swiper-pagination"></div>
+                    <div class="swiper-next"><img src="/pc/images/main_slide_right.svg"></div>
+                </div>
+            </div>
+        </div>
+        <div class="btn-aside-wrap">
+            <a href="/reservation/check">
+                <img src="/pc/images/ic_main_check.svg">
+                예약확인
+            </a>
+            <a href="javascript:void(0)" class="on pop-calendar">
+                <img src="/pc/images/ic_main_calendar.svg">
+                예약하기
+            </a>
+        </div>
+        <div class="main-calendar-wrap">
+            <ul class="main-calendar-header">
+                <li>
+                    <button type="button" data-value="-1"><img src="/pc/images/ic_calendar_left.svg"></button>
+                </li>
+                <li><h2></h2></li>
+                <li>
+                    <button type="button" data-value="1"><img src="/pc/images/ic_calendar_right.svg"></button>
+                </li>
+            </ul>
+            <table class="main-calendar">
+                <colgroup>
+                    <col span="7">
+                </colgroup>
+                <thead>
+                <tr>
+                    <th>SUN</th>
+                    <th>MON</th>
+                    <th>TUE</th>
+                    <th>WED</th>
+                    <th>THU</th>
+                    <th>FRI</th>
+                    <th>SAT</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td class="deadline">28<p>마감</p></td>
+                    <td class="deadline">29<p>마감</p></td>
+                    <td class="deadline">30<p>마감</p></td>
+                    <td class="possible">1<p>임박</p></td>
+                    <td class="possible">2<p>여유</p></td>
+                    <td class="possible">3<p>임박</p></td>
+                    <td class="possible">4<p>임박</p></td>
+                </tr>
+                <tr>
+                    <td class="possible">5<p>임박</p></td>
+                    <td class="possible">6<p>여유</p></td>
+                    <td class="possible">7<p>여유</p></td>
+                    <td class="possible">8<p>여유</p></td>
+                    <td class="deadline">9<p>마감</p></td>
+                    <td class="deadline">10<p>마감</p></td>
+                    <td class="deadline">11<p>마감</p></td>
+                </tr>
+                <tr>
+                    <td class="deadline">12<p>마감</p></td>
+                    <td class="deadline">13<p>마감</p></td>
+                    <td class="deadline">14<p>마감</p></td>
+                    <td class="possible">15<p>임박</p></td>
+                    <td class="possible">16<p>임박</p></td>
+                    <td class="possible">17<p>임박</p></td>
+                    <td class="possible">18<p>임박</p></td>
+                </tr>
+                <tr>
+                    <td class="possible">19<p>임박</p></td>
+                    <td class="possible">20<p>임박</p></td>
+                    <td class="possible">21<p>임박</p></td>
+                    <td class="possible">22<p>임박</p></td>
+                    <td class="possible">23<p>임박</p></td>
+                    <td class="possible">24<p>임박</p></td>
+                    <td class="possible">25<p>임박</p></td>
+                </tr>
+                <tr>
+                    <td class="opening">26<p>오픈전</p></td>
+                    <td class="opening">27<p>오픈전</p></td>
+                    <td class="opening">28<p>오픈전</p></td>
+                    <td class="opening">29<p>오픈전</p></td>
+                    <td class="opening">30<p>오픈전</p></td>
+                    <td class="opening">31<p>오픈전</p></td>
+                    <td class="opening">1<p>오픈전</p></td>
+                </tr>
+                <tr>
+                    <td class="opening">2<p>오픈전</p></td>
+                    <td class="opening">3<p>오픈전</p></td>
+                    <td class="opening">4<p>오픈전</p></td>
+                    <td class="opening">5<p>오픈전</p></td>
+                    <td class="opening">6<p>오픈전</p></td>
+                    <td class="opening">7<p>오픈전</p></td>
+                    <td class="opening">8<p>오픈전</p></td>
+                </tr>
+                </tbody>
+            </table>
+            <button type="button" class="main-calendar-close">닫기</button>
+        </div>
+    </section>
+
+    <section class="section02">
+        <h3 class="subtitle">NEWS</h3>
+        <h2 class="title"><span>새로운 소식을</span> 알려드립니다.</h2>
+        <div class="section02-wrap">
+            <div class="main-notice-box">
+                <ul>
+                    <li>
+                        <span>공지사항</span>
+                        <h2><a href="/board/list.html">한시적 3인플레이 가능!!</a></h2>
+                        <h4>2024.05.16</h4>
+                    </li>
+                    <li>
+                        <span>공지사항</span>
+                        <h2><a href="/board/list.html">5월 전타임 특가 + 3인플 가능 5월 전타임 특가 + 3인플 가능</a></h2>
+                        <h4>2024.05.16</h4>
+                    </li>
+                    <li>
+                        <span>공지사항</span>
+                        <h2><a href="">한시적 3인플레이 가능!!</a></h2>
+                        <h4>2024.05.16</h4>
+                    </li>
+                    <li>
+                        <span>공지사항</span>
+                        <h2><a href="">한시적 3인플레이 가능!!</a></h2>
+                        <h4>2024.05.16</h4>
+                    </li>
+                </ul>
+                <ul>
+                    <li>
+                        <span class="tag-event">이벤트</span>
+                        <h2><a href="/board/list-event">한시적 3인플레이 가능!!</a></h2>
+                        <h4>2024.05.16</h4>
+                    </li>
+                    <li>
+                        <span class="tag-event">이벤트</span>
+                        <h2><a href="/board/list-event">한시적 3인플레이 가능!!</a></h2>
+                        <h4>2024.05.16</h4>
+                    </li>
+                    <li>
+                        <span class="tag-event">이벤트</span>
+                        <h2><a href="">한시적 3인플레이 가능!!</a></h2>
+                        <h4>2024.05.16</h4>
+                    </li>
+                    <li>
+                        <span class="tag-event">이벤트</span>
+                        <h2><a href="">한시적 3인플레이 가능!!</a></h2>
+                        <h4>2024.05.16</h4>
+                    </li>
+                </ul>
+            </div>
+            <div class="main-quick-link">
+                <a href="/reservation/check">
+                    <img src="/pc/images/ic_quick_check.svg">
+                    <p>예약확인</p>
+                </a>
+                <a href="javascript:popContact('/pc/popup/pop-contact.html')">
+                    <img src="/pc/images/ic_quick_call.svg">
+                    <p>유선문의</p>
+                </a>
+                <a href="/reservation/fee">
+                    <img src="/pc/images/ic_quick_fee.svg">
+                    <p>요금안내</p>
+                </a>
+                <a href="/club/map">
+                    <img src="/pc/images/ic_quick_location.svg">
+                    <p>오시는길</p>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <section class="section03">
+        <div class="section03-1">
+            <h3 class="subtitle">COURSE</h3>
+            <h2 class="title">Play 지역을 제외<br><span>러프한 조형으로 평평한 부지에 변화감 부여!</span></h2>
+
+            <ul class="main-course">
+                <li>
+                    <a href="/course/main"></a>
+                    <figure>
+                        <img alt="" src="/pc/images/main_course_01.jpg">
+                        <figcaption>
+                            <h2>Course overview</h2>
+                            <p>VIEW MORE</p>
+                        </figcaption>
+                    </figure>
+                    <h2 class="title">코스개요</h2>
+                    <p class="description">6,897m를 상회하는 전장으로<br>국제대회 기준에 손색이 없는 18홀 코스!</p>
+                </li>
+                <li>
+                    <a href="/course/courseOut"></a>
+                    <figure>
+                        <img alt="" src="/pc/images/main_course_02.jpg">
+                        <figcaption>
+                            <h2>OUT COURSE</h2>
+                            <p>VIEW MORE</p>
+                        </figcaption>
+                    </figure>
+                    <h2 class="title">OUT코스</h2>
+                    <p class="description">3,492m의 전장을 가진 1~9홀의 아웃코스</p>
+                </li>
+                <li>
+                    <a href="/course/courseIn"></a>
+                    <figure>
+                        <img alt="" src="/pc/images/main_course_03.jpg">
+                        <figcaption>
+                            <h2>IN COURSE</h2>
+                            <p>VIEW MORE</p>
+                        </figcaption>
+                    </figure>
+                    <h2 class="title">IN 코스</h2>
+                    <p class="description">3,405m의 전장을 가진 10~18홀의 인코스</p>
+                </li>
+
+            </ul>
+        </div>
+
+        <div class="section03-2">
+            <div class="main-facil-wrap">
+                <div class="main-facil-area">
+                    <div class="main-facil-slide">
+                        <div><img src="/pc/images/main_facli_01.jpg"></div>
+                        <div><img src="/pc/images/main_facli_02.jpg"></div>
+                        <div><img src="/pc/images/main_facli_03.jpg"></div>
+                        <div><img src="/pc/images/main_facli_04.jpg"></div>
+                        <div><img src="/pc/images/main_facli_05.jpg"></div>
+                        <div><img src="/pc/images/main_facli_06.jpg"></div>
+                    </div>
+                </div>
+                <div class="main-facilText-area">
+                    <div class="main-facil-text">
+                        <div>
+                            <h4>facility</h4>
+                            <h2>그늘집</h2>
+                            <p>기다림의 시간도<br>
+                                즐거움이 되는 공간</p>
+                            <a href="/facility/facil01">view more</a>
+                        </div>
+                        <div>
+                            <h4>facility</h4>
+                            <h2>레스토랑</h2>
+                            <p>특별한 당신을 위한,<br>
+                                최고의 요리사가 추천하는 특별한 맛과 멋의 세계</p>
+                            <a href="/facility/facil02">view more</a>
+                        </div>
+                        <div>
+                            <h4>facility</h4>
+                            <h2>연회장</h2>
+                            <p>편안한 분위기와 최상의 서비스<br>
+                                커뮤니티 공간</p>
+                            <a href="/facility/facil03">view more</a>
+                        </div>
+                        <div>
+                            <h4>facility</h4>
+                            <h2>그늘막</h2>
+                            <p>골퍼들의 땀을 식혀주며,<br>
+                                휴식을 취할 수 있는 공간</p>
+                            <a href="/facility/facil04">view more</a>
+                        </div>
+                        <div>
+                            <h4>facility</h4>
+                            <h2>락카룸</h2>
+                            <p>하루의 피로를 풀어주는<br>
+                                쾌적한 재충전의 공간</p>
+                            <a href="/facility/facil05">view more</a>
+                        </div>
+                        <div>
+                            <h4>facility</h4>
+                            <h2>프로샵</h2>
+                            <p>시즌과 트렌드 변화에 맞춘 상품<br>
+                                골프를 즐길 수 있도록 엄선된 아이템</p>
+                            <a href="/facility/facil06">view more</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <script>
+        const $board = $("div.main-notice-box");
+        let calSearchDate;
+        let boardCnt;
+
+        $(document).ready(function () {
+
+            calSearchDate = new Date();
+            $board.empty();
+            getPosts('notice');
+            getPosts('event');
+
+            if (getCookie("uniislandPopup") !== "Y") {
+                ajax.get(`/pub-api/board/popup`).then((data) => {
+                    if (data.length > 0) {
+                        popup.open("/pc/popup/main-popup.html", function ($el, $overlay, open, close) {
+                            $overlay.on("click", close);
+                            $el.find(".main-pop-footer").find("li").eq(0).on("click", function () {
+                                setCookie("uniislandPopup", "Y", 1);
+                                close();
+                            });
+                            $el.find(".main-pop-footer").find("li").eq(1).on("click", close);
+                            open();
+                        });
+                    }
+                }).catch(() => {
+                });
+            }
+
+            $("ul.main-calendar-header").find("button").on("click", function () {
+                calSearchDate = calSearchDate.nextMonth($(this).data("value"));
+                getCalendar();
+            });
+
+            getCalendar();
+        })
+
+        async function getCalendar() {
+            const searchMonth = calSearchDate.yyyymm();
+
+            $("div.main-calendar-wrap").find("h2").html(`${searchMonth.substring(0, 4)}.${searchMonth.substring(4, 6)}`);
+
+            const calendar = await ajax.get(`/pub-api/booking/calendar`).catch(() => {
+            });
+
+            initCalendar(searchMonth.substring(0, 4), searchMonth.substring(4, 6), calendar);
+        }
+
+        function initCalendar(year, month, calendar) {
+            const $tbody = $("table.main-calendar").find("tbody");
+            $tbody.empty();
+
+            const rows = getCalendarDate(year, month);
+
+            let row = $("<tr></tr>");
+
+            const fWeek = rows[0].week - 1;
+
+            for (i = 0; i < fWeek; i++) {
+                row.append($("<td></td>"));
+            }
+
+            for (i = 0; i < rows.length; i++) {
+                const data = calendar.find((d) => d.date === rows[i].date)
+                const td = $("<td data-date='" + rows[i].date + "'>" + rows[i].day + "</td>");
+
+                if (rows[i].date <= new Date().yyyymmdd()) {
+                    td.addClass("opening");
+                } else {
+                    if (data) {
+                        if (data.count > 0) {
+                            td.addClass("possible");
+                            td.append(`<p>${data.count > 20 ? "여유" : "임박"}</p>`);
+                            if (data.division === "4") {
+                                td.css("color","#E0062D");
+                            }
+                            td.on("click", function () {
+                                const $form = $(`
+                                    <form method="post" action="/reservation/main">
+                                        <input type="hidden" name="date" value="${data.date}">
+                                    </form>`)
+
+                                $("body").append($form);
+                                $form.submit();
+                            });
+                        } else {
+                            td.addClass("deadline");
+                            td.append("<p>마감</p>");
+                        }
+                    } else {
+                        td.addClass("opening");
+                        td.append("<p>오픈전</p>");
+                    }
+                }
+
+                row.append(td);
+
+                if (rows[i].week === 7) {
+                    row.appendTo($tbody);
+                    row = $("<tr></tr>");
+                }
+            }
+
+            for (j = rows[i-1].week; j < 7; j++) {
+                row.append($("<td></td>"));
+            }
+
+            row.appendTo($tbody);
+
+            if ($tbody.find("tr:last-child").find("td").length === 0) {
+                $tbody.find("tr:last-child").append("<td></td>");
+            }
+
+            for (j = $tbody.find("tr").length; j < 6; j++) {
+                $tbody.append("<tr><td></td></tr>");
+            }
+        }
+
+        function popContact(path) {
+            popup.open(path, function ($el, $overlay, open, close) {
+                $overlay.on("click", close);
+                $el.find(".btn-pop-wrap > a").on("click", close);
+                open();
+            });
+        }
+
+        function getPosts(boardType) {
+            ajax.get("/pub-api/board/main", {
+                type: boardType,
+            }).then((data) => {
+                if (data.length > 0) {
+                    boardCnt = data.length + 1;
+                    setNewBoard(0, 4, data);
+                } else {
+                    let board = '<div style="border: 1px solid #c1c1c1; width: 1200px; height: 332px; justify-content: center; display: flex; align-items: center;">내용이 없습니다.</div>';
+                    $board.append(board)
+                }
+            });
+        }
+
+        function setNewBoard(start, end, data) {
+            let notice = '';
+            for (var i=start; i<end; i++) {
+                if (data[i] === null) {
+                    notice += '<li>&nbsp;</li>';
+                } else {
+                    var boardType = '';
+                    var linkUrl = '/board/view/';
+                    switch (data[i].boardIdx) {
+                        case 1 :
+                            boardType = '공지사항';
+                            linkUrl += 'notice/';
+                            break;
+                        case 2 :
+                            boardType = '이벤트';
+                            linkUrl += 'event/';
+                            break;
+                        default:
+                    }
+                    var postDate = data[i].postDate.substring(0,10).replaceAll("-",".");
+                    console.log(data[i]);
+                    notice += '<li><span>'+boardType+'</span><h2><a href="'+linkUrl+(boardCnt-data[i].rowNum)+'">'+data[i].subject+'</a></h2><h4>'+postDate+'</h4></li>';
+                }
+            }
+
+            const $posts = $(`
+                    <ul style="height: 166px;">
+                        ${notice}
+                    </ul>`);
+
+            $board.append($posts)
+        }
+
+    </script>
+
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a1e79d2a9e7f305a',t:'MTc4NDYwOTczMg=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script><script defer src="https://static.cloudflareinsights.com/beacon.min.js/v4513226cdae34746b4dedf0b4dfa099e1781791509496" integrity="sha512-ZE9pZaUXND66v380QUtch/5sE9tPFh2zg45pR2PB0CVkCtOREv2AJKkSidISWkysEuQ0EH8faUU5du78bx87UQ==" data-cf-beacon='{"version":"2024.11.0","token":"de9f4891b32a4c7ba3c624fc918787fa","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+</body>
+
+
+    <footer>
+        <div class="footer-link">
+            <a href="/privacy/privacy">개인정보처리방침</a>
+            <a href="/privacy/terms">골프장 이용약관</a>
+            <a href="/privacy/video">영상정보처리기기방침</a>
+            <a href="javascript:popRegistration('/pc/popup/registration.html')">사업자정보확인</a>
+        </div>
+        <!--<h3></h3>-->
+
+        <p>대표자 : 윤희준 | 주소 : 인천광역시 강화군 삼산면 어류정길 177번길 15(매음리) 해륜개발주식회사<br>
+            전화번호 : 032-933-9330 | 팩스 : 032-933-1768 | 사업자등록번호 : 137-81-58007 | 통신판매업신고 : 번호 제 2019-인천강화-0014호<br><br><br>
+            <span>COPYRIGHT ⓒ 2019 UNIISLAND GOLF & SPA RESORT.</span>
+        </p>
+        <a href="#" class="btn-up"><img src="/pc/images/btn_top.svg"></a>
+    </footer>
+    <script>
+        function popRegistration(path) {
+            popup.open(path, function ($el, $overlay, open, close) {
+                $el.find(".btn-pop-wrap > a").on("click", close)
+                open();
+            });
+        }
+    </script>
+
+</html>

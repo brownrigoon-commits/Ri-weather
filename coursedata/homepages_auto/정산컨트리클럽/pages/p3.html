@@ -1,0 +1,603 @@
+
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="author" content="씨엠인포텍" />
+<meta name="description" content="" />
+
+<meta property="og:image" content="/resource/assets/common/images/common_icon_and.ico">
+<meta property="og:description" content=""/>
+<title>정산컨트리클럽</title>
+
+<link rel="shortcut icon" href="/resource/assets/common/images/common_icon_and.ico" />
+<link rel="apple-touch-icon-precomposed" href="/resource/assets/common/images/common_icon_and.ico" />
+<link rel="shortcut icon" href="/resource/assets/common/images/common_icon_and.ico" />
+<link rel="apple-touch-icon-precomposed" href="/resource/assets/common/images/common_icon_and.ico" />
+
+
+
+<link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Lato:300,400,700" />
+<!-- common css -->
+<link rel="stylesheet" type="text/css" href="/resource/assets/common/css/jquery.bxslider.css" />
+<link rel="stylesheet" type="text/css" href="/resource/assets/common/css/common.css?ver=250924" />
+<link rel="stylesheet" type="text/css" href="/resource/assets/common/css/sub.css?ver=20220928" />
+<link rel="stylesheet" type="text/css" href="/resource/assets/common/css/cm_joinroom_calender.css" />
+<link rel="stylesheet" type="text/css" href="/resource/assets/common/css/jquery-ui.tooltip.css" />
+<!-- ÃªÂ¹ÂÃ­ÂÂÃ«Â¹Â 2018-06-21 Ã¬Â¶ÂÃªÂ°Â -->
+<link rel="stylesheet" type="text/css" href="/resource/assets/reservation/css/cm_maincalender.css" />
+<link rel="stylesheet" type="text/css" href="/resource/assets/reservation/css/cm_reservation.css" />
+<link rel="stylesheet" type="text/css" href="/resource/assets/reservation/css/cm_quickreservation.css" />
+<link rel="stylesheet" type="text/css" href="/resource/assets/common/css/cminfor.css" />
+<link rel="stylesheet" type="text/css" href="/resource/assets/member/css/login_modal.css" />
+
+<!-- common js -->
+<script type="text/javascript" src="/resource/assets/common/js/jquery-1.7.1.js"></script>
+<script type="text/javascript" src="/resource/assets/common/js/jquery-1.7.1.min.js"></script>
+<script type="text/javascript" src="/resource/assets/common/js/jquery.easing.1.3.min.js"></script>
+<script type="text/javascript" src="/resource/assets/common/js/jquery.sliderkit.1.9.2.pack.js"></script>
+<script type="text/javascript" src="/resource/assets/common/js/jquery.bxslider.js"></script>
+<script type="text/javascript" src="/resource/assets/common/js/menu.layer.js"></script>
+<script type="text/javascript" src="/resource/assets/member/js/loginfrom.js"></script>
+<script type="text/javascript" src="/resource/assets/common/js/jquery.ui.core.js"></script>
+<script type="text/javascript" src="/resource/assets/common/js/jquery.watermark.js"></script>
+<script type="text/javascript" src="/resource/assets/common/js/jquery.jrumble.1.3.min.js"></script> 
+<script type="text/javascript" src="/resource/assets/common/js/prettify.js"></script>
+<script type="text/javascript" src="/resource/assets/common/js/rolling_zone.js"></script>
+<script type="text/javascript" src="/resource/assets/common/js/jquery.DOMWindow.js"></script>
+<script type="text/javascript" src="/resource/assets/common/js/common.js"></script>
+
+
+
+<script>
+//퀵 레이아웃 오픈 여무 
+
+   
+
+    var flg2 = true;
+    
+    // 퀵레이어 오픈 
+    function quick_layout_info_html(mId){
+   
+        if (mId == ""){ mId = "quickModalPop";}
+        var body_height = window.innerHeight
+        if (body_height <500){
+            $("#"+mId+"").css("position", "absolute");
+            //document.getElementById("quickModalPop").style.position = "absolute";
+        }else{
+            $("#"+mId+"").css("position", "fixed");
+            // document.getElementById("quickModalPop").style.position = "fixed";
+        }   
+
+        if (flg2){
+        }else{
+            // 모달팝업 숨김
+            $('.quick_reserv').removeClass("on");
+            $("#"+mId+"").css("display","none");
+            flg2 =!flg2;
+            return;
+        }
+  
+        var actionurl = "/reservation/modal/ajax_real_modal_info.do";
+
+        var tt = 0;
+        if (tt == 1){
+            $("#quick_layoutform_info").attr("action", actionurl);
+            $("#quick_layoutform_info").submit();
+        }else{
+            $.ajax({
+                async: false,
+                type: "post",
+                url : actionurl,
+                data : $("#quick_layoutform_info").serialize(),
+                dataType : "html",
+                success: function(obj){
+                    $("#quick_layout_info").html(obj);
+                    // 모달팝업 오픈
+                    $('.quick_reserv').addClass("on");
+                    $("#"+mId+"").css("display","block");
+                    flg2 =!flg2;
+                },
+                error: function(xhr, option, error){
+                      alert(xhr.status+" | "+error); //오류코드 | 오류내용
+                }
+                /*error : function(success){
+                    meg = "서버와 통신중 에러가 발생하였습니다."
+                    alert("처리결과 : "+meg);
+                }*/
+                , beforeSend: function() {
+                    //통신을 시작할때 처리   
+                    $("#quick_layout_info").html('<img src="/resource/assets/common/images/loading.gif" alt="loading"/>');
+                }
+                , complete: function() {
+                    //통신이 완료(success)된 후 처리
+                    //$("#quick_layout_info").html('');
+                }
+            });
+        }
+    }
+
+    // 모달로그인 숨김
+    function quick_layout_close(mId){
+        //
+        if (mId == ""){ mId = "quickModalPop";}
+        // 모달팝업 숨김
+        $('.quick_reserv').removeClass("on");
+        $("#"+mId+"").css("display","none");
+        flg2 =!flg2;
+    }
+     
+      
+      $(document).ready(function() {	
+    		$('.all_menu').click(function() {
+    			$('#layer_pop').show();
+    		}); 
+    		$('.close_btn').click(function() {
+    			$('#layer_pop').hide('clip');
+    		}); 	
+    	});
+      
+    //세션 체크를 위한 함수
+      function sessionCheck(){
+      	var id = "";
+      	
+      	if(id == "" || id == null){
+      		alert("로그아웃 되었습니다.\n다시 로그인 해주세요.");
+      		window.location.href = "/login/login.do";
+      		return false;
+      	}
+      	
+      	return true;
+      }
+</script>
+
+
+
+<div id="wrap" class="sub">
+	<div class="skip_navi">
+		<ul>
+			<li><a href="#gnb">GNB 바로가기</a></li>
+			<li><a href="#body">본문 바로가기</a></li>
+			<li><a href="#footer">하단 바로가기</a></li>
+		</ul>
+	</div>
+<!-- 
+ 확인-codeDepth1 : course
+ <br>
+  확인-codeDepth2 : 
+ <br>
+ 확인-type : courseIntro02
+ -->
+<!----------------------------------------------------------------------------- 	여기에 입력 ----------------------------------------------------------------------------------->
+    <!-- 헤더 -->      
+	<div id="header">
+		<div class="head">
+			<h1><a href="/main/mainPage.do"><img src="/resource/assets/common/images/logo.png" alt="정산컨트리클럽" /></a></h1>			
+			<!-- //navi gnb -->            
+            
+			<div class="gnb">               
+                <ul> 
+	                <li> 
+	                    <h2><a href="/club/intro.do">클럽소개</a></h2> 
+	                    <ul class="dep2"> 
+		                    <li><a href="/club/intro.do">소개 및 개요</a></li> 
+							<li><a href="/club/greet.do">인사말</a></li> 
+							<li><a href="/club/history.do">연혁</a></li> 
+							<li><a href="/club/ci.do">CI소개</a></li> 
+							<li><a href="/club/map.do">오시는 길</a></li> 
+							<li><a href="/club/weather_01.do">날씨정보</a></li> 
+		                     
+		                    
+	                    </ul> 
+					</li> 
+	                <li> 
+	                    <h2><a href="/course/courseIntro.do">코스소개</a></h2> 
+	                    <ul class="dep2"> 
+		                    <li><a href="/course/courseIntro.do">코스소개</a></li> 
+		                    <li><a href="/course/hole.do?tab=0">코스공략정보</a></li> 
+		                    <li><a href="/course/courseIntro02.do">코스설계자</a></li> 
+		                    <li><a href="/board/boardList.do?groupcode=CGALLERY">정산C.C 갤러리</a></li>  
+	                    </ul> 
+					</li> 
+	                <li> 
+	                    <h2><a href="/house/house.do">시설안내</a></h2> 
+	                    <ul class="dep2"> 
+							<li><a href="/house/house.do">클럽하우스</a></li>
+							<li><a href="/house/roby.do">프론트</a></li>
+							<li><a href="/house/teahouse.do">그릴&티하우스</a></li> 
+							<li><a href="/house/lock.do">락카룸</a></li> 
+							<li><a href="/house/proshop.do">프로샵</a></li>
+	                    </ul> 
+					</li>
+	                <li> 
+	                    <h2><a href="/guide/guide01.do">이용안내</a></h2> 
+	                    <ul class="dep2"> 
+							<li><a href="/guide/guide01.do">이용안내</a></li>
+							<li><a href="/guide/guide02.do">예약안내</a></li>
+							<li><a href="/guide/guide03.do">이용요금</a></li> 
+							<li><a href="/guide/guide04.do">위약안내</a></li> 
+							<li><a href="/guide/guide05.do">명의개서안내</a></li> 
+							<li><a href="/board/boardList.do?groupcode=DATA">서식다운로드</a></li> 
+	                    </ul> 
+					</li>
+	                <li> 
+	                    <h2><a href="/reservation/real_reservation.do">인터넷예약</a></h2> 
+	                    <ul class="dep2"> 
+		                    <li><a href="/reservation/real_reservation.do">예약하기</a></li>
+		                    <li><a href="/reservation/my_golfreslist.do">예약확인/취소</a></li>
+		                    
+							<li><a href="/myContents/infom/punishList.do">위약현황</a></li> 
+							<li><a href="/myContents/visit/requestGame.do">참가신청</a></li> 
+							<li><a href="/myContents/visit/womenGolferDay.do">여성의 날</a></li>
+					
+		                    
+		                    
+	                    </ul> 
+	                </li> 
+					<li> 
+	                    <h2><a href="/board/boardList.do?groupcode=NOTICE">커뮤니티</a></h2> 
+	                    <ul class="dep2"> 
+							<li><a href="/board/boardList.do?groupcode=NOTICE">공지사항</a></li>
+							
+							<li><a href="/myContents/infom/honor.do">명예의 전당</a></li> 
+							
+							
+							<li><a href="/myContents/infom/myInfo.do">개인정보수정</a></li>
+	                    </ul> 
+	                </li> 
+	            </ul>
+            </div>
+            <div class="mb_area">
+            	<a href="/club/weather_01.do" class="link">날씨바로가기</a>
+				<!-- //Today’s WEATHER -->
+				
+				<embed type="text/html" id="top_weather" class="testweather" src="https://hosting.kweather.co.kr/jeongsancc/current.html">
+				<!-- //Today’s WEATHER -->
+                <span class="line-top"></span>				
+				
+											
+						<a class="mb_btn" href="/member/joinTerms.do">회원가입</a>
+						<a class="mb_btn" href="/login/login.do">로그인</a>						
+					
+					
+               
+            </div>
+			<!-- //navi gnb -->
+		</div>
+		<!-- /헤더 -->
+	</div>
+	<!-- 상단 종료 -->
+	
+	<!-- 바디 시작 -->
+	<!-- content -->
+	<div id="body" >	
+		<div class="content_sub">	
+			<div class="tit_depth1">
+				<h3 id="tit_depth1">
+				
+					
+					
+					
+					
+					
+					
+
+										
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+										
+					
+					
+					 
+					
+					
+					
+					
+					
+					
+					
+					
+					 
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					 
+					
+										
+					
+										
+					
+					
+					
+					
+										
+					
+					
+					
+                
+                course
+                </h3>
+				
+
+				
+					
+			
+					
+					
+								
+						
+					
+					
+					
+					
+					
+					
+					
+				
+				 
+				<div class="bg COURSE">
+					<!-- 서브 bg 바뀜 class : club, reservation, course, facilities, member, information.. -->
+					<span></span>
+				</div>
+				<!-- lnb --><!-- 코드로 공통으로 나오게 작업요청(솔모로참고)-->
+				
+								
+					<div class="lnb">
+						
+						
+
+						
+						
+									
+							<ul class="in_st">
+								<li><a href="/course/courseIntro.do"   >코스소개</a></li>								
+			                    <li><a href="/course/hole.do?tab=0"    >코스공략정보</a></li> 
+			                    <li><a href="/course/courseIntro02.do"    class='on'>코스설계자</a></li>  
+			                    <li><a href="/board/boardList.do?groupcode=CGALLERY" >정산C.C 갤러리</a></li>  
+							</ul>
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+												
+						
+						
+
+						
+						
+					</div>
+				
+				
+				<!-- <div class="lnb lnb_menu">
+				</div>
+				-->
+			</div>
+			<div class="content_sub_in">
+				<!-- 컨텐츠 -->
+
+
+</head>
+<body>
+		
+<!-- 데이타 시작 -->
+<div class="courseIntro02_top top_txt-02 ft_s_18 ft_color-02 ft_ns">
+	<span class="title-01 txt_center">정산컨트리클럽</span>
+	<span class="title-02 txt_center">자연과 함께 어우러지는 국내 최고수준의 프라이빗 골프장</span>
+</div>
+
+<div class="con const-01 ptb-70">
+	<p class="txt_center">
+		우리는 정산컨트리클럽과 긴밀한 협의 하에 향후 국내 최고수준의 골프장을 탄생시키게 되었습니다.<br/>
+		적당히 굴곡이 넓은 페어웨어와 다양한 Pot 벙크는 현대적 벙크와 조화를 이루어 전략적이면서 자연과 조화된 스코틀랜드식 골프장의 묘미를 느끼게 하였습니다.<br/><br/>
+		또한 모든 골퍼들로 하여금 흥미를 불어 넣고 편안하게 즐길 수 있고, 도전하면서 생각하는 골프를 칠 수 있도록 설계하여<br/>
+		골프의 진정한 멋을 느끼면서 항상 기억에 남는 골프장이 되도록 세심한 배려를 하였습니다.<br/><br/>
+	</p>
+</div>		
+
+<div class="line-01 width-1420 ptb-70 mb-100">
+	<ul class="li_list li_list-04">
+		<li>
+			<div>
+				<img src="/resource/assets/course/images/courseIntro02-2.png" />
+			</div>
+			<div class="pt-12">
+				<h5 class="ft_w_900 ft_s_22 ft_ns ft_st_nm ft_color-02 mb-15">코스설계자</h5>
+				<p class="ft_color-02">
+					세계적으로 유명한 리조트형 골프코스설계 전문가로 세계 유수의 휴양지 등 50여개국<br/>
+					150개 이상의 리조트형 골프장을 설계해왔다.<br/>
+					특히 있는 그대로의 자연 속에 골프코스를 조화시키는 독창적인 감각으로 호평받고 있다.<br/>
+					그는 산악지형을 최대한 살려 자연 친화적인 코스를 구현해 내는 탁월한 감각을 선보이고 있다.
+				</p>
+			</div>
+		</li>
+	</ul>
+</div>
+<!-- 데이타 종료 -->
+
+
+		
+
+
+			</div>
+		</div>
+	</div>
+
+ 
+ 
+ <!----------------------------------------------------------------------------- 	여기에 입력 ----------------------------------------------------------------------------------->
+ 
+ 
+	<!-- //footer -->
+	
+<div id="footer_area">
+	<div class="foot_in">
+		<div class="clause_ul f_left">	
+			<span class="addr">
+				<dl>                                
+					<dt>주소 : </dt>
+					<dd>정산개발주식회사 경남 김해시 주촌면 서부로 1637번길 299-194</dd>
+					<dt>대표전화 : </dt>
+					<dd>055-338-8300</dd>
+					<dt>팩스 : </dt>
+					<dd>055-338-8308</dd>
+					<dt>이메일 : </dt>
+					<dd>jeongsan@jeongsancc.com</dd>
+				</dl>
+				<dl>                                
+					<dt>사업자등록번호&nbsp;&nbsp;</dt>
+					<dd>615-81-12326</dd>
+					<dt>통신판매신고&nbsp;&nbsp;</dt>
+					<dd>제 2009 - 경남김해 - 0147</dd>
+					<dt>대표이사&nbsp;&nbsp;</dt>
+					<dd>김호철</dd>
+				</dl>
+				<p>COPYRIGHT 2004. JEONGSAN ALL RIGHT RESERVED.</p>			
+			</span>
+		</div>
+		<div class="f_right">
+			<ul>
+				<li><a href="/agreeInfo/guideInfo.do">이용약관</a></li>
+				<li><a href="/agreeInfo/internetInfo.do">인터넷서비스 이용약관</a></li>
+				<li><a href="/agreeInfo/clauseInfo.do">개인정보취급방침</a></li>
+				<li><a href="http://www.ftc.go.kr/bizCommPop.do?wrkr_no=6158112326" target="_blank">사업자정보확인</a></li>
+			</ul>
+
+			<!-- 직원전용 Site -->
+			<a href="https://gw.taekwang.com/loginlocal.aspx" target="_blank" class="f_btn-01">직원전용 <i>+</i></a>
+
+		</div>
+	</div>
+</div>
+	<!-- //footer -->
+    
+</div>	
+    
+ <!-- 로딩 div -->
+<div id="div-dark" class="dark" style="display:none;"></div>
+<div id="loading"
+        style="display:none; top: 55%; left: 50%;  margin-left:-100px;z-index: 9999; border: 3px #2B97D6;position:fixed">
+        <p style="text-align: center;">
+            <img src="/resource/assets/common/images/loading_img.gif" alt="loading" />
+            <font color="#0054FF"><span id="percentage"></span></font>
+        </p>
+ </div>
+<!--[if lt IE 9]>
+<div id="ie_chk" class="ie_chk_area">
+	<button type="button" onclick="javascript:popHide('ie_chk')" class="btn-close"><span class="blind">현재창 닫기</span></button>
+	<div class="con">
+		<p class="tit">
+			<img src="/resource/assets/common/images/ico_ie.png" alt="ie" />
+			본사이트는 <strong>Internet Explorer 10</strong>버전<br/>이상에 <strong class="color-01">최적화</strong> 되어 있습니다.
+		</p>
+		<span>
+			<p class="btxt">‘Explorer 9 이하’ 에서는 스크립트 적용이 원활하지 않을 수 있습니다.</p>
+			<p class="txt">Explorer를 최신 버전으로 업데이트 하시거나, <br /><strong class="color-01">Chrome, Firefox</strong> 등의 브라우저를 이용해 주시기 바랍니다.</p>
+			<a href="http://windows.microsoft.com/ko-kr/internet-explorer/download-ie" target="_blank" title="새창열림" class="btn-upgrade">지금 업그레이드</a>
+			<p class="chk-uclose"><input type="checkbox" name="ie_chk_close" id="ie_chk_close" onclick="popHide('ie_chk')" /><label for="ie_chk_close">일주일간 표시 안하기</label></p>
+		</span>			
+	</div>
+</div>
+<script type="text/javascript">
+	//쿠키////////////////////////////////////////////////
+	function getCookie( name )
+	{
+		var nameOfCookie = name + "=";
+		var x = 0;
+		while ( x <= document.cookie.length )
+		{
+			var y = (x+nameOfCookie.length);
+			if ( document.cookie.substring( x, y ) == nameOfCookie ) {
+				if ( (endOfCookie=document.cookie.indexOf( ";", y )) == -1 )
+					endOfCookie = document.cookie.length;
+				return unescape( document.cookie.substring( y, endOfCookie ) );
+			}
+			x = document.cookie.indexOf( " ", x ) + 1;
+			if ( x == 0 )
+				break;
+		}
+		return "";
+	}
+	
+	function setCookie( name, value, expiredays ){ 
+		var todayDate = new Date(); 
+		todayDate.setDate( todayDate.getDate() + expiredays ); 
+		document.cookie = name + "=" + escape( value ) + "; path=/; expires=" +		todayDate.toGMTString() + ";" 
+	}
+	
+	//ie_chk 레이어팝업 닫기
+	function popHide(pop_id){		
+		if (document.getElementById("ie_chk_close").checked==true)
+		{
+			setCookie( pop_id, "done" , 24); 
+		}
+		//document.getElementById(pop_id).style.display = "none";
+		$("#"+pop_id).hide(1000);
+	}
+	
+	//ie_chk 레이어팝업 호출
+	function checkPop(pop_id) {
+		if ( getCookie(pop_id) != "done" ) {
+			document.getElementById(pop_id).style.display = "";
+		}else{
+			document.getElementById(pop_id).style.display = "none";
+		}
+	}
+	checkPop('ie_chk');
+</script>
+<![endif]-->
+</body>
+</html>

@@ -1,0 +1,4806 @@
+
+
+
+
+
+
+
+
+
+
+<!doctype html>
+<html>
+<head>
+<title>KGA - 대한골프협회</title>
+<meta property="og:image" content="/resources/web/images/kga_logo_800_400.png"/>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="keywords" content="" />
+<meta name="description" content="" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<link rel="shortcut icon" href="/resources/web/images/kga_favicon.png">
+<link rel="stylesheet" type="text/css" href="/resources/web/css/bootstrap.css">
+<link href="/resources/web/css/style.css?ver=20250709" rel="stylesheet" type="text/css">
+<link href="/resources/web/css/swiper-bundle.min.css" rel="stylesheet" type="text/css" />
+<link href="/resources/web/css/bootstrap-datepicker3.css" rel="stylesheet" type="text/css">
+<link href="/resources/web/css/cnpsCustom.css?ver=20250709" rel="stylesheet" type="text/css">
+<script src="/resources/web/js/jquery.min.js"></script>
+<script src="/resources/web/js/bootstrap.js"></script>
+<script src="/resources/web/js/custom.js?ver=20250711"></script>
+<script src="/resources/web/js/swiper-bundle.min.js"></script>
+<script src="/resources/web/js/bootstrap-datepicker.js"></script>
+<script src="/resources/web/js/bootstrap-datepicker.ko.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
+
+<!--차트 js -->
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js"></script>
+</head>
+
+
+
+
+
+
+
+
+
+
+
+	
+		
+	
+	
+
+
+<script>
+var engPageYn = "N";
+var cookieLang = "KOR";
+
+//링크로 영문페이지 전달하고 싶은 요구로 인한 수정
+var locationUrl = new URL(window.location.href);
+var locationParams = locationUrl.searchParams;
+var paramLang = locationParams.get("lang");
+locationParams.delete("lang");
+
+if ((paramLang == "ENG" && cookieLang != "ENG") || (paramLang == "KOR" && cookieLang != "KOR")) {
+	window.history.replaceState({}, '', locationUrl.pathname + (locationParams.toString() ? '?' + locationParams.toString() : '') + locationUrl.hash);
+	$.cookie("KGA_WEB_LANG", paramLang, { path : '/' });
+	window.location.reload();
+}
+
+$(document).ready(function() {
+	
+	
+	if("" != "") {
+		var favoritList = JSON.parse("");
+		checkFavorit(favoritList);
+	}
+	
+	$(".chageLang a").off("click").click(function() {
+		var lang = $(this).data("lang");
+		$.cookie("KGA_WEB_LANG", lang, { path : '/' });
+		window.location.reload();
+	});
+	
+	$(".onlyNumber").off("keypress").keypress(function(e){
+		if(e.which != 8 && isNaN(String.fromCharCode(e.which))){
+			e.preventDefault(); //stop character from entering input
+		}
+	});
+	
+	$(".favPlayer").off("click").click(function() {
+		if("" == "") {
+			$(this).prop("checked", false);
+			if(confirm("즐겨찾기 기능은 로그인 후 이용가능합니다.\n로그인 페이지로 이동 하겠습니까?")) {
+				$("#naviLogin").trigger("click");
+			}
+			return;
+		}
+		
+		addFavorit($(this).data("playercode"));
+	});
+	
+	$(".orderTable th").off("click").click(function() {
+		if($(this).is('.sort-asc') == false && $(this).is('.sort-desc') == false) {
+			return;
+		}
+		var column = $(this).index();
+		if ($(this).is('.sort-asc')) {
+			$(this).removeClass('sort-asc');
+			$(this).addClass('sort-desc');
+			sortdir = -1;
+		} else {
+			$(this).addClass('sort-asc');
+			$(this).removeClass('sort-desc');
+			sortdir = 1;
+		}
+
+		$target = $(this).closest("table");
+		
+		$target.find("th").removeClass('active');
+		$(this).addClass('active');
+
+		$target.find("tr").each(function() {
+			$(this).find("td:eq(" + column + ")").addClass('active');
+			$(this).find("td:eq(" + column + ")").siblings().removeClass('active');
+		});
+
+		var sortUnderParFlag = $(this).hasClass('sortUnderPar');
+		var sortUpDownFlag = $(this).hasClass('sortUpDown');
+		var sortSameRankFlag = $(this).hasClass('sortSameRank');
+		var sortNationFlag = $(this).hasClass('sortNation');
+		
+		var rec = $target.find('tbody>tr').get();
+		rec.sort(function(a, b) {
+			var val1 = $(a).children('td').eq(column).text().toUpperCase().trim();
+			var val2 = $(b).children('td').eq(column).text().toUpperCase().trim();
+			
+			if(sortNationFlag) {
+				val1 = $(a).children('td').eq(column).find("span").attr("style");
+				val2 = $(b).children('td').eq(column).find("span").attr("style");
+			}
+			
+			if(sortUnderParFlag) {
+				if(val1 == "E") val1 = "0";
+				if(val2 == "E") val2 = "0";
+			}
+			
+			if(sortUpDownFlag) {
+				if(val1 == "-") val1 = "0";
+				if(val2 == "-") val2 = "0";
+				
+				if($(a).children('td').eq(column).find("span").hasClass('tb-rank-dn')) {
+					val1 = "-"+val1;
+				}
+				if($(b).children('td').eq(column).find("span").hasClass('tb-rank-dn')) {
+					val2 = "-"+val2;
+				}
+			}
+			
+			if(sortSameRankFlag) {
+				val1 = val1.replace("T","")
+				val2 = val2.replace("T","")
+			}
+			
+			if(val1 == "") val1 = 9999*sortdir;
+			if(val2 == "") val2 = 9999*sortdir;
+
+			var num1 = parseFloat(val1);
+			var num2 = parseFloat(val2);
+
+			if (!isNaN(num1) && !isNaN(num2)) {
+				return (num1 < num2) ? -sortdir : (num1 > num2) ? sortdir : 0;
+			}
+
+			return (val1 < val2) ? -sortdir : (val1 > val2) ? sortdir : 0;
+		});
+
+		$.each(rec, function(index, row) {
+			$target.find("tbody").append(row);
+		});
+	});
+});
+
+
+
+function setComboSelectBirth() {
+	var todayYear = (new Date()).getFullYear();
+	var startYear = "";
+	if(startYear == "" || startYear == undefined) {
+		startYear = todayYear - 20;
+	}else {
+		startYear = todayYear - $("select.comboBirthYear").data("diffyear");
+	}
+	
+	for (var y = startYear; y <= todayYear; y++) {
+		$('.comboBirthYear').append($('<option>', {value: y,text: y}));
+	}
+	
+	for (var m = 1; m <= 12; m++) {
+		$('.comboBirthMonth').append($('<option>', {value: m, text: m}));
+	}
+	
+	$('.comboBirthYear, .comboBirthMonth').on('change', function() {
+		var year = $('.comboBirthYear').val();
+		var month = $('.comboBirthMonth').val();
+		var daysInMonth = new Date(year, month, 0).getDate();
+		var $selectDay = $('.comboBirthDay');
+
+		$selectDay.empty();
+
+		for (var d = 1; d <= daysInMonth; d++) {
+			$selectDay.append($('<option>', {value: d, text: d}));
+		}
+	});
+	
+	$('.selectYear, .selectMonth').trigger('change');
+}
+
+function downLoadFile(fileUrl, fileRename){
+	var form = $('<form></form>');
+	form.attr('action', "/fileDownload");
+	form.attr('method', 'post');
+	form.attr('target', '_self');
+	form.appendTo('body');
+	form.find("input[name=fileUrl]").remove();
+	form.append($("<input/>", {type:'hidden',name:'fileUrl', value:fileUrl}));
+	form.append($("<input/>", {type:'hidden',name:'fileRename', value:fileRename}));
+	form.submit();
+}
+
+function downLoadFileZip(fileListJson, zipFileName){
+	var form = $('<form></form>');
+	form.attr('action', "/fileDownloadZip");
+	form.attr('method', 'post');
+	form.attr('target', '_self');
+	form.appendTo('body');
+	form.find("input[name=fileUrl]").remove();
+	form.append($("<input/>", {type:'hidden',name:'fileListJson', value:fileListJson}));
+	form.append($("<input/>", {type:'hidden',name:'zipFileName', value:zipFileName}));
+	form.submit();
+}
+
+function preventHistoryBack() {
+	history.pushState(null, document.title, location.href);
+	window.addEventListener('popstate', function(event) {
+		history.go(1);
+	});
+}
+
+function addFavorit(playerCode) {
+	$.ajax({
+		url : "/ajax/web/mergeFavorit",
+		type : "POST",
+		data : {
+			playerCode : playerCode
+		},
+		datatype : "json",
+		async: false,
+		success : function(res, status, xhr) {
+			var resultCode = res.resultCode;
+			
+			if(resultCode == "-1") {
+				alert("로그인정보가 없습니다.");
+				location.reload();
+				return;
+			}
+			
+			var favList = res.favList;
+			checkFavorit(favList);
+			
+		},
+		error : function(request, status, error) {
+			//alert(error);
+		}
+	}).fail(function(errObj) {
+		try {
+			console.error(errObj);
+		} catch (e) {
+		}
+	}); //ajax
+}
+
+function checkFavorit(favList) {
+	var intArray = favList.map(function(numString) {
+		return parseInt(numString);
+	});
+	
+	var rowToShow = [];
+	
+	$(".favPlayer").each(function() {
+		if ($.inArray($(this).data("playercode"), intArray) == -1) {
+			$(this).prop("checked",false);
+			$(this).closest(".favRow").hide();
+		} else {
+			$(this).prop("checked",true);
+			if ($(this).closest(".favRow").length > 0) {
+				rowToShow.push($(this).closest(".favRow"));
+			}
+		}
+	});
+	
+	$(rowToShow).each(function() {
+		$(this).show();
+	});
+	
+	if (rowToShow.length == 0) {
+		$("#favDiv").hide();
+	} else {
+		$("#favDiv").show();
+	}
+	
+	favoritInPage();
+}
+
+// 즐겨찾기 후 페이지 마다 다른 필요
+// 동작을 위함 함수 제거하면 안됨
+function favoritInPage() {
+	
+}
+
+function parseTimeString(timeString) {
+	var parts = timeString.split(":");
+	if (parts.length !== 2) {
+		return null;
+	}
+
+	var hours = parseInt(parts[0], 10);
+	var minutes = parseInt(parts[1], 10);
+
+	if (isNaN(hours) || isNaN(minutes)) {
+		return null;
+	}
+
+	return new Date(0, 0, 0, hours, minutes);
+}
+
+$.fn.validEmail = function (msg_error = '') {
+	let is_valid = true;
+	this.each(function(k, o) {
+	let pattern_email = /^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]+$/;
+	pattern_email = new RegExp(pattern_email);
+	let email = $(o).val();
+	if (email == '') {
+		return true;
+	}
+	if (pattern_email.test(email) == false) {
+		alert(msg_error);
+		$(o).focus();
+		return is_valid = false;
+	}
+	});
+	return is_valid;
+}
+
+function weekIndexToNameJs(idx, shortYN, lang){
+	var str = "";
+	
+	if(lang == "ENG") {
+		if(idx == "0")
+			if(shortYN == "Y") str = "Sun"; else str = "Sunday";
+		if(idx == "1")
+			if(shortYN == "Y") str = "Mon"; else str = "Monday";
+		if(idx == "2")
+			if(shortYN == "Y") str = "Tue"; else str = "Tuesday";
+		if(idx == "3")
+			if(shortYN == "Y") str = "Wed"; else str = "Wednesday";
+		if(idx == "4")
+			if(shortYN == "Y") str = "Thu"; else str = "Thursday";
+		if(idx == "5")
+			if(shortYN == "Y") str = "Fri"; else str = "Friday";
+		if(idx == "6")
+			if(shortYN == "Y") str = "Sat"; else str = "Saturday";
+	} else {
+		if(idx == "0")
+			if(shortYN == "Y") str = "일"; else str = "일요일";
+		if(idx == "1")
+			if(shortYN == "Y") str = "월"; else str = "월요일";
+		if(idx == "2")
+			if(shortYN == "Y") str = "화"; else str = "화요일";
+		if(idx == "3")
+			if(shortYN == "Y") str = "수"; else str = "수요일";
+		if(idx == "4")
+			if(shortYN == "Y") str = "목"; else str = "목요일";
+		if(idx == "5")
+			if(shortYN == "Y") str = "금"; else str = "금요일";
+		if(idx == "6")
+			if(shortYN == "Y") str = "토"; else str = "토요일";
+	}
+	
+	return str;
+}
+
+function langStringJs(language, korString, engString) {
+	var str = "";
+	
+	if (language == "KOR") {
+		str = korString;
+	} else if (language == "ENG") {
+		if(engString == null || engString == "") {
+			str = korString;
+		} else {
+			str = engString;
+		}
+	} else {
+		str = korString;
+	}
+	
+	if(str == null) str= "";
+	
+	return str;
+}
+
+//action 에 대한 한글 이름
+function actionToName(action) {
+	if (action == "save") {
+		action = "저장";
+	} else if (action == "delete") {
+		action = "삭제";
+	} else if (action == "insert") {
+		action = "입력";
+	} else if (action == "update") {
+		action = "수정";
+	} else if (action == "apply") {
+		action = "신청";
+	}  else {
+		action = "실행";
+	}
+	
+	return action;
+}
+
+function setCnpsSticky() {
+	$(".cnpsStickyTable").each(function() {
+		var table = $(this);
+		var leftWidth = 0;
+		table.find("th.cnpsSticky").each(function() {
+			var leftPosition = leftWidth + 'px';
+			var index = $(this).index();
+
+			$(this).css({
+				'position': 'sticky',
+				'left': leftWidth,
+				'z-index': 1
+			});
+			
+			table.find("tr").each(function() {
+				$(this).find("td:eq("+index+")").css({
+					'position': 'sticky',
+					'left': leftWidth,
+					'z-index': 1
+				});
+			});
+
+			leftWidth += $(this).outerWidth(true)-1;
+		});
+	});
+}
+
+function setCnpsSticky() {
+	$(".cnpsStickyTable").each(function() {
+		var table = $(this);
+		var leftWidth = 0;
+		table.find("th.cnpsSticky").each(function() {
+			var leftPosition = leftWidth + 'px';
+			var index = $(this).index();
+
+			$(this).css({
+				'position': 'sticky',
+				'left': leftWidth,
+				'z-index': 1
+			});
+			
+			table.find("tr").each(function() {
+				$(this).find("td:eq("+index+")").css({
+					'position': 'sticky',
+					'left': leftWidth,
+					'z-index': 1
+				});
+			});
+
+			leftWidth += $(this).outerWidth(true)-1;
+		});
+	});
+}
+
+function setCnpsStickyOther(className) {
+	var leftWidth = 0;
+	$("."+className).find("th.cnpsSticky").each(function() {
+		var leftPosition = leftWidth + 'px';
+		var index = $(this).index();
+
+		$(this).css({
+			'position': 'sticky',
+			'left': leftWidth,
+			'z-index': 1
+		});
+		
+		$("."+className).find("tr").each(function() {
+			$(this).find("td:eq("+index+")").css({
+				'position': 'sticky',
+				'left': leftWidth,
+				'z-index': 1
+			});
+		});
+
+		leftWidth += $(this).outerWidth(true)-1;
+	});
+}
+
+function checkActionResult(result) {
+	returnFlag = true;
+	
+	if (result == "-1") {
+		alert("오류입니다.")
+		returnFlag = false;
+	} else if (result == "-99") {
+		alert("로그인 세션이 없습니다.");
+		location.href="/admin/login";
+		returnFlag = false;
+	}
+	
+	return returnFlag;
+}
+
+function isMobile() {
+	var userAgent = navigator.userAgent.toLowerCase();
+	
+	var mobileDevices = [
+		'android', 'iphone', 'ipad', 'ipod', 'blackberry', 'windows phone', 'opera mini', 'iemobile'
+	];
+	
+	for (var i = 0; i < mobileDevices.length; i++) {
+		if (userAgent.indexOf(mobileDevices[i]) > -1) {
+			return true;  // 모바일 기기
+		}
+	}
+	
+	return false;  // PC
+}
+
+//3자리 콤마 추가
+function addCommasToNumber(number) {
+	var parts = number.toString().split(".");
+	parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+	return parts.join(".");
+}
+</script>
+
+<body>
+	<header class="site-header">
+		
+
+
+
+
+
+<script type="text/javascript">
+$(document).ready(function() {
+	$("#naviLogin").click(function() {
+		var form = $('<form></form>');
+		form.attr('action', "/web/login");
+		form.attr('method', 'post');
+		form.appendTo('body');
+		form.find("input[name=returnURL]").remove();
+		form.append($("<input/>", {type:'hidden',name:'returnURL', value:"/web/golfCourse/golfCourse"}));
+		form.submit();
+	});
+	
+	$("#naviMobileLogin").click(function() {
+		var form = $('<form></form>');
+		form.attr('action', "/web/login");
+		form.attr('method', 'post');
+		form.appendTo('body');
+		form.find("input[name=returnURL]").remove();
+		form.append($("<input/>", {type:'hidden',name:'returnURL', value:"/web/golfCourse/golfCourse"}));
+		form.submit();
+	});
+	
+	$("#naviLogout").click(function() {
+		var form = $('<form></form>');
+		form.attr('action', "/web/logout");
+		form.attr('method', 'post');
+		form.appendTo('body');
+		form.find("input[name=returnURL]").remove();
+		form.append($("<input/>", {type:'hidden',name:'returnURL', value:"/web/golfCourse/golfCourse"}));
+		form.submit();
+	});
+	
+	$("#naviMobileLogout").click(function() {
+		var form = $('<form></form>');
+		form.attr('action', "/web/logout");
+		form.attr('method', 'post');
+		form.appendTo('body');
+		form.find("input[name=returnURL]").remove();
+		form.append($("<input/>", {type:'hidden',name:'returnURL', value:"/web/golfCourse/golfCourse"}));
+		form.submit();
+	});
+})
+</script>
+<style>
+	.main-logo {
+		position: absolute;left: calc(50% - 113px);
+	}
+	@media (max-width: 992px) {
+		.main-logo {
+			position: absolute;
+			left: calc(50% - 44px);
+		}
+		
+		.moremenu-list ul.sns {
+			background-color: #FFF;
+			padding: 0.25rem 1rem 0.25rem 0.5rem;
+			border-radius: 2rem;
+			font-weight: 900;
+		}
+	
+		@media (max-width: 992px) {
+			.moremenu-list ul.sns li {
+				padding: 0.5rem 0.5rem;
+			}
+		}
+		
+		@media (max-width: 992px) {
+			.moremenu-list ul.lang li {
+				padding: 0.5rem 1.5rem;
+			}
+		}
+	}
+</style>
+<div class="main-menu">
+	<div class="container">
+		<nav class="navbar">
+			<!-- collapse menu -->
+			<button class="navbar-toggler collapsed" type="button"
+				data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown"
+				aria-controls="navbarNavDropdown" aria-expanded="false"
+				aria-label="Toggle navigation" style="pointer-events: none;">
+				<div id="navi-icon" class="closed" style="pointer-events: auto;">
+					<span class="navi-icon-line"></span>
+					<span class="navi-icon-line"></span>
+					<span class="navi-icon-line"></span>
+				</div>
+			</button>
+			<!-- search -->
+			<!-- <div class="navbar-search">
+				<form class="d-flex">
+					<input class="form-control form-control-search"
+						list="datalistOptions" id="menusearch" type="search"
+						placeholder="Search KGA" aria-label="Search"> <label
+						class="icon-search" for="menusearch"><span><img
+							src="/resources/web/images/menu-search.svg"></span></label>
+					<datalist id="datalistOptions">
+						<option value=""></option>
+					</datalist>
+				</form>
+			</div> -->
+			<!-- main logo -->
+			<div class="main-logo">
+				<a href="/web/main/index"><img src="/resources/web/images/logo.svg" alt=""></a>
+			</div>
+			<!-- right nav -->
+			<ul class="navbar-right">
+				
+					<li class="nav-item pc-only">
+						<button onclick="location.href='/web/about/history'" class="btn btn-darkblue fw-bolder border-0 rounded-0" style="min-width: 114px;">
+						ABOUT KGA
+						</button>
+					</li>
+					<li class="nav-item">
+						
+							
+								<button id="naviLogin" class="btn btn-gold btn-login fw-bolder border-0 rounded-0" style="min-width: 96px;">LOG IN</button>
+							
+							
+						
+					</li>
+				
+				<li class="nav-item dropdown pc-only">
+					<a class="nav-link dropdown-toggle text-darkblue fw-bolder" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false">
+						KOR
+					</a>
+					<ul class="aPointer dropdown-menu chageLang">
+						<li><a class="dropdown-item fw-bolder active" data-lang="KOR">KOR</a></li>
+						<li><a class="dropdown-item fw-bolder " data-lang="ENG">ENG</a></li>
+					</ul>
+				</li>
+				
+					<li class="nav-item pc-only">
+						<button class="btn fw-bolder text-orange" onclick="location.href='/web/shop/productList'">SHOP</button>
+					</li>
+				
+				<li class="nav-item dropdown pc-only">
+					<a class="nav-link dropdown-toggle dropdown-share d-after-none" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false"><img src="/resources/web/images/sns-share.svg"></a>
+					<ul class="dropdown-menu dropdown-sns">
+						<li style="width: 25%;"><a class="dropdown-item" href="https://www.facebook.com/koreagolfassociation" target="_blank"><img src="/resources/web/images/sns-facebook.svg"></a></li>
+						<li style="width: 25%;"><a class="dropdown-item" href="https://www.instagram.com/kgagolf_official" target="_blank"><img src="/resources/web/images/sns-insta.svg"></a></li>
+						<li style="width: 25%;"><a class="dropdown-item" href="https://www.youtube.com/@대한골프협회-u6q" target="_blank"><img src="/resources/web/images/sns-youtube.svg"></a></li>
+						<li style="width: 25%;"><a class="dropdown-item" href="https://blog.naver.com/koreagolfassociation" target="_blank"><img src="/resources/web/images/sns-naver.svg"></a></li>
+					</ul>
+				</li>
+			</ul>
+		</nav>
+	</div>
+
+	<!-- collapse menu -->
+	<div class="collapse" id="navbarNavDropdown">
+		<div class="nav-fullwidth">
+			<div class="header-title">
+				<div class="container">
+					<a href="/web/main/index">HOME</a>
+				</div>
+			</div>
+
+			<!--*********************************** PC용 전체메뉴 ***********************************-->
+			<div class="pc-only">
+				<div class="container">
+					<div class="row">
+						<div class="col">
+							<a href="/web/elite/schedule" class="cat-title">전문체육 </a>
+							<ul>
+								<li>
+									<span class="form-check form-check-like">
+										
+									</span>
+									<a href="/web/elite/schedule">대회일정</a>
+								</li>
+								<li>
+									<span class="form-check form-check-like">
+										
+									</span>
+									<a href="/web/elite/player">선수</a>
+								</li>
+								<li>
+									<span class="form-check form-check-like">
+										
+									</span>
+									<a href="/web/elite/record">기록</a>
+								</li>
+							</ul>
+						</div>
+						
+							<div class="col">
+								<a href="/web/life/schedule" class="cat-title">생활체육</a>
+								<ul>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/life/schedule">대회일정</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/life/player">선수</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/life/lesson">강습사업</a>
+									</li>
+									
+								</ul>
+							</div>
+							<div class="col">
+								<a href="/web/golfRule/rule" class="cat-title">골프규칙</a>
+								<ul>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/golfRule/rule">골프규칙</a></li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/golfRule/news">골프규칙소식</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/golfRule/faq">FAQ</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/golfRule/seminar">룰 세미나</a>
+									</li>
+								</ul>
+							</div>
+							<div class="col">
+								<a href="/web/nationalTeam/nationalTeam" class="cat-title">국가대표</a>
+								<ul>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/nationalTeam/nationalTeam">국가대표 선수 현황</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/nationalTeam/schedule">국제대회 일정</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/nationalTeam/photo">사진</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/nationalTeam/board">게시판</a>
+									</li>
+								</ul>
+							</div>
+						
+						<div class="col">
+							<a href="/web/kgaRanking/home" class="cat-title">KGA랭킹</a>
+							<ul>
+								<li>
+									<span class="form-check form-check-like">
+										
+									</span>
+									<a href="/web/kgaRanking/home">랭킹홈</a>
+								</li>
+								<li>
+									<span class="form-check form-check-like">
+										
+									</span>
+									<a href="/web/kgaRanking/player">선수별</a>
+								</li>
+								<li>
+									<span class="form-check form-check-like">
+										
+									</span>
+									<a href="/web/kgaRanking/tour">대회별</a>
+								</li>
+								<li>
+									<span class="form-check form-check-like">
+										
+									</span>
+									<a href="/web/kgaRanking/junior">주니어랭킹</a>
+								</li>
+							</ul>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col">
+							<a href="/web/handicap/apply/notice" class="cat-title">핸디캡</a>
+							<ul>
+								<li>
+									<span class="form-check form-check-like">
+										
+									</span>
+									<a href="/web/handicap/apply/notice">핸디캡신청</a>
+								</li>
+								
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/handicap/calculator">코스핸디캡™계산기</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/handicap/system/home">월드핸디캡시스템™</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/handicap/video">동영상</a>
+									</li>
+								
+							</ul>
+						</div>
+						
+							<div class="col">
+								<a href="/web/office/home" class="cat-title">행정</a>
+								<ul>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/office/home">행정홈</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/office/signup">경기인 등록</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/office/numberCheck">개인번호 / 선수번호 확인</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/office/transfer">소속변경(이적)</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/office/certificate">증명서</a>
+									</li>
+								</ul>
+							</div>
+							<div class="col">
+								<a href="/web/notice/notice" class="cat-title">공지사항</a>
+							</div>
+							<div class="col">
+								<a href="/web/media/news" class="cat-title">미디어</a>
+								<ul>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/media/news">보도자료</a>
+									</li>
+									<!-- <li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/media/photo">사진</a>
+									</li> -->
+									<!-- <li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="javascript:alert('준비중 입니다.');">동영상</a>
+									</li> -->
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/media/pressCheck">PRESS</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/media/golfIndicator">골프지표</a>
+									</li>
+								</ul>
+							</div>
+							<div class="col">
+								<a href="/web/golfCourse/memberRole" class="cat-title">회원사골프장</a>
+								<ul>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/golfCourse/memberRole">회원사 역할</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/golfCourse/memberProgram">회원사 프로그램</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/golfCourse/golfCourse">회원사골프장 현황</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/golfCourse/holeInOne">홀인원 현황</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/golfCourse/news">회원사골프장 소식</a>
+									</li>
+									<!-- <li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/golfCourse/certificate">홀인원 인증서</a>
+									</li> -->
+									<!-- <li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/golfCourse/championship">클럽 챔피언십</a>
+									</li> -->
+								</ul>
+							</div>
+						
+					</div>
+				</div>
+				<!-- .container -->
+				<div class="header-moremenu">
+					<div class="moremenu-title">
+						<div class="container">MORE KGA</div>
+					</div>
+					<div class="moremenu-list">
+						<div class="container">
+							<div class="d-flex justify-content-between align-items-center">
+								<ul class="list">
+									
+										<li style="min-width: 180px;"><a href="/web/about/history">ABOUT KGA</a></li>
+										<li style="min-width: 140px;"><a href="/web/shop/productList">SHOP</a></li>
+										
+											
+												<li style="min-width: 140px;"><a href="/web/login">LOGIN</a></li>
+											
+											
+										
+									
+									<li style="min-width: 37px;"><a class="dropdown-item" href="https://www.facebook.com/koreagolfassociation" target="_blank"><img src="/resources/web/images/sns-facebook.svg"></a></li>
+									<li style="min-width: 37px;"><a class="dropdown-item" href="https://www.instagram.com/kgagolf_official" target="_blank"><img src="/resources/web/images/sns-insta.svg"></a></li>
+									<li style="min-width: 37px;"><a class="dropdown-item" href="https://www.youtube.com/@대한골프협회-u6q" target="_blank"><img src="/resources/web/images/sns-youtube.svg"></a></li>
+									<li style="min-width: 37px;"><a class="dropdown-item" href="https://sports.news.naver.com/golf/club/postList?expertId=602" target="_blank"><img src="/resources/web/images/sns-naver.svg"></a></li>
+								</ul>
+								<ul class="lang aPointer chageLang">
+									<li>언어</li>
+									<li class="ps-0">ㅣ</li>
+									<li class="active"><a data-lang="KOR">KOR</a></li>
+									<li class="" style="padding-right: 0px;"><a data-lang="ENG">ENG</a></li>
+								</ul>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- end PC용 전체메뉴 -->
+
+			<!--*********************************** 모바일용 전체메뉴 ***********************************-->
+			<div class="mc-only">
+				<!-- 모바일전체 탭메뉴 -->
+				<div class="nav flex-column nav-fullwidth-mc">
+					<button class="btn nav-link dropdown">
+						<details>
+							<summary>전문체육</summary>
+							<ul>
+								<li>
+									<span class="form-check form-check-like">
+										
+									</span>
+									<a href="/web/elite/schedule">대회일정</a>
+								</li>
+								
+								<li>
+									<span class="form-check form-check-like">
+										
+									</span>
+									<a href="/web/elite/player">선수</a>
+								</li>
+								<li>
+									<span class="form-check form-check-like">
+										
+									</span>
+									<a href="/web/elite/record">기록</a>
+								</li>
+							</ul>
+						</details>
+					</button>
+					
+						<button class="btn nav-link dropdown">
+							<details>
+								<summary>생활체육</summary>
+								<ul>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/life/schedule">대회일정</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/life/player">선수</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/life/lesson">강습사업</a>
+									</li>
+								</ul>
+							</details>
+						</button>
+						<button class="btn nav-link dropdown">
+							<details>
+								<summary>골프규칙</summary>
+								<ul>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/golfRule/rule">골프규칙</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/golfRule/news">골프규칙소식</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/golfRule/faq">FAQ</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/golfRule/seminar">룰 세미나</a>
+									</li>
+								</ul>
+							</details>
+						</button>
+						<button class="btn nav-link dropdown">
+							<details>
+								<summary>국가대표</summary>
+								<ul>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/nationalTeam/nationalTeam">국가대표 선수 현황</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/nationalTeam/schedule">국제대회 일정</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/nationalTeam/photo">사진</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/nationalTeam/board">게시판</a>
+									</li>
+								</ul>
+							</details>
+						</button>
+					
+					<button class="btn nav-link dropdown">
+						<details>
+							<summary>KGA랭킹</summary>
+							<ul>
+								<li>
+									<span class="form-check form-check-like">
+										
+									</span>
+									<a href="/web/kgaRanking/home">랭킹홈</a>
+								</li>
+								<li>
+									<span class="form-check form-check-like">
+										
+									</span>
+									<a href="/web/kgaRanking/player">선수별</a>
+								</li>
+								<li>
+									<span class="form-check form-check-like">
+										
+									</span>
+									<a href="/web/kgaRanking/tour">대회별</a>
+								</li>
+								<li>
+									<span class="form-check form-check-like">
+										
+									</span>
+									<a href="/web/kgaRanking/junior">주니어랭킹</a>
+								</li>
+							</ul>
+						</details>
+					</button>
+					<button class="btn nav-link dropdown">
+						<details>
+							<summary>핸디캡</summary>
+							<ul>
+								<li>
+									<span class="form-check form-check-like">
+										
+									</span>
+									<a href="/web/handicap/apply/notice">핸디캡신청</a>
+								</li>
+								
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/handicap/calculator">코스핸디캡™계산기</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/handicap/system/home">월드핸디캡시스템™</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/handicap/video">동영상</a>
+									</li>
+								
+							</ul>
+						</details>
+					</button>
+					
+						<button class="btn nav-link dropdown">
+							<details>
+								<summary>행정</summary>
+								<ul>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/office/home">행정홈</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/office/signup">경기인 등록</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/office/numberCheck">개인번호 / 선수번호 확인</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/office/transfer">소속변경(이적)</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/office/certificate">증명서</a>
+									</li>
+								</ul>
+							</details>
+						</button>
+						<button class="btn nav-link dropdown">
+							<details>
+								<summary>공지사항</summary>
+								<ul>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/notice/notice">공지사항</a>
+									</li>
+								</ul>
+							</details>
+						</button>
+						<button class="btn nav-link dropdown">
+							<details>
+								<summary>미디어</summary>
+								<ul>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/media/news">보도자료 </a>
+									</li>
+									<!-- <li>
+										<span class="form-check form-check-like">
+										</span>
+										<a href="/web/media/photo">사진</a>
+									</li> -->
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/media/pressCheck">PRESS</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/media/golfIndicator">골프지표</a>
+									</li>
+								</ul>
+							</details>
+						</button>
+						<button class="btn nav-link dropdown">
+							<details>
+								<summary>회원사골프장</summary>
+								<ul>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/golfCourse/memberRole">회원사 역할</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/golfCourse/memberProgram">회원사 프로그램</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/golfCourse/golfCourse">회원사골프장 현황</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/golfCourse/holeInOne">홀인원 현황</a>
+									</li>
+									<li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/golfCourse/news">회원사골프장 소식</a>
+									</li>
+									<!-- <li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/golfCourse/certificate">홀인원 인증서</a>
+									</li> -->
+									<!-- <li>
+										<span class="form-check form-check-like">
+											
+										</span>
+										<a href="/web/golfCourse/championshipSchedule">클럽 챔피언십</a>
+									</li> -->
+								</ul>
+							</details>
+						</button>
+					
+					<div class="header-moremenu mt-0">
+						<div class="moremenu-title">
+							<div class="container">MORE KGA</div>
+						</div>
+						<div class="moremenu-list">
+							<div class="container">
+								<ul class="list">
+									
+										<li>
+											<span class="form-check form-check-like">
+												
+											</span>
+											<a href="/web/about/history">ABOUT KGA</a>
+										</li>
+										<li>
+											<span class="form-check form-check-like">
+												
+											</span>
+											<a href="/web/shop/productList">SHOP</a>
+										</li>
+										
+										<li>
+											<span class="form-check form-check-like">
+											</span>
+											
+												
+													<a id="naviMobileLogin" href="/web/login">LOGIN</a>
+												
+												
+											
+										</li>
+									
+								</ul>
+								<ul class="sns">
+									<li style="width: 24%;"><a class="dropdown-item" href="https://www.facebook.com/koreagolfassociation" target="_blank"><img src="/resources/web/images/sns-facebook.svg"></a></li>
+									<li style="width: 24%;"><a class="dropdown-item" href="https://www.instagram.com/kgagolf_official" target="_blank"><img src="/resources/web/images/sns-insta.svg"></a></li>
+									<li style="width: 24%;"><a class="dropdown-item" href="https://www.youtube.com/@대한골프협회-u6q" target="_blank"><img src="/resources/web/images/sns-youtube.svg"></a></li>
+									<li style="width: 24%;"><a class="dropdown-item" href="https://sports.news.naver.com/golf/club/postList?expertId=602" target="_blank"><img src="/resources/web/images/sns-naver.svg"></a></li>
+								</ul>
+								<ul class="lang aPointer chageLang">
+									<li>언어</li>
+									<li class="ps-0">ㅣ</li>
+									<li class="active"><a data-lang="KOR">KOR</a></li>
+									<li class="" style="padding-right: 0px;"><a data-lang="ENG">ENG</a></li>
+								</ul>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- .nav-fullwidthmc -->
+			</div>
+			<!-- end 모바일용 전체메뉴 -->
+
+		</div>
+		<!-- .nav-fullwidth -->
+
+	</div>
+
+</div>
+<!-- end .main-menu -->
+	</header>
+	<script type="text/javascript">
+		$(document).ready(function() {
+			var width = document.documentElement.clientWidth;
+			if($("#headermenu a").hasClass("active") === true) {
+				document.getElementById("headermenu").scrollLeft += ($("#headermenu a.active").closest("li").offset().left-(width/2));
+			}
+			
+			if($(".nav-postmenu a").hasClass("active") === true) {
+				$(".nav-postmenu").closest(".scroll").scrollLeft($(".nav-postmenu a.active").closest("li").offset().left-(width/2));
+			}
+			
+		});
+
+	</script>
+	<!-- end .site-header -->
+	<!----------------------------------------- // section headermenu -------------------------------------------->
+	<section id="headermenu" class="section-headermenu">
+		<div class="container">
+			<ul class="nav nav-headermenu">
+				<li class="nav-item"><a class="nav-link " href="/web/elite/schedule">전문체육</a></li>
+				
+				
+					<li class="nav-item"><a class="nav-link " href="/web/life/schedule">생활체육</a></li>
+					<li class="nav-item"><a class="nav-link " href="/web/golfRule/rule">골프규칙</a></li>
+					<li class="nav-item"><a class="nav-link " href="/web/nationalTeam/nationalTeam">국가대표</a></li>
+				
+				
+				<li class="nav-item"><a class="nav-link " href="/web/kgaRanking/home">KGA랭킹</a></li>
+				<li class="nav-item"><a class="nav-link " href="/web/handicap/apply/notice">핸디캡</a></li>
+				
+				
+					<li class="nav-item"><a class="nav-link " href="/web/office/home">행정</a></li>
+					<li class="nav-item"><a class="nav-link " href="/web/notice/notice">공지사항</a></li>
+					<li class="nav-item"><a class="nav-link " href="/web/media/news">미디어</a></li>
+					<li class="nav-item"><a class="nav-link active" href="/web/golfCourse/memberRole">회원사골프장</a></li>
+				
+			</ul>
+		</div>
+	</section>
+
+<!----------------------------------------- // section postmenu -------------------------------------------->
+
+<section class="section-postmenu pb-0">
+	<div class="container">
+		<div class="title-group">
+			<div class="title">회원사골프장</div>
+		</div>
+	</div>
+	<div class="container">
+		<div class="scroll">
+			<ul class="nav nav-postmenu">
+				<li class="nav-item">
+					<a class="nav-link " href="/web/golfCourse/memberRole">회원사 역할</a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link " href="/web/golfCourse/memberProgram">회원사 프로그램</a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link active" href="/web/golfCourse/golfCourse">회원 골프장 현황</a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link " href="/web/golfCourse/holeInOne">홀인원 현황</a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link " href="/web/golfCourse/news">회원사골프장 소식</a>
+				</li>
+				
+				
+			</ul>
+		</div>
+	</div>
+</section>
+
+
+<script type="text/javascript">
+$(document).ready(function() {
+	
+	setHoleCnt();
+	setLocation();
+	
+	$("#holeCnt").change(function() {
+		seachGolfCourse(true);
+	});
+	
+	$("#location").change(function() {
+		seachGolfCourse(false);
+	});
+	
+	$("#searchName").keyup(function(e) {
+		seachGolfCourse(false);
+	});
+	
+	$("#viewMore").click(function() {
+		var idx = $("#dataList > div:visible").length
+		$("#dataList > div[data-view='Y']:lt("+(idx+5)+")").show();
+		
+		if ($("#dataList > div[data-view='Y']").length <= idx+5) {
+			$("#viewMore").hide();
+		}
+	});
+	
+	$("#top").click(function() {
+		$("html, body").animate({ scrollTop: 0 }, "slow");
+		return false;
+	});
+});
+
+function setHoleCnt() {
+	var holeCntArray = [];
+	$("#dataList > div").each(function(index) {
+		var holeCnt = $(this).data("holecnt");
+		if (typeof holeCnt != "undefined" && holeCnt != "" && holeCntArray.indexOf(holeCnt) == -1) {
+			holeCntArray.push(holeCnt);
+		}
+	});
+	
+	holeCntArray.sort(function(a, b) { return a - b; });
+	$("#holeCnt").empty().append($('<option>', {value: "",text: "전체"}));
+	holeCntArray.forEach(function(v) {
+		$("#holeCnt").append($('<option>', {value: v,text: v}));
+	});
+}
+
+function setLocation(searchLocation) {
+	var locationArray = [];
+	var holeCnt = $("#holeCnt").val();
+	var target = "";
+	if(holeCnt == "") {
+		target = "#dataList > div";
+	} else {
+		target = "#dataList > div[data-holecnt='"+holeCnt+"']";
+	}
+	
+	$(target).each(function(index) {
+		var location = $(this).data("location");
+		if(location != "" && typeof location != "undefined" && locationArray.indexOf(location) == -1) {
+			locationArray.push(location)
+		}
+	});
+	
+	locationArray.sort(function(a, b) { return a.localeCompare(b); });
+		
+	$("#location").empty().append($('<option>', {value: "",text: "전체지역"}));
+	
+	var sameCnt = 0;
+	locationArray.forEach(function(v) {
+		if (searchLocation == v) {
+			$("#location").append('<option value="'+v+'" selected>'+v+'</option>');
+			sameCnt ++;
+		} else {
+			$("#location").append($('<option>', {value: v,text: v}));
+		}
+	});
+	
+	if(searchLocation != "" && sameCnt == 0) {
+		seachGolfCourse(false);
+	}
+}
+
+function seachGolfCourse(locationChangeFlag) {
+	var holeCnt = $("#holeCnt").val();
+	var location = $("#location").val();
+	var searchName = $("#searchName").val();
+	
+	$("#dataList > div").show();
+	$("#dataList > div").attr("data-view", "Y");
+	
+	if(holeCnt != "") {
+		$("#dataList > div[data-holecnt != '"+holeCnt+"']").hide().attr("data-view", "N");
+	}
+	if(location != "") {
+		$("#dataList > div[data-location != '"+location+"']").hide().attr("data-view", "N");
+	}
+	
+	if(searchName != "") {
+		$("#dataList > div[data-name]").filter(function() {
+			return $(this).attr("data-name").toUpperCase().indexOf(searchName.toUpperCase()) == -1;
+		}).hide().attr("data-view", "N");
+	}
+	
+	$("#dataList > div[data-view='Y']").each(function(index) {
+		$(this).find(".indexNum").html("No."+(index+1));
+	});
+	
+	if(locationChangeFlag) {
+		setLocation(location);
+	}
+	
+	$("#dataList > div:visible:gt("+4+")").hide();
+	
+	if ($("#dataList > div[data-view='Y']").length <= 5) {
+		$("#viewMore").hide();
+	} else {
+		$("#viewMore").show();
+	}
+}
+
+function openFixURL(url) {
+	var fixURL = getFixURL(url);
+	if (url != "") {
+		window.open(fixURL);
+	} else {
+		console.log("유효한 URL이 아닙니다.");
+	}
+}
+
+function getFixURL(inputURL) {
+	try {
+		if(inputURL == null || inputURL.trim() === "") {
+			return "";
+		}
+		
+		if (!inputURL.startsWith("http")) {
+			return "http://" + inputURL;
+		} else {
+			return inputURL;
+		}
+	} catch (e) {
+		return "";
+	}
+}
+</script>
+
+<style>
+.secondLineMt span + span {
+	margin-top: 10px;
+}
+
+.btn-golfcourse-noAfter {
+	position: relative;
+	border-radius: 0.5rem;
+	padding: 0.25rem 2rem 0.25rem 1rem;
+	font-size: 1.5rem;
+	text-align: start;
+	border-color: #9DE98F;
+	font-weight: 600;
+}
+</style>
+<!----------------------------------------- // search section -------------------------------------------->
+
+<section class="section-area py-4" style="background-color: #F5F6FA;">
+	<div class="container">
+		<div class="row gx-3 justify-content-end">
+			<div class="col-6 col-lg-3">
+				<div class="input-group input-group-blue my-2">
+					<span class="input-group-text">홀</span>
+					<select id="holeCnt" class="form-select">
+						<option value="">전체</option>
+					</select>
+				</div>
+			</div>
+			<div class="col-6 col-lg-3">
+				<div class="input-group input-group-blue my-2">
+					<span class="input-group-text">지역</span>
+					<select id="location" class="form-select">
+						<option value="">전체지역</option>
+					</select>
+				</div>
+			</div>
+			<div class="col-12 col-lg-4">
+				<div class="input-group input-group-blue my-2">
+					<span class="input-group-text">골프장명</span>
+					<input type="text" id="searchName" class="form-control" placeholder="전체 골프장">
+					<button type="button" class="btn bg-0"><img src="/resources/web/images/btn-pagesearch.svg"></button>
+				</div>
+			</div>
+		</div> <!-- end .row -->
+		
+	</div>
+</section>
+
+
+<!----------------------------------------- // content section -------------------------------------------->
+
+<section class="section-area section-board">
+	<div id="dataList" class="container">
+		
+		<div class="entry-golfcourse" style=""
+			data-name="88" data-location="경기"
+			data-holecnt="36" data-view="Y"
+			>
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<h5 class="indexNum">No.1</h5>
+				<span><img src="/resources/web/images/icon-golfcourse.svg"></span>
+			</div>
+			<div class="row">
+				<div class="col-12 col-lg-6">
+					<button onclick="openFixURL('www.88countryclub.co.kr')" class="btn btn-golfcourse w-100 mb-3">88</button>
+					<h5 class="mb-2">경기 용인시 기흥구 석성로521번길 169 88컨트리클럽</h5>
+					<dl class="dl-between mb-3">
+						<dt>Tel. 031-287-8811</dt>
+						<dd>Fax. 031-287-8833</dd>
+					</dl>
+				</div>
+				<div class="col-12 col-lg-3">
+					<div class="secondLineMt mb-3">
+						<span class="badge badge-golfcourse me-2">36홀</span>
+						<span class="badge badge-golfcourse">경기</span>
+					</div>
+				</div>
+				<div class="col-12 col-lg-3 pc-only">
+					<div class="entry-golfcourse-logo mb-3">
+						<img src="/resources/web/images/logo.svg">
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="entry-golfcourse" style=""
+			data-name="가평베네스트" data-location="경기"
+			data-holecnt="27" data-view="Y"
+			>
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<h5 class="indexNum">No.2</h5>
+				<span><img src="/resources/web/images/icon-golfcourse.svg"></span>
+			</div>
+			<div class="row">
+				<div class="col-12 col-lg-6">
+					<button onclick="openFixURL('https://www.benestgolf.com/reve/pc/main.do')" class="btn btn-golfcourse w-100 mb-3">가평베네스트</button>
+					<h5 class="mb-2">경기도 가평군 상면 둔덕말길 232</h5>
+					<dl class="dl-between mb-3">
+						<dt>Tel. 031-589-8001~6</dt>
+						<dd>Fax. 031-589-8049</dd>
+					</dl>
+				</div>
+				<div class="col-12 col-lg-3">
+					<div class="secondLineMt mb-3">
+						<span class="badge badge-golfcourse me-2">27홀</span>
+						<span class="badge badge-golfcourse">경기</span>
+					</div>
+				</div>
+				<div class="col-12 col-lg-3 pc-only">
+					<div class="entry-golfcourse-logo mb-3">
+						<img src="/resources/web/images/logo.svg">
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="entry-golfcourse" style=""
+			data-name="고성노벨" data-location="경남"
+			data-holecnt="27" data-view="Y"
+			>
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<h5 class="indexNum">No.3</h5>
+				<span><img src="/resources/web/images/icon-golfcourse.svg"></span>
+			</div>
+			<div class="row">
+				<div class="col-12 col-lg-6">
+					<button onclick="openFixURL('www.nobelcc.co.kr')" class="btn btn-golfcourse w-100 mb-3">고성노벨</button>
+					<h5 class="mb-2">경남 고성군 회화면 봉동리 산98</h5>
+					<dl class="dl-between mb-3">
+						<dt>Tel. 055-670-8000</dt>
+						<dd>Fax. 055-670-8800</dd>
+					</dl>
+				</div>
+				<div class="col-12 col-lg-3">
+					<div class="secondLineMt mb-3">
+						<span class="badge badge-golfcourse me-2">27홀</span>
+						<span class="badge badge-golfcourse">경남</span>
+					</div>
+				</div>
+				<div class="col-12 col-lg-3 pc-only">
+					<div class="entry-golfcourse-logo mb-3">
+						<img src="/resources/web/images/logo.svg">
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="entry-golfcourse" style=""
+			data-name="고창" data-location="전북"
+			data-holecnt="18" data-view="Y"
+			>
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<h5 class="indexNum">No.4</h5>
+				<span><img src="/resources/web/images/icon-golfcourse.svg"></span>
+			</div>
+			<div class="row">
+				<div class="col-12 col-lg-6">
+					<button onclick="openFixURL('www.gochangcc.co.kr')" class="btn btn-golfcourse w-100 mb-3">고창</button>
+					<h5 class="mb-2">전북 고창군 심원면 애향갯벌로 70 고창컨트리클럽</h5>
+					<dl class="dl-between mb-3">
+						<dt>Tel. 063-560-7744</dt>
+						<dd>Fax. 063-560-7755</dd>
+					</dl>
+				</div>
+				<div class="col-12 col-lg-3">
+					<div class="secondLineMt mb-3">
+						<span class="badge badge-golfcourse me-2">18홀</span>
+						<span class="badge badge-golfcourse">전북</span>
+					</div>
+				</div>
+				<div class="col-12 col-lg-3 pc-only">
+					<div class="entry-golfcourse-logo mb-3">
+						<img src="/resources/web/images/logo.svg">
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="entry-golfcourse" style=""
+			data-name="곤지암" data-location="경기"
+			data-holecnt="18" data-view="Y"
+			>
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<h5 class="indexNum">No.5</h5>
+				<span><img src="/resources/web/images/icon-golfcourse.svg"></span>
+			</div>
+			<div class="row">
+				<div class="col-12 col-lg-6">
+					<button onclick="openFixURL('www.konjiamgolfclub.co.kr')" class="btn btn-golfcourse w-100 mb-3">곤지암</button>
+					<h5 class="mb-2">경기 광주시 도척면 도척윗로 280</h5>
+					<dl class="dl-between mb-3">
+						<dt>Tel. 031-760-3555~6</dt>
+						<dd>Fax. 031-764-9090</dd>
+					</dl>
+				</div>
+				<div class="col-12 col-lg-3">
+					<div class="secondLineMt mb-3">
+						<span class="badge badge-golfcourse me-2">18홀</span>
+						<span class="badge badge-golfcourse">경기</span>
+					</div>
+				</div>
+				<div class="col-12 col-lg-3 pc-only">
+					<div class="entry-golfcourse-logo mb-3">
+						<img src="/resources/web/images/logo.svg">
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="entry-golfcourse" style="display:none"
+			data-name="골드레이크" data-location="전남"
+			data-holecnt="18" data-view="Y"
+			>
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<h5 class="indexNum">No.6</h5>
+				<span><img src="/resources/web/images/icon-golfcourse.svg"></span>
+			</div>
+			<div class="row">
+				<div class="col-12 col-lg-6">
+					<button onclick="openFixURL('www.goldlake.co.kr')" class="btn btn-golfcourse w-100 mb-3">골드레이크</button>
+					<h5 class="mb-2">전남 나주시 남평읍 나주호로 442-129</h5>
+					<dl class="dl-between mb-3">
+						<dt>Tel. 061-339-3000</dt>
+						<dd>Fax. 061-339-3100</dd>
+					</dl>
+				</div>
+				<div class="col-12 col-lg-3">
+					<div class="secondLineMt mb-3">
+						<span class="badge badge-golfcourse me-2">18홀</span>
+						<span class="badge badge-golfcourse">전남</span>
+					</div>
+				</div>
+				<div class="col-12 col-lg-3 pc-only">
+					<div class="entry-golfcourse-logo mb-3">
+						<img src="/resources/web/images/logo.svg">
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="entry-golfcourse" style="display:none"
+			data-name="구니" data-location="대구"
+			data-holecnt="18" data-view="Y"
+			>
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<h5 class="indexNum">No.7</h5>
+				<span><img src="/resources/web/images/icon-golfcourse.svg"></span>
+			</div>
+			<div class="row">
+				<div class="col-12 col-lg-6">
+					<button onclick="openFixURL('www.gunicc.co.kr')" class="btn btn-golfcourse w-100 mb-3">구니</button>
+					<h5 class="mb-2">대구 군위군 군위읍 도군로 2450</h5>
+					<dl class="dl-between mb-3">
+						<dt>Tel. 054-380-0028</dt>
+						<dd>Fax. 054-380-0002</dd>
+					</dl>
+				</div>
+				<div class="col-12 col-lg-3">
+					<div class="secondLineMt mb-3">
+						<span class="badge badge-golfcourse me-2">18홀</span>
+						<span class="badge badge-golfcourse">대구</span>
+					</div>
+				</div>
+				<div class="col-12 col-lg-3 pc-only">
+					<div class="entry-golfcourse-logo mb-3">
+						<img src="/resources/web/images/logo.svg">
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="entry-golfcourse" style="display:none"
+			data-name="군산" data-location="전북"
+			data-holecnt="18" data-view="Y"
+			>
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<h5 class="indexNum">No.8</h5>
+				<span><img src="/resources/web/images/icon-golfcourse.svg"></span>
+			</div>
+			<div class="row">
+				<div class="col-12 col-lg-6">
+					<button onclick="openFixURL('www.gunsancc.net')" class="btn btn-golfcourse w-100 mb-3">군산</button>
+					<h5 class="mb-2">전북 군산시 옥서면 남군산로 1685</h5>
+					<dl class="dl-between mb-3">
+						<dt>Tel. 063-472-3300</dt>
+						<dd>Fax. 063-472-3333</dd>
+					</dl>
+				</div>
+				<div class="col-12 col-lg-3">
+					<div class="secondLineMt mb-3">
+						<span class="badge badge-golfcourse me-2">18홀</span>
+						<span class="badge badge-golfcourse">전북</span>
+					</div>
+				</div>
+				<div class="col-12 col-lg-3 pc-only">
+					<div class="entry-golfcourse-logo mb-3">
+						<img src="/resources/web/images/logo.svg">
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="entry-golfcourse" style="display:none"
+			data-name="그랜드" data-location="충북"
+			data-holecnt="27" data-view="Y"
+			>
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<h5 class="indexNum">No.9</h5>
+				<span><img src="/resources/web/images/icon-golfcourse.svg"></span>
+			</div>
+			<div class="row">
+				<div class="col-12 col-lg-6">
+					<button onclick="openFixURL('www.grandgolf.co.kr')" class="btn btn-golfcourse w-100 mb-3">그랜드</button>
+					<h5 class="mb-2">충북 청원군 오창읍 꽃화산길 14</h5>
+					<dl class="dl-between mb-3">
+						<dt>Tel. 043-212-7111</dt>
+						<dd>Fax. 043-218-7115</dd>
+					</dl>
+				</div>
+				<div class="col-12 col-lg-3">
+					<div class="secondLineMt mb-3">
+						<span class="badge badge-golfcourse me-2">27홀</span>
+						<span class="badge badge-golfcourse">충북</span>
+					</div>
+				</div>
+				<div class="col-12 col-lg-3 pc-only">
+					<div class="entry-golfcourse-logo mb-3">
+						<img src="/resources/web/images/logo.svg">
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="entry-golfcourse" style="display:none"
+			data-name="김천포도" data-location="경북"
+			data-holecnt="27" data-view="Y"
+			>
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<h5 class="indexNum">No.10</h5>
+				<span><img src="/resources/web/images/icon-golfcourse.svg"></span>
+			</div>
+			<div class="row">
+				<div class="col-12 col-lg-6">
+					<button onclick="openFixURL('www.podocc.com')" class="btn btn-golfcourse w-100 mb-3">김천포도</button>
+					<h5 class="mb-2">경북 김천시 구성면 남김천대로 2532</h5>
+					<dl class="dl-between mb-3">
+						<dt>Tel. 054-420-0200</dt>
+						<dd>Fax. 054-420-0239</dd>
+					</dl>
+				</div>
+				<div class="col-12 col-lg-3">
+					<div class="secondLineMt mb-3">
+						<span class="badge badge-golfcourse me-2">27홀</span>
+						<span class="badge badge-golfcourse">경북</span>
+					</div>
+				</div>
+				<div class="col-12 col-lg-3 pc-only">
+					<div class="entry-golfcourse-logo mb-3">
+						<img src="/resources/web/images/logo.svg">
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="entry-golfcourse" style="display:none"
+			data-name="김포SEASIDE" data-location="경기"
+			data-holecnt="18" data-view="Y"
+			>
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<h5 class="indexNum">No.11</h5>
+				<span><img src="/resources/web/images/icon-golfcourse.svg"></span>
+			</div>
+			<div class="row">
+				<div class="col-12 col-lg-6">
+					<button onclick="openFixURL('www.gimpocc.co.kr')" class="btn btn-golfcourse w-100 mb-3">김포SEASIDE</button>
+					<h5 class="mb-2">경기도 김포시 월곶면 김포대로2801번길 219</h5>
+					<dl class="dl-between mb-3">
+						<dt>Tel. 031-987-9992</dt>
+						<dd>Fax. 031-987-9994</dd>
+					</dl>
+				</div>
+				<div class="col-12 col-lg-3">
+					<div class="secondLineMt mb-3">
+						<span class="badge badge-golfcourse me-2">18홀</span>
+						<span class="badge badge-golfcourse">경기</span>
+					</div>
+				</div>
+				<div class="col-12 col-lg-3 pc-only">
+					<div class="entry-golfcourse-logo mb-3">
+						<img src="/resources/web/images/logo.svg">
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="entry-golfcourse" style="display:none"
+			data-name="김해상록" data-location="경남"
+			data-holecnt="18" data-view="Y"
+			>
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<h5 class="indexNum">No.12</h5>
+				<span><img src="/resources/web/images/icon-golfcourse.svg"></span>
+			</div>
+			<div class="row">
+				<div class="col-12 col-lg-6">
+					<button onclick="openFixURL('https://www.sangnokresort.co.kr/M070000')" class="btn btn-golfcourse w-100 mb-3">김해상록</button>
+					<h5 class="mb-2">경남 김해시 한림면 김해대로974번길 198</h5>
+					<dl class="dl-between mb-3">
+						<dt>Tel. 055-340-1400</dt>
+						<dd>Fax. 055-340-1430</dd>
+					</dl>
+				</div>
+				<div class="col-12 col-lg-3">
+					<div class="secondLineMt mb-3">
+						<span class="badge badge-golfcourse me-2">18홀</span>
+						<span class="badge badge-golfcourse">경남</span>
+					</div>
+				</div>
+				<div class="col-12 col-lg-3 pc-only">
+					<div class="entry-golfcourse-logo mb-3">
+						<img src="/resources/web/images/logo.svg">
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="entry-golfcourse" style="display:none"
+			data-name="남부" data-location="경기"
+			data-holecnt="18" data-view="Y"
+			>
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<h5 class="indexNum">No.13</h5>
+				<span><img src="/resources/web/images/icon-golfcourse.svg"></span>
+			</div>
+			<div class="row">
+				<div class="col-12 col-lg-6">
+					<button onclick="openFixURL('www.namboocc.co.kr')" class="btn btn-golfcourse w-100 mb-3">남부</button>
+					<h5 class="mb-2">경기도 용인시 기흥구 사은로 163 (보라동 1-35)</h5>
+					<dl class="dl-between mb-3">
+						<dt>Tel. 031-280-4100</dt>
+						<dd>Fax. 031-280-4115~6</dd>
+					</dl>
+				</div>
+				<div class="col-12 col-lg-3">
+					<div class="secondLineMt mb-3">
+						<span class="badge badge-golfcourse me-2">18홀</span>
+						<span class="badge badge-golfcourse">경기</span>
+					</div>
+				</div>
+				<div class="col-12 col-lg-3 pc-only">
+					<div class="entry-golfcourse-logo mb-3">
+						<img src="/resources/web/images/logo.svg">
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="entry-golfcourse" style="display:none"
+			data-name="남서울" data-location="경기"
+			data-holecnt="18" data-view="Y"
+			>
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<h5 class="indexNum">No.14</h5>
+				<span><img src="/resources/web/images/icon-golfcourse.svg"></span>
+			</div>
+			<div class="row">
+				<div class="col-12 col-lg-6">
+					<button onclick="openFixURL('www.nscc.co.kr')" class="btn btn-golfcourse w-100 mb-3">남서울</button>
+					<h5 class="mb-2">경기 성남시 분당구 판교백현로 161 남서울 컨트리클럽 클럽하우스</h5>
+					<dl class="dl-between mb-3">
+						<dt>Tel. 031-709-6000</dt>
+						<dd>Fax. 031-709-6022</dd>
+					</dl>
+				</div>
+				<div class="col-12 col-lg-3">
+					<div class="secondLineMt mb-3">
+						<span class="badge badge-golfcourse me-2">18홀</span>
+						<span class="badge badge-golfcourse">경기</span>
+					</div>
+				</div>
+				<div class="col-12 col-lg-3 pc-only">
+					<div class="entry-golfcourse-logo mb-3">
+						<img src="/resources/web/images/logo.svg">
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="entry-golfcourse" style="display:none"
+			data-name="남여주" data-location="경기"
+			data-holecnt="27" data-view="Y"
+			>
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<h5 class="indexNum">No.15</h5>
+				<span><img src="/resources/web/images/icon-golfcourse.svg"></span>
+			</div>
+			<div class="row">
+				<div class="col-12 col-lg-6">
+					<button onclick="openFixURL('www.namyeoju.co.kr')" class="btn btn-golfcourse w-100 mb-3">남여주</button>
+					<h5 class="mb-2">경기도 여주시 가여로 532</h5>
+					<dl class="dl-between mb-3">
+						<dt>Tel. 031-880-6511</dt>
+						<dd>Fax. 031-880-6505</dd>
+					</dl>
+				</div>
+				<div class="col-12 col-lg-3">
+					<div class="secondLineMt mb-3">
+						<span class="badge badge-golfcourse me-2">27홀</span>
+						<span class="badge badge-golfcourse">경기</span>
+					</div>
+				</div>
+				<div class="col-12 col-lg-3 pc-only">
+					<div class="entry-golfcourse-logo mb-3">
+						<img src="/resources/web/images/logo.svg">
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="entry-golfcourse" style="display:none"
+			data-name="남원상록" data-location="전북"
+			data-holecnt="18" data-view="Y"
+			>
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<h5 class="indexNum">No.16</h5>
+				<span><img src="/resources/web/images/icon-golfcourse.svg"></span>
+			</div>
+			<div class="row">
+				<div class="col-12 col-lg-6">
+					<button onclick="openFixURL('https://www.sangnokresort.co.kr/M060000')" class="btn btn-golfcourse w-100 mb-3">남원상록</button>
+					<h5 class="mb-2">전북특별자치도 남원시 대산면 월계길 11</h5>
+					<dl class="dl-between mb-3">
+						<dt>Tel. 063-630-1300</dt>
+						<dd>Fax. 063-630-1309</dd>
+					</dl>
+				</div>
+				<div class="col-12 col-lg-3">
+					<div class="secondLineMt mb-3">
+						<span class="badge badge-golfcourse me-2">18홀</span>
+						<span class="badge badge-golfcourse">전북</span>
+					</div>
+				</div>
+				<div class="col-12 col-lg-3 pc-only">
+					<div class="entry-golfcourse-logo mb-3">
+						<img src="/resources/web/images/logo.svg">
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="entry-golfcourse" style="display:none"
+			data-name="남촌" data-location="경기"
+			data-holecnt="18" data-view="Y"
+			>
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<h5 class="indexNum">No.17</h5>
+				<span><img src="/resources/web/images/icon-golfcourse.svg"></span>
+			</div>
+			<div class="row">
+				<div class="col-12 col-lg-6">
+					<button onclick="openFixURL('www.namchoncc.co.kr')" class="btn btn-golfcourse w-100 mb-3">남촌</button>
+					<h5 class="mb-2">경기도 광주시 곤지암읍 부항길 135-38</h5>
+					<dl class="dl-between mb-3">
+						<dt>Tel. 031-769-0333</dt>
+						<dd>Fax. 031-763-0112</dd>
+					</dl>
+				</div>
+				<div class="col-12 col-lg-3">
+					<div class="secondLineMt mb-3">
+						<span class="badge badge-golfcourse me-2">18홀</span>
+						<span class="badge badge-golfcourse">경기</span>
+					</div>
+				</div>
+				<div class="col-12 col-lg-3 pc-only">
+					<div class="entry-golfcourse-logo mb-3">
+						<img src="/resources/web/images/logo.svg">
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="entry-golfcourse" style="display:none"
+			data-name="뉴서울" data-location="경기"
+			data-holecnt="18" data-view="Y"
+			>
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<h5 class="indexNum">No.18</h5>
+				<span><img src="/resources/web/images/icon-golfcourse.svg"></span>
+			</div>
+			<div class="row">
+				<div class="col-12 col-lg-6">
+					<button onclick="openFixURL('www.newseoulgolf.co.kr')" class="btn btn-golfcourse w-100 mb-3">뉴서울</button>
+					<h5 class="mb-2">경기 광주시 삼지곡길 95</h5>
+					<dl class="dl-between mb-3">
+						<dt>Tel. 031-760-8071</dt>
+						<dd>Fax. 031-762-1155</dd>
+					</dl>
+				</div>
+				<div class="col-12 col-lg-3">
+					<div class="secondLineMt mb-3">
+						<span class="badge badge-golfcourse me-2">18홀</span>
+						<span class="badge badge-golfcourse">경기</span>
+					</div>
+				</div>
+				<div class="col-12 col-lg-3 pc-only">
+					<div class="entry-golfcourse-logo mb-3">
+						<img src="/resources/web/images/logo.svg">
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="entry-golfcourse" style="display:none"
+			data-name="뉴코리아" data-location="경기"
+			data-holecnt="18" data-view="Y"
+			>
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<h5 class="indexNum">No.19</h5>
+				<span><img src="/resources/web/images/icon-golfcourse.svg"></span>
+			</div>
+			<div class="row">
+				<div class="col-12 col-lg-6">
+					<button onclick="openFixURL('www.newkoreacc.co.kr')" class="btn btn-golfcourse w-100 mb-3">뉴코리아</button>
+					<h5 class="mb-2">경기도 고양시 덕양구 신원2로 57</h5>
+					<dl class="dl-between mb-3">
+						<dt>Tel. 02-353-0091</dt>
+						<dd>Fax. 02-357-0052</dd>
+					</dl>
+				</div>
+				<div class="col-12 col-lg-3">
+					<div class="secondLineMt mb-3">
+						<span class="badge badge-golfcourse me-2">18홀</span>
+						<span class="badge badge-golfcourse">경기</span>
+					</div>
+				</div>
+				<div class="col-12 col-lg-3 pc-only">
+					<div class="entry-golfcourse-logo mb-3">
+						<img src="/resources/web/images/logo.svg">
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="entry-golfcourse" style="display:none"
+			data-name="대구" data-location="경북"
+			data-holecnt="27" data-view="Y"
+			>
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<h5 class="indexNum">No.20</h5>
+				<span><img src="/resources/web/images/icon-golfcourse.svg"></span>
+			</div>
+			<div class="row">
+				<div class="col-12 col-lg-6">
+					<button onclick="openFixURL('www.daegucc.co.kr')" class="btn btn-golfcourse w-100 mb-3">대구</button>
+					<h5 class="mb-2">경북 경산시 진량읍 일연로 718-42</h5>
+					<dl class="dl-between mb-3">
+						<dt>Tel. 053-854-0002</dt>
+						<dd>Fax. 053-853-3464</dd>
+					</dl>
+				</div>
+				<div class="col-12 col-lg-3">
+					<div class="secondLineMt mb-3">
+						<span class="badge badge-golfcourse me-2">27홀</span>
+						<span class="badge badge-golfcourse">경북</span>
+					</div>
+				</div>
+				<div class="col-12 col-lg-3 pc-only">
+					<div class="entry-golfcourse-logo mb-3">
+						<img src="/resources/web/images/logo.svg">
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="entry-golfcourse" style="display:none"
+			data-name="도고" data-location="충남"
+			data-holecnt="18" data-view="Y"
+			>
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<h5 class="indexNum">No.21</h5>
+				<span><img src="/resources/web/images/icon-golfcourse.svg"></span>
+			</div>
+			<div class="row">
+				<div class="col-12 col-lg-6">
+					<button onclick="openFixURL('www.dogocc.co.kr')" class="btn btn-golfcourse w-100 mb-3">도고</button>
+					<h5 class="mb-2">충남 아산시 선장면 삼봉산길 188</h5>
+					<dl class="dl-between mb-3">
+						<dt>Tel. 041-542-4411</dt>
+						<dd>Fax. 041-541-9060</dd>
+					</dl>
+				</div>
+				<div class="col-12 col-lg-3">
+					<div class="secondLineMt mb-3">
+						<span class="badge badge-golfcourse me-2">18홀</span>
+						<span class="badge badge-golfcourse">충남</span>
+					</div>
+				</div>
+				<div class="col-12 col-lg-3 pc-only">
+					<div class="entry-golfcourse-logo mb-3">
+						<img src="/resources/web/images/logo.svg">
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="entry-golfcourse" style="display:none"
+			data-name="동래베네스트" data-location="부산"
+			data-holecnt="18" data-view="Y"
+			>
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<h5 class="indexNum">No.22</h5>
+				<span><img src="/resources/web/images/icon-golfcourse.svg"></span>
+			</div>
+			<div class="row">
+				<div class="col-12 col-lg-6">
+					<button onclick="openFixURL('https://www.benestgolf.com/reve/pc/main.do')" class="btn btn-golfcourse w-100 mb-3">동래베네스트</button>
+					<h5 class="mb-2">부산광역시 금정구 선동 산 128번지</h5>
+					<dl class="dl-between mb-3">
+						<dt>Tel. 051-580-0313</dt>
+						<dd>Fax. 051-513-0053</dd>
+					</dl>
+				</div>
+				<div class="col-12 col-lg-3">
+					<div class="secondLineMt mb-3">
+						<span class="badge badge-golfcourse me-2">18홀</span>
+						<span class="badge badge-golfcourse">부산</span>
+					</div>
+				</div>
+				<div class="col-12 col-lg-3 pc-only">
+					<div class="entry-golfcourse-logo mb-3">
+						<img src="/resources/web/images/logo.svg">
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="entry-golfcourse" style="display:none"
+			data-name="드림파크" data-location="인천"
+			data-holecnt="36" data-view="Y"
+			>
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<h5 class="indexNum">No.23</h5>
+				<span><img src="/resources/web/images/icon-golfcourse.svg"></span>
+			</div>
+			<div class="row">
+				<div class="col-12 col-lg-6">
+					<button onclick="openFixURL('www.dreamparkcc.or.kr')" class="btn btn-golfcourse w-100 mb-3">드림파크</button>
+					<h5 class="mb-2">인천광역시 서구 거월로 61</h5>
+					<dl class="dl-between mb-3">
+						<dt>Tel. 032-560-1700</dt>
+						<dd>Fax. 032-560-1727</dd>
+					</dl>
+				</div>
+				<div class="col-12 col-lg-3">
+					<div class="secondLineMt mb-3">
+						<span class="badge badge-golfcourse me-2">36홀</span>
+						<span class="badge badge-golfcourse">인천</span>
+					</div>
+				</div>
+				<div class="col-12 col-lg-3 pc-only">
+					<div class="entry-golfcourse-logo mb-3">
+						<img src="/resources/web/images/logo.svg">
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="entry-golfcourse" style="display:none"
+			data-name="라데나" data-location="강원"
+			data-holecnt="27" data-view="Y"
+			>
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<h5 class="indexNum">No.24</h5>
+				<span><img src="/resources/web/images/icon-golfcourse.svg"></span>
+			</div>
+			<div class="row">
+				<div class="col-12 col-lg-6">
+					<button onclick="openFixURL('www.ladenaresort.com')" class="btn btn-golfcourse w-100 mb-3">라데나</button>
+					<h5 class="mb-2">강원도 춘천시 신동면 칠전동길 72</h5>
+					<dl class="dl-between mb-3">
+						<dt>Tel. 033-260-1114</dt>
+						<dd>Fax. 033-263-6060</dd>
+					</dl>
+				</div>
+				<div class="col-12 col-lg-3">
+					<div class="secondLineMt mb-3">
+						<span class="badge badge-golfcourse me-2">27홀</span>
+						<span class="badge badge-golfcourse">강원</span>
+					</div>
+				</div>
+				<div class="col-12 col-lg-3 pc-only">
+					<div class="entry-golfcourse-logo mb-3">
+						<img src="/resources/web/images/logo.svg">
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="entry-golfcourse" style="display:none"
+			data-name="라비에벨 듄스" data-location="강원"
+			data-holecnt="18" data-view="Y"
+			>
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<h5 class="indexNum">No.25</h5>
+				<span><img src="/resources/web/images/icon-golfcourse.svg"></span>
+			</div>
+			<div class="row">
+				<div class="col-12 col-lg-6">
+					<button onclick="openFixURL('www.lavieestbellegolfnresort.com/dunescourse/')" class="btn btn-golfcourse w-100 mb-3">라비에벨 듄스</button>
+					<h5 class="mb-2">강원특별자치도 춘천시 동산면 조양리 산 172</h5>
+					<dl class="dl-between mb-3">
+						<dt>Tel. 033-245-7100</dt>
+						<dd>Fax. 033-245-7121</dd>
+					</dl>
+				</div>
+				<div class="col-12 col-lg-3">
+					<div class="secondLineMt mb-3">
+						<span class="badge badge-golfcourse me-2">18홀</span>
+						<span class="badge badge-golfcourse">강원</span>
+					</div>
+				</div>
+				<div class="col-12 col-lg-3 pc-only">
+					<div class="entry-golfcourse-logo mb-3">
+						<img src="/resources/web/images/logo.svg">
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="entry-golfcourse" style="display:none"
+			data-name="라비에벨 올드" data-location="강원"
+			data-holecnt="18" data-view="Y"
+			>
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<h5 class="indexNum">No.26</h5>
+				<span><img src="/resources/web/images/icon-golfcourse.svg"></span>
+			</div>
+			<div class="row">
+				<div class="col-12 col-lg-6">
+					<button onclick="openFixURL('www.lavieestbellegolfnresort.com/oldcourse')" class="btn btn-golfcourse w-100 mb-3">라비에벨 올드</button>
+					<h5 class="mb-2">강원특별자치도 춘천시 동산면 조양리 산 199</h5>
+					<dl class="dl-between mb-3">
+						<dt>Tel. 033-245-7000</dt>
+						<dd>Fax. 033-245-7045</dd>
+					</dl>
+				</div>
+				<div class="col-12 col-lg-3">
+					<div class="secondLineMt mb-3">
+						<span class="badge badge-golfcourse me-2">18홀</span>
+						<span class="badge badge-golfcourse">강원</span>
+					</div>
+				</div>
+				<div class="col-12 col-lg-3 pc-only">
+					<div class="entry-golfcourse-logo mb-3">
+						<img src="/resources/web/images/logo.svg">
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="entry-golfcourse" style="display:none"
+			data-name="레이크사이드" data-location="경기"
+			data-holecnt="18" data-view="Y"
+			>
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<h5 class="indexNum">No.27</h5>
+				<span><img src="/resources/web/images/icon-golfcourse.svg"></span>
+			</div>
+			<div class="row">
+				<div class="col-12 col-lg-6">
+					<button onclick="openFixURL('www.lakeside.kr')" class="btn btn-golfcourse w-100 mb-3">레이크사이드</button>
+					<h5 class="mb-2">경기도 용인시 처인구 모현면 능원리 산5-12</h5>
+					<dl class="dl-between mb-3">
+						<dt>Tel. 031-334-2111~9</dt>
+						<dd>Fax. 031-332-2106</dd>
+					</dl>
+				</div>
+				<div class="col-12 col-lg-3">
+					<div class="secondLineMt mb-3">
+						<span class="badge badge-golfcourse me-2">18홀</span>
+						<span class="badge badge-golfcourse">경기</span>
+					</div>
+				</div>
+				<div class="col-12 col-lg-3 pc-only">
+					<div class="entry-golfcourse-logo mb-3">
+						<img src="/resources/web/images/logo.svg">
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="entry-golfcourse" style="display:none"
+			data-name="레이크우드" data-location="경기"
+			data-holecnt="36" data-view="Y"
+			>
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<h5 class="indexNum">No.28</h5>
+				<span><img src="/resources/web/images/icon-golfcourse.svg"></span>
+			</div>
+			<div class="row">
+				<div class="col-12 col-lg-6">
+					<button onclick="openFixURL('lakewood.co.kr')" class="btn btn-golfcourse w-100 mb-3">레이크우드</button>
+					<h5 class="mb-2">경기도 양주시 만송로 244</h5>
+					<dl class="dl-between mb-3">
+						<dt>Tel. 031-820-1533</dt>
+						<dd>Fax. 031-840-1616</dd>
+					</dl>
+				</div>
+				<div class="col-12 col-lg-3">
+					<div class="secondLineMt mb-3">
+						<span class="badge badge-golfcourse me-2">36홀</span>
+						<span class="badge badge-golfcourse">경기</span>
+					</div>
+				</div>
+				<div class="col-12 col-lg-3 pc-only">
+					<div class="entry-golfcourse-logo mb-3">
+						<img src="/resources/web/images/logo.svg">
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="entry-golfcourse" style="display:none"
+			data-name="레인보우힐스" data-location="충북"
+			data-holecnt="18" data-view="Y"
+			>
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<h5 class="indexNum">No.29</h5>
+				<span><img src="/resources/web/images/icon-golfcourse.svg"></span>
+			</div>
+			<div class="row">
+				<div class="col-12 col-lg-6">
+					<button onclick="openFixURL('www.rainbowhills.co.kr')" class="btn btn-golfcourse w-100 mb-3">레인보우힐스</button>
+					<h5 class="mb-2">충북 음성군 생극면 차생로 168</h5>
+					<dl class="dl-between mb-3">
+						<dt>Tel. 043-879-7900</dt>
+						<dd>Fax. 043-879-7992</dd>
+					</dl>
+				</div>
+				<div class="col-12 col-lg-3">
+					<div class="secondLineMt mb-3">
+						<span class="badge badge-golfcourse me-2">18홀</span>
+						<span class="badge badge-golfcourse">충북</span>
+					</div>
+				</div>
+				<div class="col-12 col-lg-3 pc-only">
+					<div class="entry-golfcourse-logo mb-3">
+						<img src="/resources/web/images/logo.svg">
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="entry-golfcourse" style="display:none"
+			data-name="로제비앙" data-location="경기"
+			data-holecnt="27" data-view="Y"
+			>
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<h5 class="indexNum">No.30</h5>
+				<span><img src="/resources/web/images/icon-golfcourse.svg"></span>
+			</div>
+			<div class="row">
+				<div class="col-12 col-lg-6">
+					<button onclick="openFixURL('https://www.logebiengc.com/')" class="btn btn-golfcourse w-100 mb-3">로제비앙</button>
+					<h5 class="mb-2">경기도 광주시 곤지암읍 오향길 180</h5>
+					<dl class="dl-between mb-3">
+						<dt>Tel. 031-799-6021</dt>
+						<dd>Fax. 031-799-6030</dd>
+					</dl>
+				</div>
+				<div class="col-12 col-lg-3">
+					<div class="secondLineMt mb-3">
+						<span class="badge badge-golfcourse me-2">27홀</span>
+						<span class="badge badge-golfcourse">경기</span>
+					</div>
+				</div>
+				<div class="col-12 col-lg-3 pc-only">
+					<div class="entry-golfcourse-logo mb-3">
+						<img src="/resources/web/images/logo.svg">
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="entry-golfcourse" style="display:none"
+			data-name="롯데스카이힐 제주CC" data-location="제주"
+			data-holecnt="27" data-view="Y"
+			>
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<h5 class="indexNum">No.31</h5>
+				<span><img src="/resources/web/images/icon-golfcourse.svg"></span>
+			</div>
+			<div class="row">
+				<div class="col-12 col-lg-6">
+					<button onclick="openFixURL('www.lotteskyhill.com/club/clubIntro/club-intro-jeju')" class="btn btn-golfcourse w-100 mb-3">롯데스카이힐 제주CC</button>
+					<h5 class="mb-2">제주특별자치도 서귀포시 상예로 530</h5>
+					<dl class="dl-between mb-3">
+						<dt>Tel. 064-731-2000</dt>
+						<dd>Fax. 064-731-2094</dd>
+					</dl>
+				</div>
+				<div class="col-12 col-lg-3">
+					<div class="secondLineMt mb-3">
+						<span class="badge badge-golfcourse me-2">27홀</span>
+						<span class="badge badge-golfcourse">제주</span>
+					</div>
+				</div>
+				<div class="col-12 col-lg-3 pc-only">
+					<div class="entry-golfcourse-logo mb-3">
+						<img src="/resources/web/images/logo.svg">
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="entry-golfcourse" style="display:none"
+			data-name="마우나오션" data-location="경북"
+			data-holecnt="27" data-view="Y"
+			>
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<h5 class="indexNum">No.32</h5>
+				<span><img src="/resources/web/images/icon-golfcourse.svg"></span>
+			</div>
+			<div class="row">
+				<div class="col-12 col-lg-6">
+					<button onclick="openFixURL('www.mauna.co.kr')" class="btn btn-golfcourse w-100 mb-3">마우나오션</button>
+					<h5 class="mb-2">경북 경주시 양남면 동남로 982번지</h5>
+					<dl class="dl-between mb-3">
+						<dt>Tel. 054-740-0678</dt>
+						<dd>Fax. 054-776-4800</dd>
+					</dl>
+				</div>
+				<div class="col-12 col-lg-3">
+					<div class="secondLineMt mb-3">
+						<span class="badge badge-golfcourse me-2">27홀</span>
+						<span class="badge badge-golfcourse">경북</span>
+					</div>
+				</div>
+				<div class="col-12 col-lg-3 pc-only">
+					<div class="entry-golfcourse-logo mb-3">
+						<img src="/resources/web/images/logo.svg">
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="entry-golfcourse" style="display:none"
+			data-name="몽베르" data-location="경기"
+			data-holecnt="18" data-view="Y"
+			>
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<h5 class="indexNum">No.33</h5>
+				<span><img src="/resources/web/images/icon-golfcourse.svg"></span>
+			</div>
+			<div class="row">
+				<div class="col-12 col-lg-6">
+					<button onclick="openFixURL('https://www.montvertcc.com')" class="btn btn-golfcourse w-100 mb-3">몽베르</button>
+					<h5 class="mb-2">경기 포천시 영북면 산정호수로 359-12</h5>
+					<dl class="dl-between mb-3">
+						<dt>Tel. 031-531-1100</dt>
+						<dd>Fax. 031-531-3109</dd>
+					</dl>
+				</div>
+				<div class="col-12 col-lg-3">
+					<div class="secondLineMt mb-3">
+						<span class="badge badge-golfcourse me-2">18홀</span>
+						<span class="badge badge-golfcourse">경기</span>
+					</div>
+				</div>
+				<div class="col-12 col-lg-3 pc-only">
+					<div class="entry-golfcourse-logo mb-3">
+						<img src="/resources/web/images/logo.svg">
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="entry-golfcourse" style="display:none"
+			data-name="무안" data-location="전남"
+			data-holecnt="18" data-view="Y"
+			>
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<h5 class="indexNum">No.34</h5>
+				<span><img src="/resources/web/images/icon-golfcourse.svg"></span>
+			</div>
+			<div class="row">
+				<div class="col-12 col-lg-6">
+					<button onclick="openFixURL('muangc.co.kr')" class="btn btn-golfcourse w-100 mb-3">무안</button>
+					<h5 class="mb-2">전남 무안군 청계면 서호로 162</h5>
+					<dl class="dl-between mb-3">
+						<dt>Tel. 061-450-9000</dt>
+						<dd>Fax. 061-450-9005</dd>
+					</dl>
+				</div>
+				<div class="col-12 col-lg-3">
+					<div class="secondLineMt mb-3">
+						<span class="badge badge-golfcourse me-2">18홀</span>
+						<span class="badge badge-golfcourse">전남</span>
+					</div>
+				</div>
+				<div class="col-12 col-lg-3 pc-only">
+					<div class="entry-golfcourse-logo mb-3">
+						<img src="/resources/web/images/logo.svg">
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="entry-golfcourse" style="display:none"
+			data-name="베스트밸리" data-location="경기"
+			data-holecnt="9" data-view="Y"
+			>
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<h5 class="indexNum">No.35</h5>
+				<span><img src="/resources/web/images/icon-golfcourse.svg"></span>
+			</div>
+			<div class="row">
+				<div class="col-12 col-lg-6">
+					<button onclick="openFixURL('www.bestvalleygc.com')" class="btn btn-golfcourse w-100 mb-3">베스트밸리</button>
+					<h5 class="mb-2">경기도 파주시 광탄면 장지산로200번길 32-41 베스트밸리골프클럽 </h5>
+					<dl class="dl-between mb-3">
+						<dt>Tel. 031-950-7777</dt>
+						<dd>Fax. 031-950-7799</dd>
+					</dl>
+				</div>
+				<div class="col-12 col-lg-3">
+					<div class="secondLineMt mb-3">
+						<span class="badge badge-golfcourse me-2">9홀</span>
+						<span class="badge badge-golfcourse">경기</span>
+					</div>
+				</div>
+				<div class="col-12 col-lg-3 pc-only">
+					<div class="entry-golfcourse-logo mb-3">
+						<img src="/resources/web/images/logo.svg">
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="entry-golfcourse" style="display:none"
+			data-name="베어크리크 포천" data-location="경기"
+			data-holecnt="36" data-view="Y"
+			>
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<h5 class="indexNum">No.36</h5>
+				<span><img src="/resources/web/images/icon-golfcourse.svg"></span>
+			</div>
+			<div class="row">
+				<div class="col-12 col-lg-6">
+					<button onclick="openFixURL('www.bearcreek.co.kr')" class="btn btn-golfcourse w-100 mb-3">베어크리크 포천</button>
+					<h5 class="mb-2">경기도 포천시 화현면 달인동로 35</h5>
+					<dl class="dl-between mb-3">
+						<dt>Tel. 031-539-5700</dt>
+						<dd>Fax. 031-539-5723</dd>
+					</dl>
+				</div>
+				<div class="col-12 col-lg-3">
+					<div class="secondLineMt mb-3">
+						<span class="badge badge-golfcourse me-2">36홀</span>
+						<span class="badge badge-golfcourse">경기</span>
+					</div>
+				</div>
+				<div class="col-12 col-lg-3 pc-only">
+					<div class="entry-golfcourse-logo mb-3">
+						<img src="/resources/web/images/logo.svg">
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="entry-golfcourse" style="display:none"
+			data-name="부산" data-location="부산"
+			data-holecnt="18" data-view="Y"
+			>
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<h5 class="indexNum">No.37</h5>
+				<span><img src="/resources/web/images/icon-golfcourse.svg"></span>
+			</div>
+			<div class="row">
+				<div class="col-12 col-lg-6">
+					<button onclick="openFixURL('www.bscc.co.kr')" class="btn btn-golfcourse w-100 mb-3">부산</button>
+					<h5 class="mb-2">부산광역시 금정구 중앙대로2327번길 112</h5>
+					<dl class="dl-between mb-3">
+						<dt>Tel. 051-509-0707</dt>
+						<dd>Fax. 051-508-1717</dd>
+					</dl>
+				</div>
+				<div class="col-12 col-lg-3">
+					<div class="secondLineMt mb-3">
+						<span class="badge badge-golfcourse me-2">18홀</span>
+						<span class="badge badge-golfcourse">부산</span>
+					</div>
+				</div>
+				<div class="col-12 col-lg-3 pc-only">
+					<div class="entry-golfcourse-logo mb-3">
+						<img src="/resources/web/images/logo.svg">
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="entry-golfcourse" style="display:none"
+			data-name="블루원상주" data-location="경북"
+			data-holecnt="18" data-view="Y"
+			>
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<h5 class="indexNum">No.38</h5>
+				<span><img src="/resources/web/images/icon-golfcourse.svg"></span>
+			</div>
+			<div class="row">
+				<div class="col-12 col-lg-6">
+					<button onclick="openFixURL('sj.blueone.com')" class="btn btn-golfcourse w-100 mb-3">블루원상주</button>
+					<h5 class="mb-2">경북 상주시 모서면 화현3길 127번지</h5>
+					<dl class="dl-between mb-3">
+						<dt>Tel. 1899-1888</dt>
+						<dd>Fax. 054-530-8899</dd>
+					</dl>
+				</div>
+				<div class="col-12 col-lg-3">
+					<div class="secondLineMt mb-3">
+						<span class="badge badge-golfcourse me-2">18홀</span>
+						<span class="badge badge-golfcourse">경북</span>
+					</div>
+				</div>
+				<div class="col-12 col-lg-3 pc-only">
+					<div class="entry-golfcourse-logo mb-3">
+						<img src="/resources/web/images/logo.svg">
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="entry-golfcourse" style="display:none"
+			data-name="블루원용인" data-location="경기"
+			data-holecnt="27" data-view="Y"
+			>
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<h5 class="indexNum">No.39</h5>
+				<span><img src="/resources/web/images/icon-golfcourse.svg"></span>
+			</div>
+			<div class="row">
+				<div class="col-12 col-lg-6">
+					<button onclick="openFixURL('yi.blueone.com')" class="btn btn-golfcourse w-100 mb-3">블루원용인</button>
+					<h5 class="mb-2">경기도 용인시 처인구 원삼면 보개원삼로1534번길 40</h5>
+					<dl class="dl-between mb-3">
+						<dt>Tel. 1899-1888</dt>
+						<dd>Fax. 031-334-5054</dd>
+					</dl>
+				</div>
+				<div class="col-12 col-lg-3">
+					<div class="secondLineMt mb-3">
+						<span class="badge badge-golfcourse me-2">27홀</span>
+						<span class="badge badge-golfcourse">경기</span>
+					</div>
+				</div>
+				<div class="col-12 col-lg-3 pc-only">
+					<div class="entry-golfcourse-logo mb-3">
+						<img src="/resources/web/images/logo.svg">
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="entry-golfcourse" style="display:none"
+			data-name="샌드파인" data-location="강원"
+			data-holecnt="18" data-view="Y"
+			>
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<h5 class="indexNum">No.40</h5>
+				<span><img src="/resources/web/images/icon-golfcourse.svg"></span>
+			</div>
+			<div class="row">
+				<div class="col-12 col-lg-6">
+					<button onclick="openFixURL('www.sandpine.co.kr')" class="btn btn-golfcourse w-100 mb-3">샌드파인</button>
+					<h5 class="mb-2">강원도 강릉시 저동등길 53</h5>
+					<dl class="dl-between mb-3">
+						<dt>Tel. 033-655-7000</dt>
+						<dd>Fax. 033-644-0408</dd>
+					</dl>
+				</div>
+				<div class="col-12 col-lg-3">
+					<div class="secondLineMt mb-3">
+						<span class="badge badge-golfcourse me-2">18홀</span>
+						<span class="badge badge-golfcourse">강원</span>
+					</div>
+				</div>
+				<div class="col-12 col-lg-3 pc-only">
+					<div class="entry-golfcourse-logo mb-3">
+						<img src="/resources/web/images/logo.svg">
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="entry-golfcourse" style="display:none"
+			data-name="서산수골프앤리조트" data-location="충남"
+			data-holecnt="18" data-view="Y"
+			>
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<h5 class="indexNum">No.41</h5>
+				<span><img src="/resources/web/images/icon-golfcourse.svg"></span>
+			</div>
+			<div class="row">
+				<div class="col-12 col-lg-6">
+					<button onclick="openFixURL('http://seosansoo.com')" class="btn btn-golfcourse w-100 mb-3">서산수골프앤리조트</button>
+					<h5 class="mb-2">충청남도 서산시 대산읍 삼길포7로 6</h5>
+					<dl class="dl-between mb-3">
+						<dt>Tel. 041-689-7772</dt>
+						<dd>Fax. 041-689-7710</dd>
+					</dl>
+				</div>
+				<div class="col-12 col-lg-3">
+					<div class="secondLineMt mb-3">
+						<span class="badge badge-golfcourse me-2">18홀</span>
+						<span class="badge badge-golfcourse">충남</span>
+					</div>
+				</div>
+				<div class="col-12 col-lg-3 pc-only">
+					<div class="entry-golfcourse-logo mb-3">
+						<img src="/resources/web/images/logo.svg">
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="entry-golfcourse" style="display:none"
+			data-name="서울" data-location="경기"
+			data-holecnt="18" data-view="Y"
+			>
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<h5 class="indexNum">No.42</h5>
+				<span><img src="/resources/web/images/icon-golfcourse.svg"></span>
+			</div>
+			<div class="row">
+				<div class="col-12 col-lg-6">
+					<button onclick="openFixURL('www.seoulcc.co.kr')" class="btn btn-golfcourse w-100 mb-3">서울</button>
+					<h5 class="mb-2">경기도 고양시 덕양구 고양대로1643번길 164 (원당동)</h5>
+					<dl class="dl-between mb-3">
+						<dt>Tel. 031-969-0810</dt>
+						<dd>Fax. 031-964-6900</dd>
+					</dl>
+				</div>
+				<div class="col-12 col-lg-3">
+					<div class="secondLineMt mb-3">
+						<span class="badge badge-golfcourse me-2">18홀</span>
+						<span class="badge badge-golfcourse">경기</span>
+					</div>
+				</div>
+				<div class="col-12 col-lg-3 pc-only">
+					<div class="entry-golfcourse-logo mb-3">
+						<img src="/resources/web/images/logo.svg">
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="entry-golfcourse" style="display:none"
+			data-name="서원밸리" data-location="경기"
+			data-holecnt="18" data-view="Y"
+			>
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<h5 class="indexNum">No.43</h5>
+				<span><img src="/resources/web/images/icon-golfcourse.svg"></span>
+			</div>
+			<div class="row">
+				<div class="col-12 col-lg-6">
+					<button onclick="openFixURL('https://www.seowongolf.co.kr/valley/main')" class="btn btn-golfcourse w-100 mb-3">서원밸리</button>
+					<h5 class="mb-2">경기도 파주시 광탄면 서원길 333</h5>
+					<dl class="dl-between mb-3">
+						<dt>Tel. 031-940-9400</dt>
+						<dd>Fax. 031-940-9500</dd>
+					</dl>
+				</div>
+				<div class="col-12 col-lg-3">
+					<div class="secondLineMt mb-3">
+						<span class="badge badge-golfcourse me-2">18홀</span>
+						<span class="badge badge-golfcourse">경기</span>
+					</div>
+				</div>
+				<div class="col-12 col-lg-3 pc-only">
+					<div class="entry-golfcourse-logo mb-3">
+						<img src="/resources/web/images/logo.svg">
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="entry-golfcourse" style="display:none"
+			data-name="설해원" data-location="강원"
+			data-holecnt="0" data-view="Y"
+			>
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<h5 class="indexNum">No.44</h5>
+				<span><img src="/resources/web/images/icon-golfcourse.svg"></span>
+			</div>
+			<div class="row">
+				<div class="col-12 col-lg-6">
+					<button onclick="openFixURL('www.seolhaeone.com')" class="btn btn-golfcourse w-100 mb-3">설해원</button>
+					<h5 class="mb-2">강원도 양양군 손양면 공항로 230번지</h5>
+					<dl class="dl-between mb-3">
+						<dt>Tel. 033-670-7800</dt>
+						<dd>Fax. 033-673-7313</dd>
+					</dl>
+				</div>
+				<div class="col-12 col-lg-3">
+					<div class="secondLineMt mb-3">
+						<span class="badge badge-golfcourse me-2">0홀</span>
+						<span class="badge badge-golfcourse">강원</span>
+					</div>
+				</div>
+				<div class="col-12 col-lg-3 pc-only">
+					<div class="entry-golfcourse-logo mb-3">
+						<img src="/resources/web/images/logo.svg">
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="entry-golfcourse" style="display:none"
+			data-name="성문안" data-location="강원"
+			data-holecnt="18" data-view="Y"
+			>
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<h5 class="indexNum">No.45</h5>
+				<span><img src="/resources/web/images/icon-golfcourse.svg"></span>
+			</div>
+			<div class="row">
+				<div class="col-12 col-lg-6">
+					<button onclick="openFixURL('http://www.oakvalley.co.kr')" class="btn btn-golfcourse w-100 mb-3">성문안</button>
+					<h5 class="mb-2">강원도 원주시 지정면 월송리 산 121-8</h5>
+					<dl class="dl-between mb-3">
+						<dt>Tel. 033-769-7325</dt>
+						<dd>Fax. 033-769-7349</dd>
+					</dl>
+				</div>
+				<div class="col-12 col-lg-3">
+					<div class="secondLineMt mb-3">
+						<span class="badge badge-golfcourse me-2">18홀</span>
+						<span class="badge badge-golfcourse">강원</span>
+					</div>
+				</div>
+				<div class="col-12 col-lg-3 pc-only">
+					<div class="entry-golfcourse-logo mb-3">
+						<img src="/resources/web/images/logo.svg">
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="entry-golfcourse" style="display:none"
+			data-name="세레니티" data-location="충북"
+			data-holecnt="18" data-view="Y"
+			>
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<h5 class="indexNum">No.46</h5>
+				<span><img src="/resources/web/images/icon-golfcourse.svg"></span>
+			</div>
+			<div class="row">
+				<div class="col-12 col-lg-6">
+					<button onclick="openFixURL('www.serenitycc.co.kr')" class="btn btn-golfcourse w-100 mb-3">세레니티</button>
+					<h5 class="mb-2">충북 청주시 서원구 남이면 문곡구절골길 235 세레니티 골프앤리조트</h5>
+					<dl class="dl-between mb-3">
+						<dt>Tel. 043-277-5000</dt>
+						<dd>Fax. 043-277-0700</dd>
+					</dl>
+				</div>
+				<div class="col-12 col-lg-3">
+					<div class="secondLineMt mb-3">
+						<span class="badge badge-golfcourse me-2">18홀</span>
+						<span class="badge badge-golfcourse">충북</span>
+					</div>
+				</div>
+				<div class="col-12 col-lg-3 pc-only">
+					<div class="entry-golfcourse-logo mb-3">
+						<img src="/resources/web/images/logo.svg">
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="entry-golfcourse" style="display:none"
+			data-name="세종에머슨" data-location="세종"
+			data-holecnt="27" data-view="Y"
+			>
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<h5 class="indexNum">No.47</h5>
+				<span><img src="/resources/web/images/icon-golfcourse.svg"></span>
+			</div>
+			<div class="row">
+				<div class="col-12 col-lg-6">
+					<button onclick="openFixURL('www.sejongemerson.co.kr')" class="btn btn-golfcourse w-100 mb-3">세종에머슨</button>
+					<h5 class="mb-2">세종특별자치시 전의면 운주산로 1510</h5>
+					<dl class="dl-between mb-3">
+						<dt>Tel. 044-862-4004</dt>
+						<dd>Fax. 044-863-2835</dd>
+					</dl>
+				</div>
+				<div class="col-12 col-lg-3">
+					<div class="secondLineMt mb-3">
+						<span class="badge badge-golfcourse me-2">27홀</span>
+						<span class="badge badge-golfcourse">세종</span>
+					</div>
+				</div>
+				<div class="col-12 col-lg-3 pc-only">
+					<div class="entry-golfcourse-logo mb-3">
+						<img src="/resources/web/images/logo.svg">
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="entry-golfcourse" style="display:none"
+			data-name="센추리21" data-location="강원"
+			data-holecnt="45" data-view="Y"
+			>
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<h5 class="indexNum">No.48</h5>
+				<span><img src="/resources/web/images/icon-golfcourse.svg"></span>
+			</div>
+			<div class="row">
+				<div class="col-12 col-lg-6">
+					<button onclick="openFixURL('www.century21cc.co.kr')" class="btn btn-golfcourse w-100 mb-3">센추리21</button>
+					<h5 class="mb-2">강원도 원주시 문막읍 궁말길 193</h5>
+					<dl class="dl-between mb-3">
+						<dt>Tel. 033-733-1000</dt>
+						<dd>Fax. 033-733-0055</dd>
+					</dl>
+				</div>
+				<div class="col-12 col-lg-3">
+					<div class="secondLineMt mb-3">
+						<span class="badge badge-golfcourse me-2">45홀</span>
+						<span class="badge badge-golfcourse">강원</span>
+					</div>
+				</div>
+				<div class="col-12 col-lg-3 pc-only">
+					<div class="entry-golfcourse-logo mb-3">
+						<img src="/resources/web/images/logo.svg">
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="entry-golfcourse" style="display:none"
+			data-name="송추" data-location="경기"
+			data-holecnt="18" data-view="Y"
+			>
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<h5 class="indexNum">No.49</h5>
+				<span><img src="/resources/web/images/icon-golfcourse.svg"></span>
+			</div>
+			<div class="row">
+				<div class="col-12 col-lg-6">
+					<button onclick="openFixURL('www.songchoo.co.kr')" class="btn btn-golfcourse w-100 mb-3">송추</button>
+					<h5 class="mb-2">경기도 양주시 광적면 쇠장이길 435</h5>
+					<dl class="dl-between mb-3">
+						<dt>Tel. 031-871-9410~5</dt>
+						<dd>Fax. 031-871-8090~1</dd>
+					</dl>
+				</div>
+				<div class="col-12 col-lg-3">
+					<div class="secondLineMt mb-3">
+						<span class="badge badge-golfcourse me-2">18홀</span>
+						<span class="badge badge-golfcourse">경기</span>
+					</div>
+				</div>
+				<div class="col-12 col-lg-3 pc-only">
+					<div class="entry-golfcourse-logo mb-3">
+						<img src="/resources/web/images/logo.svg">
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="entry-golfcourse" style="display:none"
+			data-name="수원" data-location="경기"
+			data-holecnt="36" data-view="Y"
+			>
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<h5 class="indexNum">No.50</h5>
+				<span><img src="/resources/web/images/icon-golfcourse.svg"></span>
+			</div>
+			<div class="row">
+				<div class="col-12 col-lg-6">
+					<button onclick="openFixURL('www.suwoncc.co.kr')" class="btn btn-golfcourse w-100 mb-3">수원</button>
+					<h5 class="mb-2">경기도 용인시 기흥구 중부대로 495 (구갈동)</h5>
+					<dl class="dl-between mb-3">
+						<dt>Tel. 031-281-6613</dt>
+						<dd>Fax. 031-281-6620</dd>
+					</dl>
+				</div>
+				<div class="col-12 col-lg-3">
+					<div class="secondLineMt mb-3">
+						<span class="badge badge-golfcourse me-2">36홀</span>
+						<span class="badge badge-golfcourse">경기</span>
+					</div>
+				</div>
+				<div class="col-12 col-lg-3 pc-only">
+					<div class="entry-golfcourse-logo mb-3">
+						<img src="/resources/web/images/logo.svg">
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="entry-golfcourse" style="display:none"
+			data-name="신라" data-location="경기"
+			data-holecnt="18" data-view="Y"
+			>
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<h5 class="indexNum">No.51</h5>
+				<span><img src="/resources/web/images/icon-golfcourse.svg"></span>
+			</div>
+			<div class="row">
+				<div class="col-12 col-lg-6">
+					<button onclick="openFixURL('https://www.onetheclub.com/shilla/main')" class="btn btn-golfcourse w-100 mb-3">신라</button>
+					<h5 class="mb-2">경기도 여주시 북내면 신라그린길 84</h5>
+					<dl class="dl-between mb-3">
+						<dt>Tel. 031-886-3030</dt>
+						<dd>Fax. 031-886-3037</dd>
+					</dl>
+				</div>
+				<div class="col-12 col-lg-3">
+					<div class="secondLineMt mb-3">
+						<span class="badge badge-golfcourse me-2">18홀</span>
+						<span class="badge badge-golfcourse">경기</span>
+					</div>
+				</div>
+				<div class="col-12 col-lg-3 pc-only">
+					<div class="entry-golfcourse-logo mb-3">
+						<img src="/resources/web/images/logo.svg">
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="entry-golfcourse" style="display:none"
+			data-name="아난티클럽서울" data-location="경기"
+			data-holecnt="27" data-view="Y"
+			>
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<h5 class="indexNum">No.52</h5>
+				<span><img src="/resources/web/images/icon-golfcourse.svg"></span>
+			</div>
+			<div class="row">
+				<div class="col-12 col-lg-6">
+					<button onclick="openFixURL('www.ananti.kr')" class="btn btn-golfcourse w-100 mb-3">아난티클럽서울</button>
+					<h5 class="mb-2">경기도 가평군 설악면 유명로 961-34</h5>
+					<dl class="dl-between mb-3">
+						<dt>Tel. 031-589-3000</dt>
+						<dd>Fax. 031-589-3440</dd>
+					</dl>
+				</div>
+				<div class="col-12 col-lg-3">
+					<div class="secondLineMt mb-3">
+						<span class="badge badge-golfcourse me-2">27홀</span>
+						<span class="badge badge-golfcourse">경기</span>
+					</div>
+				</div>
+				<div class="col-12 col-lg-3 pc-only">
+					<div class="entry-golfcourse-logo mb-3">
+						<img src="/resources/web/images/logo.svg">
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="entry-golfcourse" style="display:none"
+			data-name="아덴힐 리조트앤골프클럽" data-location="제주"
+			data-holecnt="18" data-view="Y"
+			>
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<h5 class="indexNum">No.53</h5>
+				<span><img src="/resources/web/images/icon-golfcourse.svg"></span>
+			</div>
+			<div class="row">
+				<div class="col-12 col-lg-6">
+					<button onclick="openFixURL('https://ardenhill.co.kr')" class="btn btn-golfcourse w-100 mb-3">아덴힐 리조트앤골프클럽</button>
+					<h5 class="mb-2">제주특별자치도 제주시 한림읍 화전길 82</h5>
+					<dl class="dl-between mb-3">
+						<dt>Tel. 064-730-7000</dt>
+						<dd>Fax. 064-730-7019</dd>
+					</dl>
+				</div>
+				<div class="col-12 col-lg-3">
+					<div class="secondLineMt mb-3">
+						<span class="badge badge-golfcourse me-2">18홀</span>
+						<span class="badge badge-golfcourse">제주</span>
+					</div>
+				</div>
+				<div class="col-12 col-lg-3 pc-only">
+					<div class="entry-golfcourse-logo mb-3">
+						<img src="/resources/web/images/logo.svg">
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="entry-golfcourse" style="display:none"
+			data-name="아시아나" data-location="경기"
+			data-holecnt="36" data-view="Y"
+			>
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<h5 class="indexNum">No.54</h5>
+				<span><img src="/resources/web/images/icon-golfcourse.svg"></span>
+			</div>
+			<div class="row">
+				<div class="col-12 col-lg-6">
+					<button onclick="openFixURL('www.asianacc.co.kr')" class="btn btn-golfcourse w-100 mb-3">아시아나</button>
+					<h5 class="mb-2">경기도 용인시 처인구 양지면 양대로 290</h5>
+					<dl class="dl-between mb-3">
+						<dt>Tel. 031-334-8800</dt>
+						<dd>Fax. 031-334-8130</dd>
+					</dl>
+				</div>
+				<div class="col-12 col-lg-3">
+					<div class="secondLineMt mb-3">
+						<span class="badge badge-golfcourse me-2">36홀</span>
+						<span class="badge badge-golfcourse">경기</span>
+					</div>
+				</div>
+				<div class="col-12 col-lg-3 pc-only">
+					<div class="entry-golfcourse-logo mb-3">
+						<img src="/resources/web/images/logo.svg">
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="entry-golfcourse" style="display:none"
+			data-name="안양" data-location="경기"
+			data-holecnt="18" data-view="Y"
+			>
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<h5 class="indexNum">No.55</h5>
+				<span><img src="/resources/web/images/icon-golfcourse.svg"></span>
+			</div>
+			<div class="row">
+				<div class="col-12 col-lg-6">
+					<button onclick="openFixURL('https://www.benestgolf.com/reve/pc/main.do')" class="btn btn-golfcourse w-100 mb-3">안양</button>
+					<h5 class="mb-2">경기도 군포시 군포로 364 (부곡동)</h5>
+					<dl class="dl-between mb-3">
+						<dt>Tel. 031-460-3301</dt>
+						<dd>Fax. 031-460-3310</dd>
+					</dl>
+				</div>
+				<div class="col-12 col-lg-3">
+					<div class="secondLineMt mb-3">
+						<span class="badge badge-golfcourse me-2">18홀</span>
+						<span class="badge badge-golfcourse">경기</span>
+					</div>
+				</div>
+				<div class="col-12 col-lg-3 pc-only">
+					<div class="entry-golfcourse-logo mb-3">
+						<img src="/resources/web/images/logo.svg">
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="entry-golfcourse" style="display:none"
+			data-name="양주" data-location="경기"
+			data-holecnt="18" data-view="Y"
+			>
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<h5 class="indexNum">No.56</h5>
+				<span><img src="/resources/web/images/icon-golfcourse.svg"></span>
+			</div>
+			<div class="row">
+				<div class="col-12 col-lg-6">
+					<button onclick="openFixURL('www.yangjucc.co.kr')" class="btn btn-golfcourse w-100 mb-3">양주</button>
+					<h5 class="mb-2">경기 남양주시 화도읍 북한강로 1525-52 양주 골프장</h5>
+					<dl class="dl-between mb-3">
+						<dt>Tel. 031-592-6060~4</dt>
+						<dd>Fax. (031)591-6065</dd>
+					</dl>
+				</div>
+				<div class="col-12 col-lg-3">
+					<div class="secondLineMt mb-3">
+						<span class="badge badge-golfcourse me-2">18홀</span>
+						<span class="badge badge-golfcourse">경기</span>
+					</div>
+				</div>
+				<div class="col-12 col-lg-3 pc-only">
+					<div class="entry-golfcourse-logo mb-3">
+						<img src="/resources/web/images/logo.svg">
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="entry-golfcourse" style="display:none"
+			data-name="엘리시안강촌" data-location="강원"
+			data-holecnt="27" data-view="Y"
+			>
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<h5 class="indexNum">No.57</h5>
+				<span><img src="/resources/web/images/icon-golfcourse.svg"></span>
+			</div>
+			<div class="row">
+				<div class="col-12 col-lg-6">
+					<button onclick="openFixURL('www.elysian.co.kr')" class="btn btn-golfcourse w-100 mb-3">엘리시안강촌</button>
+					<h5 class="mb-2">강원도 춘천시 남산면 북한강변길 688</h5>
+					<dl class="dl-between mb-3">
+						<dt>Tel. 033-260-2000</dt>
+						<dd>Fax. 033-264-6002</dd>
+					</dl>
+				</div>
+				<div class="col-12 col-lg-3">
+					<div class="secondLineMt mb-3">
+						<span class="badge badge-golfcourse me-2">27홀</span>
+						<span class="badge badge-golfcourse">강원</span>
+					</div>
+				</div>
+				<div class="col-12 col-lg-3 pc-only">
+					<div class="entry-golfcourse-logo mb-3">
+						<img src="/resources/web/images/logo.svg">
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="entry-golfcourse" style="display:none"
+			data-name="엘리시안제주" data-location="제주"
+			data-holecnt="36" data-view="Y"
+			>
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<h5 class="indexNum">No.58</h5>
+				<span><img src="/resources/web/images/icon-golfcourse.svg"></span>
+			</div>
+			<div class="row">
+				<div class="col-12 col-lg-6">
+					<button onclick="openFixURL('www.elysian.co.kr/main_jeju.asp')" class="btn btn-golfcourse w-100 mb-3">엘리시안제주</button>
+					<h5 class="mb-2">제주특별자치도 제주시 애월읍 평화로 1738-116</h5>
+					<dl class="dl-between mb-3">
+						<dt>Tel. 064-798-7000</dt>
+						<dd>Fax. 064-799-7011</dd>
+					</dl>
+				</div>
+				<div class="col-12 col-lg-3">
+					<div class="secondLineMt mb-3">
+						<span class="badge badge-golfcourse me-2">36홀</span>
+						<span class="badge badge-golfcourse">제주</span>
+					</div>
+				</div>
+				<div class="col-12 col-lg-3 pc-only">
+					<div class="entry-golfcourse-logo mb-3">
+						<img src="/resources/web/images/logo.svg">
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="entry-golfcourse" style="display:none"
+			data-name="오창 에딘버러" data-location="충북"
+			data-holecnt="9" data-view="Y"
+			>
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<h5 class="indexNum">No.59</h5>
+				<span><img src="/resources/web/images/icon-golfcourse.svg"></span>
+			</div>
+			<div class="row">
+				<div class="col-12 col-lg-6">
+					<button onclick="openFixURL('www.ochangedincc.com')" class="btn btn-golfcourse w-100 mb-3">오창 에딘버러</button>
+					<h5 class="mb-2">충북 청주시 청원구 오창읍 두릉유리로 846</h5>
+					<dl class="dl-between mb-3">
+						<dt>Tel. 043-210-1900</dt>
+						<dd>Fax. 043-241-2030</dd>
+					</dl>
+				</div>
+				<div class="col-12 col-lg-3">
+					<div class="secondLineMt mb-3">
+						<span class="badge badge-golfcourse me-2">9홀</span>
+						<span class="badge badge-golfcourse">충북</span>
+					</div>
+				</div>
+				<div class="col-12 col-lg-3 pc-only">
+					<div class="entry-golfcourse-logo mb-3">
+						<img src="/resources/web/images/logo.svg">
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="entry-golfcourse" style="display:none"
+			data-name="올데이 임페리얼레이크" data-location="충북"
+			data-holecnt="18" data-view="Y"
+			>
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<h5 class="indexNum">No.60</h5>
+				<span><img src="/resources/web/images/icon-golfcourse.svg"></span>
+			</div>
+			<div class="row">
+				<div class="col-12 col-lg-6">
+					<button onclick="openFixURL('www.ilcc.co.kr')" class="btn btn-golfcourse w-100 mb-3">올데이 임페리얼레이크</button>
+					<h5 class="mb-2">충북 충주시 금가면 월상리 산 95-1</h5>
+					<dl class="dl-between mb-3">
+						<dt>Tel. 043-853-5555</dt>
+						<dd>Fax. 043-857-8500</dd>
+					</dl>
+				</div>
+				<div class="col-12 col-lg-3">
+					<div class="secondLineMt mb-3">
+						<span class="badge badge-golfcourse me-2">18홀</span>
+						<span class="badge badge-golfcourse">충북</span>
+					</div>
+				</div>
+				<div class="col-12 col-lg-3 pc-only">
+					<div class="entry-golfcourse-logo mb-3">
+						<img src="/resources/web/images/logo.svg">
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="entry-golfcourse" style="display:none"
+			data-name="우정힐스" data-location="충남"
+			data-holecnt="18" data-view="Y"
+			>
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<h5 class="indexNum">No.61</h5>
+				<span><img src="/resources/web/images/icon-golfcourse.svg"></span>
+			</div>
+			<div class="row">
+				<div class="col-12 col-lg-6">
+					<button onclick="openFixURL('whcc.kolon.co.kr')" class="btn btn-golfcourse w-100 mb-3">우정힐스</button>
+					<h5 class="mb-2">충남 천안시 동남구 목천읍 충절로 1048-68</h5>
+					<dl class="dl-between mb-3">
+						<dt>Tel. 041-557-2902~5</dt>
+						<dd>Fax. 041-557-8799</dd>
+					</dl>
+				</div>
+				<div class="col-12 col-lg-3">
+					<div class="secondLineMt mb-3">
+						<span class="badge badge-golfcourse me-2">18홀</span>
+						<span class="badge badge-golfcourse">충남</span>
+					</div>
+				</div>
+				<div class="col-12 col-lg-3 pc-only">
+					<div class="entry-golfcourse-logo mb-3">
+						<img src="/resources/web/images/logo.svg">
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="entry-golfcourse" style="display:none"
+			data-name="월송리" data-location="강원"
+			data-holecnt="18" data-view="Y"
+			>
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<h5 class="indexNum">No.62</h5>
+				<span><img src="/resources/web/images/icon-golfcourse.svg"></span>
+			</div>
+			<div class="row">
+				<div class="col-12 col-lg-6">
+					<button onclick="openFixURL('https://hdcgolf.com/wolsongri/course')" class="btn btn-golfcourse w-100 mb-3">월송리</button>
+					<h5 class="mb-2">강원특별자치도 원주시 지정면 오크밸리2길 250</h5>
+					<dl class="dl-between mb-3">
+						<dt>Tel. 033-730-3903</dt>
+						<dd>Fax. 033-730-3906</dd>
+					</dl>
+				</div>
+				<div class="col-12 col-lg-3">
+					<div class="secondLineMt mb-3">
+						<span class="badge badge-golfcourse me-2">18홀</span>
+						<span class="badge badge-golfcourse">강원</span>
+					</div>
+				</div>
+				<div class="col-12 col-lg-3 pc-only">
+					<div class="entry-golfcourse-logo mb-3">
+						<img src="/resources/web/images/logo.svg">
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="entry-golfcourse" style="display:none"
+			data-name="웰링턴" data-location="경기"
+			data-holecnt="27" data-view="Y"
+			>
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<h5 class="indexNum">No.63</h5>
+				<span><img src="/resources/web/images/icon-golfcourse.svg"></span>
+			</div>
+			<div class="row">
+				<div class="col-12 col-lg-6">
+					<button onclick="openFixURL('')" class="btn btn-golfcourse-noAfter w-100 mb-3">웰링턴</button>
+					<h5 class="mb-2">경기 이천시 모가면 사실로725번길 119-73</h5>
+					<dl class="dl-between mb-3">
+						<dt>Tel. 031-645-1800</dt>
+						<dd>Fax. 031-645-1897</dd>
+					</dl>
+				</div>
+				<div class="col-12 col-lg-3">
+					<div class="secondLineMt mb-3">
+						<span class="badge badge-golfcourse me-2">27홀</span>
+						<span class="badge badge-golfcourse">경기</span>
+					</div>
+				</div>
+				<div class="col-12 col-lg-3 pc-only">
+					<div class="entry-golfcourse-logo mb-3">
+						<img src="/resources/web/images/logo.svg">
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="entry-golfcourse" style="display:none"
+			data-name="유성" data-location="대전"
+			data-holecnt="18" data-view="Y"
+			>
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<h5 class="indexNum">No.64</h5>
+				<span><img src="/resources/web/images/icon-golfcourse.svg"></span>
+			</div>
+			<div class="row">
+				<div class="col-12 col-lg-6">
+					<button onclick="openFixURL('www.yscc.co.kr')" class="btn btn-golfcourse w-100 mb-3">유성</button>
+					<h5 class="mb-2">대전광역시 유성구 현충원로 200 (덕명동)</h5>
+					<dl class="dl-between mb-3">
+						<dt>Tel. 042-822-7103</dt>
+						<dd>Fax. 042-823-4288</dd>
+					</dl>
+				</div>
+				<div class="col-12 col-lg-3">
+					<div class="secondLineMt mb-3">
+						<span class="badge badge-golfcourse me-2">18홀</span>
+						<span class="badge badge-golfcourse">대전</span>
+					</div>
+				</div>
+				<div class="col-12 col-lg-3 pc-only">
+					<div class="entry-golfcourse-logo mb-3">
+						<img src="/resources/web/images/logo.svg">
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="entry-golfcourse" style="display:none"
+			data-name="이스트밸리" data-location="경기"
+			data-holecnt="27" data-view="Y"
+			>
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<h5 class="indexNum">No.65</h5>
+				<span><img src="/resources/web/images/icon-golfcourse.svg"></span>
+			</div>
+			<div class="row">
+				<div class="col-12 col-lg-6">
+					<button onclick="openFixURL('www.eastvalley.co.kr')" class="btn btn-golfcourse w-100 mb-3">이스트밸리</button>
+					<h5 class="mb-2">경기 광주시 곤지암읍 건업길 195</h5>
+					<dl class="dl-between mb-3">
+						<dt>Tel. 031-760-3800</dt>
+						<dd>Fax. 031-760-3810</dd>
+					</dl>
+				</div>
+				<div class="col-12 col-lg-3">
+					<div class="secondLineMt mb-3">
+						<span class="badge badge-golfcourse me-2">27홀</span>
+						<span class="badge badge-golfcourse">경기</span>
+					</div>
+				</div>
+				<div class="col-12 col-lg-3 pc-only">
+					<div class="entry-golfcourse-logo mb-3">
+						<img src="/resources/web/images/logo.svg">
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="entry-golfcourse" style="display:none"
+			data-name="일동레이크" data-location="경기"
+			data-holecnt="18" data-view="Y"
+			>
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<h5 class="indexNum">No.66</h5>
+				<span><img src="/resources/web/images/icon-golfcourse.svg"></span>
+			</div>
+			<div class="row">
+				<div class="col-12 col-lg-6">
+					<button onclick="openFixURL('www.ildonglakes.co.kr')" class="btn btn-golfcourse w-100 mb-3">일동레이크</button>
+					<h5 class="mb-2">경기 포천시 일동면 화동로 738</h5>
+					<dl class="dl-between mb-3">
+						<dt>Tel. 031-539-5933</dt>
+						<dd>Fax. 031-536-6807</dd>
+					</dl>
+				</div>
+				<div class="col-12 col-lg-3">
+					<div class="secondLineMt mb-3">
+						<span class="badge badge-golfcourse me-2">18홀</span>
+						<span class="badge badge-golfcourse">경기</span>
+					</div>
+				</div>
+				<div class="col-12 col-lg-3 pc-only">
+					<div class="entry-golfcourse-logo mb-3">
+						<img src="/resources/web/images/logo.svg">
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="entry-golfcourse" style="display:none"
+			data-name="일라이트" data-location="충북"
+			data-holecnt="18" data-view="Y"
+			>
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<h5 class="indexNum">No.67</h5>
+				<span><img src="/resources/web/images/icon-golfcourse.svg"></span>
+			</div>
+			<div class="row">
+				<div class="col-12 col-lg-6">
+					<button onclick="openFixURL('www.illitegolfnresort.co.kr')" class="btn btn-golfcourse w-100 mb-3">일라이트</button>
+					<h5 class="mb-2">충북 영동군 영동읍 영동힐링로 161</h5>
+					<dl class="dl-between mb-3">
+						<dt>Tel. 043-740-0000</dt>
+						<dd>Fax. 043-743-1100</dd>
+					</dl>
+				</div>
+				<div class="col-12 col-lg-3">
+					<div class="secondLineMt mb-3">
+						<span class="badge badge-golfcourse me-2">18홀</span>
+						<span class="badge badge-golfcourse">충북</span>
+					</div>
+				</div>
+				<div class="col-12 col-lg-3 pc-only">
+					<div class="entry-golfcourse-logo mb-3">
+						<img src="/resources/web/images/logo.svg">
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="entry-golfcourse" style="display:none"
+			data-name="잭니클라우스" data-location="인천"
+			data-holecnt="18" data-view="Y"
+			>
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<h5 class="indexNum">No.68</h5>
+				<span><img src="/resources/web/images/icon-golfcourse.svg"></span>
+			</div>
+			<div class="row">
+				<div class="col-12 col-lg-6">
+					<button onclick="openFixURL('www.jacknicklausgolfclubkorea.com')" class="btn btn-golfcourse w-100 mb-3">잭니클라우스</button>
+					<h5 class="mb-2">인천광역시 연수구 송도동 아카데미로 209</h5>
+					<dl class="dl-between mb-3">
+						<dt>Tel. 032-850-8000</dt>
+						<dd>Fax. 032-851-7678</dd>
+					</dl>
+				</div>
+				<div class="col-12 col-lg-3">
+					<div class="secondLineMt mb-3">
+						<span class="badge badge-golfcourse me-2">18홀</span>
+						<span class="badge badge-golfcourse">인천</span>
+					</div>
+				</div>
+				<div class="col-12 col-lg-3 pc-only">
+					<div class="entry-golfcourse-logo mb-3">
+						<img src="/resources/web/images/logo.svg">
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="entry-golfcourse" style="display:none"
+			data-name="전주샹그릴라" data-location="전북"
+			data-holecnt="27" data-view="Y"
+			>
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<h5 class="indexNum">No.69</h5>
+				<span><img src="/resources/web/images/icon-golfcourse.svg"></span>
+			</div>
+			<div class="row">
+				<div class="col-12 col-lg-6">
+					<button onclick="openFixURL('https://www.jeonjucc.co.kr/')" class="btn btn-golfcourse w-100 mb-3">전주샹그릴라</button>
+					<h5 class="mb-2">전북 임실군 신덕면 수지로 559-90</h5>
+					<dl class="dl-between mb-3">
+						<dt>Tel. 063-643-1000</dt>
+						<dd>Fax. 063-643-6009</dd>
+					</dl>
+				</div>
+				<div class="col-12 col-lg-3">
+					<div class="secondLineMt mb-3">
+						<span class="badge badge-golfcourse me-2">27홀</span>
+						<span class="badge badge-golfcourse">전북</span>
+					</div>
+				</div>
+				<div class="col-12 col-lg-3 pc-only">
+					<div class="entry-golfcourse-logo mb-3">
+						<img src="/resources/web/images/logo.svg">
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="entry-golfcourse" style="display:none"
+			data-name="제일" data-location="경기"
+			data-holecnt="27" data-view="Y"
+			>
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<h5 class="indexNum">No.70</h5>
+				<span><img src="/resources/web/images/icon-golfcourse.svg"></span>
+			</div>
+			<div class="row">
+				<div class="col-12 col-lg-6">
+					<button onclick="openFixURL('www.jaeil-cc.co.kr')" class="btn btn-golfcourse w-100 mb-3">제일</button>
+					<h5 class="mb-2">경기도 안산시 상록구 태마당로 28 (부곡동)</h5>
+					<dl class="dl-between mb-3">
+						<dt>Tel. 031-400-2500</dt>
+						<dd>Fax. 031-416-4001</dd>
+					</dl>
+				</div>
+				<div class="col-12 col-lg-3">
+					<div class="secondLineMt mb-3">
+						<span class="badge badge-golfcourse me-2">27홀</span>
+						<span class="badge badge-golfcourse">경기</span>
+					</div>
+				</div>
+				<div class="col-12 col-lg-3 pc-only">
+					<div class="entry-golfcourse-logo mb-3">
+						<img src="/resources/web/images/logo.svg">
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="entry-golfcourse" style="display:none"
+			data-name="중문" data-location="제주"
+			data-holecnt="18" data-view="Y"
+			>
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<h5 class="indexNum">No.71</h5>
+				<span><img src="/resources/web/images/icon-golfcourse.svg"></span>
+			</div>
+			<div class="row">
+				<div class="col-12 col-lg-6">
+					<button onclick="openFixURL('jungmungolf.visitkorea.or.kr')" class="btn btn-golfcourse w-100 mb-3">중문</button>
+					<h5 class="mb-2">제주특별자치도 서귀포시 중문관광로72번길 60</h5>
+					<dl class="dl-between mb-3">
+						<dt>Tel. 064-735-7200</dt>
+						<dd>Fax. 064-738-4359</dd>
+					</dl>
+				</div>
+				<div class="col-12 col-lg-3">
+					<div class="secondLineMt mb-3">
+						<span class="badge badge-golfcourse me-2">18홀</span>
+						<span class="badge badge-golfcourse">제주</span>
+					</div>
+				</div>
+				<div class="col-12 col-lg-3 pc-only">
+					<div class="entry-golfcourse-logo mb-3">
+						<img src="/resources/web/images/logo.svg">
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="entry-golfcourse" style="display:none"
+			data-name="천룡" data-location="충북"
+			data-holecnt="27" data-view="Y"
+			>
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<h5 class="indexNum">No.72</h5>
+				<span><img src="/resources/web/images/icon-golfcourse.svg"></span>
+			</div>
+			<div class="row">
+				<div class="col-12 col-lg-6">
+					<button onclick="openFixURL('www.crcc.co.kr')" class="btn btn-golfcourse w-100 mb-3">천룡</button>
+					<h5 class="mb-2">충북 진천군 이월면 진안로 347-123</h5>
+					<dl class="dl-between mb-3">
+						<dt>Tel. 043-536-1007</dt>
+						<dd>Fax. 043-536-1951</dd>
+					</dl>
+				</div>
+				<div class="col-12 col-lg-3">
+					<div class="secondLineMt mb-3">
+						<span class="badge badge-golfcourse me-2">27홀</span>
+						<span class="badge badge-golfcourse">충북</span>
+					</div>
+				</div>
+				<div class="col-12 col-lg-3 pc-only">
+					<div class="entry-golfcourse-logo mb-3">
+						<img src="/resources/web/images/logo.svg">
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="entry-golfcourse" style="display:none"
+			data-name="천안상록" data-location="충남"
+			data-holecnt="27" data-view="Y"
+			>
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<h5 class="indexNum">No.73</h5>
+				<span><img src="/resources/web/images/icon-golfcourse.svg"></span>
+			</div>
+			<div class="row">
+				<div class="col-12 col-lg-6">
+					<button onclick="openFixURL('www.sangnokresort.co.kr')" class="btn btn-golfcourse w-100 mb-3">천안상록</button>
+					<h5 class="mb-2">충남 천안시 동남구 수신면 수신로 576</h5>
+					<dl class="dl-between mb-3">
+						<dt>Tel. 041-560-9100</dt>
+						<dd>Fax. 041-560-9079</dd>
+					</dl>
+				</div>
+				<div class="col-12 col-lg-3">
+					<div class="secondLineMt mb-3">
+						<span class="badge badge-golfcourse me-2">27홀</span>
+						<span class="badge badge-golfcourse">충남</span>
+					</div>
+				</div>
+				<div class="col-12 col-lg-3 pc-only">
+					<div class="entry-golfcourse-logo mb-3">
+						<img src="/resources/web/images/logo.svg">
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="entry-golfcourse" style="display:none"
+			data-name="카스카디아" data-location="강원"
+			data-holecnt="27" data-view="Y"
+			>
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<h5 class="indexNum">No.74</h5>
+				<span><img src="/resources/web/images/icon-golfcourse.svg"></span>
+			</div>
+			<div class="row">
+				<div class="col-12 col-lg-6">
+					<button onclick="openFixURL('www.cascadia.kr')" class="btn btn-golfcourse w-100 mb-3">카스카디아</button>
+					<h5 class="mb-2">강원특별자치도 홍천군 북방면 팔봉산로 1759</h5>
+					<dl class="dl-between mb-3">
+						<dt>Tel. 033-430-0000</dt>
+						<dd>Fax. 033-432-3302</dd>
+					</dl>
+				</div>
+				<div class="col-12 col-lg-3">
+					<div class="secondLineMt mb-3">
+						<span class="badge badge-golfcourse me-2">27홀</span>
+						<span class="badge badge-golfcourse">강원</span>
+					</div>
+				</div>
+				<div class="col-12 col-lg-3 pc-only">
+					<div class="entry-golfcourse-logo mb-3">
+						<img src="/resources/web/images/logo.svg">
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="entry-golfcourse" style="display:none"
+			data-name="코리아" data-location="경기"
+			data-holecnt="27" data-view="Y"
+			>
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<h5 class="indexNum">No.75</h5>
+				<span><img src="/resources/web/images/icon-golfcourse.svg"></span>
+			</div>
+			<div class="row">
+				<div class="col-12 col-lg-6">
+					<button onclick="openFixURL('www.gakorea.com')" class="btn btn-golfcourse w-100 mb-3">코리아</button>
+					<h5 class="mb-2">경기도 용인시 처인구 이동면 서리 784-7</h5>
+					<dl class="dl-between mb-3">
+						<dt>Tel. 031-334-7111~4</dt>
+						<dd>Fax. 031-334-7110</dd>
+					</dl>
+				</div>
+				<div class="col-12 col-lg-3">
+					<div class="secondLineMt mb-3">
+						<span class="badge badge-golfcourse me-2">27홀</span>
+						<span class="badge badge-golfcourse">경기</span>
+					</div>
+				</div>
+				<div class="col-12 col-lg-3 pc-only">
+					<div class="entry-golfcourse-logo mb-3">
+						<img src="/resources/web/images/logo.svg">
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="entry-golfcourse" style="display:none"
+			data-name="코스카" data-location="충북"
+			data-holecnt="27" data-view="Y"
+			>
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<h5 class="indexNum">No.76</h5>
+				<span><img src="/resources/web/images/icon-golfcourse.svg"></span>
+			</div>
+			<div class="row">
+				<div class="col-12 col-lg-6">
+					<button onclick="openFixURL('koscacc.kr')" class="btn btn-golfcourse w-100 mb-3">코스카</button>
+					<h5 class="mb-2">충북 음성군 음성읍 동음로 318</h5>
+					<dl class="dl-between mb-3">
+						<dt>Tel. 043-870-1000</dt>
+						<dd>Fax. 043-870-1030</dd>
+					</dl>
+				</div>
+				<div class="col-12 col-lg-3">
+					<div class="secondLineMt mb-3">
+						<span class="badge badge-golfcourse me-2">27홀</span>
+						<span class="badge badge-golfcourse">충북</span>
+					</div>
+				</div>
+				<div class="col-12 col-lg-3 pc-only">
+					<div class="entry-golfcourse-logo mb-3">
+						<img src="/resources/web/images/logo.svg">
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="entry-golfcourse" style="display:none"
+			data-name="클럽 나인브릿지" data-location="제주"
+			data-holecnt="18" data-view="Y"
+			>
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<h5 class="indexNum">No.77</h5>
+				<span><img src="/resources/web/images/icon-golfcourse.svg"></span>
+			</div>
+			<div class="row">
+				<div class="col-12 col-lg-6">
+					<button onclick="openFixURL('www.ninebridges.co.kr')" class="btn btn-golfcourse w-100 mb-3">클럽 나인브릿지</button>
+					<h5 class="mb-2">제주특별자치도 서귀포시 안덕면 광평로 34-156</h5>
+					<dl class="dl-between mb-3">
+						<dt>Tel. 064-793-9999</dt>
+						<dd>Fax. 064-793-9929</dd>
+					</dl>
+				</div>
+				<div class="col-12 col-lg-3">
+					<div class="secondLineMt mb-3">
+						<span class="badge badge-golfcourse me-2">18홀</span>
+						<span class="badge badge-golfcourse">제주</span>
+					</div>
+				</div>
+				<div class="col-12 col-lg-3 pc-only">
+					<div class="entry-golfcourse-logo mb-3">
+						<img src="/resources/web/images/logo.svg">
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="entry-golfcourse" style="display:none"
+			data-name="클럽디 보은" data-location="충북"
+			data-holecnt="18" data-view="Y"
+			>
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<h5 class="indexNum">No.78</h5>
+				<span><img src="/resources/web/images/icon-golfcourse.svg"></span>
+			</div>
+			<div class="row">
+				<div class="col-12 col-lg-6">
+					<button onclick="openFixURL('http://www.clubd.com/boeun')" class="btn btn-golfcourse w-100 mb-3">클럽디 보은</button>
+					<h5 class="mb-2">충청북도 보은군 보은읍 중초리 산 7-1</h5>
+					<dl class="dl-between mb-3">
+						<dt>Tel. 043-540-8888</dt>
+						<dd>Fax. 043-540-8889</dd>
+					</dl>
+				</div>
+				<div class="col-12 col-lg-3">
+					<div class="secondLineMt mb-3">
+						<span class="badge badge-golfcourse me-2">18홀</span>
+						<span class="badge badge-golfcourse">충북</span>
+					</div>
+				</div>
+				<div class="col-12 col-lg-3 pc-only">
+					<div class="entry-golfcourse-logo mb-3">
+						<img src="/resources/web/images/logo.svg">
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="entry-golfcourse" style="display:none"
+			data-name="킹스데일" data-location="충북"
+			data-holecnt="18" data-view="Y"
+			>
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<h5 class="indexNum">No.79</h5>
+				<span><img src="/resources/web/images/icon-golfcourse.svg"></span>
+			</div>
+			<div class="row">
+				<div class="col-12 col-lg-6">
+					<button onclick="openFixURL('www.kingsdale.co.kr')" class="btn btn-golfcourse w-100 mb-3">킹스데일</button>
+					<h5 class="mb-2">충북 충주시 주덕읍 기업도시3로 2</h5>
+					<dl class="dl-between mb-3">
+						<dt>Tel. 043-870-4100</dt>
+						<dd>Fax. 043-870-4188</dd>
+					</dl>
+				</div>
+				<div class="col-12 col-lg-3">
+					<div class="secondLineMt mb-3">
+						<span class="badge badge-golfcourse me-2">18홀</span>
+						<span class="badge badge-golfcourse">충북</span>
+					</div>
+				</div>
+				<div class="col-12 col-lg-3 pc-only">
+					<div class="entry-golfcourse-logo mb-3">
+						<img src="/resources/web/images/logo.svg">
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="entry-golfcourse" style="display:none"
+			data-name="킹즈락" data-location="충북"
+			data-holecnt="27" data-view="Y"
+			>
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<h5 class="indexNum">No.80</h5>
+				<span><img src="/resources/web/images/icon-golfcourse.svg"></span>
+			</div>
+			<div class="row">
+				<div class="col-12 col-lg-6">
+					<button onclick="openFixURL('www.kingsrockcc.com')" class="btn btn-golfcourse w-100 mb-3">킹즈락</button>
+					<h5 class="mb-2">충북 제천시 내토로 7길 136</h5>
+					<dl class="dl-between mb-3">
+						<dt>Tel. 043-640-9000</dt>
+						<dd>Fax. 043-644-8000</dd>
+					</dl>
+				</div>
+				<div class="col-12 col-lg-3">
+					<div class="secondLineMt mb-3">
+						<span class="badge badge-golfcourse me-2">27홀</span>
+						<span class="badge badge-golfcourse">충북</span>
+					</div>
+				</div>
+				<div class="col-12 col-lg-3 pc-only">
+					<div class="entry-golfcourse-logo mb-3">
+						<img src="/resources/web/images/logo.svg">
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="entry-golfcourse" style="display:none"
+			data-name="테디밸리" data-location="제주"
+			data-holecnt="18" data-view="Y"
+			>
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<h5 class="indexNum">No.81</h5>
+				<span><img src="/resources/web/images/icon-golfcourse.svg"></span>
+			</div>
+			<div class="row">
+				<div class="col-12 col-lg-6">
+					<button onclick="openFixURL('www.teddyvalley.com')" class="btn btn-golfcourse w-100 mb-3">테디밸리</button>
+					<h5 class="mb-2">제주특별자치도 서귀포시 안덕면 한창로 365</h5>
+					<dl class="dl-between mb-3">
+						<dt>Tel. 064-793-1000</dt>
+						<dd>Fax. 064-793-1109</dd>
+					</dl>
+				</div>
+				<div class="col-12 col-lg-3">
+					<div class="secondLineMt mb-3">
+						<span class="badge badge-golfcourse me-2">18홀</span>
+						<span class="badge badge-golfcourse">제주</span>
+					</div>
+				</div>
+				<div class="col-12 col-lg-3 pc-only">
+					<div class="entry-golfcourse-logo mb-3">
+						<img src="/resources/web/images/logo.svg">
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="entry-golfcourse" style="display:none"
+			data-name="트리니티" data-location="경기"
+			data-holecnt="18" data-view="Y"
+			>
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<h5 class="indexNum">No.82</h5>
+				<span><img src="/resources/web/images/icon-golfcourse.svg"></span>
+			</div>
+			<div class="row">
+				<div class="col-12 col-lg-6">
+					<button onclick="openFixURL('www.trinityclub.co.kr')" class="btn btn-golfcourse w-100 mb-3">트리니티</button>
+					<h5 class="mb-2">경기 여주시 가남읍 양귀리 산 115-2</h5>
+					<dl class="dl-between mb-3">
+						<dt>Tel. 031-887-7900</dt>
+						<dd>Fax. 031-886-8348</dd>
+					</dl>
+				</div>
+				<div class="col-12 col-lg-3">
+					<div class="secondLineMt mb-3">
+						<span class="badge badge-golfcourse me-2">18홀</span>
+						<span class="badge badge-golfcourse">경기</span>
+					</div>
+				</div>
+				<div class="col-12 col-lg-3 pc-only">
+					<div class="entry-golfcourse-logo mb-3">
+						<img src="/resources/web/images/logo.svg">
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="entry-golfcourse" style="display:none"
+			data-name="파인스톤" data-location="충남"
+			data-holecnt="18" data-view="Y"
+			>
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<h5 class="indexNum">No.83</h5>
+				<span><img src="/resources/web/images/icon-golfcourse.svg"></span>
+			</div>
+			<div class="row">
+				<div class="col-12 col-lg-6">
+					<button onclick="openFixURL('www.pinestonecc.com')" class="btn btn-golfcourse w-100 mb-3">파인스톤</button>
+					<h5 class="mb-2">충남 당진시 송산면 무수들길 90</h5>
+					<dl class="dl-between mb-3">
+						<dt>Tel. 041-350-0000</dt>
+						<dd>Fax. 041-350-0001</dd>
+					</dl>
+				</div>
+				<div class="col-12 col-lg-3">
+					<div class="secondLineMt mb-3">
+						<span class="badge badge-golfcourse me-2">18홀</span>
+						<span class="badge badge-golfcourse">충남</span>
+					</div>
+				</div>
+				<div class="col-12 col-lg-3 pc-only">
+					<div class="entry-golfcourse-logo mb-3">
+						<img src="/resources/web/images/logo.svg">
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="entry-golfcourse" style="display:none"
+			data-name="페럼" data-location="경기"
+			data-holecnt="18" data-view="Y"
+			>
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<h5 class="indexNum">No.84</h5>
+				<span><img src="/resources/web/images/icon-golfcourse.svg"></span>
+			</div>
+			<div class="row">
+				<div class="col-12 col-lg-6">
+					<button onclick="openFixURL('www.ferrumclub.com')" class="btn btn-golfcourse w-100 mb-3">페럼</button>
+					<h5 class="mb-2">경기도 여주시 점동면 점동로 181</h5>
+					<dl class="dl-between mb-3">
+						<dt>Tel. 031-887-7000</dt>
+						<dd>Fax. 031-887-7030</dd>
+					</dl>
+				</div>
+				<div class="col-12 col-lg-3">
+					<div class="secondLineMt mb-3">
+						<span class="badge badge-golfcourse me-2">18홀</span>
+						<span class="badge badge-golfcourse">경기</span>
+					</div>
+				</div>
+				<div class="col-12 col-lg-3 pc-only">
+					<div class="entry-golfcourse-logo mb-3">
+						<img src="/resources/web/images/logo.svg">
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="entry-golfcourse" style="display:none"
+			data-name="플라자CC 용인" data-location="경기"
+			data-holecnt="36" data-view="Y"
+			>
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<h5 class="indexNum">No.85</h5>
+				<span><img src="/resources/web/images/icon-golfcourse.svg"></span>
+			</div>
+			<div class="row">
+				<div class="col-12 col-lg-6">
+					<button onclick="openFixURL('www.plazacc.co.kr')" class="btn btn-golfcourse w-100 mb-3">플라자CC 용인</button>
+					<h5 class="mb-2">경기도 용인시 처인구 남사면 봉무로153번길 79</h5>
+					<dl class="dl-between mb-3">
+						<dt>Tel. 031-332-1122</dt>
+						<dd>Fax. 031-323-3202</dd>
+					</dl>
+				</div>
+				<div class="col-12 col-lg-3">
+					<div class="secondLineMt mb-3">
+						<span class="badge badge-golfcourse me-2">36홀</span>
+						<span class="badge badge-golfcourse">경기</span>
+					</div>
+				</div>
+				<div class="col-12 col-lg-3 pc-only">
+					<div class="entry-golfcourse-logo mb-3">
+						<img src="/resources/web/images/logo.svg">
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="entry-golfcourse" style="display:none"
+			data-name="핀크스" data-location="제주"
+			data-holecnt="27" data-view="Y"
+			>
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<h5 class="indexNum">No.86</h5>
+				<span><img src="/resources/web/images/icon-golfcourse.svg"></span>
+			</div>
+			<div class="row">
+				<div class="col-12 col-lg-6">
+					<button onclick="openFixURL('www.thepinx.co.kr/golfclub/web/index.px')" class="btn btn-golfcourse w-100 mb-3">핀크스</button>
+					<h5 class="mb-2">제주특별자치도 서귀포시 안덕면 산록남로 863</h5>
+					<dl class="dl-between mb-3">
+						<dt>Tel. 064-792-5200</dt>
+						<dd>Fax. 064-792-4901</dd>
+					</dl>
+				</div>
+				<div class="col-12 col-lg-3">
+					<div class="secondLineMt mb-3">
+						<span class="badge badge-golfcourse me-2">27홀</span>
+						<span class="badge badge-golfcourse">제주</span>
+					</div>
+				</div>
+				<div class="col-12 col-lg-3 pc-only">
+					<div class="entry-golfcourse-logo mb-3">
+						<img src="/resources/web/images/logo.svg">
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="entry-golfcourse" style="display:none"
+			data-name="한성" data-location="경기"
+			data-holecnt="27" data-view="Y"
+			>
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<h5 class="indexNum">No.87</h5>
+				<span><img src="/resources/web/images/icon-golfcourse.svg"></span>
+			</div>
+			<div class="row">
+				<div class="col-12 col-lg-6">
+					<button onclick="openFixURL('www.hansung-cc.co.kr')" class="btn btn-golfcourse w-100 mb-3">한성</button>
+					<h5 class="mb-2">경기도 용인시 기흥구 구교동로 151</h5>
+					<dl class="dl-between mb-3">
+						<dt>Tel. 031-284-3831~6</dt>
+						<dd>Fax. 031-283-8847</dd>
+					</dl>
+				</div>
+				<div class="col-12 col-lg-3">
+					<div class="secondLineMt mb-3">
+						<span class="badge badge-golfcourse me-2">27홀</span>
+						<span class="badge badge-golfcourse">경기</span>
+					</div>
+				</div>
+				<div class="col-12 col-lg-3 pc-only">
+					<div class="entry-golfcourse-logo mb-3">
+						<img src="/resources/web/images/logo.svg">
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="entry-golfcourse" style="display:none"
+			data-name="한양" data-location="경기"
+			data-holecnt="18" data-view="Y"
+			>
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<h5 class="indexNum">No.88</h5>
+				<span><img src="/resources/web/images/icon-golfcourse.svg"></span>
+			</div>
+			<div class="row">
+				<div class="col-12 col-lg-6">
+					<button onclick="openFixURL('www.hanyangcc.co.kr')" class="btn btn-golfcourse w-100 mb-3">한양</button>
+					<h5 class="mb-2">경기도 고양시 덕양구 고양대로1643번길 164 (원당동)</h5>
+					<dl class="dl-between mb-3">
+						<dt>Tel. 031-969-0810</dt>
+						<dd>Fax. 031-964-6900</dd>
+					</dl>
+				</div>
+				<div class="col-12 col-lg-3">
+					<div class="secondLineMt mb-3">
+						<span class="badge badge-golfcourse me-2">18홀</span>
+						<span class="badge badge-golfcourse">경기</span>
+					</div>
+				</div>
+				<div class="col-12 col-lg-3 pc-only">
+					<div class="entry-golfcourse-logo mb-3">
+						<img src="/resources/web/images/logo.svg">
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="entry-golfcourse" style="display:none"
+			data-name="해비치 서울" data-location="경기"
+			data-holecnt="18" data-view="Y"
+			>
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<h5 class="indexNum">No.89</h5>
+				<span><img src="/resources/web/images/icon-golfcourse.svg"></span>
+			</div>
+			<div class="row">
+				<div class="col-12 col-lg-6">
+					<button onclick="openFixURL('www.haevichi.com/ccseoul/ko/')" class="btn btn-golfcourse w-100 mb-3">해비치 서울</button>
+					<h5 class="mb-2">경기도 남양주시 화도읍 재재기로190번길 160</h5>
+					<dl class="dl-between mb-3">
+						<dt>Tel. 031-579-3000</dt>
+						<dd>Fax. 031-579-3019</dd>
+					</dl>
+				</div>
+				<div class="col-12 col-lg-3">
+					<div class="secondLineMt mb-3">
+						<span class="badge badge-golfcourse me-2">18홀</span>
+						<span class="badge badge-golfcourse">경기</span>
+					</div>
+				</div>
+				<div class="col-12 col-lg-3 pc-only">
+					<div class="entry-golfcourse-logo mb-3">
+						<img src="/resources/web/images/logo.svg">
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="entry-golfcourse" style="display:none"
+			data-name="해비치 제주" data-location="제주"
+			data-holecnt="18" data-view="Y"
+			>
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<h5 class="indexNum">No.90</h5>
+				<span><img src="/resources/web/images/icon-golfcourse.svg"></span>
+			</div>
+			<div class="row">
+				<div class="col-12 col-lg-6">
+					<button onclick="openFixURL('www.haevichi.com/ccjeju/ko/')" class="btn btn-golfcourse w-100 mb-3">해비치 제주</button>
+					<h5 class="mb-2">제주특별자치도 서귀포시 남원읍 원님로399번길 319</h5>
+					<dl class="dl-between mb-3">
+						<dt>Tel. 064-766-6220</dt>
+						<dd>Fax. 064-766-6219</dd>
+					</dl>
+				</div>
+				<div class="col-12 col-lg-3">
+					<div class="secondLineMt mb-3">
+						<span class="badge badge-golfcourse me-2">18홀</span>
+						<span class="badge badge-golfcourse">제주</span>
+					</div>
+				</div>
+				<div class="col-12 col-lg-3 pc-only">
+					<div class="entry-golfcourse-logo mb-3">
+						<img src="/resources/web/images/logo.svg">
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="entry-golfcourse" style="display:none"
+			data-name="해슬리 나인브릿지" data-location="경기"
+			data-holecnt="18" data-view="Y"
+			>
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<h5 class="indexNum">No.91</h5>
+				<span><img src="/resources/web/images/icon-golfcourse.svg"></span>
+			</div>
+			<div class="row">
+				<div class="col-12 col-lg-6">
+					<button onclick="openFixURL('haesley.com')" class="btn btn-golfcourse w-100 mb-3">해슬리 나인브릿지</button>
+					<h5 class="mb-2">경기도 여주시 명품1로 76 (연라동)</h5>
+					<dl class="dl-between mb-3">
+						<dt>Tel. 031-887-9929</dt>
+						<dd>Fax. 031-887-9919</dd>
+					</dl>
+				</div>
+				<div class="col-12 col-lg-3">
+					<div class="secondLineMt mb-3">
+						<span class="badge badge-golfcourse me-2">18홀</span>
+						<span class="badge badge-golfcourse">경기</span>
+					</div>
+				</div>
+				<div class="col-12 col-lg-3 pc-only">
+					<div class="entry-golfcourse-logo mb-3">
+						<img src="/resources/web/images/logo.svg">
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="entry-golfcourse" style="display:none"
+			data-name="화산" data-location="경기"
+			data-holecnt="18" data-view="Y"
+			>
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<h5 class="indexNum">No.92</h5>
+				<span><img src="/resources/web/images/icon-golfcourse.svg"></span>
+			</div>
+			<div class="row">
+				<div class="col-12 col-lg-6">
+					<button onclick="openFixURL('www.hwasancc.com')" class="btn btn-golfcourse w-100 mb-3">화산</button>
+					<h5 class="mb-2">경기도 용인시 처인구 이동면 화산로 239</h5>
+					<dl class="dl-between mb-3">
+						<dt>Tel. 031-329-7114</dt>
+						<dd>Fax. 031-336-7110</dd>
+					</dl>
+				</div>
+				<div class="col-12 col-lg-3">
+					<div class="secondLineMt mb-3">
+						<span class="badge badge-golfcourse me-2">18홀</span>
+						<span class="badge badge-golfcourse">경기</span>
+					</div>
+				</div>
+				<div class="col-12 col-lg-3 pc-only">
+					<div class="entry-golfcourse-logo mb-3">
+						<img src="/resources/web/images/logo.svg">
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="entry-golfcourse" style="display:none"
+			data-name="화성상록" data-location="경기"
+			data-holecnt="27" data-view="Y"
+			>
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<h5 class="indexNum">No.93</h5>
+				<span><img src="/resources/web/images/icon-golfcourse.svg"></span>
+			</div>
+			<div class="row">
+				<div class="col-12 col-lg-6">
+					<button onclick="openFixURL('https://www.sangnokresort.co.kr/M050000')" class="btn btn-golfcourse w-100 mb-3">화성상록</button>
+					<h5 class="mb-2">경기 화성시 풀무골로60번길 80</h5>
+					<dl class="dl-between mb-3">
+						<dt>Tel. 031-371-0100</dt>
+						<dd>Fax. 031-371-0154</dd>
+					</dl>
+				</div>
+				<div class="col-12 col-lg-3">
+					<div class="secondLineMt mb-3">
+						<span class="badge badge-golfcourse me-2">27홀</span>
+						<span class="badge badge-golfcourse">경기</span>
+					</div>
+				</div>
+				<div class="col-12 col-lg-3 pc-only">
+					<div class="entry-golfcourse-logo mb-3">
+						<img src="/resources/web/images/logo.svg">
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="entry-golfcourse" style="display:none"
+			data-name="화순" data-location="전남"
+			data-holecnt="18" data-view="Y"
+			>
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<h5 class="indexNum">No.94</h5>
+				<span><img src="/resources/web/images/icon-golfcourse.svg"></span>
+			</div>
+			<div class="row">
+				<div class="col-12 col-lg-6">
+					<button onclick="openFixURL('www.hwasuncc.co.kr')" class="btn btn-golfcourse w-100 mb-3">화순</button>
+					<h5 class="mb-2">전남 화순군 도곡면 천태로 1000-151</h5>
+					<dl class="dl-between mb-3">
+						<dt>Tel. 061-373-9955</dt>
+						<dd>Fax. 061-370-4287</dd>
+					</dl>
+				</div>
+				<div class="col-12 col-lg-3">
+					<div class="secondLineMt mb-3">
+						<span class="badge badge-golfcourse me-2">18홀</span>
+						<span class="badge badge-golfcourse">전남</span>
+					</div>
+				</div>
+				<div class="col-12 col-lg-3 pc-only">
+					<div class="entry-golfcourse-logo mb-3">
+						<img src="/resources/web/images/logo.svg">
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="entry-golfcourse" style="display:none"
+			data-name="휘닉스" data-location="강원"
+			data-holecnt="18" data-view="Y"
+			>
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<h5 class="indexNum">No.95</h5>
+				<span><img src="/resources/web/images/icon-golfcourse.svg"></span>
+			</div>
+			<div class="row">
+				<div class="col-12 col-lg-6">
+					<button onclick="openFixURL('http://phoenixhnr.co.kr/pyeongchang/index')" class="btn btn-golfcourse w-100 mb-3">휘닉스</button>
+					<h5 class="mb-2">강원도 평창군 봉평면 태기로 174</h5>
+					<dl class="dl-between mb-3">
+						<dt>Tel. 033-330-6000</dt>
+						<dd>Fax. 033-330-3019</dd>
+					</dl>
+				</div>
+				<div class="col-12 col-lg-3">
+					<div class="secondLineMt mb-3">
+						<span class="badge badge-golfcourse me-2">18홀</span>
+						<span class="badge badge-golfcourse">강원</span>
+					</div>
+				</div>
+				<div class="col-12 col-lg-3 pc-only">
+					<div class="entry-golfcourse-logo mb-3">
+						<img src="/resources/web/images/logo.svg">
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="entry-golfcourse" style="display:none"
+			data-name="힐마루 골프앤리조트 포천" data-location="경기"
+			data-holecnt="18" data-view="Y"
+			>
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<h5 class="indexNum">No.96</h5>
+				<span><img src="/resources/web/images/icon-golfcourse.svg"></span>
+			</div>
+			<div class="row">
+				<div class="col-12 col-lg-6">
+					<button onclick="openFixURL('pocheon.hillmaru.com')" class="btn btn-golfcourse w-100 mb-3">힐마루 골프앤리조트 포천</button>
+					<h5 class="mb-2">경기도 포천시 영중면 금화봉 4길 77</h5>
+					<dl class="dl-between mb-3">
+						<dt>Tel. 1899-5800</dt>
+						<dd>Fax. 031-538-0786</dd>
+					</dl>
+				</div>
+				<div class="col-12 col-lg-3">
+					<div class="secondLineMt mb-3">
+						<span class="badge badge-golfcourse me-2">18홀</span>
+						<span class="badge badge-golfcourse">경기</span>
+					</div>
+				</div>
+				<div class="col-12 col-lg-3 pc-only">
+					<div class="entry-golfcourse-logo mb-3">
+						<img src="/resources/web/images/logo.svg">
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="entry-golfcourse" style="display:none"
+			data-name="CLUBD 금강" data-location="전북"
+			data-holecnt="18" data-view="Y"
+			>
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<h5 class="indexNum">No.97</h5>
+				<span><img src="/resources/web/images/icon-golfcourse.svg"></span>
+			</div>
+			<div class="row">
+				<div class="col-12 col-lg-6">
+					<button onclick="openFixURL('www.clubd.co.kr')" class="btn btn-golfcourse w-100 mb-3">CLUBD 금강</button>
+					<h5 class="mb-2">전라북도 익산시 웅포면 강변로 130</h5>
+					<dl class="dl-between mb-3">
+						<dt>Tel. 063-720-7777</dt>
+						<dd>Fax. 063-720-7799</dd>
+					</dl>
+				</div>
+				<div class="col-12 col-lg-3">
+					<div class="secondLineMt mb-3">
+						<span class="badge badge-golfcourse me-2">18홀</span>
+						<span class="badge badge-golfcourse">전북</span>
+					</div>
+				</div>
+				<div class="col-12 col-lg-3 pc-only">
+					<div class="entry-golfcourse-logo mb-3">
+						<img src="/resources/web/images/logo.svg">
+					</div>
+				</div>
+			</div>
+		</div>
+		
+	</div>
+	
+	<div class="container text-end">
+		<button class="btn btn-scrolltop" type="button" id="top"><img src="/resources/web/images/btn-scrolltop.svg"><br>맨위로</button>
+	</div>
+	
+	<div class="container text-center">
+		<button id="viewMore" class="btn btn-pagemore" type="button">더 보기 <span class="ms-3"><img src="/resources/web/images/btn-circlearrow-downtblue.svg"></span></button>
+	</div>
+
+</section>
+
+
+
+<script>
+	if(cookieLang == "ENG" && engPageYn == "N") {
+		alert("해당 페이지는 영문 제공하지 않습니다.");
+		location.href = "/web/main/index";
+	}
+</script>
+<!----------------------------------------- // copyright section -------------------------------------------->
+
+<section class="section-area section-sponsor">
+<div class="container">
+	<div class="swiper sponsor-swiper swiper-initialized swiper-horizontal swiper-free-mode swiper-watch-progress swiper-backface-hidden">
+		<div class="swiper-wrapper" id="swiper-wrapper-cc3e9f4126e89cb3" aria-live="off" style="transition-duration: 0ms; transform: translate3d(-426.333px, 0px, 0px); transition-delay: 0ms;">
+			<div class="swiper-slide" role="group" aria-label="1 / 8" style="width: 193.167px; margin-right: 20px;"><a href="https://www.kspo.or.kr/kspo/main/main.do" target="_blank"><img src="/resources/web/images/sponsor/sponsor-01.png?ver=20240910"></a></div>
+			<div class="swiper-slide swiper-slide-prev" role="group" aria-label="2 / 8" style="width: 193.167px; margin-right: 20px;"><a href="https://www.k-sec.or.kr" target="_blank"><img src="/resources/web/images/sponsor/sponsor-02.png?ver=20240910"></a></div>
+			<div class="swiper-slide swiper-slide-visible swiper-slide-active" role="group" aria-label="3 / 8" style="width: 193.167px; margin-right: 20px;"><a href="https://portal.sports.or.kr/main.do" target="_blank"><img src="/resources/web/images/sponsor/sponsor-03.png?ver=20240910" width="70%"></a></div>
+			<div class="swiper-slide swiper-slide-visible swiper-slide-fully-visible swiper-slide-next" role="group" aria-label="4 / 8" style="width: 193.167px; margin-right: 20px;"><a href="https://www.cspep.or.kr/web/main/main" target="_blank"><img src="/resources/web/images/sponsor/sponsor-04.png?ver=20240910"></a></div>
+			<div class="swiper-slide swiper-slide-visible swiper-slide-fully-visible" role="group" aria-label="5 / 8" style="width: 193.167px; margin-right: 20px;"><a href="https://welfare.sports.or.kr" target="_blank"><img src="/resources/web/images/sponsor/sponsor-05.png?ver=20240910"></a></div>
+			<div class="swiper-slide swiper-slide-visible swiper-slide-fully-visible" role="group" aria-label="6 / 8" style="width: 193.167px; margin-right: 20px;"><a href="https://www.kada-ad.or.kr" target="_blank"><img src="/resources/web/images/sponsor/sponsor-06.png?ver=20240910"></a></div>
+			<div class="swiper-slide swiper-slide-visible swiper-slide-fully-visible" role="group" aria-label="6 / 8" style="width: 193.167px; margin-right: 20px;"><a href="https://www.kigepe.or.kr/kor/index.do" target="_blank"><img src="/resources/web/images/sponsor/sponsor-07.png?ver=20240910"></a></div>
+		</div>
+	<span class="swiper-notification" aria-live="assertive" aria-atomic="true"></span></div>
+
+	<!-- Initialize Swiper -->
+	<script>
+		var swiper = new Swiper(".sponsor-swiper", {
+			slidesPerView: 4,
+			spaceBetween: 5,
+			slidesPerGroup : 4,
+			freeMode: true,
+			watchSlidesProgress: true,
+			observer: true,
+			observeParents: true,
+			breakpoints: {
+				1600: {
+				slidesPerView: 6,
+				spaceBetween: 20,
+				slidesPerGroup : 6,
+				},
+			},
+			autoplay: {
+				delay: 4000,
+			},
+		});
+	</script>
+
+</div> <!-- end .container -->
+</section>
+
+<!----------------------------------------- // copyright section -------------------------------------------->
+<section class="section-area section-copyright">
+	<div class="container">
+		<div class="footer-logo">
+			<img src="/resources/web/images/footer-logo.svg">
+		</div>
+		<div class="footer-menu">
+			<ul>
+				<li><a href="/footerTerms">KGA 이용약관</a></li>
+				<li><a href="/footerPrivate">개인정보처리방침</a></li>
+			</ul>
+		</div>
+		<div class="footer-copyright">
+			<p>Copyright ⓒ KGA All Right Reserved. </p>
+			<p>
+				
+					
+						10881 경기도 파주시 회동길 174 (문발동) | Tel. (031)-540-5700 | FAX (0507)-883-2300<br>
+						174, Hoedong-gil, Paju-si, Gyeonggi-do, 10881, Rep. of KOREA
+					
+					
+				
+			</p>
+		</div>
+	</div> <!-- end .container -->
+</section> <!-- end .section-copyright -->
+
+
+<span itemscope="" itemtype="http://schema.org/Organization">
+	<link itemprop="url" href="https://kgagolf.or.kr">
+	<a itemprop="sameAs" href="https://www.facebook.com/koreagolfassociation"></a>
+	<a itemprop="sameAs" href="https://www.instagram.com/kgagolf_official"></a>
+	<a itemprop="sameAs" href="https://www.youtube.com/@대한골프협회-u6q"></a>
+	<a itemprop="sameAs" href="https://blog.naver.com/koreagolfassociation"></a>
+</span>
+
+
+</body>
+</html>

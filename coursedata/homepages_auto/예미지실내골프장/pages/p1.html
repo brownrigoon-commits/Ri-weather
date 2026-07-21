@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+    <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <meta name="format-detection" content="telephone=no">
+        <title>예미지컨트리클럽</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+        <meta name="description" content="예미지컨트리클럽 예약문의(041-943-8777)">
+        <script src="/js/jquery.min.js"></script>
+        <script src="/js/const.js"></script>
+        <script src="/js/utils/ajax.js"></script>
+        <script src="/js/utils/common.js"></script>
+        <script src="/js/utils/date.js"></script>
+        <script src="/js/utils/popup.js"></script>
+        <script src="/js/utils/string.js"></script>
+        <script src="/js/utils/template.js"></script>
+        <script src="/js/jquery.preloaders.js"></script>
+        <script src="/pc/js/view.js"></script>
+        <script src="/pc/js/swiper.js"></script>
+
+        <script src="/js/jquery.rwdImageMaps.min.js"></script><!-- image map -->
+        <link href="https://cdn.jsdelivr.net/gh/sun-typeface/SUIT@2/fonts/static/woff2/SUIT.css" rel="stylesheet">
+        <link rel="stylesheet" href="/css/common.css?v=1.0.1" type="text/css">
+        <link rel="stylesheet" href="/css/swiper.css" type="text/css">
+        <link rel="stylesheet" href="/css/layout.css?v=2.0.1" type="text/css">
+        <link rel="stylesheet" href="/css/contents.css?v=2.0.1" type="text/css">
+        <link rel="stylesheet" href="/css/contents_m.css?v=2.0.1" type="text/css">
+
+        <link rel="icon" href="/images/favicon.ico">
+    </head>
+
+    <header class="pc">
+        <div class="nav-area">
+            <div class="top-left">
+                <a href="/" class="logo-area"><img src="/images/logo.svg"></a>
+            </div>
+            <div class="top-right login-container" style="display: none">
+                <a href="/member/login" class="login">로그인</a>
+                <a href="/member/terms">회원가입</a>
+            </div>
+            <div class="top-right logout-container" style="display: none">
+                <a href="javascript:logout()" class="login">로그아웃</a>
+                <a href="/mypage/modify">회원정보관리</a>
+            </div>
+        </div>
+        <!--메뉴-->
+        <nav>
+            <ul class="nav-menu">
+                <li class="gnb"><a href="/club/intro">클럽소개</a></li>
+                <li class="gnb"><a href="/course/intro">코스소개</a></li>
+                <li class="gnb"><a href="/guide/guide">이용안내</a></li>
+                <li class="gnb"><a href="/reservation/main">예약안내</a></li>
+                <li class="gnb"><a href="/board/notice">커뮤니티</a></li>
+                <li class="gnb"><a href="/mypage/modify">회원라운지</a></li>
+            </ul>
+        </nav>
+        <div class="lnb">
+            <div class="lnb-area">
+                <div class="lnb-box">
+                    <ul>
+                        <li><a href="/club/intro">클럽소개</a></li>
+                        <!--<li><a href="/club/greeting">인사말</a></li>-->
+                        <li><a href="/club/facil">클럽하우스</a></li>
+                        <li><a href="/club/golftel">골프텔</a></li>
+                        <li><a href="/club/map">오시는길</a></li>
+                        <!--<li><a href="/club/ci">CI소개</a></li>-->
+                    </ul>
+                    <ul>
+                        <!--<li><a href="javascript:void(0)" onclick="alert('준비중입니다.');">전체코스</a></li>-->
+                        <li><a href="/course/intro">전체코스</a></li>
+                        <!--<li><a href="/course/course01">예코스</a></li>
+                        <li><a href="/course/course02">미코스</a></li>
+                        <li><a href="/course/course03">지코스</a></li>-->
+                        <!--<li><a href="/board/board-course">코스갤러리</a></li>-->
+                    </ul>
+                    <ul>
+                        <li><a href="/guide/guide">이용안내</a></li>
+                        <li><a href="/guide/fee">이용요금</a></li>
+                        <li><a href="/guide/reservation-guide">예약안내</a></li>
+                        <li><a href="/guide/penalty">위약안내</a></li>
+                        <li><a href="/guide/local">로컬룰</a></li>
+                    </ul>
+                    <ul>
+                        <li><a href="/reservation/main">실시간예약</a></li>
+                        <li><a href="/reservation/wait">대기예약</a></li>
+                        <li><a href="/reservation/check">예약확인/취소</a></li>
+                        <!--<li><a href="/reservation/board-join">조인게시판</a></li>-->
+                    </ul>
+                    <ul>
+                        <li><a href="/board/notice">공지사항</a></li>
+                        <li><a href="/board/event">이벤트</a></li>
+                        <li><a href="/board/board-file">자료실</a></li>
+                        <!--<li><a href="/board/photo">포토갤러리</a></li>
+                        <li><a href="/board/honor">명예의전당</a></li>
+                        <li><a href="/board/voc">고객의소리</a></li>-->
+                    </ul>
+                    <ul>
+                        <li><a href="/mypage/enter">내장현황</a></li>
+                        <!--<li><a href="/mypage/coupon">마이쿠폰</a></li>
+                        <li><a href="/mypage/placebo">위약현황</a></li>
+                        <li><a href="/mypage/score">스코어현황</a></li>-->
+                        <li><a href="/member/login" class="login-container" style="display: none">로그인</a></li>
+                        <li><a href="/member/join" class="login-container" style="display: none">회원가입</a></li>
+                        <li><a href="/member/find-id" class="login-container" style="display: none">아이디찾기</a></li>
+                        <li><a href="/mypage/modify">회원정보관리</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="menu-bg"></div>
+        <!--//메뉴-->
+    </header>
+    <header class="mobile">
+        <div class="top-left">
+            <a href="/" class="logo-area"><img src="/images/logo.svg"></a>
+        </div>
+        <input type="checkbox" id="toggleNav"/>
+        <label class="toggle-btn" for="toggleNav" id="toggleTop">
+            <span></span>
+            <span></span>
+            <span></span>
+        </label>
+        <nav>
+            <div class="nav-box">
+                <div class="nav-header">
+                    <div class="logo-wrap">
+                        <a href="/"><img src="/images/logo.svg" class="logo"></a>
+                    </div>
+                    <!--로그인전-->
+                    <div class="nav-header-text login-container" hidden>
+                        <h2>로그인하세요</h2>
+                        <p>회원이 되시면 다양한 혜택을 누릴 수 있습니다.</p>
+                        <div class="nav-login-area">
+                            <a href="/member/login" class="login">로그인</a>
+                            <a href="/member/terms" class="">회원가입</a>
+                        </div>
+                    </div>
+                    <!--로그인후-->
+                    <div class="nav-header-text logout-container" hidden>
+                        <h2 id="login-member-container"></h2>
+                        <p>예미지컨트리클럽에 오신 걸 환영합니다.</p>
+                        <div class="nav-login-area">
+                            <a href="javascript:logout()" class="login">로그아웃</a>
+                            <a href="/mypage/modify" class="">회원정보관리</a>
+                        </div>
+                    </div>
+                </div>
+                <ul class="menu-list">
+                    <li>
+                        <a href="javascript:void(0)"><p>클럽소개</p><b><span></span></b></a>
+                        <div class="lnb">
+                            <a href="/club/intro">클럽소개</a>
+                            <!--<a href="/club/greeting">인사말</a>-->
+                            <a href="/club/facil">클럽하우스</a>
+                            <a href="/club/golftel">골프텔</a>
+                            <a href="/club/map">오시는길</a>
+                            <!--<a href="/club/ci">CI소개</a>-->
+                        </div>
+                    </li>
+                    <li>
+                        <a href="javascript:void(0)"><p>코스소개</p><b><span></span></b></a>
+                        <div class="lnb">
+                            <!--<a href="javascript:void(0)" onclick="alert('준비중입니다.');">전체코스</a>-->
+                            <a href="/course/intro">전체코스</a>
+                            <!--<a href="/course/course01">예코스</a>
+                            <a href="/course/course02">미코스</a>
+                            <a href="/course/course03">지코스</a>-->
+                            <!--<a href="/board/board-course">코스갤러리</a>-->
+                        </div>
+                    </li>
+                    <li>
+                        <a href="javascript:void(0)"><p>이용안내</p><b><span></span></b></a>
+                        <div class="lnb">
+                            <a href="/guide/guide">이용안내</a>
+                            <a href="/guide/fee">이용요금</a>
+                            <a href="/guide/reservation-guide">예약안내</a>
+                            <a href="/guide/penalty">위약안내</a>
+                            <a href="/guide/local">로컬룰</a>
+                        </div>
+                    </li>
+                    <li>
+                        <a href="javascript:void(0)"><p>예약안내</p><b><span></span></b></a>
+                        <div class="lnb">
+                            <a href="/reservation/main">실시간예약</a>
+                            <a href="/reservation/wait">대기예약</a>
+                            <a href="/reservation/check">예약확인/취소</a>
+                            <!--<a href="/reservation/board-join">조인게시판</a>-->
+                        </div>
+                    </li>
+                    <li>
+                        <a href="javascript:void(0)"><p>커뮤니티</p><b><span></span></b></a>
+                        <div class="lnb">
+                            <a href="/board/notice">공지사항</a>
+                            <a href="/board/event">이벤트</a>
+                            <!--<a href="/board/board-file">자료실</a>
+                            <a href="/board/photo">포토갤러리</a>
+                            <a href="/board/honor">명예의전당</a>
+                            <a href="/board/voc">고객의소리</a>-->
+                        </div>
+                    </li>
+                    <li>
+                        <a href="javascript:void(0)"><p>회원라운지</p><b><span></span></b></a>
+                        <div class="lnb">
+                            <a href="/mypage/enter">내장현황</a>
+                            <!--<a href="/mypage/coupon">마이쿠폰</a>
+                            <a href="/mypage/placebo">위약현황</a>
+                            <a href="/mypage/score">스코어현황</a>
+                            <a href="/mypage/modify">회원정보관리</a>-->
+                            <a href="/member/login" class="login-container" style="display: none">로그인</a>
+                            <a href="/member/join" class="login-container" style="display: none">회원가입</a>
+                            <a href="/member/find-id" class="login-container" style="display: none">아이디찾기</a>
+                            <a href="/mypage/modify">회원정보관리</a>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <script>
+        $(document).ready(async function () {
+            const isLoggedIn = await checkLogin()
+
+            if (isLoggedIn) {
+                const member = await ajax.get("/api/member", {}, false);
+                $("#login-member-container").html(`${member.name} 고객님`)
+                $(".logout-container").show();
+            } else {
+                $(".login-container").show();
+            }
+        });
+
+        function logout() {
+            localStorage.removeItem(TOKEN_KEY);
+            location.href = "/";
+        }
+    </script>
+
+
+<body>
+
+    <link rel="stylesheet" href="/css/aos.css" type="text/css">
+    <div class="head-title-area">
+        <div class="head-title">
+            <h2>코스소개</h2>
+            <div class="common-tab-wrap">
+                <a href="/course/intro" class="on">전체코스</a>
+                <!--<a href="/course/course01">예코스</a>
+                <a href="/course/course02">미코스</a>
+                <a href="/course/course03">지코스</a>-->
+                <!--<a href="/board/board-course">코스갤러리</a>-->
+            </div>
+        </div>
+    </div>
+    <div class="container">
+        <div class="inner">
+            <div class="course-inner">
+                <h2 class="common-tit">전체 코스</h2>
+
+                <div class="all-course">
+                    <img src="/images/course/course_intro.jpg" alt="전체코스">
+                </div>
+
+                <div class="course-header">
+                    <h1 data-aos="fade-up">예미지 컨트리클럽</h1>
+                    <p data-aos="fade-up">예미지 컨트리클럽은 ‘예(藝)·미(美)·지(智)’라는 브랜드 철학을 담아<br>
+                        각각의 개성과 매력을 지닌 27홀 코스로 구성되어 있습니다.<br>
+                        자연, 미학, 전략이 조화를 이루는 코스 설계를 통해 골퍼에게 깊이 있는 라운드 경험을 제공합니다.
+                    </p>
+                </div>
+
+                <div class="course-sec-info mi">
+                    <div class="course-sec-con" data-aos="fade-up">
+                        <h4>코스</h4>
+                        <h1>藝 美 智</h1>
+                        <p>
+                            예미지 코스는 칠갑산 자락의 자연 지형을 최대한 살린 코스로, 부드러운 곡선의 페어웨이와 안정적인 동선이 특징입니다.<br>
+                            자연과 조화를 이루는 설계 속에서 편안하면서도 품격 있는 플레이를 즐길 수 있어, 예미지 컨트리클럽의 첫 인상을 완성하는 코스입니다.
+                            <span>“자연을 예술로 완성한, 가장 예미지다운 시작”</span>
+                        </p>
+                    </div>
+                </div>
+
+                <h2 class="common-tit course">예 코스 <span>(단위:m)</span></h2>
+                <div class="table-wrap">
+                    <table class="tbl-course">
+                        <thead>
+                        <tr>
+                            <th>HOLE</th>
+                            <th>1</th>
+                            <th>2</th>
+                            <th>3</th>
+                            <th>4</th>
+                            <th>5</th>
+                            <th>6</th>
+                            <th>7</th>
+                            <th>8</th>
+                            <th>9</th>
+                            <th>합계</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td>PAR</td>
+                            <td>4</td>
+                            <td>5</td>
+                            <td>4</td>
+                            <td>4</td>
+                            <td>3</td>
+                            <td>4</td>
+                            <td>3</td>
+                            <td>5</td>
+                            <td>4</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>HDCP</td>
+                            <td>4</td>
+                            <td>3</td>
+                            <td>7</td>
+                            <td>1</td>
+                            <td>8</td>
+                            <td>6</td>
+                            <td>9</td>
+                            <td>5</td>
+                            <td>2</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>BLACK</td>
+                            <td>379</td>
+                            <td>496</td>
+                            <td>396</td>
+                            <td>367</td>
+                            <td>149</td>
+                            <td>353</td>
+                            <td>156</td>
+                            <td>526</td>
+                            <td>422</td>
+                            <td>3,244</td>
+                        </tr>
+                        <tr>
+                            <td>BLUE</td>
+                            <td>352</td>
+                            <td>461</td>
+                            <td>371</td>
+                            <td>340</td>
+                            <td>115</td>
+                            <td>334</td>
+                            <td>125</td>
+                            <td>493</td>
+                            <td>392</td>
+                            <td>2,983</td>
+                        </tr>
+                        <tr>
+                            <td>WHITE</td>
+                            <td>310</td>
+                            <td>446</td>
+                            <td>341</td>
+                            <td>310</td>
+                            <td>100</td>
+                            <td>304</td>
+                            <td>105</td>
+                            <td>455</td>
+                            <td>350</td>
+                            <td>2,721</td>
+                        </tr>
+                        <tr>
+                            <td>RED</td>
+                            <td>260</td>
+                            <td>376</td>
+                            <td>246</td>
+                            <td>250</td>
+                            <td>80</td>
+                            <td>239</td>
+                            <td>75</td>
+                            <td>435</td>
+                            <td>275</td>
+                            <td>2,236</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <p class="only-m-course">※ 좌우로 스크롤을 해보세요.</p>
+
+                <h2 class="common-tit course mt60">미+지 코스 <span>(단위:m)</span></h2>
+                <div class="table-wrap">
+                    <table class="tbl-course">
+                        <thead>
+                        <tr>
+                            <th>HOLE</th>
+                            <th>미1</th>
+                            <th>미2</th>
+                            <th>미3</th>
+                            <th>미9</th>
+                            <th>지5</th>
+                            <th>지6</th>
+                            <th>지7</th>
+                            <th>지8</th>
+                            <th>지9</th>
+                            <th>합계</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td>PAR</td>
+                            <td>5</td>
+                            <td>4</td>
+                            <td>3</td>
+                            <td>5</td>
+                            <td>5</td>
+                            <td>3</td>
+                            <td>4</td>
+                            <td>4</td>
+                            <td>4</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>HDCP</td>
+                            <td>2</td>
+                            <td>7</td>
+                            <td>9</td>
+                            <td>1</td>
+                            <td>3</td>
+                            <td>4</td>
+                            <td>8</td>
+                            <td>5</td>
+                            <td>6</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>BLACK</td>
+                            <td>515</td>
+                            <td>334</td>
+                            <td>165</td>
+                            <td>499</td>
+                            <td>545</td>
+                            <td>198</td>
+                            <td>337</td>
+                            <td>393</td>
+                            <td>389</td>
+                            <td>3,375</td>
+                        </tr>
+                        <tr>
+                            <td>BLUE</td>
+                            <td>495</td>
+                            <td>293</td>
+                            <td>135</td>
+                            <td>474</td>
+                            <td>513</td>
+                            <td>165</td>
+                            <td>322</td>
+                            <td>361</td>
+                            <td>362</td>
+                            <td>3,120</td>
+                        </tr>
+                        <tr>
+                            <td>WHITE</td>
+                            <td>443</td>
+                            <td>242</td>
+                            <td>103</td>
+                            <td>449</td>
+                            <td>487</td>
+                            <td>164</td>
+                            <td>298</td>
+                            <td>315</td>
+                            <td>316</td>
+                            <td>2,827</td>
+                        </tr>
+                        <tr class="row-red">
+                            <td>RED</td>
+                            <td>372</td>
+                            <td>197</td>
+                            <td>80</td>
+                            <td>367</td>
+                            <td>417</td>
+                            <td>116</td>
+                            <td>243</td>
+                            <td>247</td>
+                            <td>230</td>
+                            <td>2,269</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <p class="only-m-course">※ 좌우로 스크롤을 해보세요.</p>
+
+
+                <!--코스별백업본
+                <div class="course-sec-info ye">
+                    <div class="course-sec-con" data-aos="fade-up">
+                        <h4>예 코스</h4>
+                        <h1>藝</h1>
+                        <p>
+                            예 코스는 칠갑산 자락의 자연 지형을 최대한 살린 코스로, 부드러운 곡선의 페어웨이와 안정적인 동선이 특징입니다.<br>
+                            자연과 조화를 이루는 설계 속에서 편안하면서도 품격 있는 플레이를 즐길 수 있어, 예미지 컨트리클럽의 첫 인상을 완성하는 코스입니다.
+                            <span>“자연을 예술로 완성한, 가장 예미지다운 시작”</span>
+                        </p>
+                    </div>
+                </div>
+                <h2 class="common-tit">예 코스</h2>
+                <div class="table-wrap">
+                    <table class="tbl-course">
+                        <thead>
+                        <tr>
+                            <th>HOLE</th>
+                            <th>1</th>
+                            <th>2</th>
+                            <th>3</th>
+                            <th>4</th>
+                            <th>5</th>
+                            <th>6</th>
+                            <th>7</th>
+                            <th>8</th>
+                            <th>9</th>
+                            <th>합계</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td>PAR</td>
+                            <td>4</td>
+                            <td>5</td>
+                            <td>4</td>
+                            <td>4</td>
+                            <td>3</td>
+                            <td>4</td>
+                            <td>3</td>
+                            <td>5</td>
+                            <td>4</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>HDCP</td>
+                            <td>4</td>
+                            <td>3</td>
+                            <td>7</td>
+                            <td>1</td>
+                            <td>8</td>
+                            <td>6</td>
+                            <td>9</td>
+                            <td>5</td>
+                            <td>2</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>BLACK</td>
+                            <td>379</td>
+                            <td>496</td>
+                            <td>396</td>
+                            <td>367</td>
+                            <td>149</td>
+                            <td>353</td>
+                            <td>156</td>
+                            <td>526</td>
+                            <td>422</td>
+                            <td>3,244</td>
+                        </tr>
+                        <tr>
+                            <td>BLUE</td>
+                            <td>352</td>
+                            <td>461</td>
+                            <td>371</td>
+                            <td>340</td>
+                            <td>115</td>
+                            <td>334</td>
+                            <td>125</td>
+                            <td>493</td>
+                            <td>392</td>
+                            <td>2,983</td>
+                        </tr>
+                        <tr>
+                            <td>WHITE</td>
+                            <td>310</td>
+                            <td>446</td>
+                            <td>341</td>
+                            <td>310</td>
+                            <td>100</td>
+                            <td>304</td>
+                            <td>105</td>
+                            <td>455</td>
+                            <td>350</td>
+                            <td>2,721</td>
+                        </tr>
+                        <tr>
+                            <td>RED</td>
+                            <td>260</td>
+                            <td>376</td>
+                            <td>246</td>
+                            <td>250</td>
+                            <td>80</td>
+                            <td>239</td>
+                            <td>75</td>
+                            <td>435</td>
+                            <td>275</td>
+                            <td>2,236</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <p class="only-m-course">※ 좌우로 스크롤을 해보세요.</p>
+
+                <div class="course-sec-info mi">
+                    <div class="course-sec-con" data-aos="fade-up">
+                        <h4>미 코스</h4>
+                        <h1>美</h1>
+                        <p>
+                            미 코스는 시각적인 아름다움과 공간의 여백이 돋보이는 코스로, 넓은 조망과 세련된 코스 라인이 인상적입니다.<br>
+                            계절에 따라 변화하는 풍경 속에서 라운드 자체가 하나의 경험이 되며, 감성과 여유를 중시하는 골퍼에게 깊은 만족을 선사합니다.
+                            <span>“보는 즐거움과 치는 즐거움이 공존하는 코스”</span>
+                        </p>
+                    </div>
+                </div>
+                <h2 class="common-tit">미 코스</h2>
+                <div class="table-wrap">
+                    <table class="tbl-course">
+                        <thead>
+                        <tr>
+                            <th>HOLE</th>
+                            <th>1</th>
+                            <th>2</th>
+                            <th>3</th>
+                            <th>4</th>
+                            <th>5</th>
+                            <th>6</th>
+                            <th>7</th>
+                            <th>8</th>
+                            <th>9</th>
+                            <th>합계</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td>PAR</td>
+                            <td>5</td>
+                            <td>4</td>
+                            <td>3</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td>5</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>HDCP</td>
+                            <td>2</td>
+                            <td>7</td>
+                            <td>9</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td>1</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>BLACK</td>
+                            <td>515</td>
+                            <td>334</td>
+                            <td>165</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td>499</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>BLUE</td>
+                            <td>495</td>
+                            <td>293</td>
+                            <td>135</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td>474</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>WHITE</td>
+                            <td>443</td>
+                            <td>242</td>
+                            <td>103</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td>449</td>
+                            <td></td>
+                        </tr>
+                        <tr class="row-red">
+                            <td>RED</td>
+                            <td>372</td>
+                            <td>197</td>
+                            <td>80</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td>367</td>
+                            <td></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <p class="only-m-course">※ 좌우로 스크롤을 해보세요.</p>
+
+                <div class="course-sec-info ji">
+                    <div class="course-sec-con" data-aos="fade-up">
+                        <h4>지 코스</h4>
+                        <h1>知</h1>
+                        <p>
+                            지 코스는 코스 매니지먼트와 전략적 판단이 중요한 코스로, 티샷부터 그린 공략까지 세밀한 선택을 요구합니다.<br>
+                            지형의 변화와 홀마다 다른 공략 포인트가 플레이의 긴장감을 더하며, 도전적인 라운드를 즐기는 골퍼에게 최적화된 코스입니다.
+                            <span>“생각하는 골퍼를 위한 전략의 코스”</span>
+                        </p>
+                    </div>
+                </div>
+                <h2 class="common-tit">지 코스</h2>
+                <div class="table-wrap">
+                    <table class="tbl-course">
+                        <thead>
+                        <tr>
+                            <th>HOLE</th>
+                            <th>1</th>
+                            <th>2</th>
+                            <th>3</th>
+                            <th>4</th>
+                            <th>5</th>
+                            <th>6</th>
+                            <th>7</th>
+                            <th>8</th>
+                            <th>9</th>
+                            <th>합계</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td>PAR</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td>5</td>
+                            <td>3</td>
+                            <td>4</td>
+                            <td>4</td>
+                            <td>4</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>HDCP</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td>3</td>
+                            <td>4</td>
+                            <td>8</td>
+                            <td>5</td>
+                            <td>6</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>BLACK</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td>545</td>
+                            <td>198</td>
+                            <td>337</td>
+                            <td>393</td>
+                            <td>389</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>BLUE</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td>513</td>
+                            <td>165</td>
+                            <td>322</td>
+                            <td>361</td>
+                            <td>362</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>WHITE</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td>487</td>
+                            <td>164</td>
+                            <td>298</td>
+                            <td>315</td>
+                            <td>316</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>RED</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td>417</td>
+                            <td>116</td>
+                            <td>243</td>
+                            <td>247</td>
+                            <td>230</td>
+                            <td></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <p class="only-m-course">※ 좌우로 스크롤을 해보세요.</p>
+                -->
+            </div>
+        </div>
+    </div>
+    <script src="/pc/js/aos.js"></script>
+    <script>
+        AOS.init({
+            duration: 800,
+            delay: 0,
+            offset: 100,
+            easing: 'ease-out',
+            once: true,
+        });
+    </script>
+
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a1e796b189621706',t:'MTc4NDYwOTQ2Nw=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script><script defer src="https://static.cloudflareinsights.com/beacon.min.js/v4513226cdae34746b4dedf0b4dfa099e1781791509496" integrity="sha512-ZE9pZaUXND66v380QUtch/5sE9tPFh2zg45pR2PB0CVkCtOREv2AJKkSidISWkysEuQ0EH8faUU5du78bx87UQ==" data-cf-beacon='{"version":"2024.11.0","token":"de9f4891b32a4c7ba3c624fc918787fa","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+</body>
+
+    <footer>
+        <div class="f-head-area">
+            <a href="/policy/policy" class="f-red">개인정보처리방침</a>
+            <a href="/policy/video">영상정보처리기기방침</a>
+            <a href="/policy/legal">이용약관</a>
+            <a href="/policy/email">이메일무단수집거부</a>
+        </div>
+        <div class="f-con-area">
+            <h1><img src="/images/logo_bottom.svg?v=1"></h1>
+            <address>
+                <ul>
+                    <li>
+                        <span>(주)해오름주택</span>
+                        <span><b>사업자등록번호</b> 314-86-61370</span>
+                        <!--<span><b>통신판매업신고</b> 제0000-00-0000호</span>-->
+                    </li>
+                </ul>
+                <ul>
+                    <li>
+                        <span><b>주소</b> 충남 청양군 대치면 주전로 268</span>
+                        <span><b>대표이사</b> 김길수</span>
+                        <span><b>대표전화</b> 041-943-8777</span>
+                        <span><b>FAX</b> 041-943-8776</span>
+                    </li>
+                </ul>
+            </address>
+            <p>Copyright(C) 2026 YEMIZI GOLF CLUB. ALL RIGHT RESERVED.</p>
+        </div>
+    </footer>
+
+</html>

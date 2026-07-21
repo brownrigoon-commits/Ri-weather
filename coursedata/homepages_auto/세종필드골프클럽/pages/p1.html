@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+    <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <meta name="format-detection" content="telephone=no">
+        <title>세종필드GC</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+        <!--<meta property="og:image" content="https://www.sejongcc.com/images/og_thumbnail.jpg">-->
+        <script src="/js/jquery.min.js"></script>
+        <script src="/js/const.js"></script>
+        <script src="/js/utils/ajax.js?v=3"></script>
+        <script src="/js/utils/common.js?v=2"></script>
+        <script src="/js/utils/date.js"></script>
+        <script src="/js/utils/popup.js"></script>
+        <script src="/js/utils/message.js"></script>
+        <script src="/js/utils/string.js"></script>
+        <script src="/js/utils/swiper.js"></script>
+        <script src="/js/utils/template.js"></script>
+        <script src="/js/jquery.preloaders.js"></script>
+        <script src="/pc/js/view.js"></script>
+        <script src="/pc/js/swiper.js"></script>
+        <script src="/pc/js/aos.js"></script>
+        <!--<script src="/pc/js/smoothscroll.js"></script>-->
+        <script src="/js/jquery.rwdImageMaps.min.js"></script><!-- image map -->
+        <link rel="stylesheet" href="/css/common.css" type="text/css">
+        <link rel="stylesheet" href="/css/swiper.css" type="text/css">
+        <link rel="stylesheet" href="/css/layout.css?v=26072113" type="text/css">
+        <link rel="stylesheet" href="/css/contents.css?v=26072113" type="text/css">
+        <link rel="stylesheet" href="/css/contents_m.css?v=26072113" type="text/css">
+        <link rel="stylesheet" href="/css/aos.css" type="text/css">
+        <link rel="stylesheet" href="/css/captcha.css" type="text/css">
+        <link rel="icon" href="/images/favicon.ico?v=1">
+        <link rel="stylesheet" href="https://unpkg.com/lenis@1.3.8/dist/lenis.css">
+        <script src="https://unpkg.com/lenis@1.3.8/dist/lenis.min.js"></script>
+    </head>
+
+    <header class="pc">
+        <div class="nav-area">
+            <div class="top-left">
+                <!--디폴트 로고-->
+                <a href="/" class="default-logo"><img src="/images/logo-white.svg"></a>
+                <!--스크롤시 로고-->
+                <a href="/" class="logo-area"><img src="/images/logo.svg"></a>
+            </div>
+            <div class="top-right">
+                <a href="/">
+                    <!--디폴트 버튼-->
+                    <img src="/images/ic-toggle-btn.svg" class="close">
+                    <!-- lnb 오픈시 버튼-->
+                    <img src="/images/ic-toggle-btn-open.svg" class="open">
+                </a>
+            </div>
+        </div>
+        <!--메뉴-->
+        <nav>
+            <ul class="nav-menu">
+                <li class="gnb"><a href="/reservation/main">인터넷예약</a></li>
+                <li class="gnb"><a href="/board/promotion">클럽정보</a></li>
+                <li class="gnb"><a href="/club/intro">클럽소개</a></li>
+                <li class="gnb"><a href="/course/intro">코스안내</a></li>
+                <li class="gnb"><a href="/mypage/check">정보센터</a></li>
+            </ul>
+        </nav>
+        <div class="lnb">
+            <div class="lnb-area">
+                <div class="menu-logo">
+                    <img src="/images/menu-logo.svg" alt="메뉴상단로고">
+                </div>
+                <div class="btn-lnb-area login-container" style="display: none">
+                    <a href="javascript:logout()" class="on">로그아웃</a>
+                    <a href="/mypage/check" class="my">마이페이지</a>
+                </div>
+                <div class="btn-lnb-area logout-container" style="display: none">
+                    <a href="/member/login" class="on">로그인</a>
+                    <a href="/member/terms">회원가입</a>
+                </div>
+                <div class="lnb-box">
+                    <ul>
+                        <li><h3>인터넷예약</h3></li>
+                        <li><a href="/reservation/main">실시간예약</a></li>
+                        <li><a href="/reservation/wait">대기예약</a></li>
+                        <li><a href="/reservation/reservation-guide">예약안내</a></li>
+                        <li><a href="/reservation/penalty-guide">위약안내</a></li>
+                        <li><a href="/board/library">자료실</a></li>
+                    </ul>
+                    <ul>
+                        <li><h3>클럽정보</h3></li>
+                        <li><a href="/board/promotion">프로모션·공지사항</a></li>
+                        <li><a href="/board/bid">구매입찰·채용정보</a></li>
+                        <li><a href="/club/menu">식음료 메뉴 안내</a></li>
+                        <li><a href="https://weather.daum.net/theme/golf?location-regionId=AQ20000024&location-placeId=V25070582&weather-cp=kweather" target="_blank">날씨안내</a></li>
+                        <li><a href="/club/map">오시는길</a></li>
+                    </ul>
+                    <ul>
+                        <li><h3>클럽소개</h3></li>
+                        <li><a href="/club/intro">클럽개요</a></li>
+                        <li><a href="/club/ci">세종필드 C.I.</a></li>
+                        <li><a href="/club/facil">주요시설</a></li>
+                        <li><a href="/club/guide">이용안내</a></li>
+                        <li><a href="/club/fee">이용요금</a></li>
+                    </ul>
+                    <ul>
+                        <li><h3>코스안내</h3></li>
+                        <li><a href="/course/intro">코스개요</a></li>
+                        <li><a href="/course/sejong">세종코스</a></li>
+                        <li><a href="/course/haengbok">행복코스</a></li>
+                        <li><a href="/course/gallery">코스갤러리</a></li>
+                    </ul>
+                    <ul>
+                        <li><h3>정보센터</h3></li>
+                        <li><a href="/mypage/check">마이페이지</a></li>
+                        <li><a href="/board/voc-list">고객의소리</a></li>
+                    </ul>
+                </div>
+
+                <!--닫기-->
+                <div class="lnb-close">
+                    <img src="/images/lnb-close.svg">닫기
+                </div>
+            </div>
+        </div>
+        <!--//메뉴-->
+    </header>
+    <header class="mobile">
+        <div class="top-left">
+            <!-- <p class="weather-area">21.6º 맑음<em></em><img src="/images/weather/Clear.svg"></p> -->
+            <a href="/" class="logo-w"><img src="/images/logo-w.svg"></a>
+            <a href="/" class="logo-area"><img src="/images/logo.svg"></a>
+        </div>
+        <!-- <div class="top-right">
+            <a href="/reservation/main"><img src="/images/ic_reservation.svg"></a>
+        </div> -->
+        <input type="checkbox" id="toggleNav"/>
+        <label class="toggle-btn" for="toggleNav" id="toggleTop">
+            <span></span>
+            <span></span>
+            <span></span>
+        </label>
+        <nav>
+            <div class="nav-box">
+                <div class="nav-header">
+                    <div class="logo">
+                        <a href="/"><img src="/images/logo-mobile-head.svg"></a>
+                    </div>
+                    <!--로그인전-->
+                    <div class="menu-login logout-container" style="display: none">
+                        <a href="/member/login" class="login">로그인</a>
+                        <a href="/member/terms">회원가입</a>
+                        <a href="/mypage/check" class="mypage">마이페이지</a>
+                    </div>
+                    <!--로그인후-->
+                    <div class="menu-login login-container" style="display: none">
+                        <a href="javascript:logout()" class="login">로그아웃</a>
+                        <a href="/mypage/check" class="mypage">마이페이지</a>
+                    </div>
+                </div>
+                <ul class="menu-list">
+                    <li>
+                        <a href="javascript:void(0)"><p>인터넷예약</p><b><span></span></b></a>
+                        <div class="lnb">
+                            <a href="/reservation/main">실시간예약</a>
+                            <a href="/reservation/wait">대기예약</a>
+                            <a href="/reservation/reservation-guide">예약안내</a>
+                            <a href="/reservation/penalty-guide">위약안내</a>
+                            <a href="/board/library">자료실</a>
+                        </div>
+                    </li>
+                    <li>
+                        <a href="javascript:void(0)"><p>클럽정보</p><b><span></span></b></a>
+                        <div class="lnb">
+                            <a href="/board/promotion">프로모션·공지사항</a>
+                            <a href="/board/bid">구매입찰·채용정보</a>
+                            <a href="/club/menu">식음료 메뉴 안내</a>
+                            <a href="https://weather.daum.net/theme/golf?location-regionId=AQ20000024&location-placeId=V25070582&weather-cp=kweather" target="_blank">날씨안내</a>
+                            <a href="/club/map">오시는길</a>
+                        </div>
+                    </li>
+                    <li>
+                        <a href="javascript:void(0)"><p>클럽소개</p><b><span></span></b></a>
+                        <div class="lnb">
+                            <a href="/club/intro">클럽개요</a>
+                            <a href="/club/ci">세종필드 C.I.</a>
+                            <a href="/club/facil">주요시설</a>
+                            <a href="/club/guide">이용안내</a>
+                            <a href="/club/fee">이용요금</a>
+                        </div>
+                    </li>
+                    <li>
+                        <a href="javascript:void(0)"><p>코스안내</p><b><span></span></b></a>
+                        <div class="lnb">
+                            <a href="/course/intro">코스개요</a>
+                            <a href="/course/sejong">세종코스</a>
+                            <a href="/course/haengbok">행복코스</a>
+                            <a href="/course/gallery">코스갤러리</a>
+                        </div>
+                    </li>
+                    <li>
+                        <a href="javascript:void(0)"><p>정보센터</p><b><span></span></b></a>
+                        <div class="lnb">
+                            <a href="/mypage/check">마이페이지</a>
+                            <a href="/board/voc-list">고객의소리</a>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <script>
+        new Lenis({ //스크롤지연 script
+            autoRaf: true,
+            duration: 2,
+            anchors: { offset: 0 },
+        });
+
+        AOS.init({ duration: 800, easing: 'ease' });
+        window.addEventListener('load', () => AOS.refresh());
+
+        $(document).ready(async function () {
+            const isLoggedIn = await checkLogin()
+
+            if (isLoggedIn) {
+                $(".login-container").show();
+
+                ajax.get("/api/member/booking/summary").then((summary) => {
+                    $("ul.booking-summary > li:nth-child(1) > span").html(`${summary.bookingCount}건`);
+                    $("ul.booking-summary > li:nth-child(2) > span").html(`${summary.pastCount}건`);
+                    $("ul.booking-summary > li:nth-child(3) > span").html(`${summary.cancelCount}건`);
+                });
+            } else {
+                $(".logout-container").show();
+            }
+        });
+
+        function logout() {
+            ajax.delete("/api/member/logout").finally(() => {
+                localStorage.removeItem(TOKEN_KEY);
+                location.href = "/";
+            });
+        }
+    </script>
+
+<body>
+
+    <div class="container">
+        
+    
+
+        
+
+        <div class="breadcrumb">
+            <ul>
+                <li class="home">
+                    <img src="/images/ic_home.svg" alt="홈">
+                </li>
+
+                <li class="dropdown">
+                    <button class="dropdown-btn">코스안내</button>
+                    <ul class="dropdown-menu">
+                        <li><a href="/reservation/main">인터넷예약</a></li>
+                        <li><a href="/board/promotion">클럽정보</a></li>
+                        <li><a href="/club/intro">클럽소개</a></li>
+                        <li><a href="/course/intro">코스안내</a></li>
+                        <li><a href="/mypage/check">정보센터</a></li>
+                    </ul>
+                </li>
+
+                <li class="dropdown">
+                    <button class="dropdown-btn">코스개요</button>
+                    <ul class="dropdown-menu">
+                        <li>
+                            <a href="/course/intro">코스개요</a>
+                        </li>
+                        <li>
+                            <a href="/course/sejong">세종코스</a>
+                        </li>
+                        <li>
+                            <a href="/course/haengbok">행복코스</a>
+                        </li>
+                        <li>
+                            <a href="/course/gallery">코스갤러리</a>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+
+        <!-- 공통 타이틀 -->
+        <div class="common-tit">
+            <h4>COURSE INFO</h4>
+            <h2>코스안내</h2>
+        </div>
+
+        <!-- 공통 탭 -->
+        <div class="common-tab-wrap">
+            <a href="/course/intro"
+               class="on">코스개요</a><a href="/course/sejong">세종코스</a><a href="/course/haengbok">행복코스</a><a href="/course/gallery">코스갤러리</a>
+        </div>
+
+    
+
+
+        <h2 class="title-bar">코스개요</h2>
+
+        <div class="bg-gray course">
+            <img src="/images/course/course-intro.png" alt="코스인트로">
+
+            <ul class="c-info">
+                <li class="se">세종코스 <span>36Par / 3,297m</span></li>
+                <li>행복코스 <span>36Par / 3,388m</span></li>
+            </ul>
+        </div>
+
+        <h3 class="c-title se">세종코스 <span>(단위 : m)</span></h3>
+        <div class="mobile-scroll">
+            <table class="tbl-course">
+                <colgroup>
+                    <col>
+                </colgroup>
+                <thead>
+                    <tr>
+                        <th>Hole</th>
+                        <th>1</th>
+                        <th>2</th>
+                        <th>3</th>
+                        <th>4</th>
+                        <th>5</th>
+                        <th>6</th>
+                        <th>7</th>
+                        <th>8</th>
+                        <th>9</th>
+                        <th>TOTAL</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <th>Par</th>
+                        <td>4</td>
+                        <td>5</td>
+                        <td>4</td>
+                        <td>5</td>
+                        <td>3</td>
+                        <td>4</td>
+                        <td>4</td>
+                        <td>3</td>
+                        <td>4</td>
+                        <td>36</td>
+                    </tr>
+                    <tr>
+                        <th>Black</th>
+                        <td>358</td>
+                        <td>541</td>
+                        <td>372</td>
+                        <td>555</td>
+                        <td>151</td>
+                        <td>388</td>
+                        <td>330</td>
+                        <td>197</td>
+                        <td>405</td>
+                        <td>3,297</td>
+
+                    </tr>
+                    <tr>
+                        <th><span class="blue">Blue</span></th>
+                        <td>334</td>
+                        <td>504</td>
+                        <td>345</td>
+                        <td>526</td>
+                        <td>128</td>
+                        <td>364</td>
+                        <td>299</td>
+                        <td>164</td>
+                        <td>369</td>
+                        <td>3,033</td>
+                    </tr>
+                    <tr>
+                        <th><span class="white">White</span></th>
+                        <td>319</td>
+                        <td>483</td>
+                        <td>315</td>
+                        <td>507</td>
+                        <td>107</td>
+                        <td>341</td>
+                        <td>279</td>
+                        <td>137</td>
+                        <td>347</td>
+                        <td>2,835</td>
+                    </tr>
+                    <tr>
+                        <th><span class="gold">Gold</span></th>
+                        <td>273</td>
+                        <td>462</td>
+                        <td>284</td>
+                        <td>481</td>
+                        <td>96</td>
+                        <td>325</td>
+                        <td>259</td>
+                        <td>126</td>
+                        <td>323</td>
+                        <td>2,629</td>
+                    </tr>
+                    <tr>
+                        <th><span class="red">Red</span></th>
+                        <td>241</td>
+                        <td>389</td>
+                        <td>259</td>
+                        <td>396</td>
+                        <td>81</td>
+                        <td>266</td>
+                        <td>242</td>
+                        <td>114</td>
+                        <td>292</td>
+                        <td>2,280</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <p class="mobile-guide-text">※ 좌우를 움직여서 스크롤해보세요</p>
+
+        <h3 class="c-title">행복코스 <span>(단위 : m)</span></h3>
+        <div class="mobile-scroll">
+            <table class="tbl-course">
+                <colgroup>
+                    <col>
+                </colgroup>
+                <thead>
+                <tr>
+                    <th>Hole</th>
+                    <th>10</th>
+                    <th>11</th>
+                    <th>12</th>
+                    <th>13</th>
+                    <th>14</th>
+                    <th>15</th>
+                    <th>16</th>
+                    <th>17</th>
+                    <th>18</th>
+                    <th>TOTAL</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <th>Par</th>
+                    <td>4</td>
+                    <td>5</td>
+                    <td>4</td>
+                    <td>4</td>
+                    <td>5</td>
+                    <td>3</td>
+                    <td>4</td>
+                    <td>3</td>
+                    <td>4</td>
+                    <td>36</td>
+                </tr>
+                <tr>
+                    <th>Black</th>
+                    <td>363</td>
+                    <td>524</td>
+                    <td>427</td>
+                    <td>376</td>
+                    <td>532</td>
+                    <td>185</td>
+                    <td>330</td>
+                    <td>228</td>
+                    <td>423</td>
+                    <td>3,388</td>
+
+                </tr>
+                <tr>
+                    <th><span class="blue">Blue</span></th>
+                    <td>328</td>
+                    <td>500</td>
+                    <td>396</td>
+                    <td>349</td>
+                    <td>493</td>
+                    <td>161</td>
+                    <td>297</td>
+                    <td>202</td>
+                    <td>399</td>
+                    <td>3,125</td>
+                </tr>
+                <tr>
+                    <th><span class="white">White</span></th>
+                    <td>311</td>
+                    <td>479</td>
+                    <td>360</td>
+                    <td>321</td>
+                    <td>450</td>
+                    <td>155</td>
+                    <td>285</td>
+                    <td>186</td>
+                    <td>376</td>
+                    <td>2,923</td>
+                </tr>
+                <tr>
+                    <th><span class="gold">Gold</span></th>
+                    <td>282</td>
+                    <td>451</td>
+                    <td>326</td>
+                    <td>299</td>
+                    <td>420</td>
+                    <td>134</td>
+                    <td>271</td>
+                    <td>165</td>
+                    <td>351</td>
+                    <td>2,699</td>
+                </tr>
+                <tr>
+                    <th><span class="red">Red</span></th>
+                    <td>249</td>
+                    <td>419</td>
+                    <td>302</td>
+                    <td>274</td>
+                    <td>406</td>
+                    <td>119</td>
+                    <td>245</td>
+                    <td>68</td>
+                    <td>300</td>
+                    <td>2,382</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <p class="mobile-guide-text">※ 좌우를 움직여서 스크롤해보세요</p>
+
+        <div class="intro-course-guide">
+            <a href="/course/sejong">
+                <img src="/images/club/sejong-intro.jpg?v=1" alt="세종코스">
+                <div class="text">
+                    <div data-aos="fade-up">
+                        <h1>세종 코스</h1>
+                        <p>초지와 구릉이 조화를 이루는 <span>부드러운 코스</span></p>
+                    </div>
+                </div>
+            </a>
+            <a href="/course/haengbok">
+                <img src="/images/club/haengbok-intro.jpg?v=1" alt="행복코스">
+                <div class="text">
+                    <div data-aos="fade-up">
+                        <h1>행복 코스</h1>
+                        <p>숲과 계류가 어우러져 <span>자연스레 연장된 공원형 코스</span></p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+    </div>
+
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a1e786e71cac7c1d',t:'MTc4NDYwODgyMA=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script><script defer src="https://static.cloudflareinsights.com/beacon.min.js/v4513226cdae34746b4dedf0b4dfa099e1781791509496" integrity="sha512-ZE9pZaUXND66v380QUtch/5sE9tPFh2zg45pR2PB0CVkCtOREv2AJKkSidISWkysEuQ0EH8faUU5du78bx87UQ==" data-cf-beacon='{"version":"2024.11.0","token":"de9f4891b32a4c7ba3c624fc918787fa","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+</body>
+
+<!--aside-->
+<aside>
+    
+    <!--퀵메뉴-->
+    <div class="quick-menu">
+        <div class="quick-menu-btn">
+            <a href="/board/promotion" class="btn">
+                <span class="label">프로모션</span>
+
+                <span class="icon-wrap">
+                    <img src="/images/ic_side_menu01.svg" class="icon default" alt="퀵아이콘" />
+                    <!-- hover 아이콘 -->
+                    <img src="/images/ic_side_menu01_on.svg" class="icon hover" alt="퀵아이콘">
+                </span>
+            </a>
+            <a href="/club/fee"  class="btn">
+                <span class="label">이용요금</span>
+
+                <span class="icon-wrap">
+                    <img src="/images/ic_side_menu02.svg" class="icon default" alt="퀵아이콘" />
+                    <!-- hover 아이콘 -->
+                    <img src="/images/ic_side_menu02_on.svg" class="icon hover" alt="퀵아이콘">
+                </span>
+            </a>
+            <a href="/reservation/reservation-guide"  class="btn">
+                <span class="label">예약안내</span>
+
+                <span class="icon-wrap">
+                    <img src="/images/ic_side_menu03.svg" class="icon default" alt="퀵아이콘" />
+                    <!-- hover 아이콘 -->
+                    <img src="/images/ic_side_menu03_on.svg" class="icon hover" alt="퀵아이콘">
+                </span>
+            </a>
+            <a href="/club/menu" class="btn">
+                <span class="label">식음료메뉴</span>
+
+                <span class="icon-wrap">
+                    <img src="/images/ic_side_menu04.svg" class="icon default" alt="퀵아이콘" />
+                    <!-- hover 아이콘 -->
+                    <img src="/images/ic_side_menu04_on.svg" class="icon hover" alt="퀵아이콘">
+                </span>
+            </a>
+            <a href="/course/intro" class="btn">
+                <span class="label">코스안내</span>
+
+                <span class="icon-wrap">
+                    <img src="/images/ic_side_menu05.svg" class="icon default" alt="퀵아이콘" />
+                    <!-- hover 아이콘 -->
+                    <img src="/images/ic_side_menu05_on.svg" class="icon hover" alt="퀵아이콘">
+                </span>
+            </a>
+            <a href="/board/library" class="btn">
+                <span class="label">자료실</span>
+
+                <span class="icon-wrap">
+                    <img src="/images/ic_side_menu06.svg" class="icon default" alt="퀵아이콘" />
+                    <!-- hover 아이콘 -->
+                    <img src="/images/ic_side_menu06_on.svg" class="icon hover" alt="퀵아이콘">
+                </span>
+            </a>
+        </div>
+    </div>
+
+</aside>
+
+<!--하단 고정바-->
+
+    <!--하단 바-->
+    <div class="bottom-cta">
+        <div class="cta-wrap">
+            <!--모바일일때 나타나는 버튼-->
+            <div class="mobile-btn">
+                <img src="/images/ic-bottom-cta.svg">
+            </div>
+
+            <script>
+                $(document).ready(function () {
+                    $(".select-trigger").on("click", function (e) {
+                        e.stopPropagation();
+                        $(".weather-select").toggleClass("open");
+                    });
+
+                    // 바깥 클릭 시 닫기
+                    $(document).on("click", function () {
+                        $(".weather-select").removeClass("open");
+                    });
+
+                    ajax.get("/api/open/common/weather").then((data) => {
+                        let $options = $(".weather-select > ul.select-options");
+
+                        data.forEach((d, i) => {
+                            const date = new Date().plusDays(Number(d.day));
+
+                            $options.append(`
+                                <li data-index="${i}">
+                                    <span class="label"><span>${date.mm()}.${date.dd()}(${date.weekName()})</span> ${d.temp}° ${d.wfKor}</span>
+                                    <span class="icon"><img src="/images/weather/${d.wfEn.replaceAll("/", "&")}.svg"></span>
+                                </li>`)
+                        });
+
+                        $options.children("li").on("click", function () {
+                            const d = data[Number($(this).data("index"))]
+                            const date = new Date().plusDays(Number(d.day));
+
+                            $(".weather-select > button.select-trigger").html(`
+                                <span class="label"><span class="mobile-hidden">${date.mm()}.${date.dd()}(${date.weekName()})</span> ${d.temp}° <span class="mobile-hidden">${d.wfKor}</span></span>
+                                <span class="icon"><img src="/images/weather/${d.wfEn.replaceAll("/", "&")}.svg"></span>
+                                <span class="arrow"><img src="/images/cta-select-arrow.svg"></span>`);
+                        });
+
+                        $options.children("li").eq(0).trigger("click");
+                    });
+                });
+
+            </script>
+
+            <div class="weather-select">
+                <!--날씨 기본 노출 영역-->
+                <button type="button" class="select-trigger">
+                </button>
+
+                <!--옵션영역-->
+                <ul class="select-options">
+                </ul>
+            </div>
+
+            <div class="flex-layout">
+                <div class="info-wrap">
+                    <!--로그인전-->
+                    <div class="cta-group">
+                        <div class="cta-content logout-container" style="display: none">
+                            <!--텍스트 최대세줄-->
+                            <span>실시간 잔여시간 및 예약정보 조회는 로그인 후 이용하실 수 있습니다.</span>
+                        </div>
+
+                        <div class="btn-group logout-container" style="display: none">
+                            <a href="/member/login">
+                                <img src="/images/cta-login.svg">
+                                로그인
+                            </a>
+                            <a href="/member/terms">
+                                <img src="/images/cta-join.svg">
+                                회원가입
+                            </a>
+                        </div>
+                    </div>
+
+                    <!--로그인후-->
+                    <div class="cta-group">
+                        <div class="cta-content login-container" style="display: none">
+                            <ul class="reser-info booking-summary">
+                                <li onclick="location.href='/mypage/check'">예약확정 <span>0건</span></li>
+                                <li onclick="location.href='/mypage/cancel'">지난 예약 <span>0건</span></li>
+                                <li onclick="location.href='/mypage/cancel'">취소 내역 <span>0건</span></li>
+                            </ul>
+                        </div>
+
+                        <div class="btn-group login-container" style="display: none">
+                            <a href="/mypage/mypage">
+                                <img src="/images/cta-modify.svg">
+                                마이페이지
+                            </a>
+                            <a href="/mypage/score">
+                                <img src="/images/cta-score.svg">
+                                스코어카드
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!--실시간예약버튼-->
+                <a href="/reservation/main" class="cta-reser">
+                    <img src="/images/cta-reservation.svg" alt="실시간예약">
+                    <span class="mobile-hidden">실시간</span> 예약 <span class="icon-animation mobile-hidden">↗</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 모바일 - 버튼클릭시 영역확장
+        const mobileBtn = document.querySelector(".mobile-btn");
+        const bottomCta = document.querySelector(".bottom-cta");
+
+        mobileBtn.addEventListener("click", () => {
+            bottomCta.classList.toggle("open");
+        });
+    </script>
+
+
+
+    <footer>
+        <div class="footer-top">
+            <div class="group">
+                <ul class="f-terms-list">
+                    <li class="imp fw700" onclick="location.href='/policy/privacy'">개인정보처리방침</li>
+                    <li onclick="location.href='/policy/policy'">골프장 이용약관</li>
+                    <li onclick="location.href='/policy/terms'">인터넷 회원약관</li>
+                    <li onclick="location.href='/policy/video'">영상정보처리기기 운영방침</li>
+                </ul>
+
+                <div class="tel">
+                    <h1><img src="/images/ic-tel.svg" alt="대표전화">대표전화</h1>
+                    <span>044-861-5678</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <ul class="info-list">
+                <li>세종개발(주)</li>
+                <li><span>사업자등록번호</span> 307-81-35786</li>
+                <li><span>통신판매업신고</span> 제2012-세종-0037호</li>
+                <li class="imp"><a href="https://www.ftc.go.kr/www/selectBizCommList.do?key=253&token=4BCA5703-5B23-E99B-7713-F87051D580D20C7533FE9AE2181DF3B0788DD4D42164" target="_blank">사업장정보확인</a></li>
+                <li><span>주소</span> 세종특별자치시 정안세종로 1569(산울동)</li>
+                <li><span>대표전화</span> 044-861-5678</li>
+                <li><span>FAX</span> 044-861-5519</li>
+            </ul>
+
+            <p class="copy">Copyright(C) 2012 SEJONG FIELD GOLF CLUB.<span>ALL RIGHT RESERVED.</span></p>
+
+            <div class="icon-list">
+                <a href="https://www.cgbest.co.kr/cgbest/index.do" target="_blank"><img src="/images/footer-icon.png" alt="푸터아이콘"></a>
+                <a href="https://edu.cgbest.co.kr/edu/index.do" target="_blank"><img src="/images/footer-icon02.png" alt="푸터아이콘"></a>
+            </div>
+
+            <div class="scroll-top">
+                <a href="#">
+                    <img src="/images/ic_top.svg?v=1">
+                    Top
+                </a>
+            </div>
+        </div>
+    </footer>
+
+</html>

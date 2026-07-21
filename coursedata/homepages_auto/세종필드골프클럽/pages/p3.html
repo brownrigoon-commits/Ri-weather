@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+    <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <meta name="format-detection" content="telephone=no">
+        <title>세종필드GC</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+        <!--<meta property="og:image" content="https://www.sejongcc.com/images/og_thumbnail.jpg">-->
+        <script src="/js/jquery.min.js"></script>
+        <script src="/js/const.js"></script>
+        <script src="/js/utils/ajax.js?v=3"></script>
+        <script src="/js/utils/common.js?v=2"></script>
+        <script src="/js/utils/date.js"></script>
+        <script src="/js/utils/popup.js"></script>
+        <script src="/js/utils/message.js"></script>
+        <script src="/js/utils/string.js"></script>
+        <script src="/js/utils/swiper.js"></script>
+        <script src="/js/utils/template.js"></script>
+        <script src="/js/jquery.preloaders.js"></script>
+        <script src="/pc/js/view.js"></script>
+        <script src="/pc/js/swiper.js"></script>
+        <script src="/pc/js/aos.js"></script>
+        <!--<script src="/pc/js/smoothscroll.js"></script>-->
+        <script src="/js/jquery.rwdImageMaps.min.js"></script><!-- image map -->
+        <link rel="stylesheet" href="/css/common.css" type="text/css">
+        <link rel="stylesheet" href="/css/swiper.css" type="text/css">
+        <link rel="stylesheet" href="/css/layout.css?v=26072113" type="text/css">
+        <link rel="stylesheet" href="/css/contents.css?v=26072113" type="text/css">
+        <link rel="stylesheet" href="/css/contents_m.css?v=26072113" type="text/css">
+        <link rel="stylesheet" href="/css/aos.css" type="text/css">
+        <link rel="stylesheet" href="/css/captcha.css" type="text/css">
+        <link rel="icon" href="/images/favicon.ico?v=1">
+        <link rel="stylesheet" href="https://unpkg.com/lenis@1.3.8/dist/lenis.css">
+        <script src="https://unpkg.com/lenis@1.3.8/dist/lenis.min.js"></script>
+    </head>
+
+    <header class="pc">
+        <div class="nav-area">
+            <div class="top-left">
+                <!--디폴트 로고-->
+                <a href="/" class="default-logo"><img src="/images/logo-white.svg"></a>
+                <!--스크롤시 로고-->
+                <a href="/" class="logo-area"><img src="/images/logo.svg"></a>
+            </div>
+            <div class="top-right">
+                <a href="/">
+                    <!--디폴트 버튼-->
+                    <img src="/images/ic-toggle-btn.svg" class="close">
+                    <!-- lnb 오픈시 버튼-->
+                    <img src="/images/ic-toggle-btn-open.svg" class="open">
+                </a>
+            </div>
+        </div>
+        <!--메뉴-->
+        <nav>
+            <ul class="nav-menu">
+                <li class="gnb"><a href="/reservation/main">인터넷예약</a></li>
+                <li class="gnb"><a href="/board/promotion">클럽정보</a></li>
+                <li class="gnb"><a href="/club/intro">클럽소개</a></li>
+                <li class="gnb"><a href="/course/intro">코스안내</a></li>
+                <li class="gnb"><a href="/mypage/check">정보센터</a></li>
+            </ul>
+        </nav>
+        <div class="lnb">
+            <div class="lnb-area">
+                <div class="menu-logo">
+                    <img src="/images/menu-logo.svg" alt="메뉴상단로고">
+                </div>
+                <div class="btn-lnb-area login-container" style="display: none">
+                    <a href="javascript:logout()" class="on">로그아웃</a>
+                    <a href="/mypage/check" class="my">마이페이지</a>
+                </div>
+                <div class="btn-lnb-area logout-container" style="display: none">
+                    <a href="/member/login" class="on">로그인</a>
+                    <a href="/member/terms">회원가입</a>
+                </div>
+                <div class="lnb-box">
+                    <ul>
+                        <li><h3>인터넷예약</h3></li>
+                        <li><a href="/reservation/main">실시간예약</a></li>
+                        <li><a href="/reservation/wait">대기예약</a></li>
+                        <li><a href="/reservation/reservation-guide">예약안내</a></li>
+                        <li><a href="/reservation/penalty-guide">위약안내</a></li>
+                        <li><a href="/board/library">자료실</a></li>
+                    </ul>
+                    <ul>
+                        <li><h3>클럽정보</h3></li>
+                        <li><a href="/board/promotion">프로모션·공지사항</a></li>
+                        <li><a href="/board/bid">구매입찰·채용정보</a></li>
+                        <li><a href="/club/menu">식음료 메뉴 안내</a></li>
+                        <li><a href="https://weather.daum.net/theme/golf?location-regionId=AQ20000024&location-placeId=V25070582&weather-cp=kweather" target="_blank">날씨안내</a></li>
+                        <li><a href="/club/map">오시는길</a></li>
+                    </ul>
+                    <ul>
+                        <li><h3>클럽소개</h3></li>
+                        <li><a href="/club/intro">클럽개요</a></li>
+                        <li><a href="/club/ci">세종필드 C.I.</a></li>
+                        <li><a href="/club/facil">주요시설</a></li>
+                        <li><a href="/club/guide">이용안내</a></li>
+                        <li><a href="/club/fee">이용요금</a></li>
+                    </ul>
+                    <ul>
+                        <li><h3>코스안내</h3></li>
+                        <li><a href="/course/intro">코스개요</a></li>
+                        <li><a href="/course/sejong">세종코스</a></li>
+                        <li><a href="/course/haengbok">행복코스</a></li>
+                        <li><a href="/course/gallery">코스갤러리</a></li>
+                    </ul>
+                    <ul>
+                        <li><h3>정보센터</h3></li>
+                        <li><a href="/mypage/check">마이페이지</a></li>
+                        <li><a href="/board/voc-list">고객의소리</a></li>
+                    </ul>
+                </div>
+
+                <!--닫기-->
+                <div class="lnb-close">
+                    <img src="/images/lnb-close.svg">닫기
+                </div>
+            </div>
+        </div>
+        <!--//메뉴-->
+    </header>
+    <header class="mobile">
+        <div class="top-left">
+            <!-- <p class="weather-area">21.6º 맑음<em></em><img src="/images/weather/Clear.svg"></p> -->
+            <a href="/" class="logo-w"><img src="/images/logo-w.svg"></a>
+            <a href="/" class="logo-area"><img src="/images/logo.svg"></a>
+        </div>
+        <!-- <div class="top-right">
+            <a href="/reservation/main"><img src="/images/ic_reservation.svg"></a>
+        </div> -->
+        <input type="checkbox" id="toggleNav"/>
+        <label class="toggle-btn" for="toggleNav" id="toggleTop">
+            <span></span>
+            <span></span>
+            <span></span>
+        </label>
+        <nav>
+            <div class="nav-box">
+                <div class="nav-header">
+                    <div class="logo">
+                        <a href="/"><img src="/images/logo-mobile-head.svg"></a>
+                    </div>
+                    <!--로그인전-->
+                    <div class="menu-login logout-container" style="display: none">
+                        <a href="/member/login" class="login">로그인</a>
+                        <a href="/member/terms">회원가입</a>
+                        <a href="/mypage/check" class="mypage">마이페이지</a>
+                    </div>
+                    <!--로그인후-->
+                    <div class="menu-login login-container" style="display: none">
+                        <a href="javascript:logout()" class="login">로그아웃</a>
+                        <a href="/mypage/check" class="mypage">마이페이지</a>
+                    </div>
+                </div>
+                <ul class="menu-list">
+                    <li>
+                        <a href="javascript:void(0)"><p>인터넷예약</p><b><span></span></b></a>
+                        <div class="lnb">
+                            <a href="/reservation/main">실시간예약</a>
+                            <a href="/reservation/wait">대기예약</a>
+                            <a href="/reservation/reservation-guide">예약안내</a>
+                            <a href="/reservation/penalty-guide">위약안내</a>
+                            <a href="/board/library">자료실</a>
+                        </div>
+                    </li>
+                    <li>
+                        <a href="javascript:void(0)"><p>클럽정보</p><b><span></span></b></a>
+                        <div class="lnb">
+                            <a href="/board/promotion">프로모션·공지사항</a>
+                            <a href="/board/bid">구매입찰·채용정보</a>
+                            <a href="/club/menu">식음료 메뉴 안내</a>
+                            <a href="https://weather.daum.net/theme/golf?location-regionId=AQ20000024&location-placeId=V25070582&weather-cp=kweather" target="_blank">날씨안내</a>
+                            <a href="/club/map">오시는길</a>
+                        </div>
+                    </li>
+                    <li>
+                        <a href="javascript:void(0)"><p>클럽소개</p><b><span></span></b></a>
+                        <div class="lnb">
+                            <a href="/club/intro">클럽개요</a>
+                            <a href="/club/ci">세종필드 C.I.</a>
+                            <a href="/club/facil">주요시설</a>
+                            <a href="/club/guide">이용안내</a>
+                            <a href="/club/fee">이용요금</a>
+                        </div>
+                    </li>
+                    <li>
+                        <a href="javascript:void(0)"><p>코스안내</p><b><span></span></b></a>
+                        <div class="lnb">
+                            <a href="/course/intro">코스개요</a>
+                            <a href="/course/sejong">세종코스</a>
+                            <a href="/course/haengbok">행복코스</a>
+                            <a href="/course/gallery">코스갤러리</a>
+                        </div>
+                    </li>
+                    <li>
+                        <a href="javascript:void(0)"><p>정보센터</p><b><span></span></b></a>
+                        <div class="lnb">
+                            <a href="/mypage/check">마이페이지</a>
+                            <a href="/board/voc-list">고객의소리</a>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <script>
+        new Lenis({ //스크롤지연 script
+            autoRaf: true,
+            duration: 2,
+            anchors: { offset: 0 },
+        });
+
+        AOS.init({ duration: 800, easing: 'ease' });
+        window.addEventListener('load', () => AOS.refresh());
+
+        $(document).ready(async function () {
+            const isLoggedIn = await checkLogin()
+
+            if (isLoggedIn) {
+                $(".login-container").show();
+
+                ajax.get("/api/member/booking/summary").then((summary) => {
+                    $("ul.booking-summary > li:nth-child(1) > span").html(`${summary.bookingCount}건`);
+                    $("ul.booking-summary > li:nth-child(2) > span").html(`${summary.pastCount}건`);
+                    $("ul.booking-summary > li:nth-child(3) > span").html(`${summary.cancelCount}건`);
+                });
+            } else {
+                $(".logout-container").show();
+            }
+        });
+
+        function logout() {
+            ajax.delete("/api/member/logout").finally(() => {
+                localStorage.removeItem(TOKEN_KEY);
+                location.href = "/";
+            });
+        }
+    </script>
+
+<body>
+
+    <div class="container">
+        
+    
+
+        
+
+        <div class="breadcrumb">
+            <ul>
+                <li class="home">
+                    <img src="/images/ic_home.svg" alt="홈">
+                </li>
+
+                <li class="dropdown">
+                    <button class="dropdown-btn">코스안내</button>
+                    <ul class="dropdown-menu">
+                        <li><a href="/reservation/main">인터넷예약</a></li>
+                        <li><a href="/board/promotion">클럽정보</a></li>
+                        <li><a href="/club/intro">클럽소개</a></li>
+                        <li><a href="/course/intro">코스안내</a></li>
+                        <li><a href="/mypage/check">정보센터</a></li>
+                    </ul>
+                </li>
+
+                <li class="dropdown">
+                    <button class="dropdown-btn">행복코스</button>
+                    <ul class="dropdown-menu">
+                        <li>
+                            <a href="/course/intro">코스개요</a>
+                        </li>
+                        <li>
+                            <a href="/course/sejong">세종코스</a>
+                        </li>
+                        <li>
+                            <a href="/course/haengbok">행복코스</a>
+                        </li>
+                        <li>
+                            <a href="/course/gallery">코스갤러리</a>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+
+        <!-- 공통 타이틀 -->
+        <div class="common-tit">
+            <h4>COURSE INFO</h4>
+            <h2>코스안내</h2>
+        </div>
+
+        <!-- 공통 탭 -->
+        <div class="common-tab-wrap">
+            <a href="/course/intro">코스개요</a><a href="/course/sejong">세종코스</a><a href="/course/haengbok"
+               class="on">행복코스</a><a href="/course/gallery">코스갤러리</a>
+        </div>
+
+    
+
+
+        <h2 class="title-bar">행복코스</h2>
+
+        <div class="hole-wrap hb">
+            <ul>
+                <li class="active"><span data-target="#hole1">HOLE10</span></li>
+                <li><span data-target="#hole2">HOLE11</span></li>
+                <li><span data-target="#hole3">HOLE12</span></li>
+                <li><span data-target="#hole4">HOLE13</span></li>
+                <li><span data-target="#hole5">HOLE14</span></li>
+                <li><span data-target="#hole6">HOLE15</span></li>
+                <li><span data-target="#hole7">HOLE16</span></li>
+                <li><span data-target="#hole8">HOLE17</span></li>
+                <li><span data-target="#hole9">HOLE18</span></li>
+            </ul>
+        </div>
+
+        <div class="hole-panels">
+            <div id="hole1" class="tab-panel active">
+                <ul class="hole-info-wrap">
+                    <li class="info">
+                        <h1>HAENGBOK COURSE</h1>
+                        <h2 class="hole-number hb">10 HOLE <span>PAR 4 / 363m</span></h2>
+
+                        <!--미터정보-->
+                        <div class="mobile-scroll">
+                            <ul class="m-box">
+                                <li class="c-black">363m</li>
+                                <li class="c-blue">328m</li>
+                                <li class="c-white">311m</li>
+                                <li class="c-gold">282m</li>
+                                <li class="c-red">249m</li>
+                            </ul>
+                        </div>
+
+                        <div class="text">
+                            <img src="/images/course/hb01.png" alt="홀">
+                            <p>
+                                길지 않은 완만한 오른막 홀로 욕심 없는 티샷을 한다면 편안히 시작할 수 있는 홀이다.<br>
+                                그린 주변이 넓고 편안하여 어프로치는 어렵지 않지만 2단 그린이므로 핀 위치를 잘 살펴보아야 한다.
+                            </p>
+                            <img src="/images/course/hb-side01.png" alt="서브이미지" class="side">
+                        </div>
+
+                        <div class="swiper course-img">
+                            <div class="swiper-wrapper">
+                                <div class="swiper-slide"><img src="/images/course/hb-view01.jpg" alt="전경"></div>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+
+            <div id="hole2" class="tab-panel">
+                <ul class="hole-info-wrap">
+                    <li class="info">
+                        <h1>HAENGBOK COURSE</h1>
+                        <h2 class="hole-number hb">11 HOLE <span>PAR 5 / 524m</span></h2>
+
+                        <!--미터정보-->
+                        <div class="mobile-scroll">
+                            <ul class="m-box">
+                                <li class="c-black">524m</li>
+                                <li class="c-blue">500m</li>
+                                <li class="c-white">479m</li>
+                                <li class="c-gold">461m</li>
+                                <li class="c-red">419m</li>
+                            </ul>
+                        </div>
+
+                        <div class="text">
+                            <img src="/images/course/hb02.png" alt="홀">
+                            <p>
+                                세종시를 배경으로 장대하게 펼쳐져 호쾌한 장타를 날리고픈 파5홀이다.<br>
+                                페어웨이 중앙으로 안전하게 공략하면 런이 많이 생겨서<br>
+                                2온이 가능하나 그린 양쪽의 벙커가 우드, 롱 아이언의 정확도를 시험에 들게하는 홀이다.
+                            </p>
+                            <img src="/images/course/hb-side02.png" alt="서브이미지" class="side">
+                        </div>
+
+                        <div class="swiper course-img">
+                            <div class="swiper-wrapper">
+                                <div class="swiper-slide"><img src="/images/course/hb-view02.jpg" alt="전경"></div>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+
+            <div id="hole3" class="tab-panel">
+                <ul class="hole-info-wrap">
+                    <li class="info">
+                        <h1>HAENGBOK COURSE</h1>
+                        <h2 class="hole-number hb">12 HOLE <span>PAR 4 / 427m</span></h2>
+
+                        <!--미터정보-->
+                        <div class="mobile-scroll">
+                            <ul class="m-box">
+                                <li class="c-black">427m</li>
+                                <li class="c-blue">396m</li>
+                                <li class="c-white">360m</li>
+                                <li class="c-gold">326m</li>
+                                <li class="c-red">302m</li>
+                            </ul>
+                        </div>
+
+                        <div class="text">
+                            <img src="/images/course/hb03.png" alt="홀">
+                            <p>
+                                코스에서 가장 긴 파4 오르막 홀. 페어웨이 왼쪽을 공략하는 것이 안전하며, 단타자는 3온하여 홀
+                                컵에 붙이는 지혜로운 플레이가 요구되는 홀이다. 그린 앞 벙커를 피해 그린 뒤쪽으로 어프로치 하
+                                면 2단 그린에서 긴 내리막 퍼팅을 할 각오가 필요하다.
+                            </p>
+                            <img src="/images/course/hb-side03.png" alt="서브이미지" class="side">
+                        </div>
+
+                        <div class="swiper course-img">
+                            <div class="swiper-wrapper">
+                                <div class="swiper-slide"><img src="/images/course/hb-view03.jpg" alt="전경"></div>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+
+            <div id="hole4" class="tab-panel">
+                <ul class="hole-info-wrap">
+                    <li class="info">
+                        <h1>HAENGBOK COURSE</h1>
+                        <h2 class="hole-number hb">13 HOLE <span>PAR 4 / 376m</span></h2>
+
+                        <!--미터정보-->
+                        <div class="mobile-scroll">
+                            <ul class="m-box">
+                                <li class="c-black">376m</li>
+                                <li class="c-blue">349m</li>
+                                <li class="c-white">321m</li>
+                                <li class="c-gold">299m</li>
+                                <li class="c-red">274m</li>
+                            </ul>
+                        </div>
+
+                        <div class="text">
+                            <img src="/images/course/hb04.png" alt="홀">
+                            <p>
+                                페어웨이 양쪽의 벙커를 조심해야 하며, 계곡과 벙커를 넘기는 자신감 있는 그린공략이 필요하다.<br>
+                                티샷이 오른쪽으로 치우치면 벙커가 매우 부담스럽다.<br>
+                                샌드벙커와 그래스벙커가 그린을 에워싸고 있으므로 그린 왼쪽 앞을 안전하게 공략하는 현명함이 필요하다.
+                            </p>
+                            <img src="/images/course/hb-side04.png" alt="서브이미지" class="side">
+                        </div>
+
+                        <div class="swiper course-img">
+                            <div class="swiper-wrapper">
+                                <div class="swiper-slide"><img src="/images/course/hb-view04.jpg" alt="전경"></div>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+
+            <div id="hole5" class="tab-panel">
+                <ul class="hole-info-wrap">
+                    <li class="info">
+                        <h1>HAENGBOK COURSE</h1>
+                        <h2 class="hole-number hb">14 HOLE <span>PAR 5 / 532m</span></h2>
+
+                        <!--미터정보-->
+                        <div class="mobile-scroll">
+                            <ul class="m-box">
+                                <li class="c-black">532m</li>
+                                <li class="c-blue">493m</li>
+                                <li class="c-white">450m</li>
+                                <li class="c-gold">420m</li>
+                                <li class="c-red">406m</li>
+                            </ul>
+                        </div>
+
+                        <div class="text">
+                            <img src="/images/course/hb05.png" alt="홀">
+                            <p>
+                                마치 페어웨이가 2개로 보이는 파5홀 세컨은 그다지 어려워 보이지 않으나 그린공략 시 워터해저드를
+                                직접 넘겨야 온그린되는 난이도 높은 파5홀이다. 티샷은 우측 페어웨이 방향으로 보내는
+                                것이 세컨공략을 안전하게 할 수 있는 이상적인 공격루트이다. 그린 앞 해저드로 다소 길게 넘기려는
+                                생각이 앞서나 그린을 넘어가면 두 개의 벙커가 입을 벌리고 있다.
+                            </p>
+                            <img src="/images/course/hb-side05.png" alt="서브이미지" class="side">
+                        </div>
+
+                        <div class="swiper course-img">
+                            <div class="swiper-wrapper">
+                                <div class="swiper-slide"><img src="/images/course/hb-view05.jpg" alt="전경"></div>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+
+            <div id="hole6" class="tab-panel">
+                <ul class="hole-info-wrap">
+                    <li class="info">
+                        <h1>HAENGBOK COURSE</h1>
+                        <h2 class="hole-number hb">15 HOLE <span>PAR 3 / 185m</span></h2>
+
+                        <!--미터정보-->
+                        <div class="mobile-scroll">
+                            <ul class="m-box">
+                                <li class="c-black">185m</li>
+                                <li class="c-blue">161m</li>
+                                <li class="c-white">155m</li>
+                                <li class="c-gold">134m</li>
+                                <li class="c-red">119m</li>
+                            </ul>
+                        </div>
+
+                        <div class="text">
+                            <img src="/images/course/hb06.png" alt="홀">
+                            <p>
+                                전형적인 아일랜드 형 파3홀로 원경의 숲을 배경으로 연못이 그린을 감싸고 그린 앞자락의 넓은
+                                비치벙커가 인상적이다. 티샷은 그린이 내려다보여 만만해보이나 거리와 방향이 정확해야 온 그린의
+                                짜릿한 성취감을 느낄 수 있다. 비록 내리막이지만 실거리를 다보는 클럽선택이 중요하다.
+                            </p>
+                            <img src="/images/course/hb-side06.png" alt="서브이미지" class="side">
+                        </div>
+
+                        <div class="swiper course-img">
+                            <div class="swiper-wrapper">
+                                <div class="swiper-slide"><img src="/images/course/hb-view06.jpg" alt="전경"></div>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+
+            <div id="hole7" class="tab-panel">
+                <ul class="hole-info-wrap">
+                    <li class="info">
+                        <h1>HAENGBOK COURSE</h1>
+                        <h2 class="hole-number hb">16 HOLE <span>PAR 4 / 330m</span></h2>
+
+                        <!--미터정보-->
+                        <div class="mobile-scroll">
+                            <ul class="m-box">
+                                <li class="c-black">330m</li>
+                                <li class="c-blue">297m</li>
+                                <li class="c-white">285m</li>
+                                <li class="c-gold">271m</li>
+                                <li class="c-red">245m</li>
+                            </ul>
+                        </div>
+
+                        <div class="text">
+                            <img src="/images/course/hb07.png" alt="홀">
+                            <p>
+                                거리가 매우 짧은 파4홀로 쉬운 서비스홀로 보이나 오르막 경사가 심해 티샷한 공이 생각만큼 멀리 가지 않는다.
+                                그린까지 도달하려면 커다란 두 개의 겹 벙커를 단숨에 넘기는 자신감부터 가져야 한다.
+                                벙커를 넘기는 압박감에 클럽을 길게 잡는 경향이 있으나, 그린의 폭이 넓고 앞, 뒤 길이가 짧아
+                                쉽게 오버할 수 있음을 감안하여야 한다.
+                            </p>
+                            <img src="/images/course/hb-side07.png" alt="서브이미지" class="side">
+                        </div>
+
+                        <div class="swiper course-img">
+                            <div class="swiper-wrapper">
+                                <div class="swiper-slide"><img src="/images/course/hb-view07.jpg" alt="전경"></div>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+
+            <div id="hole8" class="tab-panel">
+                <ul class="hole-info-wrap">
+                    <li class="info">
+                        <h1>HAENGBOK COURSE</h1>
+                        <h2 class="hole-number hb">17 HOLE <span>PAR 3 / 228m</span></h2>
+
+                        <!--미터정보-->
+                        <div class="mobile-scroll">
+                            <ul class="m-box">
+                                <li class="c-black">228m</li>
+                                <li class="c-blue">202m</li>
+                                <li class="c-white">186m</li>
+                                <li class="c-gold">165m</li>
+                                <li class="c-red">68m</li>
+                            </ul>
+                        </div>
+
+                        <div class="text">
+                            <img src="/images/course/hb08.png" alt="홀">
+                            <p>
+                                거리가 매우 길고 깊은 계곡을 직접 넘겨야하는 파 3홀로 파만해도 마치 버디를 잡은 것만큼이나
+                                기쁨을 선사하는 무척 어려운 홀이다. 계곡을 넘기는 도전심을 발휘하여 평소 생각하는 클럽보다
+                                무조건 한 클럽 더 길게 잡는 과감성이 필요하다. 그린을 감싸고 있는 벙커가 매우 까다로워 안전하게
+                                플레이하려면 그린 앞 벙커 오른쪽을 공략하는 것이 유리하다.
+                            </p>
+                            <img src="/images/course/hb-side08.png" alt="서브이미지" class="side">
+                        </div>
+
+                        <div class="swiper course-img">
+                            <div class="swiper-wrapper">
+                                <div class="swiper-slide"><img src="/images/course/hb-view08.jpg" alt="전경"></div>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+
+            <div id="hole9" class="tab-panel">
+                <ul class="hole-info-wrap">
+                    <li class="info">
+                        <h1>HAENGBOK COURSE</h1>
+                        <h2 class="hole-number hb">18 HOLE <span>PAR 4 / 423m</span></h2>
+
+                        <!--미터정보-->
+                        <div class="mobile-scroll">
+                            <ul class="m-box">
+                                <li class="c-black">423m</li>
+                                <li class="c-blue">399m</li>
+                                <li class="c-white">376m</li>
+                                <li class="c-gold">351m</li>
+                                <li class="c-red">300m</li>
+                            </ul>
+                        </div>
+
+                        <div class="text">
+                            <img src="/images/course/hb09.png" alt="홀">
+                            <p>
+                                거리가 매우 긴 파4홀이지만 내리막 경사로 실제 거리 부담을 덜 느끼는 파4홀로 티샷은 편안한 페어웨이와
+                                연못 멀리 보이는 클럽하우스가 아늑한 분위기를 연출한다. 대각선 그린과 연못 그리고 비치벙커가
+                                전략적으로 배치되어 신중하고 치밀한 공략이 요구된다.
+                                대반전의 드라마가 펼쳐질 수 있는 드라마틱한 마지막 홀이다.
+                            </p>
+                            <img src="/images/course/hb-side09.png" alt="서브이미지" class="side">
+                        </div>
+
+                        <div class="swiper course-img">
+                            <div class="swiper-wrapper">
+                                <div class="swiper-slide"><img src="/images/course/hb-view09.jpg" alt="전경"></div>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        $(function () {
+            $(function () {
+                const $wrap = $('.hole-wrap');
+
+                $('.hole-wrap ul li span').on('click', function () {
+                    const $this = $(this);
+                    const target = $this.data('target');
+                    const $li = $this.parent();
+
+                    $li.addClass('active').siblings().removeClass('active');
+                    $('.tab-panel').removeClass('active');
+                    $(target).addClass('active');
+
+                    // 중앙 정렬 스크롤 이동
+                    const liOffset = $li.position().left;
+                    const liWidth = $li.outerWidth();
+                    const wrapWidth = $wrap.width();
+                    const currentScroll = $wrap.scrollLeft();
+                    const newScroll = currentScroll + liOffset - (wrapWidth / 2 - liWidth / 2);
+                    $wrap.stop().animate({scrollLeft: newScroll}, 250);
+                });
+            });
+        });
+
+        // 전경 슬라이드
+        new Swiper('.course-img', {
+            slidesPerView: 1,
+            loop: true,
+            //effect: 'fade',
+            speed: 1000,
+            autoplay: {
+                delay: 3000,
+                disableOnInteraction: false
+            }
+        });
+    </script>
+
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a1e786ef681472d2',t:'MTc4NDYwODgyMQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script><script defer src="https://static.cloudflareinsights.com/beacon.min.js/v4513226cdae34746b4dedf0b4dfa099e1781791509496" integrity="sha512-ZE9pZaUXND66v380QUtch/5sE9tPFh2zg45pR2PB0CVkCtOREv2AJKkSidISWkysEuQ0EH8faUU5du78bx87UQ==" data-cf-beacon='{"version":"2024.11.0","token":"de9f4891b32a4c7ba3c624fc918787fa","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+</body>
+
+<!--aside-->
+<aside>
+    
+    <!--퀵메뉴-->
+    <div class="quick-menu">
+        <div class="quick-menu-btn">
+            <a href="/board/promotion" class="btn">
+                <span class="label">프로모션</span>
+
+                <span class="icon-wrap">
+                    <img src="/images/ic_side_menu01.svg" class="icon default" alt="퀵아이콘" />
+                    <!-- hover 아이콘 -->
+                    <img src="/images/ic_side_menu01_on.svg" class="icon hover" alt="퀵아이콘">
+                </span>
+            </a>
+            <a href="/club/fee"  class="btn">
+                <span class="label">이용요금</span>
+
+                <span class="icon-wrap">
+                    <img src="/images/ic_side_menu02.svg" class="icon default" alt="퀵아이콘" />
+                    <!-- hover 아이콘 -->
+                    <img src="/images/ic_side_menu02_on.svg" class="icon hover" alt="퀵아이콘">
+                </span>
+            </a>
+            <a href="/reservation/reservation-guide"  class="btn">
+                <span class="label">예약안내</span>
+
+                <span class="icon-wrap">
+                    <img src="/images/ic_side_menu03.svg" class="icon default" alt="퀵아이콘" />
+                    <!-- hover 아이콘 -->
+                    <img src="/images/ic_side_menu03_on.svg" class="icon hover" alt="퀵아이콘">
+                </span>
+            </a>
+            <a href="/club/menu" class="btn">
+                <span class="label">식음료메뉴</span>
+
+                <span class="icon-wrap">
+                    <img src="/images/ic_side_menu04.svg" class="icon default" alt="퀵아이콘" />
+                    <!-- hover 아이콘 -->
+                    <img src="/images/ic_side_menu04_on.svg" class="icon hover" alt="퀵아이콘">
+                </span>
+            </a>
+            <a href="/course/intro" class="btn">
+                <span class="label">코스안내</span>
+
+                <span class="icon-wrap">
+                    <img src="/images/ic_side_menu05.svg" class="icon default" alt="퀵아이콘" />
+                    <!-- hover 아이콘 -->
+                    <img src="/images/ic_side_menu05_on.svg" class="icon hover" alt="퀵아이콘">
+                </span>
+            </a>
+            <a href="/board/library" class="btn">
+                <span class="label">자료실</span>
+
+                <span class="icon-wrap">
+                    <img src="/images/ic_side_menu06.svg" class="icon default" alt="퀵아이콘" />
+                    <!-- hover 아이콘 -->
+                    <img src="/images/ic_side_menu06_on.svg" class="icon hover" alt="퀵아이콘">
+                </span>
+            </a>
+        </div>
+    </div>
+
+</aside>
+
+<!--하단 고정바-->
+
+    <!--하단 바-->
+    <div class="bottom-cta">
+        <div class="cta-wrap">
+            <!--모바일일때 나타나는 버튼-->
+            <div class="mobile-btn">
+                <img src="/images/ic-bottom-cta.svg">
+            </div>
+
+            <script>
+                $(document).ready(function () {
+                    $(".select-trigger").on("click", function (e) {
+                        e.stopPropagation();
+                        $(".weather-select").toggleClass("open");
+                    });
+
+                    // 바깥 클릭 시 닫기
+                    $(document).on("click", function () {
+                        $(".weather-select").removeClass("open");
+                    });
+
+                    ajax.get("/api/open/common/weather").then((data) => {
+                        let $options = $(".weather-select > ul.select-options");
+
+                        data.forEach((d, i) => {
+                            const date = new Date().plusDays(Number(d.day));
+
+                            $options.append(`
+                                <li data-index="${i}">
+                                    <span class="label"><span>${date.mm()}.${date.dd()}(${date.weekName()})</span> ${d.temp}° ${d.wfKor}</span>
+                                    <span class="icon"><img src="/images/weather/${d.wfEn.replaceAll("/", "&")}.svg"></span>
+                                </li>`)
+                        });
+
+                        $options.children("li").on("click", function () {
+                            const d = data[Number($(this).data("index"))]
+                            const date = new Date().plusDays(Number(d.day));
+
+                            $(".weather-select > button.select-trigger").html(`
+                                <span class="label"><span class="mobile-hidden">${date.mm()}.${date.dd()}(${date.weekName()})</span> ${d.temp}° <span class="mobile-hidden">${d.wfKor}</span></span>
+                                <span class="icon"><img src="/images/weather/${d.wfEn.replaceAll("/", "&")}.svg"></span>
+                                <span class="arrow"><img src="/images/cta-select-arrow.svg"></span>`);
+                        });
+
+                        $options.children("li").eq(0).trigger("click");
+                    });
+                });
+
+            </script>
+
+            <div class="weather-select">
+                <!--날씨 기본 노출 영역-->
+                <button type="button" class="select-trigger">
+                </button>
+
+                <!--옵션영역-->
+                <ul class="select-options">
+                </ul>
+            </div>
+
+            <div class="flex-layout">
+                <div class="info-wrap">
+                    <!--로그인전-->
+                    <div class="cta-group">
+                        <div class="cta-content logout-container" style="display: none">
+                            <!--텍스트 최대세줄-->
+                            <span>실시간 잔여시간 및 예약정보 조회는 로그인 후 이용하실 수 있습니다.</span>
+                        </div>
+
+                        <div class="btn-group logout-container" style="display: none">
+                            <a href="/member/login">
+                                <img src="/images/cta-login.svg">
+                                로그인
+                            </a>
+                            <a href="/member/terms">
+                                <img src="/images/cta-join.svg">
+                                회원가입
+                            </a>
+                        </div>
+                    </div>
+
+                    <!--로그인후-->
+                    <div class="cta-group">
+                        <div class="cta-content login-container" style="display: none">
+                            <ul class="reser-info booking-summary">
+                                <li onclick="location.href='/mypage/check'">예약확정 <span>0건</span></li>
+                                <li onclick="location.href='/mypage/cancel'">지난 예약 <span>0건</span></li>
+                                <li onclick="location.href='/mypage/cancel'">취소 내역 <span>0건</span></li>
+                            </ul>
+                        </div>
+
+                        <div class="btn-group login-container" style="display: none">
+                            <a href="/mypage/mypage">
+                                <img src="/images/cta-modify.svg">
+                                마이페이지
+                            </a>
+                            <a href="/mypage/score">
+                                <img src="/images/cta-score.svg">
+                                스코어카드
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!--실시간예약버튼-->
+                <a href="/reservation/main" class="cta-reser">
+                    <img src="/images/cta-reservation.svg" alt="실시간예약">
+                    <span class="mobile-hidden">실시간</span> 예약 <span class="icon-animation mobile-hidden">↗</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 모바일 - 버튼클릭시 영역확장
+        const mobileBtn = document.querySelector(".mobile-btn");
+        const bottomCta = document.querySelector(".bottom-cta");
+
+        mobileBtn.addEventListener("click", () => {
+            bottomCta.classList.toggle("open");
+        });
+    </script>
+
+
+
+    <footer>
+        <div class="footer-top">
+            <div class="group">
+                <ul class="f-terms-list">
+                    <li class="imp fw700" onclick="location.href='/policy/privacy'">개인정보처리방침</li>
+                    <li onclick="location.href='/policy/policy'">골프장 이용약관</li>
+                    <li onclick="location.href='/policy/terms'">인터넷 회원약관</li>
+                    <li onclick="location.href='/policy/video'">영상정보처리기기 운영방침</li>
+                </ul>
+
+                <div class="tel">
+                    <h1><img src="/images/ic-tel.svg" alt="대표전화">대표전화</h1>
+                    <span>044-861-5678</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <ul class="info-list">
+                <li>세종개발(주)</li>
+                <li><span>사업자등록번호</span> 307-81-35786</li>
+                <li><span>통신판매업신고</span> 제2012-세종-0037호</li>
+                <li class="imp"><a href="https://www.ftc.go.kr/www/selectBizCommList.do?key=253&token=4BCA5703-5B23-E99B-7713-F87051D580D20C7533FE9AE2181DF3B0788DD4D42164" target="_blank">사업장정보확인</a></li>
+                <li><span>주소</span> 세종특별자치시 정안세종로 1569(산울동)</li>
+                <li><span>대표전화</span> 044-861-5678</li>
+                <li><span>FAX</span> 044-861-5519</li>
+            </ul>
+
+            <p class="copy">Copyright(C) 2012 SEJONG FIELD GOLF CLUB.<span>ALL RIGHT RESERVED.</span></p>
+
+            <div class="icon-list">
+                <a href="https://www.cgbest.co.kr/cgbest/index.do" target="_blank"><img src="/images/footer-icon.png" alt="푸터아이콘"></a>
+                <a href="https://edu.cgbest.co.kr/edu/index.do" target="_blank"><img src="/images/footer-icon02.png" alt="푸터아이콘"></a>
+            </div>
+
+            <div class="scroll-top">
+                <a href="#">
+                    <img src="/images/ic_top.svg?v=1">
+                    Top
+                </a>
+            </div>
+        </div>
+    </footer>
+
+</html>

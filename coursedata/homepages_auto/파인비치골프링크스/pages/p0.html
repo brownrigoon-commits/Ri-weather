@@ -1,0 +1,1371 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="user-scalable=yes, initial-scale=0.3, maximum-scale=1.0, minimum-scale=0.1, width=device-width" />
+<meta name="title" content="파인비치골프링크스">
+<meta name="author" content="파인비치골프링크스">
+<meta name="Keywords" content="파인비치골프링크스, 파인비치, Pine Beach Golf Links ">
+<meta name="description" content="파인비치골프링크스, 파인비치, Pine Beach Golf Links">
+<meta name="copyright" content="All Contents Copyright©Pine Beach Golf Links">
+<meta name="format-detection" content="telephone=no, address=no, email=no"/>
+<meta property="og:title" content="파인비치골프링크스, 파인비치">
+<meta property="og:description" content="파인비치골프링크스, 전라남도 해남군 화원면 위치 골프장, 실시간예약, 코스소개, 시설현황 등 안내.">
+<meta property="og:url" content="">
+<title>파인비치골프링크스</title>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js'></script>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/gsap/1.19.1/TweenMax.min.js'></script>
+
+<link rel="stylesheet" media="screen and (min-width:1850px)" href="/css/1920/main.css" />
+<link rel="stylesheet" media="screen and (min-width:1280px) and (max-width:1849px)" href="/css/1280/main.css" />
+<link rel="stylesheet" media="screen and (min-width:600px) and (max-width:1279px)" href="/css/600/main.css" />
+
+<link rel="stylesheet" media="screen and (min-width:1280px)" href="/css/layout.css" />
+<link rel="stylesheet" media="screen and (min-width:600px) and (max-width:1279px)" href="/css/600/layout.css" />
+
+<link rel="stylesheet" type="text/css" href="css/common.css">
+<link rel="stylesheet" type="text/css" href="css/animate.css">
+<link rel="stylesheet" type="text/css" href="css/motion.css">
+<link rel="stylesheet" type="text/css" href="css/slide.css">
+<link rel="stylesheet" type="text/css" href="css/slick.css">
+
+<script type="text/javascript" src="/js/common.js"></script>
+<script type="text/javascript" src="/js/mainSlide.js"></script>
+<script type="text/javascript" src="/js/slick.js"></script>
+
+<script src="/js/globals.js"></script>
+<script src="/js/tools.js?v=2"></script>
+<script src="/js/jquery.preloaders.js"></script>
+<script src="/js/wow.min.js"></script>
+
+<!--
+<link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css"/>
+<script type="text/javascript" src="//cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
+-->
+
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100;300;400;500;700;900&display=swap" rel="stylesheet">
+
+<script>
+  var mDate, mRoom;
+  var mDiv;
+	var mYear, mMonth;
+  var p1Year, p1Month, p2Year, p2Month;
+  var isOpenReserBox = false;
+  var reserBoxRight;
+
+	$(document).ready(function() {
+        setProtocol();
+        init();
+        initMainHeader();
+        setReserBoxRight();
+		initListener();
+		if(getCookie("notToday2")!="Y"){
+            $("#main_popup").show('fade');
+        }
+        if(getCookie("notToday3")!="Y"){
+            $("#main_popup2").show('fade');
+        }
+	});
+
+  $(window).scroll(function() {
+    initSumHeader();
+		initMainHeader();
+    setReserBoxRight();
+	});
+
+	function setProtocol() {
+		if(document.location.href.indexOf("211.55.34.237") > 0) {
+			document.location.href = document.location.href.replace('211.55.34.237', 'pinebeachcc.co.kr');
+		}
+		if (document.location.protocol == 'http:') {
+			document.location.href = document.location.href.replace('http:', 'https:');
+		}
+	}
+
+	function init() {
+    if("" == "Y" || "" == "Y") {
+      var sUrl = "/controller/MemberController.asp"
+      var params = {
+        "method" : "setSession",
+        "key" : "web",
+        "value" : "Y"
+      }
+
+      mAjax(sUrl, params, "POST", false, function(data) {
+
+      });
+    } else {
+      chkMobile();
+    }
+
+    getTopBenner();
+
+    $(".hero-slider").slick({
+      infinite: true , /* 맨끝이미지에서 끝나지 않고 다시 맨앞으로 이동 */
+      slidesToShow: 1, /* 화면에 보여질 이미지 갯수*/
+      slidesToScroll: 1,  /* 스크롤시 이동할 이미지 갯수 */
+      autoplay: true, /* 자동으로 다음이미지 보여주기 */
+      arrows: false, /* 화살표 */
+      dots:false, /* 아래점 */
+      autoplaySpeed:6000,/* 다음이미지로 넘어갈 시간 */
+      speed:5000 , /* 다음이미지로 넘겨질때 걸리는 시간 */
+      pauseOnHover:false , /* 마우스 호버시 슬라이드 이동 멈춤 */
+      pauseOnFocus: false ,
+      responsive: [{ /* 반응형웹*/
+        breakpoint: 960, /* 기준화면사이즈 */
+        settings: {
+          //slidesToShow:2
+        }}, { /* 반응형웹*/
+        breakpoint: 768, /* 기준화면사이즈 */
+        settings: {
+          //slidesToShow:1
+        }}
+      ]
+    });
+
+    $(".hero-slider2").slick({
+      infinite: true , /* 맨끝이미지에서 끝나지 않고 다시 맨앞으로 이동 */
+      slidesToShow: 1, /* 화면에 보여질 이미지 갯수*/
+      slidesToScroll: 1,  /* 스크롤시 이동할 이미지 갯수 */
+      autoplay: true, /* 자동으로 다음이미지 보여주기 */
+      arrows: true, /* 화살표 */
+      dots:true, /* 아래점 */
+      autoplaySpeed:5000,/* 다음이미지로 넘어갈 시간 */
+      speed:1000 , /* 다음이미지로 넘겨질때 걸리는 시간 */
+      pauseOnHover:false , /* 마우스 호버시 슬라이드 이동 멈춤 */
+      pauseOnFocus: false ,
+      prevArrow : "<button type='button' id='aaaa' class='slick-prev mainPrev'>Previous</button>",		// 이전 화살표 모양 설정
+			nextArrow : "<button type='button' id='bbbb' class='slick-next mainNext'>Next</button>",		// 다음 화살표 모양 설정
+      responsive: [{ /* 반응형웹*/
+        breakpoint: 960, /* 기준화면사이즈 */
+        settings: {
+          //slidesToShow:2
+        }}, { /* 반응형웹*/
+        breakpoint: 768, /* 기준화면사이즈 */
+        settings: {
+          //slidesToShow:1
+        }}
+      ]
+    });
+
+		new WOW().init();
+
+    setQuickColor("white");
+    setSumHeader("white");
+
+    var date = new Date();
+		mYear = date.yyyy();
+		mMonth = date.mm();
+    p1Year = date.yyyy();
+		p1Month = date.mm();
+    p2Year = date.yyyy();
+		p2Month = date.mm();
+
+		initCalendar("#monthBox", "R", mYear, mMonth);
+    initCalendar("#monthBox1", "P", p1Year, p1Month);
+    initCalendar("#monthBox2", "P", p2Year, p2Month);
+
+    $("#txtChooseDate").html(String.format("{0} / {1} / {2}", date.yyyy(), date.mm(), date.dd()));
+    $("#txtChooseDate1").html(String.format("{0} / {1} / {2}", date.yyyy(), date.mm(), date.dd()));
+    $("#txtChooseDate2").html(String.format("{0} / {1} / {2}", date.yyyy(), date.mm(), date.dd()));
+	}
+
+  function getTopBenner() {
+    if(getCookie("topBenner") == "Y") {
+      return;
+    }
+
+    var sUrl = "/controller/BoardController.asp";
+		var params = {};
+
+		params["method"] = "getBoardList";
+
+		params["coDiv"] = globals.coDiv;
+		params["type"] = "6";
+		params["startCnt"] = 0;
+		params["pageCnt"] = 10;
+
+		mAjax(sUrl, params, "POST", true, function(data) {
+			if(data.resultCode == "0000") {
+				rows = data.rows;
+
+        if(rows.length == 0) {
+          return;
+        }
+
+        $(".topBanner").show();
+
+        var container = $(".hero-slider3");
+        container.empty();
+
+        var template = "";
+        template += "<div class='columns'>";
+  			template += "	<div class='hero-image3'>";
+  			template += "		<ul class='mainNoticeTxt'>";
+  			template += "			<li class='title'>{0}</li>";
+  			template += "			<li class='txt'>{1}</li>";
+  			template += "			<li onclick='location.href=\"{2}\"' class='noticeLink'>자세히보기</li>";
+  			template += "		</ul>";
+  			template += "	</div>";
+  			template += "</div>";
+
+        for(i=0; i<rows.length; i++) {
+          var title = rows[i].TITLE;
+          var content = rows[i].CONTENT;
+          var link = rows[i].LINK;
+          content = replaceAll(content, "\n", "<br>");
+
+          container.append(String.format(template, title, content, link));
+        }
+
+        container.slick({
+            infinite: true , /* 맨끝이미지에서 끝나지 않고 다시 맨앞으로 이동 */
+            slidesToShow: 1, /* 화면에 보여질 이미지 갯수*/
+            slidesToScroll: 1,  /* 스크롤시 이동할 이미지 갯수 */
+            autoplay: true, /* 자동으로 다음이미지 보여주기 */
+            arrows: true, /* 화살표 */
+            dots:false, /* 아래점 */
+            autoplaySpeed:5000,/* 다음이미지로 넘어갈 시간 */
+            speed:1000 , /* 다음이미지로 넘겨질때 걸리는 시간 */
+            pauseOnHover:true , /* 마우스 호버시 슬라이드 이동 멈춤 */
+            pauseOnFocus: true ,
+            prevArrow : "<button type='button' class='slick-prev topPrev'>Previous</button>",		// 이전 화살표 모양 설정
+            nextArrow : "<button type='button' class='slick-next topNext'>Next</button>",		// 다음 화살표 모양 설정
+            responsive: [{ /* 반응형웹*/
+              breakpoint: 960, /* 기준화면사이즈 */
+              settings: {
+                //slidesToShow:2
+              }}, { /* 반응형웹*/
+              breakpoint: 768, /* 기준화면사이즈 */
+              settings: {
+                //slidesToShow:1
+              }}
+            ]
+          });
+			} else {
+				alert(data.resultMessage);
+			}
+		});
+  }
+
+	function initListener() {
+		$(".topnav").hover(function(){
+			$(this).parent().find(".subnav").slideDown('fast');
+			$(this).css("border-bottom", "1px solid #fff");
+
+			$(this).parent().hover(function(){
+			},function(){
+				$(this).parent().find(".subnav").slideUp();
+				$(this).parent().find(".topnav").css("border-bottom", "");
+			})
+		});
+
+    $("#show_hide").click(function () {
+			 $("#monthBox").slideToggle();
+ 			 $("#monthBox1").slideUp();
+       $("#monthBox2").slideUp();
+		});
+
+    $("#show_hide1").click(function () {
+			 $("#monthBox").slideUp();
+ 			 $("#monthBox1").slideToggle();
+       $("#monthBox2").slideUp();
+		});
+
+    $("#show_hide2").click(function () {
+			 $("#monthBox").slideUp();
+ 			 $("#monthBox1").slideUp();
+       $("#monthBox2").slideToggle();
+		});
+
+    $("#home").on("click", function() {
+  		if(isOpenReserBox) {
+  			$("#quickReser").animate({right: reserBoxRight[0]}, reserBoxRight[2]);
+  			$("#imgReserDirection").attr("src", "/images/mReserArrow2.png");
+  		} else {
+  			$("#quickReser").animate({right: reserBoxRight[1]}, reserBoxRight[2]);
+  			$("#imgReserDirection").attr("src", "/images/mReserArrow.png");
+  		}
+
+  		isOpenReserBox = !isOpenReserBox;
+  	});
+
+  	$(".reserClose").on("click", function() {
+  		isOpenReserBox = false;
+  		$("#quickReser").animate({right: reserBoxRight[0]}, reserBoxRight[2]);
+  		$("#imgReserDirection").attr("src", "/images/mReserArrow2.png");
+  	});
+	}
+
+  function setReserBoxRight() {
+    var width = $(window).width();
+
+		if(width >= 1850) {
+      reserBoxRight = ["-520px", "200px",80];
+    }  else if(width >= 1280 && width < 1850){
+      reserBoxRight = ["-520px", "135px",700];
+    }
+  }
+
+  function initMainHeader() {
+    if($(window).width() >= 1280) {
+      if($(window).scrollTop() < 200) {
+        $(".sumHeader").hide();
+        $(".mainHeader").show();
+      } else {
+        $(".sumHeader").show();
+        $(".mainHeader").hide();
+      }
+    }
+  }
+
+  function initCalendar(selector, div, year, month) {
+		var sUrl = "/controller/ReservationController.asp";
+		var params = {};
+
+		params["method"] = "getCalendar";
+		params["coDiv"] = globals.coDiv;
+    if(div == "R") {
+      params["selYm"] = year + month;
+    } else {
+  		params["stDate"] = addDate(year + month + "01", -1).yyyymmdd();
+  		params["edDate"] = addMonth(year + month + "01", 1).yyyymmdd();
+      params["packYn"] = "Y";
+    }
+
+		mAjax(sUrl, params, "POST", true, function(data) {
+			if(data.resultCode == "0000") {
+				$(selector + " #calHeader").html(month + "월");
+
+				var currentDay = new Date().yyyymmdd();
+				var tBody = $(selector + " #calendar-body");
+				tBody.empty();
+
+				var rows = data.rows;
+
+				if(rows.length > 0) {
+					var row = $("<tr></tr>");
+
+          var leng = rows.length;
+          var start = 0;
+          if(div == "P") {
+            leng -= 1;
+            start = 1;
+          }
+
+          var fWeek = rows[start].CL_DAYDIV - 1;
+
+					for(i=0; i<fWeek; i++) {
+						row.append($("<td></td>"));
+					}
+
+					for(i=start; i<leng; i++) {
+						var td = $("<td>" + rows[i].DAYNUM + "</td>");
+            var bool = false;
+
+            if(div == "R") {
+              bool = rows[i].CL_SOLAR > currentDay && rows[i].BK_TEAM > 0;
+            } else {
+              if(selector == "#monthBox1") {
+                bool = rows[i].CL_SOLAR > currentDay && rows[i].BK_TEAM > 0 && rows[i + 1].BK_TEAM > 0;
+              } else {
+                bool = rows[i].CL_SOLAR > currentDay && rows[i - 1].BK_TEAM > 0 && rows[i].BK_TEAM > 0;
+              }
+            }
+
+            if(bool) {
+              td.data('date', rows[i].CL_SOLAR);
+              td.data('room', rows[i].BK_ROOM);
+              td.data('selector', selector);
+              td.data('div', div);
+              td.addClass('possible');
+              td.on('click', function() {
+                onClickDay($(this).data('selector'), $(this).data('div'), $(this).data('date'), $(this).data('room'));
+              });
+						} else {
+              td.addClass('impossible');
+            }
+
+						row.append(td);
+
+						if(rows[i].CL_DAYDIV == 7) {
+							row.appendTo(tBody);
+							row = $("<tr></tr>");
+						}
+					}
+
+					var addTd = 7 - row.children("td").length;
+
+					if(addTd != 7) {
+						for(i=0; i<addTd; i++) {
+							row.append($("<td></td>"));
+						}
+					}
+
+					row.appendTo(tBody);
+				} else {
+					tBody.append($("<tr><td colspan='7'></td></tr>"));
+					tBody.append($("<tr><td colspan='7'></td></tr>"));
+					tBody.append($("<tr><td colspan='7'></td></tr>"));
+					tBody.append($("<tr><td colspan='7'></td></tr>"));
+					tBody.append($("<tr><td colspan='7'></td></tr>"));
+					tBody.append($("<tr><td colspan='7'></td></tr>"));
+				}
+			} else {
+				alert(data.resultMessage);
+			}
+		});
+	}
+
+	function doNextMonth(selector) {
+    if(selector == "#monthBox") {
+      if(mMonth == "12") {
+  			mYear += 1;
+  			mMonth = "01";
+  		} else {
+  			mMonth = Number(mMonth) + 1;
+  			mMonth = (mMonth>9 ? '' : '0') + mMonth;
+  		}
+      initCalendar(selector, "R", mYear, mMonth);
+    } else if(selector == "#monthBox1") {
+      if(p1Month == "12") {
+  			p1Year += 1;
+  			p1Month = "01";
+  		} else {
+  			p1Month = Number(p1Month) + 1;
+  			p1Month = (p1Month>9 ? '' : '0') + p1Month;
+  		}
+      initCalendar(selector, "P", p1Year, p1Month);
+    } else if(selector == "#monthBox2") {
+      if(p2Month == "12") {
+  			p2Year += 1;
+  			p2Month = "01";
+  		} else {
+  			p2Month = Number(p2Month) + 1;
+  			p2Month = (p2Month>9 ? '' : '0') + p2Month;
+  		}
+      initCalendar(selector, "P", p2Year, p2Month);
+    }
+	}
+
+	function doPrevMonth(selector) {
+    if(selector == "#monthBox") {
+  		if(mMonth == "01") {
+  			mYear -= 1;
+  			mMonth = "12";
+  		} else {
+  			mMonth = Number(mMonth) - 1;
+  			mMonth = (mMonth>9 ? '' : '0') + mMonth;
+  		}
+      initCalendar(selector, "R", mYear, mMonth);
+    } else if(selector == "#monthBox1") {
+      if(p1Month == "01") {
+  			p1Year -= 1;
+  			p1Month = "12";
+  		} else {
+  			p1Month = Number(p1Month) - 1;
+  			p1Month = (p1Month>9 ? '' : '0') + p1Month;
+  		}
+      initCalendar(selector, "P", p1Year, p1Month);
+    } else if(selector == "#monthBox2") {
+      if(p2Month == "01") {
+  			p2Year -= 1;
+  			p2Month = "12";
+  		} else {
+  			p2Month = Number(p2Month) - 1;
+  			p2Month = (p2Month>9 ? '' : '0') + p2Month;
+  		}
+      initCalendar(selector, "P", p2Year, p2Month);
+    }
+	}
+
+  function onClickDay(selector, div, date, room) {
+    mDate = date;
+    mRoom = room
+    mDiv = div;
+
+    var sel = getDateFormat(date);
+
+		$("#txtChooseDate" + replaceAll(selector, "#monthBox", "")).html(String.format("{0} / {1} / {2}", sel.yyyy(), sel.mm(), sel.dd()));
+
+    if(div == "P") {
+      if(selector == "#monthBox1") {
+        var add = addDate(date, 1);
+        $("#txtChooseDate2").html(String.format("{0} / {1} / {2}", add.yyyy(), add.mm(), add.dd()));
+      } else {
+        var add = addDate(date, -1);
+        mDate = add.yyyymmdd();
+        $("#txtChooseDate1").html(String.format("{0} / {1} / {2}", add.yyyy(), add.mm(), add.dd()));
+      }
+    }
+
+    $(selector).slideUp();
+	}
+
+  function doSearchMain() {
+    if(mDate != null && mDate != "") {
+      if(mDiv == "R") {
+        $("#R_BK_DAY").val(mDate);
+        $("#form_reservation").submit();
+      } else {
+        $("#P_BK_DAY").val(mDate);
+        $("#P_BK_ROOM").val(mRoom);
+        $("#form_package").submit();
+      }
+    } else {
+      alert("날짜를 선택하세요.");
+    }
+  }
+
+  function closeTopBenner() {
+    if($("input:checkbox[id='chkTopBennerHidden']").is(":checked")) {
+      setCookie("topBenner", "Y", 1);
+    }
+
+    $('.topBanner').hide();
+  }
+	//popup//
+	
+	function closePopupNotToday(){	             
+			setCookie('notToday2','Y', 1);
+			$("#main_popup").hide('fade');
+	}
+	function closeMainPopup(){
+		$("#main_popup").hide('fade');
+	}
+    function closePopupNotToday2(){	             
+			setCookie('notToday3','Y', 1);
+			$("#main_popup2").hide('fade');
+	}
+	function closeMainPopup2(){
+		$("#main_popup2").hide('fade');
+	}
+	
+</script>
+  <form action="/reservation/reservation.asp" method="POST" id="form_reservation">
+    <input type="hidden" name="bkDay" id="R_BK_DAY">
+  </form>
+  <form action="/reservation/package.asp" method="POST" id="form_package">
+    <input type="hidden" name="bkDay" id="P_BK_DAY">
+    <input type="hidden" name="bkRoom" id="P_BK_ROOM">
+  </form>
+	
+	
+	<!--popupZone-->
+	 <!-- <div id="main_popup" class="main_popup" style="position: fixed; z-index:10000000; top:100px; left:100px; display: none; overflow-y: auto;">
+		<img src="/uploads/250813pb.jpg" alt="LPGA대회 티켓 구매" style="width:400px">		
+		<div class="popup_bottom">
+			<a href="javascript:closePopupNotToday()">오늘하루 그만보기</a>
+			<a class="pull-right" href="javascript:closeMainPopup();">닫기</a>
+		</div>
+	</div> -->
+	<!--//popupZone-->
+	
+    <!--영상팝업-->
+	<!--<div id="main_popup2" class="main_popup main_popup2" style="position: fixed; z-index:10000000; top:100px; left:500px; width: 500px; display: none;">
+      <h1 style="background: #fff; text-align: center; padding: 8px; font-weight: 600;">2025년 7월 2일 영상입니다.</h1>
+        <video autoplay muted loop playsinline style="width: 100%;">
+          <source src="/uploads/250703video.mp4" type="video/mp4"> 
+        </video>
+		<div class="popup_bottom" style="margin-top: -5px;">
+			<a href="javascript:closePopupNotToday2()">오늘하루 그만보기</a>
+			<a class="pull-right" href="javascript:closeMainPopup2();">닫기</a>
+		</div>
+	</div>-->
+  
+	<!--//popupZone-->
+    <!-- <div id="main_popup2" class="main_popup" style="position: fixed; z-index:10000000; top:100px; left:100px; display: none;">
+        <a href="/board/view.asp?type=1&idx=633"><img src="/uploads/250926pbp.jpg" alt="bmw레이디스챔피언십"></a>
+		<div class="popup_bottom">
+			<a href="javascript:closePopupNotToday2()">오늘하루 그만보기</a>
+			<a class="pull-right" href="javascript:closeMainPopup2();">닫기</a>
+		</div>
+	</div> -->
+	
+	
+	<div class="topBanner">
+		<div class="hero-slider3">
+		</div>
+
+		<div class="todayClose">
+			<input type="checkbox" id="chkTopBennerHidden" class="checkbox1"><label for="chkTopBennerHidden" class="checkbox1" style="border:1px solid #fff;"></label>오늘하루 보지 않기
+		</div>
+
+		<a href="javascript:closeTopBenner()" class="topBNclose"></a>
+	</div>
+	<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100;300;400;500;700;900&display=swap" rel="stylesheet">
+<script>
+
+	$(document).ready(function() {
+		setProtocol();
+		initSumHeader();
+	});
+
+	$(window).resize(function() {
+		initSumHeader();
+	});
+
+	function initSumHeader() {
+		var width = $(window).width();
+
+		if(width >= 1280) {
+			$(".sumHeader").hide();
+			$(".mainHeader").show();
+			$(".subHeader").show();
+		} else {
+			$(".sumHeader").show();
+			$(".mainHeader").hide();
+			$(".subHeader").hide();
+		}
+	}
+
+	function setProtocol() {
+		if(document.location.href.indexOf("211.55.34.237") > 0) {
+			document.location.href = document.location.href.replace('211.55.34.237', 'pinebeachcc.co.kr');
+		}
+		if (document.location.protocol == 'http:') {
+			document.location.href = document.location.href.replace('http:', 'https:');
+		}
+	}
+
+	function setSumHeader(color) {
+		if(color == "white") {
+			$("#imgSumHeaderLogo").attr("src", "/images/Logo_w.png");
+			$("#btnPineHillsDirect").removeClass("brown");
+			$("#btnSumHeaderMenu").removeClass("brown");
+			$("#btnsolaseadoDirect").removeClass("brown");
+		} else {
+			$("#imgSumHeaderLogo").attr("src", "/images/Logo.png");
+			$("#btnPineHillsDirect").addClass("brown");
+			$("#btnSumHeaderMenu").addClass("brown");
+			$("#btnsolaseadoDirect").addClass("brown");
+		}
+	}
+
+</script>
+<div class="sumHeader">
+	<ul class="sumLogoBox">
+		<li class="sumLogo">
+			<a href="/index.asp">
+				<img id="imgSumHeaderLogo" src="/images/Logo.png" alt="logo">
+			</a>
+		</li>
+		<li class="rightTxt brown" id="btnPineHillsDirect"><a href="https://www.bosungleisure.com/pinehills/">파인힐스<br>바로가기</a></li>
+		<li class="rightTxt brown" id="btnsolaseadoDirect" style="margin-left: 5px;"><a href="https://www.solaseadocc.com">솔라시도<br>바로가기</a></li>
+	</ul>
+
+	<div class="sumMenuBtn en sumGnb brown" id="btnSumHeaderMenu">
+		M E<br>N U
+	</div>
+
+	<!--
+	<div class="searchBox">
+		<li class="searchBar"><input type="text" class="searchInput"></li>
+		<li class="searchIcon"><img src="../images/search.png" id="btnSumheaderSearch" alt="search"></li>
+	</div>-->
+
+</div><!-- sumHeader End -->
+<!-- menu -->
+<script>
+	function doLogout() {
+		var sUrl = "/Controller/MemberController.asp";
+		var params = {};
+
+		params["method"] = "doLogout";
+
+		mAjax(sUrl, params, "POST", true, function(data) {
+			if(data.resultCode == "0000") {
+				alert("로그아웃 되었습니다.");
+				location.href = "/index.asp"
+			}
+		});
+	}
+</script>
+<div id="scrollmenuwrap">
+	<div id="scrollmenu">
+		<div class="scrollmenuBox">
+			<ul class="myzone">
+				
+				<li><a href="/member/login.asp">Login</a></li>
+				<li><a href="/member/join01.asp">Join Membership</a></li>
+				
+			</ul>
+			<div class="scrollmenuList">
+				<ul class="scrollList">
+					<li class="title">PineBeach</li>
+					<li><a href="/pinebeach/story.asp">파인비치 스토리</a></li>
+					<li><a href="/pinebeach/clubhouse.asp">클럽하우스</a></li>
+					<li><a href="/pinebeach/location.asp">오시는길</a></li>
+				</ul>
+
+				<ul class="scrollList">
+					<li class="title en">Course</li>
+					<li><a href="/course/intro.asp">설계컨셉</a></li>
+					<li><a href="/course/p.asp">파인코스</a></li>
+					<li><a href="/course/b.asp">비치코스</a></li>
+					<li><a href="/course/o.asp">오시아노코스</a></li>
+				</ul>
+
+				<ul class="scrollList">
+					<li class="title en">Room</li>
+					<li><a href="/room/intro.asp">호텔룸 소개</a></li>
+				</ul>
+
+				<ul class="scrollList">
+					<li class="title en">Experience</li>
+					<li><a href="/experience/view.asp">파인비치 전경</a></li>
+					<li><a href="/experience/experience.asp">외부 즐길거리</a></li>
+				</ul>
+
+				<ul class="scrollList">
+					<li class="title en">Reservation</li>
+					<li><a href="/reservation/reservation.asp">실시간예약</a></li>
+					<li><a href="/reservation/package.asp">패키지예약</a></li>
+					<li><a href="/board/monthly.asp">월별패키지안내</a></li>
+					<li><a href="/reservation/guide.asp">이용가이드&요금</a></li>
+					<li><a href="/reservation/reserCheck.asp">예약조회&변경</a></li>
+                    <li><a href="/reservation/group.asp">단체행사</a></li>
+				</ul>
+
+				<ul class="scrollList">
+					<li class="title en">Contact</li>
+					<li><a href="/board/list.asp?type=1">공지사항</a></li>
+					<li><a href="/board/list.asp?type=2">프로모션</a></li>
+					<li><a href="/board/faq.asp">자주하시는 질문</a></li>
+					<li><a href="/board/join.asp">조인게시판</a></li>
+				</ul>
+			</div>
+
+			<ul class="scrollLink">
+				<li><a href="javascript:mAlert('준비중입니다.')">Weather</a></li>
+			</ul>
+		</div>
+		<div class="colseBtn"><img src="../images/close-x.png" alt=""></div>
+
+
+	</div>
+</div>
+
+
+	<div id="wrap">
+		<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100;300;400;500;700;900&display=swap" rel="stylesheet">
+<div class="mainHeader">
+	<ul class="mainLogoBox">
+		<li class="mainLogo"><a href="/index.asp"><img src="/images/Logo_w.png" alt="logo"></a></li>
+		<li class="rightTxt"><a href="https://www.bosungleisure.com/pinehills/">파인힐스<br>바로가기</a></li>
+		<li class="rightTxt" style="margin-left: 5px;"><a href="https://www.solaseadocc.com">솔라시도<br>바로가기</a></li>
+		<li class="rightTxt" style="margin-left: 5px;"><a href="https://www.pinepark.co.kr">파인파크<br>바로가기</a></li>
+	</ul>
+
+	<ul class="mainMyzone">
+		
+		<li><a href="/member/login.asp">Login</a></li>
+		<li><a href="/member/join01.asp">Join Membership</a></li>
+		
+		<li></li>
+		<li><a href="https://smartstore.naver.com/pinebeach" target="_blank">Shop</a></li>
+	</ul>
+
+	<div class="headerBox">
+		<div class="mainGnb">
+			<div class="nav navi1">
+				<div class="topnav"><a href="/pinebeach/story.asp">PINEBEACH</a></div>
+				<div class="subBox">
+					<ul class="subnav">
+						<li><a href="/pinebeach/story.asp">파인비치 스토리</a></li>
+						<li><a href="/pinebeach/clubhouse.asp">클럽하우스</a></li>
+						<li><a href="/pinebeach/location.asp">오시는길</a></li>
+					</ul>
+				</div>
+			</div>
+			<div class="nav navi2">
+				<div class="topnav"><a href="/course/intro.asp">COURSE</a></div>
+				<div class="subBox">
+					<ul class="subnav sub2">
+						<li><a href="/course/intro.asp">설계컨셉</a></li>
+						<li><a href="/course/p.asp">파인코스</a></li>
+						<li><a href="/course/b.asp">비치코스</a></li>
+						<li><a href="/course/o.asp">오시아노코스</a></li>
+					</ul>
+				</div>
+			</div>
+			<div class="nav navi3">
+				<div class="topnav"><a href="/room/intro.asp">ROOM</a></div>
+				<div class="subBox">
+					<ul class="subnav sub3">
+						<li><a href="/room/intro.asp">호텔룸 소개</a></li>
+					</ul>
+				</div>
+			</div>
+			<div class="nav navi4">
+				<div class="topnav"><a href="/experience/view.asp">EXPERIENCE</a></div>
+				<div class="subBox">
+					<ul class="subnav sub4">
+						<li><a href="/experience/view.asp">파인비치 전경</a></li>
+						<li><a href="/experience/experience.asp">외부 즐길거리</a></li>
+					</ul>
+				</div>
+			</div>
+			<div class="nav navi5">
+				<div class="topnav"><a href="/reservation/reservation.asp">RESERVATION</a></div>
+				<div class="subBox">
+					<ul class="subnav sub5">
+						<li><a href="/reservation/reservation.asp">실시간예약</a></li>
+						<li><a href="/reservation/package.asp">패키지예약</a></li>
+						<li><a href="/board/monthly.asp">월별패키지안내</a></li>
+						<li><a href="/reservation/guide.asp">이용가이드&요금</a></li>
+						<li><a href="/reservation/reserCheck.asp">예약조회&변경</a></li>
+						<li><a href="/reservation/group.asp">단체행사</a></li>
+					</ul>
+				</div>
+			</div>
+			<div class="nav navi6">
+				<div class="topnav"><a href="/board/list.asp?type=1">CONTACT</a></div>
+				<div class="subBox">
+					<ul class="subnav sub6">
+						<li><a href="/board/list.asp?type=1">공지사항</a></li>
+						<li><a href="/board/list.asp?type=2">프로모션</a></li>
+						<li><a href="/board/faq.asp">자주하시는 질문</a></li>
+						<li><a href="/board/join.asp">조인게시판</a></li>
+					</ul>
+				</div>
+			</div>
+		</div>
+	</div><!-- headerBox End -->
+
+</div><!-- mainHeader End -->
+
+		<section class="slideshow" id="section1">
+			<div class="hero-slider ">
+				<div class="columns">
+					<div class="hero-image">
+						<img src="/images/main/main_title_1.jpg" alt="">
+				  </div>
+				</div>
+				<div class="columns">
+				  <div class="hero-image" >
+					  <img src="/images/main/main_title_2.jpg" alt="">
+				  </div>
+				</div>
+				<div class="columns">
+				  <div class="hero-image" >
+					<img src="/images/main/main_title_3.jpg" alt="">
+				  </div>
+				</div>
+			</div>
+
+			<div class="mainWrap">
+				<div class="mainTxtBox wow slideInUp">
+					<p class="enTxt en">
+							Welcome to <br>
+							PineBeach Golf Links
+					</p>
+					<p class="mainTxt">
+						편안함 속에서 라운드의 여운은 더 길어집니다. <br>
+						최고 수준의 클럽하우스와 골프호텔, 그 창밖으로 펼쳐지는 바다를 느껴보세요.
+					</p>
+				</div>
+
+				<div class="reserBoxBtn" id="home">
+					바로<br>예약<img id="imgReserDirection" src="/images/mReserArrow2.png" alt="">
+				</div>
+
+
+				<div class="panel">
+					<div class="reserCalBox" id="quickReser">
+						<img src="/images/x-box.png" alt="" class="reserClose">
+						<p class="title en">reservation</p>
+						<p class="txt">지금 바로 예약하세요!</p>
+
+						<p class="calTitle en">Daily</p>
+						<div class="monthSelect en" id="show_hide"><date id="txtChooseDate"></date><img src="/images/main/mainCal.png" alt="image"></div>
+						<div class="monthBox" id="monthBox" style="overflow:hidden;display:none;">
+							<div class="monthChoice">
+								<a href="javascript:doPrevMonth('#monthBox')"><img src="/images/main/arrow_l.png" alt="prev month" ></a>
+								<span class="month" id="calHeader"></span>
+								<a href="javascript:doNextMonth('#monthBox')"><img src="/images/main/arrow_r.png" alt="next month"></a>
+							</div>
+							<table class="mainCalendar" summary="reservation" cellspacing="5">
+								<caption>mainCalendar</caption>
+								<colgroup>
+									<col width="*">
+									<col width="*">
+									<col width="*">
+									<col width="*">
+									<col width="*">
+									<col width="*">
+									<col width="*">
+								</colgroup>
+								<thead>
+									<tr>
+										<th scope="col" class="sun">일</th>
+										<th scope="col">월</th>
+										<th scope="col">화</th>
+										<th scope="col">수</th>
+										<th scope="col">목</th>
+										<th scope="col">금</th>
+										<th scope="col">토</th>
+									</tr>
+								</thead>
+								<tbody id="calendar-body">
+								</tbody>
+							</table>
+						</div>
+
+						<p class="calTitle en">Package</p>
+						<div class="packMonth en package" id="show_hide1"><date id="txtChooseDate1"></date><img src="/images/main/mainCal.png" alt="image"></div>
+						<div class="monthBox1" id="monthBox1" style="overflow:hidden;display:none;">
+							<div class="monthChoice">
+								<a href="javascript:doPrevMonth('#monthBox1')"><img src="/images/main/arrow_l.png" alt="prev month" ></a>
+								<span class="month" id="calHeader"></span>
+								<a href="javascript:doNextMonth('#monthBox1')"><img src="/images/main/arrow_r.png" alt="next month"></a>
+							</div>
+							<table class="mainCalendar" summary="reservation" cellspacing="5">
+								<caption>mainCalendar</caption>
+								<colgroup>
+									<col width="*">
+									<col width="*">
+									<col width="*">
+									<col width="*">
+									<col width="*">
+									<col width="*">
+									<col width="*">
+								</colgroup>
+								<thead>
+									<tr>
+										<th scope="col" class="sun">일</th>
+										<th scope="col">월</th>
+										<th scope="col">화</th>
+										<th scope="col">수</th>
+										<th scope="col">목</th>
+										<th scope="col">금</th>
+										<th scope="col">토</th>
+									</tr>
+								</thead>
+								<tbody id="calendar-body">
+								</tbody>
+							</table>
+						</div>
+
+						<div class="packMonth en" id="show_hide2"><date id="txtChooseDate2"></date><img src="/images/main/mainCal.png" alt="image"></div>
+						<div class="monthBox2" id="monthBox2" style="overflow:hidden;display:none;">
+							<div class="monthChoice">
+								<a href="javascript:doPrevMonth('#monthBox2')"><img src="/images/main/arrow_l.png" alt="prev month" ></a>
+								<span class="month" id="calHeader"></span>
+								<a href="javascript:doNextMonth('#monthBox2')"><img src="/images/main/arrow_r.png" alt="next month"></a>
+							</div>
+							<table class="mainCalendar" summary="reservation" cellspacing="5">
+								<caption>mainCalendar</caption>
+								<colgroup>
+									<col width="*">
+									<col width="*">
+									<col width="*">
+									<col width="*">
+									<col width="*">
+									<col width="*">
+									<col width="*">
+								</colgroup>
+								<thead>
+									<tr>
+										<th scope="col" class="sun">일</th>
+										<th scope="col">월</th>
+										<th scope="col">화</th>
+										<th scope="col">수</th>
+										<th scope="col">목</th>
+										<th scope="col">금</th>
+										<th scope="col">토</th>
+									</tr>
+								</thead>
+								<tbody id="calendar-body">
+								</tbody>
+							</table>
+						</div>
+
+						<div class="mainNext">
+							<a href="javascript:doSearchMain()" class="mainNextBtn en">NEXT <img src="/images/main/mainNext.png" alt=""></a>
+						</div>
+					</div><!-- reserCalBox End-->
+				</div>
+			</div><!-- mainWrap End -->
+
+			<div class="motionArw">
+				<div class="clickMotion" onclick="moveScroll('.firstContBox', 0)">
+					<div class="arrow arrow-first"></div>
+					<div class="arrow arrow-second"></div>
+				</div>
+			</div>
+		</section>
+
+		<div class="firstContBox" id="section2">
+			<div class="firstCont">
+				<div class="leftCont">
+					<div class="leftTxtBox  wow slideInUp2">
+						<p class="title en">PINEBEACH<br>GOLF LINKS
+							<span class="miniTt">Pine/Beach/Oceano</span>
+						</p>
+						<div class="brownBar"></div>
+						<p class="contTxt">
+							바다, 숨겨놓았던 비경을 드러내다! <br>
+							바다가 태어나면서부터 안배해놓은 작품, <br>
+							파도가 빛어낸 9개 코스와 <br>
+							바람으로 깍아낸 9개 코스의 어우러짐. <br>
+							7,349야드에 걸친 링크스 코스, <br>
+							파인비치골프링크스에서 당신의 골프는  <br>
+							어느덧 바다를 닮아갑니다.
+						</p>
+					</div>
+				</div>
+				<div class="rightCont">
+					<div class="slideBox">
+						<p class="slideTxt">
+							<span class="title">페어웨이, 바다를 그리워하다.</span>
+							페어웨이는 바다를 따라 달리고 사람의 시선은 볼을 따라 날아오른다. <br>
+							문득 고개를 돌려 왼쪽을 바라본 후, <br>
+							눈은 이내 그린으로 돌아오지만 마음은 이미 바다를 향하고 있다.
+						</p>
+						<div class="hero-slider2">
+							<div class="columns">
+								<div class="hero-image2">
+									<img src="/images/main/sea_view_1.jpg" alt="">
+								</div>
+							</div>
+							<div class="columns">
+								<div class="hero-image2">
+									<img src="/images/main/sea_view_2.jpg" alt="">
+								</div>
+							</div>
+							<div class="columns">
+								<div class="hero-image2">
+									<img src="/images/main/sea_view_3.jpg" alt="">
+								</div>
+							</div>
+						</div><!-- hero-slider End -->
+					</div>
+					<div class="firstLinkBox">
+						<a href="/course/intro.asp">
+							<ul class="link1 wow slideInUp">
+								<li class="en">01</li>
+								<li class="bar"></li>
+								<li class="title">설계컨셉</li>
+								<li class="txt">해남의 리아스식 해안의 굴곡을 <br>
+								그대로 살린 아름다운 코스를 따라 <br>
+								특별한 라운드를 시작해보세요.</li>
+							</ul>
+						</a>
+						<a href="/course/p.asp">
+							<ul class="link2 wow slideInUp">
+								<li class="en">02</li>
+								<li class="bar"></li>
+								<li class="title">코스알아보기</li>
+							</ul>
+						</a>
+					</div>
+				</div>
+			</div>
+		</div><!-- firstCont End -->
+
+
+		<div class="secondContBox" id="section3">
+
+			<div class="secondCont">
+				<div class="leftContBg">
+					<ul class="leftTxtBox  wow slideInUp2">
+						<li class="en">03</li>
+						<li class="bar"></li>
+						<li class="eTitle en">PINEBEACH <br>
+						PACKAGE<br>
+						PROMOTION</li>
+						<li class="title">파인비치 패키지<br>
+						프로모션 안내</li>
+						<li><a class="moreBtn en" href="/board/monthly.asp">MORE <img src="/images/main/mainNext.png" alt=""></a></li>
+					</ul>
+					<ul class="leftTxtBox2 wow slideInUp">
+						<li class="en">03</li>
+						<li class="bar"></li>
+						<li class="eTitle en">PINEBEACH <br>
+						PACKAGE PROMOTION</li>
+						<li class="title">파인비치 패키지 프로모션 안내</li>
+						<li><a class="moreBtn en" href="">MORE <img src="/images/main/mainNext.png" alt=""></a></li>
+					</ul>
+
+				</div>
+
+				<div class="rightContBg">
+					<div class="linkCont">
+						<a href="/pinebeach/location.asp">
+							<ul class="textList  wow slideInUp" >
+								<li class="en">04</li>
+								<li class="bar"></li>
+								<li class="title">파인비치<br>
+								오시는길</li>
+								<li class="txt">KTX / SRT / 리무진버스 등 파인비치에<br>
+								편하게 오실 수 있는 방법을 알아보세요</li>
+							</ul>
+						</a>
+					</div>
+
+					<ul class="rightSecond">
+						<li class="golfBg"></li>
+						<li class="linkBox">
+							<a href="/board/view.asp?type=1&idx=481">
+								<ul class="textList  wow slideInUp">
+									<li class="en">05</li>
+									<li class="bar"></li>
+									<li class="title">Door to Door<br>
+									골프백 배송서비스</li>
+									<li class="txt">KTX / SRT 이용 고객 대상<br>
+									골프백 배송서비스 실시</li>
+								</ul>
+							</a>
+						</li>
+					</ul>
+				</div>
+
+			</div>
+		</div>
+	</div><!-- wrap End -->
+
+<script>
+	$(document).ready(function() {
+		setFooterSize();
+	});
+
+	$(window).resize(function() {
+		setFooterSize();
+	});
+
+	function setFooterSize() {
+		var idx = 1;
+		var width = $(window).width();
+
+		if(width >= 1850) {
+			idx = 1;
+		} else if(width > 1280 && width < 1850) {
+			idx = 2;
+		} else {
+			idx = 3;
+		}
+
+		for(i=1; i<=3; i++) {
+			if(i == idx) {
+				$("#footerContainer" + i).show();
+			} else {
+				$("#footerContainer" + i).hide();
+			}
+		}
+	}
+</script>
+
+	<!-- footer 영역  -->
+		<div class="mainFooter" id="footerContainer1" hidden>
+			<div class="mainLogoBox"><img src="/images/logo2.png" alt="" class="mainFtLogo"></div>
+			<p class="address">
+				주식회사 파인비치&nbsp;&nbsp;|&nbsp;&nbsp;주소: 전라남도 해남군 화원면 시아로 224&nbsp;&nbsp;|&nbsp;&nbsp;대표이사: 이화영&nbsp;&nbsp;|&nbsp;&nbsp;사업자 등록번호: 871-87-01469<br>통신판매신고번호 제2020-전남해남-0044&nbsp;&nbsp;|&nbsp;&nbsp;팩스번호: 061)530-7799&nbsp;&nbsp;l&nbsp;&nbsp;email: pinebeachcc@gmail.com&nbsp;&nbsp;l&nbsp;&nbsp;대표전화/예약문의: 061)530-7700
+			</p>
+			<div class="footerBox">
+				<ul class="termsBox">
+					<li><a href="/member/policy.asp">개인정보 처리방침</a></li>
+					<li><a href="/member/terms.asp">이용약관</a></li>
+					<li><a href="/member/terms02.asp">골프장 시설이용약관</a></li>
+				</ul>
+				<ul class="snsBox">
+					<li><a href="https://www.youtube.com/channel/UCXQsMRvoEROa4udCgAXOiVQ?view_as=subscriber" class="en" target="_blank">YOUTUBE</a></li>
+	<!--				<li><a href="https://www.facebook.com/pine.beach.90" class="en" target="_blank">FACEBOOK</a></li> -->
+					<li><a href="https://www.instagram.com/pinebeachgolf/" class="en" target="_blank">INSTAGRAM</a></li>
+		<!--			<li><a href="https://tv.naver.com/pinebeachcc" class="en" target="_blank">NAVER TV</a></li>-->
+				</ul>
+				<p class="copy en">COPYRIGHT ⓒ 2020 Pine Beach Golf Links. ALL RIGHT RESERVED.</p>
+			</div>
+		</div>
+
+		<div class="mainFooter" id="footerContainer2" hidden>
+			<div class="mainLogoBox"><img src="/images/logo2.png" alt="" class="mainFtLogo"></div>
+			<div class="footerBox">
+				<p class="address">
+					주식회사 파인비치&nbsp;&nbsp;|&nbsp;&nbsp;주소: 전라남도 해남군 화원면 시아로 224&nbsp;&nbsp;|&nbsp;&nbsp;대표이사: 이화영&nbsp;&nbsp;|&nbsp;&nbsp;사업자 등록번호: 871-87-01469 |&nbsp;&nbsp;통신판매신고번호 제2020-전남해남-0044
+					팩스번호: 061)530-7799&nbsp;&nbsp;l&nbsp;&nbsp;email: pinebeachcc@gmail.com&nbsp;&nbsp;l&nbsp;&nbsp;<span class="big">대표전화/예약문의: 061)530-7700 </span> 
+				</p>
+				<p class="copy en">COPYRIGHT ⓒ 2020 Pine Beach Golf Links. ALL RIGHT RESERVED. </p>
+			</div>
+			<ul class="snsBox">
+				<li><a href="https://www.youtube.com/channel/UCXQsMRvoEROa4udCgAXOiVQ?view_as=subscriber" class="en" target="_blank">YOUTUBE</a></li>
+		<!--		<li><a href="https://www.facebook.com/pine.beach.90" class="en" target="_blank">FACEBOOK</a></li> -->
+				<li><a href="https://www.instagram.com/pinebeachgolf/" class="en" target="_blank">INSTAGRAM</a></li>
+		<!--		<li><a href="https://tv.naver.com/pinebeachcc" class="en" target="_blank">NAVER TV</a></li>-->
+				<li class="termsLink"><a href="/member/policy.asp" class="link">개인정보 처리방침</a> <a href="/member/terms.asp" class="link">이용약관</a> <a href="/member/terms02.asp" class="link">골프장 시설이용약관</a></li>
+			</ul>
+		</div>
+
+		<div class="mainFooter" id="footerContainer3" hidden>
+			<div class="mainLogoBox">
+				<img src="/images/logo2.png" alt="" class="mainFtLogo">
+				<div class="termsLink"><a href="/member/policy.asp" class="link">개인정보 처리방침</a> <a href="/member/terms.asp" class="link">이용약관</a><a href="/member/terms02.asp">골프장 시설이용약관</a></div>
+			</div>
+			<div class="footerBox">
+				<p class="address">
+					주식회사 파인비치&nbsp;&nbsp;|&nbsp;&nbsp;주소: 전라남도 해남군 화원면 시아로 224&nbsp;&nbsp;|&nbsp;&nbsp;대표이사: 이화영&nbsp;&nbsp;|&nbsp;&nbsp;사업자 등록번호: 871-87-01469 |&nbsp;&nbsp;통신판매신고번호 제2020-전남해남-0044<br>
+					팩스번호: 061)530-7799&nbsp;&nbsp;|&nbsp;&nbsp;email: pinebeachcc@gmail.com&nbsp;&nbsp;|&nbsp;&nbsp;대표전화/예약문의: 061)530-7700 
+				</p>
+				<p class="copy en">COPYRIGHT ⓒ 2020 Pine Beach Golf Links. ALL RIGHT RESERVED.</p>
+			</div>
+			<ul class="snsBox">
+				<li><a href="https://www.youtube.com/channel/UCXQsMRvoEROa4udCgAXOiVQ?view_as=subscriber" class="en" target="_blank">YOUTUBE</a></li>
+	<!--			<li><a href="https://www.facebook.com/pine.beach.90" class="en" target="_blank">FACEBOOK</a></li>-->
+				<li><a href="https://www.instagram.com/pinebeachgolf/" class="en" target="_blank">INSTAGRAM</a></li>
+		<!--		<li><a href="https://tv.naver.com/pinebeachcc" class="en" target="_blank">NAVER TV</a></li>-->
+			</ul>
+		</div>
+	</div>
+	<p id="topArrow"><a href="#top"><span></span></a></p>
+	<div class="leftQuick">
+	<ul class="quickList">
+		<li><a class="quick" href="/pinebeach/location.asp">Location</a></li>
+		<li><img class="quickImg" src="/images/line_b.png" alt="line"></li>
+		<li><a class="quick" href="/reservation/reservation.asp">Reservation</a></li>
+		<li><img class="quickImg" src="/images/line_b.png" alt="line"></li>
+		<li><a class="quick" href="/reservation/guide.asp">Cost</a></li>
+	</ul>
+</div>
+
+<script>
+
+  $(document).ready(function() {
+    setQuickSize();
+  });
+
+  $(window).resize(function() {
+    setQuickSize();
+  });
+
+  function setQuickSize() {
+    var width = $(window).width();
+
+    if(width >= 1280) {
+      $(".leftQuick").css("left", "-80px");
+			$(".leftQuick").show();
+    } else {
+      $(".leftQuick").hide();
+    }
+  }
+
+	function setQuickColor(color) {
+		if(color == "white") {
+			$(".quickImg").attr("src", "/images/line.png");
+			$(".quick").addClass("white");
+		} else {
+			$(".quickImg").attr("src", "/images/line_b.png");
+			$(".quick").removeClass("white");
+		}
+	}
+
+</script>
+<style>
+#overlay_alert{display: none;position:fixed;top: 0%; background-color: #777777;left: 0%;width: 100%;height: 100%;z-index:1004;-moz-opacity: 0.8;opacity:.80;filter: alpha(opacity=80);}
+#pop_alert {display: none;overflow:auto;position: fixed;width:400px;padding:15px;background-color:#9e896e;z-index:1010;}
+
+.packPop{text-align:center;font-size:17px;line-height:24px;color:#fff;font-weight:300;padding:55px 0 30px;word-break:break-all;}
+.packPop > span.txt{font-size:16px;margin-top:10px;display:block;}
+
+/* popBtnBox */
+.popBtnBox{text-align:center;padding:20px;font-size:0;}
+.popBtnBox a{display:inline-block;color:#fff;width:120px;padding:10px 0;text-align:center;font-size:15px;margin-right:15px;border:1px solid #fff;}
+.popBtnBox a:last-child{margin-right:0;}
+
+</style>
+<script>
+
+	function mAlert(message, listener) {
+		initAlertPopup();
+		$("#txtPoAlertMessage").html(message);
+
+		$("#btnPoAlertConfirm").off("click");
+		$("#btnPoAlertCancel").off("click");
+
+		$("#btnPoAlertConfirm").html("확인");
+		$("#btnPoAlertConfirm").show();
+		$("#btnPoAlertCancel").hide();
+
+		$("#btnPoAlertConfirm").on("click", function() {
+			if(listener != null) {
+				listener();
+			}
+			closeAlertPopup();
+		});
+
+		$('#btnPoAlertConfirm').focus();
+
+		$("#btnPoAlertConfirm").off("keypress");
+		$("#btnPoAlertConfirm").on("keypress", function (event) {
+			if(event.keyCode == 13) {
+				if(listener != null) {
+					listener();
+				}
+				closeAlertPopup();
+			}
+		});
+	}
+
+	function mConfirm(message, btnPo, btnNe, poListener, neListener) {
+		initAlertPopup();
+		$("#txtPoAlertMessage").html(message);
+
+		$("#btnPoAlertConfirm").off("click");
+		$("#btnPoAlertCancel").off("click");
+
+		$("#btnPoAlertConfirm").html(btnPo);
+		$("#btnPoAlertCancel").html(btnNe);
+
+		$("#btnPoAlertConfirm").show();
+		$("#btnPoAlertCancel").show();
+
+		$("#btnPoAlertConfirm").on("click", function() {
+			if(poListener != null) {
+					poListener();
+			}
+			closeAlertPopup();
+		});
+		$("#btnPoAlertCancel").on("click", function() {
+			if(neListener != null) {
+				neListener();
+			}
+			closeAlertPopup();
+		});
+	}
+
+	function initAlertPopup() {
+		var fW = $(window).width() / 2;
+		var fH = $(window).height() / 2;
+		var cW = Number($("#pop_alert").css("width").replace("px", "")) / 2;
+		var cH = Number($("#pop_alert").css("height").replace("px", "")) / 2;
+		var mW = fW - cW;
+		var mH = fH - cH;
+
+		$("#pop_alert").css("left", mW);
+		$("#pop_alert").css("top", mH);
+
+		$("#pop_alert").css("display", "block");
+		$("#overlay_alert").css("display", "block");
+	}
+
+	function closeAlertPopup() {
+		$("#pop_alert").hide();
+		$("#overlay_alert").hide();
+	}
+
+</script>
+<div id="pop_alert">
+	<div class="packPop" id="txtPoAlertMessage">
+
+	</div>
+	<div class="popBtnBox">
+		<a href="javascript:void(0)" id="btnPoAlertConfirm" style="display:none" class="next"></a>
+		<a href="javascript:void(0)" id="btnPoAlertCancel" style="display:none" class="next"></a>
+	</div>
+</div>
+
+<div id="overlay_alert"></div>
+
+</body>
+</html>
