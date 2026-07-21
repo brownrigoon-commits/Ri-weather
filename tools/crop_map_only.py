@@ -14,8 +14,8 @@ import os, sys, glob
 from collections import deque
 from PIL import Image, ImageChops, ImageFilter
 sys.stdout.reconfigure(encoding="utf-8")
-TARGET_H = 610        # 세로 고정 (서서울 평균 607px 기준) — 항상 이 높이로 맞춤
-MAX_W = 400           # 가로 상한 (서서울 최대 403px 기준) — 넘으면 가로에 맞추고 세로가 자동으로 줄어듦
+TARGET_H = 600        # 세로 고정 기준 — 항상 이 높이로 맞춤
+MAX_W = 680           # 가로 상한 (앱 표시 최대 340px의 2배, 레티나 선명도) — 넘으면 가로에 맞추고 세로 자동 축소
 THRESH = 16
 SCALE = 4
 PAD = 8
