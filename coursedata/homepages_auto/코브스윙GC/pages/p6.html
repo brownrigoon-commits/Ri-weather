@@ -1,0 +1,735 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=Edge">
+	<meta name="apple-mobile-web-app-capable" content="no" />
+	<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+	<meta name="format-detection" content="telephone=no,email=no,address=no">
+	<meta name="title" content="코브스윙">
+	<meta name="author" content="코브스윙">
+	<meta name="Keywords" content="코브스윙">
+	<meta name="description" content="코브스윙">
+	<meta name="copyright" content="All Contents COPYRIGHTⓒ coveswing.Gc. All RIGHTS RESERVED.">
+	<meta property="og:type" content="website">
+	<meta property="og:title" content="코브스윙">
+	<meta property="og:description" content="코브스윙">
+	<meta property="og:url" content="">
+    <meta property="og:image" content="/images/Kakao_img2.jpg">
+	<link rel="canonical" href="">
+	<title>코브스윙</title>
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+	<script src="/js/common.js?v=1.2"></script>
+	<script src="/js/tools.js"></script>
+	<script src="/js/jquery.preloaders.js"></script>
+	<script src="/js/globals.js"></script>
+	<script src="/js/jquery.subtle-slideshow.js"></script>
+	<script src="/js/cbpHorizontalMenu.js"></script>
+	<script src="https://cdn.jsdelivr.net/bxslider/4.2.12/jquery.bxslider.min.js"></script>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.8.2/css/all.min.css" />	
+	<link rel="stylesheet" type="text/css" href="/css/import.css?v=1.3">	
+	<link rel="stylesheet" type="text/css" href="/css/layout_new.css?v=2.8">
+	<link rel="icon" href="/images/favicon.ico">
+	<!--폰트-->
+	<link href="https://fonts.googleapis.com/css2?family=Babylonica&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Montaga&family=Noto+Sans+KR:wght@100..900&family=Noto+Serif+KR:wght@200..900&family=Noto+Serif:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">	
+
+	<link rel="stylesheet" type="text/css" href="/css/contents.css?v=2.6">
+
+	<script>		
+		$(document).ready(function() {
+			chkMobile();
+			setProtocol();
+		});
+
+		function setProtocol() {
+			if (document.location.protocol == 'http:') {
+				document.location.href = document.location.href.replace('http:', 'https:');
+			}
+		}
+
+		function doLogout() {
+			var sUrl = "/controller/MemberController.asp";
+			var params = {};
+
+			params["method"] = "doLogout";
+
+			mAjax(sUrl, params, "POST", true, function(data) {
+				if(data.resultCode == "0000") {
+					alert("로그아웃 되었습니다.");
+
+					location.href = "/index.asp";
+				}
+			});
+		}
+
+	  function chkMobile() {
+	    var mobileKeyWords = new Array('iPhone', 'iPod', 'iPad', 'BlackBerry', 'Android', 'Windows CE', 'MOT', 'SAMSUNG', 'SonyEricsson');
+	    for (var word in mobileKeyWords) {
+	    	if ( navigator.userAgent.match(mobileKeyWords[word]) != null ) {
+	    		location.href = "/mobile/index.asp";
+	    		break;
+	    	}
+	    }
+	  }
+
+	function onlyMainMenu(val){
+		if(val == "1") {
+			$("#onlySub").hide();
+		}else (
+			$("#onlySub").show()
+		)
+	}
+	</script>
+</head>
+	
+<body>
+	<div id="wrap">	
+		
+		<!--header-->
+		<div id="header">
+			
+
+			<!-- 서브 헤더 영역 -->
+			<h1 class="topLeft"><a href="/"><img src="/images/logo.svg" alt="logo"></a></h1>
+
+			<div class="top_menu">
+				<a href="/club/story.asp">COVE Swing</a>
+				<a href="/course/courseIntro.asp">코스소개</a>
+				<!--<a href="/facil/facil01.asp">시설물소개</a>-->
+				<a href="/reservation/reservation.asp">예약하기</a>
+				<a href="/guide/guide.asp">이용안내</a>
+				<!--<a href="/board/list.asp?type=1">커뮤니티</a>-->
+				<a href="/member/modify.asp">마이페이지</a>
+			</div>
+
+			<div class="topRight">
+				<a href="/reservation/reservation.asp"><img src="/images/top_icon1.png" alt="실시간예약"></a>
+				<a href="http://www.weather.go.kr/weather/forecast/timeseries.jsp?searchType=INTEREST&wideCode=4100000000&cityCode=4165000000&dongCode=4165052000" target="_blank"><img src="/images/top_icon2.png" alt="날씨"></a>
+
+				<a href="/join/login.asp"><img src="/images/top_icon3.png" alt="로그인"></a>				
+
+
+<!--
+				<button class="toggle-menu">
+					<span></span>
+				</button>	
+-->
+			</div>
+
+			
+
+			<!--hamberger전체메뉴-->
+			<div id="menu" class="">
+				<!--only main-->
+				<a href="" class="main-menu-close"><img src="/images/menu-close.svg"></a>
+				<a href="/" class="menu-top-logo"><img src="/images/main-color-logo.svg?v=2"></a>
+				
+				<div class="main-nav">
+<!--						<h1> charmvalley menu</h1>-->
+					<ul>
+						<li>
+<!--								<a href="/club/intro.asp" class="big">참밸리소개<span>INTRODUCE</span></a>-->
+							<a href="" class="only-main">COVE Swing</a>
+							<a href="/club/story.asp" class="small">COVE Swing 스토리</a>
+							<a href="/club/map.asp" class="small">오시는 길</a>
+							<a href="/club/facil.asp" class="small">부대시설</a>
+							<a href="/board/list.asp?type=1" class="small">공지사항</a>
+							<!--<a href="/club/ci.asp" class="small">CI소개</a>
+							<a href="/club/intro.asp" class="small">코브스윙 소개</a>-->
+						</li>
+						<li>
+<!--								<a href="/course/courseIntro.asp" class="big">코스소개<span>COURSE</span></a>-->
+							<a href="" class="only-main">코스 소개</a>
+							<a href="/course/courseIntro_new.asp" class="small">코스 개요</a>
+							<a href="/course/cove.asp" class="small">코스 공략도</a>
+							<!--<a href="/course/queens.asp" class="small">코브 코스 공략도</a>
+							<a href="/course/valley.asp" class="small">스윙 코스 공략도</a>
+							<a href="/board/list.asp?type=3" class="small">코스갤러리</a>-->
+						</li>
+						<!--<li>
+							<a href="" class="only-main">시설물소개</a>
+							<a href="/facil/facil01.asp" class="small">클럽하우스</a>
+							<a href="/facil/facil02.asp" class="small">레스토랑</a>
+							<a href="/facil/facil03.asp" class="small">프로샵</a>
+						</li>-->
+						<li>
+<!--								<a href="/reservation/reservation.asp" class="big">예약하기<span>RESERVATION</span></a>-->
+							<a href="" class="only-main">예약</a>
+							<a href="/reservation/reservation.asp" class="small">예약하기</a>
+							<a href="/reservation/reservation2.asp" class="small">예약확인/취소</a>
+							<a href="/reservation/group.asp" class="small">단체예약</a>
+						</li>
+						<li>
+<!--								<a href="/guide/guide.asp" class="big">이용안내<span>INFORMATION</span></a>-->
+							<a href="" class="only-main">이용안내</a>
+							<a href="/guide/local.asp" class="small">로컬룰</a>
+							<a href="/guide/penalty.asp" class="small">위약및퇴장</a>
+							<a href="/guide/fee.asp" class="small">이용요금</a>
+							<!--<a href="/guide/guide.asp" class="small">이용안내</a>-->
+						</li>
+						<!--<li>
+							<a href="/board/list.asp?type=1" class="big">커뮤니티<span>COMMUNITY</span></a>
+							<a href="" class="only-main">커뮤니티</a>
+							<a href="/board/list.asp?type=2" class="small">이벤트</a>
+							<a href="/board/list.asp?type=4" class="small">명예의전당</a>
+						</li>-->
+						<li>
+<!--								<a href="/member/score.asp" class="big">마이페이지<span>MYPAGE</span></a>-->
+							<a href="" class="only-main">마이페이지</a>
+							<a href="/join/join.asp" class="small">회원가입</a>
+							<a href="/member/modify.asp" class="small">정보수정</a>
+							<a href="/member/score.asp" class="small">스코어관리</a>
+							<a href="/member/enter.asp" class="small">내장 및 위약현황</a>
+						</li>
+					</ul>
+				</div>
+				<!--//hamberger전체메뉴-->
+			</div>
+		
+		
+	</div>
+
+<!--aos-->
+<link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<script>
+	AOS.init();
+</script>
+
+<script>
+	$(document).ready(function () {
+		$(".course-tab li").click(function () {
+
+			var idx = $(this).index();
+
+			// 탭 active
+			$(".course-tab li").removeClass("on");
+			$(this).addClass("on");
+
+			var target = $(".courseBox2").eq(idx);
+
+			// 이미 열려있는거 클릭하면 무시
+			if (target.is(":visible")) return;
+
+			$(".courseBox2:visible").stop(true, true).fadeOut(200, function () {
+				target.fadeIn(200);
+			});
+		});
+
+	});
+</script>
+
+<!--Contents-->
+<div id="contents">
+	<div class="course-info-bg">
+		<div class="c-bg-wrap left">
+			<div class="course-intro-text">
+				<h5 data-aos="fade-right" data-aos-duration="1000">
+					스윙코스
+					<a href="/course/cove.asp" class="course-quick">코브코스 바로가기 <span>→</span></a>
+				</h5>
+			</div>
+		</div>
+	</div>
+
+	<!--탭 리스트-->
+	<ul class="course-tab">
+		<li class="on">10H</li>
+		<li>11H</li>
+		<li>12H</li>
+		<li>13H</li>
+		<li>14H</li>
+		<li>15H</li>
+		<li>16H</li>
+		<li>17H</li>
+		<li>18H</li>
+	</ul>
+
+	<div class="contentWrap" style="padding-top: 120px;">
+		<!--10-->
+		<div class="courseBox2">
+			<div class="info">
+				<div class="tit">
+					SWING Course
+					<span>10H / Par 4 / HDCP 9</span>
+				</div>
+				<div class="course-text">
+					<p>좌 도그레그형으로 티에서 낙구지점은 내리막이며 세컨샷은 오르막으로 티에서 보면 낙구지점이 넓어보여 티샷을 호쾌하게 날릴수 있는 홀로서 POND를 넘겨쳐야하는 것이 약간의 부담감을 가질수 있는 홀이다.
+					안전한 티샷은 페어웨이 우측을 공략하면 무난하지만 장타자는 좌측으로 공략하여 자신의 기량을 시험할 수 있는 홀이다. 그린앞에 벙커가 도사리고 있으나 장애요소로는 크지 않으며, 그린은 앞뒤로 길게 조성되어 있어 그린의 우측이나 길게 치는 것이 좋은 결과로 이어질 수 있는 홀이다.
+					</p>
+				</div>
+				<table class="course-info-m">
+					<colgroup>
+						<col width="*">
+					</colgroup>
+					<thead>
+						<tr>
+							<th>Tee</th>
+							<th>거리</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td><span class="blueP"></span>Blue Tee</td>
+							<td>385yd (352m)</td>
+						</tr>
+						<tr>
+							<td><span class="whiteP"></span>White Tee</td>
+							<td>370yd (338m)</td>
+						</tr>
+						<tr>
+							<td><span class="silverP"></span>Gray Tee</td>
+							<td>339yd (310m)</td>
+						</tr>
+						<tr>
+							<td><span class="redP"></span>Red Tee</td>
+							<td>308yd (282m)</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+
+			<!--이미지-->
+			<div class="course-img">
+				<img src="/images/course/v01.jpg?v=1">
+			</div>
+		</div>
+
+		<!--11-->
+		<div class="courseBox2" style="display: none;">
+			<div class="info">
+				<div class="tit">
+					SWING Course
+					<span>11H / Par 4 / HDCP 7</span>
+				</div>
+				<div class="course-text">
+					<p>이전 홀과 같이 연속적으로 POND를 건너치는 것이 골퍼들에게 부담감을 가중시킬수 있는 홀이며 유일하게 투그린으로 조성된 홀로서 좌 우 그린선택에 따라 플레이 묘미를 느낄 수 있도록 그린전면 중앙에 기존수목을 살려 두었다.
+					티에서 낙구지점까지는 내리막으로 되어있으며 페어웨이 좌측 카트로옆은 낭떠러지가 있어 조금의 방심도 금물이며 티샷공략은 페어웨이 우측으로 공략하는 것이 좋다.
+					그린까지는 오르막 경사로 그린전면의 수목을 기준으로 좌 우그린이 배치되어 있으며 수목 앞쪽 벙커에 빠지면 그린공략이 쉽지않으므로 최대한 주의를 하여 세컨샷을 조금은 길게치는 것이 유리할 수도 있다.
+					</p>
+				</div>
+				<table class="course-info-m">
+					<colgroup>
+						<col width="*">
+					</colgroup>
+					<thead>
+						<tr>
+							<th>Tee</th>
+							<th>거리</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td><span class="blueP"></span>Blue Tee</td>
+							<td>376yd (344m)</td>
+						</tr>
+						<tr>
+							<td><span class="whiteP"></span>White Tee</td>
+							<td>349yd (319m)</td>
+						</tr>
+						<tr>
+							<td><span class="silverP"></span>Gray Tee</td>
+							<td>296yd (271m)</td>
+						</tr>
+						<tr>
+							<td><span class="redP"></span>Red Tee</td>
+							<td>266yd (243m)</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+
+			<!--이미지-->
+			<div class="course-img">
+				<img src="/images/course/v02.jpg?v=1">
+			</div>
+		</div>
+
+		<!--12-->
+		<div class="courseBox2" style="display: none;">
+			<div class="info">
+				<div class="tit">
+					SWING Course
+					<span>12H / Par 3 / HDCP 11</span>
+				</div>
+				<div class="course-text">
+					<p>그린까지의 오르막 경사가 심하고 그린의 바닥이 전혀 보이지 않아 거리측정이 쉽지 않으며 그린의 우측 및 뒤쪽은 조금의 방심도 허락하지 않는 홀이다.
+					그린앞 우측 및 뒤쪽에 벙커가 있어 정교한 티샷을 요구하며 그린면이 보이지 않아 그린 공략이 쉽지 않다.
+					벙커를 피해서 그린의 좌측으로 공략하되 길게 치면 그린을 넘어갈 수 있어 클럽선택에 신중함이 더욱 필요 하다.
+					</p>
+				</div>
+				<table class="course-info-m">
+					<colgroup>
+						<col width="*">
+					</colgroup>
+					<thead>
+						<tr>
+							<th>Tee</th>
+							<th>거리</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td><span class="blueP"></span>Blue Tee</td>
+							<td>200yd (183m)</td>
+						</tr>
+						<tr>
+							<td><span class="whiteP"></span>White Tee</td>
+							<td>175yd (160m)</td>
+						</tr>
+						<tr>
+							<td><span class="silverP"></span>Gray Tee</td>
+							<td>148yd (135m)</td>
+						</tr>
+						<tr>
+							<td><span class="redP"></span>Red Tee</td>
+							<td>130yd (119m)</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+
+			<!--이미지-->
+			<div class="course-img">
+				<img src="/images/course/v03.jpg?v=1">
+			</div>
+		</div>
+
+		<!--13-->
+		<div class="courseBox2" style="display: none;">
+			<div class="info">
+				<div class="tit">
+					SWING Course
+					<span>13H / Par 5 / HDCP 3</span>
+				</div>
+				<div class="course-text">
+					<p>티에서 POND를 건너쳐야 하는 내리막홀로서 정확한 티샷만 성공한다면 세컨샷에 기대를 걸어 볼 만한 홀이다. 페어웨이 우측이 절벽으로 조성되어 방향이 조금만 빗나가면 낭패이므로 티샷 공략은 페어웨이 좌측을 보고 치는 것이 무난하다.
+					착시효과로 남은 거리가 조금은 짧게 느껴지지만 과신하지 않도록 세심한 마음가짐이 필요하며, 앞쪽 페어웨이 벙커를 피해서 공략하되 벙커에서 그린까지의 뒤쪽은 전부 낭떠러지로 되어있어 장타자라 하더라도 신중함을 기해야 한다.
+					무리하지 않고 차분히 그린에 도달하면 큰 어려움이 없으며 홀 OUT이 가능할 것이다.
+					</p>
+				</div>
+				<table class="course-info-m">
+					<colgroup>
+						<col width="*">
+					</colgroup>
+					<thead>
+						<tr>
+							<th>Tee</th>
+							<th>거리</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td><span class="blueP"></span>Blue Tee</td>
+							<td>479yd (438m)</td>
+						</tr>
+						<tr>
+							<td><span class="whiteP"></span>White Tee</td>
+							<td>461yd (422m)</td>
+						</tr>
+						<tr>
+							<td><span class="silverP"></span>Gray Tee</td>
+							<td>437yd (400m)</td>
+						</tr>
+						<tr>
+							<td><span class="redP"></span>Red Tee</td>
+							<td>295yd (270m)</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+
+			<!--이미지-->
+			<div class="course-img">
+				<img src="/images/course/v04.jpg?v=1">
+			</div>
+		</div>
+
+		<!--14-->
+		<div class="courseBox2" style="display: none;">
+			<div class="info">
+				<div class="tit">
+					SWING Course
+					<span>14H / Par 4 / HDCP 13</span>
+				</div>
+				<div class="course-text">
+					<p>약간 우측으로 휘어진 홀이며 티샷은 내리막, 세컨샷은 오르막으로 조성된 홀이다. 티샷은 페어웨이가 넓어 부담없이 칠수 있으며, 장타자라면 앞쪽 벙커를 고려하여 페어웨이 우측으로 공략하는 것이 최선의 선택이다.
+					그린좌측에 있는 벙커는 구제용과 장애물 역할을 겸하고 있으며 벙커좌측은 낭떠러지가 있어 안정적인 홀 OUT을 원한다면 그린의 우측을 공략하되 조금은 길게 보내야 할 필요가 있다.
+					</p>
+				</div>
+				<table class="course-info-m">
+					<colgroup>
+						<col width="*">
+					</colgroup>
+					<thead>
+						<tr>
+							<th>Tee</th>
+							<th>거리</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td><span class="blueP"></span>Blue Tee</td>
+							<td>414yd (379m)</td>
+						</tr>
+						<tr>
+							<td><span class="whiteP"></span>White Tee</td>
+							<td>371yd (339m)</td>
+						</tr>
+						<tr>
+							<td><span class="silverP"></span>Gray Tee</td>
+							<td>347yd (317m)</td>
+						</tr>
+						<tr>
+							<td><span class="redP"></span>Red Tee</td>
+							<td>309yd (283m)</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+
+			<!--이미지-->
+			<div class="course-img">
+				<img src="/images/course/v05.jpg?v=1">
+			</div>
+		</div>
+
+		<!--15-->
+		<div class="courseBox2" style="display: none;">
+			<div class="info">
+				<div class="tit">
+					SWING Course
+					<span>15H / Par 4 / HDCP 17</span>
+				</div>
+				<div class="course-text">
+					<p>티샷은 평지이며 세컨샷은 완만한 오르막 경사로 큰 어려움이 없어 보이는 홀이다. 페어웨이 낙구지점이 넓고 평탄하지만 우측낭떠러지를 고려하여 페어웨이 좌측으로 티샷을 보내면 무난한 세컨샷을 기대할 수 있을 것이다.
+					세컨샷은 비교적 짧은 거리로서 그린앞쪽의 벙커는 큰 장애요소가 되지않더라도 그린 우측에 낭떠러지가 있어 그린 좌측을 보고 공략하면 별 실수없이 마무리 할 수 있는 홀이다.
+					</p>
+				</div>
+				<table class="course-info-m">
+					<colgroup>
+						<col width="*">
+					</colgroup>
+					<thead>
+						<tr>
+							<th>Tee</th>
+							<th>거리</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td><span class="blueP"></span>Blue Tee</td>
+							<td>385yd (352m)</td>
+						</tr>
+						<tr>
+							<td><span class="whiteP"></span>White Tee</td>
+							<td>360yd (329m)</td>
+						</tr>
+						<tr>
+							<td><span class="silverP"></span>Gray Tee</td>
+							<td>331yd (303m)</td>
+						</tr>
+						<tr>
+							<td><span class="redP"></span>Red Tee</td>
+							<td>287yd (262m)</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+			
+			<!--이미지-->
+			<div class="course-img">
+				<img src="/images/course/v06.jpg?v=1">
+			</div>
+		</div>
+
+		<!--16-->
+		<div class="courseBox2" style="display: none;">
+			<div class="info">
+				<div class="tit">
+					SWING Course
+					<span>16H / Par 3 / HDCP 5</span>
+				</div>
+				<div class="course-text">
+					<p>Par3홀로서는 거리가 긴 내리막 코스이며 한치의 실수도 용납하지 않는 홀이다.
+					그린 앞쪽벙커가 엄청난 부담감을 줄 수 있지만 그린좌측 낭떠러지를 감안하면 그린 공략은 우측으로 하되 평소보다 거리를 멀리보내는 것이 유리하다.
+					</p>
+				</div>
+				<table class="course-info-m">
+					<colgroup>
+						<col width="*">
+					</colgroup>
+					<thead>
+						<tr>
+							<th>Tee</th>
+							<th>거리</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td><span class="blueP"></span>Blue Tee</td>
+							<td>289yd (264m)</td>
+						</tr>
+						<tr>
+							<td><span class="whiteP"></span>White Tee</td>
+							<td>238yd (218m)</td>
+						</tr>
+						<tr>
+							<td><span class="silverP"></span>Gray Tee</td>
+							<td>186yd (171m)</td>
+						</tr>
+						<tr>
+							<td><span class="redP"></span>Red Tee</td>
+							<td>126yd (115m)</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+			
+			<!--이미지-->
+			<div class="course-img">
+				<img src="/images/course/v07.jpg?v=1">
+			</div>
+		</div>
+
+		<!--17-->
+		<div class="courseBox2" style="display: none;">
+			<div class="info">
+				<div class="tit">
+					SWING Course
+					<span>17H / Par 4 / HDCP 15</span>
+				</div>
+				<div class="course-text">
+					<p>완만한 오르막 코스로 신중한 티샷이 요구되는 홀이나 비교적 무난한 홀이다.
+					페어웨이 우측에 벙커가 도사리고 있어 티샷은 페어웨이 좌측으로 공략하는것이 바람직하며 낙구지점이 넓어 어렵지 않게 다음샷에 대비할 수 있다.
+					그린앞에 벙커라는 악마가 아가리를 벌리고 유혹하고 있지만 클럽선택에 신중함을 기하고 거리를 조금은 길게보면 무난하게 홀을 마감하지 않을까 싶다.
+					</p>
+				</div>
+				<table class="course-info-m">
+					<colgroup>
+						<col width="*">
+					</colgroup>
+					<thead>
+						<tr>
+							<th>Tee</th>
+							<th>거리</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td><span class="blueP"></span>Blue Tee</td>
+							<td>401yd (367m)</td>
+						</tr>
+						<tr>
+							<td><span class="whiteP"></span>White Tee</td>
+							<td>364yd (333m)</td>
+						</tr>
+						<tr>
+							<td><span class="silverP"></span>Gray Tee</td>
+							<td>339yd (310m)</td>
+						</tr>
+						<tr>
+							<td><span class="redP"></span>Red Tee</td>
+							<td>300yd (274m)</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+			
+			<!--이미지-->
+			<div class="course-img">
+				<img src="/images/course/v08.jpg?v=1">
+			</div>
+		</div>
+
+		<!--18-->
+		<div class="courseBox2" style="display: none;">
+			<div class="info">
+				<div class="tit">
+					SWING Course
+					<span>18H / Par 5 / HDCP 1</span>
+				</div>
+				<div class="course-text">
+					<p>18홀중 최장의 홀로서 클럽하우스와 주변 아름다운 경관을 조망할 수 있는 홀이다.
+					아찔한 높이에서의 티샷과 아래쪽 페어웨이 좌측 POND가 주는 엄청난 부담감은 타 골프장에서 경험해 보지않은 것이며, 덤으로 POND를 넘기고자 하는 도전의욕도 생길수 있는 홀이다.
+					티샷은 짧게쳐서 POND 주변까지 굴러서 보내는 것이 좋으나, 장타자라면 POND를 넘겨치는 것을 추천한다.
+					다만 페어웨이 우측이 낭떠러지이므로 공략방향을 신중하게 선택할 필요가 있으며 계곡에서 불어오는 바람도 고려할 필요가 있다.
+					세컨샷을 페어웨이 좌측으로 보내면 다음샷에 그린을 조망할수도 있어 아주 유리하고 이는 그 결과에 따라 그린이 보일수도 보이지 않을 수도 있기 때문이다.
+					그린공략까지 남아있는 거리가 만만치 않아 클럽선택에 신중함을 기해야 하며 그린좌측은 POND가 혀를 낼름거리듯이 있으며 우측은 까마득한 천길 낭떠러지가 있어 정확한 샷이 요구 되는 홀로서 마지막까지 도전의욕과 기량을 시험하는 홀이다.
+					</p>
+				</div>
+				<table class="course-info-m">
+					<colgroup>
+						<col width="*">
+					</colgroup>
+					<thead>
+						<tr>
+							<th>Tee</th>
+							<th>거리</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td><span class="blueP"></span>Blue Tee</td>
+							<td>626yd (572m)</td>
+						</tr>
+						<tr>
+							<td><span class="whiteP"></span>White Tee</td>
+							<td>598yd (547m)</td>
+						</tr>
+						<tr>
+							<td><span class="silverP"></span>Gray Tee</td>
+							<td>526yd (481m)</td>
+						</tr>
+						<tr>
+							<td><span class="redP"></span>Red Tee</td>
+							<td>469yd (429m)</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+
+			<!--이미지-->
+			<div class="course-img">
+				<img src="/images/course/v09.jpg?v=1">
+			</div>
+		</div>
+	</div>
+</div>
+
+		<div id="footer">
+			<!-- <div class="bottomLine">
+				<div class="btTopWrap">
+					<ul>
+						<li><a href="http://hanoigolf.co.kr/" target="_blank"><img src="/images/blogo_1.png"></a></li>
+						<li><a href="http://yakam.co.kr/" target="_blank"><img src="/images/blogo_2.png"></a></li>
+						<li><a href="http://grandplazahanoi.net/" target="_blank"><img src="/images/blogo_3.png"></a></li>
+						<li><a href="javascript:void(0)"><img src="/images/blogo_4.png"></a></li>
+						<li><a href="javascript:void(0)"><img src="/images/blogo_5.png"></a></li>
+					</ul>
+				</div>
+			</div> -->
+			<div class="footerBox">
+				<h1></h1>
+				<div class="f_sns">
+<!--
+					<a href="#"><i class="fab fa-facebook-f"></i></a>
+					<a href="#"><i class="fab fa-twitter"></i></a>
+					<a href="#"><i class="fab fa-instagram"></i></a>
+-->
+				</div>
+				<div class="f_descript">
+					<div class="ftop">
+						<a href="/member/policy.asp">개인정보취급방침</a>
+						<span>|</span>
+						<a href="/member/terms.asp">이용약관</a>
+					</div>
+				경기 포천시 설운동 산38-17 | 대표번호 : 1899-6200 | 대표자 : 이한일 | 사업자등록번호 231-85-02083 | 이메일 : help@coveswing.com<br>
+Copyright © 2014 cove swing All rights reserved.	
+				</div>							
+			</div>
+		</div>
+	</div>
+</body>
+</html>

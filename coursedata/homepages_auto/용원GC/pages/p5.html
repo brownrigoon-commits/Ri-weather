@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+    <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <meta name="format-detection" content="telephone=no">
+        <title>용원GC</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+        <script src="/js/jquery.min-7c14a783dfeb3d238ccd3edd840d82ee.js"></script>
+        <script src="/js/const-733aeb8acc268139f6aae4ef08e023fb.js"></script>
+        <script src="/js/utils/ajax-36eca4c0ab8053320d739b20ca41a69f.js"></script>
+        <script src="/js/utils/common-83054a4adb8153d7bf928fcfcdafa79c.js"></script>
+        <script src="/js/utils/date-346d0632298fe65178adab75f6a5ab15.js"></script>
+        <script src="/js/utils/popup-d755aa40c3b4b97b046327f8f51e79d0.js"></script>
+        <script src="/js/utils/string-e6de935ad2b71a3a0574570ccd98a10f.js"></script>
+        <script src="/js/utils/template-e1c86ea198da0310496a4d3c7e18b0c2.js"></script>
+        <script src="/js/jquery.preloaders-04ba8ed585c3852d1f72c6a1f5f9ef83.js"></script>
+        <script src="/pc/js/view-51951aca3f330f78f99f4790f653df5d.js"></script>
+        <script src="/pc/js/swiper-30688691a742ca85df30161def3408e6.js"></script>
+        <script src="/pc/js/aos-f0ec4332288da58a5f7d2794f1b37275.js"></script>
+        <!--<script src="/pc/js/smoothscroll.js"></script>-->
+        <script src="/js/jquery.rwdImageMaps.min-0fa3284898afb8494866e896c950f111.js"></script><!-- image map -->
+        <link rel="stylesheet" href="/css/common-3e2c2e6c995aa346eb9fce6782ea3385.css" type="text/css">
+        <link rel="stylesheet" href="/css/swiper-419b05804302b097dd5302a95ec4f2c9.css" type="text/css">
+        <link rel="stylesheet" href="/css/layout-084fdc74e46c747020756f3f69f00934.css" type="text/css">
+        <link rel="stylesheet" href="/css/contents-8f15ec2e33fa2e0de59d222635e11e82.css" type="text/css">
+        <link rel="stylesheet" href="/css/contents_m-3f0fa6bf89bbe2aef14a42cc588132be.css" type="text/css">
+        <link rel="stylesheet" href="/css/aos-7756df1c7d48ab910c00604a42b18f19.css" type="text/css">
+        <link rel="icon" href="/images/favicon-acaf347b304ade9581f8b483896db7be.ico">
+        <link rel="stylesheet" href="https://unpkg.com/lenis@1.3.8/dist/lenis.css">
+        <script src="https://unpkg.com/lenis@1.3.8/dist/lenis.min.js"></script>
+    </head>
+
+    <header class="pc">
+        <div class="nav-area">
+            <div class="top-left">
+                <script>
+                    $(document).ready(function () {
+                        $.ajax("/api/common/weather").done((data) => {
+                            $("p.weather-area").html(`창원시 진해구<em></em>${data.temp}º ${data.wfKor}<em></em><img src="/images/weather/${data.wfEn.replaceAll("/", "&")}.svg">`)
+                        })
+                    });
+                </script>
+                <p class="weather-area"></p>
+                <a href="/" class="logo-area"><img src="/images/logo.svg"></a>
+            </div>
+            <div class="top-right">
+                <a href="/reservation/main"><img src="/images/ic_reservation.svg"></a>
+            </div>
+        </div>
+        <!--메뉴-->
+        <nav>
+            <ul class="nav-menu">
+                <!--<li class="gnb"><a href="/club/intro">클럽소개</a></li>
+                <li class="gnb"><a href="/course/intro">코스소개</a></li>
+                <li class="gnb"><a href="/guide/guide">이용안내</a></li>
+                <li class="gnb"><a href="/reservation/main">실시간예약</a></li>
+                &lt;!&ndash;<li class="gnb"><a href="/facility/facility01">부대시설</a></li>&ndash;&gt;
+                <li class="gnb"><a href="javascript:alert('준비중입니다');">부대시설</a></li>
+                <li class="gnb"><a href="/service/board-member">회원서비스</a></li>
+                <li class="gnb"><a href="/board/notice">클럽소식</a></li>
+                <li class="gnb"><a href="/academy/driving-range">용원골프아카데미</a></li>-->
+            </ul>
+        </nav>
+        <div class="lnb">
+            <div class="lnb-area">
+                <div class="btn-lnb-area login-container" style="display: none">
+                    <a href="javascript:logout()" class="on">로그아웃</a>
+                    <a href="/mypage/mypage">마이페이지</a>
+                </div>
+                <div class="btn-lnb-area logout-container" style="display: none">
+                    <a href="/member/login" class="on">로그인</a>
+                    <a href="/member/terms">회원가입</a>
+                </div>
+                <div class="lnb-box">
+                    <!--<ul>
+                        <li><h3>클럽소개</h3></li>
+                        <li><a href="/club/intro">클럽소개</a></li>
+                        <li><a href="/club/greeting">인사말</a></li>
+                        <li><a href="/club/history">연혁</a></li>
+                        <li><a href="/club/map">오시는길</a></li>
+                    </ul>
+                    <ul>
+                        <li><h3>코스소개</h3></li>
+                        <li><a href="/course/intro">코스소개</a></li>
+                        <li><a href="/course/course01">코스공략법</a></li>
+                    </ul>
+                    <ul>
+                        <li><h3>이용안내</h3></li>
+                        <li><a href="/guide/reservation-guide">예약안내</a></li>
+                        <li><a href="/guide/guide">이용안내</a></li>
+                        <li><a href="/guide/fee">이용요금</a></li>
+                        <li><a href="/guide/transfer-name">명의개서</a></li>
+                        <li><a href="/guide/board-file">자료실</a></li>
+                    </ul>
+                    <ul>
+                        <li><h3>실시간예약</h3></li>
+                        <li><a href="/reservation/main">실시간예약</a></li>
+                        <li class="wait-page hidden"><a href="/reservation/wait">대기예약</a></li>
+                        <li><a href="/reservation/check">예약확인</a></li>
+                        <li><a href="/reservation/schedule">예약일정표</a></li>
+                        <li><a href="/reservation/year-group">연단체 예약</a></li>
+                        <li><a href="/reservation/temporary-group">임의단체 예약</a></li>
+                        <li><a href="/reservation/login-group">단체예약확인</a></li>
+                    </ul>
+                    <ul>
+                        <li><h3>부대시설</h3></li>
+                        &lt;!&ndash;<li><a href="/facility/facility01">클럽하우스</a></li>
+                        <li><a href="/facility/facility02">프로샵</a></li>
+                        <li><a href="/facility/facility03">그릴</a></li>
+                        <li><a href="/facility/facility04">락카룸/샤워실</a></li>
+                        <li><a href="/facility/facility05">그늘집</a></li>&ndash;&gt;
+                        <li><a href="javascript:alert('준비중입니다');">클럽하우스</a></li>
+                        <li><a href="javascript:alert('준비중입니다');">프로샵</a></li>
+                        <li><a href="javascript:alert('준비중입니다');">그릴</a></li>
+                        <li><a href="javascript:alert('준비중입니다');">락커룸/샤워실</a></li>
+                        <li><a href="javascript:alert('준비중입니다');">그늘집</a></li>
+                    </ul>
+                    <ul>
+                        <li><h3>회원서비스</h3></li>
+                        <li><a href="/service/board-member">회원게시판</a></li>
+                        <li><a href="/service/board-join">조인게시판</a></li>
+                        <li><a href="/service/score">스코어카드</a></li>
+                    </ul>
+                    <ul>
+                        <li><h3>클럽소식</h3></li>
+                        <li><a href="/board/notice">공지사항</a></li>
+                        <li><a href="/board/ace">홀인원 상 현황</a></li>
+                        <li><a href="/board/honor">명예의 전당</a></li>
+                        <li><a href="/board/record">대회기록</a></li>
+                    </ul>
+                    <ul>
+                        <li><h3>용원골프아카데미</h3></li>
+                        <li><a href="/academy/driving-range">골프연습장 소개</a></li>
+                        <li><a href="/academy/academy-fee">골프아카데미 요금</a></li>
+                        <li><a href="/academy/approach">어프로치장 이용안내</a></li>
+                        <li><a href="/academy/academy-facility">부대시설</a></li>
+                        <li><a href="/academy/instructor">아카데미강사 소개</a></li>
+                    </ul>-->
+                </div>
+            </div>
+        </div>
+        <div class="menu-bg"></div>
+        <!--//메뉴-->
+    </header>
+    <header class="mobile">
+        <div class="top-left">
+            <p class="weather-area">21.6º 맑음<em></em><img src="/images/weather/Clear.svg"></p>
+            <a href="/" class="logo-area"><img src="/images/logo.svg"></a>
+        </div>
+        <div class="top-right">
+            <a href="/reservation/main"><img src="/images/ic_reservation.svg"></a>
+        </div>
+        <input type="checkbox" id="toggleNav"/>
+        <label class="toggle-btn" for="toggleNav" id="toggleTop">
+            <span></span>
+            <span></span>
+            <span></span>
+        </label>
+        <nav>
+            <div class="nav-box">
+                <div class="nav-header">
+                    <div class="logo">
+                        <a href="/"><img src="/images/logo.svg"></a>
+                    </div>
+                    <!--로그인전-->
+                    <div class="menu-login logout-container" style="display: none">
+                        <a href="/member/login" class="login">로그인</a>
+                        <a href="/member/terms">회원가입</a>
+                    </div>
+                    <!--로그인후-->
+                    <div class="menu-login login-container" style="display: none">
+                        <a href="javascript:logout()" class="login">로그아웃</a>
+                        <a href="/mypage/mypage" class="mypage">마이페이지</a>
+                    </div>
+                </div>
+                <ul class="menu-list">
+                    <!--<li>
+                        <a href="javascript:void(0)"><p><span>CLUB</span>클럽소개</p><b><span></span></b></a>
+                        <div class="lnb">
+                            <a href="/club/intro">클럽소개</a>
+                            <a href="/club/greeting">인사말</a>
+                            <a href="/club/history">연혁</a>
+                            <a href="/club/map">오시는길</a>
+                        </div>
+                    </li>
+                    <li>
+                        <a href="javascript:void(0)"><p><span>COURSE</span>코스소개</p><b><span></span></b></a>
+                        <div class="lnb">
+                            <a href="/course/intro">코스소개</a>
+                            <a href="/course/course01">코스공략법</a>
+                        </div>
+                    </li>
+                    <li>
+                        <a href="javascript:void(0)"><p><span>guide</span>이용안내</p><b><span></span></b></a>
+                        <div class="lnb">
+                            <a href="/guide/reservation-guide">예약안내</a>
+                            <a href="/guide/guide">이용안내</a>
+                            <a href="/guide/fee">이용요금</a>
+                            <a href="/guide/transfer-name">명의개서</a>
+                            <a href="/guide/board-file">자료실</a>
+                        </div>
+                    </li>
+                    <li>
+                        <a href="javascript:void(0)"><p><span>reservation</span>예약하기</p><b><span></span></b></a>
+                        <div class="lnb">
+                            <a href="/reservation/main">실시간예약</a>
+                            <a href="/reservation/wait">대기예약</a>
+                            <a href="/reservation/check">예약확인</a>
+                            <a href="/reservation/schedule">예약일정표</a>
+                            <a href="/reservation/year-group">연단체 예약</a>
+                            <a href="/reservation/temporary-group">임의단체 예약</a>
+                            <a href="/reservation/group-check">단체예약확인</a>
+                        </div>
+                    </li>
+                    <li>
+                        <a href="javascript:void(0)"><p><span>facility</span>부대시설</p><b><span></span></b></a>
+                        <div class="lnb">
+                            &lt;!&ndash;<a href="/facility/facility01">클럽하우스</a>
+                            <a href="/facility/facility02">프로샵</a>
+                            <a href="/facility/facility03">그릴</a>
+                            <a href="/facility/facility04" class="on">락커룸/샤워실</a>
+                            <a href="/facility/facility05">그늘집</a>&ndash;&gt;
+                            <a href="javascript:alert('준비중입니다');">클럽하우스</a>
+                            <a href="javascript:alert('준비중입니다');" class="on">프로샵</a>
+                            <a href="javascript:alert('준비중입니다');">그릴</a>
+                            <a href="javascript:alert('준비중입니다');">락커룸/샤워실</a>
+                            <a href="javascript:alert('준비중입니다');">그늘집</a>
+                        </div>
+                    </li>
+                    <li>
+                        <a href="javascript:void(0)"><p><span>service</span>회원서비스</p><b><span></span></b></a>
+                        <div class="lnb">
+                            <a href="/service/board-member">회원게시판</a>
+                            <a href="/service/board-join">조인게시판</a>
+                            <a href="/service/score">스코어카드</a>
+                        </div>
+                    </li>
+                    <li>
+                        <a href="javascript:void(0)"><p><span>NEWS</span>클럽소식</p><b><span></span></b></a>
+                        <div class="lnb">
+                            <a href="/board/notice">공지사항</a>
+                            <a href="/board/ace">홀인원 상 현황</a>
+                            <a href="/board/honor">명예의 전당</a>
+                            <a href="/board/record">대회기록</a>
+                        </div>
+                    </li>
+                    <li>
+                        <a href="javascript:void(0)"><p><span>academy</span>용원골프아카데미</p><b><span></span></b></a>
+                        <div class="lnb">
+                            <a href="/academy/driving-range">골프연습장 소개</a>
+                            <a href="/academy/academy-fee">골프아카데미 요금</a>
+                            <a href="/academy/approach">어프로치장 이용안내</a>
+                            <a href="/academy/academy-facility">부대시설</a>
+                            <a href="/academy/instructor">아카데미강사 소개</a>
+                        </div>
+                    </li>-->
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <script>
+        new Lenis({ //스크롤지연 script
+            autoRaf: true,
+            duration: 1,
+            anchors: {offset: 0},
+        });
+
+        AOS.init({duration: 800, easing: 'ease'});
+        window.addEventListener('load', () => AOS.refresh());
+
+        $(document).ready(async function () {
+            renderPcMenu();
+            renderMobileMenu();
+            initPageHeader();
+
+            if (await isLoggedIn() && localStorage.getItem(TOKEN_KEY)) {
+                const member = await ajax.get("/api/member");
+                $(".login-container").show();
+                const noWaitDivisions = ["50", "60", "99"]
+                if( !noWaitDivisions.includes(member.division) ) {
+                    $(".wait-page").removeClass("hidden");
+                }
+            } else {
+                $(".logout-container").show();
+            }
+        });
+
+        function logout() {
+            ajax.logout().then(() => location.href = "/");
+        }
+    </script>
+
+<body>
+
+    <div class="container">
+        
+    <div class="breadcrumb">
+        <ul>
+            <li class="home">
+                <a href="/"><img src="/images/ic_home.svg" alt="홈"></a>
+            </li>
+            <li class="dropdown">
+                <button class="dropdown-btn" id="mainMenuBtn"><!--실시간예약--></button>
+                <ul class="dropdown-menu">
+                    <li><a href="/club/intro">클럽소개</a></li>
+                    <li><a href="/course/intro">코스소개</a></li>
+                    <li><a href="/guide/guide">이용안내</a></li>
+                    <li><a href="/reservation/main">실시간예약</a></li>
+                    <li><a href="javascript:alert('준비중입니다');">부대시설</a></li>
+                    <!--<li><a href="/facility/facility01">부대시설</a></li>-->
+                    <li><a href="/service/board-member">회원서비스</a></li>
+                    <li><a href="/board/notice">클럽소식</a></li>
+                    <li><a href="/academy/driving-range">용원골프아카데미</a></li>
+                </ul>
+            </li>
+            <li class="dropdown" id="subMenuDropdownLi" style="display:none;">
+                <button class="dropdown-btn"  id="subMenuBtn"><!--클럽소개--></button>
+                <ul     class="dropdown-menu" id="subMenuUl"></ul>
+            </li>
+        </ul>
+    </div>
+
+    <div class="common-tit">
+        <h4><!--reservation--></h4>
+        <h2><!--실시간예약--></h2>
+    </div>
+    <div class="common-tab-wrap" id="tabMenuArea"></div>
+
+
+        <div></div>
+
+        <div class="guide-tab">
+            <a href="/course/course01" class="">백로</a>
+            <a href="/course/course02" class="on">무학</a>
+            <a href="/course/course03" class="">백구</a>
+        </div>
+
+        <h2 class="title-bar">무학</h2>
+
+        <div class="hole-wrap">
+            <ul>
+                <li class="active"><span data-target="#hole1">HOLE1</span></li>
+                <li><span data-target="#hole2">HOLE2</span></li>
+                <li><span data-target="#hole3">HOLE3</span></li>
+                <li><span data-target="#hole4">HOLE4</span></li>
+                <li><span data-target="#hole5">HOLE5</span></li>
+                <li><span data-target="#hole6">HOLE6</span></li>
+                <li><span data-target="#hole7">HOLE7</span></li>
+                <li><span data-target="#hole8">HOLE8</span></li>
+                <li><span data-target="#hole9">HOLE9</span></li>
+            </ul>
+        </div>
+
+        <div class="hole-panels">
+            <div id="hole1" class="tab-panel active">
+                <div class="hole-info">
+                    <h1>1</h1>
+                    <h3>hole</h3>
+                    <p>par4</p>
+                </div>
+                <ul class="hole-info-wrap">
+                    <li>
+                        <table class="tbl-sty01">
+                            <colgroup>
+                                <col>
+                            </colgroup>
+                            <tbody>
+                            <tr>
+                                <th>PAR</th>
+                                <th class="bg-blue">BLUE</th>
+                                <th>WHITE</th>
+                                <th class="bg-red">RED</th>
+                            </tr>
+                            <tr>
+                                <td>4</td>
+                                <td>411</td>
+                                <td>391</td>
+                                <td>326</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </li>
+                    <li>
+                        <p class="hole-desc">
+                            위압감을 주는 홀. 새로운 기분으로 스윙궤도를 잘 정리하여 티샷부터 정확한 롱샷을 구사하여야 한다. 긴 원그린이므로 홀컵의 위치파악도 중요하다. 그린 뒤편에 신기루처럼 서 있는 큰 바위는 서부극의 한 장면을 연상하게 한다. 개척적인 정신의 지구력이 없으면 핸디캡을 남기기 쉽다.
+                        </p>
+                    </li>
+                </ul>
+                <div class="video-box">
+                    <video src="/api/open/video/mh01.mp4" controls playsinline muted autoplay loop></video>
+                </div>
+            </div>
+
+            <div id="hole2" class="tab-panel">
+                <div class="hole-info">
+                    <h1>2</h1>
+                    <h3>hole</h3>
+                    <p>par4</p>
+                </div>
+                <ul class="hole-info-wrap">
+                    <li>
+                        <table class="tbl-sty01">
+                            <colgroup>
+                                <col>
+                            </colgroup>
+                            <tbody>
+                            <tr>
+                                <th>PAR</th>
+                                <th class="bg-blue">BLUE</th>
+                                <th>WHITE</th>
+                                <th class="bg-red">RED</th>
+                            </tr>
+                            <tr>
+                                <td>4</td>
+                                <td>337</td>
+                                <td>318</td>
+                                <td>271</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </li>
+                    <li>
+                        <p class="hole-desc">
+                            부담없는 업힐의 페어웨이 IP로부터 보배산 마지막 줄렁을 감싸돌며 자연스럽게 도그렉을 이룬다. 왼쪽 벙커를 피하는 티샷이 중요하며 세컨 샷의 미들 아이언도 오른쪽 벙커를 조심해야 한다. 그린온이 될 때까지 방심하기 어려운 홀.
+                        </p>
+                    </li>
+                </ul>
+                <div class="video-box">
+                    <video data-src="/api/open/video/mh02.mp4" controls playsinline muted autoplay loop></video>
+                </div>
+            </div>
+
+            <div id="hole3" class="tab-panel">
+                <div class="hole-info">
+                    <h1>3</h1>
+                    <h3>hole</h3>
+                    <p>par3</p>
+                </div>
+                <ul class="hole-info-wrap">
+                    <li>
+                        <table class="tbl-sty01">
+                            <colgroup>
+                                <col>
+                            </colgroup>
+                            <tbody>
+                            <tr>
+                                <th>PAR</th>
+                                <th class="bg-blue">BLUE</th>
+                                <th>WHITE</th>
+                                <th class="bg-red">RED</th>
+                            </tr>
+                            <tr>
+                                <td>3</td>
+                                <td>172</td>
+                                <td>149</td>
+                                <td>116</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </li>
+                    <li>
+                        <p class="hole-desc">
+                            티잉그라운드에 서면 전코스와 바다를 한눈에 볼 수 있다. 여러 모양의 티잉그라운드와 스윙감각과의 한판 승부를 걸어보는 홀이다. 그린 앞뒤의 함정은 내려다보이는 곳에 위치하고 있어 쉽게 파악할 수 있다.
+                        </p>
+                    </li>
+                </ul>
+                <div class="video-box">
+                    <video data-src="/api/open/video/mh03.mp4" controls playsinline muted autoplay loop></video>
+                </div>
+            </div>
+
+            <div id="hole4" class="tab-panel">
+                <div class="hole-info">
+                    <h1>4</h1>
+                    <h3>hole</h3>
+                    <p>par5</p>
+                </div>
+                <ul class="hole-info-wrap">
+                    <li>
+                        <table class="tbl-sty01">
+                            <colgroup>
+                                <col>
+                            </colgroup>
+                            <tbody>
+                            <tr>
+                                <th>PAR</th>
+                                <th class="bg-blue">BLUE</th>
+                                <th>WHITE</th>
+                                <th class="bg-red">RED</th>
+                            </tr>
+                            <tr>
+                                <td>5</td>
+                                <td>520</td>
+                                <td>499</td>
+                                <td>410</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </li>
+                    <li>
+                        <p class="hole-desc">
+                            환상의 롱홀. 그러나 정작 공략하노라면 긴장감에 휩싸인다. 홀 길이 70%가 양쪽으로 절벽이며 수목으로 밀집되어 있는 자연지리. 그 배경이 매우 아름답지만 공략을 위해서는 고도의 기술과 작전이 필요하다. 우선 거리표시목을 잘 살펴보고 세컨샷과 써드샷에 어떤 클럽을 사용할 것인지부터 잘 생각하고 플레이하는 것이 유리하다.
+                        </p>
+                    </li>
+                </ul>
+                <div class="video-box">
+                    <video data-src="/api/open/video/mh04.mp4" controls playsinline muted autoplay loop></video>
+                </div>
+            </div>
+
+            <div id="hole5" class="tab-panel">
+                <div class="hole-info">
+                    <h1>5</h1>
+                    <h3>hole</h3>
+                    <p>par3</p>
+                </div>
+                <ul class="hole-info-wrap">
+                    <li>
+                        <table class="tbl-sty01">
+                            <colgroup>
+                                <col>
+                            </colgroup>
+                            <tbody>
+                            <tr>
+                                <th>PAR</th>
+                                <th class="bg-blue">BLUE</th>
+                                <th>WHITE</th>
+                                <th class="bg-red">RED</th>
+                            </tr>
+                            <tr>
+                                <td>3</td>
+                                <td>158</td>
+                                <td>138</td>
+                                <td>125</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </li>
+                    <li>
+                        <p class="hole-desc">
+                            자연과의 심오한 싸움이 될 것이다. 수려한 자연계곡 사이로 오묘하게 페어웨이가 내려다 보인다. 그러나 멋있어 보이는 벙커일수록 조심해아 하는 법. 뒷면 그린 사이의 큰 마운드가 희비쌍곡선이 될 수도 있다. 계곡 입구 산장처럼 아늑한 티 하우스에서 잠시 휴식을.
+                        </p>
+                    </li>
+                </ul>
+                <div class="video-box">
+                    <video data-src="/api/open/video/mh05.mp4" controls playsinline muted autoplay loop></video>
+                </div>
+            </div>
+
+            <div id="hole6" class="tab-panel">
+                <div class="hole-info">
+                    <h1>6</h1>
+                    <h3>hole</h3>
+                    <p>par4</p>
+                </div>
+                <ul class="hole-info-wrap">
+                    <li>
+                        <table class="tbl-sty01">
+                            <colgroup>
+                                <col>
+                            </colgroup>
+                            <tbody>
+                            <tr>
+                                <th>PAR</th>
+                                <th class="bg-blue">BLUE</th>
+                                <th>WHITE</th>
+                                <th class="bg-red">RED</th>
+                            </tr>
+                            <tr>
+                                <td>4</td>
+                                <td>360</td>
+                                <td>340</td>
+                                <td>276</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </li>
+                    <li>
+                        <p class="hole-desc">
+                            홀 왼쪽은 호수가 있고 약간의 업힐이 다가온다. IP반경 35m 부근은 넓은 페어웨이이므로 티샷을 우선 멀리 보내는 타법이 필요하다. 그린 주변의 벙커 위치를 잘 파악한 후 세컨샷을 공격적으로 구사하자.
+                        </p>
+                    </li>
+                </ul>
+                <div class="video-box">
+                    <video data-src="/api/open/video/mh06.mp4" controls playsinline muted autoplay loop></video>
+                </div>
+            </div>
+
+            <div id="hole7" class="tab-panel">
+                <div class="hole-info">
+                    <h1>7</h1>
+                    <h3>hole</h3>
+                    <p>par4</p>
+                </div>
+                <ul class="hole-info-wrap">
+                    <li>
+                        <table class="tbl-sty01">
+                            <colgroup>
+                                <col>
+                            </colgroup>
+                            <tbody>
+                            <tr>
+                                <th>PAR</th>
+                                <th class="bg-blue">BLUE</th>
+                                <th>WHITE</th>
+                                <th class="bg-red">RED</th>
+                            </tr>
+                            <tr>
+                                <td>4</td>
+                                <td>295</td>
+                                <td>283</td>
+                                <td>259</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </li>
+                    <li>
+                        <p class="hole-desc">
+                            모처럼 자신감을 가져보는 홀. 대체로 평탄한 코스이므로 자신있게 플레이를 할 수 있다. 다만 벙커의 유혹이 도사리고 있으니 조심할 것. 하지만 편안하게 세컨샷을 시도하며 스윙감각을 점검해본다.
+                        </p>
+                    </li>
+                </ul>
+                <div class="video-box">
+                    <video data-src="/api/open/video/mh07.mp4" controls playsinline muted autoplay loop></video>
+                </div>
+            </div>
+
+            <div id="hole8" class="tab-panel">
+                <div class="hole-info">
+                    <h1>8</h1>
+                    <h3>hole</h3>
+                    <p>par5</p>
+                </div>
+                <ul class="hole-info-wrap">
+                    <li>
+                        <table class="tbl-sty01">
+                            <colgroup>
+                                <col>
+                            </colgroup>
+                            <tbody>
+                            <tr>
+                                <th>PAR</th>
+                                <th class="bg-blue">BLUE</th>
+                                <th>WHITE</th>
+                                <th class="bg-red">RED</th>
+                            </tr>
+                            <tr>
+                                <td>5</td>
+                                <td>600</td>
+                                <td>581</td>
+                                <td>438</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </li>
+                    <li>
+                        <p class="hole-desc">
+                            막혀있던 물이 일시에 터지는 기분으로 티샷을 과감하게 장타로 날려 보내자. 좁고 긴 티잉그라운드에 반해 거리가 제일 긴 롱홀이기 때문이다. IP를 중심으로 오른쪽 도그렉을 따라 질러가는 전략도 필요하다. 방향감각과의 신경전이 필요한 홀.
+                        </p>
+                    </li>
+                </ul>
+                <div class="video-box">
+                    <video data-src="/api/open/video/mh08.mp4" controls playsinline muted autoplay loop></video>
+                </div>
+            </div>
+
+            <div id="hole9" class="tab-panel">
+                <div class="hole-info">
+                    <h1>9</h1>
+                    <h3>hole</h3>
+                    <p>par4</p>
+                </div>
+                <ul class="hole-info-wrap">
+                    <li>
+                        <table class="tbl-sty01">
+                            <colgroup>
+                                <col>
+                            </colgroup>
+                            <tbody>
+                            <tr>
+                                <th>PAR</th>
+                                <th class="bg-blue">BLUE</th>
+                                <th>WHITE</th>
+                                <th class="bg-red">RED</th>
+                            </tr>
+                            <tr>
+                                <td>4</td>
+                                <td>334</td>
+                                <td>307</td>
+                                <td>264</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </li>
+                    <li>
+                        <p class="hole-desc">
+                            도전적인 홀이다. 내리막 상황을 잘 이용하여 우선 페어웨이 중간의 연못과 벙커를 넘겨놓아야 한다. 그러나 중간에 장애물이 위치하고 있으므로 특별히 신경을 쓰지 않으면 빈번히 재도전의 한을 남기게 될 것이다.
+                        </p>
+                    </li>
+                </ul>
+                <div class="video-box">
+                    <video data-src="/api/open/video/mh09.mp4" controls playsinline muted autoplay loop></video>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $(function () {
+            $(function () {
+                const $wrap = $('.hole-wrap');
+
+                $('.hole-wrap ul li span').on('click', function () {
+                    const $this = $(this);
+                    const target = $this.data('target');
+                    const $li = $this.parent();
+
+                    $('.tab-panel video').each(function() {
+                        this.pause();
+                    });
+
+                    $li.addClass('active').siblings().removeClass('active');
+                    $('.tab-panel').removeClass('active');
+                    const $activePanel = $(target);
+                    $activePanel.addClass('active');
+
+                    console.log("$activePanel >>> ", $activePanel)
+                    const $video = $activePanel.find('video');
+                    console.log("$video.attr('src') >>> ", $video.attr('src'))
+                    if ($video.length > 0) {
+                        if (!$video.data('loaded')) {
+                            const dataSrc = $video.data('src');
+                            if (dataSrc) {
+                                $video.attr('src', dataSrc);
+                                $video[0].load();
+                                $video.data('loaded', true); // 🔒 로딩 완료 플래그
+                            }
+                        }
+
+                        // $video[0].load();
+                        // 비디오 로드가 준비된 후 재생 시도
+                        $video[0].play().catch(e => console.log("재생 대기 중..."));
+                    }
+
+                    // 중앙 정렬 스크롤 이동
+                    const liOffset = $li.position().left;
+                    const liWidth = $li.outerWidth();
+                    const wrapWidth = $wrap.width();
+                    const currentScroll = $wrap.scrollLeft();
+                    const newScroll = currentScroll + liOffset - (wrapWidth / 2 - liWidth / 2);
+                    $wrap.stop().animate({scrollLeft: newScroll}, 250);
+                });
+            });
+        });
+    </script>
+
+</body>
+
+<aside>
+    
+    <div class="footer-menu">
+        <a href="/member/login" class="logout-container" style="display: none">
+            <img src="/images/ic_ft_menu01.svg">
+            로그인
+        </a>
+        <a href="javascript:logout()" class="login-container" style="display: none">
+            <img src="/images/ic_ft_menu01.svg">
+            로그아웃
+        </a>
+        <a href="/reservation/main">
+            <img src="/images/ic_ft_menu02.svg">
+            예약
+        </a>
+        <a href="/board/notice">
+            <img src="/images/ic_ft_menu03.svg">
+            공지사항
+        </a>
+        <a href="/reservation/schedule">
+            <img src="/images/ic_ft_menu04.svg">
+            예약일정
+        </a>
+    </div>
+
+</aside>
+
+
+    <footer>
+        
+    <div class="footer-menu">
+        <a href="/member/login" class="logout-container" style="display: none">
+            <img src="/images/ic_ft_menu01.svg">
+            로그인
+        </a>
+        <a href="javascript:logout()" class="login-container" style="display: none">
+            <img src="/images/ic_ft_menu01.svg">
+            로그아웃
+        </a>
+        <a href="/reservation/main">
+            <img src="/images/ic_ft_menu02.svg">
+            예약
+        </a>
+        <a href="/board/notice">
+            <img src="/images/ic_ft_menu03.svg">
+            공지사항
+        </a>
+        <a href="/reservation/schedule">
+            <img src="/images/ic_ft_menu04.svg">
+            예약일정
+        </a>
+    </div>
+
+
+        <h1>footer logo</h1>
+        <p class="phone">055-552-0080</p>
+        <address>
+            회사명 : 용원GC&emsp;대표자 : 김해년&emsp;사업자등록번호 : 609-81-13693&emsp;통신판매신고 : 제 2009-경남 진해-0034<br>
+            경상남도 창원시 진해구 가주로 133&emsp;대표전화 : 055-552-0080&emsp;팩스번호 : 055-552-2807
+        </address>
+        <ul class="footer-bottom">
+            <li>COPYRIGHT (C) Yongwon Golf Club ALL RIGHT RESERVED.</li>
+            <li class="footer-links">
+                <a href="/policy/terms">회칙 및 이용약관</a>
+                <a href="/policy/privacy">개인정보처리방침</a>
+                <a href="/policy/email">이메일무단수집거부</a>
+                <a href="/policy/video">영상정보처리방침</a>
+            </li>
+            <li class="scroll-top">
+                <a href="#">
+                    <img src="/images/ic_top.svg">
+                    Top
+                </a>
+            </li>
+        </ul>
+    </footer>
+
+</html>

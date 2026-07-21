@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+    <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <meta name="format-detection" content="telephone=no">
+        <title>라싸GC</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+        <script src="/js/jquery.min.js"></script>
+        <script src="/js/const.js"></script>
+        <script src="/js/utils/ajax.js?v=1"></script>
+        <script src="/js/utils/common.js"></script>
+        <script src="/js/utils/date.js"></script>
+        <script src="/js/utils/popup.js"></script>
+        <script src="/js/utils/string.js"></script>
+        <script src="/js/utils/template.js"></script>
+        <script src="/js/jquery.preloaders.js"></script>
+        <script src="/pc/js/view.js"></script>
+        <script src="/pc/js/swiper.js"></script>
+        <script src="/pc/js/aos.js"></script>
+        <!--<script src="/pc/js/smoothscroll.js"></script>-->
+        <script src="/js/jquery.rwdImageMaps.min.js"></script><!-- image map -->
+        <link rel="stylesheet" href="/css/common.css" type="text/css">
+        <link rel="stylesheet" href="/css/swiper.css" type="text/css">
+        <link rel="stylesheet" href="/css/layout.css" type="text/css">
+        <link rel="stylesheet" href="/css/contents.css" type="text/css">
+        <link rel="stylesheet" href="/css/contents_m.css" type="text/css">
+        <link rel="stylesheet" href="/css/aos.css" type="text/css">
+        <link rel="icon" href="/images/favicon.ico">
+        <link rel="stylesheet" href="https://unpkg.com/lenis@1.3.8/dist/lenis.css">
+        <script src="https://unpkg.com/lenis@1.3.8/dist/lenis.min.js"></script>
+    </head>
+
+    <header class="pc">
+        <div class="nav-area">
+            <div class="top-left">
+                <script>
+                    $(document).ready(function () {
+                        $.ajax("/api/open/common/weather").done((data) => {
+                            $("p.weather-area").html(`포천시 이동면<em></em>${data.temp}º ${data.wfKor}<em></em><img src="/images/weather/${data.wfEn.replaceAll("/", "&")}.svg">`)
+                        })
+                    });
+                </script>
+                <p class="weather-area"></p>
+                <a href="/" class="logo-area"><img src="/images/logo.svg"></a>
+            </div>
+            <div class="top-right">
+                <a href="/"><img src="/images/ic_reservation.svg"></a>
+            </div>
+        </div>
+        <!--메뉴-->
+        <nav>
+            <ul class="nav-menu">
+                <li class="gnb"><a href="/reservation/main">예약안내</a></li>
+                <li class="gnb"><a href="/club/intro">클럽안내</a></li>
+                <li class="gnb"><a href="/course/intro">코스안내</a></li>
+                <li class="gnb"><a href="/board/notice">클럽소식</a></li>
+                <li class="gnb"><a href="/mypage/check">마이페이지</a></li>
+            </ul>
+        </nav>
+        <div class="lnb">
+            <div class="lnb-area">
+                <div class="btn-lnb-area login-container" style="display: none">
+                    <a href="javascript:logout()" class="on">로그아웃</a>
+                    <a href="/mypage/check">마이페이지</a>
+                </div>
+                <div class="btn-lnb-area logout-container" style="display: none">
+                    <a href="/member/login" class="on">로그인</a>
+                    <a href="/member/terms">회원가입</a>
+                </div>
+                <div class="lnb-box">
+                    <ul>
+                        <li><h3>예약안내</h3></li>
+                        <li><a href="/reservation/main">실시간예약</a></li>
+                        <li><a href="/reservation/guide">이용안내</a></li>
+                        <li><a href="/reservation/fee">이용요금</a></li>
+                    </ul>
+                    <ul>
+                        <li><h3>클럽안내</h3></li>
+                        <li><a href="/club/intro">클럽소개</a></li>
+                        <li><a href="/club/facil01">부대시설</a></li>
+                        <li><a href="/club/map">오시는길</a></li>
+                    </ul>
+                    <ul>
+                        <li><h3>코스안내</h3></li>
+                        <li><a href="/course/intro">코스소개</a></li>
+                        <li><a href="/course/mountain">마운틴</a></li>
+                        <li><a href="/course/lake">레이크</a></li>
+                        <li><a href="/course/valley">밸리</a></li>
+                    </ul>
+                    <ul>
+                        <li><h3>클럽소식</h3></li>
+                        <li><a href="/board/notice">공지사항</a></li>
+                        <li><a href="/board/event">이벤트</a></li>
+                        <li><a href="/board/honor">영광의순간</a></li>
+                        <li><a href="/board/voc-list">고객의소리</a></li>
+                    </ul>
+                    <ul>
+                        <li><h3>마이페이지</h3></li>
+                        <li><a href="/mypage/check">예약확인</a></li>
+                        <li><a href="/mypage/coupon">쿠폰조회</a></li>
+                        <li><a href="/mypage/mypage">정보수정</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="menu-bg"></div>
+        <!--//메뉴-->
+    </header>
+    <header class="mobile">
+        <div class="top-left">
+            <p class="weather-area">21.6º 맑음<em></em><img src="/images/weather/Clear.svg"></p>
+            <a href="/" class="logo-area"><img src="/images/logo.svg"></a>
+        </div>
+        <div class="top-right">
+            <a href="/reservation/main"><img src="/images/ic_reservation.svg"></a>
+        </div>
+        <input type="checkbox" id="toggleNav"/>
+        <label class="toggle-btn" for="toggleNav" id="toggleTop">
+            <span></span>
+            <span></span>
+            <span></span>
+        </label>
+        <nav>
+            <div class="nav-box">
+                <div class="nav-header">
+                    <div class="logo">
+                        <a href="/"><img src="/images/logo.svg"></a>
+                    </div>
+                    <!--로그인전-->
+                    <div class="menu-login logout-container" style="display: none">
+                        <a href="/member/login" class="login">로그인</a>
+                        <a href="/member/terms">회원가입</a>
+                    </div>
+                    <!--로그인후-->
+                    <div class="menu-login login-container" style="display: none">
+                        <a href="javascript:logout()" class="login">로그아웃</a>
+                        <a href="/mypage/check" class="mypage">마이페이지</a>
+                    </div>
+                </div>
+                <ul class="menu-list">
+                    <li>
+                        <a href="javascript:void(0)"><p><span>reservation</span>예약안내</p><b><span></span></b></a>
+                        <div class="lnb">
+                            <a href="/reservation/main">실시간예약</a>
+                            <a href="/reservation/guide">이용안내</a>
+                            <a href="/reservation/fee">이용요금</a>
+                        </div>
+                    </li>
+                    <li>
+                        <a href="javascript:void(0)"><p><span>CLUB</span>클럽소개</p><b><span></span></b></a>
+                        <div class="lnb">
+                            <a href="/club/intro">클럽소개</a>
+                            <a href="/club/facil01">부대시설</a>
+                            <a href="/club/map">오시는길</a>
+                        </div>
+                    </li>
+                    <li>
+                        <a href="javascript:void(0)"><p><span>COURSE</span>코스안내</p><b><span></span></b></a>
+                        <div class="lnb">
+                            <a href="/course/intro">코스소개</a>
+                            <a href="/course/mountain">마운틴</a>
+                            <a href="/course/lake">레이크</a>
+                            <a href="/course/valley">밸리</a>
+                        </div>
+                    </li>
+                    <li>
+                        <a href="javascript:void(0)"><p><span>NEWS</span>클럽소식</p><b><span></span></b></a>
+                        <div class="lnb">
+                            <a href="/board/notice">공지사항</a>
+                            <a href="/board/event">이벤트</a>
+                            <a href="/board/honor">영광의순간</a>
+                            <a href="/board/voc-list">고객의소리</a>
+                        </div>
+                    </li>
+                    <li>
+                        <a href="javascript:void(0)"><p><span>MY PAGE</span>마이페이지</p><b><span></span></b></a>
+                        <div class="lnb">
+                            <a href="/mypage/check">예약확인</a>
+                            <a href="/mypage/coupon">쿠폰조회</a>
+                            <a href="/mypage/mypage">정보수정</a>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <script>
+        new Lenis({ //스크롤지연 script
+            autoRaf: true,
+            duration: 2,
+            anchors: { offset: 0 },
+        });
+
+        AOS.init({ duration: 800, easing: 'ease' });
+        window.addEventListener('load', () => AOS.refresh());
+
+        $(document).ready(async function () {
+            const memberId = null;
+            if (memberId) {
+                $(".login-container").show();
+            } else {
+                $(".logout-container").show();
+            }
+        });
+
+        function logout() {
+            ajax.post("/api/member/logout").then(() => {
+                location.href = "/";
+            });
+        }
+    </script>
+
+<body>
+
+    <link rel="stylesheet" href="/css/main.css" type="text/css">
+    <main>
+        <section class="main-area">
+            <!--연단체팝업임시-->
+            <!--<div class="mini-pop">
+                <a href="/board/view/292"><img src="https://www.lassagc.com/api/open/file/uploads/20251125/5a232bdf-760f-4875-97a8-19deca340992.jpg"></a>
+            </div>-->
+            <!--연단체팝업임시-->
+            <div class="swiper main-swiper">
+                <div class="swiper-wrapper">
+                    <div class="swiper-slide bg1"></div>
+                    <div class="swiper-slide bg2"></div>
+                    <div class="swiper-slide bg3"></div>
+                </div>
+                <div class="main-swiper-nav">
+                    <div class="swiper-btn-prev"><img src="/images/ic_m_l.svg"></div>
+                    <div class="swiper-pagination"></div>
+                    <div class="swiper-btn-next"><img src="/images/ic_m_r.svg"></div>
+                </div>
+            </div>
+
+            <!--달력-->
+            <div class="main-calendar-wrap">
+                <!--pannel 부분 펼쳐져 있어야됨. 날짜 클릭하면 예약날짜 선택부분에 날짜 들어간후 버튼 누르면 예약화면으로 넘어가야됨.-->
+                <div class="calendar-panel">
+                    <div class="main-calendar-box">
+                        <div class="calendar-top">
+                            <button type="button" class="left" data-add="-1">◀</button>
+                            <h2 class="calendar-tit"></h2>
+                            <button type="button" class="right auto-hide-arrow" data-add="1">▶</button>
+                        </div>
+                        <table>
+                            <colgroup>
+                                <col>
+                            </colgroup>
+                            <thead>
+                            <tr>
+                                <th>일</th>
+                                <th>월</th>
+                                <th>화</th>
+                                <th>수</th>
+                                <th>목</th>
+                                <th>금</th>
+                                <th>토</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="main-calendar-box">
+                        <div class="calendar-top">
+                            <button type="button" class="left auto-hide-arrow" data-add="-1">◀</button>
+                            <h2 class="calendar-tit"></h2>
+                            <button type="button" class="right" data-add="1">▶</button>
+                        </div>
+                        <table>
+                            <colgroup>
+                                <col>
+                            </colgroup>
+                            <thead>
+                            <tr>
+                                <th>일</th>
+                                <th>월</th>
+                                <th>화</th>
+                                <th>수</th>
+                                <th>목</th>
+                                <th>금</th>
+                                <th>토</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="btn-calendar-wrap">
+                    <button type="button" class="btn-select-day">
+                        <img src="/images/ic_calendar.svg">
+                        <div>예약날짜를 선택해 주세요.</div>
+                    </button>
+                    <button type="button" class="btn-move-reser">
+                        예약하기 ↗
+                    </button>
+                </div>
+            </div>
+        </section>
+        <section class="m-notice-area">
+            <div class="main-title-area" data-aos="fade-up">
+                <h4>LASSA</h4>
+                <h2>
+                    라싸GC 소식
+                    <b>최신 소식을 알려 드립니다.</b>
+                </h2>
+            </div>
+
+            <div class="m-event-slider">
+                <div class="swiper event-swiper">
+                    <div class="swiper-wrapper">
+                    </div>
+                </div>
+                <div class="swiper-scrollbar"></div>
+            </div>
+        </section>
+        <section class="m-bn-area">
+            <ul>
+                <li>
+                    <h2 data-aos="fade-up">User Guide</h2>
+                    <p data-aos="fade-up" data-aos-delay="50">격조높은 분위기의 라싸 골프클럽에서<br>특별한 서비스를 느껴보십시오.</p>
+                    <a data-aos="fade-up" data-aos-delay="100" href="/reservation/guide"><span>VIEW</span></a>
+                </li>
+                <li>
+                    <h2 data-aos="fade-up" data-aos-delay="150">COURSE</h2>
+                    <p data-aos="fade-up" data-aos-delay="200">품격있는 코스로 즐거운 추억과 감동을<br> 선사해드립니다.</p>
+                    <a data-aos="fade-up" data-aos-delay="250" href="/course/intro"><span>VIEW</span></a>
+                </li>
+            </ul>
+        </section>
+        <section class="m-course-area">
+            <ul>
+                <li>
+                    <div class="main-title-area" data-aos="fade-up">
+                        <h4>COURSE</h4>
+                        <h2>Mountain COURSE</h2>
+                        <p>전체 27홀 중 가장 높은 지역인 해발 370미터 지대에 분포되며 페어웨이 좌우로 20미터를 넘는 키의 울창한 자연림이 펼쳐진 홀들은 전형적인 Forest
+                            Course의 특성을 보인다.</p>
+                    </div>
+                    <a href="/course/mountain"><img src="/images/ic_course_arw.svg"></a>
+                </li>
+                <li>
+                    <figure><img src="/images/img_course_01.jpg"></figure>
+                </li>
+            </ul>
+            <ul class="reverse">
+                <li>
+                    <figure><img src="/images/img_course_02.jpg"></figure>
+                </li>
+                <li>
+                    <div class="main-title-area" data-aos="fade-up">
+                        <h4>COURSE</h4>
+                        <h2>LAKE COURSE</h2>
+                        <p>가장 낮은 지역인 해발 270미터 지대에 분포되며 9개홀 중 7개 홀이 3개의 커다란 Lake와 접하는 코스이다.</p>
+                    </div>
+                    <a href="/course/lake"><img src="/images/ic_course_arw.svg"></a>
+                </li>
+            </ul>
+            <ul>
+                <li>
+                    <div class="main-title-area" data-aos="fade-up">
+                        <h4>COURSE</h4>
+                        <h2>Valley Course</h2>
+                        <p>해발 300미터 지대에 분포되며 민둥산에서 흘러내리는 자연 골짜기들은 코스 곳곳에서 플레이 선을 가로지르며 특히 깊고 웅장한 불당계곡을 끼고있는 2번홀과 3번 홀은
+                            극적인 경관과 짜릿한 공략성을 자랑하는 시그니처 홀이다.</p>
+                    </div>
+                    <a href="/course/valley"><img src="/images/ic_course_arw.svg"></a>
+                </li>
+                <li>
+                    <figure><img src="/images/img_course_03.jpg"></figure>
+                </li>
+            </ul>
+        </section>
+        <section class="m-map">
+            <div class="map-area">
+                <div id="daumRoughmapContainer1755500005003"
+                     class="root_daum_roughmap root_daum_roughmap_landing"></div>
+                <script charset="UTF-8" class="daum_roughmap_loader_script"
+                        src="https://ssl.daumcdn.net/dmaps/map_js_init/roughmapLoader.js"></script>
+                <script charset="UTF-8">
+                    new daum.roughmap.Lander({
+                        "timestamp": "1755500005003",
+                        "key": "77xis9mngu3",
+                    }).render();
+                </script>
+                <div class="map-info">
+                    <h1>LOCATION</h1>
+                    <h2>라싸 컨트리클럽</h2>
+                    <p>
+                        경기도 포천시 이동면 제비울2길 161<br>
+                        대표전화 031)538-0600
+                    </p>
+                    <a href="/club/map">VIEW MORE</a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        let targetDate = new Date().toKoreanTime();
+        let selectedDate;
+
+        $(document).ready(function () {
+            initMainBoard();
+
+            initSwiper();
+
+            initCalendar();
+        });
+
+        async function initMainBoard() {
+            const moveToDetail = (item) => {
+                location.href = `/board/${item.type === "4" ? "event-" : ""}view/${item.index}`;
+            }
+
+            const moveBanner = (item) => {
+                if (item.link) {
+                    const url = item.link.startsWith("http") ? item.link : "https://" + item.link;
+                    window.open(url, "_blank");
+                } else {
+                    moveToDetail(item);
+                }
+            }
+
+            const boards = await ajax.get("/api/open/board/main");
+            const news = boards
+                .filter((d) => d.isMainNews === "Y")
+                .sort((a, b) => a.mainNewsSort - b.mainNewsSort);
+
+            const mainPopup = boards
+                .filter((d) => d.isMainPopup === "Y")
+                .sort((a, b) => a.mainPopupSort - b.mainPopupSort);
+
+            news.forEach((item) => {
+                let path = "/images/img_board_default.jpg";
+                if (item.fileName1) {
+                    path = `/api/open/file${item.filePath1}/${item.fileName1}`;
+                }
+
+                const $item = $(`<div class="swiper-slide"><a href="javascript:void(0)"><img src="${path}"></a></div>`);
+
+                $item.on("click", function () {
+                    moveBanner(item);
+                });
+
+                $(".event-swiper > .swiper-wrapper").append($item);
+            })
+
+            if (getCookie("main-popup") !== "Y" && mainPopup.length > 0) {
+                popup.open("/popup/main-popup.html", function ($el, open, close) {
+                    mainPopup.forEach((item) => {
+                        let path = "/images/img_board_default.jpg";
+                        if (item.fileName1) {
+                            path = `/api/open/file${item.filePath1}/${item.fileName1}`;
+                        }
+
+                        const $item = $(`<div class="swiper-slide"><a href="javascript:void(0)"><img src="${path}"></a></div>`);
+
+                        $item.on("click", function () {
+                            moveToDetail(item);
+                        });
+
+                        $el.find(".pop-swiper > .swiper-wrapper").append($item);
+                    });
+
+                    $el.find(".btn-pop-close").on("click", function () {
+                        setCookie("main-popup", "Y", 1);
+                        close();
+                    });
+
+                    open();
+                });
+            }
+        }
+
+        function initSwiper() {
+            // 메인
+            new Swiper('.main-swiper', {
+                loop: true,
+                effect: 'fade',
+                fadeEffect: {crossFade: true},
+                speed: 1000,
+                autoplay: {
+                    delay: 4000,
+                    disableOnInteraction: false
+                },
+                allowTouchMove: false,
+                navigation: {
+                    nextEl: ".swiper-btn-next",
+                    prevEl: ".swiper-btn-prev",
+                },
+                pagination: {
+                    el: ".swiper-pagination",
+                    clickable: true,
+                },
+            });
+
+            // 이벤트
+            new Swiper('.event-swiper', {
+                spaceBetween: 8,
+                slidesPerView: 1,
+                centeredSlides: true,
+                loop: false,
+                speed: 1000,
+                autoplay: {
+                    delay: 4000,
+                    disableOnInteraction: false
+                },
+                allowTouchMove: true,
+                scrollbar: {
+                    el: '.m-event-slider .swiper-scrollbar',
+                    draggable: true,
+                    hide: false
+                },
+                breakpoints: {
+                    420: {
+                        spaceBetween: 8,
+                        slidesPerView: 2,
+                        centeredSlides: false,
+                    },
+                    768: {
+                        spaceBetween: 18,
+                        slidesPerView: 3,
+                        centeredSlides: false,
+                    },
+                    1200: {
+                        spaceBetween: 34,
+                        slidesPerView: 4,
+                        centeredSlides: false,
+                    }
+                },
+            });
+        }
+
+        async function initCalendar() {
+            const [$calendar1, $calendar2] = [
+                $(".main-calendar-box").eq(0),
+                $(".main-calendar-box").eq(1)
+            ];
+
+            const nextTargetDate = targetDate.nextMonth(1)
+
+            $calendar1.find("h2.calendar-tit").html(`${targetDate.yyyy()}.${targetDate.mm()}`);
+            $calendar2.find("h2.calendar-tit").html(`${nextTargetDate.yyyy()}.${nextTargetDate.mm()}`);
+
+            $(".calendar-top > button")
+                .off("click")
+                .on("click", (e) => {
+                    const addValue = Number($(e.currentTarget).data("add"));
+                    targetDate = targetDate.nextMonth(addValue);
+                    initCalendar();
+                });
+
+            $(".btn-calendar-wrap > button").eq(1).on("click", (e) => {
+                if (!selectedDate) {
+                    alert("예약일을 선택해주세요.");
+                    return;
+                }
+
+                location.href = `/reservation/main/${selectedDate}`;
+            });
+
+            await Promise.all([
+                getCalendar($calendar1, targetDate.yyyymm()),
+                getCalendar($calendar2, nextTargetDate.yyyymm())
+            ]);
+        }
+
+        async function getCalendar($calendar, yearMonth) {
+            const $tbody = $calendar.find("tbody")
+            $tbody.empty();
+
+            ajax.get("/api/open/booking/calendar", {yearMonth}).then((calendar) => {
+                if (calendar.length === 0) return;
+
+                const today = new Date().toKoreanTime();
+
+                let $tr = $("<tr></tr>");
+
+                for (let i = 0; i < Number(calendar[0].dayOfWeek) - 1; i++) {
+                    $tr.append("<td></td>");
+                }
+
+                calendar.forEach((data) => {
+                    const $td = $(`<td>${data.date.substring(6, 8)}</td>`);
+
+                    if (data.dayType === "4") {
+                        $td.addClass("holiday");
+                    }
+
+                    if (selectedDate === data.date) {
+                        $td.addClass("choice");
+                    }
+
+                    if (data.openDateTime?.toDateTime() <= today && today.yyyymmdd() <= data.date) {
+                        if (data.teamCount > 0) {
+                            $td.addClass("possible");
+
+                            $td.on("click", function () {
+                                selectedDate = data.date;
+
+                                $(".calendar-panel td").removeClass("choice");
+                                $(this).addClass("choice");
+
+                                $(".btn-calendar-wrap > button > div").html(`${selectedDate.toDateStringFormat()} (${data.date.toDate().weekName()})`)
+                                $(".btn-move-reser").trigger("click");
+                            });
+                        } else {
+                            $td.addClass("impossible");
+                        }
+                    }
+
+                    $tr.append($td);
+
+                    if ($tr.children("td").length === 7) {
+                        $tbody.append($tr);
+                        $tr = $("<tr></tr>");
+                    }
+                });
+
+                const tdCount = $tr.children("td").length;
+                if (tdCount > 0) {
+                    for (let i = 0; i < 7 - tdCount; i++) {
+                        $tr.append("<td></td>");
+                    }
+
+                    $tbody.append($tr);
+                }
+            });
+        }
+    </script>
+
+</body>
+
+<aside>
+    
+    <div class="footer-menu">
+        <a href="/board/notice">
+            <img src="/images/ic_ft_menu01.svg">
+            공지사항
+        </a>
+        <a href="https://www.weather.go.kr/w/weather/forecast/short-term.do" target="_blank">
+            <img src="/images/ic_ft_menu02.svg">
+            일기예보
+        </a>
+        <a href="/mypage/check">
+            <img src="/images/ic_ft_menu03.svg">
+            예약확인
+        </a>
+        <a href="/reservation/main">
+            <img src="/images/ic_ft_menu04.svg">
+            예약하기
+        </a>
+        <a href="/member/login" class="logout-container" style="display: none">
+            <img src="/images/ic_ft_menu05.svg">
+            로그인
+        </a>
+        <a href="javascript:logout()" class="login-container" style="display: none">
+            <img src="/images/ic_ft_menu06.svg">
+            로그아웃
+        </a>
+    </div>
+
+</aside>
+
+
+    <footer>
+        
+    <div class="footer-menu">
+        <a href="/board/notice">
+            <img src="/images/ic_ft_menu01.svg">
+            공지사항
+        </a>
+        <a href="https://www.weather.go.kr/w/weather/forecast/short-term.do" target="_blank">
+            <img src="/images/ic_ft_menu02.svg">
+            일기예보
+        </a>
+        <a href="/mypage/check">
+            <img src="/images/ic_ft_menu03.svg">
+            예약확인
+        </a>
+        <a href="/reservation/main">
+            <img src="/images/ic_ft_menu04.svg">
+            예약하기
+        </a>
+        <a href="/member/login" class="logout-container" style="display: none">
+            <img src="/images/ic_ft_menu05.svg">
+            로그인
+        </a>
+        <a href="javascript:logout()" class="login-container" style="display: none">
+            <img src="/images/ic_ft_menu06.svg">
+            로그아웃
+        </a>
+    </div>
+
+
+        <h1>footer logo</h1>
+        <p class="phone">031-538-0600</p>
+        <address>
+            회사명 : 라싸디벨로프먼트&emsp;대표자 : 양창모&emsp;사업자등록번호 : 127-86-23923&emsp;통신판매신고 : 제 2020-경기포천-0311호<br>
+            경기도 포천시 이동면 제비울2길 161&emsp;대표전화 : 031-538-0600&emsp;팩스번호 : 031-538-0679
+        </address>
+        <ul class="sns-box">
+            <li><a href="https://www.youtube.com/channel/UCmMCBmqpaJ330e2uAPmnY9A/" target="_blank"><img src="/images/ic_youtube.svg" alt="유투브"></a></li>
+            <li><a href="https://www.instagram.com/lassa_golf_club/" target="_blank"><img src="/images/ic_instagram.svg" alt="인스타그램"></a></li>
+            <li><a href="http://pf.kakao.com/_PUxgwxb" target="_blank"><img src="/images/ic_kakaotalk.svg" alt="카카오톡"></a></li>
+        </ul>
+        <ul class="footer-bottom">
+            <li>COPYRIGHT (C) LASSA GOLF CLUB ALL RIGHT RESERVED.</li>
+            <li class="footer-links">
+                <a href="/reservation/terms">이용약관</a>
+                <a href="/policy/privacy">개인정보처리방침</a>
+                <a href="/policy/privacy-consent">개인정보 제공, 처리 위탁에 대한 동의</a>
+                <a href="/policy/video">영상정보처리기기 운영 및 방침</a>
+            </li>
+            <li class="scroll-top">
+                <a href="#">
+                    <img src="/images/ic_top.svg">
+                    Top
+                </a>
+            </li>
+        </ul>
+    </footer>
+
+</html>

@@ -1,0 +1,739 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    
+    <meta charset="UTF-8">
+<title>솔모로CC</title>
+
+<link rel="shortcut icon" href="/Content/web/img/favicon.ico">
+
+<link type="text/css" rel="stylesheet" href="/Content/web/css/common.css">
+
+
+
+
+<link type="text/css" rel="stylesheet" href="/Content/web/css/board.css">
+<link type="text/css" rel="stylesheet" href="/Content/web/css/form.css">
+<link type="text/css" rel="stylesheet" href="/Content/web/css/member.css">
+
+
+        <link type="text/css" rel="stylesheet" href="/Content/web/css/reserv.css">
+    <link type="text/css" rel="stylesheet" href="/Content/web/css/course.css">
+    <link type="text/css" rel="stylesheet" href="/Content/web/css/sub.css?v=2">
+
+<link type="text/css" rel="stylesheet" href="/Content/web/css/three-dots.css">
+
+<link type="text/css" rel="stylesheet" href="/Content/web/css/aos.css">
+
+<script src="/Content/web/js/jquery-1.12.3.min.js"></script>
+<script type="text/javascript" src="/Content/web/js/slick.min.js"></script>
+<script type="text/javascript" src="/Content/web/js/jquery.bxslider.min.js"></script>
+<script type="text/javascript" src="/Content/web/js/aos.js"></script>
+<script type="text/javascript" src="/Content/web/js/slide.js"></script>
+
+<script src="/Scripts/common.js"></script>
+<script src="/Scripts/checkForm.js"></script>
+<script src="/Scripts/jquery.vticker-min.js"></script>
+
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+
+
+        /*nav*/
+        $("#header").mouseenter(function () {
+            $(this).addClass("over")
+        });
+
+        $(window).scroll(function () {
+            var sc = $(window).scrollTop()
+            if (sc > 150) {
+                $("#header").addClass("over").mouseleave(function () {
+                    $(this).addClass("over")
+                });
+                $(".lnb li").addClass("bgColor");
+            } else {
+                $("#header").removeClass("over").mouseenter(function () {
+                    $(this).addClass("over")
+                }).mouseleave(function () {
+                    $(this).removeClass("over")
+                });
+                $(".lnb li").removeClass("bgColor");
+            }
+        });
+
+        $("#header").mouseleave(function () {
+            $(this).removeClass("over")
+        });
+
+        $(".scroll").click(function () {
+            $('html, body').animate({
+                scrollTop: 700
+            }, '2000');
+        });
+
+        /*weather*/
+        $('.weather').hover(function () {
+            $(this).addClass("dropDown")
+        });
+        $('.weather').mouseleave(function () {
+            $(this).removeClass("dropDown")
+        });
+
+
+        $(window).scroll(function () {
+            if ($(this).scrollTop() > 100) {
+                $('#topBtn').fadeIn();
+            } else {
+                $('#topBtn').fadeOut();
+            }
+        });
+
+        $("#topBtn").click(function () {
+            $('html, body').animate({
+                scrollTop: 0
+            }, 500);
+            return false;
+        });
+
+    });
+</script>
+
+</head>
+<body>
+
+    <div id="ajaxLoadingBox" style="display:none;z-index:99999;"></div>
+    
+    
+    <div id="header">
+    <div class="topNavi">
+        <div class="wrap">
+
+            <div id="top_weather_box">
+                <ul id="top_weather" class="weather"></ul>
+            </div>
+
+
+                <div class="utilInner">
+                    <a href="/Member/Login">로그인</a>
+                    <a href="/Member/Join01">회원가입</a>
+                    <a href="/Member/FindAccount">ID/PW찾기</a>
+                </div>
+
+        </div>
+    </div>
+    <div class="endline"></div>
+    <div class="nav wrap">
+        <h1 class="logo">
+            <a href="/">LOGO</a>
+        </h1>
+        <ul class="lnb">
+            <li>
+                <a href="/Club/Info" class="depth1">클럽소개</a>
+                <div id="club" class="depth2">
+                    <a href="/Club/Info">클럽소개</a>
+                    <a href="/Club/Greeting">대표이사 인사말</a>
+                    <a href="/Club/History">개요 및 연혁</a>
+                    <a href="/Club/Facility">시설안내</a>
+                    <a href="/Club/Location">오시는길</a>
+                </div>
+            </li>
+            <li>
+                <a href="/Course/Index" class="depth1">코스소개</a>
+                <div id="course" class="depth2">
+                    <a href="/Course/Index">코스소개</a>
+                    <a href="/Course/Course1">Cherry 코스</a>
+                    <a href="/Course/Course2">Persimmon 코스</a>
+                    <a href="/Course/Course3">Pine 코스</a>
+                    <a href="/Course/Course4">Maple 코스</a>
+                </div>
+            </li>
+            <li>
+                <a href="/Guide/ReservInfo" class="depth1">이용안내</a>
+                <div id="guide" class="depth2">
+                    <a href="/Guide/ReservInfo">예약방법</a>
+                    <a href="/Guide/UsageFee">골프장 이용요금</a>
+                    <a href="/Guide/Restaurant">레스토랑</a>
+                    <a href="/Guide/Snackshop">그늘집</a>
+                    <a href="/Guide/DressRule">복장규정</a>
+                    <a href="/Guide/GuestRule">내장객 협조사항</a>
+
+                </div>
+            </li>
+            <li>
+                <a href="/Reservation/ReservCalendar" class="depth1">인터넷예약</a>
+                <div id="reservation" class="depth2">
+                    <a href="/Reservation/ReservCalendar">실시간예약</a>
+                    <a href="/Reservation/ReservedList">예약확인/취소</a>
+                    <a href="/Reservation/JoinList">조인게시판</a>
+                </div>
+            </li>
+            <li>
+                <a href="/MyPage/VisitList" class="depth1">회원라운지</a>
+                <div id="mypage" class="depth2">
+                    <a href="/MyPage/VisitList">내장현황</a>
+                    <a href="/MyPage/PenaltyList">위약현황</a>
+                    <a href="/MyPage/ScoreList">스코어현황</a>
+                    
+                    <a href="/MyPage/MyInfo">회원정보</a>
+                </div>
+            </li>
+
+            <li>
+                <a href="/Board/BoardList?board_idx=1" class="depth1">정보마당</a>
+                <div id="board" class="depth2">
+                    <a href="/Board/BoardList?board_idx=1">공지사항</a>
+                    <a href="/Board/BoardList?board_idx=6">자료실</a>
+                    <a href="/Board/BoardList?board_idx=2">포토갤러리</a>
+                    <a href="/Board/HonorList">명예의전당</a>
+                    <a href="https://www.weather.go.kr/w/index.do#dong/4167025000" target="_blank">날씨정보(기상청)</a>
+                    <a href="https://weather.naver.com/today/02670250" target="_blank">날씨정보(네이버)</a>
+                </div>
+            </li>
+
+            <li style="display:none">
+                <a href="../board/board01.html" class="depth1">회원</a>
+                <div id="member" class="depth2">
+                    <a href="/Member/Login">로그인</a>
+                    <a href="/Member/Join01">회원가입</a>
+                    <a href="/Member/FindAccount">아이디/비밀번호 찾기</a>
+                </div>
+            </li>
+
+            <li style="display:none">
+                <a href="../board/board01.html" class="depth1">회원</a>
+                <div id="terms" class="depth2">
+                    <a href="/Terms/ClubUseRule">골프장 이용약관</a>
+                    <a href="/Terms/SiteUseRule">인터넷 이용약관</a>
+                    <a href="/Terms/PrivacyRule">개인정보처리방침</a>
+                </div>
+            </li>
+
+        </ul>
+    </div>
+    <div class="endline"></div>
+</div>
+
+<script>
+    $(function () {
+
+        //$.ajax({
+        //    url: '/Board/TopWeather'
+        //    , type: 'POST'
+        //    , data: ''
+        //    , cache: true
+        //    , dataType: 'html'
+        //    , async: true
+        //    , beforeSend: function () { $('#ajaxLoadingBox').hide(); }
+        //    , success: function (data) {
+        //        $("#top_weather").html(data);
+        //        $('#ajaxLoadingBox').hide();
+        //    }
+        //    , error: function (result) { }
+        //});
+
+
+
+        //$('#top_weather_box').vTicker({
+        //    showItems: 1,
+        //    height: 32,
+        //    childrenSelector: "li"
+        //});
+    });
+</script>
+
+    <div id="section">
+        
+        
+
+<div class="subTop">
+    <div class="subVisual">
+        <div class="subTit">
+            <h2>COURSE INFO</h2>
+            <p>코스소개</p>
+        </div>
+        <div class="subBg subBg03"></div>
+    </div>
+    <ul id="sub-menu" class="subMenu">
+        
+    </ul>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        $(".subBg").addClass('subBg03');
+
+        const path = '/course/course4';
+        const sg = 'course';
+        const bidx = 0;
+
+
+        //console.log("path:"+ path +", sg:"+ sg) ;
+
+
+        $('.lnb > li').each(function () {
+            const lnb = $(this);
+
+            lnb.find('div').each(function () {
+                const div = $(this);
+
+                if (div.attr('id') == sg) {
+
+                    div.find('a').each(function () {
+                        const a = $(this);
+                        var href = a.attr('href').toLowerCase();
+                        var on;
+
+                        //console.log("path:" + path + ", href:" + href);
+
+                        if (path == href) {
+                            on = 'class=menuOn';
+                        } else if (sg == 'member' && path.indexOf('join') > -1 && href.indexOf('join') > -1) {   // 회원가입
+                            on = 'class=menuOn';
+                        } else if (sg == 'reservation' && path.indexOf('reservcheck') > -1 && href.indexOf('reservcalendar') > -1) {  // 실시간 예약
+                            on = 'class=menuOn';
+                        } else if (sg == 'reservation' && href.indexOf('joinlist') > -1 && (path.indexOf('joinform') > -1 || path.indexOf('joinview') > -1)) {  // 조인 게시판
+                            on = 'class=menuOn';
+                        }else if(sg == 'board' && bidx > 0 && href.indexOf('?board_idx='+bidx) > -1){ //  게시판
+                            on = 'class=menuOn';
+                        } else {
+                            on = '';
+                        }
+
+                        $('#sub-menu').append("<li><a " + on + " href=" + a.attr('href') + ">" + a.text() + "</a></li>");
+
+                    });
+
+                    // $('.subMenu').append('<li>' + v.html() + '</li>');
+
+                    // console.log($(this).find('a').text());
+                }
+            });
+        });
+    });
+</script>    
+
+        
+
+
+<div class="contents">
+    <div class="wrap">
+        <div class="courseInfo">
+            <h2 class="infoTit">MAPLE COURSE</h2>
+            <!--<div>
+                <dl class="infoTxt">
+                    <dt>PAR</dt>
+                    <dd>36</dd>
+                </dl>
+                <dl class="infoTxt">
+                    <dt>거리</dt>
+                    <dd>3,479</dd>
+                </dl>
+            </div>-->
+            <div class="mapImg">
+                <img src="/Content/web/img/course/cm04.png" alt="Maple 코스 맵">
+            </div>
+        </div>
+        <div class="courseList">
+            <a href="#">
+                <p class="cosTit"><span>1 Hole</span></p>
+                <img src="/Content/web/img/course/c4_t01.jpg" class="cosImg" alt="메이플1번홀">
+            </a>
+            <a href="#">
+                <p class="cosTit"><span>2 Hole</span></p>
+                <img src="/Content/web/img/course/c4_t02.jpg" class="cosImg" alt="메이플2번홀">
+            </a>
+            <a href="#">
+                <p class="cosTit"><span>3 Hole</span></p>
+                <img src="/Content/web/img/course/c4_t03.jpg" class="cosImg" alt="메이플3번홀">
+            </a>
+            <a href="#">
+                <p class="cosTit"><span>4 Hole</span></p>
+                <img src="/Content/web/img/course/c4_t04.jpg" class="cosImg" alt="메이플4번홀">
+            </a>
+            <a href="#">
+                <p class="cosTit"><span>5 Hole</span></p>
+                <img src="/Content/web/img/course/c4_t05.jpg" class="cosImg" alt="메이플5번홀">
+            </a>
+            <a href="#">
+                <p class="cosTit"><span>6 Hole</span></p>
+                <img src="/Content/web/img/course/c4_t06.jpg" class="cosImg" alt="메이플6번홀">
+            </a>
+            <a href="#">
+                <p class="cosTit"><span>7 Hole</span></p>
+                <img src="/Content/web/img/course/c4_t07.jpg" class="cosImg" alt="메이플7번홀">
+            </a>
+            <a href="#">
+                <p class="cosTit"><span>8 Hole</span></p>
+                <img src="/Content/web/img/course/c4_t08.jpg" class="cosImg" alt="메이플8번홀">
+            </a>
+            <a href="#">
+                <p class="cosTit"><span>9 Hole</span></p>
+                <img src="/Content/web/img/course/c4_t09.jpg" class="cosImg" alt="메이플9번홀">
+            </a>
+        </div>
+        <div class="endline"></div>
+    </div>
+</div>
+
+<!-- 코스 레이어 팝업 -->
+<div class="cosPopup">
+	<div class="popInner">
+		<div class="closedBtn"><span></span></div>
+		<ol class="holeTab">
+			<li class="active">1H</li>
+			<li>2H</li>
+			<li>3H</li>
+			<li>4H</li>
+			<li>5H</li>
+			<li>6H</li>
+			<li>7H</li>
+			<li>8H</li>
+			<li>9H</li>
+		</ol>
+		<div class="endline"></div>
+		<div class="tabContent">
+			<div>
+				<div class="holeCnt">
+					<div class="cosInfo">
+						<p class="cosTit"><span>Maple 1</span>Hole </p>
+						<p class="par">Par 5 / HDCP 3</p>
+				    </div>
+                </div>
+                <div class="holeInfo">
+                    <iframe width="600" height="330" src="https://www.youtube.com/embed/62mtOsSnaA8?v=1.0" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                    <dl class="infoInner">
+                        <dt>PRO TIP</dt>
+                        <dd>
+약간 좌도그렉의 내리막 Par5홀로써
+페어웨이가 좁고 좌우측의 OB가 신경쓰이는 홀이다.
+                        </dd>
+                    </dl>
+                </div>
+				<span class="holeMap">
+					<img src="/Content/web/img/course/c4_01.jpg" alt="메이플코스1번홀">
+				</span>
+			</div>
+			<div>
+				<div class="holeCnt">
+					<div class="cosInfo">
+						<p class="cosTit"><span>Maple 2</span>Hole </p>
+						<p class="par">Par 4 / HDCP 17</p>
+				    </div>
+                </div>
+                <div class="holeInfo">
+                    <iframe width="600" height="330" src="https://www.youtube.com/embed/tgsfd_Nr0BI?v=1.0" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                    <dl class="infoInner">
+                        <dt>PRO TIP</dt>
+                        <dd>
+거리가 그다지 길지않은 내리막 Par 4홀 로써
+내리막홀 특성상 좌우OB가 발생하기 쉬우며
+티샷 낙구 지점에 정확히 위치하고 있는
+좌우의 벙커를 피하는 것이 관건이다.
+                        </dd>
+                    </dl>
+                </div>
+				<span class="holeMap">
+					<img src="/Content/web/img/course/c4_02.jpg" alt="메이플코스2번홀">
+				</span>
+			</div>
+			<div>
+				<div class="holeCnt">
+					<div class="cosInfo">
+						<p class="cosTit"><span>Maple 3</span>Hole </p>
+						<p class="par">Par 3 / HDCP 11</p>
+				    </div>
+                </div>
+                <div class="holeInfo">
+                    <iframe width="600" height="330" src="https://www.youtube.com/embed/SThRH2wK6oY?v=1.0" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                    <dl class="infoInner">
+                        <dt>PRO TIP</dt>
+                        <dd>
+거리가 길지 않은 Par 3홀로써 그린 앞의
+워터해저드와 벙커에 운치 있게 나있는 갈대가
+이 홀의 난이도를 높이고 있다.<br>
+그린 좌측에 경사도가 있는 편이므로 핀위치가
+좌측일 경우 거리에 특별히 신경쓴다.
+                        </dd>
+                    </dl>
+                </div>
+				<span class="holeMap">
+					<img src="/Content/web/img/course/c4_03.jpg" alt="메이플코스3번홀">
+				</span>
+			</div>
+			<div>
+				<div class="holeCnt">
+					<div class="cosInfo">
+						<p class="cosTit"><span>Maple 4</span>Hole </p>
+						<p class="par">Par 4 / HDCP 7</p>
+				    </div>
+                </div>
+                <div class="holeInfo">
+                    <iframe width="600" height="330" src="https://www.youtube.com/embed/ULfawny58hc?v=1.0" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                    <dl class="infoInner">
+                        <dt>PRO TIP</dt>
+                        <dd>
+좌우측에 식재된 수목 때문에 티마크의 위치에 따라
+공략지점이 매우 좁아 보이는 평탄한 홀이다.
+                        </dd>
+                    </dl>
+                </div>
+				<span class="holeMap">
+					<img src="/Content/web/img/course/c4_04.jpg" alt="메이플코스4번홀">
+				</span>
+			</div>
+			<div>
+				<div class="holeCnt">
+					<div class="cosInfo">
+						<p class="cosTit"><span>Maple 5</span>Hole </p>
+						<p class="par">Par 5 / HDCP 5</p>
+				    </div>
+                </div>
+                <div class="holeInfo">
+                    <iframe width="600" height="330" src="https://www.youtube.com/embed/YuHM7nnyH64?v=1.0" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                    <dl class="infoInner">
+                        <dt>PRO TIP</dt>
+                        <dd>
+우도그렉의 Par5홀로써 페어웨이는 평탄한 편이나
+Solmoro C.C에서 가장 거리가 긴홀이다.<br>
+티샷은 무난한 편이나 세컨샷의 낙구지점에
+벙커가 도사리고 있어 주의를 요한다.
+                        </dd>
+                    </dl>
+                </div>
+				<span class="holeMap">
+					<img src="/Content/web/img/course/c4_05.jpg" alt="메이플코스5번홀">
+				</span>
+			</div>
+			<div>
+				<div class="holeCnt">
+					<div class="cosInfo">
+						<p class="cosTit"><span>Maple 6</span>Hole </p>
+						<p class="par">Par 4 / HDCP 13</p>
+				    </div>
+                </div>
+                <div class="holeInfo">
+                    <iframe width="600" height="330" src="https://www.youtube.com/embed/qFTATQmdxEY?v=1.0" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                    <dl class="infoInner">
+                        <dt>PRO TIP</dt>
+                        <dd>
+꾸준한 오르막의 Par4홀로써 티샷을 미스할
+경우 상당한 거리의 세컷샷을 남기게 된다.<br>
+좌우측에 OB를 조심해야 하며 좌측이
+좁게 느껴져 우측으로 볼이 날아가는 경향이 많다.
+                        </dd>
+                    </dl>
+                </div>
+				<span class="holeMap">
+					<img src="/Content/web/img/course/c4_06.jpg" alt="메이플코스6번홀">
+				</span>
+			</div>
+			<div>
+				<div class="holeCnt">
+					<div class="cosInfo">
+						<p class="cosTit"><span>Maple 7</span>Hole </p>
+						<p class="par">Par 3 / HDCP 9</p>
+				    </div>
+                </div>
+                <div class="holeInfo">
+                    <iframe width="600" height="330" src="https://www.youtube.com/embed/qI3-9CB5TC8?v=1.0" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                    <dl class="infoInner">
+                        <dt>PRO TIP</dt>
+                        <dd>
+그린 앞의 깊은 벙커가 위협적인 Par 3홀이다.<br>
+그린 가운데가 블룩해 거리와 방향 모두 중요하다.
+                        </dd>
+                    </dl>
+                </div>
+				<span class="holeMap">
+					<img src="/Content/web/img/course/c4_07.jpg" alt="메이플코스7번홀">
+				</span>
+			</div>
+			<div>
+				<div class="holeCnt">
+					<div class="cosInfo">
+						<p class="cosTit"><span>Maple 8</span>Hole </p>
+						<p class="par">Par 4 / HDCP 1</p>
+				    </div>
+                </div>
+                <div class="holeInfo">
+                    <iframe width="600" height="330" src="https://www.youtube.com/embed/1IwjNKpH1Pw?v=1.0" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                    <dl class="infoInner">
+                        <dt>PRO TIP</dt>
+                        <dd>
+보기에는 평탄하나 살짝 내리막의 Par 4홀로써
+드라이버거리를 자랑하고 싶다면 힘껏 쳐볼만 하다.<br>
+티샷한 볼이 가운데에 있다고 생각하고 갔는데
+우측에 있는 경우가 많으므로 가운데에서
+약간 좌측을 겨냥한다.
+                        </dd>
+                    </dl>
+                </div>
+				<span class="holeMap">
+					<img src="/Content/web/img/course/c4_08.jpg" alt="메이플코스8번홀">
+				</span>
+			</div>
+			<div>
+				<div class="holeCnt">
+					<div class="cosInfo">
+						<p class="cosTit"><span>Maple 9</span>Hole </p>
+						<p class="par">Par 4 / HDCP 15</p>
+				    </div>
+                </div>
+                <div class="holeInfo">
+                    <iframe width="600" height="330" src="https://www.youtube.com/embed/ymcIKwhbcL4?v=1.0" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                    <dl class="infoInner">
+                        <dt>PRO TIP</dt>
+                        <dd>
+심한 오르막의 Par 4로써 좌우측 모두 OB가 있으며
+좌측의 벙커를 피하여 티샷하여야 한다.
+                        </dd>
+                    </dl>
+                </div>
+				<span class="holeMap">
+					<img src="/Content/web/img/course/c4_09.jpg" alt="메이플코스9번홀">
+				</span>
+			</div>
+		</div>
+	</div>
+</div>
+<!-- //코스 레이어 팝업 -->
+
+<script type="text/javascript">
+        $(document).ready(function() {
+
+
+
+
+            /*-- 코스맵 --*/
+            var focus = $('.courseList');
+            $(".courseList a").click(function() {
+                $('.cosPopup').show();
+                $('html, body').animate({
+                    scrollTop: focus.offset().top - 300
+                }, 500);
+            });
+            $(".closedBtn").click(function() {
+                $('.cosPopup').hide();
+            });
+
+            /*탭*/
+            var $wrapper = $('.popInner'),
+                $allTabs = $wrapper.find('.tabContent > div'),
+                $tabMenu = $wrapper.find('.holeTab li');
+
+            $allTabs.not(':first-of-type').hide();
+            $tabMenu.filter(':first-of-type').find(':first').width('100%')
+
+            $tabMenu.each(function(i) {
+                $(this).attr('data-tab', 'tab' + i);
+            });
+
+            $allTabs.each(function(i) {
+                $(this).attr('data-tab', 'tab' + i);
+            });
+
+            $tabMenu.on('click', function() {
+                var dataTab = $(this).data('tab'),
+                    $getWrapper = $(this).closest($wrapper);
+                $getWrapper.find($tabMenu).removeClass('active');
+                $(this).addClass('active');
+                $getWrapper.find($allTabs).hide();
+                $getWrapper.find($allTabs).filter('[data-tab=' + dataTab + ']').show();
+            });
+
+            /*main-noticeSlide*/
+            $('.slideVisual').slick({
+                autoplay: true,
+                autoplaySpeed: 2500,
+                dots: true,
+                arrows: true,
+                infinite: true,
+                slidesToShow: 1,
+                pauseOnHover: true
+            });
+            /*-- END 코스맵 --*/
+        });
+</script>
+
+
+    </div>
+    
+    <div id="footer">
+    <div class="footLink">
+        <div class="footInner">
+            <ul>
+                <li><a href="/Terms/ClubUseRule">골프장 이용약관</a></li>
+                <li><a href="/Terms/SiteUseRule">인터넷 이용약관</a></li>
+                <li><a href="/Terms/PrivacyRule" class="point">개인정보처리방침</a></li>
+                <li><a href="https://ftc.go.kr/www/bizCommView.do?key=232&amp;apv_perm_no=2009411000930200056&amp;pageUnit=10&amp;searchCnd=wrkr_no&amp;searchKrwd=1268106630&amp;pageIndex=1" target="_blank" title="새창열림">사업자 정보확인</a></li>
+            </ul>
+            <div class="fs">
+                <div class="drop">
+                    <a href="#familysite">FAMILY SITE <i src="image/common/family_on.png">+</i></a>
+                </div>
+                <div class="fm_list">
+                    <ul>
+                        <li><a href="http://www.hhic-holdings.com/" target="_blank" title="새창열림">한진중공업홀딩스</a></li>
+                        <li><a href="https://www.daeryunens.com" target="_blank" title="새창열림">대륜이엔에스</a></li>
+                        <li><a href="https://www.daeryunpower.com" target="_blank" title="새창열림">대륜발전</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="wrap">
+        <p class="footTxt">
+            (주)한일레저<em></em>대표 : 박정재<em></em>12661 경기도 여주시 가남읍 솔모로그린길 171번지<em></em>TEL 031.880.7000<em></em>FAX 031.883.1400<br>
+            사업자등록번호 : 126-81-06630<em></em>통신판매신고 : 2009-경기여주-0057<br>
+            ⓒ 1991-2021 Solmoro Country Club. All Right Reserved.
+        </p>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        $('#footer .fs .drop').on('click', function () {
+            $('#footer .fm_list').toggle();
+        });
+    });
+</script>
+
+
+    <div class="quickNavi">
+    <ul>
+        <li>
+            <a href="/Reservation/ReservCalendar">
+                <span class="quickIc02"></span>
+                인터넷예약
+            </a>
+        </li>
+        <li>
+            <a href="/Reservation/ReservedList">
+                <span class="quickIc03"></span>
+                예약확인
+            </a>
+        </li>
+        <li>
+            <a href="/Reservation/JoinList">
+                <span class="quickIc04"></span>
+                조인하기
+            </a>
+        </li>
+    </ul>
+</div>
+
+
+<!-- 탑버튼-->
+<div id="topBtn">
+    <p>TOP</p>
+</div>
+<!--// 탑버튼-->
+<!-- Top 버튼-->
+
+
+</body>
+</html>

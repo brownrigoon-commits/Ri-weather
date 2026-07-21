@@ -1,0 +1,1020 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <link rel="icon" href="/images/favicon.ico" type="image/x-icon" sizes="16x16">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>골든베이 골프&리조트</title>
+    <link rel="stylesheet" href="/css/layout.css" />
+    <link rel="stylesheet" href="/css/common.css" />
+    <link rel="stylesheet" href="/css/main.css?v=1.3">
+    <link rel="stylesheet" href="/css/contents.css">
+    <link rel="stylesheet" href="/css/swiper.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+	<script src="/js/jquery.preloaders.js"></script>
+	<script src="/js/tools.js"></script>
+	<script src="/js/globals.js?v=2"></script>
+    <script src="/js/common(260630).js?v=1"></script>
+    <script src="/js/popup.js"></script>
+    <script src="/js/validation.js"></script>
+    <script src="/js/swiper.min.js"></script>
+    
+    <!--바탕 폰트-->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang" rel="stylesheet">
+</head>
+
+<script>
+
+	let device = "Pc";
+
+	$(document).ready(function() {
+
+		if (location.hostname === "new.goldenbay.kr") {
+			const newUrl = location.href.replace("new.goldenbay.kr", "www.goldenbay.kr");
+			location.replace(newUrl);
+		  }
+
+		var mobileKeyWords = new Array('iPhone', 'iPod', 'iPad', 'BlackBerry', 'Android', 'Windows CE', 'MOT', 'SAMSUNG', 'SonyEricsson');
+		for (var word in mobileKeyWords) {
+			if ( navigator.userAgent.match(mobileKeyWords[word]) != null ) {
+				device = "Mo";
+				break;
+			} 
+		}
+
+		$("#txtId" + device).keypress(function (event) {
+			if(event.keyCode == 13) {
+				doLogin();
+			}
+		});
+
+		$("#txtPw" + device).keypress(function (event) {
+			if(event.keyCode == 13) {
+				doLogin();
+			}
+		});
+
+		$("#txtIdName" + device).keypress(function (event) {
+			if(event.keyCode == 13) {
+				doFindId();
+			}
+		});
+
+		$("#txtIdPhone" + device).keypress(function (event) {
+			if(event.keyCode == 13) {
+				doFindId();
+			}
+		});
+
+		$("#txtPwName" + device).keypress(function (event) {
+			if(event.keyCode == 13) {
+				doFindPw();
+			}
+		});
+
+		$("#txtPwPhone" + device).keypress(function (event) {
+			if(event.keyCode == 13) {
+				doFindPw();
+			}
+		});
+
+		$("#txtPwId" + device).keypress(function (event) {
+			if(event.keyCode == 13) {
+				doFindPw();
+			}
+		});
+	});
+
+	function doLogin() {
+		var sUrl = "/controller/MemberController.asp";
+		var params = {};
+		var page = "";
+
+		var id = $("#txtId" + device).val();
+		var pw = $("#txtPw" + device).val();
+
+		if(page == null || page == "") {
+			page = "/index.asp";
+		}
+
+		if(id == "") {
+			alert("아이디를 입력하세요.");
+			return;
+		}
+
+		if(pw == "") {
+			alert("비밀번호를 입력하세요.");
+			return;
+		}
+
+		params["method"] = "doLogin";
+		params["coDiv"] = globals.coDiv;
+		params["id"] = id;
+		params["pw"] = pw;
+
+		mAjax(sUrl, params, "POST", true, function(data) {
+			if(data.resultCode == "0000") {
+				location.href = page;
+			} else {
+				alert(data.resultMessage);
+			}
+		});
+	}
+
+	function doLogout() {
+		var sUrl = "/controller/MemberController.asp";
+		var params = {};
+
+		params["method"] = "doLogout";
+
+		mAjax(sUrl, params, "POST", true, function(data) {
+			if(data.resultCode == "0000") {
+				alert("로그아웃 되었습니다.");
+
+				location.href = "/index.asp";
+			}
+		});
+	}
+
+	function doFindId() {
+		var sUrl = "/controller/MemberController.asp";
+		var params = {};
+
+		params["method"] = "doFindId";
+		params["coDiv"] = globals.coDiv;
+
+		var name = $("#txtIdName" + device).val();
+		var phone = $("#txtIdPhone" + device).val();
+
+		if(name == "") {
+			alert("아이디를 찾기 위한 정보를 모두 입력해주세요.");
+			return;
+		}
+
+		if(phone == "" || phone.length != 11) {
+			alert("아이디를 찾기 위한 정보를 모두 입력해주세요.");
+			return;
+		}
+
+		params["name"] = name;
+		params["phone"] = phone;
+
+		mAjax(sUrl, params, "POST", true, function(data) {
+			if (data.resultCode == "0000") {
+				alert(`회원님의 아이디는 ${data.msId} 입니다.`);
+			} else {
+				alert(data.resultMessage);
+			}
+		});
+	}
+
+	function doFindPw() {
+		var sUrl = "/controller/MemberController.asp";
+		var params = {};
+
+		params["method"] = "doFindPw";
+		params["coDiv"] = globals.coDiv;
+
+		var name = $("#txtPwName" + device).val();
+		var id = $("#txtPwId" + device).val();
+		var phone = $("#txtPwPhone" + device).val();
+
+		if(name == "") {
+			alert("비밀번호를 찾기 위한 정보를 모두 입력해주세요.");
+			return;
+		}
+
+		if(phone == "" || phone.length != 11) {
+			alert("비밀번호를 찾기 위한 정보를 모두 입력해주세요.");
+			return;
+		}
+
+		if(id == "") {
+			alert("비밀번호를 찾기 위한 정보를 모두 입력해주세요.");
+			return;
+		}
+
+		params["name"] = name;
+		params["phone"] = phone;
+		params["id"] = id;
+
+		mAjax(sUrl, params, "POST", true, function(data) {
+			alert(data.resultMessage);
+		});
+	}
+
+</script>
+
+<body>
+    <div class="wrap-container">
+        <header class="header">
+            <div class="header-top">
+                <div class="menu">
+                    <button class="toggle-menu" id="menuClose">
+                        <span></span>
+                    </button>
+                </div>
+                <div class="close">
+                    <button class="close-btn">
+                        <span></span>
+                    </button>
+                </div>
+                <div class="logo">
+                    <a href="/index.asp">
+                        <h1>logo</h1>
+                    </a>
+                </div>
+                <div class="login-wrapper">
+					
+                    <div class="login pc close">
+                        <!-- <a href="/board/join/list.asp">조인게시판</a> -->
+                        <a href="/member/join.asp">회원가입</a>
+                        <a href="javascript:$('#menuClose').trigger('click');">로그인(회원)</a>
+                        <a href="/member/join.asp">로그인(비회원)</a>
+                    </div>
+                    <div class="login pc open">
+                        <!-- <a href="/board/join/list.asp">조인게시판</a> -->
+                        <a href="/member/join.asp">회원가입</a>
+                        <a href="javascript:$('#menuClose').trigger('click');">로그인(회원)</a>
+                        <a href="/member/join.asp">로그인(비회원)</a>
+                    </div>
+                    <div class="login mo">
+                        <a href="javascript:openLoginMobile();">
+                            <span class="icon toggle-login"></span>
+                        </a>
+                    </div>
+					
+                </div>
+            </div>
+        </header>
+
+        <!-- login Mobile -->
+        <div class="login-wrap mo">
+            <div class="login-container">
+                <form class="login-form">
+                    <div class="login-buttons">
+                        <a href="/member/join.asp" class="login-button">회원가입</a>
+                    </div>
+                    <div class="login-inputs">
+                        <input class="login-input" placeholder="아이디 / 이메일" type="text" id="txtIdMo">
+                        <input class="login-input" placeholder="비밀번호" type="password" id="txtPwMo">
+                    </div>
+                    <div class="login-buttons type2">
+                        <a href="javascript:openFindPW();" class="btn-pw login-button">잊어버리셨나요?</a>
+                        <a href="javascript:doLogin();" class="login-button">계속</a>
+                    </div>
+                </form>
+            </div>
+
+            <div class="find-container">
+                <form class="find-form">
+                    <div class="find-inputs">
+                        <label class="find-form-title">아이디 찾기</label>
+                        <input class="find-input" placeholder="이름" type="text" id="txtIdNameMo">
+                        <input class="find-input" placeholder="휴대폰번호(-없이)" type="text" id="txtIdPhoneMo" maxlength="11" onchange="ValidateNumber(this)">
+                        <p class="find-form-text">이름과 회원가입 시 입력한 휴대폰 번호로 아이디를 찾으실 수 있습니다.</p>
+                    </div>
+                    <div class="find-buttons">
+                        <a href="javascript:closeFindPW();">취소</a>
+                        <a href="javascript:doFindId();">확인</a>
+                    </div>
+                </form>
+                <div class="find-divider"></div>
+                <form class="find-form">
+                    <div class="find-inputs">
+                        <label class="find-form-title">비밀번호 찾기</label>
+                        <input class="find-input" placeholder="이름" type="text" id="txtPwNameMo">
+                        <input class="find-input" placeholder="아이디 / 이메일" type="text" id="txtPwIdMo">
+                        <input class="find-input" placeholder="휴대폰번호(-없이)" type="text" id="txtPwPhoneMo" maxlength="11" onchange="ValidateNumber(this)">
+                        <p class="find-form-text">이름, 아이디와 회원가입 시 입력한 휴대폰 번호로 비밀번호를 찾으실 수 있습니다.</p>
+                    </div>
+                    <div class="find-buttons">
+                        <a href="javascript:closeFindPW();">취소</a>
+                        <a href="javascript:doFindPw();">확인</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="menu-wrap">
+            <div class="menu-container">
+                <ul class="navi-menu">
+                    <li class="navi-gnb menu-list">
+                        <h2 class="title accordion-toggle">
+                            <a href="javascript:void(0);">골든베이</a>
+                            <span class="arrow"></span>
+                        </h2>
+                        <ul class="navi-lnb accordion-content">
+                            <li><a href="/about/about.asp">소개</a></li>
+                            <li><a href="/board/list.asp">공지사항</a></li>
+                            <li><a href="/about/guide.asp">이용안내</a></li>
+                            <li><a href="/about/guide.asp?tab=3">요금안내</a></li>
+                            <li><a href="/about/contact.asp">오시는 길</a></li>
+                            <li><a href="/about/tourist.asp">주변관광지</a></li>
+                            <!-- <li><a href="/about/contact.asp">연락처</a></li> -->
+                        </ul>
+                    </li>
+                    <li class="navi-gnb menu-list">
+                        <h2 class="title accordion-toggle">
+                            <a href="javascript:void(0);">예약</a>
+                            <span class="arrow"></span>
+                        </h2>
+                        <ul class="navi-lnb accordion-content">
+                            <li><a href="/reservation/pkg-reservation.asp">패키지 예약</a></li>
+                            <li><a href="/reservation/golf-reservation.asp">골프 예약</a></li>
+                            <li><a href="javascript:openAlertPopup()">투스칸빌리지 예약</a></li>
+                            <li><a href="/board/join/list.asp">조인 게시판</a></li>							
+                        </ul>
+                    </li>
+                    <li class="navi-gnb menu-list">
+                        <h2 class="title accordion-toggle">
+                            <a href="javascript:void(0);">골프코스</a>
+                            <span class="arrow"></span>
+                        </h2>
+                        <ul class="navi-lnb accordion-content">
+                            <li><a href="/course/course-info.asp">마운틴코스</a></li>
+                            <li><a href="/course/course-info.asp">오션코스</a></li>
+                            <li><a href="/course/course-info.asp">밸리코스</a></li>
+                        </ul>
+                    </li>
+                    <li class="navi-gnb menu-list">
+                        <h2 class="title accordion-toggle">
+                            <a href="javascript:void(0);">투스칸빌리지</a>
+                            <span class="arrow"></span>
+                        </h2>
+                        <ul class="navi-lnb accordion-content">
+                            <li><a href="/tuscan/tuscan-info.asp">객실 안내</a></li>
+                            <li><a href="javascript:moveSection('#garden', '/tuscan/tuscan-info.asp#garden')">가든</a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="navi-gnb menu-list">
+                        <h2 class="title accordion-toggle">
+                            <a href="javascript:void(0);">클럽하우스</a>
+                            <span class="arrow"></span>
+                        </h2>
+                        <ul class="navi-lnb accordion-content">
+                            <li><a href="/facilities/facilities-info.asp">레스토랑</a></li>
+                            <li><a href="/facilities/facilities-info.asp">로비</a></li>
+                            <li><a href="/facilities/facilities-info.asp">스타트하우스</a></li>
+                            <li><a href="/facilities/facilities-info.asp">사우나</a></li>
+                            <li><a href="/facilities/facilities-info.asp">락커룸</a></li>
+                        </ul>
+                    </li>
+					
+                </ul>
+                <!-- Mene-open : Mobile -->
+                <div class="login-mo-open">
+					
+                    <a href="javascript:toggleLoginWrap();">로그인</a>
+                    <a href="/member/join.asp">회원가입</a>
+					
+                </div>
+
+				
+                <!-- login Web -->
+                <!-- 로그인 완료시 hidden처리 -->
+                <div class="login-wrap pc">
+                    <div class="login-container">
+                        <form class="login-form">
+                            <div class="login-inputs">
+                                <input class="login-input" placeholder="아이디 / 이메일" type="text" id="txtIdPc">
+                                <input class="login-input" placeholder="비밀번호" type="password" id="txtPwPc">
+                            </div>
+                            <div class="login-buttons type2">
+                                <a href="javascript:openFindPW();" class="btn-pw login-button">잊어버리셨나요?</a>
+                                <a href="javascript:doLogin()" class="login-button">계속</a>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="find-container">
+                        <form class="find-form">
+                            <div class="find-inputs">
+                                <label class="find-form-title">아이디 찾기</label>
+                                <input class="find-input" placeholder="이름" type="text" id="txtIdNamePc">
+                                <input class="find-input" placeholder="휴대폰번호(-없이)" type="text" id="txtIdPhonePc" maxlength="11" onchange="ValidateNumber(this)">
+                                <p class="find-form-text">이름과 회원가입 시 입력한 휴대폰 번호로 아이디를 찾으실 수 있습니다.</p>
+                            </div>
+                            <div class="find-buttons">
+                                <a href="javascript:closeFindPW();">취소</a>
+                                <a href="javascript:doFindId();">확인</a>
+                            </div>
+                        </form>
+                        <div class="find-divider"></div>
+                        <form class="find-form">
+                            <div class="find-inputs">
+                                <label class="find-form-title">비밀번호 찾기</label>
+                                <input class="find-input" placeholder="이름" type="text" id="txtPwNamePc">
+                                <input class="find-input" placeholder="아이디 / 이메일" type="text" id="txtPwIdPc">
+                                <input class="find-input" placeholder="휴대폰번호(-없이)" type="text" id="txtPwPhonePc" maxlength="11" onchange="ValidateNumber(this)">
+                                <p class="find-form-text">이름, 아이디와 회원가입 시 입력한 휴대폰 번호로 비밀번호를 찾으실 수 있습니다.</p>
+                            </div>
+                            <div class="find-buttons">
+                                <a href="javascript:closeFindPW();">취소</a>
+                                <a href="javascript:doFindPw();">확인</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+				
+            </div>
+        </div>
+
+        <!-- [262077] 홈페이지 디자인수정 / 허가영 담당자 요청으로 주석처리 -->
+        <!-- <div class="quick-menu">
+            <a href="/board/list.asp" class="menu-item new-text">
+                <span class="menu-text">N</span>
+                <span class="new-text">NEWS</span>
+            </a>
+            <a href="javascript:openAlertPopup()" class="menu-item new-text">
+                <span class="menu-text">C</span>
+                <span class="new-text">COMMUNITY</span>
+            </a>
+            <a href="/reservation/golf-reservation.asp" class="menu-item new-text">
+                <span class="menu-text">B</span>
+                <span class="new-text">BOOKING</span>
+            </a>
+        </div> -->
+
+        <script>
+            $(document).ready(function () {
+                $('.quick-menu .menu-item').mouseover(function () {
+                    $(this).find('.menu-text').fadeOut('fast').css({ 'visibility': 'hidden', 'opacity': '0' });
+                    $(this).find('.new-text').fadeIn('fast').css({ 'visibility': 'visible', 'opacity': '1' });
+                });
+
+                $('.quick-menu .menu-item').mouseleave(function () {
+                    $(this).find('.menu-text').fadeIn('fast').css({ 'visibility': 'visible', 'opacity': '1' });
+                    $(this).find('.new-text').fadeOut('fast').css({ 'visibility': 'hidden', 'opacity': '0' });
+                });
+
+                let isLoginContainerOpen = false;
+
+            });
+
+			function openFindPW() {
+				$('.find-container').show();
+				$('.login-container').hide();
+				isLoginContainerOpen = false;
+
+				$('.header-top .close').on('click', function () {
+					if ($('.find-container').is(':visible')) {
+						$('.find-container').hide();
+						$('.login-container').show();
+						isLoginContainerOpen = true;
+					}
+				});
+			}
+
+			function closeFindPW() {
+				$('.find-container').hide();
+				$('.login-container').show();
+				isLoginContainerOpen = true;
+			}
+
+			function openAlertPopup() {
+				popup.open('/popup/popup-alert.asp', function ($el, $overlay, open, close) {
+					$el.find(".popup-btn.type01 a").on("click", close);
+					open();
+					document.body.classList.remove('scroll-y');
+				});
+			}
+
+            // function moveSection(target, page) {
+            //     if ($(target).length > 0) {
+            //         $("#menuClose").trigger("click");
+            //     } else {
+            //         location.href = page;
+            //     }
+            // }
+
+            function moveSection(target, page) {
+                console.log("moveSection called with target:", target);
+                if ($(target).length > 0) {
+                    console.log("Target found:", target);
+                    $("#menuClose").trigger("click");
+                } else {
+                    console.log("Target not found, redirecting to:", page);
+                    location.href = page;
+                }
+            }
+
+            // $(document).ready(function () {
+            //     $(".quick-menu .menu-item").mouseenter(function () {
+            //         const originalText = $(this).text();
+            //         const newText = {
+            //             "N": "NEWS",
+            //             "C": "COMMUNITY",
+            //             "B": "BOOKING"
+            //         };
+            //         $(this).append(`<div class="tooltip">${newText[originalText]}</div>`);
+            //     }).mouseleave(function () {
+            //         $(this).find(".tooltip").remove();
+            //     });
+            // });
+        </script>
+<div class="breadcrumbWrap">
+    <ul class="breadcrumb sub">
+        <li>
+            <a href="/course/course-info.asp">GOLF COURSE</a>
+        </li>
+        <li>
+            <svg xmlns="http://www.w3.org/2000/svg" width="10" height="16" viewBox="0 0 14 16" fill="none"
+                style="color: #000;">
+                <path stroke="currentColor" stroke-linejoin="bevel" stroke-width="2" d="m.5 1.5 13 6.5-13 6.5"></path>
+            </svg>
+        </li>
+        <li>
+            <a href="/course/mountain.asp">MOUNTAIN COURSE</a>
+        </li>
+    </ul>
+</div>
+<div class="contents-wrap courseIn">
+    <div class="mountainSetion scroll">
+        <div class="tabContainer">
+            <a class="tab tabText" href="/course/valley.asp">
+                <div class="arrowIcon">
+                    <img src="/images/left-arrow.svg" alt="">
+                </div>
+            </a>
+            <div class="tab selected tabText pc">MOUNTAIN COURSE</div>
+            <div class="tab selected tabText mo">MOUNTAIN</div>
+            <a class="tab tabText" href="/course/ocean.asp">
+                <div class="arrowIcon">
+                    <img src="/images/right-arrow.svg" alt="">
+                </div>
+            </a>
+        </div>
+        <div class="course-content-wrap">
+            <div class="course-content">
+                <img src="/images/course/mountain.jpg" alt="">
+            </div>
+            <div class="imageAboveWrap">
+                <div class="courseDetailTitle">
+                    <div>수목이 울창한 산비탈 위 과감한 공략을 필요로 하는<br>남성적인 매력을 지닌 마운틴 코스<br><br>BLACK : 3,242 WHITE : 2,761 RED :
+                        2,444<br>총장:3,256 m²</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="courseDetailSection">
+        <div class="course-detail-left">
+            <div class="courseHeader">
+                <h2 class="courseTitle">MOUNTAIN</h2>
+                <ul class="courseHoleSelector">
+                    <li id="course1" class="on" onclick="courseTab(1)">1</li>
+                    <li id="course2" onclick="courseTab(2)">2</li>
+                    <li id="course3" onclick="courseTab(3)">3</li>
+                    <li id="course4" onclick="courseTab(4)">4</li>
+                    <li id="course5" onclick="courseTab(5)">5</li>
+                    <li id="course6" onclick="courseTab(6)">6</li>
+                    <li id="course7" onclick="courseTab(7)">7</li>
+                    <li id="course8" onclick="courseTab(8)">8</li>
+                    <li id="course9" onclick="courseTab(9)">9</li>
+                </ul>
+            </div>
+            <div class="course-video" id="courseVideo1">
+                <video src="/images/course/mountain/Video/mountain_01.mp4" autoplay loop playsinline></video>
+            </div>
+            <div class="course-video" id="courseVideo2" style="display: none;">
+                <video src="/images/course/mountain/Video/mountain_02.mp4" autoplay loop playsinline></video>
+            </div>
+            <div class="course-video" id="courseVideo3" style="display: none;">
+                <video src="/images/course/mountain/Video/mountain_03.mp4" autoplay loop playsinline></video>
+            </div>
+            <div class="course-video" id="courseVideo4" style="display: none;">
+                <video src="/images/course/mountain/Video/mountain_04.mp4" autoplay loop playsinline></video>
+            </div>
+            <div class="course-video" id="courseVideo5" style="display: none;">
+                <video src="/images/course/mountain/Video/mountain_05.mp4" autoplay loop playsinline></video>
+            </div>
+            <div class="course-video" id="courseVideo6" style="display: none;">
+                <video src="/images/course/mountain/Video/mountain_06.mp4" autoplay loop playsinline></video>
+            </div>
+            <div class="course-video" id="courseVideo7" style="display: none;">
+                <video src="/images/course/mountain/Video/mountain_07.mp4" autoplay loop playsinline></video>
+            </div>
+            <div class="course-video" id="courseVideo8" style="display: none;">
+                <video src="/images/course/mountain/Video/mountain_08.mp4" autoplay loop playsinline></video>
+            </div>
+            <div class="course-video" id="courseVideo9" style="display: none;">
+                <video src="/images/course/mountain/Video/mountain_09.mp4" autoplay loop playsinline></video>
+            </div>
+        </div>
+
+        <div class="course-detail-right" id="courseCon1">
+            <div class="right-content">
+                <div class="holeTitle">
+                    <h3 class="holeMainTitle">HOLE 1</h3>
+                    <small class="holeSubTitle">HDCP 9, PAR 4</small>
+                </div>
+                <p class="courseDetailText detail-right">레이크사이드 파4홀로 쉽게 Play 할 수 있는 홀이다.
+                    초보자에겐 Teeing Ground부터 이어지는 워터 해저드는 부담이 될 수 있으므로 긴장하지 말고 Tee Shot을 한다면 쉽게 공략 할 수 있을 것이다. 2nd
+                    Shot시 그린 우측 벙커를 경계하여 좌측으로 하는 것이 좋다. 만족스러운 Tee Shot을 했다면 Par Save이상의 Score를 기록 할 수 있는 홀이다.</p>
+            </div>
+
+            <div class="course-text">
+                <div class="holeTitle2">
+                    <h3 class="holeMainTitle">HOLE 1</h3>
+                    <small class="holeSubTitle">HDCP 9, PAR 4</small>
+                </div>
+                <div class="courseLayoutWrap">
+                    <div class="courseLayout-img">
+                        <img src="/images/course/mountain/m1.png" alt="">
+                    </div>
+                    <ul class="courseMeterList">
+                        <li>
+                            <div class="courseMeterIcon black"></div>331m
+                        </li>
+                        <li>
+                            <div class="courseMeterIcon blue"></div>303m
+                        </li>
+                        <li>
+                            <div class="courseMeterIcon white"></div>271m
+                        </li>
+                        <li>
+                            <div class="courseMeterIcon yellow"></div>-m
+                        </li>
+                        <li>
+                            <div class="courseMeterIcon red"></div>245m
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="course-detail-right" id="courseCon2" style="display: none;">
+            <div class="right-content">
+                <div class="holeTitle">
+                    <h3 class="holeMainTitle">HOLE 2</h3>
+                    <small class="holeSubTitle">HDCP 6, PAR 3</small>
+                </div>
+                <p class="courseDetailText detail-right">아일랜드 홀로 TEE SHOT을 정확히 그린에 안착시키는 것이 중요하다. 비교적 짧은 거리의 PAR3 홀이나 그린
+                    앞 벙커에 유의해야 하며 벙커를 의식하고 그린을 넘길 경우 그린 뒷편 러프의 여유공간이 없는 관계로 OB가 될 수 있으니 주의해야 한다.바람의 영향을 많이 받는 HOLE로서 TEE
+                    SHOT전 바람의 방향을 필히 체크해 클럽과 어드레스 방향을 설정해 PIN을 공략한다.</p>
+            </div>
+
+            <div class="course-text">
+                <div class="holeTitle2">
+                    <h3 class="holeMainTitle">HOLE 2</h3>
+                    <small class="holeSubTitle">HDCP 6, PAR 3</small>
+                </div>
+                <div class="courseLayoutWrap">
+                    <div class="courseLayout-img">
+                        <img src="/images/course/mountain/m2.png" alt="">
+                    </div>
+                    <ul class="courseMeterList">
+                        <li>
+                            <div class="courseMeterIcon black"></div>156m
+                        </li>
+                        <li>
+                            <div class="courseMeterIcon blue"></div>124m
+                        </li>
+                        <li>
+                            <div class="courseMeterIcon white"></div>106m
+                        </li>
+                        <li>
+                            <div class="courseMeterIcon yellow"></div>-m
+                        </li>
+                        <li>
+                            <div class="courseMeterIcon red"></div>92m
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="course-detail-right" id="courseCon3" style="display: none;">
+            <div class="right-content">
+                <div class="holeTitle">
+                    <h3 class="holeMainTitle">HOLE 3</h3>
+                    <small class="holeSubTitle">HDCP 4, PAR 5</small>
+                </div>
+                <p class="courseDetailText detail-right">내막 경사의 약간 우측 DOG LEG 코스로서 티잉그라운드에서 호쾌한 장타를 구사할 수 있는 홀이다. 오르막
+                    경사가 시작되는 1ST IP는 POSITION에 따라 그린이 보이지 않는 블라인드 지역이 생길 수 있고 슬라이스 라이이므로 이점에 유의해야 한다.2ND IP에서 다시 내리막이 시작
+                    되므로 클럽은 보다 여유롭게 선택하고 이상의 상황을 주의해 공략루트를 선정한다면 PAR SAVE가 어렵지 않은 홀이다.</p>
+            </div>
+
+            <div class="course-text">
+                <div class="holeTitle2">
+                    <h3 class="holeMainTitle">HOLE 3</h3>
+                    <small class="holeSubTitle">HDCP 4, PAR 5</small>
+                </div>
+                <div class="courseLayoutWrap">
+                    <div class="courseLayout-img">
+                        <img src="/images/course/mountain/m3.png" alt="">
+                    </div>
+                    <ul class="courseMeterList">
+                        <li>
+                            <div class="courseMeterIcon black"></div>545m
+                        </li>
+                        <li>
+                            <div class="courseMeterIcon blue"></div>504m
+                        </li>
+                        <li>
+                            <div class="courseMeterIcon white"></div>478m
+                        </li>
+                        <li>
+                            <div class="courseMeterIcon yellow"></div>455m
+                        </li>
+                        <li>
+                            <div class="courseMeterIcon red"></div>432m
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="course-detail-right" id="courseCon4" style="display: none;">
+            <div class="right-content">
+                <div class="holeTitle">
+                    <h3 class="holeMainTitle">HOLE 4</h3>
+                    <small class="holeSubTitle">HDCP 1, PAR 4</small>
+                </div>
+                <p class="courseDetailText detail-right">오르막코스의 좌측 DOG LEG홀이다. 거리에 자신있는 PLAYER라면 1ST IP의 우측 벙커를 직접 겨냥하는
+                    루트도 좋은 공략법이 될 것이다. 그렇지 않은 PLAYER는 우측 벙커 전방에 위치한 암사면쪽으로 공략루트를 선정해 3 ON의 끊어가는 전략을 구사한다면 수월하게 PLAY 할 수
+                    있을 것이다.</p>
+            </div>
+
+            <div class="course-text">
+                <div class="holeTitle2">
+                    <h3 class="holeMainTitle">HOLE 4</h3>
+                    <small class="holeSubTitle">HDCP 1, PAR 4</small>
+                </div>
+                <div class="courseLayoutWrap">
+                    <div class="courseLayout-img">
+                        <img src="/images/course/mountain/m4.png" alt="">
+                    </div>
+                    <ul class="courseMeterList">
+                        <li>
+                            <div class="courseMeterIcon black"></div>412m
+                        </li>
+                        <li>
+                            <div class="courseMeterIcon blue"></div>392m
+                        </li>
+                        <li>
+                            <div class="courseMeterIcon white"></div>353m
+                        </li>
+                        <li>
+                            <div class="courseMeterIcon yellow"></div>-m
+                        </li>
+                        <li>
+                            <div class="courseMeterIcon red"></div>319m
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="course-detail-right" id="courseCon5" style="display: none;">
+            <div class="right-content">
+                <div class="holeTitle">
+                    <h3 class="holeMainTitle">HOLE 5</h3>
+                    <small class="holeSubTitle">HDCP 5, PAR 3</small>
+                </div>
+                <p class="courseDetailText detail-right">오르막 경사의 PAR3 홀이다. 무난한 코스인듯 하나 그린주변의 벙커와 오르막 코스를 고려한다면 평소보다
+                    CLUB을 여유있게 선택하는 것이 좋다.</p>
+            </div>
+
+            <div class="course-text">
+                <div class="holeTitle2">
+                    <h3 class="holeMainTitle">HOLE 5</h3>
+                    <small class="holeSubTitle">HDCP 5, PAR 3</small>
+                </div>
+                <div class="courseLayoutWrap">
+                    <div class="courseLayout-img">
+                        <img src="/images/course/mountain/m5.png" alt="">
+                    </div>
+                    <ul class="courseMeterList">
+                        <li>
+                            <div class="courseMeterIcon black"></div>190m
+                        </li>
+                        <li>
+                            <div class="courseMeterIcon blue"></div>159m
+                        </li>
+                        <li>
+                            <div class="courseMeterIcon white"></div>133m
+                        </li>
+                        <li>
+                            <div class="courseMeterIcon yellow"></div>-m
+                        </li>
+                        <li>
+                            <div class="courseMeterIcon red"></div>102m
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="course-detail-right" id="courseCon6" style="display: none;">
+            <div class="right-content">
+                <div class="holeTitle">
+                    <h3 class="holeMainTitle">HOLE 6</h3>
+                    <small class="holeSubTitle">HDCP 8, PAR 4</small>
+                </div>
+                <p class="courseDetailText detail-right">코스 전반적인 UNDULATION이 내리막이므로 미스샷에 의한 슬라이스만 조심한다면 PAR SAVE가 어렵지 않은
+                    홀이다. 다만 수시로 변하는 바림이 변수로 작용할 수 있으니 항상 어드레스 전에 바람의 방향과 세기를 체크해야 한다.</p>
+            </div>
+
+            <div class="course-text">
+                <div class="holeTitle2">
+                    <h3 class="holeMainTitle">HOLE 6</h3>
+                    <small class="holeSubTitle">HDCP 8, PAR 4</small>
+                </div>
+                <div class="courseLayoutWrap">
+                    <div class="courseLayout-img">
+                        <img src="/images/course/mountain/m6.png" alt="">
+                    </div>
+                    <ul class="courseMeterList">
+                        <li>
+                            <div class="courseMeterIcon black"></div>351m
+                        </li>
+                        <li>
+                            <div class="courseMeterIcon blue"></div>327m
+                        </li>
+                        <li>
+                            <div class="courseMeterIcon white"></div>305m
+                        </li>
+                        <li>
+                            <div class="courseMeterIcon yellow"></div>-m
+                        </li>
+                        <li>
+                            <div class="courseMeterIcon red"></div>284m
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="course-detail-right" id="courseCon7" style="display: none;">
+            <div class="right-content">
+                <div class="holeTitle">
+                    <h3 class="holeMainTitle">HOLE 7</h3>
+                    <small class="holeSubTitle">HDCP 2, PAR 4</small>
+                </div>
+                <p class="courseDetailText detail-right">심한 오르막의 우측 DOG LEG 코스이다. 1ST IP의 UP&DOWN FAIRWAY는 스탠스 확보에 어려움이
+                    예상돼 그린 공략에 변수로 작용한다.세컨샷이 편리하게 이뤄질 1ST IP內 LANDING ZONE을 찾는 것이 이 홀의 전략요소이다.거리에 자신있는 PLAYER는 그린 앞의
+                    FAIRWAY BUNKER 방향으로 가로지르는 루트를 선택해 보는 것도 좋다.</p>
+            </div>
+
+            <div class="course-text">
+                <div class="holeTitle2">
+                    <h3 class="holeMainTitle">HOLE 7</h3>
+                    <small class="holeSubTitle">HDCP 2, PAR 4</small>
+                </div>
+                <div class="courseLayoutWrap">
+                    <div class="courseLayout-img">
+                        <img src="/images/course/mountain/m7.png" alt="">
+                    </div>
+                    <ul class="courseMeterList">
+                        <li>
+                            <div class="courseMeterIcon black"></div>359m
+                        </li>
+                        <li>
+                            <div class="courseMeterIcon blue"></div>339m
+                        </li>
+                        <li>
+                            <div class="courseMeterIcon white"></div>316m
+                        </li>
+                        <li>
+                            <div class="courseMeterIcon yellow"></div>286m
+                        </li>
+                        <li>
+                            <div class="courseMeterIcon red"></div>245m
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="course-detail-right" id="courseCon8" style="display: none;">
+            <div class="right-content">
+                <div class="holeTitle">
+                    <h3 class="holeMainTitle">HOLE 8</h3>
+                    <small class="holeSubTitle">HDCP 7, PAR 4</small>
+                </div>
+                <p class="courseDetailText detail-right">비교적 짧은 거리의 PAR4홀로 모든 PLAYER가 쉽게 2 ON 할 수 있다. 좌측의 수림지역의 벙커를 의식하지
+                    않고 홀을 공략한다면 PAR SAVE이상의 SCORE를 기록 할 수 있으나 그린 주변의 벙커를 의식하고 그린 좌측을 타겟으로 PIN을 공략해야 한다.</p>
+            </div>
+
+            <div class="course-text">
+                <div class="holeTitle2">
+                    <h3 class="holeMainTitle">HOLE 8</h3>
+                    <small class="holeSubTitle">HDCP 7, PAR 4</small>
+                </div>
+                <div class="courseLayoutWrap">
+                    <div class="courseLayout-img">
+                        <img src="/images/course/mountain/m8.png" alt="">
+                    </div>
+                    <ul class="courseMeterList">
+                        <li>
+                            <div class="courseMeterIcon black"></div>335m
+                        </li>
+                        <li>
+                            <div class="courseMeterIcon blue"></div>311m
+                        </li>
+                        <li>
+                            <div class="courseMeterIcon white"></div>285m
+                        </li>
+                        <li>
+                            <div class="courseMeterIcon yellow"></div>286m
+                        </li>
+                        <li>
+                            <div class="courseMeterIcon red"></div>263m
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="course-detail-right" id="courseCon9" style="display: none;">
+            <div class="right-content">
+                <div class="holeTitle">
+                    <h3 class="holeMainTitle">HOLE 9</h3>
+                    <small class="holeSubTitle">HDCP 3, PAR 5</small>
+                </div>
+                <p class="courseDetailText detail-right">넓은 FAIRWAY와 절경이 조화를 이루는 홀이다. 코스의 길이가 길고 UNDULATION에 따른 스탠스 조절이
+                    어려우므로 전략적인 LANDING ZONE의 선정이 이 홀의 KEY POINT다. 3RD SHOT은 그린 좌측과 뒤편의 벙커를 고려하여 직접 PIN을 공략한다.</p>
+            </div>
+
+            <div class="course-text">
+                <div class="holeTitle2">
+                    <h3 class="holeMainTitle">HOLE 9</h3>
+                    <small class="holeSubTitle">HDCP 3, PAR 5</small>
+                </div>
+                <div class="courseLayoutWrap">
+                    <div class="courseLayout-img">
+                        <img src="/images/course/mountain/m9.png" alt="">
+                    </div>
+                    <ul class="courseMeterList">
+                        <li>
+                            <div class="courseMeterIcon black"></div>563m
+                        </li>
+                        <li>
+                            <div class="courseMeterIcon blue"></div>539m
+                        </li>
+                        <li>
+                            <div class="courseMeterIcon white"></div>514m
+                        </li>
+                        <li>
+                            <div class="courseMeterIcon yellow"></div>491m
+                        </li>
+                        <li>
+                            <div class="courseMeterIcon red"></div>462m
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<footer class="footer-sub">
+    <div class="down-arrow-wrap2">
+        <img src="/images/down-arrow.svg" alt="">
+    </div>
+</footer>
+</div>
+<script>
+    $(document).ready(function () {
+        $('.scroll').scroll(function () {
+            const container = $(this);
+            const scrollTop = container.scrollTop();
+            const containerHeight = container.height();
+            const contentHeight = container.get(0).scrollHeight;
+
+            if (scrollTop + containerHeight >= contentHeight) {
+                $('.down-arrow-wrap2').fadeOut('slow');
+            } else {
+                $('.down-arrow-wrap2').fadeIn('slow');
+            }
+        });
+    });
+</script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a1e3e7321b109d6e',t:'MTc4NDU3MDgyMQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script><script defer src="https://static.cloudflareinsights.com/beacon.min.js/v4513226cdae34746b4dedf0b4dfa099e1781791509496" integrity="sha512-ZE9pZaUXND66v380QUtch/5sE9tPFh2zg45pR2PB0CVkCtOREv2AJKkSidISWkysEuQ0EH8faUU5du78bx87UQ==" data-cf-beacon='{"version":"2024.11.0","token":"de9f4891b32a4c7ba3c624fc918787fa","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+</body>
+</html>
+
+<script>
+    function courseTab(num) {
+        for (i = 1; i <= 9; i++) {
+            if (i == num) {
+                $("#course" + i).addClass("on");
+                $("#courseCon" + i).show();
+                $("#courseVideo" + i).show();
+            } else {
+                $("#course" + i).removeClass("on");
+                $("#courseCon" + i).hide();
+                $("#courseVideo" + i).hide();
+            }
+        }
+    }
+
+    if (location.href.indexOf("/course/mountain.asp") < 0) {
+        $('.breadcrumbWrap').hide();
+    } else {
+        $('.breadcrumbWrap').show();
+    }
+</script>

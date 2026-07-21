@@ -1,0 +1,448 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="user-scalable=yes, initial-scale=0.3, maximum-scale=1.0, minimum-scale=0.1, width=device-width" />
+    <meta name="title" content="세레니티 강촌CC">
+    <meta name="author" content="세레니티 강촌CC">
+    <meta name="Keywords" content="세레니티 강촌CC, 세레니티 강촌 컨트리 클럽 ">
+    <meta name="description" content="세레니티 강촌CC, 세레니티 강촌 컨트리 클럽 ">
+    <meta name="copyright" content="All Contents Copyright©Serenity Gangchon Country Club">
+    <meta name="format-detection" content="telephone=no, address=no, email=no" />
+    <meta property="og:type" content="mobile">
+    <meta property="og:title" content="세레니티 강촌CC, 세레니티 강촌 컨트리 클럽">
+    <meta property="og:description" content="세레니티 강촌CC, ">
+    <meta property="og:url" content="">
+    <title>세레니티 강촌CC</title>
+
+    <link rel="stylesheet" type="text/css" href="/css/import.css?v=1.3">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+    <link rel="stylesheet" type="text/css" href="/css/content.css?v=8">
+
+    <link rel="stylesheet" type="text/css" href="/css/slick.css" />
+    <link rel="stylesheet" type="text/css" href="/css/slick-theme.css" />
+
+    <script type="text/javascript" src="/js/jquery.js"></script>
+    <script type="text/javascript" src="/js/slick.js"></script>
+
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+    <script type="text/javascript" src="/js/common.js"></script>
+    <script src="/js/jquery.preloaders.js"></script>
+    <script src="/js/tools.js"></script>
+    <script src="/js/globals.js"></script>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.8.2/css/all.min.css" />
+    <link rel="stylesheet" type="text/css" href="/css/motion.css">
+    <link rel="stylesheet" type="text/css" href="/css/animate.css">
+    <script src="/js/wow.js"></script>
+    
+    <link rel="favicon" href="/favicon.ico">
+    
+    <script type="text/javascript">
+        /* 컨텐츠 fade in */
+        wow = new WOW({
+            boxClass: 'fadeBox',
+            animateClass: 'animated',
+            offset: 100,
+            callback: function(box) {
+                //console.log("WOW: animating <" + box.tagName.toLowerCase() + ">")
+            }
+        });
+        wow.init();
+        /*//컨텐츠 fade in */
+
+        $(document).ready(function() {
+            //setProtocol();
+            sessionCheck();
+        });
+
+        function doLogout() {
+            var sUrl = "/controller/MemberController.asp";
+            var params = {};
+
+            params["method"] = "doLogout";
+
+            mAjax(sUrl, params, "POST", true, function(data) {
+                if (data.resultCode == "0000") {
+                    alert("로그아웃 되었습니다.");
+
+                    location.href = "/index.asp";
+                }
+            });
+        }
+
+        function setProtocol() {
+            if (document.location.protocol == 'http:') {
+                document.location.href = document.location.href.replace('http:', 'https:');
+            }
+        }
+
+        function sessionCheck() {
+            var sUrl = "/controller/SessionManager.asp";
+            var params = {
+                "method": "sessionConfirm"
+            };
+
+            mAjax(sUrl, params, "POST", false, function(data) {
+                if (data.resultCode == "2000") {
+                    alert(data.resultMessage);
+                    location.reload();
+                }
+            });
+        }
+
+        function deleteMember() {
+
+            if ("" == "") {
+                alert("로그인 후 이용 가능합니다.");
+                location.href = "/member/login.asp";
+                return;
+            }
+
+            var sUrl = "/controller/MemberController.asp";
+            var params = {};
+
+            params["method"] = "doDeleteMemeber";
+
+            var con = confirm("회원님께서 확인 버튼을 누르면 탈퇴가 완료됩니다.\r\n그동안 세레니티 강촌CC를 이용해 주셔서 감사합니다..");
+            if (con == true) {
+                mAjax(sUrl, params, "POST", true, function(data) {
+                    if (data.resultCode == "0000") {
+                        alert("회원 탈퇴 되었습니다.");
+
+                        location.href = "/index.asp";
+                    }
+                });
+            }
+        }
+
+    </script>
+    <!--textmotion-->
+    <script src="/js/ScrollTrigger.js"></script>
+    <script>
+        window.counter = function($) {
+            // this refers to the html element with the data-scroll-showCallback tag
+            var span = this.querySelector('span');
+            var current = parseInt(span.textContent);
+
+            span.textContent = current + 1;
+        };
+
+        document.addEventListener('DOMContentLoaded', function($) {
+            var trigger = new ScrollTrigger({
+                addHeight: true
+            });
+        });
+
+    </script>
+    <!-- subTab Fixed js -->
+    <script src="//code.jquery.com/jquery-1.12.4.min.js"></script>
+
+    <script src="/js/jquery.preloaders.js"></script>
+    <script src="/js/tools.js"></script>
+    <script src="/js/globals.js"></script>
+</head>
+
+<body>
+    <div class="siteAll">
+        <div class="toggleMenu"><span></span></div>
+    </div>
+    <div id="header">
+        <div class="subHeader">
+            <a href="/index.asp" class="logoBox" id="logo"></a>
+            <ul class="mainList">
+                <li onclick="location.href='/reservation/reservation.asp'">인터넷예약</li>
+                <li onclick="location.href='/guide/fee.asp'">이용안내</li>
+                <!--<li onclick="location.href='/club/intro.asp'">클럽소개</li>-->
+                <li onclick="location.href='/club/intro.asp'">클럽소개</li>
+                <li onclick="location.href='/course/intro.asp'">코스소개</li>
+                <!--<li onclick="javascript:alert('준비중입니다.');">시설안내</li>-->
+                <li onclick="location.href='/fac/fac01.asp'">시설안내</li>
+                <li onclick="location.href='/board/list.asp?type=1'">정보마당</li>
+            </ul>
+            <div id="scrollmenuwrap">
+    <div id="scrollmenu2">
+        <div class="menuBox">
+            <ul class="subMenu ul1">
+                <li><a href="/reservation/reserGuide.asp">예약안내</a></li>
+                <li><a href="/reservation/reservation.asp">실시간예약</a></li>
+                <li><a href="/reservation/reserCheck.asp">예약확인/취소</a></li>
+                <li><a href="/reservation/package-info.asp">1박2일 패키지</a></li>
+            </ul>
+
+            <ul class="subMenu ul2">
+                <!--<li><a href="/guide/reserGuide.asp">예약안내</a></li>-->
+                <li><a href="/guide/fee.asp">이용요금</a></li>
+                <li><a href="/guide/break.asp">위약안내</a></li>
+                <li><a href="/guide/membership.asp">회원모집</a></li>
+                <li><a href="/guide/menu.asp">식음안내</a></li>
+                <!--<li><a href="/guide/etiquette.asp">에티켓</a></li>-->
+                <!--<li><a href="/guide/inquiry.asp">예약/기타문의</a></li>-->
+            </ul>
+
+            <ul class="subMenu ul3">
+                <li><a href="/club/intro.asp">클럽소개</a></li>
+                <!--<li><a href="/club/greeting.asp">인사말</a></li>-->
+                <li><a href="/club/location.asp">오시는길</a></li>
+                <li><a href="/club/manner.asp">클럽에티켓</a></li>
+            </ul>
+
+            <ul class="subMenu ul4">
+                <li><a href="/course/intro.asp">코스소개</a></li>
+                <li><a href="/course/forest_01.asp">파란 코스</a></li>
+                <li><a href="/course/hill_01.asp">청춘 코스</a></li>                
+                <li><a href="/board/list.asp?type=5">코스갤러리</a></li>
+            </ul>
+
+            <ul class="subMenu ul5">
+                <li><a href="/fac/fac01.asp">클럽하우스</a></li>
+                <li><a href="javascript:alert('준비중입니다.');">2층 라운지</a></li>
+                <li><a href="/fac/fac02.asp">레스토랑</a></li>
+                <li><a href="/fac/fac03.asp">프로샵</a></li>
+                <li><a href="/fac/fac04.asp">락카</a></li>
+                <!--<li><a href="javascript:alert('준비중입니다.');">클럽하우스</a></li>
+                <li><a href="javascript:alert('준비중입니다.');">레스토랑</a></li>
+                <li><a href="javascript:alert('준비중입니다.');">프로샵</a></li>
+                <li><a href="javascript:alert('준비중입니다.');">락카</a></li>-->
+            </ul>
+
+            <ul class="subMenu ul6">
+                <li><a href="/board/list.asp?type=1">공지사항</a></li>
+                <li><a href="/board/list.asp?type=2">이벤트</a></li>
+                <li><a href="/board/list.asp?type=11">보도자료</a></li>
+                <li><a href="/board/list.asp?type=7">포토스케치</a></li>				
+                <li><a href="/board/list.asp?type=3">자료실</a></li>
+				<!--								
+                <li><a href="/board/Honor.asp">홀인원</a></li>
+                <li><a href="/reservation/joinList.asp">조인게시판</a></li>
+                <li><a href="/board/list.asp?type=7">명예의 전당</a></li>-->
+            </ul>
+        </div>
+
+        <div class="menuLine"></div>
+        
+        <div class="subMenuLink">
+            <ul class="menuLinkBox" onclick="location.href='/member/login.asp'">
+                <li class="icon"><img src="/images/menuIcon01.png" alt=""></li>
+                <li class="title">로그인</li>
+                <li class="txt">새로워진 세레니티 강촌 CC를<br>
+                    만나보세요</li>
+            </ul>
+            <div class="line"></div>
+            <ul class="menuLinkBox" onclick="location.href='/member/join01.asp'">
+                <li class="icon"><img src="/images/menuIcon02.png" alt=""></li>
+                <li class="title">회원가입</li>
+                <li class="txt">회원가입 하면 더 많은 혜택을<br>
+                    받을 수 있습니다.</li>
+            </ul>
+        </div>
+        
+    </div>
+</div>
+
+
+            <ul class="rightBtn">
+                <li class="topJoin">
+                    <a href="https://www.serenitycc.co.kr/index.asp" class="serenity">세레니티</a>
+                    <a href="https://www.podocc.com/index.asp" class="podo">포도CC</a>
+                    
+                    <a href="/member/login.asp" class="topLogin" id="login"></a>
+                    
+                </li>
+            </ul>
+        </div>
+        <div id="menu">
+	<div class="main-nav">
+		<img src="/images/logo.svg" alt="로고" class="hambergerLogo">
+		<ul class="menuTitleBox">
+			<li><a href="/reservation/reservation.asp" class="title">인터넷예약</a></li>
+			<li><a href="/reservation/reserGuide.asp">예약안내</a></li>
+			<li><a href="/reservation/reservation.asp">실시간예약</a></li>
+			<li><a href="/reservation/reserCheck.asp">예약확인/취소</a></li>
+            <li><a href="/reservation/package-info.asp">1박2일 패키지</a></li>
+		</ul>
+		<ul class="menuTitleBox">
+			<li><a class="title" href="/guide/fee.asp">이용안내</a></li>
+			<!--<li><a href="/guide/reserGuide.asp">예약안내</a></li>-->
+            <li><a href="/guide/fee.asp">이용요금</a></li>
+            <li><a href="/guide/break.asp">위약안내</a></li>
+            <li><a href="/guide/membership.asp">회원모집</a></li>
+						<li><a href="/guide/menu.asp">식음안내</a></li>
+            <!--<li><a href="/guide/etiquette.asp">에티켓</a></li>-->
+            <!--<li><a href="/guide/inquiry.asp">예약/기타문의</a></li>-->
+		</ul>
+		<ul class="menuTitleBox">
+			<li><a class="title" href="/club/intro.asp">클럽소개</a></li>
+			<li><a href="/club/intro.asp">클럽소개</a></li>
+            <!--<li><a href="/club/greeting.asp">인사말</a></li>-->
+            <li><a href="/club/location.asp">오시는길</a></li>
+            <li><a href="/club/manner.asp">클럽에티켓</a></li>
+		</ul>
+		<ul class="menuTitleBox">
+			<li><a class="title" href="/course/intro.asp">코스소개</a></li>
+			<li><a href="/course/intro.asp">코스소개</a></li>
+			<li><a href="/course/forest_01.asp">파란 코스</a></li>
+            <li><a href="/course/hill_01.asp">청춘 코스</a></li>
+			<li><a href="/board/list.asp?type=5">코스갤러리</a></li>
+		</ul>
+		<ul class="menuTitleBox">
+			<li><a class="title" href="/fac/fac01.asp">시설안내</a></li>
+			<li><a href="/fac/fac01.asp">클럽하우스</a></li>
+            <li><a href="javascript:alert('준비중입니다.');">2층 라운지</a></li>
+            <li><a href="/fac/fac02.asp">레스토랑</a></li>
+            <li><a href="/fac/fac03.asp">프로샵</a></li>
+            <li><a href="/fac/fac04.asp">락카</a></li>
+            <!--<li><a href="javascript:alert('준비중입니다.');">클럽하우스</a></li>
+            <li><a href="javascript:alert('준비중입니다.');">레스토랑</a></li>
+            <li><a href="javascript:alert('준비중입니다.');">프로샵</a></li>
+            <li><a href="javascript:alert('준비중입니다.');">락카</a></li>-->
+		</ul>
+		<ul class="menuTitleBox">
+			<li><a class="title" href="/board/list.asp?type=1">정보마당</a></li>
+			<li><a href="/board/list.asp?type=1">공지사항</a></li>
+			<!--<li><a href="/board/list.asp?type=2">이벤트</a></li>
+			<li><a href="/board/list.asp?type=3">보도자료</a></li>
+			<li><a href="/board/list.asp?type=4">자료실</a></li>
+			<li><a href="/board/Honor.asp">홀인원</a></li>
+			<li><a href="/reservation/joinList.asp">조인게시판</a></li>
+			<li><a href="/board/list.asp?type=7">명예의 전당</a></li>-->			
+		</ul>
+	</div>
+</div>
+
+    </div>
+
+    </div>
+
+<div class="middleBg4 zoomImg">
+</div>
+<ul class="mainMenuTitle text-focus-in">
+    <li class="big">Course Guide</li>
+    <li>코스소개</li>
+</ul>
+
+<!-- 컨텐츠 시작 -->
+<div id="wrap">
+    <div class="navbarWrap">
+        <ul class="navbarBox">
+            <li class="" onclick="location.href='/course/intro.asp'">코스소개</li>
+            <li class="on" onclick="location.href='/course/forest_01.asp'">파란 코스</li>
+            <li class="" onclick="location.href='/course/hill_01.asp'">청춘 코스</li>
+            <li class="" onclick="location.href='/board/list.asp?type=5'">코스갤러리</li>
+            <li class="homeBox"><img src="/images/home.jpg" alt="">&nbsp; 코스소개 &nbsp;<img src="/images/mini_arw.jpg" alt="">&nbsp; 파란 코스</li>
+        </ul>
+    </div>
+
+    <div class="courseLine"></div>
+    <div class="contents" style="background:none;">
+        <ul class="courseTitle">
+            <li class="txt">특별한 품격과 감동의 세계로 귀하를 초대합니다</li>
+            <li class="course">파란 Course</li>
+        </ul>
+        <ul class="courseTab">
+            <li><a href="forest_01.asp" class="">1홀</a></li>
+            <li><a href="forest_02.asp" class="">2홀</a></li>
+            <li><a href="forest_03.asp" class="">3홀</a></li>
+            <li><a href="forest_04.asp" class="on">4홀</a></li>
+            <li><a href="forest_05.asp" class="">5홀</a></li>
+            <li><a href="forest_06.asp" class="">6홀</a></li>
+            <li><a href="forest_07.asp" class="">7홀</a></li>
+            <li><a href="forest_08.asp" class="">8홀</a></li>
+            <li><a href="forest_09.asp" class="">9홀</a></li>
+            <li><a href="hill_01.asp" class="course">청춘 Course</a></li>
+        </ul>
+
+        <div class="courseBox">
+            <ul class="leftInfo">
+                <li class="hole">4 <span class="en">hole (Par 4 / HDCP 5)</span></li>
+                <li class="titleBox">Course Guide</li>
+                <!-- 공략문구 start -->
+                <li class="courseInfo">마치 페어웨이가 전반부와 후반부로 나뉘어져 있는 듯한 파4홀로 티샷부터 커다란 해저드를 넘겨야 하는 부담감이 있다.<br><br>좌측 해저드로 인하여 자연스럽게 슬라이스가 날 수 있으나 다행히 페어웨이가 넓다. 세컨지점에서 그린까지 오르막 지형에 그린이 대각선으로 길게 누워있어 핀의 위치에 따라 공략포인트의 난이도가 매우 달라진다.</li>
+                <!-- 공략문구 end -->
+                <li class="table">
+                    <table class="tbl-hole">
+                        <caption>게시판</caption>
+                        <colgroup>
+                            <col width="20%">
+                            <col width="20%">
+                            <col width="20%">
+                            <col width="20%">
+                            <col width="20%">
+                        </colgroup>
+                        <tbody>
+                            <tr>
+                                <th class="black">BLACK</th>
+                                <th class="blue">BLUE</th>
+                                <th class="white">WHITE</th>
+                                <th class="yellow">YELLOW</th>
+                                <th class="red">RED</th>
+                            </tr>
+                            <!-- 홀제원 start -->
+                            <tr>
+                                <td>346m</td>
+                                <td>346m</td>
+                                <td>321m</td>
+                                <td>283m</td>
+                                <td>244m</td>
+                            </tr>
+                            <!-- 홀제원 end -->
+                        </tbody>
+                    </table>
+                </li>               
+            </ul>
+            <div class="rightImg">
+                <img src="/images/course/hole_04.jpg" alt="">
+            </div>
+        </div>
+
+
+    </div>
+
+</div> <!-- wrap End -->
+<!--textmotion-->
+	<script src="/js/ScrollTrigger.js"></script>
+	<script>
+		window.counter = function($) {
+			// this refers to the html element with the data-scroll-showCallback tag
+			var span = this.querySelector('span');
+			var current = parseInt(span.textContent);
+				span.textContent = current + 1;
+		};
+
+			document.addEventListener('DOMContentLoaded', function($){
+			var trigger = new ScrollTrigger({
+				addHeight: true
+			});
+		});
+	</script>
+<!-- footer 영역 -->
+<div id="footerWrap">
+			<div class="footerBox">
+				<img src="/images/logo.svg" alt="" class="logo_g">
+				<!--<ul class="snsLink">
+					<li class=""><a href="javascript:alert('준비중입니다.')"><img src="/images/sns_f.png" alt=""></a></li>
+					<li class=""><a href="javascript:alert('준비중입니다.')"><img src="/images/sns_t.png" alt=""></a></li>
+					<li class=""><a href="javascript:alert('준비중입니다.')"><img src="/images/sns_i.png" alt=""></a></li>
+				</ul>-->
+				<ul class="termsBox">
+					<li class=""><a href="/member/clause.asp">사이트 이용약관</a></li>
+					<li class="bar"></li>
+					<li class=""><a href="/member/policy.asp">개인정보처리방침</a></li>
+					<li class="bar"></li>
+					<li class=""><a href="/member/email.asp">이메일무단수집거부</a></li>
+				</ul>
+				<p class="addBox">
+					상호명 : 주식회사 다옴드노엘 &emsp; 강원도 춘천시 남면 소주고개로 145-14일원(강원특별자치도 춘천시 남면 후동리 618) &emsp; 예약문의 : 033-261-6556 &emsp; 대표전화 : 033-261-6556 &emsp; <br> 
+					대표 FAX : 033-261-0760 &emsp; 사업자등록번호 : 847-88-03248 <!--&emsp; 통신판매업 : 제2025-강원춘천-0479호--> &emsp; 대표이사 : 김주영<br>
+					<br><br>
+					Copyright ⓒ 2025 Serenity Gangchon Country Club. All rights reserverd. 
+				</p>
+			</div>
+			<p id="topArrow" style=""><a href="#top"></a></p>
+		</div>
+
+</body>
+</html>

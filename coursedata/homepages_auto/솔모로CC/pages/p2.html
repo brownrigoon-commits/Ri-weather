@@ -1,0 +1,762 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    
+    <meta charset="UTF-8">
+<title>솔모로CC</title>
+
+<link rel="shortcut icon" href="/Content/web/img/favicon.ico">
+
+<link type="text/css" rel="stylesheet" href="/Content/web/css/common.css">
+
+
+
+
+<link type="text/css" rel="stylesheet" href="/Content/web/css/board.css">
+<link type="text/css" rel="stylesheet" href="/Content/web/css/form.css">
+<link type="text/css" rel="stylesheet" href="/Content/web/css/member.css">
+
+
+        <link type="text/css" rel="stylesheet" href="/Content/web/css/reserv.css">
+    <link type="text/css" rel="stylesheet" href="/Content/web/css/course.css">
+    <link type="text/css" rel="stylesheet" href="/Content/web/css/sub.css?v=2">
+
+<link type="text/css" rel="stylesheet" href="/Content/web/css/three-dots.css">
+
+<link type="text/css" rel="stylesheet" href="/Content/web/css/aos.css">
+
+<script src="/Content/web/js/jquery-1.12.3.min.js"></script>
+<script type="text/javascript" src="/Content/web/js/slick.min.js"></script>
+<script type="text/javascript" src="/Content/web/js/jquery.bxslider.min.js"></script>
+<script type="text/javascript" src="/Content/web/js/aos.js"></script>
+<script type="text/javascript" src="/Content/web/js/slide.js"></script>
+
+<script src="/Scripts/common.js"></script>
+<script src="/Scripts/checkForm.js"></script>
+<script src="/Scripts/jquery.vticker-min.js"></script>
+
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+
+
+        /*nav*/
+        $("#header").mouseenter(function () {
+            $(this).addClass("over")
+        });
+
+        $(window).scroll(function () {
+            var sc = $(window).scrollTop()
+            if (sc > 150) {
+                $("#header").addClass("over").mouseleave(function () {
+                    $(this).addClass("over")
+                });
+                $(".lnb li").addClass("bgColor");
+            } else {
+                $("#header").removeClass("over").mouseenter(function () {
+                    $(this).addClass("over")
+                }).mouseleave(function () {
+                    $(this).removeClass("over")
+                });
+                $(".lnb li").removeClass("bgColor");
+            }
+        });
+
+        $("#header").mouseleave(function () {
+            $(this).removeClass("over")
+        });
+
+        $(".scroll").click(function () {
+            $('html, body').animate({
+                scrollTop: 700
+            }, '2000');
+        });
+
+        /*weather*/
+        $('.weather').hover(function () {
+            $(this).addClass("dropDown")
+        });
+        $('.weather').mouseleave(function () {
+            $(this).removeClass("dropDown")
+        });
+
+
+        $(window).scroll(function () {
+            if ($(this).scrollTop() > 100) {
+                $('#topBtn').fadeIn();
+            } else {
+                $('#topBtn').fadeOut();
+            }
+        });
+
+        $("#topBtn").click(function () {
+            $('html, body').animate({
+                scrollTop: 0
+            }, 500);
+            return false;
+        });
+
+    });
+</script>
+
+</head>
+<body>
+
+    <div id="ajaxLoadingBox" style="display:none;z-index:99999;"></div>
+    
+    
+    <div id="header">
+    <div class="topNavi">
+        <div class="wrap">
+
+            <div id="top_weather_box">
+                <ul id="top_weather" class="weather"></ul>
+            </div>
+
+
+                <div class="utilInner">
+                    <a href="/Member/Login">로그인</a>
+                    <a href="/Member/Join01">회원가입</a>
+                    <a href="/Member/FindAccount">ID/PW찾기</a>
+                </div>
+
+        </div>
+    </div>
+    <div class="endline"></div>
+    <div class="nav wrap">
+        <h1 class="logo">
+            <a href="/">LOGO</a>
+        </h1>
+        <ul class="lnb">
+            <li>
+                <a href="/Club/Info" class="depth1">클럽소개</a>
+                <div id="club" class="depth2">
+                    <a href="/Club/Info">클럽소개</a>
+                    <a href="/Club/Greeting">대표이사 인사말</a>
+                    <a href="/Club/History">개요 및 연혁</a>
+                    <a href="/Club/Facility">시설안내</a>
+                    <a href="/Club/Location">오시는길</a>
+                </div>
+            </li>
+            <li>
+                <a href="/Course/Index" class="depth1">코스소개</a>
+                <div id="course" class="depth2">
+                    <a href="/Course/Index">코스소개</a>
+                    <a href="/Course/Course1">Cherry 코스</a>
+                    <a href="/Course/Course2">Persimmon 코스</a>
+                    <a href="/Course/Course3">Pine 코스</a>
+                    <a href="/Course/Course4">Maple 코스</a>
+                </div>
+            </li>
+            <li>
+                <a href="/Guide/ReservInfo" class="depth1">이용안내</a>
+                <div id="guide" class="depth2">
+                    <a href="/Guide/ReservInfo">예약방법</a>
+                    <a href="/Guide/UsageFee">골프장 이용요금</a>
+                    <a href="/Guide/Restaurant">레스토랑</a>
+                    <a href="/Guide/Snackshop">그늘집</a>
+                    <a href="/Guide/DressRule">복장규정</a>
+                    <a href="/Guide/GuestRule">내장객 협조사항</a>
+
+                </div>
+            </li>
+            <li>
+                <a href="/Reservation/ReservCalendar" class="depth1">인터넷예약</a>
+                <div id="reservation" class="depth2">
+                    <a href="/Reservation/ReservCalendar">실시간예약</a>
+                    <a href="/Reservation/ReservedList">예약확인/취소</a>
+                    <a href="/Reservation/JoinList">조인게시판</a>
+                </div>
+            </li>
+            <li>
+                <a href="/MyPage/VisitList" class="depth1">회원라운지</a>
+                <div id="mypage" class="depth2">
+                    <a href="/MyPage/VisitList">내장현황</a>
+                    <a href="/MyPage/PenaltyList">위약현황</a>
+                    <a href="/MyPage/ScoreList">스코어현황</a>
+                    
+                    <a href="/MyPage/MyInfo">회원정보</a>
+                </div>
+            </li>
+
+            <li>
+                <a href="/Board/BoardList?board_idx=1" class="depth1">정보마당</a>
+                <div id="board" class="depth2">
+                    <a href="/Board/BoardList?board_idx=1">공지사항</a>
+                    <a href="/Board/BoardList?board_idx=6">자료실</a>
+                    <a href="/Board/BoardList?board_idx=2">포토갤러리</a>
+                    <a href="/Board/HonorList">명예의전당</a>
+                    <a href="https://www.weather.go.kr/w/index.do#dong/4167025000" target="_blank">날씨정보(기상청)</a>
+                    <a href="https://weather.naver.com/today/02670250" target="_blank">날씨정보(네이버)</a>
+                </div>
+            </li>
+
+            <li style="display:none">
+                <a href="../board/board01.html" class="depth1">회원</a>
+                <div id="member" class="depth2">
+                    <a href="/Member/Login">로그인</a>
+                    <a href="/Member/Join01">회원가입</a>
+                    <a href="/Member/FindAccount">아이디/비밀번호 찾기</a>
+                </div>
+            </li>
+
+            <li style="display:none">
+                <a href="../board/board01.html" class="depth1">회원</a>
+                <div id="terms" class="depth2">
+                    <a href="/Terms/ClubUseRule">골프장 이용약관</a>
+                    <a href="/Terms/SiteUseRule">인터넷 이용약관</a>
+                    <a href="/Terms/PrivacyRule">개인정보처리방침</a>
+                </div>
+            </li>
+
+        </ul>
+    </div>
+    <div class="endline"></div>
+</div>
+
+<script>
+    $(function () {
+
+        //$.ajax({
+        //    url: '/Board/TopWeather'
+        //    , type: 'POST'
+        //    , data: ''
+        //    , cache: true
+        //    , dataType: 'html'
+        //    , async: true
+        //    , beforeSend: function () { $('#ajaxLoadingBox').hide(); }
+        //    , success: function (data) {
+        //        $("#top_weather").html(data);
+        //        $('#ajaxLoadingBox').hide();
+        //    }
+        //    , error: function (result) { }
+        //});
+
+
+
+        //$('#top_weather_box').vTicker({
+        //    showItems: 1,
+        //    height: 32,
+        //    childrenSelector: "li"
+        //});
+    });
+</script>
+
+    <div id="section">
+        
+        
+
+<div class="subTop">
+    <div class="subVisual">
+        <div class="subTit">
+            <h2>COURSE INFO</h2>
+            <p>코스소개</p>
+        </div>
+        <div class="subBg subBg03"></div>
+    </div>
+    <ul id="sub-menu" class="subMenu">
+        
+    </ul>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        $(".subBg").addClass('subBg03');
+
+        const path = '/course/course1';
+        const sg = 'course';
+        const bidx = 0;
+
+
+        //console.log("path:"+ path +", sg:"+ sg) ;
+
+
+        $('.lnb > li').each(function () {
+            const lnb = $(this);
+
+            lnb.find('div').each(function () {
+                const div = $(this);
+
+                if (div.attr('id') == sg) {
+
+                    div.find('a').each(function () {
+                        const a = $(this);
+                        var href = a.attr('href').toLowerCase();
+                        var on;
+
+                        //console.log("path:" + path + ", href:" + href);
+
+                        if (path == href) {
+                            on = 'class=menuOn';
+                        } else if (sg == 'member' && path.indexOf('join') > -1 && href.indexOf('join') > -1) {   // 회원가입
+                            on = 'class=menuOn';
+                        } else if (sg == 'reservation' && path.indexOf('reservcheck') > -1 && href.indexOf('reservcalendar') > -1) {  // 실시간 예약
+                            on = 'class=menuOn';
+                        } else if (sg == 'reservation' && href.indexOf('joinlist') > -1 && (path.indexOf('joinform') > -1 || path.indexOf('joinview') > -1)) {  // 조인 게시판
+                            on = 'class=menuOn';
+                        }else if(sg == 'board' && bidx > 0 && href.indexOf('?board_idx='+bidx) > -1){ //  게시판
+                            on = 'class=menuOn';
+                        } else {
+                            on = '';
+                        }
+
+                        $('#sub-menu').append("<li><a " + on + " href=" + a.attr('href') + ">" + a.text() + "</a></li>");
+
+                    });
+
+                    // $('.subMenu').append('<li>' + v.html() + '</li>');
+
+                    // console.log($(this).find('a').text());
+                }
+            });
+        });
+    });
+</script>    
+
+        
+
+
+<div class="contents">
+    <div class="wrap">
+        <div class="courseInfo">
+            <h2 class="infoTit">CHERRY COURSE</h2>
+            <!--<div>
+                <dl class="infoTxt">
+                    <dt>PAR</dt>
+                    <dd>36</dd>
+                </dl>
+                <dl class="infoTxt">
+                    <dt>거리</dt>
+                    <dd>3,479</dd>
+                </dl>
+            </div>-->
+            <div class="mapImg">
+                <img src="/Content/web/img/course/cm01.png" alt="체리코스맵">
+            </div>
+        </div>
+        <div class="courseList">
+            <a href="#">
+                <p class="cosTit"><span>1 Hole</span></p>
+                <img src="/Content/web/img/course/c1_t01.jpg" class="cosImg" alt="체리1번홀">
+            </a>
+            <a href="#">
+                <p class="cosTit"><span>2 Hole</span></p>
+                <img src="/Content/web/img/course/c1_t02.jpg" class="cosImg" alt="체리2번홀">
+            </a>
+            <a href="#">
+                <p class="cosTit"><span>3 Hole</span></p>
+                <img src="/Content/web/img/course/c1_t03.jpg" class="cosImg" alt="체리3번홀">
+            </a>
+            <a href="#">
+                <p class="cosTit"><span>4 Hole</span></p>
+                <img src="/Content/web/img/course/c1_t04.jpg" class="cosImg" alt="체리4번홀">
+            </a>
+            <a href="#">
+                <p class="cosTit"><span>5 Hole</span></p>
+                <img src="/Content/web/img/course/c1_t05.jpg" class="cosImg" alt="체리5번홀">
+            </a>
+            <a href="#">
+                <p class="cosTit"><span>6 Hole</span></p>
+                <img src="/Content/web/img/course/c1_t06.jpg" class="cosImg" alt="체리6번홀">
+            </a>
+            <a href="#">
+                <p class="cosTit"><span>7 Hole</span></p>
+                <img src="/Content/web/img/course/c1_t07.jpg" class="cosImg" alt="체리7번홀">
+            </a>
+            <a href="#">
+                <p class="cosTit"><span>8 Hole</span></p>
+                <img src="/Content/web/img/course/c1_t08.jpg" class="cosImg" alt="체리8번홀">
+            </a>
+            <a href="#">
+                <p class="cosTit"><span>9 Hole</span></p>
+                <img src="/Content/web/img/course/c1_t09.jpg" class="cosImg" alt="체리9번홀">
+            </a>
+        </div>
+        <div class="endline"></div>
+    </div>
+</div>
+
+<!-- 코스 레이어 팝업 -->
+<div class="cosPopup">
+	<div class="popInner">
+		<div class="closedBtn"><span></span></div>
+		<ol class="holeTab">
+			<li class="active">1H</li>
+			<li>2H</li>
+			<li>3H</li>
+			<li>4H</li>
+			<li>5H</li>
+			<li>6H</li>
+			<li>7H</li>
+			<li>8H</li>
+			<li>9H</li>
+		</ol>
+		<div class="endline"></div>
+		<div class="tabContent">
+		    <div>
+                <div class="holeCnt">
+                    <div class="cosInfo">
+                        <p class="cosTit"><span>Cherry 1</span>Hole </p>
+                        <p class="par">Par 4 / HDCP 3</p>
+                    </div>
+                </div>
+                <div class="holeInfo">
+                   <iframe width="600" height="330" src="https://www.youtube.com/embed/mnkmd8vF3fs" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                   <dl class="infoInner">
+                        <dt>PRO TIP</dt>
+                        <dd>
+시원하게 펼쳐진 티잉그라운드가
+도전의욕을 불러 일으키는 홀로서 좌측에
+그린앞까지 길게 위치한 워터해저드가 부담을 주고
+티박스를 둘러싼 나무들이 티샷방향에
+제한을 주므로 정확한 티샷이 요구되며,
+그린좌측의 넓은 벙커와 그린앞을 가로지르는
+계곡물이 클럽 선택에 신중함을 기하게 한다.<br>
+그린 언쥬레이션은 심한편이다.
+                        </dd>
+                    </dl>
+                </div>
+                <span class="holeMap">
+                    <img src="/Content/web/img/course/c1_01.jpg" alt="체리코스1번홀">
+                </span>
+            </div>
+                    
+			<div>
+				<div class="holeCnt">
+					<div class="cosInfo">
+						<p class="cosTit"><span>Cherry 2</span>Hole </p>
+						<p class="par">Par 4 / HDCP 17</p>
+				    </div>
+                </div>
+                <div class="holeInfo">
+                   <iframe width="600" height="330" src="https://www.youtube.com/embed/lZxT32GjK84" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                    <dl class="infoInner">
+                        <dt>PRO TIP</dt>
+                        <dd>
+우측에 보이지 않는 공간이 있어 티샷은 비교적
+용이하나 작고 언쥬레이션이 심한 아일랜드 그린과
+뒷편의 벙커가 일말의 실수도 허용하지 않는다.<br>
+짧은홀이지만 절대 방심할 수 없는 홀이다.
+                        </dd>
+                    </dl>
+				</div>
+				<span class="holeMap">
+					<img src="/Content/web/img/course/c1_02.jpg" alt="체리코스2번홀">
+				</span>
+			</div>
+			<div>
+				<div class="holeCnt">
+					<div class="cosInfo">
+						<p class="cosTit"><span>Cherry 3</span>Hole </p>
+						<p class="par">Par 4 / HDCP 11</p>
+				    </div>
+                </div>
+                <div class="holeInfo">
+                   <iframe width="600" height="330" src="https://www.youtube.com/embed/0bUTkFvHHIQ" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                    <dl class="infoInner">
+                        <dt>PRO TIP</dt>
+                        <dd>
+우도그렉 파4홀로 티박스를 둘러싼 조경수로인해
+무리하게 질러치기보다는 훼어웨이 중앙을 공략하는
+것이 유리하며 스트레이트 혹은 기술적인 훼이드샷이
+요구된다. 장타자의 경우 정중앙으로 볼이 날아가면
+정면의 숲에 걸려 그린이 보이지 않을 수도 있다.<br>
+그린앞에 위치한 3M 높이의 엄청난 벙커가
+위압감을 주며, 1클럽 정도의 여유있는 클럽선택이
+유리하나 그 뒤엔 2단 그린이 기다리고 있어 어느곳하나 마음 놓을 수 있는 곳이 없다.
+                        </dd>
+                    </dl>
+                </div>
+				<span class="holeMap">
+					<img src="/Content/web/img/course/c1_03.jpg" alt="체리코스3번홀">
+				</span>
+			</div>
+			<div>
+				<div class="holeCnt">
+					<div class="cosInfo">
+						<p class="cosTit"><span>Cherry 4</span>Hole </p>
+						<p class="par">Par 3 / HDCP 7</p>
+				    </div>
+                </div>
+                <div class="holeInfo">
+                   <iframe width="600" height="330" src="https://www.youtube.com/embed/BCM7SyGV7sQ" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                    <dl class="infoInner">
+                        <dt>PRO TIP</dt>
+                        <dd>
+그린 언쥬레이션이 매우심한 Par 3 홀로써
+정교한 퍼팅이 요구된다.<br>
+핀의 위치에 따라 이 홀의 난이도가 좌우된다.
+                        </dd>
+                    </dl>
+                </div>
+				<span class="holeMap">
+					<img src="/Content/web/img/course/c1_04.jpg" alt="체리코스4번홀">
+				</span>
+			</div>
+			<div>
+				<div class="holeCnt">
+					<div class="cosInfo">
+						<p class="cosTit"><span>Cherry 5</span>Hole </p>
+						<p class="par">Par 4 / HDCP 5</p>
+				    </div>
+                </div>
+                <div class="holeInfo">
+                   <iframe width="600" height="330" src="https://www.youtube.com/embed/GtuyjKUPFrg" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                    <dl class="infoInner">
+                        <dt>PRO TIP</dt>
+                        <dd>
+우도그렉 Par 4홀로써 티샷시 전방에 보이는
+그늘집을 넘겨야 하고 I.P지점이 좁아서
+매우 정교한 티샷이 요구된다.<br>
+페어웨이에 떨어져도 그린의 핀 위치가 잘 보이지
+않을뿐더러 바로 핀을 공략할 경우
+깊게 패인 O.B골짜기를 넘겨야 하는
+200yd의 샷을남기게 된다. Par 4홀이지만
+어쩔 수 없이 3on 공략을 해야 할 때가 많다.
+                        </dd>
+                    </dl>
+                </div>
+				<span class="holeMap">
+					<img src="/Content/web/img/course/c1_05.jpg" alt="체리코스5번홀">
+				</span>
+			</div>
+			<div>
+				<div class="holeCnt">
+					<div class="cosInfo">
+						<p class="cosTit"><span>Cherry 6</span>Hole </p>
+						<p class="par">Par 4 / HDCP 13</p>
+				    </div>
+                </div>
+                <div class="holeInfo">
+                   <iframe width="600" height="330" src="https://www.youtube.com/embed/aQOaq-KzBJE" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                    <dl class="infoInner">
+                        <dt>PRO TIP</dt>
+                        <dd>
+티샷지점에서 그린이 보이지 않는 Par 4홀로
+비교적 공략이 어렵지 않으나, 세컨에서 그린까지의
+거리가 짧아보이는 착시현상으로 클럽선택에
+신중을 기해야한다.
+                        </dd>
+                    </dl>
+                </div>
+				<span class="holeMap">
+					<img src="/Content/web/img/course/c1_06.jpg" alt="체리코스6번홀">
+				</span>
+			</div>
+			<div>
+				<div class="holeCnt">
+					<div class="cosInfo">
+						<p class="cosTit"><span>Cherry 7</span>Hole </p>
+						<p class="par">Par 5 / HDCP 9</p>
+				    </div>
+                </div>
+                <div class="holeInfo">
+                   <iframe width="600" height="330" src="https://www.youtube.com/embed/lMM06fzlASc" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                    <dl class="infoInner">
+                        <dt>PRO TIP</dt>
+                        <dd>
+정방향의 긴 티잉그라운드와 그린까지
+15도 경사의 오르막 Par 5홀로
+장타자는 세컨지점 좌,우측 벙커를 유의해야 하며,
+그린앞의 암석과 장애수가 2온을 힘들게 한다.<br>
+3온 2퍼팅의 정석 플레이가 요구된다.<br>
+그린 좌,우측의 상당한 표고차와
+심한 언쥬레이션이 플레이어를 괴롭힐 것이다.
+                        </dd>
+                    </dl>
+                </div>
+				<span class="holeMap">
+					<img src="/Content/web/img/course/c1_07.jpg" alt="체리코스7번홀">
+				</span>
+			</div>
+			<div>
+				<div class="holeCnt">
+					<div class="cosInfo">
+						<p class="cosTit"><span>Cherry 8</span>Hole </p>
+						<p class="par">Par 4 / HDCP 1</p>
+				    </div>
+                </div>
+                <div class="holeInfo">
+                   <iframe width="600" height="330" src="https://www.youtube.com/embed/cXK7I-Mprfo" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                    <dl class="infoInner">
+                        <dt>PRO TIP</dt>
+                        <dd>
+내리막 Par 4홀로 티잉그라운드에서 세컨지점이
+보이지않아 티샷시 심리적인 부담감을
+느끼게 하는 홀이다.<br>
+뒤쪽이 앞쪽보다 낮은 그린과 그린을 둘러싼
+높은 벙커가 세컨온을 허용하지 않으며
+파세이브 하기가 부담스러운 홀이다.
+                        </dd>
+                    </dl>
+                </div>
+				<span class="holeMap">
+					<img src="/Content/web/img/course/c1_08.jpg" alt="체리코스8번홀">
+				</span>
+			</div>
+			<div>
+				<div class="holeCnt">
+					<div class="cosInfo">
+						<p class="cosTit"><span>Cherry 9</span>Hole </p>
+						<p class="par">Par 3 / HDCP 15</p>
+				    </div>
+                </div>
+                <div class="holeInfo">
+                   <iframe width="600" height="330" src="https://www.youtube.com/embed/tCD8i-bOtiY" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                    <dl class="infoInner">
+                        <dt>PRO TIP</dt>
+                        <dd>
+내리막 Par 3홀로 그린앞에 위치한 해저드와
+비치벙커가 플레이어에게 부담을준다.<br>
+티에서 바라본 그린은 넓고 평탄해 보이나 가까이
+다가가면 결코 만만치 않다는것을 알게된다.
+                        </dd>
+                    </dl>
+                </div>
+				<span class="holeMap">
+					<img src="/Content/web/img/course/c1_09.jpg" alt="체리코스9번홀">
+				</span>
+			</div>
+		</div>
+	</div>
+</div>
+<!-- //코스 레이어 팝업 -->
+
+<script type="text/javascript">
+        $(document).ready(function() {
+ 
+
+
+
+            /*-- 코스맵 --*/
+            var focus = $('.courseList');
+            $(".courseList a").click(function() {
+                $('.cosPopup').show();
+                $('html, body').animate({
+                    scrollTop: focus.offset().top - 300
+                }, 500);
+            });
+            $(".closedBtn").click(function() {
+                $('.cosPopup').hide();
+            });
+
+            /*탭*/
+            var $wrapper = $('.popInner'),
+                $allTabs = $wrapper.find('.tabContent > div'),
+                $tabMenu = $wrapper.find('.holeTab li');
+
+            $allTabs.not(':first-of-type').hide();
+            $tabMenu.filter(':first-of-type').find(':first').width('100%')
+
+            $tabMenu.each(function(i) {
+                $(this).attr('data-tab', 'tab' + i);
+            });
+
+            $allTabs.each(function(i) {
+                $(this).attr('data-tab', 'tab' + i);
+            });
+
+            $tabMenu.on('click', function() {
+                var dataTab = $(this).data('tab'),
+                    $getWrapper = $(this).closest($wrapper);
+                $getWrapper.find($tabMenu).removeClass('active');
+                $(this).addClass('active');
+                $getWrapper.find($allTabs).hide();
+                $getWrapper.find($allTabs).filter('[data-tab=' + dataTab + ']').show();
+            });
+
+            /*main-noticeSlide*/
+            $('.slideVisual').slick({
+                autoplay: true,
+                autoplaySpeed: 2500,
+                dots: true,
+                arrows: true,
+                infinite: true,
+                slidesToShow: 1,
+                pauseOnHover: true
+            });
+            /*-- END 코스맵 --*/
+        });
+</script>
+
+
+    </div>
+    
+    <div id="footer">
+    <div class="footLink">
+        <div class="footInner">
+            <ul>
+                <li><a href="/Terms/ClubUseRule">골프장 이용약관</a></li>
+                <li><a href="/Terms/SiteUseRule">인터넷 이용약관</a></li>
+                <li><a href="/Terms/PrivacyRule" class="point">개인정보처리방침</a></li>
+                <li><a href="https://ftc.go.kr/www/bizCommView.do?key=232&amp;apv_perm_no=2009411000930200056&amp;pageUnit=10&amp;searchCnd=wrkr_no&amp;searchKrwd=1268106630&amp;pageIndex=1" target="_blank" title="새창열림">사업자 정보확인</a></li>
+            </ul>
+            <div class="fs">
+                <div class="drop">
+                    <a href="#familysite">FAMILY SITE <i src="image/common/family_on.png">+</i></a>
+                </div>
+                <div class="fm_list">
+                    <ul>
+                        <li><a href="http://www.hhic-holdings.com/" target="_blank" title="새창열림">한진중공업홀딩스</a></li>
+                        <li><a href="https://www.daeryunens.com" target="_blank" title="새창열림">대륜이엔에스</a></li>
+                        <li><a href="https://www.daeryunpower.com" target="_blank" title="새창열림">대륜발전</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="wrap">
+        <p class="footTxt">
+            (주)한일레저<em></em>대표 : 박정재<em></em>12661 경기도 여주시 가남읍 솔모로그린길 171번지<em></em>TEL 031.880.7000<em></em>FAX 031.883.1400<br>
+            사업자등록번호 : 126-81-06630<em></em>통신판매신고 : 2009-경기여주-0057<br>
+            ⓒ 1991-2021 Solmoro Country Club. All Right Reserved.
+        </p>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        $('#footer .fs .drop').on('click', function () {
+            $('#footer .fm_list').toggle();
+        });
+    });
+</script>
+
+
+    <div class="quickNavi">
+    <ul>
+        <li>
+            <a href="/Reservation/ReservCalendar">
+                <span class="quickIc02"></span>
+                인터넷예약
+            </a>
+        </li>
+        <li>
+            <a href="/Reservation/ReservedList">
+                <span class="quickIc03"></span>
+                예약확인
+            </a>
+        </li>
+        <li>
+            <a href="/Reservation/JoinList">
+                <span class="quickIc04"></span>
+                조인하기
+            </a>
+        </li>
+    </ul>
+</div>
+
+
+<!-- 탑버튼-->
+<div id="topBtn">
+    <p>TOP</p>
+</div>
+<!--// 탑버튼-->
+<!-- Top 버튼-->
+
+
+</body>
+</html>

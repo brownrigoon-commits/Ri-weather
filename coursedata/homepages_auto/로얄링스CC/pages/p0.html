@@ -1,0 +1,563 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=Edge">
+	<meta name="apple-mobile-web-app-capable" content="no" />
+	<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+	<meta name="format-detection" content="telephone=no,email=no,address=no">
+	<meta name="title" content="로얄링스">
+	<meta name="author" content="로얄링스">
+	<meta name="Keywords" content="로얄링스">
+	<meta name="description" content="로얄링스">
+	<meta name="copyright" content="All Contents COPYRIGHTⓒ  All RIGHTS RESERVED.">
+	<meta property="og:type" content="website">
+	<meta property="og:title" content="로얄링스">
+	<meta property="og:description" content="로얄링스">
+	<meta property="og:url" content="">
+	<link rel="canonical" href="">
+	<title>로얄링스 골프클럽</title>
+	<!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script> -->
+	<!-- <script src="https://cdn.jsdelivr.net/bxslider/4.2.12/jquery.bxslider.min.js"></script> -->
+	<script src="/js/jquery.js"></script>
+	<script src="/js/jquery.bxslider.js"></script>
+	<script src="/js/jquery.fullpage.js"></script>
+	<script src="/js/jquery.preloaders.js"></script>
+	<script src="/js/globals.js?v=1"></script>
+	<script src="/js/common.js"></script>
+	<script src="/js/tools.js"></script>
+	<script src="/js/scrolloverflow.js"></script>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.8.2/css/all.min.css" />
+	<link rel="stylesheet" type="text/css" href="/css/import.css?v=1.0">
+	<link rel="stylesheet" type="text/css" href="/css/jquery.fullpage.css" />
+	<link rel="stylesheet" type="text/css" href="/css/contents.css?v=4">
+
+	<script>
+		function sessionCheck() {
+			var sUrl = "/controller/SessionManager.asp";
+			var params = {"method" : "sessionConfirm"};
+
+			mAjax(sUrl, params, "POST", false, function(data) {
+				if(data.resultCode == "2000") {
+					alert(data.resultMessage);
+					location.reload();
+				}
+			});
+		}
+	</script>
+
+	<script>
+		/*navi menu*/
+		$(document).ready(function() {
+			// 이용약관 변경 동의 : 2023.04.26
+			if("" != "Y" && "" != "") {
+				alert("로얄링스 이용약관변경으로 인해 이용약관에 재동의 이후 사용해주세요.");
+				location.href = "/member/reAgreePage.asp";
+				return;
+			}
+
+			chkMobile();
+			sessionCheck();
+
+			$(".nav li").hover(function () {
+				$(this).children("ul").stop().delay(200).animate({height: "toggle", opacity: "toggle"}, 200);
+			});
+		});
+
+		$(window).ready(function() {
+			setProtocol();
+		})
+
+		function onlyMainMenu(val){
+			if(val == "1") {
+				$(".logo").hide();
+			}else (
+				$(".logo").show()
+			)
+		}
+
+		function doLogout() {
+			/*var sUrl = "/Controller/MemberController.asp";
+			var params = {};
+
+			params["method"] = "doLogout";
+
+			mAjax(sUrl, params, "POST", true, function(data) {
+				if(data.resultCode == "0000") {
+					alert("로그아웃 되었습니다.");
+					location.href = "/index.asp"
+				}
+			});*/
+			location.href = "/member/logout.asp"
+		}
+
+
+		function setProtocol() {
+			if(document.location.href.indexOf("thelinkscc.co.kr") > 0) {
+				document.location.href = document.location.href.replace('thelinkscc.co.kr', 'royallinks.co.kr');
+			} else if(document.location.href.indexOf("royallinkscc.com") > 0) {
+				document.location.href = document.location.href.replace('royallinkscc.com', 'royallinks.co.kr');
+			} else if(document.location.href.indexOf("royallinks.net") > 0) {
+				document.location.href = document.location.href.replace('royallinks.net', 'royallinks.co.kr');
+			} else if(document.location.href.indexOf("royallinkscc.co.kr") > 0) {
+				document.location.href = document.location.href.replace('royallinkscc.co.kr', 'royallinks.co.kr');
+			} else if(document.location.href.indexOf("royallinkscc.net") > 0) {
+				document.location.href = document.location.href.replace('royallinkscc.net', 'royallinks.co.kr');
+			} else if(document.location.href.indexOf("royallinks.co.kr") > 0) {
+				if (document.location.protocol == 'http:') {
+					document.location.href = document.location.href.replace('http:', 'https:');
+				}
+			}
+		}
+	</script>
+
+</head>
+<body>
+<div id="wrap">
+	<div id="header">
+		<div class="top_menu_left">
+			<a href="/reservation/reservation.asp">인터넷예약</a>
+			<a href="/guide/guide.asp">이용안내</a>
+			<a href="/club/club.asp">클럽소개</a>
+			<a href="/board/list.asp?type=1">공지&amp;이벤트</a>
+		</div>
+		<a class="logo h_logo" href="/"></a>
+		<div class="top_menu_right">
+			
+			<a href="https://reserv.kakao.golf/login?type=LOGIN&golfcode=KG20221012ROYALLINKS&resultUrl=https://www.royallinks.co.kr/agency/kakaoPath.asp">카카오로그인</a>
+			<a href="https://reserv.kakao.golf/login?type=LOGIN&golfcode=KG20221012ROYALLINKS&resultUrl=https://www.royallinks.co.kr/agency/kakaoPath.asp">회원가입</a>
+			
+			<button class="toggle-menu"><span></span></button>
+		</div>
+		<!--hamberger전체메뉴-->
+		<div id="menu" class="">
+			<div class="main-nav">
+				<h1>royal links menu</h1>
+				<ul>
+					<li>
+						<a href="/reservation/reservation.asp" class="big">인터넷예약</a>
+						<a href="/reservation/reservation.asp" class="small">실시간예약</a>
+						<a href="/reservation/package.asp" class="small">패키지예약</a>
+						<a href="/reservation/joinList.asp" class="small">조인게시판</a>
+						<a href="/reservation/reservation2.asp" class="small">예약확인및취소</a>
+					</li>
+					<li>
+						<a href="/guide/guide.asp" class="big">이용안내</a>
+						<a href="/guide/guide.asp" class="small">이용안내</a>
+						<a href="/guide/fee.asp" class="small">요금안내</a>
+						<a href="/guide/userGuide.asp" class="small">예약안내</a>
+						<a href="/guide/penalty.asp" class="small">위약규정</a>
+						<a href="/guide/local.asp" class="small">로컬룰</a>
+						<a href="/guide/lostitem.asp" class="small">분실물관리</a>
+						<a href="/guide/golf-terms.asp" class="small">로얄링스 골프장 이용약관</a>
+					</li>
+					<li>
+						<a href="/club/club.asp" class="big">클럽소개</a>
+						<a href="/club/club.asp" class="small">클럽안내</a>
+						<a href="/club/intro.asp" class="small">인사말</a>
+						<a href="/course/courseIntro.asp" class="small">코스안내</a>
+						<a href="/course/course01.asp" class="small">코스공략도</a>
+						<a href="/club/facil.asp" class="small">부대시설</a>
+						<a href="/club/restaurant.asp" class="small">레스토랑</a>
+						<a href="/club/map.asp" class="small">오시는길</a>
+					</li>
+					<li>
+						<a href="/board/list.asp?type=1" class="big">공지사항&amp;이벤트</a>
+						<a href="/board/list.asp?type=1" class="small">공지사항</a>
+						<a href="/board/list.asp?type=2" class="small">이벤트</a>
+						<a href="/board/honor.asp" class="small">명예의전당</a>
+						<a href="/board/qna.asp" class="small">고객의말씀</a>
+					</li>
+					<li>
+						<a href="/member/modify.asp" class="big">마이페이지</a>
+						<a href="/member/modify.asp" class="small">회원정보변경</a>
+						<a href="/member/coupon.asp" class="small">쿠폰내역</a>
+						<a href="/member/round.asp" class="small">라운드내역</a>
+						<a href="/member/penaltyInfo.asp" class="small">위약정보조회</a>
+						<a href="https://reserv.kakao.golf/route?type=MYINFO&golfcode=KG20221012ROYALLINKS" class="small">회원탈퇴</a>
+					</li>
+				</ul>
+			</div>
+			<!--//hamberger전체메뉴-->
+		</div>
+	</div>
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=3">
+	<script>
+		$(document).ready(function() {
+		
+
+			onlyMainMenu("1")
+
+			$('#fullpage').fullpage({
+				verticalCentered: false,
+				css3:false,
+				navigation: true,
+				navigationPosition: 'right',
+				scrollOverflow: true,
+				'afterLoad' : function (anchorLink, index) {
+					if(index==1){
+						$("#header").removeClass("black bg_white");
+						$(".m_bottom").show();
+					}else if(index==2){
+						$("#header").addClass("black bg_white");
+						$(".m_bottom").show();
+						$(".sectionText2").addClass("fadeUp");
+					}else if(index==3){
+						$("#header").removeClass("black bg_white");
+						$(".m_bottom").show();
+						$(".sectionText3").addClass("slideLeft");
+					}else if(index==4){
+						$("#header").addClass("black bg_white");
+						$(".m_bottom").show();
+					}else if(index==5){
+						$("#header").addClass("black bg_white");
+						$(".m_bottom").hide();
+						$(".mainMapInfo").addClass("slideLeft");
+					}
+				}
+			});
+
+			// getPopupList();
+
+			doSearchEvent();
+		});
+
+		function getPopupList() {
+			var sUrl = "/controller/BoardController.asp";
+			var params = {};
+
+			params["method"] = "getBoardList";
+
+			params["coDiv"]    = globals.coDiv;
+			params["type"]     = "5";
+			params["startCnt"] = 0;
+			params["pageCnt"]  = 10;
+
+			mAjax(sUrl, params, "POST", false, function(data) {
+				if(data.resultCode == "0000") {
+					var rows = data.rows;
+
+		      for(i=0; i<rows.length; i++) {
+		        var popId = "royal_popup_" + rows[i].IDX;
+		        var loc = rows[i].CONTENT.split("|");
+		        var top  = loc[0];
+		        var left = loc[1];
+		        var link = rows[i].LINK;
+		        var file = rows[i].FILE_PATH2 + "/" + rows[i].FILE_NAME2;
+
+		        if(getCookie(popId) != "Y") {
+		          var pop = "";
+		          pop += " <div id='{0}' class='main_popup' style='position: absolute; z-index:10000; top:{1}px; left:{2}px; display: none;'>	";
+		          pop += "   <a href='{3}'><img src='{4}' /></a>																																							";
+		          pop += "   <div class='popup_bottom'>																																												";
+		          pop += "     <a href='javascript:closePopup(\"{0}\", 1)'>오늘하루 그만보기</a>																									 ";
+		          pop += "     <a class='pull-right' href='javascript:closePopup(\"{0}\", 0);'>닫기</a>																				 ";
+		          pop += "   </div>																																																					  ";
+		          pop += " </div>																																																							";
+
+		          pop = String.format(pop, popId, top, left, link, file);
+
+		          $("#popContainer").append(pop);
+
+		          $("#" + popId).show('fade');
+		        }
+		      }
+				} else {
+					alert(data.resultMessage);
+				}
+			});
+		}
+
+		function closePopup(id, day) {
+			$("#" + id).hide('fade');
+
+			if(day > 0) {
+				setCookie(id, "Y", day);
+			}
+		}
+
+		function doSearchEvent() {
+			var sUrl = "/controller/BoardController.asp";
+			var params = {};
+
+			params["method"] = "getBoardList";
+
+			params["coDiv"] = globals.coDiv;
+			params["type"] = "2";
+			params["startCnt"] = 0;
+			params["pageCnt"] = 4;
+
+			mAjax(sUrl, params, "POST", true, function(data) {
+				if(data.resultCode == "0000") {
+					var rows = data.rows;
+
+					var container = $("#eventContainer");
+					container.empty();
+
+					for(i=0; i<rows.length; i++) {
+						var template = "";
+						template += "<li onclick='onClickRow({0})'>	"
+						template += "	<div class='mboardBox'>				"
+						template += "		<p><img src='{1}/{2}'></p>	"
+						template += "		<h4>{3}~{4}</h4>						"
+						template += "		<h3>{5}</h3>								"
+						template += "	</div>												"
+						template += "</li>													"
+
+						var fileName1 = rows[i].FILE_NAME1;
+						var filePath1 = rows[i].FILE_PATH1;
+						var title = rows[i].TITLE;
+						var stDate = rows[i].START_DATE;
+						var edDate = rows[i].END_DATE;
+
+						container.append(String.format(template, rows[i].IDX, filePath1, fileName1, stDate, edDate, title));
+					}
+				} else {
+					alert(data.resultMessage);
+				}
+			});
+		}
+
+		function onClickRow(index) {
+			location.href = "/board/view.asp?type=2&idx=" + index;
+		}
+
+	</script>
+
+	<div id="popContainer"></div>
+
+
+<!--┏━ 슬라이드 배너 #1/2 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+	<!--240206 작업후 옮길부분-->
+<script src="//cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css">
+
+<style>
+    .main-ani-text{
+        position: absolute;
+        bottom: 14%;
+        left: clamp(2.1875rem, -2.8125rem + 6.25vw, 4.6875rem);
+        max-width: 1240px;
+    }
+    .sectionText{
+        position: relative;
+        top: auto;
+        left: 0%;
+        text-align: left;
+        margin-top: 0;
+    }
+    .mboardWrap{
+        position: relative;
+        top: auto;
+        left:0;
+        margin-top: 60px;
+        background-color: #fff;
+        padding: 10px;
+        border-radius: 5px;
+        animation: fadeDown 2s cubic-bezier(0.250, 0.460, 0.450, 0.940) 1s both;
+    }
+    .bn-main{
+        position: absolute;
+        bottom: 14%;
+        right: clamp(3.875rem, -3.875rem + 9.6875vw, 7.75rem);
+        width: 400px;
+        height: 667px;
+        overflow: hidden;
+        text-align: left;
+        animation: fadeDown 2s cubic-bezier(0.250, 0.460, 0.450, 0.940) .5s both;
+        z-index: 100;
+    }
+    .bn-img img{
+        width: 100%;
+        height: 667px;
+    }
+    .bn-main .slick-dots{ 
+        position: absolute;
+        bottom: 10px;
+        left: 0;
+        width: 100%;
+        text-align: center;
+    }
+    .bn-main .slick-dots li{
+        display: inline-block;
+        margin: 0 5px;
+    }
+    .bn-main .slick-dots li button {
+        background-color: rgba(255,255,255,0.5);
+        width: 10px;
+        height: 10px;
+        border:0;
+        border-radius: 50%;
+        text-indent: -9999px;
+        overflow:hidden;
+        cursor: pointer;
+    }
+    .bn-main .slick-dots li.slick-active button{ 
+        background-color: #fff;
+    }
+</style>
+<!--//240206 작업후 옮길부분-->
+<!--┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+
+	<div id="fullpage">
+		<div class="section" id="section0">
+            <div class="main-ani-text">
+                <div class="sectionText">
+                    <h3><a href="https://www.band.us/band/96432388" target="_blank"><img src="/images/ic_band.png"></a></h3>
+                    <p><img src="/images/ci.png"></p>
+                    <h1>Royal Links Country Club</h1>
+                    <h4>the best in one's life &amp; the best service.</h4>
+                </div>
+                <div class="mboardWrap">
+					<!--<p class="mboardBtnBox">
+						<a href="/board/list.asp?type=1">공지사항 보기<img src="/images/mainArw_02.png"></a>
+						<a href="/board/list.asp?type=2">이벤트 보기<img src="/images/mainArw_03.png"></a>
+					</p>-->
+                    <ul id="eventContainer">
+                    </ul>
+                </div>
+            </div>
+	<!-- ┏━ 슬라이드 배너 #2/2  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+            <div class="bn-main">
+                <div class="pop-slider">
+					<div class="bn-img"><a href=""><img src="/uploads/20260121/20260121110232.png"></a></div><div class="bn-img"><a href=""><img src="/uploads/20260526/20260526102149.png"></a></div>
+                </div>
+            </div>
+            <script>
+                $('.pop-slider').slick({
+                    slide: '.bn-img',        //슬라이드 되어야 할 태그
+                    infinite : true,     //무한 반복 옵션     
+                    slidesToShow : 1,        // 한 화면에 보여질 컨텐츠 개수
+                    slidesToScroll :1,        //스크롤 한번에 움직일 컨텐츠 개수
+                    speed : 700,     // 다음 버튼 누르고 다음 화면 뜨는데까지 걸리는 시간(ms)
+                    arrows : false,         // 옆으로 이동하는 화살표 표시 여부
+                    dots : true,         // 스크롤바 아래 점으로 페이지네이션 여부
+                    autoplay : true,            // 자동 스크롤 사용 여부
+                    autoplaySpeed : 4000,         // 자동 스크롤 시 다음으로 넘어가는데 걸리는 시간 (ms)
+                });
+            </script>
+<!--┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+		</div><!-- <div class="section" id="section0"> -->
+		<div class="section" id="section1">
+			<div class="sectionText2">
+				<div class="v_line"></div>
+				<p><span class="strong">Links</span>는 해안가에 위치한 골프 코스로,<br>
+해안을 따라 파도모양을 이루는 땅이라는 스코틀랜드어에서 유래되었습니다. <br>
+Royal Links CC는 바다가 변해 땅이 된 그 곳에서 바다를 닮은, 바다를 담은 골프장으로<br>
+골퍼와 자연이 하나가 되는 골프클럽입니다.<br>
+태안의 해안, 바람, 갈대 등 아름다운 자연 속에서 플레이를 즐길 수 있는 한국의 대표적인 링스코스입니다.
+				</p>
+			</div>
+		</div>
+		<div class="section" id="section2">
+			<div class="sectionText3">
+				<h2>대한민국을 대표하는 한국적 링스코스</h2>
+				<h1>Royal Links C.C</h1>
+				<p>
+				천석고황 연하고질(泉石膏肓 煙霞痼疾), 자연의 아름다운 경치를<br>
+너무도 사랑하여 운둔하길 즐겨하며 당나라 고종의 수차례 부름<br>
+에도 조정에 나가지 않았던 은사 전유암(田游巖)을 대표하는 <br>
+					사자성어입니다.</p>
+				<p>
+여러분께 자랑스럽게 선보이는 Royal Links CC는 한번이라도<br>
+이곳을 찾았던 골퍼라면 떠나기를 원치 않는 곳이 되길 바라는<br>
+마음으로 태안 천혜의 자연환경을 그대로 간직하는 링스코스로<br>
+조성하였습니다.
+				</p>
+			</div>
+		</div>
+		<div class="section" id="section3">
+			<div class="mainSlide">
+				<div class="bx-wrapper">
+					<ul class="slider">
+						<li>
+							<img src="/images/mainSlide.png">
+							<div class="cSlideText">
+								<h4>Royal Links Country Club</h4>
+								<h1>라티에라 골프코스의<br>첫번째 골프장<br>Royal Links C.C</h1>
+								<p>부남호와 어우러진 갈대식생으로 동식물<br>
+									서식공간을 보전하고 생물 다양성을 높인<br>
+									습지형 레이크, 주변지형과 조화된 여성적인<br>
+									페어웨이 언둘레이션, 바람의 방향을 고려한<br>
+									다양한 방향의 그린 등, 매 홀마다 숨어있는<br>
+									새로운 전략에 도전해야 하는 자연친화적<br>
+									골프코스
+								</p>
+							</div>
+					</ul>
+					<div class="slideNum">
+						<p><span id="slider-prev"></span><span id="g_Num">1/1</span><span id="slider-next"></span><span class="gostop"></span></p>
+					</div>
+					<script>
+					$('.slider').bxSlider({
+						mode:'horizontal',
+						speed : 300,
+						pause : 3000,
+						auto: true,
+						autoControls: true,
+						autoControlsCombine: true,
+						autoControlsSelector: '.gostop',
+						pager:false,
+						touchEnabled:false,
+						onSlideAfter: function(object, qty, current) {
+							var total = object.prevObject.length;
+							var page = current + 1;
+
+							$("#g_Num").empty();
+							$("#g_Num").append(page + "/" + total);
+						}
+					});
+					</script>
+				</div>
+				<a class="slideBtn" href="/course/courseIntro.asp">로얄링스 코스보기</a>
+			</div>
+			<p style="min-height: 700px;"></p>
+		</div>
+		<div class="section" id="section4">
+			<div class="mainMapWrap">
+				<!-- * 카카오맵 - 지도퍼가기 -->
+				<!-- 1. 지도 노드 -->
+				<div id="daumRoughmapContainer1605590312058" class="root_daum_roughmap root_daum_roughmap_landing"></div>
+				<script charset="UTF-8" class="daum_roughmap_loader_script" src="https://ssl.daumcdn.net/dmaps/map_js_init/roughmapLoader.js"></script>
+
+				<!-- 3. 실행 스크립트 -->
+				<script charset="UTF-8">
+					new daum.roughmap.Lander({
+						"timestamp" : "1605590312058",
+						"key" : "22ygf",
+						/*"mapWidth" : "1200",*/
+						"mapHeight" : "600"
+					}).render();
+				</script>
+				<div class="mainMapInfo">
+					<h1><span><i class="fas fa-map-marker-alt"></i> Royal Links cc</span> map</h1>
+					<h3>Golf Healing Life</h3>
+					<p>충남 태안군 태안읍 기업도시 6길 43</p>
+					<h4>예약관련 문의</h4>
+					<h2>041.670.0300</h2>
+					<h5>24시간 운영중인 홈페이지 예약과 모바일 예약을 이용하시면 더욱 편리합니다. </h5>
+				</div>
+			</div>
+
+			<div id="footer">
+				<h1>로얄링스</h1>
+				<div class="footerBox">
+					<a href="/member/terms.asp">사이트 이용약관</a> | <a href="/member/policy.asp">개인정보취급방침</a> | <a href="http://939.co.kr/moonos/" target="_blank">고객원격지원</a>
+				</div>
+				<p class="footerText">
+				충남 태안군 태안읍 기업도시 6길 43 로얄링스 컨트리클럽,  대표이사 : 정재섭 | 사업자등록번호 120-87-98658<br>
+통판매업신고 : 제2014-충남태안-133호 | 개인정보관리책임자 : 김화영 (hykim@amikogolf.com)
+				</p>
+				<p class="footerCopy">Copyright© Royal Links country club CO., LTD. All rights reserved.</p>
+			</div>
+		</div>
+		<div class="m_scroll">SCROLL DOWN</div>
+	</div>
+
+	<a class="m_bottom" href="/reservation/reservation.asp"><img src="/images/m_icon_calendar.png">로얄 링스 예약하기</a>
+</div>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a1e3efc428115a03',t:'MTc4NDU3MTE3Mg=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script><script defer src="https://static.cloudflareinsights.com/beacon.min.js/v4513226cdae34746b4dedf0b4dfa099e1781791509496" integrity="sha512-ZE9pZaUXND66v380QUtch/5sE9tPFh2zg45pR2PB0CVkCtOREv2AJKkSidISWkysEuQ0EH8faUU5du78bx87UQ==" data-cf-beacon='{"version":"2024.11.0","token":"de9f4891b32a4c7ba3c624fc918787fa","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+</body>
+</html>

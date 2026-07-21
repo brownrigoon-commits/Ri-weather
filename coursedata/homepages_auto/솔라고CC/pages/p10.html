@@ -1,0 +1,1072 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html lang="ko">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=euc-kr" />
+    <meta http-equiv="Cache-Control" content="no-cache" />
+    <meta http-equiv="Imagetoolbar" content="no" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<!--[if lt IE 8]><meta http-equiv="refresh" content="0; url=/ieupdate/ieupdate.html" /><![endif]-->
+	<meta name="viewport"content="width=1248" />
+
+	<meta name="author" content="" />
+	<meta name="description" content="" />
+	<meta name="keywords" content="" />
+	<title>솔라고 컨트리클럽</title>
+
+	<link rel="shortcut icon" href="/image/common_icon_and.ico" />
+	<link rel="apple-touch-icon-precomposed" href="/image/common_icon_and.ico" />
+	<link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Lato:300,400,700" />
+	<link rel="stylesheet" type="text/css" href="/css/cm_quickreservation.css" />
+	<link rel="stylesheet" type="text/css" href="/css/common.css" />
+	<link rel="stylesheet" type="text/css" href="/css/sub.css?ver=231107" />
+	<link rel="stylesheet" type="text/css" href="/css/cminfor.css" />
+	<link rel="stylesheet" type="text/css" href="/css/login_modal.css" />
+	<link rel="stylesheet" type="text/css" href="/css/calender.css" />
+	<link rel="stylesheet" type="text/css" href="/css/jquery-ui.tooltip.css" />
+	<link rel="stylesheet" type="text/css" href="/css/cm_reservation.css" />
+    <link rel="stylesheet" type="text/css" href="/css/renewal_2021.css?ver=260513" />
+
+<!-- link type="text/css" rel="stylesheet" href="/css/user.css" -->
+
+<script language="javascript" type="text/javascript" src="/cm_JavaScript/common.js"></script>
+
+<script language="javascript" type="text/javascript" src="/js/common.js"></script>
+
+<script language="javascript" type="text/javascript" src="/cm_JavaScript/jquery/jquery-1.11.1.js"></script>
+<script language='javascript' type='text/javascript' src='/cm_JavaScript/jQuery/jquery.DOMWindow.js'></script>
+
+<script language="javascript" type="text/javascript" src="/cm_JavaScript/jquery/jquery-ui-1.11.1/jquery-ui.min.js"></script>
+
+<!-- <script language="javascript" type="text/javascript" src="/cm_JavaScript/body_size.js"></script> -->
+
+<script language="JavaScript" type="text/javascript" src="/cm_JavaScript/class.tooltip.js"></script>
+<script language="JavaScript" type="text/javascript" src="/cm_JavaScript/jquery/jquery-ui-1.11.1/jquery-ui.tooltip.js"></script>
+<script language="javascript" type="text/JavaScript" src="/js/loginfrom.js"></script>
+
+<script language="javascript" type="text/JavaScript" src="/js/loginfrom_modal.js"></script>
+
+<script type="text/javascript" src="/js/rolling_zone.js"></script>
+<script type="text/javascript" src="/js/menu.layer.js"></script>
+	
+<script type="text/javascript" src="//wcs.naver.net/wcslog.js"></script>
+<script type="text/javascript">
+	if(!wcs_add) var wcs_add = {};
+		wcs_add["wa"] = "2b95e6cf25ebcc";
+		if(window.wcs) {
+		wcs_do();
+	}
+</script>
+
+<script language="JavaScript" type="text/JavaScript">
+//
+//<!--
+	/* Common */
+	//주소창 숨겨서 최적사이즈 맞추기
+	if (window.addEventListener != null)
+	{
+		window.addEventListener('load', function(){
+		setTimeout(scrollTo, 0, 0, 0);//페이지 이동이나 새로고침시 화면 1px씩 올라가는것 때문에 setTimeout(scrollTo, 0, 0, 1);을 수정
+		}, false); 
+	}
+
+
+
+
+	/*##############################################################################################*/
+	// 퀵레이어 오픈 
+	function quick_layout_info_html(mId){
+
+		//
+		if (mId == ""){	mId = "tab01";}
+		
+		//
+		var actionurl = "/cm_include/_ajax/ajax_quick_layout_info.asp";
+
+		//	
+		var tt = 0;
+		if (tt == 1){
+			$("#quick_layoutform_info").attr("action", actionurl);
+			$("#quick_layoutform_info").submit();
+		}else{
+			$.ajax({
+				async: true,
+				type: "post",
+				url : actionurl,
+				data : $("#quick_layoutform_info").serialize(),
+				dataType : "html",
+				success: function(obj){
+					$("#quick_layout_info").html(obj);
+				},
+				error: function(xhr, option, error){
+					  alert(xhr.status+" | "+error); //오류코드 | 오류내용
+				}
+				/*error : function(success){
+					meg = "서버와 통신중 에러가 발생하였습니다."
+					alert("처리결과 : "+meg);
+				}*/
+				, beforeSend: function() {
+					//통신을 시작할때 처리	
+					$("#quick_layout_info").html('<img src="/image/loading.gif" alt="loading"/>');
+				}
+				, complete: function() {
+					//통신이 완료(success)된 후 처리
+					//$("#quick_layout_info").html('');
+				}
+			});
+		}
+	}
+
+	// 퀵레이어 이벤트 오픈 
+	function quick_layout_event_html(mId){
+
+		//
+		if (mId == ""){	mId = "tab02";}
+		
+		//
+		var actionurl = "/cm_include/_ajax/ajax_quick_layout_event.asp";
+
+		//	
+		var tt = 0;
+		if (tt == 1){
+			$("#quick_layoutform_event").attr("action", actionurl);
+			$("#quick_layoutform_event").submit();
+		}else{
+			$.ajax({
+				async: false,
+				type: "post",
+				url : actionurl,
+				data : $("#quick_layoutform_event").serialize(),
+				dataType : "html",
+				success: function(obj){
+					$("#quick_layout_event").html(obj);
+					// 모달팝업 오픈
+					$("#"+mId+"").css("display","block");
+					// 모달팝업 숨김
+					$("#tab01").css("display","none");
+					//
+					$(".quick_event").addClass("on");
+					$(".quick_reserv").removeClass("on");
+					$(".quick_layer .bg").css("display","block");
+					$(".quick_right").stop().animate({right:"598"}, 500);
+				},
+				error: function(xhr, option, error){
+					  alert(xhr.status+" | "+error); //오류코드 | 오류내용
+				}
+				/*error : function(success){
+					meg = "서버와 통신중 에러가 발생하였습니다."
+					alert("처리결과 : "+meg);
+				}*/
+				, beforeSend: function() {
+					//통신을 시작할때 처리	
+//					$("#quick_layout_info").html('<img src="/image/loading.gif" alt="loading"/>');
+				}
+				, complete: function() {
+					//통신이 완료(success)된 후 처리
+					//$("#quick_layout_info").html('');
+				}
+			});
+		}
+	}
+
+	// 퀵레이어 광고 오픈
+	function quick_layout_add_html(mId){
+		
+		//
+		if (mId == ""){	mId = "tab03";}
+
+		//$("#quick_layout_add").html(obj);
+		// 모달팝업 오픈
+		$("#"+mId+"").css("display","block");
+		// 모달팝업 숨김
+		$("#tab01, #tab02").css("display","none");
+		//
+		$(".quick_add").addClass("on");
+		$(".quick_reserv, .quick_event").removeClass("on");
+		$(".quick_layer .bg").css("display","block");
+		$(".quick_right").stop().animate({right:"400"}, 500);
+		$(".quick_bg").css("display","none");
+
+	}
+
+	// 모달팝업 숨김
+	function quick_layout_close(mId){
+		//
+		//if (mId == ""){	mId = "tab01";}
+		//
+		$(".quick_layer .bg").css("display","none");
+		$('.quick_reserv, .quick_event, .quick_add').removeClass("on");
+		$(".quick_right").stop().animate({right:"0"}, 500);
+		// 모달팝업 숨김
+		//$("#tab01").css("display","none");
+		//$("#tab02").css("display","none");
+	}
+
+
+
+	/*##########################################################################################*/
+	// 메인 이벤트리스트 세팅 부분.
+	function main_event_board_list(site, list_id, list_code, list_type, list_num, list_size){
+
+		//alert(site +" | "+list_id +" | "+list_code +" | "+list_type +"");
+
+		// 설정부분.....
+		$("#main_event_code").val(list_code);
+		$("#main_event_type").val(list_type);
+		$("#main_event_num").val(list_num);
+		$("#main_event_size").val(list_size);
+
+
+		var actionurl = "/cm_include/_ajax/"+site+"/ajax_main_event_board_list.asp";
+
+		var tt = 0;
+		if (tt == 1){
+			$("#main_event_board_list").attr("action", actionurl);
+			$("#main_event_board_list").submit();
+		}else{
+			$.ajax({
+				async: false,
+				type: "post",
+				url : actionurl,
+				data : $("#main_event_board_list").serialize(),
+				dataType : "html",
+				success: function(obj){
+					$("#"+list_id+"").html(obj);	
+					//
+					if (list_id == "main_event_list"){
+						//event_rolling();
+					}	
+				},
+				error: function(xhr, option, error){
+					  alert(xhr.status+" | "+error); //오류코드 | 오류내용
+				}
+				/*error : function(success){
+					meg = "서버와 통신중 에러가 발생하였습니다."
+					alert("처리결과 : "+meg);
+				}*/
+				, beforeSend: function() {
+					//통신을 시작할때 처리	
+					$("#"+list_id+"").html('<img src="/image/loading.gif" alt="loading"/>');
+				}
+				, complete: function() {
+					//통신이 완료(success)된 후 처리
+					//$('#main_event_list').html('');
+				}
+			});
+		}
+	}
+
+
+	/*##################################################################################################################################################################*/
+	// 모바일 URL문자 발송
+	function MobileUrlSand_from(){
+
+		//alert(hand_phone+" | "+isNaN(hand_phone));
+
+		var hand_phone = $("#send_handphone").val().replace(/-/gi,"");
+
+		if(hand_phone == ""){
+			alert("핸드폰 번호를 입력하세요");
+			$("#send_handphone").focus();
+			return;
+		}else if(isNaN(hand_phone)){
+			alert("핸드폰 번호는 숫자만 입력해 주세요.");
+			$("#send_handphone").val("");
+			$("#send_handphone").focus();
+			return;
+		}else{
+			$("#mul_hand_phone").val(hand_phone);
+		}
+
+		//
+		actionurl = "/cm_include/function.MobileUrlSand.asp";
+		
+		var tt = 0;
+		if (tt == 1){
+			$("#MobileUrlSand_from").attr("action", actionurl);
+			$("#MobileUrlSand_from").submit();
+		}else{
+			
+			// 한글 깨짐 방지 복구처리
+			$("#mul_user_name").val(escape($("#mul_user_name").val()));
+
+			$.ajax({
+				async: false,
+				type: "POST",
+				url : actionurl,
+				data : $("#MobileUrlSand_from").serialize(),
+				dataType : "json",
+				success:function(success){
+					//
+					switch(success.result){
+						case "1":
+							alert(unescape(success.gomsg));
+							break;
+						case "0":
+							alert(unescape(success.gomsg));
+							break;
+					}				
+					// 초기화 처리
+					$("#send_handphone").val("");
+					//
+					$("#mul_hand_phone").val("");
+					$("#mul_user_name").val("");
+				},
+				error: function(xhr, option, error){
+					  alert(xhr.status+" | "+error); //오류코드 | 오류내용
+				}
+				/*error : function(success){
+					meg = "서버와 통신중 에러가 발생하였습니다."
+					alert("처리결과 : "+meg);
+				}*/
+			});
+		}
+	}
+
+
+	// 모달로그인 오픈
+	function login_modal_open(mId){
+
+		if (mId == ""){
+			mId = "loginModalPop";
+		}
+
+		var body_height = window.innerHeight
+		if (body_height <500){
+			document.getElementById(""+mId+"").style.position = "absolute";
+		}else{
+			document.getElementById(""+mId+"").style.position = "fixed";
+		}	
+		//alert(window.innerHeight);
+
+		var actionurl = "/cm_include/_ajax/ajax_login_modal_info.asp";
+
+		var tt = 0;
+		if (tt == 1){
+			$("#login_modal_from").attr("action", actionurl);
+			$("#login_modal_from").submit();
+		}else{
+			$.ajax({
+				async: false,
+				type: "post",
+				url : actionurl,
+				data : $("#login_modal_from").serialize(),
+				dataType : "html",
+				success: function(obj){
+					$("#login_modal_info").html(obj);
+					// 모달로그인 오픈
+					$("#"+mId+"").css("display","block");
+				},
+				error: function(xhr, option, error){
+					  alert(xhr.status+" | "+error); //오류코드 | 오류내용
+				}
+				/*error : function(success){
+					meg = "서버와 통신중 에러가 발생하였습니다."
+					alert("처리결과 : "+meg);
+				}*/
+				, beforeSend: function() {
+					//통신을 시작할때 처리	
+					$("#login_modal_info").html('<img src="/image/loading.gif" alt="loading"/>');
+				}
+				, complete: function() {
+					//통신이 완료(success)된 후 처리
+					//$("#login_modal_info").html('');
+				}
+			});
+		}
+
+	}
+
+	// 모달로그인 숨김
+	function login_modal_close(mId){
+		// 모달팝업 숨김
+		$("#"+mId+"").css("display","none");
+	}
+
+
+	//자동실행 - body onload의 대체
+	$(function(){
+		// 모든 페이지에 보일때 오픈 달력 처리 부분
+		//main_calendar_change('','','','');
+
+		// 모든 페이지에 보일때 게시판&이벤트 처리 부분
+		//main_multi_board_list("site", "main_board_list", "NOTICE", "L", "1", "5")
+		//main_event_board_list("site", "main_event_list", "EVENT", "L", "1", "5")
+
+		// 모든 페이지에 보일때 잔여타임&조인방 처리 부분
+		//main_golftime_list("golf", "main_res_time_list", "COURSE", "5")
+		//main_joinroom_list("golf", "main_join_room_list", "1", "5")
+
+		quick_layout_info_html();
+
+	});	
+//-->
+</script>
+
+<script type="text/javascript" src="/js/jquery.sliderkit.1.9.2.pack.js"></script>		
+<script language="JavaScript" type="text/JavaScript">
+<!--
+	/* user */
+	
+	$(window).load(function(){ //$(window).load() must be used instead of $(document).ready() because of Webkit compatibility				
+		// Carousel > Demo #3
+		$("#carousel-demo1").sliderkit({
+			auto:false,
+			shownavitems:1,
+			circular:true
+		});		
+	});	
+//-->
+</script>	
+
+</head>
+
+<script type="text/javascript">
+<!--
+	 $('meta[name=viewport]').attr('content','width=1280'); 
+    	   	 
+//-->
+</script>
+<!-- <body id="SUB"> -->
+<body>
+<script language="JavaScript" type="text/JavaScript">
+//<!--
+	//
+	var lnb_code1 = "course";
+	var lnb_code1 = "course";
+	//var gnbIdx = Number(2); 
+
+	//
+	var gnb_code2 = "course_guide";
+	var lnb_code2 = "course_guide";
+	//var gnb2Idx = Number(1); 
+
+	//
+	var gnb_code3 = "course_guide";
+	var lnb_code3 = "course_guide";
+	//var gnb2Idx = Number(-1);
+
+//-->
+</script>
+	
+<div id="wrap" class="sub">
+	<div class="skip_navi">
+		<ul>
+			<li><a href="#gnb">GNB 바로가기</a></li>
+			<li><a href="#body">본문 바로가기</a></li>
+			<li><a href="#footer">하단 바로가기</a></li>
+		</ul>
+	</div>
+
+	<!-- 헤더 -->
+	<div id="header">
+		<div class="util">
+			<div class="login_area">
+			
+				<a href="/login/login.asp" class="login">로그인</a> l				
+				<a href="/memberInfor/joinTerms.asp" class="join">회원가입</a>
+			
+				<!--<a href="/pagesite/sitemap/sitemap.asp">사이트맵</a>				
+			--></div>
+			<div class="sns">
+				<ul>
+					<li><a href="https://www.facebook.com/media/set/?set=a.1750691861872094.1073741829.1750643808543566&type=3" target="_blank" title="FACEBOOK 바로가기"><img src="/image/common/sns_facebook.png" alt="FACEBOOK" /></a></li>
+					<li><a href="https://twitter.com/sollago_cc" target="_blank" title="Twitter 바로가기"><img src="/image/common/sns_twitter.png" alt="FACEBOOK" /></a></li>
+					<li><a href="https://www.instagram.com/sollago_cc/" target="_blank" title="Instagram 바로가기"><img src="/image/common/sns_insta.png" alt="FACEBOOK" /></a></li>
+					<li><a href="http://m.blog.naver.com/sollago" target="_blank" title="NAVER 바로가기"><img src="/image/common/sns_naver.png" alt="FACEBOOK" /></a></li>
+				</ul>
+			</div>
+		</div>
+		<div class="head">
+			<!-- gnb -->
+            <button type="button" class="btn btn-anb aside-menu-open full" aria-controls="asideMenu" aria-expanded="false"><span>전체메뉴 보기</span></button>
+			<div class="gnb">
+				<h1><a href="/"><img src="/image/common/sollago_logo_en.png" alt="SOLLAGO C.C" /></a></h1>
+                <div class="node1-list">
+                	<span>골프</span>
+                    <span>리조트</span>
+                    <span>연습장</span>
+                    <span>고객센터</span>
+                </div>
+				<ul> 
+<li class="gnb01" id="gnb_reservation"> 
+							<h2><a href="/pagesite/reservation/live.asp"  >예약안내</a></h2> 
+							<ul class="dep2"> 
+										<li class="g01_1" id="gnb2_reservation_live"><a href="/pagesite/reservation/live.asp"   class="g01_1   ">실시간예약</a></li> 
+										<li class="g01_2" id="gnb2_reservation_stand"><a href="/pagesite/reservation/stand.asp"   class="g01_2   ">대기예약</a></li> 
+										<li class="g01_3" id="gnb2_reservation_confirm"><a href="/pagesite/reservation/confirm.asp"   class="g01_3  long_type ">예약확인/취소</a></li> 
+										<li class="g01_4" id="gnb2_lounge_in"><a href="/pagesite/lounge/in.asp"   class="g01_4  long_type ">내장/위약현황</a></li> 
+							</ul> 
+						</li> 
+						<li class="gnb02" id="gnb_use"> 
+							<h2><a href="/pagesite/use/guide.asp"  >이용안내</a></h2> 
+							<ul class="dep2"> 
+										<li class="g02_1" id="gnb2_use_guide"><a href="/pagesite/use/guide.asp"   class="g02_1   ">이용안내</a></li> 
+										<li class="g02_2" id="gnb2_use_charge"><a href="/pagesite/use/charge.asp"   class="g02_2   ">이용요금</a></li> 
+										<li class="g02_3" id="gnb2_use_reservation"><a href="/pagesite/use/reservation.asp"   class="g02_3   ">예약안내</a></li> 
+										<li class="g02_5" id="gnb2_use_mobile"><a href="/pagesite/use/mobile.asp"   class="g02_5   ">모바일안내</a></li> 
+							</ul> 
+						</li> 
+						<li class="gnb03" id="gnb_course"> 
+							<h2><a href="/pagesite/course/intro.asp"  >코스소개</a></h2> 
+							<ul class="dep2"> 
+										<li class="g03_1" id="gnb2_course_intro"><a href="/pagesite/course/intro.asp"   class="g03_1   ">코스안내</a></li> 
+										<li class="g03_2" id="gnb2_course_guide"><a href="/pagesite/course/one/hole01.asp"   class="g03_2   ">코스공략도</a></li> 
+							</ul> 
+						</li> 
+						<li class="gnb04" id="gnb_club"> 
+							<h2><a href="/pagesite/club/intro.asp"  >클럽소개</a></h2> 
+							<ul class="dep2"> 
+										<li class="g04_1" id="gnb2_club_intro"><a href="/pagesite/club/intro.asp"   class="g04_1   ">골프장소개</a></li> 
+										<li class="g04_2" id="gnb2_club_facilities"><a href="/pagesite/club/facilities/house.asp"   class="g04_2   ">부대시설</a></li> 
+										<li class="g04_3" id="gnb2_club_restaurant_menu"><a href="/pagesite/club/restaurant_menu.asp"   class="g04_3  long_type ">대식당 및 스타트 하우스 메뉴</a></li> 
+										<li class="g04_4" id="gnb2_club_location2"><a href="/pagesite/club/location2.asp"   class="g04_4   ">오시는길</a></li> 
+							</ul> 
+						</li> 
+						<li class="gnb05" id="gnb_condoRes_live"> 
+							<h2><a href="/condoRes/onepage/real_reservation.asp"  >리조트예약</a></h2> 
+							<ul class="dep2"> 
+										<li class="g05_1" id="gnb2_condoRes_live"><a href="/condoRes/onepage/real_reservation.asp"   class="g05_1   ">객실예약</a></li> 
+							</ul> 
+						</li> 
+						<li class="gnb06" id="gnb_condo_intro_1"> 
+							<h2><a href="/pagesite/condo/intro_1.asp"  >객실안내</a></h2> 
+							<ul class="dep2"> 
+										<li class="g06_1" id="gnb2_condo_intro_1_7"><a href="/pagesite/condo/intro_1_7.asp"   class="g06_1  long_type ">객실이용안내</a></li> 
+										<li class="g06_2" id="gnb2_condo_intro_1_8"><a href="/pagesite/condo/intro_1_7.asp"   class="g06_2  long_type ">숙박약관 및 이용 규칙</a></li> 
+							</ul> 
+						</li> 
+						<li class="gnb07" id="gnb_condo_facil_1"> 
+							<h2><a href="/pagesite/condo/intro_3.asp"  >부대시설안내</a></h2> 
+							<ul class="dep2"> 
+										<li class="g07_1" id="gnb2_condo_facil_1_2"><a href="/pagesite/condo/intro_3_2.asp"   class="g07_1   ">부대시설</a></li> 
+										<li class="g07_2" id="gnb2_condo_facil_1_3"><a href="/pagesite/condo/intro_3_3.asp"   class="g07_2   ">부대시설</a></li> 
+							</ul> 
+						</li> 
+						<li class="gnb08" id="gnb_condo_intro_2"> 
+							<h2><a href="/pagesite/condo/intro_2.asp"  >솔라고리조트</a></h2> 
+							<ul class="dep2"> 
+										<li class="g08_1" id="gnb2_condo_intro_2"><a href="/pagesite/condo/intro_2.asp"   class="g08_1   ">리조트소개</a></li> 
+										<li class="g08_3" id="gnb2_attraction_agallery"><a href="/pagesite/information/attraction.asp"   class="g08_3   ">리조트소개</a></li> 
+							</ul> 
+						</li> 
+						<li class="gnb09" id="gnb_range_1"> 
+							<h2><a href="/pagesite/driving_range/intro_1.asp"  >연습장소개</a></h2> 
+							<ul class="dep2"> 
+							</ul> 
+						</li> 
+						<li class="gnb10" id="gnb_range_2"> 
+							<h2><a href="/pagesite/driving_range/intro_2.asp"  >브리지스톤</a></h2> 
+							<ul class="dep2"> 
+							</ul> 
+						</li> 
+						<li class="gnb11" id="gnb_range_3"> 
+							<h2><a href="/pagesite/driving_range/intro_4.asp"  >파3골프장</a></h2> 
+							<ul class="dep2"> 
+										<li class="g11_2" id="gnb2_information_event"><a href="/pagesite/information/event.asp"   class="g11_2   ">이벤트</a></li> 
+							</ul> 
+						</li> 
+						<li class="gnb13" id="gnb_range_5"> 
+							<h2><a href="/pagesite/driving_range/intro_5.asp"  >입점 아카데미</a></h2> 
+							<ul class="dep2"> 
+							</ul> 
+						</li> 
+						<li class="gnb14" id="gnb_information_notice"> 
+							<h2><a href="/pagesite/information/notice.asp"  >공지사항</a></h2> 
+							<ul class="dep2"> 
+							</ul> 
+						</li> 
+						<li class="gnb15" id="gnb_reservation_join"> 
+							<h2><a href="/pagesite/reservation/join.asp"  >골프조인방</a></h2> 
+							<ul class="dep2"> 
+							</ul> 
+						</li> 
+						<li class="gnb16" id="gnb_club_view"> 
+							<h2><a href="/pagesite/club/view_1.asp"  >자료실</a></h2> 
+							<ul class="dep2"> 
+										<li class="g16_1" id="gnb2_club_view"><a href="/pagesite/club/view_1.asp"   class="g16_1  long_type ">솔라고의 풍경</a></li> 
+										<li class="g16_4" id="gnb2_attraction_channel"><a href="/pagesite/information/attraction.asp"   class="g16_4  long_type ">솔라고 영상</a></li> 
+							</ul> 
+						</li> 
+						<li class="gnb17" id="gnb_lounge_score"> 
+							<h2><a href="/pagesite/lounge/score.asp"  >스코어조회</a></h2> 
+							<ul class="dep2"> 
+							</ul> 
+						</li> 
+						<li class="gnb18" id="gnb_information_honor"> 
+							<h2><a href="/pagesite/lounge/honor.asp"  >명예의전당</a></h2> 
+							<ul class="dep2"> 
+							</ul> 
+						</li> 
+ 
+					</ul>
+
+			</div>
+			<!-- /gnb -->
+			<a href="#" class="bt_gnb" title="전체메뉴 버튼"></a>
+            
+			<!-- gnb all -->
+			<div class="gnb_all">
+				<ul>
+				
+				</ul>
+				<a href="#" class="close_btn" title="닫기"></a>				
+			</div>
+			<!-- /gnb all -->
+			<a href="http://www.kma.go.kr/weather/forecast/timeseries.jsp?searchType=INTEREST&wideCode=4400000000&cityCode=4482500000&dongCode=4482525000" class="weather_icon" title="기상청" target="_blank"><img src="/image/common/weather_icon_cool.png" alt="기상청" /></a>
+		</div>
+		<!-- /헤더 -->
+	</div>
+	<!-- 상단 종료 -->
+
+		<!-- 바디 시작 -->
+		<!-- content -->
+	<div id="body">	
+		<div id="course_navi" class="sub_top_bn"></div><!-- 상단 이미지?? -->
+		<div class="content_sub">	
+
+			<div class="content_sub_in">
+
+				<!-- 컨텐츠 -->
+				<div class="content">
+					<div class="tit_area">
+						<h3>코스공략도<span>솔라고C.C 코스공략도 입니다.</span></h3>
+					</div>
+					<!-- history map -->
+						<ul class="his_map" style="visibility:hidden">
+							<li class="home"><a href="/" title="홈으로 가기"><img alt="" src="/image/common/btn_home.png" /></a></li>
+							<li class="his_depth01">
+								<a _href="/pagesite/course/intro.asp" class="bt_depth01" style="background: none;">코스소개 &nbsp;&nbsp;&nbsp; &gt;</a>
+								<!-- 서브 1뎁스 메뉴 submemuListHtml-->
+								<!--ul class="depth01">
+									<li><a href="/pagesite/reservation/live.asp" title="예약">예약</a></li>
+									<li><a href="/pagesite/club/intro.asp" title="클럽소개">클럽소개</a></li>
+									<li><a href="/pagesite/course/intro.asp" title="코스소개">코스소개</a></li>
+									<li><a href="/pagesite/use/guide.asp" title="이용안내">이용안내</a></li>
+									<li><a href="/pagesite/information/attraction.asp" title="주변관광지">주변관광지</a></li>
+									<li><a href="/pagesite/information/notice.asp" title="고객센터">고객센터</a></li>
+								</ul-->
+							</li>					
+							<li class="his_depth02">
+								<a _href="/pagesite/course/one/hole01.asp" class="bt_depth02" style="background: none;">코스공략도</a>
+								<!-- 서브 2뎁스 메뉴 -->
+								<ul class="depth02">
+												 
+ 		   	 
+ 
+ 							<li id="lnb_course_intro"> 
+								<a href="/pagesite/course/intro.asp" class="lnb_c01"  >코스안내</a> 
+							</li> 
+							<li id="lnb_course_guide"> 
+								<a href="/pagesite/course/one/hole01.asp" class="lnb_c02"  >코스공략도</a> 
+							</li> 
+ 
+    
+ 
+
+								</ul>
+							</li>
+						</ul>	
+
+
+		<div id="content_body" class="clear course_new">
+			<!-- 데이타 시작 -->
+            <ul class="tab_list node2"> 
+                <li><a href="/pagesite/course/intro.asp">코스소개</a></li> 
+                <li><a href="/pagesite/course/one/hole01_1.asp">SOL-IN</a></li> 
+                <li><a href="/pagesite/course/one/hole10.asp">SOL-OUT</a></li> 
+                <li class="on"><a href="/pagesite/course/two/hole01_1.asp">LAGO-IN</a></li> 
+                <li><a href="/pagesite/course/two/hole10.asp">LAGO-OUT</a></li> 
+            </ul>
+            <ul class="tab_list tab_list9">
+            	<li><a href="/pagesite/course/two/hole01_1.asp">1HOLE</a></li>
+                <li><a href="/pagesite/course/two/hole02_1.asp">2HOLE</a></li>
+                <li><a href="/pagesite/course/two/hole03_1.asp">3HOLE</a></li>
+                <li><a href="/pagesite/course/two/hole04_1.asp">4HOLE</a></li>
+                <li class="on"><a href="/pagesite/course/two/hole05.asp">5HOLE</a></li>
+                <li><a href="/pagesite/course/two/hole06.asp">6HOLE</a></li>
+                <li><a href="/pagesite/course/two/hole07.asp">7HOLE</a></li>
+                <li><a href="/pagesite/course/two/hole08.asp">8HOLE</a></li>
+                <li><a href="/pagesite/course/two/hole09.asp">9HOLE</a></li>
+            </ul>
+            
+            <h3 class="course_tit"><span>Lago-In</span> 코스공략도</h3>
+            <div class="hole_wrap">
+				<div class="img_wrap">
+                	<img src="/image/course/lago_in/110000349_2_05.jpg" alt="lago in 코스 5홀"/>
+                </div>
+                <div class="info_wrap">
+                	<div class="hole_top lago">
+                    	<h4><em>5 HOLE</em><span>PAR 4</span></h4>
+                        <p>LAGO-IN</p>
+                    </div>
+                    <div class="hole_mid">
+                    	<ol>
+                        	<li class="black"><span>401</span></li>
+                            <li class="blue"><span>369</span></li>
+                            <li class="white"><span>322</span></li>
+                            <li class="yellow"><span>283</span></li>
+                            <li class="red"><span>235</span></li>
+                        </ol>
+                    </div>
+                    <div class="vid_wrap">
+                    	<iframe width="100%" height="100%" src="https://www.youtube.com/embed/H62lPaaxaXo?version=3&rel=0&controls=0&mute=1&autoplay=1" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                    </div>
+                </div>
+            </div>
+			<!-- <p><img src="/image/OntheAnvil.png" class="block" alt="코스공략도" /></p> -->
+			<!-- 데이타 종료 -->
+		</div>
+
+				
+				</div>
+					
+				<!-- quick 
+				<dl class="quick_menu" id="gotop">
+					<dt><img src="/image/common/tit_quick.png" alt="Quick MENU" /></dt>
+					<dd><a href="/pagesite/reservation/live.asp" class="overimg"><img src="/image/common/bt_q01.png" alt="예약하기" /></a></dd>
+					<dd><a href="/pagesite/use/reservation.asp" class="overimg"><img src="/image/common/bt_q02.png" alt="예약가이드" /></a></dd>
+					<dd><a href="/pagesite/use/charge.asp" class="overimg"><img src="/image/common/bt_q03.png" alt="이용요금" /></a></dd>
+					<dd><a href="/pagesite/club/location.asp" class="overimg"><img src="/image/common/bt_q04.png" alt="오시는길" /></a></dd>
+				</dl> -->
+
+				<script type="text/javascript">
+				<!--						
+					$(window).bind('scroll', function() {
+						var curTop = $(this).scrollTop();
+						if(curTop > 341) {
+							$('#gotop').css({'position': 'fixed', 'top': '10px'});
+						}
+						else {
+							$('#gotop').css({'position': 'absolute', 'top': '0'});
+						}
+					});
+				//-->
+				</script>
+			</div>				
+		</div>
+	</div>
+	<!-- /content -->
+
+			
+	<!-- footer -->
+	<div id="footer">
+		<div class="foot_in">
+			<div class="f_txt">
+				<a href="/pagesite/clause/guide.asp" class="overimg">이용약관</a> l
+				<a href="/pagesite/clause/internet.asp" class="overimg">인터넷서비스 이용약관</a> l
+				<a href="/pagesite/clause/info.asp" class="overimg">개인정보취급방침</a>
+				<!-- l
+				<a href="http://www.ftc.go.kr/www/bizCommView.do?key=232&apv_perm_no=2018462007630200093&pageUnit=10&searchCnd=wrkr_no&searchKrwd=3168126068&pageIndex=1" class="overimg" target="_blank" >사업자정보확인</a>
+				-->
+			</div>
+			
+			<div class="addr">
+				<dl>
+					<dt class="hide">사업장주소</dt>
+					<dd>충남 태안군 태안읍 기업도시 9길 176</dd>
+				</dl>
+				<dl>
+					<dt>전화번호:</dt>
+					<dd>041-670-8888</dd>
+					<dt>팩스번호:</dt>
+					<dd>041-670-8877</dd>
+					<dt>사업자등록번호:</dt>
+					<dd>316-81-26068</dd>
+					<dt>법인명:</dt>
+					<dd>일진레져주식회사</dd>
+					<dt>통신판매업신고번호:</dt>
+					<dd>제2018-충남태안-0093호</dd>
+				</dl>
+				<p>Copyrights ⓒ SOLLAGO Country club. All Rights Reserved.</p>
+				<!-- <p>Copyrights ⓒ SOLLAGO Country club. All Rights Reserved.</p> -->
+
+			</div>
+
+			<!-- Family Site 
+			<div class="family">
+				<dl>
+					<dt class="fm_go"><a href="#familysite"><img src="/image/common/family.png" alt="Family Site" /></a></dt>
+					<dd class="fm_list">
+						<ul>
+							<li><a href="#">솔라고</a></li>
+							<li><a href="#">솔라고</a></li>
+						</ul>
+					</dd>
+				</dl>
+			</div> -->
+			
+		</div>
+	</div>
+	<!-- /footer -->
+</div>
+
+<link rel="stylesheet" type="text/css" href="/css/swiper-style.css"></link>
+<script type="text/javascript" charset="UTF-8" src="/js/swiper.jquery.min.js"></script>
+<script>
+	$(function(){
+		    $("#quick_layout_add .bt_close").click(function(){
+		    	$(".quick_layer .bg").hide();
+		    });
+	});
+	$(window).ready(function(){
+		var current_bn = $('.add_slide');
+		var swiper = new Swiper(current_bn, {
+			width: '257',
+			height: '52',
+			centeredSlides: true,
+			preloadImages: true,
+			updateOnImagesReady: true,
+			pagination: current_bn.find('.swiper-pagination'),
+			paginationClickable: true,
+			//effect: 'fade',
+			slidesPerView: 1,
+			autoplay: 4000,
+			speed : 1000,
+			loop: true,
+		});
+		swiper.update();
+	});
+</script>
+	<!-- 2017-10-30 -->
+	<!-- quick reservation -->	
+	<div class="quick_right">		
+		<ul class="quick_reserv_area">
+			<li><a href="#tab01" class="quick_reserv"><img src="/image/quick/q_menu01.png" alt="빠른예약" /></a></li>
+			<li><a href="#tab02" class="quick_event" onClick="quick_layout_event_html('')"><img src="/image/quick/new/q_menu02.png" alt="" /></a></li>
+			<li><a href="/GolfRes/joinRoom/list.asp"><img src="/image/quick/new/q_menu03.jpg?ver=1" alt="조인게시판" /></a></li>
+			<li><a href="#tab03" class="quick_add" onClick="quick_layout_add_html('')"><img src="/image/quick/new/q_menu04.jpg?ver=2024" alt="하나금융그룹" /></a></li>
+			<!--li><a href="/memberInfor/joinTerms.asp" ><img src="/image/quick/q_menu04.png" alt="회원가입" /></a></li-->
+			<!--li><a href="/pagesite/club/restaurant.asp" class="quick_flavor"><img src="/image/quick/q_menu05.png" alt="솔라고의 맛" /></a></li-->
+		</ul>
+		<div class="quick_layer">
+			<span class="bg"></span>
+			<!-- 하나금융그룹 -->
+			<div class="quick_layer_in quick_layer_in3" id="tab03" style="display:none;">
+				<div id="quick_layout_add">
+					<h3><img src="/image/quick/quick_tit.png" alt="현대솔라고"></h3>
+					<a href="#" class="bt_close">닫기 X</a>
+					<div class="quick_layer_con">
+						<div class="swiper-container add_slide" style="width:257px;">
+							<div class="swiper-wrapper">
+								<div class="swiper-slide"><a href="http://sollagopms.com/" target="_blank" title="일진PMS(주)"><img src="/image/main/banner_02.jpg" alt="솔라고PMS(주)" /></a></div>
+								<div class="swiper-slide"><a href="http://www.komori.com/" target="_blank" title="고모리"><img src="/image/main/banner_03.png" alt="고모리" /></a></div>
+								<div class="swiper-slide"><a href="http://sollagohotel.com/" target="_blank" title="솔라고 명동 호텔"><img src="/image/main/banner_04.jpg" alt="솔라고 명동 호텔" /></a></div>
+							</div>
+							<div class="swiper-pagination"></div>
+						</div>
+					</div>
+				</div>
+
+			</div>
+
+			<!-- 빠른예약 -->
+			<div class="quick_layer_in" id="tab01">
+				<div id="quick_layout_info"></div>	
+
+			</div>
+
+			<!-- 이벤트 -->
+			<div class="quick_layer_in quick_layer_in2" id="tab02">
+				<div id="quick_layout_event"></div>	
+
+
+				</div>
+			</div>
+		</div>
+		<span class="quick_bg"></span>
+	</div>
+	<!-- /2017-10-30 -->
+
+
+<!-- 모달로그인 -->
+ <div class="login_modal_layer" id="loginModalPop" style="display:none;">
+	<div class="login_modal_bg"></div>
+	<div class="login_modal_con">
+		<div class="login_modal_con_in">
+			<div id="login_modal_info"></div>
+		</div>
+	</div>
+</div>
+
+<form name="login_modal_from" id="login_modal_from" method="post">
+	<input type="hidden" id="loginModalId" name="loginModalId" value="loginModalPop"/>
+</form>
+
+
+<script language="javascript" src="/js/golfRes.js"></script>
+
+<form name="quick_layoutform_info" id="quick_layoutform_info" method="post">
+	<input type="hidden" id="quick_golfrestype" name="golfrestype" value="real" />
+	<input type="hidden" id="quick_toDay" name="pointdate" value="" />	
+	<input type="hidden" id="quick_toopenyn" name="openyn" value="" />
+	<input type="hidden" id="quick_calnum" name="calnum" value="1"/>
+	<input type="hidden" id="quick_usrmemcd" name="usrmemcd" value="10" />
+	<input type="hidden" id="quick_settype" name="settype" value="T">
+</form>
+
+<form name="quick_layoutform_event" id="quick_layoutform_event" method="post">
+</form>
+
+<form name="main_event_board_list" id="main_event_board_list" method="post" action="">
+	<input type="hidden" id="main_event_code" name="main_event_code" value="" />	
+	<input type="hidden" id="main_event_type" name="main_event_type" value="L" />	
+	<input type="hidden" id="main_event_num"  name="main_event_num"  value="1" />	
+	<input type="hidden" id="main_event_size" name="main_event_size" value="5" />	
+</form>
+
+<form name="MobileUrlSand_from" id="MobileUrlSand_from" method="post" action="">
+	<input type="hidden" id="callType" name="callType" value="AJAX" />
+	<input type="hidden" id="mul_kind" name="kind" value="S" />
+	<input type="hidden" id="mul_comcode" name="comcode" value="" />
+	<input type="hidden" id="mul_user_name" name="user_name" value="" />
+	<input type="hidden" id="mul_user_member_cd" name="user_member_cd" value="" />
+	<input type="hidden" id="mul_hand_phone" name="hand_phone" value="" />
+	<input type="hidden" id="mul_msend_url" name="msend_url" value="m.sollago.co.kr" />
+</form>
+
+
+<div class="header-gnb to-animate all_menu-full" data-duration="dur-03" data-delay="delay-03" data-animate="fadeInUp">
+    <nav class="gnb gnb-fullsize">
+        <div class="top">
+            <a href="/" class="logo">LOGO</a>
+            <a href="javascript:void(0);" class="btn gnb-close"><i class="ico ico-close03"></i><span>닫기</span></a>
+        </div>
+        <div class="gnb-list">
+            <div class="depth1">
+                <span>골프(Golf)</span>
+                <ul>
+                    <li class="depth2"><a href="/pagesite/reservation/live.asp">예약안내</a></li>
+                    <li class="depth3"><a href="/GolfRes/onepage/real_reservation.asp">실시간예약</a></li>
+                    <li class="depth3"><a href="/GolfRes/onepage/wait_reservation.asp">대기예약</a></li>
+                    <li class="depth3"><a href="/pagesite/reservation/confirm.asp">확인/취소</a></li>
+                    <li class="depth3"><a href="/myContents/visitList.asp">위약현황</a></li>
+                </ul>
+                <ul>
+                    <li class="depth2"><a href="/pagesite/use/guide.asp">이용안내</a></li>
+                    <li class="depth3"><a href="/pagesite/use/guide.asp">이용안내</a></li>
+                    <li class="depth3"><a href="/pagesite/use/charge.asp">이용요금</a></li>
+                    <li class="depth3"><a href="/pagesite/use/reservation.asp">예약안내</a></li>
+                    <li class="depth3"><a href="/pagesite/use/mobile.asp">모바일안내</a></li>
+                </ul>
+                <!--ul>
+                    <li class="depth2"><a href="/pagesite/course/intro.asp">코스소개</a></li>
+                </ul-->
+                <ul>
+                    <li class="depth2"><a href="/pagesite/club/intro.asp">클럽하우스</a></li>
+                    <li class="depth3"><a href="/pagesite/club/intro.asp">골프장소개</a></li>
+                    <li class="depth3">
+                        <a href="/pagesite/club/facilities/house.asp">부대시설</a>
+                        <ul>                	
+                            <li class="depth4"><a href="/pagesite/club/facilities/house.asp">클럽하우스</a></li>
+                            <li class="depth4"><a href="/pagesite/club/facilities/front.asp">프론트</a></li>
+                            <li class="depth4"><a href="/pagesite/club/facilities/locker.asp">락커룸/사우나</a></li>
+                            <li class="depth4"><a href="/pagesite/club/facilities/restaurant.asp">대식당</a></li>
+                            <li class="depth4"><a href="/pagesite/club/facilities/shade.asp">그늘집</a></li>
+                            <li class="depth4"><a href="/pagesite/club/facilities/proshop.asp">프로샵</a></li>
+                            <li class="depth4"><a href="/pagesite/club/gallery.asp">허윤경프로 갤러리</a></li>
+                        </ul>
+                    </li>
+					<li class="depth3"><a href="/pagesite/club/restaurant_menu.asp">대식당 및 스타트 하우스 메뉴</a></li>
+                </ul>
+            </div>
+            <div class="depth1">
+                <span>리조트(Resort)</span>
+                <ul>
+                    <li class="depth2"><a href="/condoRes/onepage/real_reservation.asp">예약안내</a></li>
+                    <li class="depth3"><a href="/condoRes/onepage/real_reservation.asp">객실예약</a></li>
+                    <li class="depth3"><a href="/condoRes/onepage/my_condoreslist.asp">객실예약 확인/취소</a></li>
+                </ul>
+                <ul>
+                    <li class="depth2"><a href="/pagesite/condo/intro_1.asp">객실안내</a></li>
+					<li class="depth3"><a href="/pagesite/condo/intro_1_7.asp">객실이용안내</a></li>
+					<li class="depth3"><a href="/pagesite/condo/intro_1_8.asp">숙박약관 및 이용 규칙</a></li>
+                </ul>
+                <ul>
+                    <!--li class="depth2"><a href="/pagesite/condo/intro_2.asp">솔라고리조트</a></li>
+                    <li class="depth3"><a href="/pagesite/condo/intro_2.asp">리조트소개</a></li>
+                    <li class="depth3"><a href="/pagesite/condo/intro_3.asp">솔라고 세운</a></li-->
+                    <li class="depth2">
+                        <a href="/pagesite/condo/intro_3.asp">부대시설안내</a>
+                    </li>
+					<li class="depth3"><a href="/pagesite/condo/intro_3.asp">세미나홀</a></li>
+					<li class="depth3"><a href="/pagesite/condo/intro_3_2.asp">노래방</a></li>
+					<li class="depth3"><a href="/pagesite/condo/intro_3_3.asp">편의점/카페</a></li>
+                </ul>
+				<ul>
+                    <li class="depth2"><a href="/pagesite/condo/intro_2.asp">솔라고리조트</a></li>
+					<li class="depth3"><a href="/pagesite/condo/intro_2.asp">리조트소개</a></li>
+					<li class="depth3"><a href="/pagesite/condo/intro_2_2.asp">솔라고산책길</a></li>
+					<li class="depth3"><a href="/multi_board/site/board/list.asp?groupcode=AGALLERY&open_state=1">주변관광지</a></li>
+                </ul>
+            </div>
+            <div class="depth1">
+                <span>연습장(Driving Range)</span>
+                <ul>
+                    <li class="depth2"><a href="/pagesite/driving_range/intro_1.asp">연습장소개</a></li>
+                </ul>
+                <ul>
+                    <li class="depth2"><a href="/pagesite/driving_range/intro_2.asp">브리지스톤</a></li>
+                </ul>
+				<ul>
+                    <li class="depth2"><a href="/pagesite/driving_range/intro_4.asp">파3골프장</a></li>
+                </ul>
+				<ul>
+                    <li class="depth2"><a href="/pagesite/driving_range/intro_5.asp">입점 아카데미</a></li>
+					<li class="depth3"><a href="/pagesite/driving_range/intro_5.asp">CUBE GOLF ACADEMY</a></li>
+					<li class="depth3"><a href="/pagesite/driving_range/intro_5_2.asp">YR GOLF ACADEMY</a></li>
+                </ul>
+                <!--ul>
+                    <li class="depth2"><a href="/pagesite/driving_range/intro_2.asp">부대시설</a></li>
+                </ul>
+                <ul>
+                    <!--li class="depth2"><a href="/pagesite/driving_range/intro_3.asp">TSM(팀솔라고) 아카데미</a></li--/>
+		    		<li class="depth2"><a href="/pagesite/driving_range/intro_3.asp"><img src="/image/range/team_sollago.png" style="width:90px; margin-top:10px;"></a></li>
+                </ul-->
+            </div>
+            <div class="depth1">
+                <span>고객센터(Service)</span>
+                <!--ul>
+                    <li class="depth2"><a href="/pagesite/information/notice.asp">공지사항</a></li>
+                </ul-->
+                <ul>
+                    <li class="depth2"><a href="/pagesite/reservation/join.asp">골프조인방</a></li>
+                </ul>
+                <ul>
+                    <li class="depth2"><a href="/pagesite/club/view_1.asp">자료실</a></li>
+					<li class="depth2"><a href="/pagesite/lounge/score.asp">스코어조회</a></li>
+                    <li class="depth3">
+                        <a href="/pagesite/club/view_1.asp">솔라고 풍경</a>
+                        <ul>
+                            <li class="depth4"><a href="/pagesite/club/view_1.asp">골프장</a></li>
+                            <li class="depth4"><a href="/pagesite/club/view_2.asp">3부 라운드</a></li>
+                            <li class="depth4"><a href="/pagesite/club/view_3.asp">대회</a></li>
+                            <li class="depth4"><a href="/pagesite/club/view_4.asp">연습장</a></li>
+                            <li class="depth4"><a href="/pagesite/club/view_5.asp">리조트</a></li>
+                        </ul>
+                    </li>
+                    <li class="depth3"><a href="/pagesite/information/attraction.asp">태안볼거리</a></li>
+                </ul>
+                <ul>
+                    <li class="depth2"><a href="/pagesite/lounge/honor.asp">명예의전당</a></li>
+                </ul>
+                <ul>
+                    <li class="depth2"><a href="/pagesite/club/location2.asp">오시는길</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+</div>
+
+</body>
+</html>
+<!-- ////////////////////////////////////////////////////////////////////////////////
+	Copyright(c)2026. cminfortek.com. All rights reserved.
+	이 사이트에 게제한 모든 소스와 정보에 대한 모든 권리는 씨엠인포텍(주)에게 있습니다.
+	사전 동의없이는 어떠한 형식과 방법으로든 무단 도용을 금합니다.
+	만일 위와 같은 권고에도 불구하고 무단 도용시 법적인 제재를 받으실 수 있습니다.
+	================================================================================
+	개인정보보호책임자 : XXXX (master@cminfor.co.kr)
+	기술 책임자 : XXXX (master@cminfor.co.kr)
+	컨텐츠 책임자 : XXXX (service@cminfor.co.kr)
+//////////////////////////////////////////////////////////////////////////////// -->

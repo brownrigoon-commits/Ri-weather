@@ -1,0 +1,2567 @@
+
+
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <title>스카이밸리 컨트리클럽</title>
+    <meta charset="utf-8">
+    <meta http-equiv="Expires" content="-1">
+	<meta http-equiv="Pragma" content="no-cache">
+	<meta http-equiv="Cache-Control" content="No-Cache">
+    <meta http-equiv="Imagetoolbar" content="no">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+    <script type="text/javascript" src="/static/common/libs/jquery-1.12.4.min.js" charset="UTF-8"></script>
+    <script type="text/javascript" src="/static/pc/js/include_meta.js" charset="UTF-8"></script>
+    
+    <!-- css -->
+    <link rel="stylesheet" href="/static/pc/css/cm_default.css?ver=20250410">
+    <link rel="stylesheet" href="/static/pc/css/custom/cm_default.css?ver=20250410">
+    <link rel="stylesheet" href="/static/pc/css/custom/loading-bar.css">
+    <script type="text/javascript" src="/static/pc/js/include_css.js?ver=20250410" data-ver="20250410" charset="UTF-8"></script>
+    <!-- origin css -->
+    <script type="text/javascript" src="/static/pc/js/include_origin_css.js?ver=20250410" data-ver="20250410" charset="UTF-8"></script>    
+    
+    <!-- js -->    
+	<script type="text/javascript" src="/static/common/libs/jquery.min.js" charset="UTF-8"></script>
+	<script type="text/javascript" src="/static/common/libs/jquery-ui.js" charset="UTF-8"></script>
+    <script type="text/javascript" src="/static/common/libs/librarys.min.js" charset="UTF-8"></script>
+    <script type="text/javascript" src="/static/pc/js/libs/loading-bar.min.js"></script>
+    <script type="text/javascript" src="/static/pc/js/ui.custom.js?ver=20250410" charset="UTF-8"></script>
+    <script type="text/javascript" src="/static/pc/js/ui.common.js?ver=20250410" charset="UTF-8"></script>
+    <script type="text/javascript" src="/static/common/js/common.js?ver=20250410"></script>
+    <script type="text/javascript" src="/static/pc/js/include_js.js?ver=20250410" data-ver="20250410" charset="UTF-8"></script>
+    <!-- origin js-->
+    <script type="text/javascript" src="/static/pc/js/include_origin_js.js" charset="UTF-8"></script>
+    <script>
+        
+            goSSL();
+        
+
+        //page_type
+	    //ui_custom.page_type.init();
+
+        //--basic Customizing(origin)-s
+        var mPage;
+
+        $(document).ready(function() {
+            //setProtocol();
+
+            initHeader();
+
+            initHeaderListener();
+
+            goGreenSpeed("J35");
+        });
+
+        function setProtocol() {
+            if (document.location.protocol == 'http:') {
+                var sUrl = document.location.href;
+                sUrl = sUrl.replace('http:', 'https:');
+
+                document.location.href = sUrl;
+            }
+        }
+
+        function initHeader() {
+            mPage = "";
+            var open = "";
+
+            if ((mPage != "" || open == "Y") && "" == "") {
+                $('.loginWrap').slideToggle(400);
+            }
+        }
+
+        function initHeaderListener() {
+            $(".nav li").hover(function() {
+                $(this).children("ul").stop().delay(200).animate({
+                    height: "toggle",
+                    opacity: "toggle"
+                }, 200);
+            });
+
+            var chkId = getCookie("chkSaveId");
+            var id = getCookie("cookieId");
+
+            if (chkId != null && chkId != "") {
+                $("#chkSaveId").attr('checked', true);
+            }
+
+            if (id != null && id != "") {
+                $("#txtHeaderId").val(id);
+            }
+
+            $("#txtHeaderId").keypress(function(event) {
+                if (event.keyCode == 13) {
+                    doLogin();
+                }
+            });
+
+            $("#txtHeaderPw").keypress(function(event) {
+                if (event.keyCode == 13) {
+                    doLogin();
+                }
+            });
+        }
+
+        function doLogin() {
+            var sUrl = "/controller/MemberController.asp";
+            var params = {};
+
+            var id = $("#txtHeaderId").val();
+            var pw = $("#txtHeaderPw").val();
+
+            if (id == "") {
+                alert("아이디를 입력하세요.");
+                return;
+            }
+
+            if (pw == "") {
+                alert("비밀번호를 입력하세요.");
+                return;
+            }
+
+            params["method"] = "doLogin";
+            params["coDiv"] = globals.coDiv;
+            params["id"] = id;
+            params["pw"] = pw;
+
+            mAjax(sUrl, params, "POST", true, function(data) {
+                if (data.resultCode == "0000") {
+                    var chkSaveId = $('input:checkbox[id="chkSaveId"]').is(":checked");
+
+                    if (chkSaveId) {
+                        setCookie("cookieId", $("#txtHeaderId").val(), 365);
+                        setCookie("chkSaveId", true, 365);
+                    } else {
+                        setCookie("cookieId", "", 365);
+                        setCookie("chkSaveId", "", 365);
+                    }
+
+                    if (mPage != "") {
+                        location.href = mPage;
+                    } else {
+                        location.reload();
+                    }
+                } else {
+                    alert(data.resultMessage);
+                }
+            });
+        }
+
+        function doLogout() {
+            var sUrl = "/Controller/MemberController.asp";
+            var params = {};
+
+            params["method"] = "doLogout";
+
+            mAjax(sUrl, params, "POST", true, function(data) {
+                if (data.resultCode == "0000") {
+                    alert("로그아웃 되었습니다.");
+                    location.href = "/index.asp"
+                }
+            });
+        }
+
+        function onlyMainMenu(val) {
+            if (val == "1") {
+                $("#onlyMain").show();
+            } else(
+                $("#onlyMain").hide()
+            )
+        }
+        //--basic Customizing(origin)-e
+    </script>
+    
+    <script type="text/javascript">
+        // https로 전환
+
+        //sslCheck();
+
+        function sslCheck() {
+            if ('https://www.skyvalley.co.kr' == location.protocol + '//' + location.host) {
+                return;
+            }
+            location.href = 'https://www.skyvalley.co.kr' + location.pathname + location.search;
+        }
+
+        // 퍼블
+        $(document).ready(function() {
+            var h = $(window).height();
+            $('.visual_top').css('height', h + 'px');
+        });
+
+        // 개발
+        $(document).ready(function() {
+            //setWeather();
+        });
+
+        // 날씨, 그린스피드 SET
+        function setWeather() {
+            callAjax({
+                url: 'skyvalley/weather',
+                success: function(data) {
+                    if (data.status != 'success') {
+                        return;
+                    }
+
+                    $('#greenSpeed').text(data.resultData.greenSpeed + 'm');
+                    $('#weather_temp').text(data.resultData.temperature + '℃');
+
+                    var $weatherImg = $('#weather_img');
+                    var imgSrc = $weatherImg.attr("src");
+                    imgSrc = imgSrc.replace(imgSrc.substring(imgSrc.indexOf("img_weather"), imgSrc.lastIndexOf(".")), "img_weather_" + data.resultData.weatherCd);
+
+                    $weatherImg.attr({
+                        src: imgSrc,
+                        alt: data.resultData.weather
+                    });
+                }
+            });
+        }
+        /*
+        $(window).on('load',function(){
+        	//$('.visual_top').addClass('active');
+        	$('.visual_top .bg').animate({'height':'100%'},3000);
+        });*/
+    </script>
+    
+</head>
+<form name="mainUrlForm" id="mainUrlForm">
+	<input type="hidden" name="COM_CD"   id="COM_CD"   value="J35">
+	<input type="hidden" name="COM_NAME" id="COM_NAME" value="스카이밸리">
+	<input type="hidden" name="COM_URL"  id="COM_URL"  value="skyvalley">
+</form>	
+
+<form name="frmGreenSpeed" id="frmGreenSpeed">
+	<input type="hidden" name="companyCd"   id="mainCompanyCd"   value="">
+</form>	 
+
+<body>
+	
+    <div class="lds-ring"><div></div><div></div><div></div><div></div></div>
+    <div id="wrapper">
+        <!-- SkipNav -->
+        <div id="skipNav">
+            <a href="#gnb">주요 메뉴 바로가기</a>
+            <a href="#content">컨텐트 바로가기</a>
+        </div>
+        <!-- //SkipNav -->
+        
+        
+        <!-- 
+        <div class="right_area">
+            <a href="#sec0" class="btn right_btn right_menu aside-menu-open full" aria-controls="asideMenu" aria-expanded="false"><span><i class="ico ico-menu white"></i>메뉴</span></a>
+            <a href="/board/notice" class="btn right_btn right_notice"><span><i class="ico ico-notice white"></i>공지사항</span></a>
+            <a href="/reservation/golf" class="btn right_btn right_res"><span><i class="ico ico-res white"></i>실시간예약</span></a>
+        </div>
+ 		-->
+ 		
+        <!-- header -->
+        
+			
+
+
+
+
+
+
+        <!-- Header -->
+        
+        <!--LNB-->
+        <div id="header" tabindex="0">
+            <h1><a href="/skyvalley/main"><img src="/static/pc/origin/resources/w/img/h1_logo.png" alt="SKY VALLEY | 스카이 벨리" /></a></h1>
+            <div class="lnb_menu">
+                <a href="#menu" class="btn_menu">
+				<span><em>메뉴</em><span class="blind">열기</span></span>
+			</a>
+                <a href="#" class="btn_close">
+				<span class="blind">메뉴</span><em>CLOSE</em>
+			</a>
+            </div>
+            <h2 class="blind">주 메뉴 영역</h2>
+            <ul id="gnb">
+                <li><a href="/skyvalley/reservation/golf"><img src="/static/pc/origin/resources/w/img/btn/gnb_01.png" alt="예약"></a></li>
+                
+                
+               		
+					
+						<li><a href="/skyvalley/member/login"><img src="/static/pc/origin/resources/w/img/btn/gnb_02.png" alt="로그인"></a></li>
+                         	
+                  
+                
+                
+                <li><a href="/skyvalley/swp/charge"><img src="/static/pc/origin/resources/w/img/btn/gnb_03.png" alt="요금"></a></li>
+                <li><a href="/skyvalley/swp/location"><img src="/static/pc/origin/resources/w/img/btn/gnb_04.png" alt="위치"></a></li>
+            </ul>
+            <ul class="condition">
+                <li class="weather" onclick="location.href='/skyvalley/board/middleWeather';" style="cursor:pointer;">
+                    <em>Today <span class="blind">날씨</span></em>
+                    <img id="weather_img" src="/static/pc/images/common/temp.png" alt="날씨">
+                    <strong id="weather_temp"></strong>
+                </li>
+                
+                
+                <li class="green_speed"><span id="greenName">그린 스피드</span><strong id="greenSpeed"></strong></li>
+                <li class="green_speed"><span id="greenName2"></span><strong id="greenSpeed2"></strong></li>
+                
+                <li><h1 class="egic"><a href="https://www.egic.co.kr/" target="_blank"><img src="/static/pc/images/common/egic_logo.png" alt="엔지니어링공제조합"></a></h1></li>
+            </ul>
+        </div>
+        <!--//LNB-->
+
+        <!--FULL MENU(GNB)-->
+        <div class="menu_layer" id="menu">
+            <h2 class="blind">전체메뉴</h2>
+            <div class="menu_cont">
+                <div class="user_area">
+                	
+                		
+						
+							<a href="/skyvalley/member/login" class="btn_login">로그인</a>
+	                    	<a href="/skyvalley/member/joinStep1" class="btn_join">회원가입</a>   	
+	                         	
+	                    
+                </div>
+				
+				
+				
+				
+				<ul>
+					
+						
+						
+						
+							
+								
+									<li>
+										<a href="/skyvalley/swp/intro">스카이밸리</a>
+	                        			<ul>
+								
+								
+								
+							
+							
+								
+									
+								
+								
+							
+							
+						
+					
+						
+						
+						
+							
+								
+								
+									
+										
+					                    
+					                    
+					                    	<li><a href="/skyvalley/swp/intro">스카이밸리 소개</a></li>
+					                    
+										
+								
+								
+							
+							
+								
+								
+									
+	    						
+							
+							
+						
+					
+						
+						
+						
+							
+								
+								
+									
+										
+					                    
+					                    
+					                    	<li><a href="/skyvalley/swp/ceo">인사말</a></li>
+					                    
+										
+								
+								
+							
+							
+								
+								
+									
+	    						
+							
+							
+						
+					
+						
+						
+						
+							
+								
+								
+									
+										
+					                    
+					                    
+					                    	<li><a href="/skyvalley/swp/ethics">윤리헌장 및 강령</a></li>
+					                    
+										
+								
+								
+							
+							
+								
+								
+									
+	    						
+							
+							
+						
+					
+						
+						
+						
+							
+								
+								
+									
+										
+					                    
+					                    
+					                    	<li><a href="/skyvalley/swp/location">오시는길</a></li>
+					                    
+										
+								
+								
+							
+							
+								
+								
+									
+	    						
+							
+							
+						
+					
+						
+						
+						
+							
+								
+								
+									
+										
+					                    
+					                    
+					                    	<li><a href="/skyvalley/board/middleWeather">기상정보</a></li>
+					                    
+										
+								
+								
+							
+							
+								
+								
+									
+	    						
+							
+							
+						
+					
+						
+								</ul>
+                    		</li>
+						
+						
+						
+							
+								
+									<li>
+										<a href="/skyvalley/swp/course_intro">코스소개</a>
+	                        			<ul>
+								
+								
+								
+							
+							
+								
+									
+								
+								
+							
+							
+						
+					
+						
+						
+						
+							
+								
+								
+									
+										
+					                    
+					                    
+					                    	<li><a href="/skyvalley/swp/course_intro">코스개요</a></li>
+					                    
+										
+								
+								
+							
+							
+								
+								
+									
+	    						
+							
+							
+						
+					
+						
+						
+						
+							
+								
+								
+									
+										
+					                    
+					                    
+					                    	<li><a href="/skyvalley/swp/sky_course">스카이 코스</a></li>
+					                    
+										
+								
+								
+							
+							
+								
+								
+									
+	    						
+							
+							
+						
+					
+						
+						
+						
+							
+								
+								
+									
+										
+					                    
+					                    
+					                    	<li><a href="/skyvalley/swp/valley_course">밸리 코스</a></li>
+					                    
+										
+								
+								
+							
+							
+								
+								
+									
+	    						
+							
+							
+						
+					
+						
+						
+						
+							
+								
+								
+									
+										
+					                    
+					                    
+					                    	<li><a href="/skyvalley/swp/lake_course">레이크 코스</a></li>
+					                    
+										
+								
+								
+							
+							
+								
+								
+									
+	    						
+							
+							
+						
+					
+						
+						
+						
+							
+								
+								
+									
+										
+					                    
+					                    
+					                    	<li><a href="/skyvalley/swp/mountain_course">마운틴 코스</a></li>
+					                    
+										
+								
+								
+							
+							
+								
+								
+									
+	    						
+							
+							
+						
+					
+						
+						
+						
+							
+								
+								
+									
+										
+					                    
+					                    
+					                    	<li><a href="/skyvalley/golfContents/hioBoard">명예의전당</a></li>
+					                    
+										
+								
+								
+							
+							
+								
+								
+									
+	    						
+							
+							
+						
+					
+						
+								</ul>
+                    		</li>
+						
+						
+						
+							
+								
+									<li>
+										<a href="/skyvalley/swp/club_house">클럽하우스</a>
+	                        			<ul>
+								
+								
+								
+							
+							
+								
+									
+								
+								
+							
+							
+						
+					
+						
+						
+						
+							
+								
+								
+									
+										
+					                    
+					                    
+					                    	<li><a href="/skyvalley/swp/front">프론트 · 로비</a></li>
+					                    
+										
+								
+								
+							
+							
+								
+								
+									
+	    						
+							
+							
+						
+					
+						
+						
+						
+							
+								
+								
+									
+										
+					                    
+					                    
+					                    	<li><a href="/skyvalley/swp/restaurant">레스토랑</a></li>
+					                    
+										
+								
+								
+							
+							
+								
+								
+									
+	    						
+							
+							
+						
+					
+						
+						
+						
+							
+								
+								
+									
+										
+					                    
+					                    
+					                    	<li><a href="/skyvalley/swp/banquet">연회장</a></li>
+					                    
+										
+								
+								
+							
+							
+								
+								
+									
+	    						
+							
+							
+						
+					
+						
+						
+						
+							
+								
+								
+									
+										
+					                    
+					                    
+					                    	<li><a href="/skyvalley/swp/locker">락커 · 스파</a></li>
+					                    
+										
+								
+								
+							
+							
+								
+								
+									
+	    						
+							
+							
+						
+					
+						
+						
+						
+							
+								
+								
+									
+										
+					                    
+					                    
+					                    	<li><a href="/skyvalley/swp/proshop">프로샵</a></li>
+					                    
+										
+								
+								
+							
+							
+								
+								
+									
+	    						
+							
+							
+						
+					
+						
+								</ul>
+                    		</li>
+						
+						
+						
+							
+								
+									<li>
+										<a href="/skyvalley/swp/gardenheim">가든하임</a>
+	                        			<ul>
+								
+								
+								
+							
+							
+								
+									
+								
+								
+							
+							
+						
+					
+						
+						
+						
+							
+								
+								
+									
+										
+					                    
+					                    
+					                    	<li><a href="/skyvalley/swp/gardenheim">인포메이션</a></li>
+					                    
+										
+								
+								
+							
+							
+								
+								
+									
+	    						
+							
+							
+						
+					
+						
+						
+						
+							
+								
+								
+									
+										
+					                    
+					                    
+					                    	<li><a href="/skyvalley/swp/gardenheim_sky">스카이빌리지</a></li>
+					                    
+										
+								
+								
+							
+							
+								
+								
+									
+	    						
+							
+							
+						
+					
+						
+						
+						
+							
+								
+								
+									
+										
+					                    
+					                    
+					                    	<li><a href="/skyvalley/swp/gardenheim_valleyA">밸리빌리지 A</a></li>
+					                    
+										
+								
+								
+							
+							
+								
+								
+									
+	    						
+							
+							
+						
+					
+						
+						
+						
+							
+								
+								
+									
+										
+					                    
+					                    
+					                    	<li><a href="/skyvalley/swp/gardenheim_valleyB">밸리빌리지 B</a></li>
+					                    
+										
+								
+								
+							
+							
+								
+								
+									
+	    						
+							
+							
+						
+					
+						
+								</ul>
+                    		</li>
+						
+						
+						
+							
+								
+									<li>
+										<a href="/skyvalley/swp/use_guide">이용가이드</a>
+	                        			<ul>
+								
+								
+								
+							
+							
+								
+									
+								
+								
+							
+							
+						
+					
+						
+						
+						
+							
+								
+								
+									
+										
+					                    
+					                    
+					                    	<li><a href="/skyvalley/swp/use_guide">이용안내</a></li>
+					                    
+										
+								
+								
+							
+							
+								
+								
+									
+	    						
+							
+							
+						
+					
+						
+						
+						
+							
+								
+								
+									
+										
+					                    
+					                    
+					                    	<li><a href="/skyvalley/swp/charge">요금안내</a></li>
+					                    
+										
+								
+								
+							
+							
+								
+								
+									
+	    						
+							
+							
+						
+					
+						
+						
+						
+							
+								
+								
+									
+										
+					                    
+					                    
+					                    	<li><a href="/skyvalley/swp/reserve_guide">예약안내</a></li>
+					                    
+										
+								
+								
+							
+							
+								
+								
+									
+	    						
+							
+							
+						
+					
+						
+								</ul>
+                    		</li>
+						
+						
+						
+							
+								
+									<li>
+										<a href="/skyvalley/board/notice">고객센터</a>
+	                        			<ul>
+								
+								
+								
+							
+							
+								
+									
+								
+								
+							
+							
+						
+					
+						
+						
+						
+							
+								
+								
+									
+										
+					                    
+					                    
+					                    	<li><a href="/skyvalley/board/notice">공지사항</a></li>
+					                    
+										
+								
+								
+							
+							
+								
+								
+									
+	    						
+							
+							
+						
+					
+						
+						
+						
+							
+								
+								
+									
+										
+					                    
+					                    
+					                    	<li><a href="/skyvalley/board/event">이벤트</a></li>
+					                    
+										
+								
+								
+							
+							
+								
+								
+									
+	    						
+							
+							
+						
+					
+						
+						
+						
+							
+								
+								
+									
+										
+					                    
+					                    
+					                    	<li><a href="/skyvalley/swp/pds">자료실</a></li>
+					                    
+										
+								
+								
+							
+							
+								
+								
+									
+	    						
+							
+							
+						
+					
+						
+						
+						
+							
+								
+								
+									
+										
+					                    
+					                    
+					                    	<li><a href="/skyvalley/board/photo">포토갤러리</a></li>
+					                    
+										
+								
+								
+							
+							
+								
+								
+									
+	    						
+							
+							
+						
+					
+						
+						
+						
+							
+								
+								
+									
+										
+					                    
+					                    
+					                    	<li><a href="/skyvalley/board/info">입찰정보</a></li>
+					                    
+										
+								
+								
+							
+							
+								
+								
+									
+	    						
+							
+							
+						
+					
+						
+								</ul>
+                    		</li>
+						
+						
+							
+						
+					
+						
+						
+							
+						
+					
+						
+						
+							
+						
+					
+						
+						
+							
+						
+					
+						
+								</ul>
+                    		</li>
+						
+						
+							
+						
+					
+						
+						
+							
+						
+					
+						
+						
+							
+						
+					
+						
+						
+							
+						
+					
+						
+						
+							
+						
+					
+						
+								</ul>
+                    		</li>
+						
+						
+							
+						
+					
+						</ul>
+					</li>
+				</ul>
+				
+                <div class="book_info">
+                    <dl>
+                        <dt>대표번호 : 031)880-8800</dt>
+                        <!-- dd>회원권 문의 031)880-8817</dd-->
+                    </dl>
+					<a href="/skyvalley/reservation/golf">실시간 예약</a>
+                </div>
+                <a href="#" class="btn_close"><span class="blind">메뉴 레이어 닫기</span></a>
+            </div>
+        </div>
+        <!--//FULL MENU(GNB)-->
+        
+        
+			
+			
+			
+		
+		<script>
+		// 확인 버튼
+			$('#fnButton').click(function(){
+				$("#agreeYn").val("Y");
+				$.ajax({
+				    type: 'POST',
+				    url: '/myContents/memberTermsSubmit',
+				    dataType:'json',
+				    data:$('#termsForm').serialize(),
+				    success: function(response, status) {
+				    	alert(response.returnMsg);
+						if(response.success == 'S'){
+							location.href = "/skyvalley" + response.returnURL;
+						}
+					},
+					error:function(request,status,error) {
+						alert('로그인 처리중 오류가 발생하였습니다.');
+						return;
+					}
+				});
+			    
+			});
+			$('#fnLogOut').click(function(){
+				location.href = "/skyvalley/member/logout";
+			});
+		</script>
+		<form name="termsForm" id="termsForm" method="POST" action="">
+			<input type="hidden" name="agreeYn" id="agreeYn" />
+		</form>
+			
+        <!--// header -->
+
+        <!-- container -->
+        
+
+
+
+
+
+
+<meta name="viewport" id="viewport" content="width=1400">
+<link rel="preconnect" href="https://fonts.gstatic.com">
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Container -->
+    <div class="container">
+        <!-- Content -->
+		
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+		
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+		
+		
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+		
+		
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+
+	
+		 
+	
+
+	
+ 
+
+<div class="sub_type course">
+	<ol class="sub_navi v2">
+		<li><a href="javascript:void(0);" class="ico">home</a></li>
+		<li><a href="/skyvalley/swp/course_intro">코스소개</a></li>
+		<li><em>마운틴 코스</em></li>
+	</ol>
+	<div class="sub_top">
+		<h3>마운틴 코스</h3>
+	    <ul class="sub_lnb">
+	        
+		        	
+		        	
+					
+                    
+                    
+					
+						<li class=""><a href="/skyvalley/swp/course_intro"><span>코스개요</span></a></li>
+					
+						 	                                       
+	        
+		        	
+		        	
+					
+                    
+                    
+					
+						<li class=""><a href="/skyvalley/swp/sky_course"><span>스카이 코스</span></a></li>
+					
+						 	                                       
+	        
+		        	
+		        	
+					
+                    
+                    
+					
+						<li class=""><a href="/skyvalley/swp/valley_course"><span>밸리 코스</span></a></li>
+					
+						 	                                       
+	        
+		        	
+		        	
+					
+                    
+                    
+					
+						<li class=""><a href="/skyvalley/swp/lake_course"><span>레이크 코스</span></a></li>
+					
+						 	                                       
+	        
+		        	
+		        	
+					
+                    
+                    
+					
+						<li class="on"><a href="/skyvalley/swp/mountain_course"><span>마운틴 코스</span></a></li>
+					
+						 	                                       
+	        
+		        	
+		        	
+					
+                    
+                    
+					
+						<li class=""><a href="/skyvalley/golfContents/hioBoard"><span>명예의전당</span></a></li>
+					
+						 	                                       
+	        
+	           
+	        
+			
+	    </ul>
+	</div>
+</div>
+
+        
+        <div class="sub_visual sky" id="skip_course" tabindex="0">
+
+            
+
+            <h3>Mountain Course <span>마운틴 코스</span></h3>
+            <!--div class="sns_share">
+                <div>
+                    <a href="#none" onclick="shareSns('facebook'); return false;" class="fb">페이스북 공유</a>
+                    <a href="#none" onclick="shareSns('kakaostory');  return false;" class="kt">카카오스토리 공유</a>
+                    <a href="#none" onclick="shareSns('link'); return false;" class="lk">URL 공유</a>
+                    <a href="#none" class="btn-view">sns공유 보기</a>
+                    <a href="#none" class="btn-view_2">sns공유 레이어 닫기</a>
+                </div>
+            </div-->
+
+            <!-- 2017-09-212 스크롤링 수정 -->
+            <script type="text/javascript">
+                $(document).ready(function() {
+                    var scroll_position = $('.main_visual .scrolling').css('background-position-x');
+
+                    if (typeof scroll_position == 'undefined') {
+                        scroll_position = '0px';
+                    }
+
+                    var scroll_num = Number(scroll_position.replace('px', ''));
+                    // console.log(scroll_num);
+
+                    function scroll_auto() {
+                        if (scroll_num >= -1885) {
+                            var position_auto = setInterval(function() {
+
+                                scroll_num -= 65;
+                                $('.scrolling').css('background-position-x', scroll_num + 'px');
+                                if (scroll_num < -1885) {
+                                    scroll_num = 0;
+                                }
+                            }, 50)
+                        }
+                    }
+
+                    scroll_auto();
+                });
+            </script>
+
+            <a href="#subContents" class="mv_scrolldown scrolling"><span class="blind">스크롤 다운</span></a>
+            <!-- //2017-09-212 스크롤링 수정 -->
+
+            <div class="background"></div>
+            <!-- 2017-09-12 [D] 메인슬라이드 추가-->
+
+        </div>
+
+        <div id="content">
+
+            <h2 class="blind">본문 내용 영역</h2>
+
+            <div class="content v2">
+                <div class="sky_course">
+                    <h2 class="category_tit sky">Mountain Course</h2>
+                    <h3 class="tit_type">대자연과 호흡하는 라운드를 경험하세요.</h3>
+                    <p>
+                        거친 자연과 싸워 이겨나가야 하는 남성적 코스로<br/>계곡과 암석, 벙커 등 다양한 장애물을 헤쳐나가는정복의 뿌듯함을 한층 높여주는 내추럴 코스입니다.
+                    </p>
+                    <div id="hole_list_section" class="hole_list">
+                        <ol>
+                            <li>
+                                <div class="hole_card">
+                                    <a href="javascript:;" class="layerOpen" id="hole_1">
+								<span class="hole_tag">
+									<em class="hole_num">1</em>
+									<em>hole</em>
+								</span>
+								<img src="/static/pc/origin/files/multiBbs/20170926/file_1505713803499.jpg                                                                                                                                                                        " alt="1번홀 썸네일">
+								<div class="hole_desc">
+									<p class="key_message">정면소나무 방향으로 티샷</p>
+									<span class="btn_detailview">자세히 보기</span>
+								</div>
+							</a>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="hole_card">
+                                    <a href="javascript:;" class="layerOpen" id="hole_2">
+								<span class="hole_tag">
+									<em class="hole_num">2</em>
+									<em>hole</em>
+								</span>
+								<img src="/static/pc/origin/files/multiBbs/20170926/file_1505714187759.jpg                                                                                                                                                                        " alt="2번홀 썸네일">
+								<div class="hole_desc">
+									<p class="key_message">그린좌측 벙커방향으로 티샷</p>
+									<span class="btn_detailview">자세히 보기</span>
+								</div>
+							</a>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="hole_card">
+                                    <a href="javascript:;" class="layerOpen" id="hole_3">
+								<span class="hole_tag">
+									<em class="hole_num">3</em>
+									<em>hole</em>
+								</span>
+								<img src="/static/pc/origin/files/multiBbs/20170926/file_1505714215729.jpg                                                                                                                                                                        " alt="3번홀 썸네일">
+								<div class="hole_desc">
+									<p class="key_message">페어웨이 중앙 좌측으로 티샷</p>
+									<span class="btn_detailview">자세히 보기</span>
+								</div>
+							</a>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="hole_card">
+                                    <a href="javascript:;" class="layerOpen" id="hole_4">
+								<span class="hole_tag">
+									<em class="hole_num">4</em>
+									<em>hole</em>
+								</span>
+								<img src="/static/pc/origin/files/multiBbs/20170926/file_1505805539627.jpg" alt="4번홀 썸네일">
+								<div class="hole_desc">
+									<p class="key_message">슬라이스에 유의</p>
+									<span class="btn_detailview">자세히 보기</span>
+								</div>
+							</a>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="hole_card">
+                                    <a href="javascript:;" class="layerOpen" id="hole_5">
+								<span class="hole_tag">
+									<em class="hole_num">5</em>
+									<em>hole</em>
+								</span>
+								<img src="/static/pc/origin/files/multiBbs/20170926/file_1505714285742.jpg                                                                                                                                                                        " alt="5번홀 썸네일">
+								<div class="hole_desc">
+									<p class="key_message">그린 좌측이 높은 홀</p>
+									<span class="btn_detailview">자세히 보기</span>
+								</div>
+							</a>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="hole_card">
+                                    <a href="javascript:;" class="layerOpen" id="hole_6">
+								<span class="hole_tag">
+									<em class="hole_num">6</em>
+									<em>hole</em>
+								</span>
+								<img src="/static/pc/origin/files/multiBbs/20170926/file_1505714313058.jpg                                                                                                                                                                        " alt="6번홀 썸네일">
+								<div class="hole_desc">
+									<p class="key_message">가운데 벙커 우측으로 티샷</p>
+									<span class="btn_detailview">자세히 보기</span>
+								</div>
+							</a>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="hole_card">
+                                    <a href="javascript:;" class="layerOpen" id="hole_7">
+								<span class="hole_tag">
+									<em class="hole_num">7</em>
+									<em>hole</em>
+								</span>
+								<img src="/static/pc/origin/files/multiBbs/20170926/file_1505714349156.jpg                                                                                                                                                                        " alt="7번홀 썸네일">
+								<div class="hole_desc">
+									<p class="key_message">우측 O.B 조심<br>(안전한 티샷 필요)</p>
+									<span class="btn_detailview">자세히 보기</span>
+								</div>
+							</a>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="hole_card">
+                                    <a href="javascript:;" class="layerOpen" id="hole_8">
+								<span class="hole_tag">
+									<em class="hole_num">8</em>
+									<em>hole</em>
+								</span>
+								<img src="/static/pc/origin/files/multiBbs/20170926/file_1505715216703.jpg                                                                                                                                                                        " alt="8번홀 썸네일">
+								<div class="hole_desc">
+									<p class="key_message">그린 앞 벙커에 유의</p>
+									<span class="btn_detailview">자세히 보기</span>
+								</div>
+							</a>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="hole_card">
+                                    <a href="javascript:;" class="layerOpen" id="hole_9">
+								<span class="hole_tag">
+									<em class="hole_num">9</em>
+									<em>hole</em>
+								</span>
+								<img src="/static/pc/origin/files/multiBbs/20170926/file_1505715244409.jpg                                                                                                                                                                        " alt="9번홀 썸네일">
+								<div class="hole_desc">
+									<p class="key_message">그린 죄측 끝을 보고 공략</p>
+									<span class="btn_detailview">자세히 보기</span>
+								</div>
+							</a>
+                                </div>
+                            </li>
+                        </ol>
+                    </div>
+
+                    <h3 class="tit_type"><em class="en">Mountain Course</em>가 마음에 드시나요?</h3>
+                    <p>이제 단 세 번의 선택으로 아름다운 필드에서 리듬감 있는 라운딩을 즐겨보세요!</p>
+                </div>
+                <!-- //sky_course -->
+            </div>
+
+            <div class="other_course">
+                <h3 class="tit_type course"><em>다른 코스</em>가 궁금하다면?</h3>
+                <div class="other_course_list">
+                    <ul>
+                        <li>
+                            <div class="thum_other_course sky">
+                                <a href="/skyvalley/swp/sky_course">
+		                            <span class="other_course_inner">
+		                                <strong class="en">Sky Course <span class="sub_tit">스카이</span></strong>
+		                                <span class="btn_moreview v2">자세히 보기</span>
+		                            </span>
+		                        </a>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="thum_other_course valley">
+                                <a href="/skyvalley/swp/valley_course">
+		                            <span class="other_course_inner">
+		                                <strong class="en">Valley Course <span class="sub_tit">밸리</span></strong>
+		                                <span class="btn_moreview v2">자세히 보기</span>
+		                            </span>
+		                        </a>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="thum_other_course lake">
+                                <a href="/skyvalley/swp/lake_course">
+		                            <span class="other_course_inner">
+		                                <strong class="en">Lake Course <span class="sub_tit">레이크</span></strong>
+		                                <span class="btn_moreview v2">자세히 보기</span>
+		                            </span>
+		                        </a>
+                            </div>
+                        </li>
+                        <li style="display:none;">
+                            <div class="thum_other_course mountain">
+                                <a href="/skyvalley/swp/mountain_course">
+		                            <span class="other_course_inner">
+		                                <strong class="en">Mountain Course <span class="sub_tit">마운틴</span></strong>
+		                                <span class="btn_moreview v2">자세히 보기</span>
+		                            </span>
+		                        </a>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <!-- //Content -->
+        
+        <!-- 2017-08-14//상세수정(s) -->
+        <div id="skycourse_layer" class="course_layer" tabindex="0">
+            <div class="course_wrap">
+                <div class="hole_map">
+                    <div class="holemapInner">
+                        <h4 class="hole_number"><strong>2</strong><em>hole</em></h4>
+                        <img src="/static/pc/origin/resources/w/img/tmp/map_hole02.png" alt="" class="hole_map_image" style="max-width: 450px;height: auto;">
+                        <!-- //hole_map_image -->
+                        <div class="hole_summary">
+                            <div class="par">
+                                <strong>4</strong><em>par</em>
+                            </div>
+                            <ul>
+                                <li><span>368</span><em>Back Tee</em></li>
+                                <li><span>349</span><em>Regular Tee</em></li>
+                                <li><span>326</span><em>Lady Tee</em></li>
+                                <li><span>5</span><em>Handicap</em></li>
+                            </ul>
+                        </div>
+                        <!-- //hole_summary -->
+                    </div>
+                    <!-- //holemapInner -->
+                </div>
+                <!-- //hole_map -->
+
+                <div class="hole_detail">
+                    <!-- course_slide -->
+                    <div class="hole_visual">
+                        <div class="course_slide_container" id="slide_img">
+                            <ul class="course_slide">
+                            </ul>
+                        </div>
+                        <div class="vd_area" id="slide_vd">
+                            <img src="/static/pc/origin/resources/w/img/bg/bg_youtube.jpg" alt="">
+                            <div class="pos_iframe">
+                                <iframe src="https://www.youtube.com/embed/A9-GU3dcrHM?enablejsapi=1&rel=0&showinfo=0&autohide=1&modestbranding=1&wmode=opaque&autoplay=0" frameborder="0" allowfullscreen title="마운틴 코스 영상"></iframe>
+                                <!-- id:player_hole -->
+                            </div>
+                        </div>
+                        <ul class="btn_visual">
+                            <li class="active"><a href="#slide_img">사진보기<span class="blind">(현재)</span></a></li>
+                            <li><a href="#slide_vd">영상보기<span class="blind"></span></a></li>
+                        </ul>
+                    </div>
+                    <!-- 유튜브동영상(s) -->
+                    <script type="text/javascript">
+                        var brow_ver = navigator.appVersion;
+                        var is_ie8 = false;
+
+                        var agent = navigator.userAgent.toLowerCase();
+                        if ((navigator.appName == 'Netscape' && agent.indexOf('trident') != -1) || (agent.indexOf("msie") != -1)) {
+                            if (brow_ver.indexOf('8.0') != -1) is_ie8 = true;
+                        } else {
+                            // ie가 아닐 경우
+                        }
+
+                        if (!is_ie8) {
+                            var tag = document.createElement('script');
+                            tag.src = "https://www.youtube.com/iframe_api";
+                            var firstScriptTag = document.getElementsByTagName('script')[0];
+                            firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+                            var $videoElement = $('.hole_visual .vd_area .pos_iframe > iframe');
+                            var player = {};
+
+                            function onYouTubePlayerAPIReady() {
+                                $videoElement.attr('id', 'player_hole');
+                                player['player_hole'] = new YT.Player('player_hole', {
+                                    events: {
+                                        'onStateChange': function(event) {
+                                            if (event.data == YT.PlayerState.PLAYING) {
+                                                pauseAudio();
+                                            }
+                                        }
+                                    }
+                                });
+                            }
+
+                            function videoPlay(target) {
+                                target.playVideo();
+                            }
+
+                            function videoStop(target) {
+                                target.pauseVideo();
+                            }
+                        }
+
+                        $(document).ready(function() {
+                            $('.btn_visual li a').click(function() {
+                                var st = $(this).attr('href');
+                                var sel = $(this).closest('li');
+                                $('.btn_visual li').removeClass('active');
+                                $('.btn_visual li span').html('');
+                                sel.addClass('active');
+                                sel.find('span').html('(현재)');
+                                if (st === '#slide_vd') {
+                                    $('.hole_visual').addClass('vd_view');
+                                    vd_control();
+                                } else {
+                                    $('.hole_visual').removeClass('vd_view');
+                                    slider.reloadSlider();
+                                    videoStop(player['player_hole']);
+                                }
+                            });
+
+                            function vd_control() {
+                                var vd = '';
+                                if (!is_ie8) {
+                                    if (player['player_hole'] != player['player_hole']) videoStop(player['player_hole']);
+                                    videoPlay(player['player_hole']);
+                                }
+                            }
+                        });
+                    </script>
+                    <!-- 유튜브동영상(e) -->
+
+                    <!-- //course_slide -->
+                    <div class="hole_detail_desc">
+                        <strong>그린 앞 좌측 벙커를 보며 티샷!</strong>
+                        <p>
+                            Tee에서 IP까지 약 10%정도의 하향경사가 있는 홀입니다.<br> 하어웨이 중심 좌측을 기준으로 공략하는 것을 추천합니다. <br> 그린 우측 워터해저드를 의식하여 방향설정에 유의하세요.<br> 1번 홀은 방향감각이 생명인 홀입니다.
+                        </p>
+                        <div class="special_tip">
+                            <span class="blind">스폐셜팁</span>
+                            <p style="min-height:43px;">그린 앞 좌측 벙커를 보며 티샷!<br>우측으로 밀려도 공간이 있으니 과감하게 티샷하세요!</p>
+                        </div>
+                    </div>
+                    <!-- //close -->
+                </div>
+                <!-- //hole_detail -->
+                <div class="holenumber_list" tabindex="0">
+                    <ol>
+                        <li><a href="#skycourse_layer">1H</a></li>
+                        <li><a href="#skycourse_layer">2H</a></li>
+                        <li><a href="#skycourse_layer">3H</a></li>
+                        <li><a href="#skycourse_layer">4H</a></li>
+                        <li><a href="#skycourse_layer">5H</a></li>
+                        <li><a href="#skycourse_layer">6H</a></li>
+                        <li><a href="#skycourse_layer">7H</a></li>
+                        <li><a href="#skycourse_layer">8H</a></li>
+                        <li><a href="#skycourse_layer">9H</a></li>
+                    </ol>
+                </div>
+                <!-- //holenumber_list -->
+                <a href="#hole_list_section" class="layer_close" id="hole_pop_btn_close"><i class="ico_close">코스 상세 팝업 닫기</i></a>
+            </div>
+        </div>
+        <!-- //skycourse_layer -->
+    </div>
+<!-- //Container -->
+<style>
+    #content{ position:relative; background:#fff; z-index: 60; }
+</style>
+<script type="text/javascript">
+var url_val = $(location).attr('href');
+var hole_par = url_val.split('#');
+    // [17.08.23] 홀 상세보기 레이어 팝업에서 다른 홀 보기 누룰 경우에 bx슬라이더의 width 값이 축소되는 현상이 발생.
+    // -> slider를 전역번수로 선언해서 다른 홀 보기 시에 슬라이더 리로드를 해주는 것으로 해결.
+    var slider;
+    $(document).ready(function() {
+
+        //SNS보기
+        $(".btn-view").click(function() {
+            $(".sns_share").addClass("active");
+            $(".fb").focus();
+        });
+        $(".btn-view_2").click(function() {
+            $(".sns_share").removeClass("active");
+        });
+
+        //배경 슬라이드
+        var mainImgArr = [];
+        var mainImgIdx = 0;
+
+        mainImgArr[mainImgIdx++] = '/static/pc/origin/files/multiBbs/20170921/file_1505971323276.jpg';
+
+        $(".background").fadeShow({
+            correctRatio: true,
+            shuffle: true,
+            speed: 4000,
+            images: mainImgArr
+        });
+
+        slider = $('.course_slide').bxSlider({
+            mode: 'horizontal',
+        });
+
+        $.ajax({
+            url: '/static/pc/origin/resources/json/mountain.json',
+            dataType: 'json',
+            type: 'GET',
+            success: function(result) {
+                
+                //$('.layerOpen').on('click', function() {
+                $(document).on("click", ".layerOpen", function(){
+                    var selSeq;
+                    if(!$(this).attr('id')){
+                        selSeq = hole_par[1];
+                    }else{
+                        selSeq = $(this).attr('id');
+                    }
+                    $('#hole_pop_btn_close').attr('href', '#' + selSeq);
+
+                    document.getElementById("viewport").setAttribute("content", "width=1800");
+
+                    var hole_idx = $(this).parents('li').index();
+                    $('.holenumber_list ol li').removeClass('active');
+                    $('.holenumber_list ol li').eq(hole_idx).addClass('active');
+                    courseLayer_open();
+                    var holeNumber = result.resultData[hole_idx].holeNumber;
+                    var holeImg = result.resultData[hole_idx].img;
+                    var holeImgAlt = result.resultData[hole_idx].mapAlt;
+                    var par = result.resultData[hole_idx].par;
+                    var backTee = result.resultData[hole_idx].backTee;
+                    var regularTee = result.resultData[hole_idx].regularTee;
+                    var ladyTee = result.resultData[hole_idx].ladyTee;
+                    var handiCap = result.resultData[hole_idx].handiCap;
+                    var detailTtile = result.resultData[hole_idx].detailTtile;
+                    var detailDesc = result.resultData[hole_idx].detailDesc;
+                    var specialTip = result.resultData[hole_idx].specialTip;
+                    var slideImg = result.resultData[hole_idx].slideImg;
+                    var slideImgAlt = result.resultData[hole_idx].slideImgAlt;
+                    var vdUrl = result.resultData[hole_idx].videoUrl;
+                    if (vdUrl != null) {
+                        vdUrl += '?enablejsapi=1&rel=0&showinfo=0&autohide=1&modestbranding=1&wmode=opaque&autoplay=0';
+                    } else {
+                        vdUrl = 'http://';
+                    }
+                    $('.hole_number>strong').text(holeNumber);
+                    $('.hole_map_image').attr('src', holeImg);
+                    $('.hole_map_image').attr('alt', holeImgAlt);
+                    $('.par>strong').text(par);
+                    $('.hole_summary>ul>li').eq(0).children('span').text(backTee);
+                    $('.hole_summary>ul>li').eq(1).children('span').text(regularTee);
+                    $('.hole_summary>ul>li').eq(2).children('span').text(ladyTee);
+                    $('.hole_summary>ul>li').eq(3).children('span').text(handiCap);
+                    $('.hole_detail_desc>strong').text(detailTtile);
+                    $('.hole_detail_desc>p').html(detailDesc);
+                    $('.special_tip>p').html(specialTip);
+                    $('.hole_visual .vd_area .pos_iframe > iframe').attr('src', vdUrl);
+                    removeSlider(appendSlider);
+
+                    function removeSlider(callback) {
+                        $('.course_slide li').remove();
+                        callback();
+                        slider.reloadSlider();
+                    };
+
+                    function appendSlider() {
+                        for (var i = 0; i < slideImg.length; i++) {
+                            $('.course_slide').append(
+                                '<li>' +
+                                '<img src="' + slideImg[i] + '" alt="' + slideImgAlt[i] + '">' +
+                                '</li>');
+                        }
+                        slider.reloadSlider();
+                    };
+
+                    $(".bx-prev").focus();
+                });
+
+                //코스호출
+                $("#"+hole_par[1]).trigger("click");
+
+                $('.holenumber_list ol li a').on('click', function() {
+                    var hole_idx = $(this).parents('li').index();
+                    $('.holenumber_list ol li').removeClass('active');
+                    $('.holenumber_list ol li').eq(hole_idx).addClass('active');
+                    var holeNumber = result.resultData[hole_idx].holeNumber;
+                    var holeImg = result.resultData[hole_idx].img;
+                    var holeImgAlt = result.resultData[hole_idx].mapAlt;
+                    var par = result.resultData[hole_idx].par;
+                    var backTee = result.resultData[hole_idx].backTee;
+                    var regularTee = result.resultData[hole_idx].regularTee;
+                    var ladyTee = result.resultData[hole_idx].ladyTee;
+                    var handiCap = result.resultData[hole_idx].handiCap;
+                    var detailTtile = result.resultData[hole_idx].detailTtile;
+                    var detailDesc = result.resultData[hole_idx].detailDesc;
+                    var specialTip = result.resultData[hole_idx].specialTip;
+                    var slideImg = result.resultData[hole_idx].slideImg;
+                    var slideImgAlt = result.resultData[hole_idx].slideImgAlt;
+                    var vdUrl = result.resultData[hole_idx].videoUrl;
+                    if (vdUrl != null) {
+                        vdUrl += '?enablejsapi=1&rel=0&showinfo=0&autohide=1&modestbranding=1&wmode=opaque&autoplay=0';
+                    } else {
+                        vdUrl = 'http://';
+                    }
+
+                    $('.hole_number>strong').text(holeNumber);
+                    $('.hole_map_image').attr('src', holeImg);
+                    $('.hole_map_image').attr('alt', holeImgAlt);
+                    $('.par>strong').text(par);
+                    $('.hole_summary>ul>li').eq(0).children('span').text(backTee);
+                    $('.hole_summary>ul>li').eq(1).children('span').text(regularTee);
+                    $('.hole_summary>ul>li').eq(2).children('span').text(ladyTee);
+                    $('.hole_summary>ul>li').eq(3).children('span').text(handiCap);
+                    $('.hole_detail_desc>strong').text(detailTtile);
+                    $('.hole_detail_desc>p').html(detailDesc);
+                    $('.special_tip>p').html(specialTip);
+                    $('.hole_visual .vd_area .pos_iframe > iframe').attr('src', vdUrl);
+
+                    removeSlider(appendSlider);
+
+                    function removeSlider(callback) {
+                        $('.course_slide li').remove();
+                        callback();
+                        slider.reloadSlider();
+                    };
+
+                    function appendSlider() {
+                        for (var i = 0; i < slideImg.length; i++) {
+                            $('.course_slide').append(
+                                '<li>' +
+                                '<img src="' + slideImg[i] + '" alt="' + slideImgAlt[i] + '">' +
+                                '</li>');
+                        }
+                        slider.reloadSlider();
+                    };
+                });
+            },
+            beforeSend: function () {
+				if ($('.lds-ring').length) {  
+					setTimeout(function() {
+						$('.lds-ring').removeClass('dp-none');
+					}, 500);        
+				}
+			},
+			complete: function () {
+				if ($('.lds-ring').length) {  
+					setTimeout(function() {
+						$('.lds-ring').addClass('dp-none');
+					}, 500);        
+				}
+			},
+            error: function(e) {
+                console.log(e);
+            }
+        });
+
+        $('.layer_close').on('click', function() {
+            courseLayer_close();
+        });
+
+        function courseLayer_open() {
+            var courseLayer = $('#skycourse_layer');
+            courseLayer.addClass('open');
+            $('html, body').css('overflow-y', 'hidden');
+        };
+
+        function courseLayer_close() {
+            document.getElementById("viewport").setAttribute("content", "width=1400");
+            var courseLayer = $('#skycourse_layer');
+            courseLayer.removeClass('open');
+            $('.hole_visual').removeClass('vd_view');
+            $('.btn_visual li').removeClass('active');
+            $('.btn_visual li span').html('');
+            $('.btn_visual li:eq(0)').addClass('active');
+            $('.btn_visual li:eq(0)').find('span').html('(현재)');
+            $('html, body').css('overflow-y', 'visible');
+        };
+    });
+</script>
+        <!--// container-->
+
+        <!-- footer -->
+        
+        	
+
+
+
+
+
+
+
+<div id="footer" tabindex="0">
+    <h2 class="blind">푸터 영역</h2>
+    <div class="footmenu">
+        <ul>
+            <li><a href="javascript:void(0);" class="fpop" id="btn_pop_term4" data-popup="pop_term4">이용약관</a></li>
+            <li><a href="javascript:void(0);" class="fpop" id="btn_pop_term3" data-popup="pop_term3"><em>개인정보처리방침</em></a></li>
+            <!--<li><a href="http://www.ftc.go.kr/info/bizinfo/communicationView.jsp?apv_perm_no=2009411000930200053&area1=&area2=&currpage=1&searchKey=01&searchVal=태성관광&stdate=&enddate=" target="_blank" title="새 창 열림">사업자정보확인</a></li>-->
+            <li><a href="javascript:void(0);" class="fpop" id="btn_pop_term5" data-popup="pop_term5">영상정보처리기기 운영·관리 방침</a></li>
+        </ul>
+        <dl>
+            <dt><a href="#"  class="btn-fs">Family Site<span></span></a></dt>
+            <!-- 2017-09-19 -->
+            <dd class="fs_list" style="display:none;">
+                <ul>
+                    <!--
+            <li><a href="http://www.ihoban.co.kr/" target="_blank" title="새 창 열림">호반건설</a></li>
+            <li><a href="http://www.hobanapt.co.kr/" target="_blank" title="새 창 열림">베르디움</a></li>
+            <li><a href="http://www.ikbc.co.kr/jw_main/" target="_blank" title="새 창 열림">KBC 광주방송</a></li>
+            <li><a href="http://www.avenuefrance.co.kr/" target="_blank" title="새 창 열림">아브뉴프랑</a></li>
+            <li><a href="http://www.pacificland.co.kr/" target="_blank" title="새 창 열림">퍼시픽 랜드</a></li>
+            <li><a href="http://cornerstonepartners.co.kr/main/main.asp" target="_blank" title="새 창 열림">코너스톤투자파트너스</a></li>
+            <li><a href="http://hobanfoundation.or.kr/" target="_blank" title="새 창 열림">호반건설 사회공헌국</a></li>
+            <li><a href="http://golf.ihoban.co.kr" target="_blank" title="새 창 열림">호반건설 골프단</a></li>
+            <li><a href="http://golfwaikele.com/" target="_blank" title="새 창 열림">WAIKELE CC</a></li>
+            -->
+                    <li><a href="https://www.egic.co.kr/" target="_blank" title="새 창 열림">엔지니어링공제조합</a></li>
+                    <!-- <li><a href="/hilldeloci/main" target="_blank" title="새 창 열림">힐드로사이CC</a></li> -->
+                </ul>
+            </dd>
+        </dl>
+    </div>
+    <div class="bottomarea">
+        <!-- //0828 문구 수정 (s) -->
+        <address>
+    <p>
+        <span><strong>주식회사 이지아이레저</strong>   대표이사 : 이소미</span>
+    </p>
+    <p>
+        <span><strong>스카이밸리CC</strong> 주소 : 경기도 여주시 북내면 운촌길 254 (운촌리 산68번지)</span>
+        <span>TEL: 031 ) 880 - 8800</span>
+        <span>FAX : 031 ) 880 - 8899</span>
+    </p>
+    <p>
+        <!-- <span>개인정보 책임자 : 김석진</span> -->
+        <span>개인정보 책임자 : 이연호</span>
+        <!-- 변경 예정
+        <span>사업자번호 : 120-81-16218</span> -->
+        <!-- span>사업자번호 : 104-85-32441</span-->
+        <span>사업자번호 : 116-81-51287</span>
+        <!-- 변경 예정
+        <span>통신판매업신고번호 : 2009-경기여주-0053</span> -->
+        <span>통신판매업신고번호 : 2021-경기여주-0190</span>
+    </p>
+    <p class="copyright">COPYRIGHT ⓒ 2017 SKY VALLEY CLUB. ALL RIGHT RESERVED.</p>
+</address>
+        <!-- //0828 문구 수정 (e) -->
+        <!--<div class="mark">
+        <a title="새창" href="http://www.wa.or.kr/board/list.asp?BoardID=0006" target="_blank"><img src="/static/pc/origin/resources/w/img/wa_mark.png" alt="(사)한국장애인단체총연합회 한국웹접근성인증평가원 웹 접근성 우수사이트 인증마크(WA인증마크)" /></a>
+    </div>-->
+    </div>
+
+    <div class="mobile_view" style="display:none;"><a href="?VIEW=MOBILE">모바일 버전 보기</a></div>
+    <a href="#none" class="btn_top basic"><img src="/static/pc/origin/resources/w/img/btn/btn_top.gif" alt="페이지 상단으로 이동"></a>
+    <div class="pop_layer terms_layer layer_type type-basic footer" id="pop_term3" tabindex="0">
+        <div class="pop_wrap wide">
+            <h3>개인정보처리방침</h3>
+            <div id="pop_term3_content" class="pop_content popup-cont"></div>
+            <a href="javascript:void(0);" class="btn_close ico">레이어닫기</a>
+        </div>
+    </div>
+    
+    <div class="pop_layer terms_layer layer_type type-basic footer" id="pop_term4" tabindex="0">
+        <div class="pop_wrap wide">
+            <h3>이용약관</h3>
+            <div id="pop_term4_content" class="pop_content popup-cont"></div>
+            <a href="javascript:void(0);" class="btn_close ico">레이어닫기</a>
+        </div>
+    </div>
+    <div class="pop_layer terms_layer layer_type type-basic footer" id="pop_term5" tabindex="0">
+        <div class="pop_wrap wide">
+            <h3>영상정보처리기기 운영·관리 방침</h3>
+            <div id="pop_term5_content" class="pop_content popup-cont"></div>
+            <a href="javascript:void(0);" class="btn_close ico">레이어닫기</a>
+        </div>
+    </div>
+
+</div>
+<script type="text/javascript">
+    $(document).ready(function() {
+        if (cookieManager.getCookie("VIEW")) {
+            $(".mobile_view").show();
+        }
+    });
+</script>
+<script>
+    (function(i, s, o, g, r, a, m) {
+        i['GoogleAnalyticsObject'] = r;
+        i[r] = i[r] || function() {
+            (i[r].q = i[r].q || []).push(arguments)
+        }, i[r].l = 1 * new Date();
+        a = s.createElement(o),
+            m = s.getElementsByTagName(o)[0];
+        a.async = 1;
+        a.src = g;
+        m.parentNode.insertBefore(a, m)
+    })(window, document, 'script', 'https://www.google-analytics.com/analytics.js', 'ga');
+
+    ga('create', 'UA-106186452-1', 'auto');
+    ga('send', 'pageview');
+</script>
+<script type="text/javascript" src="https://wcs.naver.net/wcslog.js"></script>
+<script type="text/javascript">
+    if (!wcs_add) var wcs_add = {};
+    wcs_add["wa"] = "4c56429479d0d4";
+    wcs_do();
+</script>
+
+<!-- 개인정보처리방침 팝업 -->
+<div id="terms-01" class="popup-wrap type-basic type01 footer" role="dialog">
+    <section class="popup demo1" tabindex="0">
+        <div class="popup-head">
+            <h3 id="popupContentTitle">개인정보취급방침</h3>
+        </div>
+        <div class="popup-body">
+            <div class="popup-cont" id="terms_in-01">
+                
+
+            </div>
+        </div>
+        <div class="popup-foot">
+            <div class="btn-area flex-center">
+                <button type="button" id="fnPopClose" class="btn demo1 secondary" onclick="ui.popup.close('terms-01')"><span>닫기</span></button>
+            </div>
+        </div>
+        <div class="popup-close">
+            <button type="button" class="btn-ico btn-close" title="팝업닫기" onclick="ui.popup.close('terms-01')"><span><i class="ico ico-close1 white">Close</i></span></button>
+        </div>
+    </section>
+</div>
+<!-- //개인정보처리방침 팝업 -->
+
+<!-- 이용약관 팝업 -->
+<div id="terms-02" class="popup-wrap type-basic type01 footer" role="dialog">
+    <section class="popup demo1" tabindex="0">
+        <div class="popup-head">
+            <h3 id="popupContentTitle">이용약관</h3>
+        </div>
+        <div class="popup-body">
+            <div class="popup-cont" id="terms_in-02">
+                
+
+            </div>
+        </div>
+        <div class="popup-foot">
+            <div class="btn-area flex-center">
+                <button type="button" id="fnPopClose" class="btn demo1 secondary" onclick="ui.popup.close('terms-02')"><span>닫기</span></button>
+            </div>
+        </div>
+        <div class="popup-close">
+            <button type="button" class="btn-ico btn-close" title="팝업닫기" onclick="ui.popup.close('terms-02')"><span><i class="ico ico-close1 white">Close</i></span></button>
+        </div>
+    </section>
+</div>
+<!-- //이용약관 팝업 -->
+
+<!-- 이메일무단수집거부 팝업 -->
+<div id="terms-03" class="popup-wrap type-basic type01 footer" role="dialog">
+    <section class="popup demo1" tabindex="0">
+        <div class="popup-head">
+            <h3 id="popupContentTitle">인터넷 서비스 이용약관</h3>
+        </div>
+        <div class="popup-body">
+            <div class="popup-cont" id="terms_in-03">
+                
+
+            </div>
+        </div>
+        <div class="popup-foot">
+            <div class="btn-area flex-center">
+                <button type="button" id="fnPopClose" class="btn demo1 secondary" onclick="ui.popup.close('terms-03')"><span>닫기</span></button>
+            </div>
+        </div>
+        <div class="popup-close">
+            <button type="button" class="btn-ico btn-close" title="팝업닫기" onclick="ui.popup.close('terms-03')"><span><i class="ico ico-close1 white">Close</i></span></button>
+        </div>
+    </section>
+</div>
+<!-- //이메일무단수집거부 팝업 -->
+
+
+<div class="dimmer"></div>
+
+<script>
+$(function(){
+	//document.getElementById("pop_term3_content").innerHTML='<object type="text/html" data="/static/pc/agreeform/agreeform-03.html?ver=3"></object>';
+    document.getElementById("pop_term4_content").innerHTML='<object type="text/html" data="/static/pc/origin/agreeform/agreeform-01.html?ver=250122"></object>';
+    document.getElementById("pop_term5_content").innerHTML='<object type="text/html" data="/static/pc/origin/agreeform/agreeform-02.html?ver=250122"></object>';
+    $("#pop_term3_content").load("/static/pc/agreeform/agreeform-03.html?ver=260417", function(){});
+});
+</script>
+        	
+        <!--// footer -->
+    
+    </div>
+
+    
+	<!-- 로딩 div-->
+	<div id="loadingDarkDiv" style=" display:none; background-color:#f1f1f1; opacity:0.5;filter:Alpha(opacity:'30');width:100%;height:100%;top:0;left:0;position:fixed;z-index:9000;"></div>
+	<div id="loadingDiv" style=" display:none; top: 45%; left: 52%;  margin-left:-100px;z-index: 9999; border: 3px #2B97D6;position:fixed">
+		<p style="text-align: center;">
+			<img src="/static/common/images/loading_img.gif" alt="loading" />
+			<font color="#0054FF"><span id="percentage"></span></font>
+		</p>
+	</div>
+	<div id="ie_chk" class="ie_chk_area dp-none">
+		<button type="button" onclick="javascript:popHide('ie_chk')" class="btn-close"><span class="blind">현재창 닫기</span></button>
+		<div class="con">
+			<p class="tit">
+				<img src="/static/pc/images/common/ico_ie.png" alt="ie" />
+				본사이트는 <strong>Internet Explorer 11</strong>버전<br/>에 <strong class="color-01">최적화</strong> 되어 있습니다.
+			</p>
+			<span>
+				<p class="btxt">‘Explorer 11이하’ 에서는 사용이 원활하지 않을 수 있습니다.</p>
+				<p class="btxt">Internet Explorer 11은 2022년 6월 15일부터 사용 및 지원이 중지됩니다. Microsoft Edge 사용을 권장합니다.</p>
+				<p class="txt">Explorer를 최신 버전으로 업데이트 하시거나, <br /><strong class="color-01">Chrome, 네이버 Whale</strong> 등의 브라우저를 이용해 주시기 바랍니다.</p>
+				<a href="http://windows.microsoft.com/ko-kr/internet-explorer/download-ie" target="_blank" title="새창열림" class="btn-upgrade">지금 업그레이드</a>
+				<p class="chk-uclose"><input type="checkbox" name="ie_chk_close" id="ie_chk_close" onclick="popHide('ie_chk')" /><label for="ie_chk_close">일주일간 표시 안하기</label></p>
+			</span>			
+		</div>
+	</div>
+	<script type="text/javascript">
+		//익스플로러 중지 안내 활성화
+		var agt = navigator.userAgent.toLowerCase();
+		if (agt.indexOf("msie") != -1) {
+			$('#ie_chk').removeClass('dp-none');
+		}
+		
+		//ie_chk 레이어팝업 닫기
+		function popHide(pop_id){
+			//document.getElementById(pop_id).style.display = "none";
+			$("#"+pop_id).hide(1000);
+		}
+	
+	</script>
+</body>
+</html>

@@ -1,0 +1,945 @@
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <script>window.appContextPath = '';</script>
+    <title>파라지오 컨트리클럽</title>
+    <meta name="Title" content="파라지오 컨트리클럽">
+    <meta name="Publisher" content="파라지오 컨트리클럽">
+    <meta name="Other Agent" content="파라지오 컨트리클럽">
+    <meta name="Author" content="파라지오 컨트리클럽" />
+    <meta name="Classification" content="파라지오 컨트리클럽">
+    <meta name="Location" content="Korea">
+    <meta name="robots" content="follow, all" />
+    <meta name="keywords" content="파라지오 컨트리클럽, 파라지오gc, 파라지오cc" />
+    <meta name="description" content="봄의 생동감부터 겨울의 고요함까지, 사계절 각기 다른 매력으로 빛나는 파라지오에서 멈추지 않는 라운딩의 감동을 경험하세요.">
+    <meta name="subject" content="PARAGIO Country Club"/>
+    <meta name="copyright" content="Copyright @ PARAGIO CC. All rights reserved." />
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="파라지오 컨트리클럽">
+    <meta property="og:image" content="/images/og-image.jpg">
+    <meta property="og:description" content="봄의 생동감부터 겨울의 고요함까지, 사계절 각기 다른 매력으로 빛나는 파라지오에서 멈추지 않는 라운딩의 감동을 경험하세요.">
+
+    <!-- Favicon -->
+    
+    <link rel="shortcut icon" href="/images/favicon.ico" type="image/x-icon"/>
+    <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="/css/style.css?ver=1.1">
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-Z28BNY3Y92"></script>
+    <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-Z28BNY3Y92');
+    </script>
+
+    <!-- JavaScript -->
+    <script type="text/javascript" src="/js/jquery.min.js"></script>
+    <script type="text/javascript" src="/js/jquery.easing.min.js"></script>
+    <script type="text/javascript" src="/js/bootstrap.bundle.min.js"></script>
+    <script type="text/javascript" src="/js/common.js?ver=1.1"></script>
+    <script type="text/javascript" src="/js/commonUtil.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+
+<!DOCTYPE html>
+<html lang="ko">
+<link rel="stylesheet" href="/css/style.css?ver=1.1">
+<link rel="stylesheet" href="/css/main.css?ver=1.1">
+<link rel="stylesheet" href="/css/aos.css?ver=1.1">
+<script type="text/javascript" src="/js/aos.js?ver=1.1"></script>
+
+<script>
+  $(document).ready(function () {
+    buildEventList('1', '1');
+  });
+
+  function buildEventList(currentPage, eventDiv) {
+    var param = {
+      currentPage: currentPage,
+      eventDiv: eventDiv
+    };
+    var url = '/blt/getEventList';
+    var list = [];
+    ajaxCallAsync(url, JSON.stringify(param), function (res) {
+      if (res.header && res.header.code == 'SUCCESS_SRCH' && res.data && res.data.bltList && res.data.bltList.length > 0) {
+        list = res.data.bltList;
+      }
+
+      $("#boardList > div").remove();
+
+      var bltCnt = 0;
+      var maxDisplay = 3; // 메인 페이지에 최대 3개만 표시
+
+      if (list.length > 0) {
+        for (var i = 0; i < list.length && bltCnt < maxDisplay; i++) {
+          var blt = list[i];
+
+          if (blt.evntPrgsYn == eventDiv) {
+            var html = '<div class="col-lg-4 col-sm-6">'
+                      + '<a href="javascript:goEventView(\'' + blt.bltRid + '\');" class="event">'
+                      + '<div class="img" style="--bg-img: url(\'/blt/img/' + blt.bannerImgRid + '\');"></div>'
+                      + '<div class="txt">'
+                      + '<div class="title">' + blt.title + '</div>'
+                      + '<div class="date">' + (blt.regDate ? blt.regDate.substring(0, 10) : '') + '</div>'
+                      + '</div>'
+                      + '</a>'
+                      + '</div>';
+            $("#boardList").append(html);
+            bltCnt++;
+          }
+        }
+      }
+
+      if (bltCnt == 0) {
+        $("#boardList").append('<div class="col-lg-12"><div class="no-cont">등록된 이벤트가 없습니다.</div></div>');
+      }
+    });
+  }
+
+  function goEventView(bltRid) {
+    var form = document.createElement('form'); // 폼객체 생성
+    var objs;
+    objs = document.createElement('input'); // 값이 들어있는 녀석의 형식
+    objs.setAttribute('type', 'hidden'); // 값이 들어있는 녀석의 type
+    objs.setAttribute('name', 'bltRid'); // 객체이름
+    objs.setAttribute('value', bltRid); //객체값
+    form.appendChild(objs);
+    form.setAttribute('method', 'post'); //get,post 가능
+    form.setAttribute('action', '/blt/event_view'); //보내는 url
+    document.body.appendChild(form);
+    form.submit();
+  }
+
+</script>
+
+<body id="sub" class="main">
+
+
+
+
+
+<header id="header" class="header">
+    <div class="header-inner">
+        <nav id="navmenu" class="navmenu">
+            <div class="util-menu">
+                <h1 class="logo"><a href="/"></a></h1>
+
+                <div class="util-btnwrap">
+        
+                    <div class="util-btnwrap-text"><strong>로그인</strong>이 <br>필요한 서비스입니다.</div>
+                    <div class="btn-utils">
+                        <a href="/oauth/kakao/start" class="btn-util btn-member">회원가입</a>
+                        <a href="/oauth/kakao/start" class="btn-util btn-login">로그인</a>
+                    </div>
+
+        
+                    
+                </div>
+            </div>
+            
+            <ul id="gnb" class="gnb">
+                <li class="dropdown">
+                    <a href="/intro/company">클럽소개</a>
+                    <ul class="navlist">
+                        <li><a href="/intro/greeting">인사말</a></li>
+                        <li><a href="/intro/company">클럽소개</a></li>
+                        <li><a href="/intro/ci">CI소개</a></li>
+                        <li><a href="/intro/map">오시는길</a></li>
+                    </ul>
+                </li>
+                <li class="dropdown">
+                    <a href="/course/course_info">코스안내</a>
+                    <ul class="navlist">
+                        <li><a href="/course/course_info">코스소개</a></li>
+                        <li><a href="/course/course_strategy">코스공략</a></li>
+                    </ul>
+                </li>
+                <li class="dropdown">
+                    <a href="/reserve/golf">실시간예약</a>
+                    <ul class="navlist">
+                        <li><a href="/reserve/golf">실시간예약</a></li>
+                        <li><a href="/reserve/confirm">예약확인/취소</a></li>
+                        <li><a href="/reserve/coupon">내 쿠폰</a></li>
+                    </ul>
+                </li>
+                
+                <li class="dropdown">
+                    <a href="/guide/guide">이용안내</a>
+                    <ul class="navlist">
+                        <li><a href="/guide/guide">예약/이용안내</a></li>
+                        <li><a href="/guide/fee">이용요금</a></li>
+                        <li><a href="/guide/policy">이용규정</a></li>
+                        <li><a href="/guide/localrule">로컬룰</a></li>
+                        <li><a href="/guide/guidelogin">로그인안내</a></li>
+                        <li><a href="/guide/guideapp">바로가기안내</a></li>
+                    </ul>
+                </li>
+               
+                <li class="dropdown">
+                    <a href="/blt/notice">커뮤니티</a>
+                    <ul class="navlist">
+                        <li><a href="/blt/notice">공지사항</a></li>
+                        <li><a href="/blt/event">이벤트</a></li>
+                        <li><a href="/blt/fame">명예의전당</a></li>
+                    </ul>
+                </li>
+                
+            </ul>
+            <aside class="quick-menu">
+                <ul>
+                    <li>
+                        <a href="/reserve/golf">
+                            <i class="bi bi-calendar-week"></i>
+                            <span>실시간예약</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/reserve/confirm">
+                            <i class="bi bi-calendar-check"></i>
+                            <span>예약확인</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/blt/event">
+                            <i class="bi bi-gift"></i>
+                            <span>이벤트</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://weather.daum.net/theme/golf?location-regionId=AD76280713&location-placeId=V9474495&weather-cp=kweather" target="_blank">
+                            <i class="bi bi-cloud-sun"></i>
+                            <span>날씨안내</span>
+                        </a>
+                    </li>
+                </ul>
+            </aside>
+            <i class="mobile-nav-toggle d-lg-none bi bi-list"></i>
+        </nav>
+    </div>
+</header>
+
+
+<p style="display: none;"></p>
+<section class="mobile_wrap">
+    
+<link rel="stylesheet" href="/css/main_calendar.css?ver=1.1">
+
+<script type="text/javascript">
+
+  $(document).ready(function(){
+    buildCalendar();
+
+    $("#btnNext").bind("click",function(){
+      nowM = $("#nowMonth").val();
+      now = new Date(nowM.substring(0,4),  nowM.substring(4,6)-1);
+      nextDay = new Date ( now.getFullYear(), now.getMonth()+1, 1);
+
+      baseDay = nextDay.getFullYear() + "" + lpad((nextDay.getMonth()+1).toString(),2,0)+""+lpad(nextDay.getDate().toString(),2,0);
+      buildCalendar(baseDay);
+    });
+
+    $("#btnPrve").bind("click",function(){
+      nowM = $("#nowMonth").val();
+      now = new Date(nowM.substring(0,4),  nowM.substring(4,6)-1);
+      nextDay = new Date ( now.getFullYear(), now.getMonth()-1, 1);
+
+      baseDay = nextDay.getFullYear() + "" + lpad((nextDay.getMonth()+1).toString(),2,0)+""+lpad(nextDay.getDate().toString(),2,0);
+      buildCalendar(baseDay);
+    });
+
+  });
+
+function buildCalendar(baseDay) {
+    var today = new Date();
+    var realToday = new Date();
+    if(baseDay != null && baseDay!='' && baseDay != 'undefind'){
+      today = new Date(baseDay.substring(0,4),baseDay.substring(4,6)-1,  baseDay.substring(6,8));
+    }
+
+    var diff = getDaysDifference(realToday, today);
+
+
+
+    $("#mainCal > li").remove();
+
+    nowYear = today.getFullYear();
+    nowMonth = today.getMonth();
+    firstDate = new Date(nowYear,nowMonth,1).getDate();
+    firstDay = new Date(nowYear,nowMonth,1).getDay(); //1st의 요일
+    lastDate = new Date(nowYear,nowMonth+1,0).getDate();
+
+    if((nowYear%4===0 && nowYear % 100 !==0) || nowYear%400===0) { //윤년 적용
+      lastDate[1]=29;
+    }
+
+    thisym = nowYear+""+lpad((nowMonth+1).toString(),2,0);
+    $("#nowMonth").val(thisym);
+    realTodayYmd = realToday.getFullYear()+""+lpad((realToday.getMonth()+1).toString(),2,0)+""+lpad(realToday.getDate().toString(),2,0);
+    realTodayYm = realToday.getFullYear()+""+lpad((realToday.getMonth()+1).toString(),2,0);
+    var dayMap ={};
+    var hlyMap = {};
+    if(diff >= 0 || thisym==realTodayYm){
+      var url = window.location.origin + "/reserve/getRsvDtEmptyCnt";
+
+      rsvDate = nowYear+""+lpad((nowMonth+1).toString(),2,0)+""+lpad(today.getDate().toString(),2,0);
+      if(thisym==realTodayYm){
+        rsvDate = nowYear+""+lpad((nowMonth+1).toString(),2,0)+""+lpad(realToday.getDate().toString(),2,0);
+      }
+
+      var param = {
+          "rsvDate":rsvDate
+          ,"rsvEndDate": nowYear+ ""+lpad((nowMonth+1).toString(),2,0) +""+lastDate
+      }
+
+      var dayList ;
+      ajaxCallAsync(url,JSON.stringify(param),function(res){
+          dayList = res
+      });
+
+
+    dayMap = dayList.data.reduce((newObj, obj) => {
+        newObj[obj.rsvDate] = obj;
+        return newObj;
+    }, {});
+
+
+     if(dayList.data == null || dayList.data == undefined || dayList.data.length == 0){
+       maxDate = realTodayYmd;
+     }else{
+       maxDate = dayList.data.reduce(function(prev, curr){
+         return prev.rsvDate < curr.rsvDate ? prev.rsvDate : curr.rsvDate;
+       });
+       if(typeof maxDate == 'object'){
+            maxDate = maxDate.rsvDate;
+         }
+     }
+
+
+    var hlyUrl = window.location.origin + "/reserve/getClndList";
+    var hlyParam = {
+            "sclnrStartDay":rsvDate
+            ,"sclnrEndDay": nowYear+ ""+lpad((nowMonth+1).toString(),2,0) +""+lastDate
+            ,"oprtDivCd": "04"
+        };
+    var hlyList ;
+    ajaxCallAsync(hlyUrl,JSON.stringify(hlyParam),function(res){
+      hlyList = res
+    });
+
+    hlyMap = hlyList.data.reduce((newObj, obj) => {
+            newObj[obj.sclnrDate] = obj;
+            return newObj;
+    }, {});
+
+
+    }
+
+
+    $("#mainCalTxt").text(nowYear+"."+lpad((nowMonth+1).toString(),2,0));
+
+    for (i=0; i<firstDay; i++) { //첫번째 줄 빈칸
+            $("#mainCal").append("<li></li>");
+    }
+
+    for (i=1; i <=lastDate; i++){ // 날짜 채우기
+        day = lpad(String(i),2,0);
+        ymd =thisym+""+day;
+        var idxD = nowYear+""+lpad((nowMonth+1).toString(),2,0)+""+day;
+
+
+        bfOpen = "";
+        if(ymd > realTodayYmd && ymd > maxDate) {
+          bfOpen = "<span>오픈전</span>";
+        }
+
+       var inOpenDayTF = false;
+       if(ymd >= realTodayYmd &&  ymd <= maxDate){
+         inOpenDayTF = true;
+       }
+
+        hly = "";
+        if(hlyMap[ymd] != null){
+            if(hlyMap[ymd].hldyYn == "Y"){
+                hly = "holy"
+            }
+        }
+        if(ymd == realTodayYmd){
+            $("#mainCal").append("<li><div class='today "+hly+"' value='"+idxD+"'>"+i+" <span>오늘</span></div></li>");
+        }else if(dayMap[idxD]!=null){
+            if(dayMap[idxD].emptyCnt==0){
+                $("#mainCal").append("<li><div class='end "+hly+"'>"+i+" <span>마감</span></div></li>");
+            }else{
+              $("#mainCal").append('<li><div class="book '+hly+'" value="'+idxD+'">'+i+' <span><i>잔여</i>'+dayMap[idxD].emptyCnt+'팀</span></div></li>');
+            }
+
+        }else{
+          if(inOpenDayTF){
+            $("#mainCal").append("<li><div class='end "+hly+"'>"+i+" <span>마감</span></div></li>");
+          }else{
+            $("#mainCal").append("<li><div class='"+hly+"'>"+i+bfOpen+"</div></li>");
+          }
+
+        }
+    }
+
+    // next step
+    $(".book, .today").click(function(){
+        //console.log(this.attributes.value.value);
+        goReservePage(this.attributes.value.value);
+    });
+
+ }
+
+ function goReservePage(rsvDate){
+   var form = document.createElement('form'); // 폼객체 생성
+   var objs;
+   objs = document.createElement('input'); // 값이 들어있는 녀석의 형식
+   objs.setAttribute('type', 'hidden'); // 값이 들어있는 녀석의 type
+   objs.setAttribute('name', 'rsvDate'); // 객체이름
+   objs.setAttribute('value', rsvDate); //객체값
+   form.appendChild(objs);
+   form.setAttribute('method', 'post'); //get,post 가능
+   form.setAttribute('action', '/reserve/golf'); //보내는 url
+   document.body.appendChild(form);
+   form.submit();
+ }
+
+</script>
+
+<div class="main_calendar_wrap">
+    <div class="arrow btn_prev"><i class="bi bi-chevron-left" id="btnPrve"></i></div>
+    <div class="arrow btn_next"><i class="bi bi-chevron-right" id="btnNext"></i></div>
+    <input type="hidden" id="nowMonth" value=""/>
+    <div class="calendar">
+        <!-- 동적 월 표시 -->
+        <div class="month" id="mainCalTxt">2025.01</div>
+
+        <!-- 요일 표시 -->
+        <ul class="week">
+            <li>SUN</li>
+            <li>MON</li>
+            <li>TUE</li>
+            <li>WED</li>
+            <li>THU</li>
+            <li>FRI</li>
+            <li>SAT</li>
+        </ul>
+
+        <!-- 날짜 표시 -->
+        <ul class="days" id="mainCal">
+            <li></li>
+            <li></li>
+            <li></li>
+            <li><div>1</div></li>
+            <li><div>2</div></li>
+            <li><div>3</div></li>
+            <li><div>4</div></li>
+            <li><div class="today">5 <span>오늘</span></div></li>
+            <li><div class="book">6 <span><i>잔여</i>10팀</span></div></li>
+            <li><div class="end">7 <span>마감</span></div></li>
+            <li><div class="end">8 <span>마감</span></div></li>
+            <li><div class="end">9 <span>마감</span></div></li>
+            <li><div class="end">10 <span>마감</span></div></li>
+            <li><div class="book">11 <span><i>잔여</i>10팀</span></div></li>
+            <li><div class="book">12 <span><i>잔여</i>10팀</span></div></li>
+            <li><div class="book">13 <span><i>잔여</i>10팀</span></div></li>
+            <li><div class="book">14 <span><i>잔여</i>10팀</span></div></li>
+            <li><div class="book">15 <span><i>잔여</i>10팀</span></div></li>
+            <li><div class="end">16 <span>마감</span></div></li>
+            <li><div class="book">17 <span><i>잔여</i>10팀</span></div></li>
+            <li><div class="book">18 <span><i>잔여</i>10팀</span></div></li>
+            <li><div class="book">19 <span><i>잔여</i>10팀</span></div></li>
+            <li><div class="book">20 <span><i>잔여</i>10팀</span></div></li>
+            <li><div class="book">21 <span><i>잔여</i>10팀</span></div></li>
+            <li><div>22</div></li>
+            <li><div>23</div></li>
+            <li><div>24</div></li>
+            <li><div>25</div></li>
+            <li><div>26</div></li>
+            <li><div>27</div></li>
+            <li><div>28</div></li>
+            <li><div>29</div></li>
+            <li><div>30</div></li>
+            <li><div>31</div></li>
+        </ul>
+    </div>
+
+    <!-- 빠른 메뉴 -->
+    <ul class="quick_menu">
+        <li><a href="/blt/notice"><i class="bi bi-journal-text"></i>공지사항</a></li>
+        <li><a href="/reserve/golf"><i class="bi bi-calendar-week"></i>실시간예약</a></li>
+        <li><a href="/reserve/confirm"><i class="bi bi-calendar-check"></i>예약현황</a></li>
+    </ul>
+</div>
+
+    
+    
+    
+    
+    
+    
+    
+<body>
+
+<link rel="stylesheet" href="/css/swiper-bundle.min.css">
+<script type="text/javascript" src="/js/jquery.cookie.js"></script>
+<script type="text/javascript" src="/js/popup.js"></script>
+<script type="text/javascript" src="/js/swiper-bundle.min.js"></script>
+<script type="text/javascript">
+  $(document).ready(function () {
+    var today = new Date();
+    var duaDate = new Date('2025-01-31');
+
+    buildPopupList('1');
+  });
+
+  function getSeqSortValue(v) {
+    if (v === undefined || v === null || v === '') {
+      return 999;
+    }
+    var n = Number(v);
+    if (isNaN(n) || n === 0) {
+      return 999;
+    }
+    return n;
+  }
+
+  function getPopSortOrder(notice) {
+    if (!notice) return 999;
+    var v = notice.pop_seqo;
+    if (v === undefined || v === null || v === '') {
+      v = notice.popSeqo;
+    }
+    if (v === undefined || v === null || v === '') {
+      v = notice.popSeq;
+    }
+    return getSeqSortValue(v);
+  }
+
+  function buildPopupList(currentPage) {
+    var param = {
+      currentPage: currentPage
+      , popUseYn: "Y"
+      , pagingPrcsYn: "N"
+      , title: ""
+    }
+    var url = '/blt/getNoticeList';
+    var notictList = [];
+    var eventList = [];
+    var noticeLoaded = false;
+    var eventLoaded = false;
+
+    function processPopupItems() {
+      // 두 API 호출이 모두 완료되었을 때만 처리
+      if (!noticeLoaded || !eventLoaded) {
+        return;
+      }
+
+      // $("#popupList > div").remove();
+      var popCnt = 0;
+      var allItems = [];
+
+      // 공지사항 처리
+      if (notictList.length > 0) {
+        for (var i = 0; i < notictList.length; i++) {
+          var notice = notictList[i];
+          if (notice.popUseYn == "1") {
+            var imgUrl = '';
+            if (notice.popImgRid != null && notice.popImgRid != '') {
+              imgUrl = '/blt/img/'+notice.popImgRid;
+            }
+
+            if (imgUrl != null && imgUrl != '') {
+              allItems.push({
+                type: 'notice',
+                item: notice,
+                imgUrl: imgUrl
+              });
+            }
+          }
+        }
+      }
+
+      // 이벤트 처리
+      if (eventList.length > 0) {
+        for (var i = 0; i < eventList.length; i++) {
+          var event = eventList[i];
+          if (event.popUseYn == "1") {
+            var imgUrl = '';
+            if (event.popImgRid != null && event.popImgRid != '') {
+              imgUrl = '/blt/img/'+event.popImgRid;
+            }
+
+            if (imgUrl != null && imgUrl != '') {
+              allItems.push({
+                type: 'event',
+                item: event,
+                imgUrl: imgUrl
+              });
+            }
+          }
+        }
+      }
+
+      // 팝업 노출 순서(pop_seqo) 기준 오름차순 정렬
+      allItems.sort(function (a, b) {
+        return getPopSortOrder(a.item) - getPopSortOrder(b.item);
+      });
+
+      // 정렬된 순서대로 HTML 생성
+      for (var i = 0; i < allItems.length; i++) {
+        var popupItem = allItems[i];
+        var item = popupItem.item;
+        var imgUrl = popupItem.imgUrl;
+        var extLinkCnts = item.extLinkCnts;
+        var html = '';
+
+        if(extLinkCnts &&
+            extLinkCnts !== '' &&
+            extLinkCnts !== 'null' &&
+            extLinkCnts !== 'undefined'
+            && isValidUrl(extLinkCnts)
+        ){
+          html = '<div class="swiper-slide"><a href="' + extLinkCnts + '"><img src="' + imgUrl + '"  alt="' + item.title + '"></a></div>';
+        } else {
+          if (popupItem.type === 'event') {
+            html = '<div class="swiper-slide"><a href="javascript:goEventView(\'' + item.bltRid + '\');"><img src="' + imgUrl + '"  alt="' + item.title + '"></a></div>';
+          } else {
+            html = '<div class="swiper-slide"><a href="javascript:goNoticeView(\'' + item.bltRid + '\');"><img src="' + imgUrl + '"  alt="' + item.title + '"></a></div>';
+          }
+        }
+
+        $("#popupList").append(html);
+        popCnt++
+      }
+
+      // 팝업 표시 로직
+      displayPopup(popCnt);
+    }
+
+    // 공지사항 가져오기
+    ajaxCallAsync(url, JSON.stringify(param), function (res) {
+      notictList = res
+      if (res.header.code == 'SUCCESS_SRCH' && res.data.bltList.length > 0) {
+        notictList = res.data.bltList;
+        totCount = res.data.totCount;
+      }
+      noticeLoaded = true;
+      processPopupItems();
+    });
+
+    // 이벤트 가져오기
+    var eventParam = {
+      currentPage: currentPage
+      , eventDiv: '1' // 진행중인 이벤트
+      , pagingPrcsYn: "N"
+    };
+    var eventUrl = '/blt/getEventList';
+    ajaxCallAsync(eventUrl, JSON.stringify(eventParam), function (res) {
+      eventList = res
+      if (res.header && res.header.code == 'SUCCESS_SRCH' && res.data && res.data.bltList && res.data.bltList.length > 0) {
+        eventList = res.data.bltList;
+      }
+      eventLoaded = true;
+      processPopupItems();
+    });
+
+    function isValidUrl(str) {
+      try {
+        new URL(str);
+        return true;
+      } catch (e) {
+        return false;
+      }
+    }
+
+    function displayPopup(popCnt) {
+      var loginHtml = '<div class="swiper-slide"><a href="/guide/guidelogin"><img src="/images/pop_20250220_login.jpeg"  alt=""></a></div>';
+      $("#popupList").append(loginHtml);
+      // debugger;
+
+      if (popCnt == 0) {
+        $(".swiper-button-next").hide();
+        $(".swiper-button-prev").hide();
+        // $("#popup_slide").hide();
+      } else {
+        swiper1 = new Swiper(".mySwiper1", {
+          autoplay: {
+            delay: 3000,
+            disableOnInteraction: false,
+          },
+          loop: true,
+
+          navigation: {
+            nextEl: ".swiper-button-next",
+            prevEl: ".swiper-button-prev",
+          },
+
+          pagination: {
+            el: ".swiper-pagination",
+            clickable: true,
+
+            renderBullet: function (index, className) {
+              return '<span class="' + className + '">' + (index + 1) + "</span>";
+            },
+          },
+        });
+      }
+    }
+  }
+
+  function goNoticeView(bltRid) {
+    var form = document.createElement('form'); // 폼객체 생성
+    var objs;
+    objs = document.createElement('input'); // 값이 들어있는 녀석의 형식
+    objs.setAttribute('type', 'hidden'); // 값이 들어있는 녀석의 type
+    objs.setAttribute('name', 'bltRid'); // 객체이름
+    objs.setAttribute('value', bltRid); //객체값
+    form.appendChild(objs);
+    form.setAttribute('method', 'post'); //get,post 가능
+    form.setAttribute('action', '/blt/notice_view'); //보내는 url
+    document.body.appendChild(form);
+    form.submit();
+  }
+
+  function goEventView(bltRid) {
+    var form = document.createElement('form'); // 폼객체 생성
+    var objs;
+    objs = document.createElement('input'); // 값이 들어있는 녀석의 형식
+    objs.setAttribute('type', 'hidden'); // 값이 들어있는 녀석의 type
+    objs.setAttribute('name', 'bltRid'); // 객체이름
+    objs.setAttribute('value', bltRid); //객체값
+    form.appendChild(objs);
+    form.setAttribute('method', 'post'); //get,post 가능
+    form.setAttribute('action', '/blt/event_view'); //보내는 url
+    document.body.appendChild(form);
+    form.submit();
+  }
+</script>
+
+<div class="popup_wrap">
+
+    <!-- popup slide -->
+    <div id="popup_slide" class="popup_common">
+        <div class="swiper mySwiper1">
+            <div class="swiper-wrapper" id="popupList">
+
+            </div>
+            <div class="swiper-button-next"></div>
+            <div class="swiper-button-prev"></div>
+            <div class="swiper-pagination"></div>
+
+        </div>
+        <div id="close_wrap_slide" class="popup_close">
+            <a href="#" class="pop_today">오늘 하루 동안 보이지 않기</a><a href="#" class="pop_close">&times; CLOSE</a>
+        </div>
+    </div>
+</div>
+</body>
+
+</section>
+
+<!-- Hero Section -->
+<section id="hero" class="hero section">
+    <div class="hero_text">
+        <div>사계절의 숨결이 머무는 곳</div>
+        <div>봄의 생동감부터 겨울의 고요함까지, 사계절 각기 다른 매력으로 빛나는 <br> 파라지오에서 멈추지 않는 라운딩의 감동을 경험하세요.</div>
+    </div>
+    <div id="hero-carousel" class="carousel slide carousel-fade" data-bs-ride="carousel" data-bs-interval="5000" data-bs-pause="false">
+        <div class="carousel-item active"><img src="/images/main/bg-main01.jpg" alt=""></div>
+        <div class="carousel-item"><img src="/images/main/bg-main02.jpg" alt=""></div>
+        <div class="carousel-item"><img src="/images/main/bg-main03.jpg" alt=""></div>
+        <div class="carousel-item"><img src="/images/main/bg-main04.jpg" alt=""></div>
+    </div>
+    <!-- <video id="myVideo" preload="auto" autoplay muted loop>
+        <source src="images/main.mp4" type="video/mp4" title="인트로 소개 영상">
+    </video> -->
+    <!-- #include virtual='/include/main_calendar.asp'-->
+    <div class="scrolldown_icon">
+        <div class="sceoll-container">
+            <div class="chevron"></div>
+            <div class="chevron"></div>
+            <div class="chevron"></div>
+        </div>
+    </div>
+</section>
+<section class="section event">
+    <div class="main-title" data-aos="fade-up">
+        <div>EVENT</div>
+        <div>파라지오 컨트리클럽의 진행중인 이벤트</div>
+    </div>
+    <div class="container">
+        <div class="row board-event" id="boardList">
+            <div class="col-md-4 col-sm-6" data-aos="fade-up" data-aos-delay="200"><a href="javascript:goEventView('20dbc0aa00c311f095eb0a2b636a60e5');" class="event"><div class="img" style="--bg-img: url('/images/main_banner01.jpg');"></div><div class="txt"><div class="title">10주년 기념 펜타뷰 골프대회 개최</div><div class="date">2025-03-14</div></div></a></div>
+            <div class="col-md-4 col-sm-6" data-aos="fade-up" data-aos-delay="300"><a href="javascript:goEventView('ae15622700c211f095eb0a2b636a60e5');" class="event"><div class="img" style="--bg-img: url('/images/main_banner02.jpg');"></div><div class="txt"><div class="title">동계 특가 이벤트</div><div class="date">2025-03-14</div></div></a></div>
+            <div class="col-md-4 col-sm-6" data-aos="fade-up" data-aos-delay="400"><a href="javascript:goEventView('20dbc0aa00c311f095eb0a2b636a60e5');" class="event"><div class="img" style="--bg-img: url('/images/main_banner03.jpg');"></div><div class="txt"><div class="title">펜타뷰 동계 이벤트</div><div class="date">2025-03-14</div></div></a></div>
+        </div>
+    </div>
+    <div class="main-btn-wrap"><a href="/blt/event" class="btn btn-more">view more</a></div>
+</section>
+
+<section class="section course">
+    <div class="container">
+        <div class="main-title" data-aos="fade-up">
+            <div>COURSE</div>
+            <div>가까이 하고 싶은, 자주 찾고 싶은 골프클럽</div>
+        </div>
+        <div class="row">
+            <div class="col-md-6" data-aos="fade-up" data-aos-delay="200">
+                <div><img src="/images/bg-sub-guide.jpg" alt="레이크코스"></div>
+                <ul>
+                    <li>LAKE COURSE</li>
+                    <li>맑은 호수를 따라 흐르는 유려한 곡선 위에서,  <br>
+                        섬세한 전략과 평온한 휴식이 공존하는 라운딩을 경험해 보세요.</li>
+                    <li><a href="/course/course_strategy" class="btn btn-course">코스공략보기</a></li>
+                </ul>
+            </div>
+            <div class="col-md-6" data-aos="fade-up" data-aos-delay="400">
+                <div><img src="/images/bg-sub-board.jpg" alt="힐코스"></div>
+                <ul>
+                    <li>HILL COURSE</li>
+                    <li>광활하게 펼쳐진 숲의 능선을 따라 호쾌한 샷을 날리며, <br>
+                        지형의 높낮이가 선사하는 역동적인 도전의 묘미를 만끽해 보세요.</li>
+                    <li><a href="/course/course_strategy02" class="btn btn-course">코스공략보기</a></li>
+                </ul>
+            </div>
+        </div>
+        
+    </div>
+</section>
+
+<section class="contact">
+    <div class="contact-wrap">
+        <div class="main-contact-info">
+            <div class="contact-info-title" data-aos="fade-up">
+                <div>CONTACT US</div>
+                <div>의성 IC에서 단 5분, <br>
+                    대구·경북의 중심에서 <br>
+                    가장 빠른 프리미엄 필드</div>
+            </div>
+            <ul data-aos="fade-up" data-aos-delay="100">
+                <li><span>주소 :</span><strong>경북 의성군 봉양면 농공마전길 167</strong></li>
+                <li><span>예약전화 :</span><strong><a href="tel:054-833-7100">054-833-7100</a></strong></li>
+            </ul>
+        </div>
+    </div>
+    <div class="kakaomap">
+        <!-- 1. 지도 노드 -->
+        <div id="daumRoughmapContainer1772081327683" class="root_daum_roughmap root_daum_roughmap_landing" style="width:100%; height:100%"></div>
+
+        <script charset="UTF-8" class="daum_roughmap_loader_script" src="https://ssl.daumcdn.net/dmaps/map_js_init/roughmapLoader.js"></script>
+
+        <!-- 3. 실행 스크립트 -->
+        <script charset="UTF-8">
+            new daum.roughmap.Lander({
+                "timestamp" : "1772081327683",
+                "key" : "iddsgc5xq5w",
+            }).render();
+        </script>
+    </div>
+</section>
+
+
+
+<script type="text/javascript">
+
+  function goUserRule(ruleNo) {
+    var form = document.createElement('form'); // 폼객체 생성
+    var objs;
+    objs = document.createElement('input'); // 값이 들어있는 녀석의 형식
+    objs.setAttribute('type', 'hidden'); // 값이 들어있는 녀석의 type
+    objs.setAttribute('name', 'ruleNo'); // 객체이름
+    objs.setAttribute('value', ruleNo); //객체값
+    form.appendChild(objs);
+    form.setAttribute('method', 'post'); //get,post 가능
+    form.setAttribute('action', '/terms/userule'); //보내는 url
+    document.body.appendChild(form);
+    form.submit();
+  }
+
+</script>
+<footer id="footer" class="footer">
+    <div class="container d-flex justify-content-between align-items-center">
+        <div class="foot-logo"><img src="/images/logo-black.png" alt=""></div>
+        <nav class="footermenu">
+            <a href="javascript:goUserRule('1');">인터넷서비스 이용약관</a>
+            <a href="javascript:goUserRule('2');">이용약관</a>
+            <a href="javascript:goUserRule('3');">개인정보처리방침</a>
+            <a href="javascript:goUserRule('4');">영상정보처리기기 운영방침</a>
+        </nav>
+    </div>
+    <div class="container py-3">
+        <div class="foot-info">
+            <div class="order-2 order-md-1">
+                <ul>
+                    <li>주식회사 파라지오</li>     
+                    <li>대표자 : 최정헌, 정영권</li>
+                </ul>
+                <ul>
+                    <li>경북 의성군 봉양면 농공마전길 167</li>
+                    <li>대표전화 : 054-833-6200</li>
+                    <li> FAX : 054-833-1546</li>
+                </ul>
+                <div class="copyright">COPYRIGHT &copy; PARAGIO CC All Rights Reserved.</div>
+            </div>
+            <div class="order-1 order-md-2">
+                <div class="d-inline d-md-block">예약전화</div>
+                <div class="d-inline d-md-block"><a href="tel:054-833-7100">054-833-7100</a></div>
+            </div>
+        </div>
+        
+    </div>
+    <a href="#" class="back-to-top"><i class='bx  bx-chevron-up' style='color:#ffffff'></i> </a> 
+</footer>
+
+<script>
+  AOS.init();
+  
+  // Hero 캐러셀: 마우스 오버 시에도 자동 슬라이드 계속
+  $(document).ready(function() {
+    var heroCarousel = document.getElementById('hero-carousel');
+    if (heroCarousel) {
+      // 캐러셀 인스턴스 가져오기 또는 생성
+      var carouselInstance = bootstrap.Carousel.getInstance(heroCarousel);
+      if (!carouselInstance) {
+        carouselInstance = new bootstrap.Carousel(heroCarousel, {
+          interval: 5000,
+          pause: false
+        });
+      } else {
+        // 기존 인스턴스의 pause 옵션 비활성화
+        carouselInstance._config.pause = false;
+      }
+      
+      // mouseenter 시에도 계속 슬라이드 (pause 이벤트 방지)
+      $(heroCarousel).on('mouseenter', function() {
+        if (carouselInstance) {
+          carouselInstance.cycle();
+        }
+      });
+      
+      // pause 이벤트가 발생해도 즉시 다시 시작
+      $(heroCarousel).on('pause.bs.carousel', function() {
+        if (carouselInstance) {
+          setTimeout(function() {
+            carouselInstance.cycle();
+          }, 10);
+        }
+      });
+    }
+  });
+</script>
+</body>
+</html>

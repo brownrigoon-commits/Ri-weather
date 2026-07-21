@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="googlebot" content="noindex, nofollow">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
+  <meta name="description" content="">
+  <meta name="keywords" content="">
+  <meta name="author" content="">
+  <meta name="apple-mobile-web-app-title" content="">
+  <meta property="og:title" content="로그인">
+  <meta property="og:description" content="">
+  <meta property="og:url" content="">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="tree">
+  <title> 골프존 카운티 </title>
+  <link rel="stylesheet" href="/assets/css/default.css"> <!-- 공통 -->
+  <link rel="stylesheet" href="/assets/css/cc.css"><!-- 메뉴마다 css 변경 -->
+  <link rel="stylesheet" href="/assets/css/swiper-bundle.min.css">
+
+  <link rel="icon" href="/assets/images/favicon/favicon.ico" type="image/x-icon" />
+
+  <!-- Google Font -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
+  
+  <script src="/assets/javascript/nativeBase.js;jsessionid=ACF8619A68B52BF112EE41AA3D8A3549"></script>
+  
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async="" src="https://www.googletagmanager.com/gtag/js?id=G-GQ879GBETL"></script>		
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}		
+    gtag('js', new Date());		
+    gtag('config', 'G-GQ879GBETL');
+  </script>
+
+</head>
+
+<body class="single">
+
+  <form name="mainForm" id="mainForm" method="POST" action="">
+    <input type="hidden" name="gfsReturn" value="/main" />
+
+    <div id="wrap" class="login">
+      <div id="top">
+        <a href="javascript:location.replace('/reserve/main');" class="close obj"><img src="/assets/images/ic-cancel-small.png"
+            alt="닫기"></a>
+      </div>
+      <div id="content">
+        <a href="#" onclick="return false;" class="login-logo">
+          <img style="height: 40px;" src="/assets/images/img_logo-02@3x.png" />
+        </a>
+        <div class="input" style="margin-top:20%;">
+          <ul>
+            <li class="uid"><input id="userId" name="userId" placeholder="골프존 아이디 또는 휴대폰 번호" type="text" /></li>
+            <li class="upw"><input id="userPw" name="userPw" placeholder="비밀번호" type="password" /></li>
+          </ul>
+          <div style="margin-top: 16px">
+            <label for="autoLogin" class="auto">
+              <div class="toggle_box on">
+                <div class="bar"></div>
+                <div class="round"></div>
+                <input type="checkbox" name="autoLogin" id="autoLogin" checked value="Y"
+                  onchange="$(this).closest('.toggle_box').toggleClass('on');" />
+              </div>
+              <span>자동 로그인</span>
+            </label>
+          </div>
+          <button class="login" type="button" style="margin-top:40px" onclick="login()">로그인</button>
+          <!--모바일 링크 -->
+          
+          <!--PC 링크 -->
+          <div class="find" style="margin-top:16px">
+            
+              <span><a href="https://member.golfzon.com/customer/find-domestic-id">아이디 찾기</a></span>
+              <span>
+                <a href="https://member.golfzon.com/customer/find-domestic-password"
+                  onclick="sendGa4Event('click_golfzon_profile', this.href); return false;">
+                  비밀번호 찾기
+                </a>
+              </span>
+              <span><a
+                  href="https://member.golfzon.com/sc-regist/init?brand=GC_ACCOUNT&rt=http%3A%2F%2Fwww.golfzoncounty.com%2Flogin">회원가입</a></span>
+            
+            
+          </div>
+        </div>
+      </div>
+
+      
+    </div>
+  </form>
+</body>
+
+<script src="/assets/lib/jQuery.js"></script>
+<script src="/assets/lib/bootstrap.bundle.min.js"></script>
+<script src="/assets/lib/moment.min.js"></script>
+<script src="/assets/lib/jquery-validation/jquery.validate.min.js"></script>
+<script src="/assets/lib/jquery-validation/additional-methods.min.js"></script>
+<script src="/assets/lib/jquery-validation/localization/messages_ko.min.js"></script>
+<script src="/assets/javascript/aend.js"></script>
+<script src="/assets/javascript/aendutil.js"></script>
+<script src="/assets/javascript/common.js"></script>
+
+<script>
+  // 최초 로딩시
+  $(document).ready(function () {
+    $('form[name="mainForm"] input').keypress(function (event) {
+      var keycode = (event.keyCode ? event.keyCode : event.which);
+      if (keycode == '13') {
+        login();
+      }
+    });
+    if (isGfzApp()) {
+      $('.simpleLogin').show();
+    }
+  });
+
+  function disableclick(event) {
+    if (event.button == 2) {
+      // alert(status);
+      $(window).on('blur', function () {
+        return false;
+      });
+      return false;
+    }
+  }
+
+  // 로그인 버튼
+  function login(accessToken) {
+    var formData = {};
+    if (!accessToken) {
+      var userId = $("input[name=userId]").val();
+      var userPw = $("input[name=userPw]").val();
+      var autoLogin = $("input[name=autoLogin]:checked").val();
+
+      formData = {
+        userId: userId,
+        userPw: userPw,
+        autoLogin: autoLogin
+      };
+    } else {
+      // 간편 로그인 시
+      formData.gcAccessToken = accessToken;
+      formData.golfzonTokenLoginYn = "Y";
+      formData.autoLogin = "Y";
+    }
+
+    toggleLoading(); // 로딩바 실행
+
+    $.ajax({
+      url: "/login/userLogin",
+      type: "POST",
+      dataType: "json",
+      data: formData,
+      success: function (data) {
+        //로그인이 성공하였을 경우
+        if (data.result == 0) {
+          // 마케팅 SDK 로그인 시그널: 다음 페이지 로드 시 login 이벤트 + 프로필 재조회 트리거.
+          // (open_service 는 로그인과 분리되어 웹 진입 시 gc_open_service 로 별도 전송되므로 payload 불필요)
+          try {
+            localStorage.setItem('mkt_open_service_pending', '1');
+          } catch(e) {}
+
+          if(isGfzApp()) {
+            var golfzonNo = data.data.userInfo.golfzonNo;
+            window.nativeApi.execute({method: 'notifyAuthState', data: {isLoggedIn: true, golfzonNumber: golfzonNo}});
+          }
+
+          // 페이지 이동 (Android WebView localStorage flush 대기)
+          var targetUrl = data.data.gfsReturn;
+          if (!targetUrl) {
+            //GA4 이벤트 택소노미
+            gtag('event', 'login', {
+              'method' : '로그인'
+            });
+            targetUrl = $("input[name=gfsReturn]").val();
+            if (!targetUrl || targetUrl === '' || targetUrl === '/setting/account') {
+              targetUrl = '/';
+            }
+          }
+          setTimeout(function() {
+            location.href = targetUrl;
+          }, 100);
+        } else {  // 로그인 실패시
+          alert(aend.util.unescapeHtml(data.message));
+          // 실패 후 포커스
+          if (data.focus) {
+            $("#" + data.focus).focus();
+          }
+        }
+      },
+      error: function (xhr) {
+        if (xhr.status === 429) {
+          alert('잠시 후 다시 시도해주세요.');
+        }
+      },
+      complete: function () {
+        toggleLoading(); // 로딩바 종료
+      }
+    })
+  }
+
+  function golfzonAppLogin() {
+    window.nativeApi.execute({
+      method: 'loginWithGolfzon', callback: (data) => {
+        if (data.accessToken) {
+          login(data.accessToken);
+        }
+      }
+    });
+  }
+
+  // GA4 이벤트 택소노미
+  function sendGa4Event(eventName, url) {
+
+    gtag('event', eventName, {
+      'method': '마이존'
+    });
+
+    setTimeout(function () {
+      aend.util.movePage(url);
+    }, 100);
+  }
+
+</script>
+
+</html>

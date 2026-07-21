@@ -1,0 +1,1086 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=Edge">
+	<meta name="apple-mobile-web-app-capable" content="no" />
+	<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+	<meta name="format-detection" content="telephone=no,email=no,address=no">
+	<meta name="title" content="이븐데일">
+	<meta name="author" content="이븐데일">
+	<meta name="Keywords" content="이븐데일">
+	<meta name="description" content="이븐데일">
+	<meta name="copyright" content="All Contents COPYRIGHTⓒ  All RIGHTS RESERVED.">
+	<meta property="og:type" content="website">
+	<meta property="og:title" content="이븐데일">
+	<meta property="og:description" content="이븐데일">
+	<meta property="og:url" content="">
+	<link rel="canonical" href="">
+	<title>이븐데일</title>
+	<link rel="shortcut icon" href="/images/favicon.ico">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+<!--	<script src="https://cdn.jsdelivr.net/bxslider/4.2.12/jquery.bxslider.min.js"></script>-->
+    <script src="/js/jquery.bxslider.min.js"></script>
+	<script src="/js/jquery.fullpage.js"></script>
+	<script src="/js/globals.js?v=1"></script>
+	<script src="/js/common.js"></script>
+	<script src="/js/tools.js"></script>
+	<script src="/js/jquery.preloaders.js"></script>
+	<script src="/js/scrolloverflow.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/Swiper/3.2.5/js/swiper.min.js"></script>
+	<link href="/mobile/css/swiper.min.css" rel="stylesheet" type="text/css" />
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.8.2/css/all.min.css" />
+<!--	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper/swiper-bundle.min.css"/>-->
+	<link rel="stylesheet" type="text/css" href="/css/swiper-bundle.min.css">
+	<link rel="stylesheet" type="text/css" href="/css/import.css?v=3.4">
+	<link rel="stylesheet" type="text/css" href="/css/jquery.fullpage.css" />
+	<link rel="stylesheet" type="text/css" href="/css/contents.css?v=3.6">
+	<script src="/js/swiper.min.js"></script>
+	<script type="text/javascript" src="/js/slick.min.js"></script>
+	
+	<script>
+		$(document).ready(function() {
+			/* subpage header menu */
+            $(window).scroll(function(){
+			  let top=$(document).scrollTop();
+			  if(top>0){
+				$("#header").addClass("fixed");
+				$(".main-logo").addClass("hide");
+				$(".depth01 a").addClass("darkBlack");
+			  }else{
+				$("#header").removeClass("fixed");
+				$(".main-logo").removeClass("hide");
+				$(".depth01 a").removeClass("darkBlack");
+			  }
+			}); 
+		});
+		
+	</script>
+
+
+	<script>
+
+        var mDateMain;
+		var mCosMain = "All";
+		var sYearMain, fYearMain, sMonthMain, fMonthMain;
+		var rowDataMain;
+		var tdSelMain = "";
+
+		/*header*/
+		$(document).ready( function() {
+			/*subSlideMenu*/
+			$(".depth01").on('mouseenter',function(){
+				$(".depth02").slideDown(400);
+				$(".menu_bg").slideDown(500).addClass('borderB');
+				$('.logo a p, .depth01 a, .topMenu li a, dropdown').addClass('darkBlack');
+				$(".main-mypage").addClass("black-border darkBlack");
+				$('nav').addClass('borderB');
+				$(".main-logo2").removeClass("none");
+				$(".main-logo").addClass("none");
+			});
+			$("#header").on('mouseleave',function(){
+				$(".depth02").stop().slideUp(400);
+				$(".menu_bg").stop().slideUp(500).removeClass('borderB');
+				$('.logo a p, .depth01 a, .topMenu li a, dropdown').removeClass('darkBlack');
+				$(".main-mypage").removeClass("black-border darkBlack");
+				$('nav').removeClass('borderB');
+				$(".main-logo2").addClass("none");
+				$(".main-logo").removeClass("none");
+			});
+            initReser();
+			chkMobile();
+		} );
+
+        function chkMobile() {
+		  var mobileKeyWords = new Array('iPhone', 'iPod', 'iPad', 'BlackBerry', 'Android', 'Windows CE', 'MOT', 'SAMSUNG', 'SonyEricsson');
+		  for (var word in mobileKeyWords) {
+				if (navigator.userAgent.match(mobileKeyWords[word]) != null) {
+					location.href = "/mobile/index.asp";
+				  break;
+				}
+		  }
+		}
+
+		function sessionCheck() {
+			var sUrl = "/controller/SessionManager.asp";
+			var params = {"method" : "sessionConfirm"};
+
+			mAjax(sUrl, params, "POST", false, function(data) {
+				if(data.resultCode == "2000") {
+					alert(data.resultMessage);
+					location.reload();
+				}
+			});
+		}
+
+		function doLogout() {
+			var sUrl = "/controller/MemberController.asp";
+			var params = {};
+
+			params["method"] = "doLogout";
+
+			mAjax(sUrl, params, "POST", true, function(data) {
+				if(data.resultCode == "0000") {
+					alert("로그아웃 되었습니다.");
+
+					location.href = "/index.asp";
+				}
+			});
+		}
+
+        function initReser() {
+			var date = new Date();
+			sYearMain = date.yyyy();
+			sMonthMain = date.mm();
+			var date2 = addMonth(date.yyyymmdd(), 1);
+			fYearMain = date2.yyyy();
+			fMonthMain = date2.mm();
+
+			initCalendarMain("#mainCalendarBox1", sYearMain, sMonthMain);
+			initCalendarMain("#mainCalendarBox2", fYearMain, fMonthMain);
+		}
+
+		function initCalendarMain(selector, year, month) {
+			var sUrl = "/controller/ReservationController.asp";
+			var params = {};
+
+			params["method"] = "getCalendar";
+			params["coDiv"] = globals.coDiv;
+			params["selYm"] = year + month;
+			params["agcYn"] = "";
+			params["agcNum"] = "";
+
+			mAjax(sUrl, params, "POST", true, function(data) {
+				if(data.resultCode == "0000") {
+					$(selector + " #calHeader").html(year + "." + month);
+
+					var currentTime = new Date().yyyymmddhhmm();
+					var currentDay = new Date().yyyymmdd();
+					var tBody = $(selector + " #calendar-body");
+					tBody.empty();
+
+					var rows = data.rows;
+
+					if(rows.length > 0) {
+						var row = $("<tr></tr>");
+
+						var fWeek = rows[0].CL_DAYDIV - 1;
+
+						for(i=0; i<fWeek; i++) {
+							row.append($("<td></td>"));
+						}
+						for(i=0; i<rows.length; i++) {
+							var td = $("<td>" + rows[i].DAYNUM + "</td>");
+
+							if ("" != "") {
+								td.addClass('end');
+							} else if(rows[i].CL_SOLAR == currentDay) {
+								td = $("<td>" + rows[i].DAYNUM + "<span class='today2'>Today</span></td>");
+								td.addClass('today');
+							} else if(rows[i].CL_SOLAR <= currentDay) {
+								td = $("<td>" + rows[i].DAYNUM + "<span class='end2'>마감</span></td>");
+								td.addClass('end');
+							} else if(rows[i].OPEN_DAY < rows[i].CL_SOLAR) {
+								td = $("<td>" + rows[i].DAYNUM + "<span>오픈전</span></td>");
+								td.addClass('end');
+							} else if(rows[i].CL_SOLAR > currentDay) {
+								if(rows[i].BK_TEAM > 0) {
+									td = $("<td>" + rows[i].DAYNUM + "<span>" + rows[i].BK_TEAM + "팀</span></td>");
+									td.data('date', rows[i].CL_SOLAR);
+									td.data('team', rows[i].BK_TEAM);
+									td.on('click', function() {
+										onClickDayMain($(this).data('date'), selector, $(this).data('team'));
+									});
+								} else {
+									td = $("<td>" + rows[i].DAYNUM + "<span>마감</span></td>");
+									td.addClass('end');
+								}
+							} else {
+								td.addClass('end');
+							}
+
+							row.append(td);
+
+							if(rows[i].CL_DAYDIV == 7) {
+								row.appendTo(tBody);
+								row = $("<tr></tr>");
+							}
+						}
+
+						var addTd = 7 - row.children("td").length;
+
+						if(addTd != 7) {
+							for(i=0; i<addTd; i++) {
+								row.append($("<td></td>"));
+							}
+						}
+
+						row.appendTo(tBody);
+					} else {
+						tBody.append($("<tr><td colspan='7'></td></tr>"));
+						tBody.append($("<tr><td colspan='7'></td></tr>"));
+						tBody.append($("<tr><td colspan='7'></td></tr>"));
+						tBody.append($("<tr><td colspan='7'></td></tr>"));
+						tBody.append($("<tr><td colspan='7'></td></tr>"));
+						tBody.append($("<tr><td colspan='7'></td></tr>"));
+					}
+
+					var addTr = 6 - tBody.children("tr").length;
+
+					if (addTr != 6) {
+						for(i=0; i<addTr; i++) {
+							tBody.append($("<tr style='height:72px'><td colspan='7'></td></tr>"));
+						}
+					}
+				} else {
+					alert(data.resultMessage);
+				}
+			});
+		}
+
+		function doNextMonthMain() {
+			if(sMonthMain == "12") {
+				sYearMain += 1;
+				sMonthMain = "01";
+			} else {
+				sMonthMain = Number(sMonthMain) + 1;
+				sMonthMain = (sMonthMain>9 ? '' : '0') + sMonthMain;
+			}
+
+			initCalendarMain("#mainCalendarBox1", sYearMain, sMonthMain);
+
+			if(fMonthMain == "12") {
+				fYearMain += 1;
+				fMonthMain = "01";
+			} else {
+				fMonthMain = Number(fMonthMain) + 1;
+				fMonthMain = (fMonthMain>9 ? '' : '0') + fMonthMain;
+			}
+
+			initCalendarMain("#mainCalendarBox2", fYearMain, fMonthMain);
+		}
+
+		function doPrevMonthMain() {
+			if(sMonthMain == "01") {
+				sYearMain -= 1;
+				sMonthMain = "12";
+			} else {
+				sMonthMain = Number(sMonthMain) - 1;
+				sMonthMain = (sMonthMain>9 ? '' : '0') + sMonthMain;
+			}
+
+			initCalendarMain("#mainCalendarBox1", sYearMain, sMonthMain);
+
+			if(fMonthMain == "01") {
+				fYearMain -= 1;
+				fMonthMain = "12";
+			} else {
+				fMonthMain = Number(fMonthMain) - 1;
+				fMonthMain = (fMonthMain>9 ? '' : '0') + fMonthMain;
+			}
+
+			initCalendarMain("#mainCalendarBox2", fYearMain, fMonthMain);
+		}
+
+		function onClickDayMain(date, selector, team) {
+
+			if (tdSelMain == "") {
+				tdSelMain = selector;
+			}
+
+			if (tdSelMain != selector) {
+				var tds = $(tdSelMain + " #calendar-body").find("td");
+
+				for(i=0; i<tds.length; i++) {
+					$(tds[i]).removeClass("choice");
+				}
+				tdSelMain = selector;
+			}
+
+			var tds = $(selector + " #calendar-body").find("td");
+
+			for(i=0; i<tds.length; i++) {
+				if(date == $(tds[i]).data("date")) {
+					$(tds[i]).addClass("choice");
+				} else {
+					$(tds[i]).removeClass("choice");
+				}
+			}
+
+			var dSel = getDateFormat(date);
+
+			$("#txtChooseDateMain").empty().append(String.format("{0}년 {1}월 {2}일 {3}요일", dSel.yyyy(), dSel.mm(), dSel.dd(), dSel.week()));
+			$("#txtChooseTeamMain").empty().append(String.format("{0}팀", team));
+
+			mDateMain = date;
+
+			doSearchMain();
+		}
+
+		function doSearchMain() {
+			var sUrl = "/controller/ReservationController.asp";
+			var params = {};
+
+			if(mDateMain == null || mDateMain == '') {
+				alert("날짜를 선택하세요.");
+				return;
+			}
+
+			if(mDateMain <= new Date().yyyymmdd()) {
+				alert("날짜를 확인하세요.");
+				return;
+			}
+
+			params["method"] = "getTeeList";
+			params["coDiv"] = globals.coDiv;
+			params["date"] = mDateMain;
+			if(mCosMain != "") {
+				params["cos"] = mCosMain;
+			}
+
+			mAjax(sUrl, params, "GET", true, function(data) {
+				if(data.resultCode == "0000") {
+					var tBody = $("#mainTbody");
+					tBody.empty();
+
+					rowDataMain = data.rows;
+
+					if(rowDataMain.length == 0) {
+						tBody.append("<tr><td colspan='5'>조회되는 타임이 없습니다.</td></tr>");
+
+						var offset = $("#reservationInfoMain").offset();
+						$('html, body').animate({scrollTop : offset.top}, 400);
+
+						return;
+					}
+
+					for(i=0; i<rowDataMain.length; i++) {
+						var row = $("<tr></tr>");
+
+						var bkDay = rowDataMain[i].BK_DAY;
+						bkDay = bkDay.substring(0, 4) + "." + bkDay.substring(4, 6) + "." + bkDay.substring(6, 8);
+						var bkTime = rowDataMain[i].BK_TIME;
+						bkTime = bkTime.substring(0, 2) + ":" + bkTime.substring(2, 4);
+						var bkChargeNm = rowDataMain[i].BK_B_CHARGE_NM;
+
+						var col1 = $("<td>" + rowDataMain[i].BK_COS_NM + "</td>");
+						var col2 = $("<td>" + bkTime + "</td>");
+						//var col3 = $("<td>" + bkChargeNm + "</td>");
+						var col4 = $("<td>" + rowDataMain[i].BK_S_CHARGE_NM + "</td>");
+						var col5 = $("<td class='reser-tab-scroll-sale'>" + rowDataMain[i].BK_CS + "</td>");
+						var col6 = $("<td><a href='javascript:reserProcMain(" + i + ")'class='reser-select' >예약신청</a></td>");
+
+						//row.append(col1,col2,col3,col4,col5,col6).appendTo(tBody);
+						row.append(col1,col2,col4,col5,col6).appendTo(tBody);
+					}
+					/* todo:특정 스크롤 이동
+					var offset = $("#reservationInfo").offset();
+					$('html, body').animate({scrollTop : offset.top}, 400);
+					*/
+					$("#test").show();
+					$("#test").focus();
+					$("#test").hide();
+
+				} else {
+					alert(data.resultMessage);
+				}
+			});
+		}
+
+		function onCosChangeMain(cos) {
+
+			if(mDateMain == null || mDateMain == '') {
+				alert("날짜를 선택하세요.");
+				return;
+			}
+
+			mCosMain = cos;
+
+			$("#cosContainer").children("li").each(function() {
+				if(mCosMain == $(this).data("cos")) {
+					$(this).addClass("on");
+				} else {
+					$(this).removeClass("on");
+				}
+			});
+
+			doSearchMain();
+		}
+
+		function reserProcMain(i) {
+
+			if("" == "") {
+				alert("로그인 후 이용 가능합니다.")
+				location.href = "/member/login.asp?page=/reservation/reservation.asp";
+				return;
+			}
+
+			var sUrl = "/controller/ReservationController.asp";
+			var params = {};
+
+			var msNum = "";
+			bkCharge = rowDataMain[i].BK_S_CHARGE;
+
+			if ("" != "") {
+				params["method"] = "changeReservation";
+				params["coDiv"] = globals.coDiv;
+				params["aday"] = rowDataMain[i].BK_DAY;
+				params["acos"] = rowDataMain[i].BK_COS;
+				params["atime"] = rowDataMain[i].BK_TIME;
+				params["charge"] = bkCharge;
+				params["bDay"] = "";
+				params["bCos"] = "";
+				params["bTime"] = "";
+				params["agcCd"] = "";
+				params["local"] = rowDataMain[i].LOCAL_YN;
+				params["msNum"] = msNum;
+				params["media"] = "R";
+				
+				ans = confirm("[변경 확인] " + rowDataMain[i].BK_DAY.substring(0,4)+"-"+rowDataMain[i].BK_DAY.substring(4,6)+"-"+rowDataMain[i].BK_DAY.substring(6,8)+" 날짜의 \n\n"+rowDataMain[i].BK_TIME.substring(0,2)+"시"+rowDataMain[i].BK_TIME.substring(2,4)+"분 "+rowDataMain[i].BK_COS_NM+" 예약으로 변경하시겠습니까?");
+			} else {
+				params["method"] = "doReservation";
+				params["coDiv"] = globals.coDiv;
+				params["day"] = rowDataMain[i].BK_DAY;
+				params["cos"] = rowDataMain[i].BK_COS;
+				params["time"] = rowDataMain[i].BK_TIME;
+				params["agcCd"] = "";
+				params["local"] = rowDataMain[i].LOCAL_YN;
+				params["charge"] = bkCharge;
+				params["msNum"] = msNum;
+				params["media"] = "R";
+
+				ans = confirm("[예약 확인] " + rowDataMain[i].BK_DAY.substring(0,4)+"-"+rowDataMain[i].BK_DAY.substring(4,6)+"-"+rowDataMain[i].BK_DAY.substring(6,8)+" 날짜의 \n\n"+rowDataMain[i].BK_TIME.substring(0,2)+"시"+rowDataMain[i].BK_TIME.substring(2,4)+"분 "+rowDataMain[i].BK_COS_NM+" 예약을 확정하시겠습니까?");
+			}
+
+			if (ans == true) {
+
+				mAjax(sUrl, params, "POST", true, function(data) {
+					if(data.resultCode == "0000") {
+						if ("" != "") {
+							alert("변경 완료되었습니다.");
+						} else {
+							alert("예약 완료되었습니다.");
+						}
+						location.href = "/reservation/reserCheck.asp"
+					} else {
+						alert(data.resultMessage);
+						location.href = "/reservation/reserCheck.asp"
+					}
+				});
+
+			}
+		}
+	</script>
+
+</head>
+<body>
+	<div id="wrap">
+		<div id="header" class="whiteBg">
+			<div class="menu_bg"></div>
+			<div class="headerBox">
+				<div class="logo">
+					<a href="/index.asp"><img src="/images/main/logo.svg" class="main-logo"></a>
+					<a href="/index.asp"><img src="/images/main/logo-green.svg" class="main-logo2"></a>
+				</div>
+				<!--main_menu-->
+				<nav>
+					<ul class="gnb">
+						 <li class="depth01"><a href="/club/intro.asp">클럽소개</a>
+							<ul class="depth02">
+								<li><a href="/club/intro.asp">이븐데일소개</a></li>
+								<li><a href="/club/ci.asp">CI소개</a></li>
+								<li><a href="/club/design.asp" >코스설계</a></li>
+								<li><a href="/club/map.asp">오시는길</a></li>
+								<li><a href="/club/weather.asp">날씨안내</a></li>
+							</ul>
+						</li>
+						<li class="depth01"><a href="/reservation/reservation.asp">실시간예약</a>
+							<ul class="depth02">
+								<li><a href="/reservation/reservation.asp">실시간예약</a></li>
+								<li><a href="/reservation/reserCheck.asp">예약확인/취소</a></li>
+							</ul>
+						</li>
+						<li class="depth01"><a href="/course/courseInfo.asp">코스정보</a>
+							<ul class="depth02">
+								<li><a href="/course/courseInfo.asp">코스소개</a></li>
+								<li><a href="/course/course_even.asp">코스공략도</a></li>
+								<li><a href="/board/gallery_cos.asp">코스갤러리</a></li>
+							</ul>
+						</li>
+						<li class="depth01"><a href="/facil/facil01.asp">시설소개</a>
+							<ul class="depth02">
+								<li><a href="/facil/facil01.asp">프론트</a></li>
+								<li><a href="/facil/facil02.asp">로비</a></li>
+								<li><a href="/facil/facil03.asp">레스토랑</a></li>
+								<li><a href="/facil/facil04.asp">락카</a></li>
+								<li><a href="/facil/facil05.asp">프로샵</a></li>
+								<li><a href="/facil/facil06.asp">그늘집</a></li>
+								<li><a href="/facil/facil07.asp">Cafe Start</a></li>
+							</ul>
+						</li>
+						<li class="depth01"><a href="/guide/userInfo.asp">이용안내</a>
+							<ul class="depth02">
+								<li><a href="/guide/userInfo.asp">이용안내</a></li>
+								<li><a href="/guide/reserInfo.asp">예약안내</a></li>
+								<li><a href="/guide/terms.asp">이용약관</a></li>
+                                <li><a href="/guide/menu.asp">메뉴안내</a></li>
+							</ul>
+						</li>
+						<li class="depth01"><a href="/board/list.asp">고객센터</a>
+							<ul class="depth02">
+								<li><a href="/board/list.asp">공지사항</a></li>
+								<li><a href="/board/event.asp">이벤트</a></li>
+							</ul>
+						</li>
+					</ul>
+                    
+                    <div class="btn-instar"><a href="https://www.instagram.com/even_dale_/" target="_blank"><img src="/images/Instagram_icon.svg"></a></div>
+
+					<div class="top_menu_right">
+						
+						<a href="/member/login.asp" class="main-login">로그인</a>
+						<a href="/member/join01.asp" class="main-mypage">회원가입</a>
+						
+					</div>
+				</nav>
+				<!--//main_menu-->
+			</div>
+		</div>
+                    
+                    
+
+		<div class="m_bottom">
+			<a href="#side-nav"><img src="/images/main/reser.svg" class="reser-nav">실시간예약</a>
+			<a href="/reservation/reserCheck.asp"><img src="/images/main/reser-chk.svg">예약확인</a>
+			<a href="/guide/userInfo.asp"><img src="/images/main/fee-info.svg">요금안내</a>
+			<a href="/course/course_even.asp"><img src="/images/main/course.svg">코스안내</a>
+            <a href="/guide/menu.asp"><img src="/images/main/menu.svg">메뉴안내</a>
+			<a href="/club/weather.asp"><img src="/images/main/weather.svg">날씨정보</a>
+			<a href="/club/map.asp"><img src="/images/main/map.svg">오시는길</a>
+		</div>
+	
+		<!-- Side reservation Nav -->
+		<div id="menu-list">
+			<div class="close-menu">
+				<a href="" class="btn-close-menu">
+					<img src="/images/menu_close.svg" class="btn-close-menu-img" alt="닫기">
+				</a>
+			</div>
+
+			<!--reservation contetns-->
+			<div class="nav-reser-wrap">
+			<div class="reser-wrap">
+        <div class="package-box">
+            <div class="tab-wrap">
+                <h3 class="quick-reser-text">바로예약</h3>
+            </div>
+        </div>
+            
+        <div class="tab-content">
+            <!--package contents1-->
+            <div class="tab-box">
+                <div class="tab-box-top">
+
+                        <ul class="reser-calendar">
+                            <div class="cal-title">
+                                <h3 class="sub-title daypick">날짜선택</h3>
+                            </div>
+                            <div class="cal_container">
+                                <div id="mainCalendarBox1">
+                                    <li class="calendar-wrap01">
+                                        <div class="month_choice01">
+                                            <div class="arrow_prev01" onclick="doPrevMonthMain();"></div>
+                                            <h2 class="montserrat" id="calHeader"></h2>
+                                        </div>
+                                        <div class="calendar-area01">
+                                            <table class="m_calendar">
+                                                <colgroup>
+                                                    <col width="13%">
+                                                    <col width="13%">
+                                                    <col width="13%">
+                                                    <col width="13%">
+                                                    <col width="13%">
+                                                    <col width="13%"> 
+                                                    <col width="13%">
+                                                </colgroup>
+                                                <thead>
+                                                    <tr>
+                                                        <th scope="col">sun</th>
+                                                        <th scope="col">mon</th>
+                                                        <th scope="col">the</th>
+                                                        <th scope="col">wed</th>
+                                                        <th scope="col">thu</th>
+                                                        <th scope="col">fri</th>
+                                                        <th scope="col">sat</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="calendar-body">
+                                                </tbody>
+                                            </table>
+                                        </div> <!--calendar end-->
+                                    </li>
+                                </div>
+                                <div id="mainCalendarBox2">
+                                    <li class="calendar-wrap02">
+                                        <div class="month_choice01">
+                                            <div class="arrow_next01" onclick="doNextMonthMain();"></div>
+                                            <h2 class="montserrat" id="calHeader"></h2>
+                                        </div>
+                                        <div class="calendar-area01">
+                                            <table class="m_calendar">
+                                                <colgroup>
+                                                    <col width="13%">
+                                                    <col width="13%">
+                                                    <col width="13%">
+                                                    <col width="13%">
+                                                    <col width="13%">
+                                                    <col width="13%"> 
+                                                    <col width="13%">
+                                                </colgroup>
+                                                <thead>
+                                                    <tr>
+                                                        <th scope="col">sun</th>
+                                                        <th scope="col">mon</th>
+                                                        <th scope="col">the</th>
+                                                        <th scope="col">wed</th>
+                                                        <th scope="col">thu</th>
+                                                        <th scope="col">fri</th>
+                                                        <th scope="col">sat</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="calendar-body">
+                                                </tbody>
+                                            </table>
+                                        </div> <!--calendar end-->
+                                    </li>
+                                </div>
+								<!-- 여기 -->
+								<div class="reser-list-box">
+									<div class="list">
+										<span class="square_orange01"></span>
+										<h4>오늘</h4>
+										<span class="square_yellow01"></span>
+										<h4>마감</h4>
+										<span class="square_gray01"></span>
+										<h4>선택</h4>
+									</div>
+								</div>
+                            </div>
+                        </ul>
+                        <div class="hr margin2020"></div>
+                        <p class="mb50">
+                            ※ 예약취소는 예약일 제외 6일전 17:00까지 가능합니다.<br>
+                            ※ 당일 예약은 예약실로 문의 바랍니다. <span class="orange">043 288 1000(내선1)</span>
+                        </p>
+                        <div class="pkg-check" id="reservationInfoMain">
+                            <ul>
+                                <li>
+                                    <span class="bold">예약자</span>
+                                </li>
+                            </ul>
+                            <ul>
+                                <li>
+                                    <span class="bold">선택일</span><span id="txtChooseDateMain">예약하실 일자를 선택해주세요.</span>
+                                </li>
+                            </ul>
+                            <ul>
+                                <li>
+                                    <span class="bold">예약가능팀</span><span id="txtChooseTeamMain">예약하실 일자를 선택해주세요.</span>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div class="content-box">
+                            <div class="faciltyTab1">
+                                <div class="reser-tab-title">
+                                    <h3 class="sub-title padding1 top-5">코스 및 시간 선택</h3>
+                                    <ul class="faciltyBtn" id="cosContainer">
+                                        <li class="on" onclick="onCosChangeMain('All');" data-cos="All">전체 코스</li>
+                                        <li class="" onclick="onCosChangeMain('A');" data-cos="A">이븐</li>
+                                        <li class="" onclick="onCosChangeMain('B');" data-cos="B">데일</li>
+                                    </ul>
+                                </div>
+                                
+                            
+                                <div class="reser-list">
+                                    <ul style="display: block;" class="reser-con">
+                                        <div class="feeWrap">
+                                            <div class="accordion__body is-active">
+                                                    <div class="reser-tab">
+                                                        <table>
+                                                            <colgroup>
+                                                                <col width="20%">
+                                                                <col width="15%">
+                                                                <!-- <col width="15%"> -->
+                                                                <col width="20%">
+                                                                <col width="20%">
+                                                                <col width="25%">
+                                                            </colgroup>
+                                                        <thead>
+                                                            <tr>
+                                                                <th>코스</th>
+                                                                <th>시간</th>
+                                                                <!-- <th>회원요금</th> -->
+                                                                <th>그린피</th>
+                                                                <th>비고</th>
+                                                                <th>예약신청</th>
+                                                            </tr>
+                                                        </thead>
+                                                        </table>
+                                                        <div class="reser-tab-scroll">
+                                                            <table class="reser-tab">
+                                                                <colgroup>
+                                                                    <col width="20%">
+                                                                    <col width="15%">
+                                                                    <!-- <col width="15%"> -->
+                                                                    <col width="20%">
+                                                                    <col width="20%">
+                                                                    <col width="25%">
+                                                                </colgroup>
+                                                                <tbody id="mainTbody">
+                                                                    <tr>
+                                                                        <td colspan="5">예약하실 일자를 선택해 주세요.</td>
+                                                                    </tr>
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    </div><!--reser-tab end-->
+                                            </div>
+                                        </div>
+                                    </ul>
+                                </div>
+                            </div>
+                            <p>
+								※ 캐디피 - 15만원 / 마샬캐디 - 10만원<br>
+								※ 예약인원: 4인필수 (3인 내장시 4인요금 부과)
+							</p>
+                            <!-- <input type="test" id="test"> -->
+
+                     
+                        </div>
+            </div>
+        </div>
+        </div><!-- //tab-content -->       
+    </div>
+</div>
+
+    <!--레이어팝업-->
+    <div id="layerPop1" class="commonPop layer1" style="display: none;">
+        <h2 class="guide_title">예약확인 </h2>
+        <h3>예약한 정보를 확인하세요. </h3>
+         				
+        <table class="guideTable bt1">
+             <caption>예약테이블</caption>
+             <colgroup>
+                 <col width="*">
+                 <col width="*">
+             </colgroup>
+             <tbody>
+                 <tr>
+                     <th>예약자명</th>
+                     <td>그린잇</td>
+                 </tr>
+                 <tr>
+                    <th>예약일자</th>
+                    <td>2022.09.22(목) 00:00</td>
+                </tr>
+                <tr>
+                    <th>라운드일시</th>
+                    <td>2022.09.22(목) 00:00</td>
+                </tr>
+                <tr>
+                    <th>코스명</th>
+                    <td>이븐</td>
+                </tr>
+                <tr>
+                    <th>내장인원</th>
+                    <td>4인 필수</td>
+                </tr>
+             </tbody>
+        </table>
+
+        <table class="guideTable">
+            <caption>예약테이블</caption>
+            <colgroup>
+                <col width="*">
+                <col width="*">
+            </colgroup>
+            <tbody>
+               <tr>
+                   <th>취소 가능기한</th>
+                   <td>2022.09.22(목) 00:00</td>
+               </tr>
+               <tr>
+                   <th>결제방법</th>
+                   <td>현장결제</td>
+               </tr>
+               <tr>
+                   <th>4인예상금액</th>
+                   <td><span class="montserrat font20">720,000원</span></td>
+               </tr>
+            </tbody>
+       </table>
+
+        <p class="guide_txt pb40">
+            &bull; 이름(실명), 라운드일자를 꼭 확인해주세요.<br>
+            &bull; 입력 정보가 실제와 다를 경우 라운드 안내, 결제 진행이 되지 않을 수 있습니다.<br>
+            &bull; 예약확인 문자가 발송될 예정이며 예약확인 문자를 받지 못하실 경우 골프장으로 연락 부탁드립니다.
+        </p>
+
+        <div class="btn-reser mt30">
+            <a href="javascript:popupClose(1)">취소</a>
+            <a href="" class="on">예약완료</a>
+        </div>
+    </div>
+    <div id="overlay" class="overlay2" onclick="popupFOverlayClicked()"></div>
+    
+
+    </div>
+		</div>
+		<div class="nav-bg"></div>
+
+		<script>
+			//side-nav-reservation
+			$(".reser-nav").on("click", function(){
+				$("#menu-list").stop().animate({right:0},600);
+				$(".nav-bg").fadeIn();
+				$(".nav-reser-wrap").css({overflow:"auto"})
+				
+				$('body').on('scroll touchmove mousewheel', function(event) {
+				event.preventDefault();
+				event.stopPropagation();
+				return false;
+			});
+
+				$(".btn-close-menu img").on("click", function(){
+				$(".nav-bg").fadeOut();
+				$("#menu-list").stop().animate({right:"-100%"},600);
+				$(".nav-reser-wrap").css({overflow:"auto"})
+
+				$('.btn-close-menu img').click(function(){
+					$('#menu-list').stop().fadeOut();
+					// $('body').removeClass('fixed');
+					$('body').off('scroll touchmove mousewheel');
+					});
+				});
+			});
+		</script>
+
+
+ 
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=2.1">
+	<script>
+		$(document).ready(function() {
+			//fullpage script
+			$('#fullpage').fullpage({
+				licenseKey:'K261H-R4BRK-24YI9-QVEL6-QKNLN',
+				verticalCentered: false,
+				css3: false,
+				scrollingSpeed: 800,
+				easing: 'easeInOutCubic',
+				easingcss3: 'ease',
+				autoScrolling: true,
+				navigation: false,
+				scrollOverflow: false,
+				scrollBar: false,
+				afterLoad : function (anchorLink, index) {
+					if(index==1){
+						$("#header").removeClass("black bg_white");
+						$(".main-logo2").addClass("none");
+						$(".main-logo").removeClass("none");
+						$(".main-mypage").removeClass("black-border");
+						$(".depth01 a").removeClass("darkBlack");
+						$(".m_bottom").show();
+					}else if(index==2){
+						$("#header").addClass("black bg_white");
+						$(".main-logo2").removeClass("none");
+						$(".main-logo").addClass("none");
+						$(".main-mypage").addClass("black-border");
+						$(".depth01 a").addClass("darkBlack");
+						$(".m_bottom").show();
+					}
+				}
+			});
+
+			//main popup
+			$("#toggle").click(function() {
+			$(this).toggleClass("on");
+			$("#menu").slideToggle();
+			$("#menu img").fadeToggle('300');
+			$(".bx-pager").fadeToggle('300');
+			$("#menu").addClass("block");
+			});
+
+			getPopupList();
+		});
+
+		function getPopupList() {
+			var sUrl = "/controller/BoardController.asp";
+			var params = {};
+
+			params["method"] = "getBoardList";
+
+			params["coDiv"]    = globals.coDiv;
+			params["type"]     = "5";
+			params["startCnt"] = 0;
+			params["pageCnt"]  = 10;
+
+			mAjax(sUrl, params, "POST", false, function(data) {
+				if(data.resultCode == "0000") {
+					var rows = data.rows;
+
+			  for(i=0; i<rows.length; i++) {
+				var popId = "evendale_popup_" + rows[i].IDX;
+				var loc = rows[i].CONTENT.split("|");
+				var top  = loc[0];
+				var left = loc[1];
+				var link = rows[i].LINK;
+				var file = rows[i].FILE_PATH1 + "/" + rows[i].FILE_NAME1;
+
+				if(getCookie(popId) != "Y") {
+				  var pop = "";
+				  pop += " <div id='{0}' class='main_popup' style='position: absolute; z-index:10000; top:{1}px; left:{2}px; display: none;'>	";
+				  pop += "   <a href='{3}'><img src='{4}' /></a>																																							";
+				  pop += "   <div class='popup_bottom'>																																												";
+				  pop += "     <a href='javascript:closePopup(\"{0}\", 1)'>오늘하루 그만보기</a>																									 ";
+				  pop += "     <a class='pull-right' href='javascript:closePopup(\"{0}\", 0);'>닫기</a>																				 ";
+				  pop += "   </div>																																																					  ";
+				  pop += " </div>																																																							";
+
+				  pop = String.format(pop, popId, top, left, link, file);
+
+				  $("#popContainer").append(pop);
+
+				  $("#" + popId).show('fade');
+				}
+			  }
+				} else {
+					alert(data.resultMessage);
+				}
+			});
+		}
+
+		function closePopup(id, day) {
+			$("#" + id).hide('fade');
+
+			if(day > 0) {
+				setCookie(id, "Y", day);
+			}
+		}
+	</script>
+
+	<div id="popContainer"></div>
+
+	<div id="fullpage">
+		<div class="section" id="section0">
+
+			<div class="swiper-container mainslider">
+				<div class="swiper-wrapper">
+					<div class="swiper-slide"><div class="slide-img" style="background-image: url(/images/main/bg_main.jpg); width: 100%; height: 100%; object-fit: cover;"></div></div>
+					<div class="swiper-slide"><div class="slide-img" style="background-image: url(/images/main/bg_main02.jpg);width: 100%; height: 100%; object-fit: cover;"></div></div>
+					<div class="swiper-slide"><div class="slide-img" style="background-image: url(/images/main/bg_main03.jpg);width: 100%; height: 100%; object-fit: cover;"></div></div>
+				</div>
+			</div>
+			<script>
+				var swiper = new Swiper('.mainslider', {
+				  effect : 'fade',
+				  speed : 5000,
+				  slidersPerView: 1,
+				  loop: false,
+				  //loopedSlides:1,
+				  pagination: {
+					el: '.mainslider-pagination',
+					clickable: true,
+				  },
+				  autoplay: {
+					delay: 0,
+				  },
+				});
+			</script>
+
+		<div class="sectionText">
+			<h1>해발 400M의 <br>순수한 청정공기와 함께하는</h1>
+			<div class="text-group">
+				<div class="border-line"></div>
+				<h4><span class="text-bold">E</span>VEN<span class="text-bold">D</span>ALE</h4>
+			</div>
+		</div>
+
+		<!--main popup-->
+		<div class="main-popup-area">
+			<div id="toggle">
+				<div class="one">이벤트 닫기<span><img src="/images/main/main-event-down.svg" alt="이벤트닫기아이콘"></span></div>
+				<div class="two" >이벤트 확인<span><img src="/images/main/main-event-up.svg" alt="이벤트열기아이콘"></span></div>
+			</div>
+			
+			<div id="menu" style="overflow: visible;">
+				<div class="bxSliderWrap">	
+					<div class="mainGallery">
+						<div class="bx-wrapper2">
+							<ul class="slider">
+								<!-- 배너 이미지 사이즈 1100 * 428 입니다 -->
+                                <li><a href="/board/view.asp?type=1&idx=50"><img src="/uploads/20260210/260210edb.jpg" alt="1박2일골프투어"></a></li>
+                                <!-- <li><a href="/board/view.asp?type=2&idx=37"><img src="/uploads/20250320/20250320170151.jpg" alt="라운드전 식사"></a></li> -->
+          						<li><a href="/board/view.asp?type=1&idx=23"><img src="/images/banner/240701ed_bn.jpg" alt="우천취소규정"></a></li>
+								<!--<li><a href="/board/view.asp?type=1&idx=13"><img src="/images/230220edb.jpg" alt="명의도용"></a></li>-->	
+							</ul>
+							<script>
+							$(document).ready(function(){
+								$('.slider').bxSlider({
+									mode:'fade',
+									speed : 300,
+									pause : 3000,
+									auto: true,
+									pager:true,
+									controls:true,
+									touchEnabled:false,
+									autoHover:false
+								});
+							});
+							</script>
+						</div>
+					</div>
+				</div><!--sliderWrap end-->
+			</div>
+		</div>
+
+		</div>
+		<div class="section fp-auto-height" id="section1">
+					<div id="footer">
+			<div class="footer-wrap">
+				<div class="logo">
+					<img src="/images/main/footer_logo.svg">
+				</div>
+				<div class="footer-text">
+					<h2>이븐데일 골프앤리조트</h2>
+					<p>28195 충북 청주시 상당구 미원면 대신2길 31<br>
+					TEL. 043.288.1000 FAX. 043.221.8877</p>
+					<h3>사업자등록번호 : 301 - 81 - 74855  |  통신판매업신고 : 제 2010-충북청원-0004<br>
+					Copyright © 2022 EvenDale Golf&Resort. All Rights Reserved</h3>
+				</div>
+				<!--<div class="snsBox">
+					<a href=""><i class="fab fa-facebook-f"></i></a>
+					<a href=""><i class="fab fa-twitter"></i></a>
+					<a href=""><i class="fab fa-instagram"></i></a>
+				</div>-->
+				<div class="footer-right">
+					<a href="/guide/terms.asp">이용약관</a> | <a href="/guide/policy.asp"><span class="green">개인정보처리방침</span></a> | <a href="javascript:alert('준비중입니다.')">영상정보처리기기운영방침</a>
+
+					<div class="footer-img">
+						<img src="/images/main/footer-ytn.png">
+						<img src="/images/main/footer-golf.png">
+					</div>
+				</div>
+			</div><!-- contents end -->
+		</div> <!-- footer end -->
+	</div>
+</body>
+</html>
+		</div>
+		
+	</div>
+</div>
+</body>
+</html>

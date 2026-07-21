@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+    <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <meta name="format-detection" content="telephone=no">
+        <title>울진마린컨트리클럽</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+        <meta name="description" content="울진마린컨트리클럽 예약문의(054-781-0000)">
+        <script src="/js/jquery.min.js"></script>
+        <script src="/js/const.js"></script>
+        <script src="/js/utils/ajax.js"></script>
+        <script src="/js/utils/common.js"></script>
+        <script src="/js/utils/date.js"></script>
+        <script src="/js/utils/popup.js"></script>
+        <script src="/js/utils/string.js"></script>
+        <script src="/js/utils/template.js"></script>
+        <script src="/js/utils/message.js"></script>
+        <script src="/js/jquery.preloaders.js"></script>
+        <script src="/pc/js/view.js"></script>
+        <script src="/pc/js/swiper.js"></script>
+
+        <script src="/js/jquery.rwdImageMaps.min.js"></script><!-- image map -->
+        <link href="https://cdn.jsdelivr.net/gh/sun-typeface/SUIT@2/fonts/static/woff2/SUIT.css" rel="stylesheet">
+        <link rel="stylesheet" href="/css/common.css?v=20260721" type="text/css">
+        <link rel="stylesheet" href="/css/swiper.css" type="text/css">
+        <link rel="stylesheet" href="/css/layout.css?v=20260721" type="text/css">
+        <link rel="stylesheet" href="/css/contents.css?v=20260721" type="text/css">
+        <link rel="stylesheet" href="/css/contents_m.css?v=20260721" type="text/css">
+        <link rel="icon" href="/images/favicon.ico">
+    </head>
+
+    <header class="pc">
+        <div class="nav-area">
+            <div class="top-left">
+                <a href="/" class="logo-area"><img src="/images/logo.svg"></a>
+            </div>
+            <div class="top-right login-container" style="display: none">
+                <a href="/reservation/check" class="check">예약확인</a>
+                <a href="/member/login">로그인</a>
+                <a href="/member/terms">회원가입</a>
+            </div>
+            <div class="top-right logout-container" style="display: none">
+                <a href="/reservation/check" class="check">예약확인</a>
+                <a href="javascript:logout()">로그아웃</a>
+                <a href="/mypage/modify">마이페이지</a>
+            </div>
+        </div>
+        <!--메뉴-->
+        <nav>
+            <ul class="nav-menu">
+                <li class="gnb"><a href="/club/intro">클럽소개</a></li>
+                <li class="gnb"><a href="/reservation/main">실시간예약</a></li>
+                <li class="gnb"><a href="/guide/guide">이용안내</a></li>
+                <li class="gnb"><a href="/course/intro">코스소개</a></li>
+                <li class="gnb"><a href="/board/notice">커뮤니티</a></li>
+            </ul>
+        </nav>
+        <div class="lnb">
+            <div class="lnb-area">
+                <div class="lnb-box">
+                    <ul>
+                        <li><a href="/club/intro">클럽소개</a></li>
+                        <li><a href="/club/facil">부대시설</a></li>
+                        <li><a href="/club/map">오시는길</a></li>
+                    </ul>
+                    <ul>
+                        <li><a href="/reservation/main">골프예약</a></li>
+                        <li><a href="/reservation/check">예약확인/취소</a></li>
+                        <li><a href="/reservation/wait">대기예약</a></li>
+                    </ul>
+                    <ul>
+                        <li><a href="/guide/guide">예약·위약 규정안내</a></li>
+                        <li><a href="/guide/club-info">클럽 이용안내</a></li>
+                        <li><a href="/guide/room-info">객실 이용안내</a></li>
+                    </ul>
+                    <ul>
+                        <li><a href="/course/intro">코스개요</a></li>
+                        <li><a href="/course/course01">MARINE코스</a></li>
+                        <li><a href="/course/course02">HEALING코스</a></li>
+                    </ul>
+                    <ul>
+                        <li>
+                            <a href="/board/notice">공지사항</a>
+                        </li>
+                        <li>
+                            <a href="/board/event">이벤트</a>
+                        </li>
+                        <li>
+                            <a href="/board/join">조인 게시판</a>
+                        </li>
+                        <li>
+                            <a href="/board/honor">명예의전당</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <!--//메뉴-->
+    </header>
+    <header class="mobile">
+        <div class="top-left">
+            <a href="/" class="logo-area"><img src="/images/logo.svg"></a>
+        </div>
+        <div class="top-right login-container" style="display: none">
+            <a href="/reservation/check"><img src="/images/ic_top_reser.svg"></a>
+        </div>
+        <div class="top-right logout-container" style="display: none">
+            <a href="/reservation/check"><img src="/images/ic_top_reser.svg"></a>
+        </div>
+        <input type="checkbox" id="toggleNav"/>
+        <label class="toggle-btn" for="toggleNav" id="toggleTop">
+            <span></span>
+            <span></span>
+            <span></span>
+        </label>
+        <nav>
+            <div class="nav-box">
+                <div class="nav-header">
+                    <div class="logo-wrap">
+                        <a href="/"><img src="/images/logo.svg" class="logo"></a>
+                    </div>
+                    <!--로그인 전-->
+                    <div class="nav-header-text login-container" hidden>
+                        <h2>로그인하세요</h2>
+                        <p>회원이 되시면 다양한 혜택을 누릴 수 있습니다.</p>
+                        <div class="nav-login-area">
+                            <a href="/member/login" class="login">로그인</a>
+                            <a href="/member/terms" class="">회원가입</a>
+                        </div>
+                    </div>
+                    <!--로그인 후-->
+                    <div class="nav-header-text logout-container" hidden>
+                        <h2 id="login-member-container"></h2>
+                        <p>울진마린컨트리클럽에 오신 걸 환영합니다.</p>
+                        <div class="nav-login-area">
+                            <a href="javascript:logout()" class="login">로그아웃</a>
+                            <a href="/mypage/modify" class="">회원정보관리</a>
+                        </div>
+                    </div>
+                </div>
+                <ul class="menu-list">
+                    <li>
+                        <a href="javascript:void(0)"><p>클럽소개</p><b><span></span></b></a>
+                        <div class="lnb">
+                            <a href="/club/intro">클럽소개</a>
+                            <a href="/club/facil">부대시설</a>
+                            <a href="/club/map">오시는길</a>
+                        </div>
+                    </li>
+                    <li>
+                        <a href="javascript:void(0)"><p>실시간예약</p><b><span></span></b></a>
+                        <div class="lnb">
+                            <a href="/reservation/main">골프예약</a>
+                            <a href="/reservation/check">예약확인/취소</a>
+                            <a href="/reservation/wait">대기예약</a>
+                        </div>
+                    </li>
+                    <li>
+                        <a href="javascript:void(0)"><p>이용안내</p><b><span></span></b></a>
+                        <div class="lnb">
+                            <a href="/guide/guide">예약·위약 규정안내</a>
+                            <a href="/guide/club-info">클럽 이용안내</a>
+                            <a href="/guide/room-info">객실 이용안내</a>
+                        </div>
+                    </li>
+                    <li>
+                        <a href="javascript:void(0)"><p>코스소개</p><b><span></span></b></a>
+                        <div class="lnb">
+                            <a href="/course/intro">코스개요</a>
+                            <a href="/course/course01">MARINE코스</a>
+                            <a href="/course/course02">HEALING코스</a>
+                        </div>
+                    </li>
+                    <li>
+                        <a href="javascript:void(0)"><p>커뮤니티</p><b><span></span></b></a>
+                        <div class="lnb">
+                            <a href="/board/notice">공지사항</a><a href="/board/event">이벤트</a><a href="/board/join">조인 게시판</a><a href="/board/honor">명예의전당</a>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <script>
+        $(document).ready(async function () {
+            const isLoggedIn = await checkLogin();
+
+            if (isLoggedIn) {
+                const member = await ajax.get("/api/member", {}, false);
+                $("#login-member-container").html(`${member.name} 고객님`);
+                $(".logout-container").show();
+                $(".logout-container[hidden]").removeAttr("hidden");
+            } else {
+                $(".login-container").show();
+                $(".login-container[hidden]").removeAttr("hidden");
+            }
+        });
+
+        function logout() {
+            localStorage.removeItem(TOKEN_KEY);
+            location.href = "/";
+        }
+    </script>
+
+
+<body>
+
+    <link rel="stylesheet" href="/css/main.css" type="text/css">
+    <main>
+        <section class="main-section">
+            <video class="bg" autoplay muted loop playsinline>
+                <source src="/images/main.mp4" type="video/mp4">
+            </video>
+
+            <div class="calendar">
+                <button class="nav prev" aria-label="이전"><img src="/images/ic_m_l.svg"></button>
+                <ul class="days"></ul>
+                <button class="nav next" aria-label="다음"><img src="/images/ic_m_r.svg"></button>
+            </div>
+        </section>
+
+        <section class="main-list-wrap">
+        <ul class="banners">
+            <li><a href="/guide/guide"><span>USER GUIDE</span><em>이용안내</em></a></li>
+            <li><a href="/course/intro"><span>COURSE</span><em>코스안내</em></a></li>
+            <li><a href="/club/facil"><span>FACILITIES</span><em>부대시설</em></a></li>
+            <li><a href="/club/map"><span>LOCATION</span><em>오시는 길</em></a></li>
+        </ul>
+        <ul class="board"></ul>
+    </section>
+
+        <!--floating 메뉴-->
+        <aside>
+            <div class="fab-links">
+                <a href="/reservation/main">
+                    <h3>골프예약</h3>
+                    <span><img src="/images/ic_ft_menu01.svg"></span>
+                </a>
+
+                <a href="/board/board-join">
+                    <h3>조인게시판</h3>
+                    <span><img src="/images/ic_ft_menu02.svg"></span>
+                </a>
+
+                <a href="/club/map">
+                    <h3>오시는 길</h3>
+                    <span><img src="/images/ic_ft_menu03.svg"></span>
+                </a>
+            </div>
+
+            <button>
+                <span>
+                    <img src="/images/ic_up.svg">
+                </span>
+            </button>
+        </aside>
+    </main>
+
+    <script>
+        //상단위로
+        document.querySelector('aside button').addEventListener('click', () => {
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        });
+
+        $(document).ready(async function () {
+            await initMainCalendar();
+            initMainBoard();
+        });
+
+        // 메인 달력 동적 렌더링
+        async function initMainCalendar() {
+            const calendar = document.querySelector('.calendar');
+            if (!calendar) return;
+
+            const days = calendar.querySelector('.days');
+            const prev = calendar.querySelector('.nav.prev');
+            const next = calendar.querySelector('.nav.next');
+            if (!days || !prev || !next) return;
+
+            const today = new Date().toKoreanTime();
+            const todayStr = today.yyyymmdd();
+            const yearMonth1 = today.yyyymm();
+            const yearMonth2 = today.nextMonth(1).yyyymm();
+
+            const [cal1, cal2] = await Promise.all([
+                ajax.get('/api/open/booking/calendar', {yearMonth: yearMonth1}),
+                ajax.get('/api/open/booking/calendar', {yearMonth: yearMonth2})
+            ]);
+
+            const allDays = [...cal1, ...cal2].filter(d => d.date >= todayStr);
+            const now = new Date().toKoreanTime();
+
+            const allItems = allDays.map(data => {
+                const d = data.date.toDate();
+                const isToday = data.date === todayStr;
+                const dayNum = parseInt(data.date.substring(6, 8));
+                const isFirstOfMonth = dayNum === 1;
+                const dateLabel = isFirstOfMonth
+                    ? `${parseInt(data.date.substring(4, 6))}/${dayNum}`
+                    : `${dayNum}`;
+
+                let stateClass = '';
+                let stateText = '';
+                let clickable = false;
+
+                if (isToday) {
+                    stateText = 'TODAY';
+                } else {
+                    const openStart = data.openStartDateTime ? new Date(data.openStartDateTime) : null;
+                    const openEnd = data.openEndDateTime ? new Date(data.openEndDateTime) : null;
+                    const inWindow = openStart && openEnd && openStart <= now && openEnd >= now;
+
+                    if (inWindow) {
+                        if (data.availableTeamCount > 0) {
+                            stateText = `${data.availableTeamCount}팀`;
+                            clickable = true;
+                        } else {
+                            stateText = '마감';
+                            stateClass = 'deadline';
+                        }
+                    } else {
+                        stateText = '오픈전';
+                        stateClass = 'pre-opening';
+                    }
+                }
+
+                const dayOfWeek = d.getDay();
+                const li = document.createElement('li');
+                li.className = `day${dayOfWeek === 6 ? ' sat' : ''}${dayOfWeek === 0 ? ' sun' : ''}${isToday ? ' today' : ''}`;
+                li.innerHTML = `
+                    <span class="dow">${d.weekName()}</span>
+                    <strong class="date">${dateLabel}</strong>
+                    <span class="state${stateClass ? ' ' + stateClass : ''}">${stateText}</span>
+                `;
+
+                if (clickable) {
+                    li.style.cursor = 'pointer';
+                    li.addEventListener('click', () => {
+                        const $form = $(`<form action="/reservation/main" method="POST">
+                            <input type="hidden" name="date" value="${data.date}">
+                        </form>`);
+                        $('body').append($form);
+                        $form.submit();
+                    });
+                }
+
+                return li;
+            });
+
+            let start = 0;
+
+            function getVisibleCount() {
+                const sample = days.querySelector('.day');
+                if (!sample) return 1;
+                const cellW = sample.offsetWidth;
+                const gap = parseFloat(getComputedStyle(days).columnGap) || 0;
+                const containerW = days.clientWidth;
+                return Math.max(1, Math.floor((containerW + gap) / (cellW + gap)));
+            }
+
+            function render() {
+                const n = getVisibleCount();
+                const maxStart = Math.max(0, allItems.length - n);
+                if (start > maxStart) start = maxStart;
+                days.innerHTML = '';
+                for (let i = start; i < start + n && i < allItems.length; i++) {
+                    days.appendChild(allItems[i]);
+                }
+            }
+
+            prev.addEventListener('click', () => {
+                start = Math.max(0, start - getVisibleCount());
+                render();
+            });
+
+            next.addEventListener('click', () => {
+                const n = getVisibleCount();
+                start = Math.min(allItems.length - n, start + n);
+                render();
+            });
+
+            let resizeTimer;
+            window.addEventListener('resize', () => {
+                clearTimeout(resizeTimer);
+                resizeTimer = setTimeout(render, 100);
+            });
+
+            render();
+            requestAnimationFrame(render);
+        }
+
+        // 메인 게시판 + 팝업 동적 렌더링
+        async function initMainBoard() {
+            const $board = $('.board');
+            if (!$board.length) return;
+
+            const data = await ajax.get('/api/open/board/main');
+
+            const items = [
+                ...(data.notice || []).map(b => ({...b, tagLabel: '공지사항', tagClass: ''})),
+                ...(data.event || []).map(b => ({...b, tagLabel: '이벤트', tagClass: 'event'})),
+            ];
+
+            items.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+            $board.empty();
+            items.slice(0, 3).forEach(board => {
+                const createdAt = board.createdAt.toDateTime();
+                const dateStr = `${createdAt.yyyy()}/${createdAt.mm()}/${createdAt.dd()}`;
+                const typeUrl = board.tagLabel === '이벤트' ? 'event' : 'notice';
+                $board.append($(`
+                    <li>
+                        <a href="/board/${typeUrl}-view/${board.id}">
+                            <span class="tag${board.tagClass ? ' ' + board.tagClass : ''}">${board.tagLabel}</span><em>${dateStr}</em>
+                            <p>${board.title}</p>
+                            <i><img src="/images/ic_arw.svg"></i>
+                        </a>
+                    </li>
+                `));
+            });
+
+            if (getCookie('main-popup') !== 'Y' && data.popup && data.popup.length > 0) {
+                popup.open('/popup/popup-main.html', function ($el, open, close) {
+                    data.popup.forEach(item => {
+                        $el.find('.pop-swiper > .swiper-wrapper').append(
+                            $(`<div class="swiper-slide"><a href="${item.link || 'javascript:void(0)'}"><img src="${item.thumbnailUrl}"></a></div>`)
+                        );
+                    });
+
+                    $el.find('.btn-pop-close button').eq(0).on('click', function () {
+                        setCookie('main-popup', 'Y', 1);
+                        close();
+                    });
+                    $el.find('.btn-pop-close button').eq(1).on('click', function () {
+                        close();
+                    });
+
+                    open();
+                });
+            }
+        }
+    </script>
+
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a1e3fd8828beebec',t:'MTc4NDU3MTczNg=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script><script defer src="https://static.cloudflareinsights.com/beacon.min.js/v4513226cdae34746b4dedf0b4dfa099e1781791509496" integrity="sha512-ZE9pZaUXND66v380QUtch/5sE9tPFh2zg45pR2PB0CVkCtOREv2AJKkSidISWkysEuQ0EH8faUU5du78bx87UQ==" data-cf-beacon='{"version":"2024.11.0","token":"de9f4891b32a4c7ba3c624fc918787fa","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+</body>
+
+    <footer>
+        <div class="f-head-area">
+            <a href="/policy/policy" class="f-red">개인정보처리방침</a>
+            <a href="/policy/legal">이용약관</a>
+        </div>
+        <div class="f-con-area">
+            <h1>대표전화 <b>054-781-0000</b></h1>
+            <address>
+                <ul>
+                    <li>
+                        <span><b>주소</b> 경상북도 울진군 매화면 매화로 115-99</span>
+                    </li>
+                    <li>
+                        <span><b>대표전화</b> 054-781-0000</span>
+                        <span><b>FAX</b> 054-783-9505</span>
+                    </li>
+                </ul>
+            </address>
+            <p>Copyright(C) 2026 ULJIN MARIN CC. ALL RIGHT RESERVED.</p>
+        </div>
+    </footer>
+
+</html>

@@ -1,0 +1,2334 @@
+
+
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <title>스카이밸리 컨트리클럽</title>
+    <meta charset="utf-8">
+    <meta http-equiv="Expires" content="-1">
+	<meta http-equiv="Pragma" content="no-cache">
+	<meta http-equiv="Cache-Control" content="No-Cache">
+    <meta http-equiv="Imagetoolbar" content="no">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+    <script type="text/javascript" src="/static/common/libs/jquery-1.12.4.min.js" charset="UTF-8"></script>
+    <script type="text/javascript" src="/static/pc/js/include_meta.js" charset="UTF-8"></script>
+    
+    <!-- css -->
+    <link rel="stylesheet" href="/static/pc/css/cm_default.css?ver=20250410">
+    <link rel="stylesheet" href="/static/pc/css/custom/cm_default.css?ver=20250410">
+    <link rel="stylesheet" href="/static/pc/css/custom/loading-bar.css">
+    <script type="text/javascript" src="/static/pc/js/include_css.js?ver=20250410" data-ver="20250410" charset="UTF-8"></script>
+    <!-- origin css -->
+    <script type="text/javascript" src="/static/pc/js/include_origin_css.js?ver=20250410" data-ver="20250410" charset="UTF-8"></script>    
+    
+    <!-- js -->    
+	<script type="text/javascript" src="/static/common/libs/jquery.min.js" charset="UTF-8"></script>
+	<script type="text/javascript" src="/static/common/libs/jquery-ui.js" charset="UTF-8"></script>
+    <script type="text/javascript" src="/static/common/libs/librarys.min.js" charset="UTF-8"></script>
+    <script type="text/javascript" src="/static/pc/js/libs/loading-bar.min.js"></script>
+    <script type="text/javascript" src="/static/pc/js/ui.custom.js?ver=20250410" charset="UTF-8"></script>
+    <script type="text/javascript" src="/static/pc/js/ui.common.js?ver=20250410" charset="UTF-8"></script>
+    <script type="text/javascript" src="/static/common/js/common.js?ver=20250410"></script>
+    <script type="text/javascript" src="/static/pc/js/include_js.js?ver=20250410" data-ver="20250410" charset="UTF-8"></script>
+    <!-- origin js-->
+    <script type="text/javascript" src="/static/pc/js/include_origin_js.js" charset="UTF-8"></script>
+    <script>
+        
+            goSSL();
+        
+
+        //page_type
+	    //ui_custom.page_type.init();
+
+        //--basic Customizing(origin)-s
+        var mPage;
+
+        $(document).ready(function() {
+            //setProtocol();
+
+            initHeader();
+
+            initHeaderListener();
+
+            goGreenSpeed("J35");
+        });
+
+        function setProtocol() {
+            if (document.location.protocol == 'http:') {
+                var sUrl = document.location.href;
+                sUrl = sUrl.replace('http:', 'https:');
+
+                document.location.href = sUrl;
+            }
+        }
+
+        function initHeader() {
+            mPage = "";
+            var open = "";
+
+            if ((mPage != "" || open == "Y") && "" == "") {
+                $('.loginWrap').slideToggle(400);
+            }
+        }
+
+        function initHeaderListener() {
+            $(".nav li").hover(function() {
+                $(this).children("ul").stop().delay(200).animate({
+                    height: "toggle",
+                    opacity: "toggle"
+                }, 200);
+            });
+
+            var chkId = getCookie("chkSaveId");
+            var id = getCookie("cookieId");
+
+            if (chkId != null && chkId != "") {
+                $("#chkSaveId").attr('checked', true);
+            }
+
+            if (id != null && id != "") {
+                $("#txtHeaderId").val(id);
+            }
+
+            $("#txtHeaderId").keypress(function(event) {
+                if (event.keyCode == 13) {
+                    doLogin();
+                }
+            });
+
+            $("#txtHeaderPw").keypress(function(event) {
+                if (event.keyCode == 13) {
+                    doLogin();
+                }
+            });
+        }
+
+        function doLogin() {
+            var sUrl = "/controller/MemberController.asp";
+            var params = {};
+
+            var id = $("#txtHeaderId").val();
+            var pw = $("#txtHeaderPw").val();
+
+            if (id == "") {
+                alert("아이디를 입력하세요.");
+                return;
+            }
+
+            if (pw == "") {
+                alert("비밀번호를 입력하세요.");
+                return;
+            }
+
+            params["method"] = "doLogin";
+            params["coDiv"] = globals.coDiv;
+            params["id"] = id;
+            params["pw"] = pw;
+
+            mAjax(sUrl, params, "POST", true, function(data) {
+                if (data.resultCode == "0000") {
+                    var chkSaveId = $('input:checkbox[id="chkSaveId"]').is(":checked");
+
+                    if (chkSaveId) {
+                        setCookie("cookieId", $("#txtHeaderId").val(), 365);
+                        setCookie("chkSaveId", true, 365);
+                    } else {
+                        setCookie("cookieId", "", 365);
+                        setCookie("chkSaveId", "", 365);
+                    }
+
+                    if (mPage != "") {
+                        location.href = mPage;
+                    } else {
+                        location.reload();
+                    }
+                } else {
+                    alert(data.resultMessage);
+                }
+            });
+        }
+
+        function doLogout() {
+            var sUrl = "/Controller/MemberController.asp";
+            var params = {};
+
+            params["method"] = "doLogout";
+
+            mAjax(sUrl, params, "POST", true, function(data) {
+                if (data.resultCode == "0000") {
+                    alert("로그아웃 되었습니다.");
+                    location.href = "/index.asp"
+                }
+            });
+        }
+
+        function onlyMainMenu(val) {
+            if (val == "1") {
+                $("#onlyMain").show();
+            } else(
+                $("#onlyMain").hide()
+            )
+        }
+        //--basic Customizing(origin)-e
+    </script>
+    
+    <script type="text/javascript">
+        // https로 전환
+
+        //sslCheck();
+
+        function sslCheck() {
+            if ('https://www.skyvalley.co.kr' == location.protocol + '//' + location.host) {
+                return;
+            }
+            location.href = 'https://www.skyvalley.co.kr' + location.pathname + location.search;
+        }
+
+        // 퍼블
+        $(document).ready(function() {
+            var h = $(window).height();
+            $('.visual_top').css('height', h + 'px');
+        });
+
+        // 개발
+        $(document).ready(function() {
+            //setWeather();
+        });
+
+        // 날씨, 그린스피드 SET
+        function setWeather() {
+            callAjax({
+                url: 'skyvalley/weather',
+                success: function(data) {
+                    if (data.status != 'success') {
+                        return;
+                    }
+
+                    $('#greenSpeed').text(data.resultData.greenSpeed + 'm');
+                    $('#weather_temp').text(data.resultData.temperature + '℃');
+
+                    var $weatherImg = $('#weather_img');
+                    var imgSrc = $weatherImg.attr("src");
+                    imgSrc = imgSrc.replace(imgSrc.substring(imgSrc.indexOf("img_weather"), imgSrc.lastIndexOf(".")), "img_weather_" + data.resultData.weatherCd);
+
+                    $weatherImg.attr({
+                        src: imgSrc,
+                        alt: data.resultData.weather
+                    });
+                }
+            });
+        }
+        /*
+        $(window).on('load',function(){
+        	//$('.visual_top').addClass('active');
+        	$('.visual_top .bg').animate({'height':'100%'},3000);
+        });*/
+    </script>
+    
+</head>
+<form name="mainUrlForm" id="mainUrlForm">
+	<input type="hidden" name="COM_CD"   id="COM_CD"   value="J35">
+	<input type="hidden" name="COM_NAME" id="COM_NAME" value="스카이밸리">
+	<input type="hidden" name="COM_URL"  id="COM_URL"  value="skyvalley">
+</form>	
+
+<form name="frmGreenSpeed" id="frmGreenSpeed">
+	<input type="hidden" name="companyCd"   id="mainCompanyCd"   value="">
+</form>	 
+
+<body>
+	
+    <div class="lds-ring"><div></div><div></div><div></div><div></div></div>
+    <div id="wrapper">
+        <!-- SkipNav -->
+        <div id="skipNav">
+            <a href="#gnb">주요 메뉴 바로가기</a>
+            <a href="#content">컨텐트 바로가기</a>
+        </div>
+        <!-- //SkipNav -->
+        
+        
+        <!-- 
+        <div class="right_area">
+            <a href="#sec0" class="btn right_btn right_menu aside-menu-open full" aria-controls="asideMenu" aria-expanded="false"><span><i class="ico ico-menu white"></i>메뉴</span></a>
+            <a href="/board/notice" class="btn right_btn right_notice"><span><i class="ico ico-notice white"></i>공지사항</span></a>
+            <a href="/reservation/golf" class="btn right_btn right_res"><span><i class="ico ico-res white"></i>실시간예약</span></a>
+        </div>
+ 		-->
+ 		
+        <!-- header -->
+        
+			
+
+
+
+
+
+
+        <!-- Header -->
+        
+        <!--LNB-->
+        <div id="header" tabindex="0">
+            <h1><a href="/skyvalley/main"><img src="/static/pc/origin/resources/w/img/h1_logo.png" alt="SKY VALLEY | 스카이 벨리" /></a></h1>
+            <div class="lnb_menu">
+                <a href="#menu" class="btn_menu">
+				<span><em>메뉴</em><span class="blind">열기</span></span>
+			</a>
+                <a href="#" class="btn_close">
+				<span class="blind">메뉴</span><em>CLOSE</em>
+			</a>
+            </div>
+            <h2 class="blind">주 메뉴 영역</h2>
+            <ul id="gnb">
+                <li><a href="/skyvalley/reservation/golf"><img src="/static/pc/origin/resources/w/img/btn/gnb_01.png" alt="예약"></a></li>
+                
+                
+               		
+					
+						<li><a href="/skyvalley/member/login"><img src="/static/pc/origin/resources/w/img/btn/gnb_02.png" alt="로그인"></a></li>
+                         	
+                  
+                
+                
+                <li><a href="/skyvalley/swp/charge"><img src="/static/pc/origin/resources/w/img/btn/gnb_03.png" alt="요금"></a></li>
+                <li><a href="/skyvalley/swp/location"><img src="/static/pc/origin/resources/w/img/btn/gnb_04.png" alt="위치"></a></li>
+            </ul>
+            <ul class="condition">
+                <li class="weather" onclick="location.href='/skyvalley/board/middleWeather';" style="cursor:pointer;">
+                    <em>Today <span class="blind">날씨</span></em>
+                    <img id="weather_img" src="/static/pc/images/common/temp.png" alt="날씨">
+                    <strong id="weather_temp"></strong>
+                </li>
+                
+                
+                <li class="green_speed"><span id="greenName">그린 스피드</span><strong id="greenSpeed"></strong></li>
+                <li class="green_speed"><span id="greenName2"></span><strong id="greenSpeed2"></strong></li>
+                
+                <li><h1 class="egic"><a href="https://www.egic.co.kr/" target="_blank"><img src="/static/pc/images/common/egic_logo.png" alt="엔지니어링공제조합"></a></h1></li>
+            </ul>
+        </div>
+        <!--//LNB-->
+
+        <!--FULL MENU(GNB)-->
+        <div class="menu_layer" id="menu">
+            <h2 class="blind">전체메뉴</h2>
+            <div class="menu_cont">
+                <div class="user_area">
+                	
+                		
+						
+							<a href="/skyvalley/member/login" class="btn_login">로그인</a>
+	                    	<a href="/skyvalley/member/joinStep1" class="btn_join">회원가입</a>   	
+	                         	
+	                    
+                </div>
+				
+				
+				
+				
+				<ul>
+					
+						
+						
+						
+							
+								
+									<li>
+										<a href="/skyvalley/swp/intro">스카이밸리</a>
+	                        			<ul>
+								
+								
+								
+							
+							
+								
+									
+								
+								
+							
+							
+						
+					
+						
+						
+						
+							
+								
+								
+									
+										
+					                    
+					                    
+					                    	<li><a href="/skyvalley/swp/intro">스카이밸리 소개</a></li>
+					                    
+										
+								
+								
+							
+							
+								
+								
+									
+	    						
+							
+							
+						
+					
+						
+						
+						
+							
+								
+								
+									
+										
+					                    
+					                    
+					                    	<li><a href="/skyvalley/swp/ceo">인사말</a></li>
+					                    
+										
+								
+								
+							
+							
+								
+								
+									
+	    						
+							
+							
+						
+					
+						
+						
+						
+							
+								
+								
+									
+										
+					                    
+					                    
+					                    	<li><a href="/skyvalley/swp/ethics">윤리헌장 및 강령</a></li>
+					                    
+										
+								
+								
+							
+							
+								
+								
+									
+	    						
+							
+							
+						
+					
+						
+						
+						
+							
+								
+								
+									
+										
+					                    
+					                    
+					                    	<li><a href="/skyvalley/swp/location">오시는길</a></li>
+					                    
+										
+								
+								
+							
+							
+								
+								
+									
+	    						
+							
+							
+						
+					
+						
+						
+						
+							
+								
+								
+									
+										
+					                    
+					                    
+					                    	<li><a href="/skyvalley/board/middleWeather">기상정보</a></li>
+					                    
+										
+								
+								
+							
+							
+								
+								
+									
+	    						
+							
+							
+						
+					
+						
+								</ul>
+                    		</li>
+						
+						
+						
+							
+								
+									<li>
+										<a href="/skyvalley/swp/course_intro">코스소개</a>
+	                        			<ul>
+								
+								
+								
+							
+							
+								
+									
+								
+								
+							
+							
+						
+					
+						
+						
+						
+							
+								
+								
+									
+										
+					                    
+					                    
+					                    	<li><a href="/skyvalley/swp/course_intro">코스개요</a></li>
+					                    
+										
+								
+								
+							
+							
+								
+								
+									
+	    						
+							
+							
+						
+					
+						
+						
+						
+							
+								
+								
+									
+										
+					                    
+					                    
+					                    	<li><a href="/skyvalley/swp/sky_course">스카이 코스</a></li>
+					                    
+										
+								
+								
+							
+							
+								
+								
+									
+	    						
+							
+							
+						
+					
+						
+						
+						
+							
+								
+								
+									
+										
+					                    
+					                    
+					                    	<li><a href="/skyvalley/swp/valley_course">밸리 코스</a></li>
+					                    
+										
+								
+								
+							
+							
+								
+								
+									
+	    						
+							
+							
+						
+					
+						
+						
+						
+							
+								
+								
+									
+										
+					                    
+					                    
+					                    	<li><a href="/skyvalley/swp/lake_course">레이크 코스</a></li>
+					                    
+										
+								
+								
+							
+							
+								
+								
+									
+	    						
+							
+							
+						
+					
+						
+						
+						
+							
+								
+								
+									
+										
+					                    
+					                    
+					                    	<li><a href="/skyvalley/swp/mountain_course">마운틴 코스</a></li>
+					                    
+										
+								
+								
+							
+							
+								
+								
+									
+	    						
+							
+							
+						
+					
+						
+						
+						
+							
+								
+								
+									
+										
+					                    
+					                    
+					                    	<li><a href="/skyvalley/golfContents/hioBoard">명예의전당</a></li>
+					                    
+										
+								
+								
+							
+							
+								
+								
+									
+	    						
+							
+							
+						
+					
+						
+								</ul>
+                    		</li>
+						
+						
+						
+							
+								
+									<li>
+										<a href="/skyvalley/swp/club_house">클럽하우스</a>
+	                        			<ul>
+								
+								
+								
+							
+							
+								
+									
+								
+								
+							
+							
+						
+					
+						
+						
+						
+							
+								
+								
+									
+										
+					                    
+					                    
+					                    	<li><a href="/skyvalley/swp/front">프론트 · 로비</a></li>
+					                    
+										
+								
+								
+							
+							
+								
+								
+									
+	    						
+							
+							
+						
+					
+						
+						
+						
+							
+								
+								
+									
+										
+					                    
+					                    
+					                    	<li><a href="/skyvalley/swp/restaurant">레스토랑</a></li>
+					                    
+										
+								
+								
+							
+							
+								
+								
+									
+	    						
+							
+							
+						
+					
+						
+						
+						
+							
+								
+								
+									
+										
+					                    
+					                    
+					                    	<li><a href="/skyvalley/swp/banquet">연회장</a></li>
+					                    
+										
+								
+								
+							
+							
+								
+								
+									
+	    						
+							
+							
+						
+					
+						
+						
+						
+							
+								
+								
+									
+										
+					                    
+					                    
+					                    	<li><a href="/skyvalley/swp/locker">락커 · 스파</a></li>
+					                    
+										
+								
+								
+							
+							
+								
+								
+									
+	    						
+							
+							
+						
+					
+						
+						
+						
+							
+								
+								
+									
+										
+					                    
+					                    
+					                    	<li><a href="/skyvalley/swp/proshop">프로샵</a></li>
+					                    
+										
+								
+								
+							
+							
+								
+								
+									
+	    						
+							
+							
+						
+					
+						
+								</ul>
+                    		</li>
+						
+						
+						
+							
+								
+									<li>
+										<a href="/skyvalley/swp/gardenheim">가든하임</a>
+	                        			<ul>
+								
+								
+								
+							
+							
+								
+									
+								
+								
+							
+							
+						
+					
+						
+						
+						
+							
+								
+								
+									
+										
+					                    
+					                    
+					                    	<li><a href="/skyvalley/swp/gardenheim">인포메이션</a></li>
+					                    
+										
+								
+								
+							
+							
+								
+								
+									
+	    						
+							
+							
+						
+					
+						
+						
+						
+							
+								
+								
+									
+										
+					                    
+					                    
+					                    	<li><a href="/skyvalley/swp/gardenheim_sky">스카이빌리지</a></li>
+					                    
+										
+								
+								
+							
+							
+								
+								
+									
+	    						
+							
+							
+						
+					
+						
+						
+						
+							
+								
+								
+									
+										
+					                    
+					                    
+					                    	<li><a href="/skyvalley/swp/gardenheim_valleyA">밸리빌리지 A</a></li>
+					                    
+										
+								
+								
+							
+							
+								
+								
+									
+	    						
+							
+							
+						
+					
+						
+						
+						
+							
+								
+								
+									
+										
+					                    
+					                    
+					                    	<li><a href="/skyvalley/swp/gardenheim_valleyB">밸리빌리지 B</a></li>
+					                    
+										
+								
+								
+							
+							
+								
+								
+									
+	    						
+							
+							
+						
+					
+						
+								</ul>
+                    		</li>
+						
+						
+						
+							
+								
+									<li>
+										<a href="/skyvalley/swp/use_guide">이용가이드</a>
+	                        			<ul>
+								
+								
+								
+							
+							
+								
+									
+								
+								
+							
+							
+						
+					
+						
+						
+						
+							
+								
+								
+									
+										
+					                    
+					                    
+					                    	<li><a href="/skyvalley/swp/use_guide">이용안내</a></li>
+					                    
+										
+								
+								
+							
+							
+								
+								
+									
+	    						
+							
+							
+						
+					
+						
+						
+						
+							
+								
+								
+									
+										
+					                    
+					                    
+					                    	<li><a href="/skyvalley/swp/charge">요금안내</a></li>
+					                    
+										
+								
+								
+							
+							
+								
+								
+									
+	    						
+							
+							
+						
+					
+						
+						
+						
+							
+								
+								
+									
+										
+					                    
+					                    
+					                    	<li><a href="/skyvalley/swp/reserve_guide">예약안내</a></li>
+					                    
+										
+								
+								
+							
+							
+								
+								
+									
+	    						
+							
+							
+						
+					
+						
+								</ul>
+                    		</li>
+						
+						
+						
+							
+								
+									<li>
+										<a href="/skyvalley/board/notice">고객센터</a>
+	                        			<ul>
+								
+								
+								
+							
+							
+								
+									
+								
+								
+							
+							
+						
+					
+						
+						
+						
+							
+								
+								
+									
+										
+					                    
+					                    
+					                    	<li><a href="/skyvalley/board/notice">공지사항</a></li>
+					                    
+										
+								
+								
+							
+							
+								
+								
+									
+	    						
+							
+							
+						
+					
+						
+						
+						
+							
+								
+								
+									
+										
+					                    
+					                    
+					                    	<li><a href="/skyvalley/board/event">이벤트</a></li>
+					                    
+										
+								
+								
+							
+							
+								
+								
+									
+	    						
+							
+							
+						
+					
+						
+						
+						
+							
+								
+								
+									
+										
+					                    
+					                    
+					                    	<li><a href="/skyvalley/swp/pds">자료실</a></li>
+					                    
+										
+								
+								
+							
+							
+								
+								
+									
+	    						
+							
+							
+						
+					
+						
+						
+						
+							
+								
+								
+									
+										
+					                    
+					                    
+					                    	<li><a href="/skyvalley/board/photo">포토갤러리</a></li>
+					                    
+										
+								
+								
+							
+							
+								
+								
+									
+	    						
+							
+							
+						
+					
+						
+						
+						
+							
+								
+								
+									
+										
+					                    
+					                    
+					                    	<li><a href="/skyvalley/board/info">입찰정보</a></li>
+					                    
+										
+								
+								
+							
+							
+								
+								
+									
+	    						
+							
+							
+						
+					
+						
+								</ul>
+                    		</li>
+						
+						
+							
+						
+					
+						
+						
+							
+						
+					
+						
+						
+							
+						
+					
+						
+						
+							
+						
+					
+						
+								</ul>
+                    		</li>
+						
+						
+							
+						
+					
+						
+						
+							
+						
+					
+						
+						
+							
+						
+					
+						
+						
+							
+						
+					
+						
+						
+							
+						
+					
+						
+								</ul>
+                    		</li>
+						
+						
+							
+						
+					
+						</ul>
+					</li>
+				</ul>
+				
+                <div class="book_info">
+                    <dl>
+                        <dt>대표번호 : 031)880-8800</dt>
+                        <!-- dd>회원권 문의 031)880-8817</dd-->
+                    </dl>
+					<a href="/skyvalley/reservation/golf">실시간 예약</a>
+                </div>
+                <a href="#" class="btn_close"><span class="blind">메뉴 레이어 닫기</span></a>
+            </div>
+        </div>
+        <!--//FULL MENU(GNB)-->
+        
+        
+			
+			
+			
+		
+		<script>
+		// 확인 버튼
+			$('#fnButton').click(function(){
+				$("#agreeYn").val("Y");
+				$.ajax({
+				    type: 'POST',
+				    url: '/myContents/memberTermsSubmit',
+				    dataType:'json',
+				    data:$('#termsForm').serialize(),
+				    success: function(response, status) {
+				    	alert(response.returnMsg);
+						if(response.success == 'S'){
+							location.href = "/skyvalley" + response.returnURL;
+						}
+					},
+					error:function(request,status,error) {
+						alert('로그인 처리중 오류가 발생하였습니다.');
+						return;
+					}
+				});
+			    
+			});
+			$('#fnLogOut').click(function(){
+				location.href = "/skyvalley/member/logout";
+			});
+		</script>
+		<form name="termsForm" id="termsForm" method="POST" action="">
+			<input type="hidden" name="agreeYn" id="agreeYn" />
+		</form>
+			
+        <!--// header -->
+
+        <!-- container -->
+        
+
+
+
+
+
+
+<script>
+include_css.head('main');
+include_js.head('main');
+
+$(function(){
+	hioInit();
+
+	//로그인 쿠키 초기설정
+    cookieLoginInit('rememberId','usrId');
+    cookieLoginInit('rememberPwd','usrPwd');
+	
+	// 패스워드 엔터키 이벤트
+	$('#usrPwd').keydown(function(){
+		if(event.keyCode == 13 ) {
+			fnLogin.click();
+	    }
+	});
+
+	// 로그인처리
+	$('#fnLogin').click(function(){
+
+		// 체크
+		if($('#usrId').val() == ''){
+			alert('아이디를 입력하십시요.');
+			$("#usrId").focus();
+			return;
+		}else if($('#usrPwd').val() == ''){
+			alert('비밀번호를 입력하십시요.');
+			$("#usrPwd").focus();
+			return;
+		}
+		
+		//로그인 쿠키세팅
+		cookieLoginSet('rememberId',  'usrId',7);
+		cookieLoginSet('rememberPwd','usrPwd',7);
+		
+		$.ajax({
+		    type: 'POST',
+		    url: '/member/loginChk',
+		    dataType:'json',
+		    data:$('#mainForm').serialize(),
+		    success: function(response, status) {
+		    	alert(response.returnMsg);
+				if(response.success == 'S'){
+					location.href = response.returnURL;
+				}
+			},
+			beforeSend: function () {
+				if ($('.lds-ring').length) {  
+					setTimeout(function() {
+						$('.lds-ring').removeClass('dp-none');
+					}, 500);        
+				}
+			},
+			complete: function () {
+				if ($('.lds-ring').length) {  
+					setTimeout(function() {
+						$('.lds-ring').addClass('dp-none');
+					}, 500);        
+				}
+			},
+			error:function(request,status,error) {
+				alert('로그인 처리중 오류가 발생하였습니다.');
+				return;
+			}
+		});
+	    
+	});
+});
+
+// 기본세팅
+function hioInit(){
+	popCookieInit();
+}
+
+// 1일동안 열지 않기 - get
+function popCookieInit(){
+	var popCnt = 0;
+	
+		// noPop 인 div close 처리
+		if('noPop' == getCookie('main_popup-1115')){
+			ui_custom.popup_img.close_img('main_popup-1115');
+		}else{
+			popCnt++;
+		}
+	
+		// noPop 인 div close 처리
+		if('noPop' == getCookie('main_popup-1113')){
+			ui_custom.popup_img.close_img('main_popup-1113');
+		}else{
+			popCnt++;
+		}
+	
+
+	if(popCnt > 0){
+		$('#popDiv').show();
+	}
+}
+
+// 1일동안 열지 않기 - set
+function popCookie(seq){
+	// seq(ex:main_popup-288) 이름의 Div 1일동안 noPop이란 값을 쿠키저장
+	setCookie(seq, 'noPop', '1');
+}
+
+</script>
+
+<form name="mainForm" id="mainForm" method="POST" action="">
+        
+		
+        <!-- Container -->
+        <div class="container" id="content">
+            <!-- Content -->
+            <div id="mainContents" tabindex="0">
+                <h2 class="blind">본문 내용 영역</h2>
+                <div class="mainSlide">
+                    <ul class="main-pagination">
+                        <li data-menuanchor="visual" class="active"><a href="#visual"><span class="blind">본문 비쥬얼 영역</span></a></li>
+                        <!--li data-menuanchor="event"><a href="#event"><span class="blind">본문 이벤트 영역</span></a></li-->
+                        <li data-menuanchor="course"><a href="#course"><span class="blind">본문 코스소개 영역</span></a></li>
+                        <li data-menuanchor="club"><a href="#club"><span class="blind">본문 클럽하우스 컨텐츠 영역</span></a></li>
+                        <li data-menuanchor="restaurant"><a href="#restaurant"><span class="blind">본문 레스토랑 컨텐츠 영역</span></a></li>
+                        <li data-menuanchor="notice"><a href="#notice"><span class="blind">본문 공지사항 영역</span></a></li>
+                    </ul>
+                    <div class="main_container">
+                        
+                        <div id="visual_section" class="main_slide01 section">
+                            <h3 class="blind">본문 비쥬얼 영역</h3>
+                            <div class="main_visual main_vd">
+                                <video preload="auto" autoplay="autoplay" loop="loop" id="mainVd">
+                            <source src="/static/pc/origin/files/multiBbs/movies/summer.mp4" type="video/mp4" alt="스카이밸리 가을 영상">
+                        </video>
+                                <form name="reserveForm" id="reserveForm" action="/reservation/reservation" method="get">
+                                    <input type="hidden" name="fadmDate" id="fadmDate" value="" />
+                                    <input type="hidden" name="fcbmBu" id="fcbmBu" value="" />
+                                    <div class="main_reservatioin">
+                                    	<a href="/skyvalley/reservation/golf" class="btn_book">실시간 예약</a>
+                                    
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="mv_scrolldown scrolling"><a href="#course"><span class="blind">스크롤 다운</span></a></div>
+                            <!-- 팝업 -->
+                            <div id="popDiv" class="popupct" style="display: none;">
+                            
+                                <div id="main_popup-1115" class="popup-wrap type-basic main popup_imgst" role="dialog">
+                                    <!--쿠키-->
+                                    <div class="cookie">                
+                                        <span class="check demo1">
+                                            <input type="checkbox" name="cookie-1115" id="cookie-1115" onclick="popCookie('main_popup-1115');" value="cookie_chk" class="cookie_chk">
+                                            <label for="cookie-1115"><span>1일동안 열지 않기</span></label><!--input id와 label for 동일하게 cookie-01 -->
+                                        </span>                
+                                    </div>
+                                    <!--//쿠키-->
+                                    
+                                        
+                                            <a href="/skyvalley/board/boardDetail?boardCode=EVENT&boardPostSeq=1114"><img src='/static/J35/POPUP_MAIN/20260715095713_2710.jpg' class="txt-align_c" alt="무더운 여름, 라운드 중 시원한 아이스크림으로 더위를 날리세요" /></a>
+                                        
+                                        
+                                    
+                                    <div class="popup-close">
+                                        <button type="button" class="ico ico-close1 gray btn_close" onclick="ui_custom.popup_img.close_img('main_popup-1115')"><span>닫기</span></button>
+                                    </div>
+                                </div>
+                            
+                                <div id="main_popup-1113" class="popup-wrap type-basic main popup_imgst" role="dialog">
+                                    <!--쿠키-->
+                                    <div class="cookie">                
+                                        <span class="check demo1">
+                                            <input type="checkbox" name="cookie-1113" id="cookie-1113" onclick="popCookie('main_popup-1113');" value="cookie_chk" class="cookie_chk">
+                                            <label for="cookie-1113"><span>1일동안 열지 않기</span></label><!--input id와 label for 동일하게 cookie-01 -->
+                                        </span>                
+                                    </div>
+                                    <!--//쿠키-->
+                                    
+                                        
+                                            <a href="/skyvalley/board/boardDetail?boardCode=EVENT&boardPostSeq=1112"><img src='/static/J35/POPUP_MAIN/20260710133839_2706.jpg' class="txt-align_c" alt="티오프 시간 안내" /></a>
+                                        
+                                        
+                                    
+                                    <div class="popup-close">
+                                        <button type="button" class="ico ico-close1 gray btn_close" onclick="ui_custom.popup_img.close_img('main_popup-1113')"><span>닫기</span></button>
+                                    </div>
+                                </div>
+                            
+                            </div>
+                            <!-- //팝업 -->
+                        </div>
+    
+                        <!--div id="event_section" class="main_slide02 section">
+                    <h3 class="blind">본문 이벤트 영역</h3>
+                    <div class="slideType02 eventSlide active1" style="background-image:url(/resources/w/img/bg/bg_event01.jpg)"-->
+                        <!-- 첫번째 배경이미지와 동일하게 style (시작배경) -->
+                        <!--ul class="bxslider"  style="background-image:url(/resources/w/img/bg/bg_event01.jpg)">
+                            </ul>
+                    </div>
+                </div-->
+    
+                        <div id="course_section" class="main_slide02 section">
+                            <h3 class="blind">코스소개 영역</h3>
+                            <ul>
+                                <li>
+                                    <a href="/skyvalley/swp/sky_course" class="sky">
+                                        <dl>
+                                            <dt>Sky</dt>
+                                            <dd>
+                                                <span>하늘 위를 산책하는 듯한 <br>환상적인 코스</span>
+                                                <em class="btn_moreview">자세히 보기</em>
+                                            </dd>
+                                        </dl>
+                                    </a>
+                                    <a href="/skyvalley/swp/valley_course" class="valley">
+                                        <dl>
+                                            <dt>Valley</dt>
+                                            <dd>
+                                                <span>우아함과 섬세함을 살린<br>예술적인 코스</span>
+                                                <em class="btn_moreview">자세히 보기</em>
+                                            </dd>
+                                        </dl>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="/skyvalley/swp/lake_course" class="lake">
+                                        <dl>
+                                            <dt>Lake</dt>
+                                            <dd>
+                                                <span>힘든만큼 정복의 쾌감도 큰<br>도전적인 코스</span>
+                                                <em class="btn_moreview">자세히 보기</em>
+                                            </dd>
+                                        </dl>
+                                    </a>
+                                    <a href="/skyvalley/swp/mountain_course" class="mountain">
+                                        <dl>
+                                            <dt>Mountain</dt>
+                                            <dd>
+                                                <span>산과 어우러져 하나되는<br>내추럴 코스</span>
+                                                <em class="btn_moreview">자세히 보기</em>
+                                            </dd>
+                                        </dl>
+                                    </a>
+                                </li>
+                            </ul>
+                            <a href="/skyvalley/reservation/golf" class="btn_book">실시간 예약</a>
+                        </div>
+    
+                        <div id="clubhouse_section" class="main_slide03 section">
+                            <h3 class="blind">본문 클럽하우스 컨텐츠 영역</h3>
+                            <div class="slideType02 clubSlide">
+                                <ul class="bxslider">
+                                    <!-- Slides -->
+                                    <li class="clubhouse_slide01">
+                                        <div class="event_wrap">
+                                            <div class="left_img mv_img">
+                                                <div><span></span><span></span></div>
+                                            </div>
+                                            <div class="right_img mv_img">
+                                                <div><span></span><span></span></div>
+                                            </div>
+                                            <div class="event_layer">
+                                                <h4>club house</h4>
+                                                <strong>프론트ㆍ로비</strong>
+                                                <!-- 2017-09-19 -->
+                                                <p>갤러리를 옮겨 놓은 듯<br>문화와 여유가 숨쉬는 휴게공간</p>
+                                                <a href="/skyvalley/swp/front" class="btn_moreview">자세히 보기</a>
+                                            </div>
+                                        </div>
+                                        <!-- //event_wrap -->
+                                    </li>
+                                    <!-- //clubhouse_slide01 -->
+    
+                                    <li class="clubhouse_slide02">
+                                        <div class="event_wrap">
+                                            <div class="left_img mv_img">
+                                                <div><span></span><span></span></div>
+                                            </div>
+                                            <div class="right_img mv_img">
+                                                <div><span></span><span></span></div>
+                                            </div>
+                                            <div class="event_layer">
+                                                <h4>club house</h4>
+                                                <strong>연회장</strong>
+                                                <p>세미나 및 모임을 갖기에 적격인<br>인원별 맞춤공간</p>
+                                                <a href="/skyvalley/swp/banquet" class="btn_moreview">자세히 보기</a>
+                                            </div>
+                                        </div>
+                                        <!-- //event_wrap -->
+                                    </li>
+                                    <!-- //clubhouse_slide02 -->
+    
+                                    <li class="clubhouse_slide03">
+                                        <div class="event_wrap">
+                                            <div class="left_img mv_img">
+                                                <div><span></span><span></span></div>
+                                            </div>
+                                            <div class="right_img mv_img">
+                                                <div><span></span><span></span></div>
+                                            </div>
+                                            <div class="event_layer">
+                                                <h4>club house</h4>
+                                                <strong>락커·스파</strong>
+                                                <p>하루의 피로를 풀어주는<br>쾌적한 재충전의 공간</p>
+                                                <a href="/skyvalley/swp/locker" class="btn_moreview">자세히 보기</a>
+                                            </div>
+                                        </div>
+                                        <!-- //event_wrap -->
+                                    </li>
+                                    <!-- //clubhouse_slide03 -->
+    
+                                    <li class="clubhouse_slide04">
+    
+                                        <div class="event_wrap">
+                                            <div class="left_img mv_img">
+                                                <div><span></span><span></span></div>
+                                            </div>
+                                            <div class="right_img mv_img">
+                                                <div><span></span><span></span></div>
+                                                </span>
+                                            </div>
+                                            <div class="event_layer">
+                                                <h4>club house</h4>
+                                                <strong>프로샵</strong>
+                                                <p>필드 위 당신을 더욱 빛내줄<br>엄선된 특별 아이템</p>
+                                                <a href="/skyvalley/swp/proshop" class="btn_moreview">자세히 보기</a>
+                                            </div>
+                                        </div>
+                                        <!-- //event_wrap -->
+                                    </li>
+                                    <!-- //clubhouse_slide04 -->
+                                </ul>
+                            </div>
+                        </div>
+    
+                        <div id="restaurant_section" class="main_slide04 section">
+                            <h3 class="blind">본문 레스토랑 컨텐츠 영역</h3>
+                            <div class="restaurantInner">
+                                <h3>레스토랑</h3>
+                                <p>라운딩 후 체력회복을 돕는 특선요리가 준비된 곳</p>
+                                <div class="cookSlide_wrap">
+                                    <ul class="cookSlide">
+                                    	
+                                    	
+                                        <!-- <li>
+                                            <a href="javascript:void(0);">
+                                                <div class="cookSlide_card">
+                                                    <div class="cook_image">
+                                                        <img src="/static/pc/origin/files/multiBbs/20200412/file_1586639385657.jpg" alt="우거지 해장국">
+                                                    </div>
+                                                    <div class="cook_desc">
+                                                        <strong>우거지 해장국</strong>
+                                                        <p>사골 육수에 한우양지를 더해 맛을 낸 해장국</p>
+                                                    </div>
+                                                </div>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="javascript:void(0);">
+                                                <div class="cookSlide_card">
+                                                    <div class="cook_image">
+                                                        <img src="/static/pc/images/sub/restaurant/210419/menu_3.jpg" alt="가평 잣 순두부찌개">
+                                                    </div>
+                                                    <div class="cook_desc">
+                                                        <strong>가평 잣 순두부찌개</strong>
+                                                        <p>오장을 건강하게 하고 허약해진 몸을 보충하는 고소하고 부드러운 가평 잣 순두부</p>
+                                                    </div>
+                                                </div>
+                                            </a>
+                                        </li>
+                                        <li class="active">
+                                            <a href="javascript:void(0);">
+                                                <div class="cookSlide_card">
+                                                    <div class="cook_image">
+                                                        <img src="/static/pc/images/sub/restaurant/210531/menu_19.jpg" alt="깐풍새우">
+                                                    </div>
+                                                    <div class="cook_desc">
+                                                        <strong>깐풍새우</strong>
+                                                        <p>타우린이 듬뿍 함유된 새우를 중국식 소스에 볶아 버무린 요리</p>
+                                                    </div>
+                                                </div>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="javascript:void(0);">
+                                                <div class="cookSlide_card">
+                                                    <div class="cook_image">
+                                                        <img src="/static/pc/images/sub/restaurant/210531/menu_20.jpg" alt="보리굴비 정식">
+                                                    </div>
+                                                    <div class="cook_desc">
+                                                        <strong>보리굴비 정식</strong>
+                                                        <p>찜기에 쪄서 구워 쫀득하고 바삭한 맛이 일품인 보리굴비와 녹차물을 곁들인 입맛 없는 여름철 별미 식사</p>
+                                                    </div>
+                                                </div>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="javascript:void(0);">
+                                                <div class="cookSlide_card">
+                                                    <div class="cook_image">
+                                                        <img src="/static/pc/origin/files/multiBbs/20190922/file_1569123793443.jpg" alt="한우 등심 모듬 버섯전골">
+                                                    </div>
+                                                    <div class="cook_desc">
+                                                        <strong>한우 등심 모듬 버섯전골</strong>
+                                                        <p>각종 버섯과 한우가 어우러져 시원한 맛이 일품인 4인 식사</p>
+                                                    </div>
+                                                </div>
+                                            </a>
+                                        </li> -->
+                                    </ul>
+                                </div>
+                                <a href="/skyvalley/swp/restaurant" class="btn_moreview v2">전체 메뉴 보러가기</a>
+                            </div>
+                        </div>
+    
+                        <div id="notice_section" class="main_slide05 section">
+                            <h3 class="blind">본문 공지사항 영역</h3>
+                            <div class="notice_area">
+                                <h3>공지사항</h3>
+                                <ul>
+                                	
+                                        <li>
+                                        	<em>공지</em>
+                                            <a href="/skyvalley/board/boardDetail?boardCode=NOTICE&boardPostSeq=1105">
+                                           		제15회 정기주주총회 개최 공지
+
+                                            </a>
+                                            <span>2026-02-20</span>
+                                        </li>
+                                    
+                                        <li>
+                                        	<em>공지</em>
+                                            <a href="/skyvalley/board/boardDetail?boardCode=NOTICE&boardPostSeq=1100">
+                                           		주주명부 폐쇄기간 설정 공고
+
+                                            </a>
+                                            <span>2025-12-29</span>
+                                        </li>
+                                    
+                                        <li>
+                                        	<em>공지</em>
+                                            <a href="/skyvalley/board/boardDetail?boardCode=NOTICE&boardPostSeq=1075">
+                                           		티오프 시간 안내
+
+                                            </a>
+                                            <span>2025-07-15</span>
+                                        </li>
+                                    
+                                        <li>
+                                        	<em>공지</em>
+                                            <a href="/skyvalley/board/boardDetail?boardCode=NOTICE&boardPostSeq=1052">
+                                           		제 14회 (주)이지아이레저 정기주주총회 개최 공지
+
+                                            </a>
+                                            <span>2025-02-20</span>
+                                        </li>
+                                    
+                                        <li>
+                                        	<em>공지</em>
+                                            <a href="/skyvalley/board/boardDetail?boardCode=NOTICE&boardPostSeq=1048">
+                                           		분양회원 명의개서료 인상 안내
+
+                                            </a>
+                                            <span>2025-02-11</span>
+                                        </li>
+                                    
+                                    
+                                </ul>
+                            </div>
+                            
+                        </div>
+                    </div>
+                </div>
+                
+            <script>
+                $(window).on('load', function() {
+                    var mvLeft = parseInt($('.main_visual .bg').width()) - parseInt($('.mainSlide').css('width'));
+                    $('.main_visual .bg').animate({
+                        'left': -mvLeft + 'px'
+                    }, 5000);
+    
+                    //2017-09-20
+                    makeSquareImg('cook_image');
+    
+                    // 상단 슬라이드 영역이 '이미지'일 경우.
+                    if ($('.background').length > 0) {
+                        var mainImgArr = [];
+                        var mainImgIdx = 0;
+    
+    
+                        mainImgArr[mainImgIdx++] = '/files/multiBbs/20171017/file_1508202772402.jpg';
+    
+                        mainImgArr[mainImgIdx++] = '/files/multiBbs/20171017/file_1508202801465.jpg';
+    
+                        mainImgArr[mainImgIdx++] = '/files/multiBbs/20171017/file_1508202812962.jpg';
+    
+                        mainImgArr[mainImgIdx++] = '/files/multiBbs/20171012/file_1507795830822.jpg';
+    
+                        mainImgArr[mainImgIdx++] = '/files/multiBbs/20171017/file_1508202659380.jpg';
+    
+    
+                        // 		
+    
+                        //2017-09-13 상단슬라이드
+                        $(".background").fadeShow({
+                            correctRatio: true,
+                            shuffle: true,
+                            speed: 4000,
+                            images: mainImgArr
+                        });
+                    }
+    
+                    Sub.init();
+                });
+    
+                //2017-09-26
+                var Sub = (function($) {
+                    var main_reservation_date_ = function(event) {
+                        event.preventDefault();
+                        $('.date_layer').toggleClass('active');
+                        if ($('.date_layer').hasClass('active')) {
+                            $('.time_layer').removeClass('active');
+                        }
+                    };
+    
+                    var main_reservation_time_ = function(event) {
+                        event.preventDefault();
+                        $('.time_layer').toggleClass('active');
+                        if ($('.time_layer').hasClass('active')) {
+                            $('.date_layer').removeClass('active');
+                        }
+                    };
+    
+                    return {
+                        init: function() {
+                            $('.main_reservatioin .select_date a').on('click.main_reservation_date_', main_reservation_date_);
+                            $('.main_reservatioin .select_time a').on('click.main_reservation_time_', main_reservation_time_);
+                            $('#timeClose').on('click.main_reservation_time_', main_reservation_time_);
+                        }
+                    };
+                }(jQuery));
+                var scroll_position = $('.main_visual .scrolling').css('background-position-x');
+                if (typeof scroll_position == 'undefined') {
+                    scroll_position = '0px';
+                }
+                var scroll_num = Number(scroll_position.replace('px', ''));
+    
+                function scroll_auto() {
+                    if (scroll_num >= -1885) {
+                        var position_auto = setInterval(function() {
+                            scroll_num -= 65;
+                            $('.scrolling').css('background-position-x', scroll_num + 'px');
+                            if (scroll_num < -1885) {
+                                scroll_num = 0;
+                            }
+                        }, 50)
+                    }
+                }
+                scroll_auto();
+    
+                function makeSquareImg(img_wrap_class) {
+                    var wrap_class = '.' + img_wrap_class,
+                        img_wrap = $(wrap_class),
+                        num = img_wrap.length;
+    
+                    for (i = 0; i < num; i++) {
+                        var _img = img_wrap.eq(i).find('img'),
+                            _w = _img.width(),
+                            _h = _img.height(),
+                            ratio = _w / _h;
+    
+                        if (ratio >= 1) {
+                            _img.addClass('type_landscape');
+                        } else {
+                            _img.addClass('type_portrait');
+                        }
+                    }
+                }
+    
+    
+                $(document).ready(function() {
+                    $('.mainSlide .main_container').fullpage({
+                        /*anchors:['visual', 'event', 'course', 'club', 'restaurant', 'notice'],*/
+                        anchors: ['visual', 'course', 'club', 'restaurant', 'notice'],
+                        menu: '.main-pagination',
+                        afterLoad: function(anchorLink, index) {
+                            var loadedSection = $(this);
+                            if (index == 1) {
+                                if ($(".main_visual").hasClass("main_vd")) {
+                                    var vd = document.getElementById('mainVd');
+                                    vd.muted = true;
+                                    vd.play();
+                                }
+                                $("#footer").removeClass("main");
+                            }
+                            if(index == 2){
+                                $("#footer").removeClass("main");
+                            }
+                            if(index == 3){
+                                $("#footer").removeClass("main");
+                            }
+                            if(index == 4){
+                                $("#footer").removeClass("main");
+                            }
+                            if(index == 5){
+                                $("#footer").addClass("main");
+                            }
+                        },
+                        keyboardScrolling: false
+                    });
+    
+                    if (!$(".main_visual").hasClass("main_vd")) {
+                        $('#slider1').bxSlider({
+                            mode: 'fade',
+                            auto: true,
+                            autoControls: false,
+                            pause: 2000,
+                            pager: false,
+                            controls: false
+                        });
+                    }
+    
+                    $(".btn_layer_pop").on('click', function() {
+                        $.fn.fullpage.setAllowScrolling(false);
+                    });
+    
+                    $('.slideType02.eventSlide .bxslider').bxSlider({
+                        mode: 'fade',
+                        keyboardEnabled: true,
+                        infiniteLoop: true,
+                    });
+                    $('.slideType02.clubSlide .bxslider').bxSlider({
+                        mode: 'fade',
+                        speed: 0,
+                        keyboardEnabled: true,
+                        infiniteLoop: true
+                    });
+                    $('.cookSlide_wrap .cookSlide li a').click(function(e) {
+                        e.preventDefault();
+                        var selItem = $(this).closest('li');
+                        var idx = selItem.index();
+                        $('.cookSlide_wrap .cookSlide li').removeClass('active');
+    
+                        selItem.addClass('active');
+                    });
+    
+                    // 시간 셀렉박스 선택
+                    $("[name='fcbmTime']").click(function() {
+                        $("#fcbmBu").val($(this).val());
+                        $("#selectedTime").text($(this).next().find("span").text());
+                        //$(".time_layer").removeClass("active");
+                    });
+    
+                    // 캘린더 가져오기
+                    //getCalendar("2021-01-21");
+    
+                    // 모바일 버전 보기
+                    if (cookieManager.getCookie("VIEW")) {
+                        $(".mobile_view").show();
+                    }
+    
+                    // 스크롤 버튼
+                    $(".mv_scrolldown").on("click", function() {
+                        $.fn.fullpage.moveTo('event', 1);
+                    });
+
+                    if(window.navigator.userAgent.toLowerCase().indexOf("chrome") > 0) {
+                        $("body").on("mousedown", ".bx-viewport a", function() { 
+                            if($(this).attr("href") && $(this).attr("href") != "#") {
+                                window.location=$(this).attr("href"); 
+                            } 
+                        }); 
+                    }
+                });
+    
+                //캘린더 가져오기
+                function getCalendar(date) {
+                    $.ajax({
+                        type: "POST",
+                        url: "/reservation/calendarAjax",
+                        data: {
+                            change_date: date
+                        },
+                        dataType: "html",
+                        success: function(data) {
+                            $(".date_layer").html(data);
+    
+                            //today 클래스 표시
+                            $(".tbl_calendar td").each(function() {
+                                if ($(this).data("date") == date)
+                                    $(this).addClass("td_today");
+                            });
+    
+                            $("#btn_month_prev").focus();
+                        },
+                        error: function(error) {
+                            alert("다시 시도해주세요.");
+                        }
+                    });
+                }
+    
+                //캘린더 날짜 선택
+                /*
+                 * fadmDate : 선택 날짜
+                 * dateGubun : 날짜 구분 (1:평일, 2:토요일, 3:일요일, 4:공휴일, 5:회원의날, 9:휴장일)
+                 */
+                function goSelected(fadmDate, dateGubun) {
+                    if (fadmDate == "") {
+                        if (dateGubun == "closed")
+                            alert("예약이 마감되었습니다.");
+                        else
+                            alert("예약이 불가합니다.");
+                        return;
+                    }
+    
+                    $("#fcbmTime").val("");
+                    $("#fadmDate").val(fadmDate);
+                    $("#dateGubun").val(dateGubun);
+    
+    
+                    $("#selectedDate").text(fadmDate);
+                    $(".date_layer").removeClass("active");
+                    // 시간 셀렉박스 디폴트
+                    $("#fcbmTimeAll").trigger("click");
+    
+                }
+    
+                //예약 유효성 검사
+                function goReserveChk(callback) {
+                    $.ajax({
+                        type: "POST",
+                        url: "/reservation/reserveChkAjax",
+                        data: {
+                            fadmDate: $("#fadmDate").val(),
+                            fcbmTime: $("#fcbmTime").val()
+                        },
+                        dataType: "json",
+                        success: function(data) {
+                            if (data.status != "success") {
+                                alert(data.resultData);
+                                return;
+                            }
+    
+                            if (jQuery.isFunction(callback))
+                                callback();
+                        },
+                        error: function(error) {
+                            alert("다시 시도해주세요.");
+                        }
+                    });
+                }
+    
+                //예약 검색 버튼 클릭 시
+                //파라미터 달고 예약 페이지로 이동
+                function getCourseList() {
+                    if ($("#fadmDate").val() == "") {
+                        alert("날짜를 선택해주세요.");
+                        return;
+                    }
+                    if ($("#fcbmBu").val() == "") {
+                        alert("시간을 선택해주세요.");
+                        return;
+                    }
+                    $("#reserveForm").submit();
+                }
+    
+                function closePopup(dispIdx) {
+                    var noShowIdx = $('#noShowPopupChk' + dispIdx + ':checked').val();
+                    if (typeof noShowIdx != 'undefined') {
+                        var cookiesStr = cookieManager.getCookie('NO_SHOW_POPUP');
+                        cookiesStr += (cookiesStr == '') ? noShowIdx : ',' + noShowIdx;
+                        cookieManager.setCookie('NO_SHOW_POPUP', cookiesStr, 1); // 하루동안 보지 않기 기능
+                    }
+    
+                    $('#popup' + dispIdx).hide();
+                }
+            </script>
+            <!-- //Content -->
+        </div>
+        <!-- //Container -->
+</form>        
+        
+        <!--// container-->
+
+        <!-- footer -->
+        
+        	
+
+
+
+
+
+
+
+<div id="footer" tabindex="0">
+    <h2 class="blind">푸터 영역</h2>
+    <div class="footmenu">
+        <ul>
+            <li><a href="javascript:void(0);" class="fpop" id="btn_pop_term4" data-popup="pop_term4">이용약관</a></li>
+            <li><a href="javascript:void(0);" class="fpop" id="btn_pop_term3" data-popup="pop_term3"><em>개인정보처리방침</em></a></li>
+            <!--<li><a href="http://www.ftc.go.kr/info/bizinfo/communicationView.jsp?apv_perm_no=2009411000930200053&area1=&area2=&currpage=1&searchKey=01&searchVal=태성관광&stdate=&enddate=" target="_blank" title="새 창 열림">사업자정보확인</a></li>-->
+            <li><a href="javascript:void(0);" class="fpop" id="btn_pop_term5" data-popup="pop_term5">영상정보처리기기 운영·관리 방침</a></li>
+        </ul>
+        <dl>
+            <dt><a href="#"  class="btn-fs">Family Site<span></span></a></dt>
+            <!-- 2017-09-19 -->
+            <dd class="fs_list" style="display:none;">
+                <ul>
+                    <!--
+            <li><a href="http://www.ihoban.co.kr/" target="_blank" title="새 창 열림">호반건설</a></li>
+            <li><a href="http://www.hobanapt.co.kr/" target="_blank" title="새 창 열림">베르디움</a></li>
+            <li><a href="http://www.ikbc.co.kr/jw_main/" target="_blank" title="새 창 열림">KBC 광주방송</a></li>
+            <li><a href="http://www.avenuefrance.co.kr/" target="_blank" title="새 창 열림">아브뉴프랑</a></li>
+            <li><a href="http://www.pacificland.co.kr/" target="_blank" title="새 창 열림">퍼시픽 랜드</a></li>
+            <li><a href="http://cornerstonepartners.co.kr/main/main.asp" target="_blank" title="새 창 열림">코너스톤투자파트너스</a></li>
+            <li><a href="http://hobanfoundation.or.kr/" target="_blank" title="새 창 열림">호반건설 사회공헌국</a></li>
+            <li><a href="http://golf.ihoban.co.kr" target="_blank" title="새 창 열림">호반건설 골프단</a></li>
+            <li><a href="http://golfwaikele.com/" target="_blank" title="새 창 열림">WAIKELE CC</a></li>
+            -->
+                    <li><a href="https://www.egic.co.kr/" target="_blank" title="새 창 열림">엔지니어링공제조합</a></li>
+                    <!-- <li><a href="/hilldeloci/main" target="_blank" title="새 창 열림">힐드로사이CC</a></li> -->
+                </ul>
+            </dd>
+        </dl>
+    </div>
+    <div class="bottomarea">
+        <!-- //0828 문구 수정 (s) -->
+        <address>
+    <p>
+        <span><strong>주식회사 이지아이레저</strong>   대표이사 : 이소미</span>
+    </p>
+    <p>
+        <span><strong>스카이밸리CC</strong> 주소 : 경기도 여주시 북내면 운촌길 254 (운촌리 산68번지)</span>
+        <span>TEL: 031 ) 880 - 8800</span>
+        <span>FAX : 031 ) 880 - 8899</span>
+    </p>
+    <p>
+        <!-- <span>개인정보 책임자 : 김석진</span> -->
+        <span>개인정보 책임자 : 이연호</span>
+        <!-- 변경 예정
+        <span>사업자번호 : 120-81-16218</span> -->
+        <!-- span>사업자번호 : 104-85-32441</span-->
+        <span>사업자번호 : 116-81-51287</span>
+        <!-- 변경 예정
+        <span>통신판매업신고번호 : 2009-경기여주-0053</span> -->
+        <span>통신판매업신고번호 : 2021-경기여주-0190</span>
+    </p>
+    <p class="copyright">COPYRIGHT ⓒ 2017 SKY VALLEY CLUB. ALL RIGHT RESERVED.</p>
+</address>
+        <!-- //0828 문구 수정 (e) -->
+        <!--<div class="mark">
+        <a title="새창" href="http://www.wa.or.kr/board/list.asp?BoardID=0006" target="_blank"><img src="/static/pc/origin/resources/w/img/wa_mark.png" alt="(사)한국장애인단체총연합회 한국웹접근성인증평가원 웹 접근성 우수사이트 인증마크(WA인증마크)" /></a>
+    </div>-->
+    </div>
+
+    <div class="mobile_view" style="display:none;"><a href="?VIEW=MOBILE">모바일 버전 보기</a></div>
+    <a href="#none" class="btn_top basic"><img src="/static/pc/origin/resources/w/img/btn/btn_top.gif" alt="페이지 상단으로 이동"></a>
+    <div class="pop_layer terms_layer layer_type type-basic footer" id="pop_term3" tabindex="0">
+        <div class="pop_wrap wide">
+            <h3>개인정보처리방침</h3>
+            <div id="pop_term3_content" class="pop_content popup-cont"></div>
+            <a href="javascript:void(0);" class="btn_close ico">레이어닫기</a>
+        </div>
+    </div>
+    
+    <div class="pop_layer terms_layer layer_type type-basic footer" id="pop_term4" tabindex="0">
+        <div class="pop_wrap wide">
+            <h3>이용약관</h3>
+            <div id="pop_term4_content" class="pop_content popup-cont"></div>
+            <a href="javascript:void(0);" class="btn_close ico">레이어닫기</a>
+        </div>
+    </div>
+    <div class="pop_layer terms_layer layer_type type-basic footer" id="pop_term5" tabindex="0">
+        <div class="pop_wrap wide">
+            <h3>영상정보처리기기 운영·관리 방침</h3>
+            <div id="pop_term5_content" class="pop_content popup-cont"></div>
+            <a href="javascript:void(0);" class="btn_close ico">레이어닫기</a>
+        </div>
+    </div>
+
+</div>
+<script type="text/javascript">
+    $(document).ready(function() {
+        if (cookieManager.getCookie("VIEW")) {
+            $(".mobile_view").show();
+        }
+    });
+</script>
+<script>
+    (function(i, s, o, g, r, a, m) {
+        i['GoogleAnalyticsObject'] = r;
+        i[r] = i[r] || function() {
+            (i[r].q = i[r].q || []).push(arguments)
+        }, i[r].l = 1 * new Date();
+        a = s.createElement(o),
+            m = s.getElementsByTagName(o)[0];
+        a.async = 1;
+        a.src = g;
+        m.parentNode.insertBefore(a, m)
+    })(window, document, 'script', 'https://www.google-analytics.com/analytics.js', 'ga');
+
+    ga('create', 'UA-106186452-1', 'auto');
+    ga('send', 'pageview');
+</script>
+<script type="text/javascript" src="https://wcs.naver.net/wcslog.js"></script>
+<script type="text/javascript">
+    if (!wcs_add) var wcs_add = {};
+    wcs_add["wa"] = "4c56429479d0d4";
+    wcs_do();
+</script>
+
+<!-- 개인정보처리방침 팝업 -->
+<div id="terms-01" class="popup-wrap type-basic type01 footer" role="dialog">
+    <section class="popup demo1" tabindex="0">
+        <div class="popup-head">
+            <h3 id="popupContentTitle">개인정보취급방침</h3>
+        </div>
+        <div class="popup-body">
+            <div class="popup-cont" id="terms_in-01">
+                
+
+            </div>
+        </div>
+        <div class="popup-foot">
+            <div class="btn-area flex-center">
+                <button type="button" id="fnPopClose" class="btn demo1 secondary" onclick="ui.popup.close('terms-01')"><span>닫기</span></button>
+            </div>
+        </div>
+        <div class="popup-close">
+            <button type="button" class="btn-ico btn-close" title="팝업닫기" onclick="ui.popup.close('terms-01')"><span><i class="ico ico-close1 white">Close</i></span></button>
+        </div>
+    </section>
+</div>
+<!-- //개인정보처리방침 팝업 -->
+
+<!-- 이용약관 팝업 -->
+<div id="terms-02" class="popup-wrap type-basic type01 footer" role="dialog">
+    <section class="popup demo1" tabindex="0">
+        <div class="popup-head">
+            <h3 id="popupContentTitle">이용약관</h3>
+        </div>
+        <div class="popup-body">
+            <div class="popup-cont" id="terms_in-02">
+                
+
+            </div>
+        </div>
+        <div class="popup-foot">
+            <div class="btn-area flex-center">
+                <button type="button" id="fnPopClose" class="btn demo1 secondary" onclick="ui.popup.close('terms-02')"><span>닫기</span></button>
+            </div>
+        </div>
+        <div class="popup-close">
+            <button type="button" class="btn-ico btn-close" title="팝업닫기" onclick="ui.popup.close('terms-02')"><span><i class="ico ico-close1 white">Close</i></span></button>
+        </div>
+    </section>
+</div>
+<!-- //이용약관 팝업 -->
+
+<!-- 이메일무단수집거부 팝업 -->
+<div id="terms-03" class="popup-wrap type-basic type01 footer" role="dialog">
+    <section class="popup demo1" tabindex="0">
+        <div class="popup-head">
+            <h3 id="popupContentTitle">인터넷 서비스 이용약관</h3>
+        </div>
+        <div class="popup-body">
+            <div class="popup-cont" id="terms_in-03">
+                
+
+            </div>
+        </div>
+        <div class="popup-foot">
+            <div class="btn-area flex-center">
+                <button type="button" id="fnPopClose" class="btn demo1 secondary" onclick="ui.popup.close('terms-03')"><span>닫기</span></button>
+            </div>
+        </div>
+        <div class="popup-close">
+            <button type="button" class="btn-ico btn-close" title="팝업닫기" onclick="ui.popup.close('terms-03')"><span><i class="ico ico-close1 white">Close</i></span></button>
+        </div>
+    </section>
+</div>
+<!-- //이메일무단수집거부 팝업 -->
+
+
+<div class="dimmer"></div>
+
+<script>
+$(function(){
+	//document.getElementById("pop_term3_content").innerHTML='<object type="text/html" data="/static/pc/agreeform/agreeform-03.html?ver=3"></object>';
+    document.getElementById("pop_term4_content").innerHTML='<object type="text/html" data="/static/pc/origin/agreeform/agreeform-01.html?ver=250122"></object>';
+    document.getElementById("pop_term5_content").innerHTML='<object type="text/html" data="/static/pc/origin/agreeform/agreeform-02.html?ver=250122"></object>';
+    $("#pop_term3_content").load("/static/pc/agreeform/agreeform-03.html?ver=260417", function(){});
+});
+</script>
+        	
+        <!--// footer -->
+    
+    </div>
+
+    
+	<!-- 로딩 div-->
+	<div id="loadingDarkDiv" style=" display:none; background-color:#f1f1f1; opacity:0.5;filter:Alpha(opacity:'30');width:100%;height:100%;top:0;left:0;position:fixed;z-index:9000;"></div>
+	<div id="loadingDiv" style=" display:none; top: 45%; left: 52%;  margin-left:-100px;z-index: 9999; border: 3px #2B97D6;position:fixed">
+		<p style="text-align: center;">
+			<img src="/static/common/images/loading_img.gif" alt="loading" />
+			<font color="#0054FF"><span id="percentage"></span></font>
+		</p>
+	</div>
+	<div id="ie_chk" class="ie_chk_area dp-none">
+		<button type="button" onclick="javascript:popHide('ie_chk')" class="btn-close"><span class="blind">현재창 닫기</span></button>
+		<div class="con">
+			<p class="tit">
+				<img src="/static/pc/images/common/ico_ie.png" alt="ie" />
+				본사이트는 <strong>Internet Explorer 11</strong>버전<br/>에 <strong class="color-01">최적화</strong> 되어 있습니다.
+			</p>
+			<span>
+				<p class="btxt">‘Explorer 11이하’ 에서는 사용이 원활하지 않을 수 있습니다.</p>
+				<p class="btxt">Internet Explorer 11은 2022년 6월 15일부터 사용 및 지원이 중지됩니다. Microsoft Edge 사용을 권장합니다.</p>
+				<p class="txt">Explorer를 최신 버전으로 업데이트 하시거나, <br /><strong class="color-01">Chrome, 네이버 Whale</strong> 등의 브라우저를 이용해 주시기 바랍니다.</p>
+				<a href="http://windows.microsoft.com/ko-kr/internet-explorer/download-ie" target="_blank" title="새창열림" class="btn-upgrade">지금 업그레이드</a>
+				<p class="chk-uclose"><input type="checkbox" name="ie_chk_close" id="ie_chk_close" onclick="popHide('ie_chk')" /><label for="ie_chk_close">일주일간 표시 안하기</label></p>
+			</span>			
+		</div>
+	</div>
+	<script type="text/javascript">
+		//익스플로러 중지 안내 활성화
+		var agt = navigator.userAgent.toLowerCase();
+		if (agt.indexOf("msie") != -1) {
+			$('#ie_chk').removeClass('dp-none');
+		}
+		
+		//ie_chk 레이어팝업 닫기
+		function popHide(pop_id){
+			//document.getElementById(pop_id).style.display = "none";
+			$("#"+pop_id).hide(1000);
+		}
+	
+	</script>
+</body>
+</html>

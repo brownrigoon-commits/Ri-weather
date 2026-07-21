@@ -1,0 +1,522 @@
+ 
+
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=2.0,minimum-scale=1.0,target-densitydpi=medium-dpi" />
+	<meta name="title" content=" 타이거CC, TIGER CC">
+	<meta name="author" content="타이거CC">
+	<meta name="Keywords" content="타이거CC, TIGER CC">
+	<meta name="description" content="타이거CC">
+	<meta name="copyright" content="All Contents Copyright©TIGER CC">
+	<meta property="og:type" content="website">
+	<meta property="og:title" content="타이거CC, TIGER CC">
+	<meta property="og:description" content="타이거CC, TIGER CC,">
+	<meta property="og:url" content="">
+    <title>타이거CC</title>
+    <link rel="stylesheet" type="text/css" href="/css/import.css">
+    <link rel="stylesheet" type="text/css" href="/css/slick.css">
+    <link rel="stylesheet" type="text/css" href="/css/swiper.css">
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+	<script type="text/javascript" src="/js/common.js"></script>
+	<script src="/js/slick.js"></script>
+	<script src="/js/swiper.js"></script>
+	<script src="/js/globals.js"></script>
+	<script src="/js/tools.js"></script>
+	<script src="/js/jquery.preloaders.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.1/gsap.min.js"></script>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.2/css/all.min.css">
+	<link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+	<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+	<script>
+		function doLogout() {
+			var sUrl = "/Controller/MemberController.asp";
+			var params = {};
+
+			params["method"] = "doLogout";
+
+			mAjax(sUrl, params, "POST", true, function(data) {
+				if(data.resultCode == "0000") {
+					alert("로그아웃 되었습니다.");
+					location.href = "/index.asp"
+				}
+			});
+		}
+        function doDeleteMember() {
+	        conYn = confirm("회원탈퇴를 하시겠습니까?");
+	        if (conYn == true)	{
+		        var sUrl = "/controller/MemberController.asp";
+		        var params = {};
+		        params["method"] = "doDeleteMemeber";
+		        params["coDiv"] = globals.coDiv;
+            
+		        mAjax(sUrl, params, "POST", true, function(data) {
+			        if(data.resultCode == "0000") {
+				        alert("회원탈퇴 되었습니다.");
+				        location.href = "/index.asp";
+			        } else {
+				        alert(data.resultMessage);
+			        }
+		        });
+	        }
+        }
+	</script>
+	
+		<link rel="stylesheet" type="text/css" href="/css/contents.css?v=5">
+		<script>
+			$(document).ready(function(){
+				$("header").addClass('sub');
+			});
+		</script>
+	
+	<script>
+		$(document).ready(function(){
+	  		AOS.init();
+			initMenus();
+		});
+
+		var bigMenu, midMenu;
+
+		var bigMenus = {
+			"club" : "클럽소개",
+			"reservation" : "인터넷예약",
+			"join" : "실시간조인",
+			"restaurant" : "레스토랑",
+			"course" : "코스안내",
+			"facil" : "시설안내",
+			"board" : "고객센터"
+		}
+
+		var midMenus = {
+			"club" : {
+				"/club/intro.asp" : ["클럽안내", true],
+				"/club/greeting.asp" : ["인사말", true],
+				"/club/map.asp" : ["오시는길", true]
+			},
+			"reservation" : {
+				"/reservation/reservation.asp" : ["예약하기", true],
+				"/reservation/reserCheck.asp" : ["예약확인", true],
+				"/reservation/penalty.asp" : ["위약규정", true],
+				"/reservation/placebo.asp" : ["위약확인", true],
+				"/reservation/reserGuide.asp" : ["예약안내", true],
+				"/reservation/reserUser.asp" : ["이용안내", true]
+			},
+			"restaurant" : {
+				"/restaurant/restaurant.asp" : ["레스토랑", true]
+			},
+			"course" : {
+				// "/course/aerial_photo.asp" : ["코스 항공 촬영뷰", true], 
+				"/course/course.asp" : ["코스안내", true],
+				"/course/course_gaon.asp" : ["코스공략도", true],
+				"/course/course_nury.asp" : ["코스공략도", false],
+				"/board/list.asp?type=8" : ["코스갤러리", true],
+				"/board/view.asp?type=8" : ["코스갤러리", false]
+			},
+			"board" : {
+				"/board/list.asp?type=1" : ["공지사항", true],
+				"/board/list.asp?type=2" : ["클럽뉴스", true],
+				"/board/list.asp?type=3" : ["분실물센터", true],
+				"/board/list.asp?type=4" : ["포토갤러리", true],
+				"/board/view.asp?type=1" : ["공지사항", false],
+				"/board/view.asp?type=2" : ["클럽뉴스", false],
+				"/board/view.asp?type=3" : ["분실물센터", false],
+				"/board/view.asp?type=4" : ["포토갤러리", false]
+				
+			},
+			"facil" : {
+				"/facil/facil01.asp" : ["클럽하우스", true],
+				"/facil/facil02.asp" : ["로비", true],
+				"/facil/facil03.asp" : ["락커룸", true],
+				"/facil/facil04.asp" : ["파우더룸", true],
+				"/facil/facil05.asp" : ["사우나", true],
+				"/facil/facil06.asp" : ["대식당", true],
+				"/facil/facil07.asp" : ["연회장", true],
+				"/facil/facil08.asp" : ["스타트하우스", true],
+				"/facil/facil09.asp" : ["그늘집", true],
+				"/facil/facil10.asp" : ["프로샵", true],
+				
+			}
+		}
+
+		function initMenus() {
+			var url = window.location.href;
+
+			for(var key in midMenus) {
+				for(var page in midMenus[key]) {
+					if(url.indexOf(page) > 0) {
+						$("#txtBigMenuName").html(bigMenus[key]);
+						$("#txtMidMenuName").html(midMenus[key][page][0]);
+						bigMenu = key;
+						midMenu = page;
+						break;
+					}
+				}
+
+				if(bigMenu != null && bigMenu != "") {
+					break;
+				}
+			}
+
+			$("#midMenuContainer").empty();
+
+			for(var key in midMenus[bigMenu]) {
+				if(midMenus[bigMenu][key][1]){
+					$("#midMenuContainer").append(String.format("<li><a href='{0}'>{1}</a></li>", key, midMenus[bigMenu][key][0]));
+				}
+			}
+		}
+	</script>
+	
+	<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-26YNPSFFNR"></script>
+<script>
+	window.dataLayer = window.dataLayer || [];
+	function gtag(){dataLayer.push(arguments);}
+	gtag('js', new Date());
+
+	gtag('config', 'G-26YNPSFFNR');
+</script>	
+</head>
+
+<body>
+    <div id="wrap"> 
+		<header>
+			<div class="logo"><a href="/index.asp"><img src="/images/logo.svg"></a></div>
+			<div class="top-menu">
+							
+				<a href="/board/list.asp?type=9">오늘의 타이거CC</a>
+				<a href="/join/login.asp">로그인</a>
+				<a href="/join/join01.asp">회원가입</a>
+			
+			</div>
+			<div class="menu-container">
+				<div class="menu-btn">
+					<div class="menu-btn__burger">
+					</div>
+				</div>
+			</div>
+			<div class="menu-bg-box" id="bg-menu-box1"></div>
+			<div class="menu-bg-box" id="bg-menu-box2"></div>
+			<div class="menu-bg-box" id="bg-menu-box3"></div>
+			<div class="menu-bg-box" id="bg-menu-box4"></div>
+
+			<nav>
+				<div class="nav-top">
+				
+					<a href="/board/list.asp?type=9">오늘의 타이거CC</a>
+					<a href="/join/login.asp">로그인</a>
+					<a href="/join/join01.asp">회원가입</a>
+				
+				</div>
+				<div class="nav">
+					<p class="simbol"><img src="/images/simbol.svg"></p>
+					<div class="gnb" id="menu1" onclick="onTapChange(1)"><span class="">클럽소개</span></div>
+					<ul class="lnb" id="sub_menu1">
+						<a href="/club/intro.asp">- 클럽안내 -</a>
+						<a href="/club/greeting.asp">- 인사말 -</a>
+						<a href="/club/map.asp">- 오시는 길 -</a>
+					</ul>
+					<div class="gnb" id="menu2" onclick="onTapChange(2)"><span>인터넷예약</span></div>
+					<ul class="lnb" id="sub_menu2">
+						<a href="/reservation/reservation.asp">- 예약하기 -</a>
+						<a href="/reservation/reserCheck.asp">- 예약확인/취소 -</a>
+						<a href="/reservation/penalty.asp">- 위약규정 -</a>
+						<a href="/reservation/placebo.asp">- 위약확인 -</a>
+						<a href="/reservation/reserGuide.asp">- 예약안내 -</a>
+						<a href="/reservation/reserUser.asp">- 이용안내 -</a>
+					</ul>
+					<div class="gnb" id="menu3" onclick="onTapChange(3)"><span>실시간조인</span></div>
+					<ul class="lnb" id="sub_menu3">
+						<a href="https://www.teeupnjoy.com/hp/clubid/636.do" target="_blank">- 실시간조인 -</a>
+					</ul>
+					<div class="gnb" id="menu7" onclick="onTapChange(7)"><span>레스토랑</span></div>
+					<ul class="lnb" id="sub_menu7">
+						<a href="/restaurant/restaurant.asp">- 레스토랑 -</a>
+					</ul>
+					<div class="gnb" id="menu4" onclick="onTapChange(4)"><span>코스안내</span></div>
+					<ul class="lnb" id="sub_menu4">
+						<!-- <a href="/course/aerial_photo.asp">- 코스 항공 촬영뷰 -</a> -->
+						<a href="/course/course.asp">- 코스안내 -</a>
+						<a href="/course/course_gaon.asp">- 코스공략도 -</a>
+						<a href="/board/list.asp?type=8">- 코스갤러리 -</a>
+					</ul>
+					<div class="gnb" id="menu5" onclick="onTapChange(5)"><span>시설안내</span></div>
+					<ul class="lnb" id="sub_menu5">
+						<a href="/facil/facil01.asp">- 시설안내 -</a>
+					</ul>
+					<div class="gnb" id="menu6" onclick="onTapChange(6)"><span>고객센터</span></div>
+					<ul class="lnb" id="sub_menu6">
+						<a href="/board/list.asp?type=1">- 공지사항 -</a>
+						<a href="/board/list.asp?type=2">- 클럽뉴스 -</a>
+						<a href="/board/list.asp?type=3">- 분실물센터 -</a>
+						<a href="/board/list.asp?type=4">- 포토갤러리 -</a>
+					</ul>
+				</div>
+			</nav>
+		</header>
+	
+		<div class="sub-nav">
+			<div class="sub-tab">
+				<p><a href="/index.asp"><img src="/images/icon_home.svg"></a></p>
+				<ul class="sub-select">
+					<li class="selected-option"><span id="txtBigMenuName"></span>
+						<ul class="options" id="bigMenuContainer">
+							<li onclick="location.href='/club/intro.asp'">클럽소개</li>
+							<li onclick="location.href='/reservation/reservation.asp'">인터넷예약</li>
+							<li onclick="location.href='https://www.teeupnjoy.com/hp/clubid/636.do'">실시간조인</li>
+							<li onclick="location.href='/restaurant/restaurant.asp'">레스토랑</li>
+							<li onclick="location.href='/course/course.asp'">코스안내</li>
+							<li onclick="location.href='/facil/facil01.asp'">시설안내</li>
+							<li onclick="location.href='/board/list.asp?type=1'">고객센터</li>
+						</ul>
+					</li>
+				</ul>
+				<ul class="sub-select">
+					<li class="selected-option"><span class="sub" id="txtMidMenuName"></span>
+						<ul class="options" id="midMenuContainer">
+						</ul>
+					</li>
+				</ul>
+			</div>	
+		</div>
+	
+		<div class="contents-course">
+			<div class="course-wrap">
+				<div class="course-title">
+					<h2>' GAON COURSE '</h2>
+					<h3>가온코스 공략안내</h3>
+				</div>
+				
+				<div class="course-tab">
+					<a href="/course/course_gaon.asp" class="on">가온코스</a>
+					<a href="/course/course_nury.asp">누리코스</a>
+				</div>
+				
+				<div class="hole-wrap">
+					<ul>
+						<li>
+							<div class="hole-box">
+								<div class="hole-title">
+									<h2>01<span>hole</span></h2>
+									<p>Par 4 / HDCP 7</p>
+								</div>
+								<div class="hole-info">
+									<p><span class="blue"></span> 355</p>
+									<p><span class="white"></span> 327</p>
+									<p><span class="yellow"></span> 303</p>
+									<p><span class="red"></span> 250</p>
+								</div>
+								<div class="hole-img-box">
+									<img src="/images/course/hole01.jpg">
+								</div>
+								<div class="hole-tip">
+									<h2>Tip</h2>
+									<p>파란 호수와 넓은 페어웨이가 가슴을 탁 트이게 해주는 Par4홀 입니다. 
+		좌측 도그렉 홀로써 그린 우측에 보이는 벙커를 공략하면 좋습니다.
+		특징 : 좌측 병행 워터 해저드 / 우측 OB / 좌,우 2단 그린</p>
+								</div>						
+							</div>
+
+							<div class="hole-box">
+								<div class="hole-title">
+									<h2>02<span>hole</span></h2>
+									<p>Par 4 / HDCP 8</p>
+								</div>
+								<div class="hole-info">
+									<p><span class="blue"></span> 343</p>
+									<p><span class="white"></span> 314</p>
+									<p><span class="yellow"></span> 303</p>
+									<p><span class="red"></span> 256</p>
+								</div>
+								<div class="hole-img-box">
+									<img src="/images/course/hole02.jpg">
+								</div>
+								<div class="hole-tip">
+									<h2>Tip</h2>
+									<p>호수가 내려다 보이는 아일랜드 형태의 페어웨이에 안착시키는 즐거움을 느낄 수 있는 홀입니다. 그린 좌측 벙커를 공략하시면 좋습니다.
+									특징 : 좌측 병행 워터 해저드 / 우측 OB</p>
+								</div>						
+							</div>
+
+							<div class="hole-box">
+								<div class="hole-title">
+									<h2>03<span>hole</span></h2>
+									<p>Par 3 / HDCP 6</p>
+								</div>
+								<div class="hole-info">
+									<p><span class="blue"></span> 160</p>
+									<p><span class="white"></span> 138</p>
+									<p><span class="yellow"></span> 130</p>
+									<p><span class="red"></span> 121</p>
+								</div>
+								<div class="hole-img-box">
+									<img src="/images/course/hole03.jpg">
+								</div>
+								<div class="hole-tip">
+									<h2>Tip</h2>
+									<p>그린 뒤쪽의 짙푸른 숲과 그린 앞 트리플 벙커가 대비되어 산뜻하게 시야에 들어오는 그린을 볼 수 있는 홀입니다.경사는 거의 느껴지지 않지만 오르막 홀이므로 평소보다 1클럽 길게 잡고 치는 것이 좋습니다.
+										특징 : 좌측 병행 워터 해저드 / 우측 OB</p>
+								</div>						
+							</div>
+						</li>
+					</ul>
+					<div class="hr2 margin50"></div>
+					<ul>
+						<li>
+							<div class="hole-box">
+								<div class="hole-title">
+									<h2>04<span>hole</span></h2>
+									<p>Par 5 / HDCP 2</p>
+								</div>
+								<div class="hole-info">
+									<p><span class="blue"></span> 480</p>
+									<p><span class="white"></span> 438</p>
+									<p><span class="yellow"></span> 418</p>
+									<p><span class="red"></span> 392</p>
+								</div>
+								<div class="hole-img-box">
+									<img src="/images/course/hole04.jpg">
+								</div>
+								<div class="hole-tip">
+									<h2>Tip</h2>
+									<p>우측 암벽을 따라 길게 뻗은 Par5홀 입니다. 랜딩존이 넓고 장애물이 많지 않아 욕심을 부리지 않는다면 좋은 스코어를 기록할 수 있습니다. 좌측은 낭떠러지의 OB지역이므로 페어웨이 중앙을 공략하면 좋습니다.
+										특징 : 좌측 OB / 우측 병행 워터 해저드</p>
+								</div>						
+							</div>
+
+							<div class="hole-box">
+								<div class="hole-title">
+									<h2>05<span>hole</span></h2>
+									<p>Par 4 / HDCP 4</p>
+								</div>
+								<div class="hole-info">
+									<p><span class="blue"></span> 좌 380 / 우 340</p>
+									<p><span class="white"></span> 좌 348 / 우 306</p>
+									<p><span class="yellow"></span> 좌 334 / 우 282</p>
+									<p><span class="red"></span> 좌 319 / 우 277</p>
+								</div>
+								<div class="hole-img-box">
+									<img src="/images/course/hole05.jpg">
+								</div>
+								<div class="hole-tip">
+									<h2>Tip</h2>
+									<p>홀 우측에 병풍처럼 전개되는 거대한 암반아래 파란 잔디가 어우러져 아름다운 홀입니다. 18H중 유일하게 두 개의 그린을 가진 홀로써 그린 앞에 보이는 쌍둥이 벙커를 공략하는 것이 좋습니다.
+										특징 : 좌측 OB / 우측 병행 워터 해저드 / 2단 페어 웨이, 2 그린</p>
+								</div>						
+							</div>
+
+							<div class="hole-box">
+								<div class="hole-title">
+									<h2>06<span>hole</span></h2>
+									<p>Par 3 / HDCP 3</p>
+								</div>
+								<div class="hole-info">
+									<p><span class="blue"></span> 155</p>
+									<p><span class="white"></span> 140</p>
+									<p><span class="yellow"></span> 125</p>
+									<p><span class="red"></span> 107</p>
+								</div>
+								<div class="hole-img-box">
+									<img src="/images/course/hole06.jpg">
+								</div>
+								<div class="hole-tip">
+									<h2>Tip</h2>
+									<p>티잉 그라운드 옆으로 조각처럼 깎인 암반이 전개되어 있고 그린 뒤쪽으로는 시원한 자연 폭포가 쏟아지는 경관이 뛰어난 홀입니다. 살짝 오르막이지만 그린 중앙을 바로 공략하면 큰 부담은 느껴지지 않을 것 입니다.
+										특징 : 좌측 병행 워터 해저드 / 우측 OB</p>
+								</div>						
+							</div>
+						</li>
+					</ul>
+					<div class="hr2 margin50"></div>
+					<ul>
+						<li>
+							<div class="hole-box">
+								<div class="hole-title">
+									<h2>07<span>hole</span></h2>
+									<p>Par 5 / HDCP 1</p>
+								</div>
+								<div class="hole-info">
+									<p><span class="blue"></span> 545</p>
+									<p><span class="white"></span> 498</p>
+									<p><span class="yellow"></span> 471</p>
+									<p><span class="red"></span> 435</p>
+								</div>
+								<div class="hole-img-box">
+									<img src="/images/course/hole07.jpg">
+								</div>
+								<div class="hole-tip">
+									<h2>Tip</h2>
+									<p>18H중 가장 높은 곳에 위치하여 모든 코스를 한눈에 볼 수 있는 홀입니다. 내리막 Par5홀로써 페어 웨이 폭이 넓지 않아 정교함이 요구됩니다.멀리 보고 욕심을 부리지 않아야 파 온을 노릴 수 있습니다.
+										특징 : 좌측 OB / 우측 병행 워터 해저드</p>
+								</div>						
+							</div>
+
+							<div class="hole-box">
+								<div class="hole-title">
+									<h2>08<span>hole</span></h2>
+									<p>Par 4 / HDCP 5</p>
+								</div>
+								<div class="hole-info">
+									<p><span class="blue"></span> 370</p>
+									<p><span class="white"></span> 330</p>
+									<p><span class="yellow"></span> 317</p>
+									<p><span class="red"></span> 296</p>
+								</div>
+								<div class="hole-img-box">
+									<img src="/images/course/hole08.jpg">
+								</div>
+								<div class="hole-tip">
+									<h2>Tip</h2>
+									<p>비교적 짧은 길이의 Par4홀이나 은근한 오르막 경사로 인해 길이의 착각을 불러일으킵니다. 페어 웨이 중앙을 공략하면 좋습니다.
+										특징 : 좌측 병행 워터 해저드 / 우측 OB</p>
+								</div>						
+							</div>
+
+							<div class="hole-box">
+								<div class="hole-title">
+									<h2>09<span>hole</span></h2>
+									<p>Par 4 / HDCP 9</p>
+								</div>
+								<div class="hole-info">
+									<p><span class="blue"></span> 355</p>
+									<p><span class="white"></span> 314</p>
+									<p><span class="yellow"></span> 289</p>
+									<p><span class="red"></span> 268</p>
+								</div>
+								<div class="hole-img-box">
+									<img src="/images/course/hole09.jpg">
+								</div>
+								<div class="hole-tip">
+									<h2>Tip</h2>
+									<p>좌측에 길게 뻗은 메타 세콰이어가 멋진 조경을 자랑하는 내리막 홀입니다. 과도한 욕심만 버린다면 마지막 홀은 멋지게 마무리할 수 있습니다.
+										특징 : 좌측 OB / 우측 OB</p>
+								</div>						
+							</div>
+						</li>
+					</ul>
+					<div class="hr2 margin50"></div>
+				</div>
+			</div>
+		</div>		
+<footer>
+			<ul>
+				<li><a href="/guide/terms.asp">사이버이용약관</a></li>
+				<li><a href="/guide/terms02.asp">골프장이용약관</a></li>
+				<li><a href="/guide/policy.asp">개인정보처리방침</a></li>
+			</ul>
+			<address>주식회사 타이거 레저 | 대표이사 :임계자  |  경기도 파주시 법원읍 술이홀로1803  |  문의전화 031.958.8900  |  팩스 031.956.8040  |  사업자번호 209-81-55310  |  통신판매업 제2013-서울성북-00669호<br>
+				Copyright ⓒ 2013 Tiger Country Club All rights reserved
+			</address>
+			<!--<p>
+				<a href=""><i class="fa-brands fa-instagram"></i></a>
+				<a href=""><i class="fa-brands fa-facebook-f"></i></a>
+				<a href=""><i class="fa-brands fa-twitter"></i></a>
+			</p>-->
+		</footer>
+	</div>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a1e3f4a9ea33e106',t:'MTc4NDU3MTM3Mw=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script><script defer src="https://static.cloudflareinsights.com/beacon.min.js/v4513226cdae34746b4dedf0b4dfa099e1781791509496" integrity="sha512-ZE9pZaUXND66v380QUtch/5sE9tPFh2zg45pR2PB0CVkCtOREv2AJKkSidISWkysEuQ0EH8faUU5du78bx87UQ==" data-cf-beacon='{"version":"2024.11.0","token":"de9f4891b32a4c7ba3c624fc918787fa","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+</body>
+</html>

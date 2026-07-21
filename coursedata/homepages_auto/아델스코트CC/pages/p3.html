@@ -1,0 +1,1689 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html lang="ko">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=euc-kr" />
+    <meta http-equiv="Cache-Control" content="no-cache" />
+    <meta http-equiv="Imagetoolbar" content="no" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<!--[if lt IE 8]><meta http-equiv="refresh" content="0; url=/ieupdate/ieupdate.html" /><![endif]-->
+	<meta name="viewport"content="width=1075" />
+	<meta name="author" content="" />
+	<meta name="description" content="" />
+	<meta name="keywords" content="" />
+	<title>아델스코트컨트리클럽 :: 아델스코트컨트리클럽에 오신걸 환영합니다</title>
+
+	<link rel="shortcut icon" href="/image/common_icon_and.ico" />
+	<link rel="apple-touch-icon-precomposed" href="/image/common_icon_and.ico" />
+	<link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Lato:300,400,700" />
+	<link rel="stylesheet" type="text/css" href="/css/common.css?ver=250414" />
+	<link rel="stylesheet" type="text/css" href="/css/cm_maincalender.css" />
+	<link rel="stylesheet" type="text/css" href="/css/cm_reservation.css" />
+	<link rel="stylesheet" type="text/css" href="/css/cm_quickreservation.css" />
+	<link rel="stylesheet" type="text/css" href="/css/sub.css" />
+	<link rel="stylesheet" type="text/css" href="/css/cminfor.css" />
+	<link rel="stylesheet" type="text/css" href="/css/login_modal.css" />
+	<link rel="stylesheet" type="text/css" href="/css/jquery-ui.tooltip.css" />
+
+<link rel="stylesheet" href="/css/cm_board.layout.css" type="text/css">
+
+<script language="javascript" type="text/javascript" src="/cm_JavaScript/common.js"></script>
+
+<script language="javascript" type="text/javascript" src="/js/common.js"></script>
+
+<script language="javascript" type="text/javascript" src="/cm_JavaScript/jquery/jquery-1.11.1.js"></script>
+<script language='javascript' type='text/javascript' src='/cm_JavaScript/jQuery/jquery.DOMWindow.js'></script>
+
+<script language="javascript" type="text/javascript" src="/cm_JavaScript/jquery/jquery-ui-1.11.1/jquery-ui.min.js"></script>
+
+<!-- <script language="javascript" type="text/javascript" src="/cm_JavaScript/body_size.js"></script> -->
+
+<script language="JavaScript" type="text/javascript" src="/cm_JavaScript/class.tooltip.js"></script>
+<script language="JavaScript" type="text/javascript" src="/cm_JavaScript/jquery/jquery-ui-1.11.1/jquery-ui.tooltip.js"></script>
+<script language="javascript" type="text/JavaScript" src="/js/loginfrom.js"></script>
+
+<script language="javascript" type="text/JavaScript" src="/js/loginfrom_modal.js"></script>
+
+<script type="text/javascript" src="/js/rolling_zone.js"></script>
+<script type="text/javascript" src="/js/menu.layer.js"></script>
+<script language="JavaScript" type="text/JavaScript">
+//<!--
+	/* Common */
+	//주소창 숨겨서 최적사이즈 맞추기
+	if (window.addEventListener != null)
+	{
+		window.addEventListener('load', function(){
+		setTimeout(scrollTo, 0, 0, 0);//페이지 이동이나 새로고침시 화면 1px씩 올라가는것 때문에 setTimeout(scrollTo, 0, 0, 1);을 수정
+		}, false); 
+	}
+
+
+
+	var flg2 = true;
+
+	/*##############################################################################################*/
+	// 퀵레이어 오픈 
+	function quick_layout_info_html(mId){
+
+		//
+		if (mId == ""){	mId = "quickModalPop";}
+		
+		var body_height = window.innerHeight
+		if (body_height <500){
+			document.getElementById(""+mId+"").style.position = "absolute";
+		}else{
+			document.getElementById(""+mId+"").style.position = "fixed";
+		}	
+		//alert(window.innerHeight);
+
+		//
+		if (flg2){
+		}else{
+			// 모달팝업 숨김
+			$('.quick_reserv').removeClass("on");
+			$("#"+mId+"").css("display","none");
+			flg2 =!flg2;
+			return;
+		}
+		//
+		var actionurl = "/cm_include/_ajax/ajax_quick_layout_info.asp";
+
+		//	
+		var tt = 0;
+		if (tt == 1){
+			$("#quick_layoutform_info").attr("action", actionurl);
+			$("#quick_layoutform_info").submit();
+		}else{
+			$.ajax({
+				async: false,
+				type: "post",
+				url : actionurl,
+				data : $("#quick_layoutform_info").serialize(),
+				dataType : "html",
+				success: function(obj){
+					$("#quick_layout_info").html(obj);
+					// 모달팝업 오픈
+					$('.quick_reserv').addClass("on");
+					$("#"+mId+"").css("display","block");
+					flg2 =!flg2;
+				},
+				error: function(xhr, option, error){
+					  alert(xhr.status+" | "+error); //오류코드 | 오류내용
+				}
+				/*error : function(success){
+					meg = "서버와 통신중 에러가 발생하였습니다."
+					alert("처리결과 : "+meg);
+				}*/
+				, beforeSend: function() {
+					//통신을 시작할때 처리	
+					$("#quick_layout_info").html('<img src="/image/loading.gif" alt="loading"/>');
+				}
+				, complete: function() {
+					//통신이 완료(success)된 후 처리
+					//$("#quick_layout_info").html('');
+				}
+			});
+		}
+	}
+
+	// 모달로그인 숨김
+	function quick_layout_close(mId){
+		//
+		if (mId == ""){	mId = "quickModalPop";}
+		// 모달팝업 숨김
+		$('.quick_reserv').removeClass("on");
+		$("#"+mId+"").css("display","none");
+		flg2 =!flg2;
+	}
+
+
+
+	/*##########################################################################################*/
+	// 메인 이벤트리스트 세팅 부분.
+	function main_event_board_list(site, list_id, list_code, list_type, list_num, list_size, list_sdate, list_edate){
+
+		//alert(site +" | "+ list_id +" | "+ list_code +" | "+ list_type +" | "+ list_num +" | "+ list_size +" | "+ list_sdate +" | "+ list_edate +"");
+
+		// 설정부분.....
+		$("#main_event_code").val(list_code);
+		$("#main_event_type").val(list_type);
+		$("#main_event_num").val(list_num);
+		$("#main_event_size").val(list_size);
+		$("#main_event_sdate").val(list_sdate);
+		$("#main_event_edate").val(list_edate);
+
+		//
+		var actionurl = "/cm_include/_ajax/"+site+"/ajax_main_event_board_list.asp";
+
+		var tt = 0;
+		if (tt == 1){
+			$("#main_event_board_form").attr("action", actionurl);
+			$("#main_event_board_form").submit();
+		}else{
+			$.ajax({
+				async: false,
+				type: "post",
+				url : actionurl,
+				data : $("#main_event_board_form").serialize(),
+				dataType : "html",
+				success: function(obj){
+					$("#"+list_id+"").html(obj);	
+					//
+					if (list_id == "main_event_list"){
+						//event_rolling();
+					}	
+				},
+				error: function(xhr, option, error){
+					  alert(xhr.status+" | "+error); //오류코드 | 오류내용
+				}
+				/*error : function(success){
+					meg = "서버와 통신중 에러가 발생하였습니다."
+					alert("처리결과 : "+meg);
+				}*/
+				, beforeSend: function() {
+					//통신을 시작할때 처리	
+					$("#"+list_id+"").html('<img src="/image/loading.gif" alt="loading"/>');
+				}
+				, complete: function() {
+					//통신이 완료(success)된 후 처리
+					//$('#main_event_list').html('');
+				}
+			});
+		}
+	}
+
+
+	/*##############################################################################################*/
+	// 모바일 URL문자 발송
+	function MobileUrlSand_info(flagcd){
+
+		//alert(hand_phone+" | "+isNaN(hand_phone));
+
+		//var hand_phone = $("#send_handphone").val().replace(/-/gi,"");
+
+		var hand_phone
+
+		if (flagcd == 0 )
+		{
+			 hand_phone = $("#send_handphone").val()+""+$("#send_handphone2").val()+""+$("#send_handphone3").val()
+
+		}else{
+			 hand_phone = $("#send_handphone").val().replace(/-/gi,"");
+		}
+		
+		if(hand_phone == ""){
+			alert("핸드폰 번호를 입력하세요");
+			$("#send_handphone").focus();
+			return;
+		}else if(isNaN(hand_phone)){
+			alert("핸드폰 번호는 숫자만 입력해 주세요.");
+			$("#send_handphone").val("");
+			$("#send_handphone").focus();
+			return;
+		}else{
+			$("#mul_hand_phone").val(hand_phone);
+		}
+
+		//
+		actionurl = "/cm_include/function.MobileUrlSand.asp";
+		
+		var tt = 0;
+		if (tt == 1){
+			$("#MobileUrlSand_from").attr("action", actionurl);
+			$("#MobileUrlSand_from").submit();
+		}else{
+			
+			// 한글 깨짐 방지 복구처리
+			$("#mul_user_name").val(escape($("#mul_user_name").val()));
+
+			$.ajax({
+				async: false,
+				type: "POST",
+				url : actionurl,
+				data : $("#MobileUrlSand_from").serialize(),
+				dataType : "json",
+				success:function(success){
+					//
+					switch(success.result){
+						case "1":
+							alert(unescape(success.gomsg));
+							break;
+						case "0":
+							alert(unescape(success.gomsg));
+							break;
+					}				
+					// 초기화 처리
+					$("#send_handphone").val("");
+					//
+					$("#mul_hand_phone").val("");
+					$("#mul_user_name").val("");
+				},
+				error: function(xhr, option, error){
+					  alert(xhr.status+" | "+error); //오류코드 | 오류내용
+				}
+				/*error : function(success){
+					meg = "서버와 통신중 에러가 발생하였습니다."
+					alert("처리결과 : "+meg);
+				}*/
+			});
+		}
+	}
+
+
+
+	/*##################################################################################################################################################################*/
+	//------------------------------------------------------------
+	// Div 달력 팝업
+	//------------------------------------------------------------
+	function mainDivCalendrShow(course_cnt, resdate, courseinfo, teaminfo, e, calltype) {
+		//alert("popDivCalendrShow");
+
+		//alert((posx)+"|"+(posy));
+		var temcnt  = e;
+		var cnt = course_cnt;
+		var cntinfo = courseinfo.split("|");
+		var teaminfo = teaminfo.split("|");  
+
+		if (calltype == "L"){
+		}else{
+			
+			//타이틀
+			//$("#popcalendardiv #bookgtitle").empty().append("[예약가능팀수("+totalcnt+"팀)]");
+			$("#res_date").empty().append(resdate);
+			if (courseinfo != "")
+			{
+				for (i=1; i<=cnt; i++)
+				{
+					$("#courseinfoname_"+i).empty().append(cntinfo[i-1]);
+					$("#courseinfoteam_"+i).empty().append(teaminfo[i-1]);
+
+					temcnt = temcnt + Number(teaminfo[i-1]);
+				}
+			}else{
+				for (i=1; i<=cnt; i++)
+				{
+					$("#courseinfoteam_"+i).empty().append(0);
+
+					temcnt = temcnt + Number(teaminfo[i-1]);
+				}
+			}
+
+			//$("#res_team").empty().append(temcnt);
+		}
+	}
+
+	function mainDivCalendrHide(course_cnt, courseinfo) {
+		var cnt = course_cnt
+		var cntinfo = courseinfo.split("|");
+		//
+
+		for (i=1; i<=cnt; i++)
+		{
+//			$("#courseinfoname_"+i).empty().append(cntinfo[i-1]);
+//			$("#courseinfoteam_"+i).empty().append(0);
+		}
+	}
+
+
+	// 모달로그인 오픈
+	function login_modal_open(mId){
+
+		if (mId == ""){
+			mId = "loginModalPop";
+		}
+
+		var body_height = window.innerHeight
+		if (body_height <500){
+			document.getElementById(""+mId+"").style.position = "absolute";
+		}else{
+			document.getElementById(""+mId+"").style.position = "fixed";
+		}	
+		//alert(window.innerHeight);
+
+		var actionurl = "/cm_include/_ajax/ajax_login_modal_info.asp";
+
+		var tt = 0;
+		if (tt == 1){
+			$("#login_modal_from").attr("action", actionurl);
+			$("#login_modal_from").submit();
+		}else{
+			$.ajax({
+				async: false,
+				type: "post",
+				url : actionurl,
+				data : $("#login_modal_from").serialize(),
+				dataType : "html",
+				success: function(obj){
+					$("#login_modal_info").html(obj);
+					// 모달로그인 오픈
+					$("#"+mId+"").css("display","block");
+				},
+				error: function(xhr, option, error){
+					  alert(xhr.status+" | "+error); //오류코드 | 오류내용
+				}
+				/*error : function(success){
+					meg = "서버와 통신중 에러가 발생하였습니다."
+					alert("처리결과 : "+meg);
+				}*/
+				, beforeSend: function() {
+					//통신을 시작할때 처리	
+					$("#login_modal_info").html('<img src="/image/loading.gif" alt="loading"/>');
+				}
+				, complete: function() {
+					//통신이 완료(success)된 후 처리
+					//$("#login_modal_info").html('');
+				}
+			});
+		}
+
+	}
+
+	// 모달로그인 숨김
+	function login_modal_close(mId){
+		// 모달팝업 숨김
+		$("#"+mId+"").css("display","none");
+	}
+
+
+	//자동실행 - body onload의 대체
+	$(function(){
+
+		// 퀵레이어 오픈 
+		var loh = location.href.indexOf("#");
+		//
+		if(loh != -1){
+			// URL해쉬 처리한값 처리
+			var tmp = location.href.substr(loh + 1).split("&");
+			//
+			for(var i=0; i<tmp.length; i++){
+				var loe = tmp[i].indexOf("=");
+				if(loe != -1){
+					var val = decodeURIComponent(tmp[i].substr(loe + 1));
+					if(val != ''){
+						switch(tmp[i].substr(0, loe)){
+							case "quick_layout":
+								quick_layout_info_html("");
+								break;
+						}
+					}
+				}
+			}	
+		}
+
+		// 모든 페이지에 보일때 오픈 달력 처리 부분
+		//main_calendar_change("", "", "", "");
+		
+		// 모든 페이지에 보일때 게시판&이벤트 처리 부분
+		//main_multi_board_list("site", "main_board_list", "NOTICE", "L", "1", "5", "", "")
+		//main_event_board_list("site", "main_event_list", "EVENT", "I", "1", "5", "", "")
+
+		// 모든 페이지에 보일때 잔여타임&조인방 처리 부분
+		//main_golftime_list("golf", "main_res_time_list", "COURSE", "5")
+		//main_joinroom_list("golf", "main_join_room_list", "1", "5")
+	});	
+//-->
+</script>
+
+<script language="javascript" src="/js/calendar_beans_v2.0.js"></script>
+<script language="JavaScript" type="text/JavaScript">
+<!--
+	/* user */
+	//------------------------------------------------------------
+	// 정렬
+	//------------------------------------------------------------		
+	function orderChange(frm, orderby, pre_orderby, orderby_sort){
+		var f = frm;
+		f.orderby.value = orderby;
+		f.orderby_sort.value = orderby_sort;
+		f.pre_orderby.value = pre_orderby;
+		f.submit();		
+	}
+	//
+	function sizeChange(frm, page_size){
+		var f = frm;
+		f.page_size.value = page_size;
+		f.submit();		
+	}
+	//
+	function fnSearchEnd()
+	{
+		location.href="./list.asp?page_num=1&groupcode=CGALLERY";
+	}
+
+	//------------------------------------------------------------
+	// 검색
+	//------------------------------------------------------------	
+	function fnSearch(){
+		$("#searchmode").submit();	
+	}
+
+	//------------------------------------------------------------
+	// 처리
+	//------------------------------------------------------------	
+	function subcmd(cmd, bbsno, seq, depth){
+
+		// 넘겨주는값 체크부분
+		// 처리
+		var actionurl = "./list.asp"
+		
+		// 호출한 값을 알아 온다
+		$("#data_cmd").val(cmd);
+		$("#dataform").attr("method", "post");
+		$("#dataform").attr("target", "");
+		//
+		$("#bbsno").val(bbsno);
+		$("#seq").val(seq);
+		$("#depth").val(depth);		
+		
+	
+		//
+		$("#kind").val("0");			
+	
+
+		//
+		if (cmd == "write"){
+			//
+			actionurl = "./write.asp"
+			//
+			if(checkPersonalForm()){
+				$("#dataform").attr("action", actionurl);
+				$("#dataform").attr("method", "get");
+				$("#dataform").submit();
+			}else{
+				return	
+			}
+		}else if (cmd == "view"){
+			//
+			actionurl = "./view.asp"
+			//
+			if(checkPersonalForm()){
+			
+				//alert($("#data_sch_state").val()+" | "+$("#sch_state").val())
+				$("#dataform").attr("action", actionurl);
+				$("#dataform").attr("method", "get");
+				$("#dataform").submit();
+			}else{
+				return	
+			}
+		}else if (cmd == "modify"){
+			//
+			actionurl = "./modify.asp"
+			//
+			if(checkPersonalForm()){
+			
+				//alert($("#data_sch_state").val()+" | "+$("#sch_state").val())
+				$("#dataform").attr("action", actionurl);
+				$("#dataform").submit();
+			}else{
+				return	
+			}
+		}else if (cmd == "del"){
+			//
+			actionurl = "./board_proc.asp"		
+			// 
+			if(confirm("데이타를 삭제하시겠습니까? \n삭제시 답변데이타도 자동으로삭제 됩니다!")){
+				//
+				if(checkPersonalForm()){
+					subcmd2(cmd, actionurl);
+				}else{	
+					return
+				}
+			}else{
+				return
+			}
+		}else if (cmd == "lst"){
+			document.location.href = "./list.asp";
+		}
+	}
+
+	// AJAX 실제 전송.
+	function subcmd2(cmd, actionurl){
+		
+		var tt = 0;
+		// 처리부분	
+		if (tt == 1){
+			$("#dataform").attr("action", actionurl);
+			$("#dataform").submit();
+		}else{
+			$.ajax({
+				async: false,
+				type: "POST",
+				url : actionurl,
+				data : $("#dataform").serialize(),
+				dataType : "json",
+				success:function(success){
+					if(success.result == "OK"){
+						// 성공처리	
+						/*
+						$("#dataform").attr("action", "./list.asp");
+						$("#dataform").submit();
+						*/
+						alert(unescape(success.gomsg));
+						document.location.href = "./list.asp";
+						//alert(unescape(success.gomsg));
+					} else {
+						// 에러처리
+						alert(unescape(success.gomsg));
+					}
+				},
+				error: function(xhr, option, error){
+					  alert(xhr.status+" | "+error); //오류코드 | 오류내용
+				}
+				/*error : function(success){
+					meg = "서버와 통신중 에러가 발생하였습니다."
+					alert("처리결과 : "+meg);
+				}*/
+			});	
+		}
+		
+	}
+
+
+	// 입력값 체크
+	function checkPersonalForm(){
+		//
+		if ( $("#groupcode").val().length < 1){
+			alert("처리하려는 데이타에 대한 정보가 부족합니다.");
+			return false;
+		}
+		if ( $("#kind").val().length < 1){
+			alert("처리하려는 데이타에 대한 정보가 부족합니다.");
+			return false;
+		}
+		//
+		if ( $("#bbsno").val().length < 1){
+			alert("처리하려는 데이타에 대한 정보가 부족합니다.");
+			return false;
+		}
+		//
+		if ( $("#seq").val().length < 1){
+			alert("처리하려는 데이타에 대한 정보가 부족합니다.");
+			return false;
+		}
+
+		return true;
+	}
+
+	
+//-->
+</script>	
+
+<form name="dataform" id="dataform" method="POST" action="">
+	<input type="hidden" name="cmd"       id="data_cmd"  value="list" />
+	<input type="hidden" name="cmval"     id="cmval"     value="0" />	
+	<input type="hidden" name="cmkind"    id="cmkind"    value="" />
+	<input type="hidden" name="calltype"  id="calltype"  value="AJAX" />
+	<input type="hidden" name="gonexturl" id="gonexturl" value="./list.asp" />
+
+	<input type="hidden" name="groupcode" id="groupcode" value="CGALLERY" />
+	<input type="hidden" name="kind"      id="kind"      value="" />
+	<input type="hidden" name="bbsno"     id="bbsno"     value="" />
+	<input type="hidden" name="seq"       id="seq"       value="" />
+	<input type="hidden" name="depth"     id="depth"     value="" />
+
+	<input type="hidden" name="open_state" id="open_state" value="1" />
+
+	<input type="hidden" name="search_mode" id="search_mode"  value="{|page_name|:|./list.asp|,|page_num|:|1|,|page_size|:20,|groupcode|:|CGALLERY|,|kind|:|0|,|type|:|0|,|sortstr|:||,|search|:||,|keyword|:||,|sdate|:||,|edate|:||,|open_state|:|1|}" />
+
+</form>
+
+<script src="/1dba6f43-e141-4072-9d29-3a531d8bf1dc/nextory.js"></script></head>
+
+<!-- <body id="SUB"> -->
+<body>
+<script language="JavaScript" type="text/JavaScript">
+//<!--
+	//
+	var gnb_code1 = "course";
+	var lnb_code1 = "course";
+	//var gnbIdx = Number(2); 
+
+	//
+	var gnb_code2 = "course_gallery";
+	var lnb_code2 = "course_gallery";
+	//var gnb2Idx = Number(2); 
+
+	//
+	var gnb_code3 = "course_gallery";
+	var lnb_code3 = "course_gallery";
+	//var gnb2Idx = Number(-1);
+
+//-->
+</script>
+	
+<div id="wrap" class="sub">
+	<div class="skip_navi">
+		<ul>
+			<li><a href="#gnb">GNB 바로가기</a></li>
+			<li><a href="#body">본문 바로가기</a></li>
+			<li><a href="#footer">하단 바로가기</a></li>
+		</ul>
+	</div>
+
+	<!-- 헤더 -->
+	<div id="header">
+		<div class="login_area">              
+			<a href="https://pf.kakao.com/_YQpPn" target="_blank" class="btn-kakao"><span>카카오톡 채널</span></a>
+			<a href="https://www.instagram.com/_adelscott_cc/" target="_blank" class="btn-insta"><span>인스타그램</span></a>
+			<!-- 로그인 전 -->
+				
+				<a href="/login/login.asp">로그인</a>
+				<a href="/memberInfor/joinTerms.asp">회원가입</a>
+				
+			<a href="/pagesite/club/location.asp">오시는길</a>
+			<a href="/pagesite/sitemap/sitemap.asp">사이트맵</a>
+		</div>
+		<div class="head">
+			<h1><a href="/index.asp"><img src="/image/common/logo.png" alt="아델스코트" /></a></h1>
+			<!-- gnb -->
+			<div class="gnb" id="gnb">				
+				<ul> 
+<li class="gnb01" id="gnb_club"> 
+							<h2><a href="/pagesite/club/intro.asp"  >아델스코트 소개</a></h2> 
+							<ul class="dep2"> 
+										<li class="g01_1" id="gnb2_club_intro"><a href="/pagesite/club/intro.asp"   class="g01_1   ">클럽소개</a></li> 
+										<li class="g01_2" id="gnb2_club_greet"><a href="/pagesite/club/greet.asp"   class="g01_2  long_type ">CEO인사말</a></li> 
+										<li class="g01_4" id="gnb2_club_location"><a href="/pagesite/club/location.asp"   class="g01_4   ">오시는길</a></li> 
+							</ul> 
+						</li> 
+						<li class="gnb02" id="gnb_facilities"> 
+							<h2><a href="/pagesite/club/facilities/info.asp"  >클럽하우스</a></h2> 
+							<ul class="dep2"> 
+										<li class="g02_1" id="gnb2_facilities_info"><a href="/pagesite/club/facilities/info.asp"   class="g02_1  long_type ">클럽하우스 소개</a></li> 
+										<li class="g02_2" id="gnb2_facilities_house"><a href="/pagesite/club/facilities/house.asp"   class="g02_2   ">시설안내</a></li> 
+										<li class="g02_3" id="gnb2_information_gallery"><a href="/pagesite/club/facilities/gallery.asp"   class="g02_3  long_type ">이미지갤러리</a></li> 
+							</ul> 
+						</li> 
+						<li class="gnb03" id="gnb_course"> 
+							<h2><a href="/pagesite/course/intro.asp"  >코스안내</a></h2> 
+							<ul class="dep2"> 
+										<li class="g03_1" id="gnb2_course_intro"><a href="/pagesite/course/intro.asp"   class="g03_1   ">코스소개</a></li> 
+										<li class="g03_2" id="gnb2_course_guide"><a href="/pagesite/course/guide.asp"   class="g03_2   ">코스공략도</a></li> 
+										<li class="g03_3" id="gnb2_course_gallery"><a href="/pagesite/course/gallery.asp"   class="g03_3   ">코스갤러리</a></li> 
+							</ul> 
+						</li> 
+						<li class="gnb04" id="gnb_reservation"> 
+							<h2><a href="/pagesite/reservation/live.asp"  >인터넷예약</a></h2> 
+							<ul class="dep2"> 
+										<li class="g04_1" id="gnb2_reservation_live"><a href="/pagesite/reservation/live.asp"   class="g04_1   ">예약하기</a></li> 
+										<li class="g04_2" id="gnb2_reservation_stand"><a href="/pagesite/reservation/stand.asp"   class="g04_2   ">대기예약</a></li> 
+										<li class="g04_3" id="gnb2_reservation_confirm"><a href="/pagesite/reservation/confirm.asp"   class="g04_3   ">예약확인</a></li> 
+										<li class="g04_4" id="gnb2_use_reservation"><a href="/pagesite/use/reservation.asp"   class="g04_4   ">예약안내</a></li> 
+										<li class="g04_5" id="gnb2_use_mobile"><a href="/pagesite/use/mobile.asp"   class="g04_5  long_type ">모바일예약안내</a></li> 
+							</ul> 
+						</li> 
+						<li class="gnb05" id="gnb_use"> 
+							<h2><a href="/pagesite/clause/guide.asp"  >이용안내</a></h2> 
+							<ul class="dep2"> 
+										<li class="g05_1" id="gnb2_clause_guide"><a href="/pagesite/clause/guide.asp"   class="g05_1   ">이용약관</a></li> 
+										<li class="g05_2" id="gnb2_use_guide"><a href="/pagesite/use/guide.asp"   class="g05_2  long_type ">이용준수사항</a></li> 
+										<li class="g05_3" id="gnb2_use_charge"><a href="/pagesite/use/charge.asp"   class="g05_3   ">요금안내</a></li> 
+										<li class="g05_4" id="gnb2_use_local"><a href="/pagesite/use/local.asp"   class="g05_4   ">로컬룰</a></li> 
+										<li class="g05_5" id="gnb2_use_penalty"><a href="/pagesite/use/penalty.asp"   class="g05_5   ">퇴장규정</a></li> 
+							</ul> 
+						</li> 
+						<li class="gnb06" id="gnb_information"> 
+							<h2><a href="/pagesite/information/honor.asp"  >커뮤니티</a></h2> 
+							<ul class="dep2"> 
+										<li class="g06_1" id="gnb2_reservation_join"><a href="https://www.teeupnjoy.com/hp/clubid/675.do" target="_blank" title="새창열림" class="g06_1  long_type ">실시간 조인</a></li> 
+										<li class="g06_2" id="gnb2_information_honor"><a href="/pagesite/information/honor.asp"   class="g06_2   ">명예의전당</a></li> 
+										<li class="g06_3" id="gnb2_information_notice"><a href="/pagesite/information/notice.asp"   class="g06_3   ">공지사항</a></li> 
+										<li class="g06_4" id="gnb2_information_faq"><a href="/pagesite/information/faq.asp"   class="g06_4   ">FAQ</a></li> 
+										<li class="g06_5" id="gnb2_information_data"><a href="/pagesite/information/data.asp"   class="g06_5   ">자료실</a></li> 
+										<li class="g06_6" id="gnb2_information_employ"><a href="/pagesite/information/employ.asp"   class="g06_6   ">채용공고</a></li> 
+							</ul> 
+						</li> 
+ 
+					</ul>
+
+			</div>
+			<a href="#" class="bt_menu"><img src="/image/common/bt_menu.png" alt="bt_menu" /></a>
+			<!-- /gnb -->
+		</div>
+		<!-- /헤더 -->
+	</div>
+	<span class="gnb_all_bg"></span>
+	<div class="gnb_all">				
+		<p>		
+			
+			<a href="/login/login.asp">로그인</a>
+			<a href="/memberInfor/joinTerms.asp">회원가입</a>
+			
+		</p>
+		<ul>
+		<li class="gnb01" id="gnb_club"> 
+							<h2><a _href="/pagesite/club/intro.asp"  >아델스코트 소개</a></h2> 
+							<ul class="dep2"> 
+								<li class="gnb01_1" id="sitemap_club_intro"><a href="/pagesite/club/intro.asp"  >클럽소개</a></li> 
+								<li class="gnb01_2" id="sitemap_club_greet"><a href="/pagesite/club/greet.asp"  >CEO인사말</a></li> 
+								<li class="gnb01_4" id="sitemap_club_location"><a href="/pagesite/club/location.asp"  >오시는길</a></li> 
+							</ul> 
+						</li> 
+						<li class="gnb02" id="gnb_facilities"> 
+							<h2><a _href="/pagesite/club/facilities/info.asp"  >클럽하우스</a></h2> 
+							<ul class="dep2"> 
+								<li class="gnb02_1" id="sitemap_facilities_info"><a href="/pagesite/club/facilities/info.asp"  >클럽하우스 소개</a></li> 
+								<li class="gnb02_2" id="sitemap_facilities_house"><a href="/pagesite/club/facilities/house.asp"  >시설안내</a></li> 
+								<li class="gnb02_3" id="sitemap_information_gallery"><a href="/pagesite/club/facilities/gallery.asp"  >이미지갤러리</a></li> 
+							</ul> 
+						</li> 
+						<li class="gnb03" id="gnb_course"> 
+							<h2><a _href="/pagesite/course/intro.asp"  >코스안내</a></h2> 
+							<ul class="dep2"> 
+								<li class="gnb03_1" id="sitemap_course_intro"><a href="/pagesite/course/intro.asp"  >코스소개</a></li> 
+								<li class="gnb03_2" id="sitemap_course_guide"><a href="/pagesite/course/guide.asp"  >코스공략도</a></li> 
+								<li class="gnb03_3" id="sitemap_course_gallery"><a href="/pagesite/course/gallery.asp"  >코스갤러리</a></li> 
+							</ul> 
+						</li> 
+						<li class="gnb04" id="gnb_reservation"> 
+							<h2><a _href="/pagesite/reservation/live.asp"  >인터넷예약</a></h2> 
+							<ul class="dep2"> 
+								<li class="gnb04_1" id="sitemap_reservation_live"><a href="/pagesite/reservation/live.asp"  >예약하기</a></li> 
+								<li class="gnb04_2" id="sitemap_reservation_stand"><a href="/pagesite/reservation/stand.asp"  >대기예약</a></li> 
+								<li class="gnb04_3" id="sitemap_reservation_confirm"><a href="/pagesite/reservation/confirm.asp"  >예약확인</a></li> 
+								<li class="gnb04_4" id="sitemap_use_reservation"><a href="/pagesite/use/reservation.asp"  >예약안내</a></li> 
+								<li class="gnb04_5" id="sitemap_use_mobile"><a href="/pagesite/use/mobile.asp"  >모바일예약안내</a></li> 
+							</ul> 
+						</li> 
+						<li class="gnb05" id="gnb_use"> 
+							<h2><a _href="/pagesite/clause/guide.asp"  >이용안내</a></h2> 
+							<ul class="dep2"> 
+								<li class="gnb05_1" id="sitemap_clause_guide"><a href="/pagesite/clause/guide.asp"  >이용약관</a></li> 
+								<li class="gnb05_2" id="sitemap_use_guide"><a href="/pagesite/use/guide.asp"  >이용준수사항</a></li> 
+								<li class="gnb05_3" id="sitemap_use_charge"><a href="/pagesite/use/charge.asp"  >요금안내</a></li> 
+								<li class="gnb05_4" id="sitemap_use_local"><a href="/pagesite/use/local.asp"  >로컬룰</a></li> 
+								<li class="gnb05_5" id="sitemap_use_penalty"><a href="/pagesite/use/penalty.asp"  >퇴장규정</a></li> 
+							</ul> 
+						</li> 
+						<li class="gnb06" id="gnb_information"> 
+							<h2><a _href="/pagesite/information/honor.asp"  >커뮤니티</a></h2> 
+							<ul class="dep2"> 
+								<li class="gnb06_1" id="sitemap_reservation_join"><a href="https://www.teeupnjoy.com/hp/clubid/675.do" target="_blank" title="새창열림">실시간 조인</a></li> 
+								<li class="gnb06_2" id="sitemap_information_honor"><a href="/pagesite/information/honor.asp"  >명예의전당</a></li> 
+								<li class="gnb06_3" id="sitemap_information_notice"><a href="/pagesite/information/notice.asp"  >공지사항</a></li> 
+								<li class="gnb06_4" id="sitemap_information_faq"><a href="/pagesite/information/faq.asp"  >FAQ</a></li> 
+								<li class="gnb06_5" id="sitemap_information_data"><a href="/pagesite/information/data.asp"  >자료실</a></li> 
+								<li class="gnb06_6" id="sitemap_information_employ"><a href="/pagesite/information/employ.asp"  >채용공고</a></li> 
+							</ul> 
+						</li> 
+ 
+
+		</ul>
+	</div>
+	<a href="#" class="bt_close2"><img src="/image/common/bt_close.png" alt="close" /></a>
+	<!-- 상단 종료 -->
+
+		<!-- 바디 시작 -->
+		<!-- content -->
+	<div id="body" class="course">	
+		<div id="course_navi" class="top_bg_navi"></div>
+
+		<!-- history map -->
+		<div class="his_map">		
+			<ul class="his_map_in">
+				<li class="home"><a href="/index.asp">홈</a></li>
+				<li class="his_depth01">
+					<a _href="/pagesite/course/intro.asp" class="bt_depth01">코스안내</a>
+					<!-- 서브 1뎁스 메뉴 -->
+					<ul class="depth01 hide">
+					
+						<li><a href="/pagesite/club/intro.asp">아델스코스 소개</a></li>
+					
+						<li><a href="/pagesite/course/intro.asp">코스안내</a></li>
+					
+						<li><a href="/pagesite/reservation/live.asp">인터넷예약</a></li>
+					
+						<li><a href="/pagesite/clause/guide.asp">이용안내</a></li>
+					
+						<li><a href="/pagesite/information/honor.asp">커뮤니티</a></li>
+					
+					</ul>
+				</li>					
+				<li class="his_depth02">
+					<a _href="/pagesite/course/gallery.asp" class="bt_depth02">코스갤러리</a>
+
+					<!-- 서브 2뎁스 메뉴 -->
+					<ul class="depth02 hide">
+									 
+ 		   	 
+ 
+ 							<li id="lnb_course_intro"> 
+								<a href="/pagesite/course/intro.asp" class="lnb_c01"  >코스소개</a> 
+							</li> 
+							<li id="lnb_course_guide"> 
+								<a href="/pagesite/course/guide.asp" class="lnb_c02"  >코스공략도</a> 
+							</li> 
+							<li id="lnb_course_gallery"> 
+								<a href="/pagesite/course/gallery.asp" class="lnb_c03"  >코스갤러리</a> 
+							</li> 
+ 
+    
+ 
+
+					</ul>
+				</li>
+			</ul>	
+		</div>
+		<div class="content_sub">				
+			<div class="tit_h2_area">
+				<h2 class="tit_h2">COURSE<span>코스갤러리</span></h2>		
+			</div>
+			<div class="content_sub_in">
+				<!-- 컨텐츠 -->
+				<div class="content">
+
+
+
+		<div id="content_body" class="clear">
+			<!-- 데이타 시작 -->
+			
+<!--
+			<ul class="tab_list tab_list3">
+				<li><a href="/pagesite/course/intro.asp">코스안내</a></li>
+				<li><a href="/pagesite/course/one/hole01.asp">코스공략도</a></li>
+				<li class="on"><a href="/pagesite/course/gallery.asp">코스갤러리</a></li>
+			</ul>
+-->
+
+			<!-- 내용삽입 -->
+			<div id="cm_board" class="clear">
+
+				<!-- //검색 부분 -->
+				<form name="searchmode" id="searchmode" method="get" action="./list.asp">
+				<input type="hidden" name="page_size" id="page_size" value="20"/>
+				<input type="hidden" _name="page_num"  _id="page_num"  value="1"/>
+				<input type="hidden" name="sortstr"   id="sortstr"   value=""/>
+				<div class="top_title" style="display:none;">
+					<div style="display:none;" >
+						<h3 >게시판</h3>
+						<select id="groupcode" name="groupcode" style="float:left;" onchange="javascript:fnSearch();">
+							<option value='CGALLERY' selected>&nbsp;코스갤러리&nbsp;</option>
+<option value='CUSTOMER'>&nbsp;문의내역&nbsp;</option>
+<option value='DATA'>&nbsp;자료실&nbsp;</option>
+<option value='PGALLERY'>&nbsp;포토갤러리&nbsp;</option>
+<option value='VOICE'>&nbsp;고객의소리&nbsp;</option>
+<option value='NOTICE'>&nbsp;공지사항&nbsp;</option>
+<option value='EMPLOY'>&nbsp;채용공고 게시판&nbsp;</option>
+
+						</select>
+					</div>
+					<div style="display:none;" onchange="javascript:fnSearch();">
+						<label for="" class="h3_stit" >종류 :</label>
+						<select id="kind" name="kind" style="float:left;">
+							<option value=''>전체</option>
+<option value='0'> 기본 </option>
+
+						</select>
+					</div>
+					<div style="display:none;" onchange="javascript:fnSearch();">
+						<label for="" class="h3_stit" >타입 :</label>
+						<select id="type" name="type" style="float:left;">
+							<option value=''>전체</option>
+<option value='0'> 기본 </option>
+
+						</select>
+					</div>
+					<div style="display:none;">
+						<label for="" class="h3_stit" >오픈상태 :</label>
+						<select id="open_state" name="open_state" style="width:80px; float:left;" onchange="javascript:fnSearch();">
+							<option value=''>ALL</option>
+<option value='0'>오픈안함</option>
+<option value='1' selected>오픈</option>
+
+						</select>
+					</div>
+				</div>
+				<div class="top_title">
+				
+
+					<select id="search" name="search" style="width: 70px; float:left;margin:0 6px 0 70px">
+						<option value='TITLE'>제목</option>
+<option value='CONTENTS'>내용</option>
+
+					</select>
+					<input type="text" id="keyword" name="keyword" class="txt" style="width: 120px; float:left; margin-top:-1px;" />
+					
+						<label for="" class="h3_stit">등록일 :</label>
+						<input type="text" name="sdate" id="sdate" class="txt" value="" style="width:70px;float:left;" readonly/> <span class="calendar f_left" id='CalsdateIcon' style="margin:2px;"><img id='CalsdateIconImg' src='/image/cm_board/btn/ico_calendar.gif' alt="달력아이콘"/></span>
+						<span class="date f_left">~</span>
+						<input type="text" name="edate" id="edate" class="txt" value=""  style="width:70px;float:left;" readonly/> <span class="calendar f_left" id='CaledateIcon' style="margin:2px;"><img id='CalsdateIconImg' src='/image/cm_board/btn/ico_calendar.gif' alt="달력아이콘"/></span>
+					
+					<a href="javascript:fnSearch();" class="f_left"  style="margin:-2px 0 0 5px"><img class="mar_tm1" src="/image/cm_board/btn/bt_ad29.gif" alt="" /></a>
+				</div>
+				</form>
+				<!-- 검색 부분// -->
+
+				<!-- //상단버튼 처리 -->
+				<div style="margin:0px 0px 35px 0px">
+					<!--span class="f_left">
+						<select name="search" id="search">
+							<option value="">줄수</option>						
+						</select>
+					</span-->
+						
+				</div>
+				<!-- //상단버튼 처리 -->
+			
+				<!-- //리스트 -->
+
+				<ul class="g_ul">			
+
+					<li>
+					
+							<a href="javascript:subcmd('view','317','0','0');">
+					
+								<img src="/UserFile/Board/CGALLERY/upload/CGALLERY_0_317_0_0_1_202521311.jpg" alt="" width="176px" height="176px"/>
+
+							</a>						
+						<p> 
+					
+							<a href="javascript:subcmd('view','317','0','0');">
+					
+								<strong class="g_tit">
+									<span>
+									아델의 겨울
+									</span>
+									
+								</strong>
+							</a>
+
+							<span class="g_name">
+								관리자
+							</span> | 
+							<span class="g_date">
+								2025.02.13
+							</span>
+						</p>
+					</li>
+
+					<li>
+					
+							<a href="javascript:subcmd('view','285','0','0');">
+					
+								<img src="/UserFile/Board/CGALLERY/upload/CGALLERY_0_285_0_0_1_20244119.jpg" alt="" width="176px" height="176px"/>
+
+							</a>						
+						<p> 
+					
+							<a href="javascript:subcmd('view','285','0','0');">
+					
+								<strong class="g_tit">
+									<span>
+									봄맞이 아델
+									</span>
+									
+								</strong>
+							</a>
+
+							<span class="g_name">
+								관리자
+							</span> | 
+							<span class="g_date">
+								2024.04.11
+							</span>
+						</p>
+					</li>
+
+					<li>
+					
+							<a href="javascript:subcmd('view','78','0','0');">
+					
+								<img src="/UserFile/Board/CGALLERY/upload/CGALLERY_0_78_0_0_1_201812513.JPG" alt="" width="176px" height="176px"/>
+
+							</a>						
+						<p> 
+					
+							<a href="javascript:subcmd('view','78','0','0');">
+					
+								<strong class="g_tit">
+									<span>
+									레이크 9번홀
+									</span>
+									
+								</strong>
+							</a>
+
+							<span class="g_name">
+								관리자
+							</span> | 
+							<span class="g_date">
+								2018.12.05
+							</span>
+						</p>
+					</li>
+
+					<li>
+					
+							<a href="javascript:subcmd('view','77','0','0');">
+					
+								<img src="/UserFile/Board/CGALLERY/upload/CGALLERY_0_77_0_0_1_201812513.JPG" alt="" width="176px" height="176px"/>
+
+							</a>						
+						<p> 
+					
+							<a href="javascript:subcmd('view','77','0','0');">
+					
+								<strong class="g_tit">
+									<span>
+									레이크 8번홀
+									</span>
+									
+								</strong>
+							</a>
+
+							<span class="g_name">
+								관리자
+							</span> | 
+							<span class="g_date">
+								2018.12.05
+							</span>
+						</p>
+					</li>
+
+					<li>
+					
+							<a href="javascript:subcmd('view','76','0','0');">
+					
+								<img src="/UserFile/Board/CGALLERY/upload/CGALLERY_0_76_0_0_1_201812513.JPG" alt="" width="176px" height="176px"/>
+
+							</a>						
+						<p> 
+					
+							<a href="javascript:subcmd('view','76','0','0');">
+					
+								<strong class="g_tit">
+									<span>
+									레이크 7번홀
+									</span>
+									
+								</strong>
+							</a>
+
+							<span class="g_name">
+								관리자
+							</span> | 
+							<span class="g_date">
+								2018.12.05
+							</span>
+						</p>
+					</li>
+
+					<li>
+					
+							<a href="javascript:subcmd('view','75','0','0');">
+					
+								<img src="/UserFile/Board/CGALLERY/upload/CGALLERY_0_75_0_0_1_201812513.JPG" alt="" width="176px" height="176px"/>
+
+							</a>						
+						<p> 
+					
+							<a href="javascript:subcmd('view','75','0','0');">
+					
+								<strong class="g_tit">
+									<span>
+									레이크 6번홀
+									</span>
+									
+								</strong>
+							</a>
+
+							<span class="g_name">
+								관리자
+							</span> | 
+							<span class="g_date">
+								2018.12.05
+							</span>
+						</p>
+					</li>
+
+					<li>
+					
+							<a href="javascript:subcmd('view','74','0','0');">
+					
+								<img src="/UserFile/Board/CGALLERY/upload/CGALLERY_0_74_0_0_1_201812513.JPG" alt="" width="176px" height="176px"/>
+
+							</a>						
+						<p> 
+					
+							<a href="javascript:subcmd('view','74','0','0');">
+					
+								<strong class="g_tit">
+									<span>
+									레이크 5번홀
+									</span>
+									
+								</strong>
+							</a>
+
+							<span class="g_name">
+								관리자
+							</span> | 
+							<span class="g_date">
+								2018.12.05
+							</span>
+						</p>
+					</li>
+
+					<li>
+					
+							<a href="javascript:subcmd('view','73','0','0');">
+					
+								<img src="/UserFile/Board/CGALLERY/upload/CGALLERY_0_73_0_0_1_201812513.JPG" alt="" width="176px" height="176px"/>
+
+							</a>						
+						<p> 
+					
+							<a href="javascript:subcmd('view','73','0','0');">
+					
+								<strong class="g_tit">
+									<span>
+									레이크 4번홀
+									</span>
+									
+								</strong>
+							</a>
+
+							<span class="g_name">
+								관리자
+							</span> | 
+							<span class="g_date">
+								2018.12.05
+							</span>
+						</p>
+					</li>
+
+					<li>
+					
+							<a href="javascript:subcmd('view','72','0','0');">
+					
+								<img src="/UserFile/Board/CGALLERY/upload/CGALLERY_0_72_0_0_1_201812513.JPG" alt="" width="176px" height="176px"/>
+
+							</a>						
+						<p> 
+					
+							<a href="javascript:subcmd('view','72','0','0');">
+					
+								<strong class="g_tit">
+									<span>
+									레이크 3번홀
+									</span>
+									
+								</strong>
+							</a>
+
+							<span class="g_name">
+								관리자
+							</span> | 
+							<span class="g_date">
+								2018.12.05
+							</span>
+						</p>
+					</li>
+
+					<li>
+					
+							<a href="javascript:subcmd('view','71','0','0');">
+					
+								<img src="/UserFile/Board/CGALLERY/upload/CGALLERY_0_71_0_0_1_201812513.JPG" alt="" width="176px" height="176px"/>
+
+							</a>						
+						<p> 
+					
+							<a href="javascript:subcmd('view','71','0','0');">
+					
+								<strong class="g_tit">
+									<span>
+									레이크 2번홀
+									</span>
+									
+								</strong>
+							</a>
+
+							<span class="g_name">
+								관리자
+							</span> | 
+							<span class="g_date">
+								2018.12.05
+							</span>
+						</p>
+					</li>
+
+					<li>
+					
+							<a href="javascript:subcmd('view','70','0','0');">
+					
+								<img src="/UserFile/Board/CGALLERY/upload/CGALLERY_0_70_0_0_1_201812513.JPG" alt="" width="176px" height="176px"/>
+
+							</a>						
+						<p> 
+					
+							<a href="javascript:subcmd('view','70','0','0');">
+					
+								<strong class="g_tit">
+									<span>
+									래이크 1번홀
+									</span>
+									
+								</strong>
+							</a>
+
+							<span class="g_name">
+								관리자
+							</span> | 
+							<span class="g_date">
+								2018.12.05
+							</span>
+						</p>
+					</li>
+
+					<li>
+					
+							<a href="javascript:subcmd('view','69','0','0');">
+					
+								<img src="/UserFile/Board/CGALLERY/upload/CGALLERY_0_69_0_0_1_201812513.JPG" alt="" width="176px" height="176px"/>
+
+							</a>						
+						<p> 
+					
+							<a href="javascript:subcmd('view','69','0','0');">
+					
+								<strong class="g_tit">
+									<span>
+									힐 9번홀
+									</span>
+									
+								</strong>
+							</a>
+
+							<span class="g_name">
+								관리자
+							</span> | 
+							<span class="g_date">
+								2018.12.05
+							</span>
+						</p>
+					</li>
+
+					<li>
+					
+							<a href="javascript:subcmd('view','68','0','0');">
+					
+								<img src="/UserFile/Board/CGALLERY/upload/CGALLERY_0_68_0_0_1_201812513.JPG" alt="" width="176px" height="176px"/>
+
+							</a>						
+						<p> 
+					
+							<a href="javascript:subcmd('view','68','0','0');">
+					
+								<strong class="g_tit">
+									<span>
+									힐 8번홀
+									</span>
+									
+								</strong>
+							</a>
+
+							<span class="g_name">
+								관리자
+							</span> | 
+							<span class="g_date">
+								2018.12.05
+							</span>
+						</p>
+					</li>
+
+					<li>
+					
+							<a href="javascript:subcmd('view','67','0','0');">
+					
+								<img src="/UserFile/Board/CGALLERY/upload/CGALLERY_0_67_0_0_1_201812513.JPG" alt="" width="176px" height="176px"/>
+
+							</a>						
+						<p> 
+					
+							<a href="javascript:subcmd('view','67','0','0');">
+					
+								<strong class="g_tit">
+									<span>
+									힐 7번홀
+									</span>
+									
+								</strong>
+							</a>
+
+							<span class="g_name">
+								관리자
+							</span> | 
+							<span class="g_date">
+								2018.12.05
+							</span>
+						</p>
+					</li>
+
+					<li>
+					
+							<a href="javascript:subcmd('view','66','0','0');">
+					
+								<img src="/UserFile/Board/CGALLERY/upload/CGALLERY_0_66_0_0_1_201812513.JPG" alt="" width="176px" height="176px"/>
+
+							</a>						
+						<p> 
+					
+							<a href="javascript:subcmd('view','66','0','0');">
+					
+								<strong class="g_tit">
+									<span>
+									힐 6번홀
+									</span>
+									
+								</strong>
+							</a>
+
+							<span class="g_name">
+								관리자
+							</span> | 
+							<span class="g_date">
+								2018.12.05
+							</span>
+						</p>
+					</li>
+
+					<li>
+					
+							<a href="javascript:subcmd('view','65','0','0');">
+					
+								<img src="/UserFile/Board/CGALLERY/upload/CGALLERY_0_65_0_0_1_201812513.JPG" alt="" width="176px" height="176px"/>
+
+							</a>						
+						<p> 
+					
+							<a href="javascript:subcmd('view','65','0','0');">
+					
+								<strong class="g_tit">
+									<span>
+									힐 5번홀
+									</span>
+									
+								</strong>
+							</a>
+
+							<span class="g_name">
+								관리자
+							</span> | 
+							<span class="g_date">
+								2018.12.05
+							</span>
+						</p>
+					</li>
+
+					<li>
+					
+							<a href="javascript:subcmd('view','64','0','0');">
+					
+								<img src="/UserFile/Board/CGALLERY/upload/CGALLERY_0_64_0_0_1_201812513.JPG" alt="" width="176px" height="176px"/>
+
+							</a>						
+						<p> 
+					
+							<a href="javascript:subcmd('view','64','0','0');">
+					
+								<strong class="g_tit">
+									<span>
+									힐 4번홀
+									</span>
+									
+								</strong>
+							</a>
+
+							<span class="g_name">
+								관리자
+							</span> | 
+							<span class="g_date">
+								2018.12.05
+							</span>
+						</p>
+					</li>
+
+					<li>
+					
+							<a href="javascript:subcmd('view','63','0','0');">
+					
+								<img src="/UserFile/Board/CGALLERY/upload/CGALLERY_0_63_0_0_1_201812513.JPG" alt="" width="176px" height="176px"/>
+
+							</a>						
+						<p> 
+					
+							<a href="javascript:subcmd('view','63','0','0');">
+					
+								<strong class="g_tit">
+									<span>
+									힐 3번홀
+									</span>
+									
+								</strong>
+							</a>
+
+							<span class="g_name">
+								관리자
+							</span> | 
+							<span class="g_date">
+								2018.12.05
+							</span>
+						</p>
+					</li>
+
+					<li>
+					
+							<a href="javascript:subcmd('view','62','0','0');">
+					
+								<img src="/UserFile/Board/CGALLERY/upload/CGALLERY_0_62_0_0_1_201812513.JPG" alt="" width="176px" height="176px"/>
+
+							</a>						
+						<p> 
+					
+							<a href="javascript:subcmd('view','62','0','0');">
+					
+								<strong class="g_tit">
+									<span>
+									힐 2번홀
+									</span>
+									
+								</strong>
+							</a>
+
+							<span class="g_name">
+								관리자
+							</span> | 
+							<span class="g_date">
+								2018.12.05
+							</span>
+						</p>
+					</li>
+
+					<li>
+					
+							<a href="javascript:subcmd('view','60','0','0');">
+					
+								<img src="/UserFile/Board/CGALLERY/upload/CGALLERY_0_60_0_0_1_201812512.JPG" alt="" width="176px" height="176px"/>
+
+							</a>						
+						<p> 
+					
+							<a href="javascript:subcmd('view','60','0','0');">
+					
+								<strong class="g_tit">
+									<span>
+									힐 1번홀
+									</span>
+									
+								</strong>
+							</a>
+
+							<span class="g_name">
+								관리자
+							</span> | 
+							<span class="g_date">
+								2018.12.05
+							</span>
+						</p>
+					</li>
+
+				</ul>
+
+				<!-- 리스트// -->
+
+				<!-- //버튼 처리 -->
+				<p class="btn01">
+			
+				</p>
+
+				<div class="paging">
+					<form name='_PAGEFORM_' method='get' action='https://www.adelscott.co.kr/multi_board/site/board/list.asp' class='margin0'>
+<input type='hidden' name='groupcode' id= '__groupcode' value='CGALLERY'>
+<input type='hidden' name='open_state' id= '__open_state' value='1'>
+<input type='hidden' name='page_num' id='__page_num' value=''>
+<input type='hidden' name='page_size' id='__page_size' value=''>
+<a class="prev" title="이전 페이지"><img src='/image/cm_board/btn/bt_ad30.gif' alt='이전 페이지' /></a>
+
+<strong>1</strong> l
+<a href="javascript:pageFunction('2', '20')">2</a><a class="next" title="다음 페이지"><img src='/image/cm_board/btn/bt_ad31.gif' alt='다음 페이지' /></a>
+</form>
+<script>
+	function pageFunction(_page_num_, _page_size_){
+		document._PAGEFORM_.page_num.value = _page_num_
+		document._PAGEFORM_.page_size.value = _page_size_
+		document._PAGEFORM_.submit();
+	}
+</script>
+
+				</div>
+				<!-- 버튼 처리// -->
+
+			</div>
+			<!-- //내용삽입 -->			
+			<!-- 데이타 종료 -->
+		</div>
+
+
+
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- /content -->
+
+			
+	<!-- 푸터 시작 -->
+	<div id="footer">
+		<div class="foot_in">
+			<h2><img src="/image/common/logo2.png" alt="아델스코트" /></h2>
+			<div class="clause_ul">
+				<a href="/pagesite/clause/guide.asp">이용약관</a> l 
+				<a href="/pagesite/clause/info.asp">개인정보처리방침</a> l
+				<a href="/pagesite/clause/internet.asp">인터넷 서비스 이용약관</a>
+			</div>
+
+			<div class="addr">
+				<dl> 
+					<dt class="hide2">지번주소 :</dt>
+					<dd><img src="/image/common/icon_address.png" alt="" />경상남도 합천군 가야면 가조가야로 1916-10</dd>
+					<dt class="hide2">전화 :</dt>
+					<dd><img src="/image/common/icon_address2.png" alt="" />055) 930-7777</dd>
+					<dt class="hide2">팩스 :</dt>
+					<dd><img src="/image/common/icon_address3.png" alt="" />055) 930-7801(팩스)</dd>
+				</dl>
+				<dl>              
+					<dt>통신판매업신고번호 :</dt>
+					<dd>2009-경남합천군-0010</dd>
+				</dl>
+				<p>COPYRIGHT .2007 ADELSCOTT COUNTRY CLUB ALL RIGHTS RESERVED.</p>
+			</div>		
+		</div>
+	</div>
+	<!-- 푸터 종료 -->
+
+	<!-- quick reservation -->
+	<a href="javascript:quick_layout_info_html('')" class="quick_reserv"></a>
+	<div class="quick_layer" id="quickModalPop" >
+		<span class="bg"></span>
+		<div class="quick_layer_in">
+			<div id="quick_layout_info"></div>
+		</div>
+	</div>
+
+</div>
+
+<!-- 모달로그인 -->
+ <div class="login_modal_layer" id="loginModalPop" style="display:none;">
+	<div class="login_modal_bg"></div>
+	<div class="login_modal_con">
+		<div class="login_modal_con_in">
+			<div id="login_modal_info"></div>
+		</div>
+	</div>
+</div>
+
+<form name="login_modal_from" id="login_modal_from" method="post">
+	<input type="hidden" id="loginModalId" name="loginModalId" value="loginModalPop"/>
+</form>
+
+
+<script language="javascript" src="/js/golfRes.js"></script>
+
+<form name="quick_layoutform_info" id="quick_layoutform_info" method="post">
+	<input type="hidden" id="quick_golfrestype" name="golfrestype" value="real" />
+	<input type="hidden" id="quick_toDay" name="pointdate" value="" />	
+	<input type="hidden" id="quick_toopenyn" name="openyn" value="" />
+	<input type="hidden" id="quick_calnum" name="calnum" value="1"/>
+	<input type="hidden" id="quick_usrmemcd" name="usrmemcd" value="13" />
+	<input type="hidden" id="quick_settype" name="settype" value="T">
+</form>
+
+<form name="main_event_board_form" id="main_event_board_form" method="post">
+	<input type="hidden" id="main_event_code" name="main_event_code" value="" />	
+	<input type="hidden" id="main_event_type" name="main_event_type" value="L" />	
+	<input type="hidden" id="main_event_num"  name="main_event_num"  value="1" />	
+	<input type="hidden" id="main_event_size" name="main_event_size" value="5" />
+	<input type="hidden" id="main_event_sdate" name="sdate" value="" />
+	<input type="hidden" id="main_event_edate" name="edate" value="" />
+</form>
+
+<form name="MobileUrlSand_from" id="MobileUrlSand_from" method="post">
+	<input type="hidden" id="callType" name="callType" value="AJAX" />
+	<input type="hidden" id="mul_kind" name="kind" value="S" />
+	<input type="hidden" id="mul_comcode" name="comcode" value="" />
+	<input type="hidden" id="mul_user_name" name="user_name" value="" />
+	<input type="hidden" id="mul_user_member_cd" name="user_member_cd" value="" />
+	<input type="hidden" id="mul_hand_phone" name="hand_phone" value="" />
+	<input type="hidden" id="mul_msend_url" name="msend_url" value="m.adelscott.co.kr" />
+</form>
+
+
+</body>
+</html>
+<!-- ////////////////////////////////////////////////////////////////////////////////
+	Copyright(c)2026. cminfortek.com. All rights reserved.
+	이 사이트에 게제한 모든 소스와 정보에 대한 모든 권리는 씨엠인포텍(주)에게 있습니다.
+	사전 동의없이는 어떠한 형식과 방법으로든 무단 도용을 금합니다.
+	만일 위와 같은 권고에도 불구하고 무단 도용시 법적인 제재를 받으실 수 있습니다.
+	================================================================================
+	개인정보보호책임자 : XXXX (master@cminfor.co.kr)
+	기술 책임자 : XXXX (master@cminfor.co.kr)
+	컨텐츠 책임자 : XXXX (service@cminfor.co.kr)
+//////////////////////////////////////////////////////////////////////////////// -->
+
+<script type="text/javascript">			
+			CalAddCss(); // !!제일 상단에 필수!!
+			/*
+				id		:텍스트박스Id   // *필수
+				type	:day,mon	    // 둘중 하나입력		,기본값> 일달력 출력
+				minYear :xxxx			// 최소년도 4자리 입력	,기본값> 2000
+				maxYear :xxxx  			// 최대년도 4자리 입력	,기본값> 현재년도
+				splitKey:'-','/'		// 달력 구분값        	,기본값> '-'
+				todayYN :'y','n'		// today 표시         	,기본값> 안보여주기
+				iconYN  :'y','n'		// 달력그림표시여부	  	,기본값> 안보여주기
+				iconUrl :fullUrl 혹은 해당위치 상대경로 url'	,기본값> jquery 사이트 달력
+			 */
+			initCal({id:"sdate",type:"day",today:"y",icon:"n"});
+			initCal({id:"edate",type:"day",today:"y",icon:"n"});			
+</script>

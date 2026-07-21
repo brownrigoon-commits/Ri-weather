@@ -1,0 +1,1029 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <link rel="icon" href="/images/favicon.ico" type="image/x-icon" sizes="16x16">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>골든베이 골프&리조트</title>
+    <link rel="stylesheet" href="/css/layout.css" />
+    <link rel="stylesheet" href="/css/common.css" />
+    <link rel="stylesheet" href="/css/main.css?v=1.3">
+    <link rel="stylesheet" href="/css/contents.css">
+    <link rel="stylesheet" href="/css/swiper.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+	<script src="/js/jquery.preloaders.js"></script>
+	<script src="/js/tools.js"></script>
+	<script src="/js/globals.js?v=2"></script>
+    <script src="/js/common(260630).js?v=1"></script>
+    <script src="/js/popup.js"></script>
+    <script src="/js/validation.js"></script>
+    <script src="/js/swiper.min.js"></script>
+    
+    <!--바탕 폰트-->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang" rel="stylesheet">
+</head>
+
+<script>
+
+	let device = "Pc";
+
+	$(document).ready(function() {
+
+		if (location.hostname === "new.goldenbay.kr") {
+			const newUrl = location.href.replace("new.goldenbay.kr", "www.goldenbay.kr");
+			location.replace(newUrl);
+		  }
+
+		var mobileKeyWords = new Array('iPhone', 'iPod', 'iPad', 'BlackBerry', 'Android', 'Windows CE', 'MOT', 'SAMSUNG', 'SonyEricsson');
+		for (var word in mobileKeyWords) {
+			if ( navigator.userAgent.match(mobileKeyWords[word]) != null ) {
+				device = "Mo";
+				break;
+			} 
+		}
+
+		$("#txtId" + device).keypress(function (event) {
+			if(event.keyCode == 13) {
+				doLogin();
+			}
+		});
+
+		$("#txtPw" + device).keypress(function (event) {
+			if(event.keyCode == 13) {
+				doLogin();
+			}
+		});
+
+		$("#txtIdName" + device).keypress(function (event) {
+			if(event.keyCode == 13) {
+				doFindId();
+			}
+		});
+
+		$("#txtIdPhone" + device).keypress(function (event) {
+			if(event.keyCode == 13) {
+				doFindId();
+			}
+		});
+
+		$("#txtPwName" + device).keypress(function (event) {
+			if(event.keyCode == 13) {
+				doFindPw();
+			}
+		});
+
+		$("#txtPwPhone" + device).keypress(function (event) {
+			if(event.keyCode == 13) {
+				doFindPw();
+			}
+		});
+
+		$("#txtPwId" + device).keypress(function (event) {
+			if(event.keyCode == 13) {
+				doFindPw();
+			}
+		});
+	});
+
+	function doLogin() {
+		var sUrl = "/controller/MemberController.asp";
+		var params = {};
+		var page = "";
+
+		var id = $("#txtId" + device).val();
+		var pw = $("#txtPw" + device).val();
+
+		if(page == null || page == "") {
+			page = "/index.asp";
+		}
+
+		if(id == "") {
+			alert("아이디를 입력하세요.");
+			return;
+		}
+
+		if(pw == "") {
+			alert("비밀번호를 입력하세요.");
+			return;
+		}
+
+		params["method"] = "doLogin";
+		params["coDiv"] = globals.coDiv;
+		params["id"] = id;
+		params["pw"] = pw;
+
+		mAjax(sUrl, params, "POST", true, function(data) {
+			if(data.resultCode == "0000") {
+				location.href = page;
+			} else {
+				alert(data.resultMessage);
+			}
+		});
+	}
+
+	function doLogout() {
+		var sUrl = "/controller/MemberController.asp";
+		var params = {};
+
+		params["method"] = "doLogout";
+
+		mAjax(sUrl, params, "POST", true, function(data) {
+			if(data.resultCode == "0000") {
+				alert("로그아웃 되었습니다.");
+
+				location.href = "/index.asp";
+			}
+		});
+	}
+
+	function doFindId() {
+		var sUrl = "/controller/MemberController.asp";
+		var params = {};
+
+		params["method"] = "doFindId";
+		params["coDiv"] = globals.coDiv;
+
+		var name = $("#txtIdName" + device).val();
+		var phone = $("#txtIdPhone" + device).val();
+
+		if(name == "") {
+			alert("아이디를 찾기 위한 정보를 모두 입력해주세요.");
+			return;
+		}
+
+		if(phone == "" || phone.length != 11) {
+			alert("아이디를 찾기 위한 정보를 모두 입력해주세요.");
+			return;
+		}
+
+		params["name"] = name;
+		params["phone"] = phone;
+
+		mAjax(sUrl, params, "POST", true, function(data) {
+			if (data.resultCode == "0000") {
+				alert(`회원님의 아이디는 ${data.msId} 입니다.`);
+			} else {
+				alert(data.resultMessage);
+			}
+		});
+	}
+
+	function doFindPw() {
+		var sUrl = "/controller/MemberController.asp";
+		var params = {};
+
+		params["method"] = "doFindPw";
+		params["coDiv"] = globals.coDiv;
+
+		var name = $("#txtPwName" + device).val();
+		var id = $("#txtPwId" + device).val();
+		var phone = $("#txtPwPhone" + device).val();
+
+		if(name == "") {
+			alert("비밀번호를 찾기 위한 정보를 모두 입력해주세요.");
+			return;
+		}
+
+		if(phone == "" || phone.length != 11) {
+			alert("비밀번호를 찾기 위한 정보를 모두 입력해주세요.");
+			return;
+		}
+
+		if(id == "") {
+			alert("비밀번호를 찾기 위한 정보를 모두 입력해주세요.");
+			return;
+		}
+
+		params["name"] = name;
+		params["phone"] = phone;
+		params["id"] = id;
+
+		mAjax(sUrl, params, "POST", true, function(data) {
+			alert(data.resultMessage);
+		});
+	}
+
+</script>
+
+<body>
+    <div class="wrap-container">
+        <header class="header">
+            <div class="header-top">
+                <div class="menu">
+                    <button class="toggle-menu" id="menuClose">
+                        <span></span>
+                    </button>
+                </div>
+                <div class="close">
+                    <button class="close-btn">
+                        <span></span>
+                    </button>
+                </div>
+                <div class="logo">
+                    <a href="/index.asp">
+                        <h1>logo</h1>
+                    </a>
+                </div>
+                <div class="login-wrapper">
+					
+                    <div class="login pc close">
+                        <!-- <a href="/board/join/list.asp">조인게시판</a> -->
+                        <a href="/member/join.asp">회원가입</a>
+                        <a href="javascript:$('#menuClose').trigger('click');">로그인(회원)</a>
+                        <a href="/member/join.asp">로그인(비회원)</a>
+                    </div>
+                    <div class="login pc open">
+                        <!-- <a href="/board/join/list.asp">조인게시판</a> -->
+                        <a href="/member/join.asp">회원가입</a>
+                        <a href="javascript:$('#menuClose').trigger('click');">로그인(회원)</a>
+                        <a href="/member/join.asp">로그인(비회원)</a>
+                    </div>
+                    <div class="login mo">
+                        <a href="javascript:openLoginMobile();">
+                            <span class="icon toggle-login"></span>
+                        </a>
+                    </div>
+					
+                </div>
+            </div>
+        </header>
+
+        <!-- login Mobile -->
+        <div class="login-wrap mo">
+            <div class="login-container">
+                <form class="login-form">
+                    <div class="login-buttons">
+                        <a href="/member/join.asp" class="login-button">회원가입</a>
+                    </div>
+                    <div class="login-inputs">
+                        <input class="login-input" placeholder="아이디 / 이메일" type="text" id="txtIdMo">
+                        <input class="login-input" placeholder="비밀번호" type="password" id="txtPwMo">
+                    </div>
+                    <div class="login-buttons type2">
+                        <a href="javascript:openFindPW();" class="btn-pw login-button">잊어버리셨나요?</a>
+                        <a href="javascript:doLogin();" class="login-button">계속</a>
+                    </div>
+                </form>
+            </div>
+
+            <div class="find-container">
+                <form class="find-form">
+                    <div class="find-inputs">
+                        <label class="find-form-title">아이디 찾기</label>
+                        <input class="find-input" placeholder="이름" type="text" id="txtIdNameMo">
+                        <input class="find-input" placeholder="휴대폰번호(-없이)" type="text" id="txtIdPhoneMo" maxlength="11" onchange="ValidateNumber(this)">
+                        <p class="find-form-text">이름과 회원가입 시 입력한 휴대폰 번호로 아이디를 찾으실 수 있습니다.</p>
+                    </div>
+                    <div class="find-buttons">
+                        <a href="javascript:closeFindPW();">취소</a>
+                        <a href="javascript:doFindId();">확인</a>
+                    </div>
+                </form>
+                <div class="find-divider"></div>
+                <form class="find-form">
+                    <div class="find-inputs">
+                        <label class="find-form-title">비밀번호 찾기</label>
+                        <input class="find-input" placeholder="이름" type="text" id="txtPwNameMo">
+                        <input class="find-input" placeholder="아이디 / 이메일" type="text" id="txtPwIdMo">
+                        <input class="find-input" placeholder="휴대폰번호(-없이)" type="text" id="txtPwPhoneMo" maxlength="11" onchange="ValidateNumber(this)">
+                        <p class="find-form-text">이름, 아이디와 회원가입 시 입력한 휴대폰 번호로 비밀번호를 찾으실 수 있습니다.</p>
+                    </div>
+                    <div class="find-buttons">
+                        <a href="javascript:closeFindPW();">취소</a>
+                        <a href="javascript:doFindPw();">확인</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="menu-wrap">
+            <div class="menu-container">
+                <ul class="navi-menu">
+                    <li class="navi-gnb menu-list">
+                        <h2 class="title accordion-toggle">
+                            <a href="javascript:void(0);">골든베이</a>
+                            <span class="arrow"></span>
+                        </h2>
+                        <ul class="navi-lnb accordion-content">
+                            <li><a href="/about/about.asp">소개</a></li>
+                            <li><a href="/board/list.asp">공지사항</a></li>
+                            <li><a href="/about/guide.asp">이용안내</a></li>
+                            <li><a href="/about/guide.asp?tab=3">요금안내</a></li>
+                            <li><a href="/about/contact.asp">오시는 길</a></li>
+                            <li><a href="/about/tourist.asp">주변관광지</a></li>
+                            <!-- <li><a href="/about/contact.asp">연락처</a></li> -->
+                        </ul>
+                    </li>
+                    <li class="navi-gnb menu-list">
+                        <h2 class="title accordion-toggle">
+                            <a href="javascript:void(0);">예약</a>
+                            <span class="arrow"></span>
+                        </h2>
+                        <ul class="navi-lnb accordion-content">
+                            <li><a href="/reservation/pkg-reservation.asp">패키지 예약</a></li>
+                            <li><a href="/reservation/golf-reservation.asp">골프 예약</a></li>
+                            <li><a href="javascript:openAlertPopup()">투스칸빌리지 예약</a></li>
+                            <li><a href="/board/join/list.asp">조인 게시판</a></li>							
+                        </ul>
+                    </li>
+                    <li class="navi-gnb menu-list">
+                        <h2 class="title accordion-toggle">
+                            <a href="javascript:void(0);">골프코스</a>
+                            <span class="arrow"></span>
+                        </h2>
+                        <ul class="navi-lnb accordion-content">
+                            <li><a href="/course/course-info.asp">마운틴코스</a></li>
+                            <li><a href="/course/course-info.asp">오션코스</a></li>
+                            <li><a href="/course/course-info.asp">밸리코스</a></li>
+                        </ul>
+                    </li>
+                    <li class="navi-gnb menu-list">
+                        <h2 class="title accordion-toggle">
+                            <a href="javascript:void(0);">투스칸빌리지</a>
+                            <span class="arrow"></span>
+                        </h2>
+                        <ul class="navi-lnb accordion-content">
+                            <li><a href="/tuscan/tuscan-info.asp">객실 안내</a></li>
+                            <li><a href="javascript:moveSection('#garden', '/tuscan/tuscan-info.asp#garden')">가든</a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="navi-gnb menu-list">
+                        <h2 class="title accordion-toggle">
+                            <a href="javascript:void(0);">클럽하우스</a>
+                            <span class="arrow"></span>
+                        </h2>
+                        <ul class="navi-lnb accordion-content">
+                            <li><a href="/facilities/facilities-info.asp">레스토랑</a></li>
+                            <li><a href="/facilities/facilities-info.asp">로비</a></li>
+                            <li><a href="/facilities/facilities-info.asp">스타트하우스</a></li>
+                            <li><a href="/facilities/facilities-info.asp">사우나</a></li>
+                            <li><a href="/facilities/facilities-info.asp">락커룸</a></li>
+                        </ul>
+                    </li>
+					
+                </ul>
+                <!-- Mene-open : Mobile -->
+                <div class="login-mo-open">
+					
+                    <a href="javascript:toggleLoginWrap();">로그인</a>
+                    <a href="/member/join.asp">회원가입</a>
+					
+                </div>
+
+				
+                <!-- login Web -->
+                <!-- 로그인 완료시 hidden처리 -->
+                <div class="login-wrap pc">
+                    <div class="login-container">
+                        <form class="login-form">
+                            <div class="login-inputs">
+                                <input class="login-input" placeholder="아이디 / 이메일" type="text" id="txtIdPc">
+                                <input class="login-input" placeholder="비밀번호" type="password" id="txtPwPc">
+                            </div>
+                            <div class="login-buttons type2">
+                                <a href="javascript:openFindPW();" class="btn-pw login-button">잊어버리셨나요?</a>
+                                <a href="javascript:doLogin()" class="login-button">계속</a>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="find-container">
+                        <form class="find-form">
+                            <div class="find-inputs">
+                                <label class="find-form-title">아이디 찾기</label>
+                                <input class="find-input" placeholder="이름" type="text" id="txtIdNamePc">
+                                <input class="find-input" placeholder="휴대폰번호(-없이)" type="text" id="txtIdPhonePc" maxlength="11" onchange="ValidateNumber(this)">
+                                <p class="find-form-text">이름과 회원가입 시 입력한 휴대폰 번호로 아이디를 찾으실 수 있습니다.</p>
+                            </div>
+                            <div class="find-buttons">
+                                <a href="javascript:closeFindPW();">취소</a>
+                                <a href="javascript:doFindId();">확인</a>
+                            </div>
+                        </form>
+                        <div class="find-divider"></div>
+                        <form class="find-form">
+                            <div class="find-inputs">
+                                <label class="find-form-title">비밀번호 찾기</label>
+                                <input class="find-input" placeholder="이름" type="text" id="txtPwNamePc">
+                                <input class="find-input" placeholder="아이디 / 이메일" type="text" id="txtPwIdPc">
+                                <input class="find-input" placeholder="휴대폰번호(-없이)" type="text" id="txtPwPhonePc" maxlength="11" onchange="ValidateNumber(this)">
+                                <p class="find-form-text">이름, 아이디와 회원가입 시 입력한 휴대폰 번호로 비밀번호를 찾으실 수 있습니다.</p>
+                            </div>
+                            <div class="find-buttons">
+                                <a href="javascript:closeFindPW();">취소</a>
+                                <a href="javascript:doFindPw();">확인</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+				
+            </div>
+        </div>
+
+        <!-- [262077] 홈페이지 디자인수정 / 허가영 담당자 요청으로 주석처리 -->
+        <!-- <div class="quick-menu">
+            <a href="/board/list.asp" class="menu-item new-text">
+                <span class="menu-text">N</span>
+                <span class="new-text">NEWS</span>
+            </a>
+            <a href="javascript:openAlertPopup()" class="menu-item new-text">
+                <span class="menu-text">C</span>
+                <span class="new-text">COMMUNITY</span>
+            </a>
+            <a href="/reservation/golf-reservation.asp" class="menu-item new-text">
+                <span class="menu-text">B</span>
+                <span class="new-text">BOOKING</span>
+            </a>
+        </div> -->
+
+        <script>
+            $(document).ready(function () {
+                $('.quick-menu .menu-item').mouseover(function () {
+                    $(this).find('.menu-text').fadeOut('fast').css({ 'visibility': 'hidden', 'opacity': '0' });
+                    $(this).find('.new-text').fadeIn('fast').css({ 'visibility': 'visible', 'opacity': '1' });
+                });
+
+                $('.quick-menu .menu-item').mouseleave(function () {
+                    $(this).find('.menu-text').fadeIn('fast').css({ 'visibility': 'visible', 'opacity': '1' });
+                    $(this).find('.new-text').fadeOut('fast').css({ 'visibility': 'hidden', 'opacity': '0' });
+                });
+
+                let isLoginContainerOpen = false;
+
+            });
+
+			function openFindPW() {
+				$('.find-container').show();
+				$('.login-container').hide();
+				isLoginContainerOpen = false;
+
+				$('.header-top .close').on('click', function () {
+					if ($('.find-container').is(':visible')) {
+						$('.find-container').hide();
+						$('.login-container').show();
+						isLoginContainerOpen = true;
+					}
+				});
+			}
+
+			function closeFindPW() {
+				$('.find-container').hide();
+				$('.login-container').show();
+				isLoginContainerOpen = true;
+			}
+
+			function openAlertPopup() {
+				popup.open('/popup/popup-alert.asp', function ($el, $overlay, open, close) {
+					$el.find(".popup-btn.type01 a").on("click", close);
+					open();
+					document.body.classList.remove('scroll-y');
+				});
+			}
+
+            // function moveSection(target, page) {
+            //     if ($(target).length > 0) {
+            //         $("#menuClose").trigger("click");
+            //     } else {
+            //         location.href = page;
+            //     }
+            // }
+
+            function moveSection(target, page) {
+                console.log("moveSection called with target:", target);
+                if ($(target).length > 0) {
+                    console.log("Target found:", target);
+                    $("#menuClose").trigger("click");
+                } else {
+                    console.log("Target not found, redirecting to:", page);
+                    location.href = page;
+                }
+            }
+
+            // $(document).ready(function () {
+            //     $(".quick-menu .menu-item").mouseenter(function () {
+            //         const originalText = $(this).text();
+            //         const newText = {
+            //             "N": "NEWS",
+            //             "C": "COMMUNITY",
+            //             "B": "BOOKING"
+            //         };
+            //         $(this).append(`<div class="tooltip">${newText[originalText]}</div>`);
+            //     }).mouseleave(function () {
+            //         $(this).find(".tooltip").remove();
+            //     });
+            // });
+        </script>
+<div class="breadcrumbWrap">
+    <ul class="breadcrumb sub">
+        <li>
+            <a href="/course/course-info.asp">GOLF COURSE</a>
+        </li>
+        <li>
+            <svg xmlns="http://www.w3.org/2000/svg" width="10" height="16" viewBox="0 0 14 16" fill="none"
+                style="color: #000;">
+                <path stroke="currentColor" stroke-linejoin="bevel" stroke-width="2" d="m.5 1.5 13 6.5-13 6.5"></path>
+            </svg>
+        </li>
+        <li>
+            <a href="/course/ocean.asp">OCEAN COURSE</a>
+        </li>
+    </ul>
+</div>
+<div class="contents-wrap courseIn">
+    <div class="mountainSetion scroll">
+        <div class="tabContainer">
+            <a class="tab tabText" href="/course/mountain.asp">
+                <div class="arrowIcon">
+                    <img src="/images/left-arrow.svg" alt="">
+                </div>
+            </a>
+            <div class="tab selected tabText pc">OCEAN COURSE</div>
+            <div class="tab selected tabText mo">OCEAN</div>
+            <a class="tab tabText" href="/course/valley.asp">
+                <div class="arrowIcon">
+                    <img src="/images/right-arrow.svg" alt="">
+                </div>
+            </a>
+        </div>
+        <div class="course-content-wrap">
+            <div class="course-content">
+                <img src="/images/course/ocean.jpg" alt="">
+            </div>
+            <div class="imageAboveWrap">
+                <div class="courseDetailTitle">
+                    <div>서해 바다와 섬, 아름다운 낙조와 푸른 해송림이 사이에 펼쳐진<br>한국형 링크 코스로 바람 방향과 세기를 고려한 전략을 요하는 오션코스<br><br>BLACK :
+                        3,082 WHITE : 2,505 RED : 2,127<br>총장:3,113 m²</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="courseDetailSection">
+        <div class="course-detail-left">
+            <div class="courseHeader">
+                <h2 class="courseTitle">OCEAN</h2>
+                <ul class="courseHoleSelector">
+                    <li id="course1" class="on" onclick="courseTab(1)">1</li>
+                    <li id="course2" onclick="courseTab(2)">2</li>
+                    <li id="course3" onclick="courseTab(3)">3</li>
+                    <li id="course4" onclick="courseTab(4)">4</li>
+                    <li id="course5" onclick="courseTab(5)">5</li>
+                    <li id="course6" onclick="courseTab(6)">6</li>
+                    <li id="course7" onclick="courseTab(7)">7</li>
+                    <li id="course8" onclick="courseTab(8)">8</li>
+                    <li id="course9" onclick="courseTab(9)">9</li>
+                </ul>
+            </div>
+            <div class="course-video" id="courseVideo1">
+                <video src="/images/course/ocean/Video/ocean_01.mp4" autoplay loop playsinline></video>
+            </div>
+            <div class="course-video" id="courseVideo2" style="display: none;">
+                <video src="/images/course/ocean/Video/ocean_02.mp4" autoplay loop playsinline></video>
+            </div>
+            <div class="course-video" id="courseVideo3" style="display: none;">
+                <video src="/images/course/ocean/Video/ocean_03.mp4" autoplay loop playsinline></video>
+            </div>
+            <div class="course-video" id="courseVideo4" style="display: none;">
+                <video src="/images/course/ocean/Video/ocean_04.mp4" autoplay loop playsinline></video>
+            </div>
+            <div class="course-video" id="courseVideo5" style="display: none;">
+                <video src="/images/course/ocean/Video/ocean_05.mp4" autoplay loop playsinline></video>
+            </div>
+            <div class="course-video" id="courseVideo6" style="display: none;">
+                <video src="/images/course/ocean/Video/ocean_06.mp4" autoplay loop playsinline></video>
+            </div>
+            <div class="course-video" id="courseVideo7" style="display: none;">
+                <video src="/images/course/ocean/Video/ocean_07.mp4" autoplay loop playsinline></video>
+            </div>
+            <div class="course-video" id="courseVideo8" style="display: none;">
+                <video src="/images/course/ocean/Video/ocean_08.mp4" autoplay loop playsinline></video>
+            </div>
+            <div class="course-video" id="courseVideo9" style="display: none;">
+                <video src="/images/course/ocean/Video/ocean_09.mp4" autoplay loop playsinline></video>
+            </div>
+        </div>
+
+        <div class="course-detail-right" id="courseCon1">
+            <div class="right-content">
+                <div class="holeTitle">
+                    <h3 class="holeMainTitle">HOLE 1</h3>
+                    <small class="holeSubTitle">PAR 4</small>
+                </div>
+                <p class="courseDetailText detail-right">1ST IP 우측의 벙커와 노출암을 주의해 티샷한다면 거리에 대한 부담감 없이 편안하게 PLAY 할 수 있는
+                    홀이다. 2ND SHOT시 우측 벙커를 주의하여 PIN을 직접 공략 하는 것이 HOLE OUT하는데 유리 할 것이다.첫 홀 이므로 과욕을 부리기 보단 80%의 힘으로만 스윙 한다는
+                    느낌으로 평상심을 유지해 PLAY 한다면 PAR SAVE가 가능할 것이다.</p>
+            </div>
+
+            <div class="course-text">
+                <div class="holeTitle2">
+                    <h3 class="holeMainTitle">HOLE 1</h3>
+                    <small class="holeSubTitle">PAR 4</small>
+                </div>
+                <div class="courseLayoutWrap">
+                    <div class="courseLayout-img">
+                        <img src="/images/course/ocean/o1.png" alt="">
+                    </div>
+                    <ul class="courseMeterList">
+                        <li>
+                            <div class="courseMeterIcon black"></div>372m
+                        </li>
+                        <li>
+                            <div class="courseMeterIcon blue"></div>357m
+                        </li>
+                        <li>
+                            <div class="courseMeterIcon white"></div>331m
+                        </li>
+                        <li>
+                            <div class="courseMeterIcon yellow"></div>298m
+                        </li>
+                        <li>
+                            <div class="courseMeterIcon red"></div>265m
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="course-detail-right" id="courseCon2" style="display: none;">
+            <div class="right-content">
+                <div class="holeTitle">
+                    <h3 class="holeMainTitle">HOLE 2</h3>
+                    <small class="holeSubTitle">PAR 3</small>
+                </div>
+                <p class="courseDetailText detail-right">
+                    그린 뒤 노출암 너머로 바다가 보이는 아름다운 홀이다. TEE SHOT시 코스전경에 사로잡혀 집중력을 잃는다면, MISS SHOT에 이은 PENALTY가 따른다.그린앞의 넓은
+                    벙커와 그린을 둘러싸고 있는 노출암을 주의하여 PIN을 공략하여야 좋은 SCORE을 얻을 수 있는 홀이다.</p>
+            </div>
+
+            <div class="course-text">
+                <div class="holeTitle2">
+                    <h3 class="holeMainTitle">HOLE 2</h3>
+                    <small class="holeSubTitle">PAR 3</small>
+                </div>
+                <div class="courseLayoutWrap">
+                    <div class="courseLayout-img">
+                        <img src="/images/course/ocean/o2.png" alt="">
+                    </div>
+                    <ul class="courseMeterList">
+                        <li>
+                            <div class="courseMeterIcon black"></div>149m
+                        </li>
+                        <li>
+                            <div class="courseMeterIcon blue"></div>117m
+                        </li>
+                        <li>
+                            <div class="courseMeterIcon white"></div>97m
+                        </li>
+                        <li>
+                            <div class="courseMeterIcon yellow"></div>-m
+                        </li>
+                        <li>
+                            <div class="courseMeterIcon red"></div>78m
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="course-detail-right" id="courseCon3" style="display: none;">
+            <div class="right-content">
+                <div class="holeTitle">
+                    <h3 class="holeMainTitle">HOLE 3</h3>
+                    <small class="holeSubTitle">PAR 4</small>
+                </div>
+                <p class="courseDetailText detail-right">
+                    거리가 짧은 PAR 4 홀이지만 TEEING GROUND 전방에 펼쳐진 수림지대는 PLAYER를 경직되게 할 수 있다. 부담스럽지 않은 거리의 코스인 만큼 욕심을 줄이고 TEE
+                    SHOT을 한다면 무난히 HOLE OUT을 할 수 있는 홀이다.1ST IP 주변의 폭이 좁고 많은 벙커들이 있으므로 DRIVER 이외의 CLUB으로 TEE SHOT하는 것을
+                    권장한다.</p>
+            </div>
+
+            <div class="course-text">
+                <div class="holeTitle2">
+                    <h3 class="holeMainTitle">HOLE 3</h3>
+                    <small class="holeSubTitle">PAR 4</small>
+                </div>
+                <div class="courseLayoutWrap">
+                    <div class="courseLayout-img">
+                        <img src="/images/course/ocean/o3.png" alt="">
+                    </div>
+                    <ul class="courseMeterList">
+                        <li>
+                            <div class="courseMeterIcon black"></div>279m
+                        </li>
+                        <li>
+                            <div class="courseMeterIcon blue"></div>247m
+                        </li>
+                        <li>
+                            <div class="courseMeterIcon white"></div>219m
+                        </li>
+                        <li>
+                            <div class="courseMeterIcon yellow"></div>195m
+                        </li>
+                        <li>
+                            <div class="courseMeterIcon red"></div>177m
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="course-detail-right" id="courseCon4" style="display: none;">
+            <div class="right-content">
+                <div class="holeTitle">
+                    <h3 class="holeMainTitle">HOLE 4</h3>
+                    <small class="holeSubTitle">PAR 5</small>
+                </div>
+                <p class="courseDetailText detail-right">
+                    2ND IP까지 一자형으로 설계된 PAR 5 로 장타자에게 유리한 홀이다. TEE SHOT시 그린 전방에 위치한 워터 해저드를 고려하여 PLAY 전략을 구상해야 좋은 SCORE를
+                    얻을 수 있다. 거리에 자신있는 PLAYER 라면 2ND SHOT시 워터해저드를 가로 질러 바로 그린을 공략하는 루트를 추천한다. 정교한 두뇌플레이를 요구하는 홀로 다양한 대안들을
+                    설정한 후 PLAY 하여야 한다.</p>
+            </div>
+
+            <div class="course-text">
+                <div class="holeTitle2">
+                    <h3 class="holeMainTitle">HOLE 4</h3>
+                    <small class="holeSubTitle">PAR 5</small>
+                </div>
+                <div class="courseLayoutWrap">
+                    <div class="courseLayout-img">
+                        <img src="/images/course/ocean/o4.png" alt="">
+                    </div>
+                    <ul class="courseMeterList">
+                        <li>
+                            <div class="courseMeterIcon black"></div>532m
+                        </li>
+                        <li>
+                            <div class="courseMeterIcon blue"></div>481m
+                        </li>
+                        <li>
+                            <div class="courseMeterIcon white"></div>454m
+                        </li>
+                        <li>
+                            <div class="courseMeterIcon yellow"></div>433m
+                        </li>
+                        <li>
+                            <div class="courseMeterIcon red"></div>412m
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="course-detail-right" id="courseCon5" style="display: none;">
+            <div class="right-content">
+                <div class="holeTitle">
+                    <h3 class="holeMainTitle">HOLE 5</h3>
+                    <small class="holeSubTitle">PAR 4</small>
+                </div>
+                <p class="courseDetailText detail-right">TEEING GROUD 앞에 펼쳐진 워터해저드는 TEE SHOT시 부담으로 작용할 수 있고 우측까지 이어지는
+                    워터해저드와 송림지대는 슬라이스샷에 대해 경계심을 갖게 한다. 이럴 땐 드라이버를 고집하기보단 자신 있는 CLUB을 꺼내 TEE SHOT을 해보자. 짧은 전장의 PAR 4 홀이므로
+                    궁합이 잘 맞을 것이다.2ND SHOT시 그린주변의 벙커들을 고려하여 그린을 공략하는 요소 또한 중요하므로 이점들을 되내이며 PLAY한다면 기분 좋게 HOLE OUT 할 수 있을
+                    것이다.</p>
+            </div>
+
+            <div class="course-text">
+                <div class="holeTitle2">
+                    <h3 class="holeMainTitle">HOLE 5</h3>
+                    <small class="holeSubTitle">PAR 4</small>
+                </div>
+                <div class="courseLayoutWrap">
+                    <div class="courseLayout-img">
+                        <img src="/images/course/ocean/o5.png" alt="">
+                    </div>
+                    <ul class="courseMeterList">
+                        <li>
+                            <div class="courseMeterIcon black"></div>329m
+                        </li>
+                        <li>
+                            <div class="courseMeterIcon blue"></div>302m
+                        </li>
+                        <li>
+                            <div class="courseMeterIcon white"></div>268m
+                        </li>
+                        <li>
+                            <div class="courseMeterIcon yellow"></div>433m
+                        </li>
+                        <li>
+                            <div class="courseMeterIcon red"></div>203m
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="course-detail-right" id="courseCon6" style="display: none;">
+            <div class="right-content">
+                <div class="holeTitle">
+                    <h3 class="holeMainTitle">HOLE 6</h3>
+                    <small class="holeSubTitle">PAR 4</small>
+                </div>
+                <p class="courseDetailText detail-right">RIGHT HANDED PLAYER의 경우 TEE SHOT시 슬라이스 샷이 나기 쉬운 지형이므로 어드레스시 이점을
+                    유의해 플레이 한다. TEEING GROUND에서 부터 GREEN까지 한 눈에 보인는 一자형의 코스이나 1ST IP의 언듈레이션이 까다로우므로 이점에 유의한다.2ND SHOT시
+                    우측 2개의 벙커를 의식하고 PLAY 한다면 그린 언듈레이션이 무난하므로 손쉽게 좋은 SCORE를 획득할 수 있을 것이다.</p>
+            </div>
+
+            <div class="course-text">
+                <div class="holeTitle2">
+                    <h3 class="holeMainTitle">HOLE 6</h3>
+                    <small class="holeSubTitle">PAR 4</small>
+                </div>
+                <div class="courseLayoutWrap">
+                    <div class="courseLayout-img">
+                        <img src="/images/course/ocean/o6.png" alt="">
+                    </div>
+                    <ul class="courseMeterList">
+                        <li>
+                            <div class="courseMeterIcon black"></div>366m
+                        </li>
+                        <li>
+                            <div class="courseMeterIcon blue"></div>321m
+                        </li>
+                        <li>
+                            <div class="courseMeterIcon white"></div>295m
+                        </li>
+                        <li>
+                            <div class="courseMeterIcon yellow"></div>-m
+                        </li>
+                        <li>
+                            <div class="courseMeterIcon red"></div>256m
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="course-detail-right" id="courseCon7" style="display: none;">
+            <div class="right-content">
+                <div class="holeTitle">
+                    <h3 class="holeMainTitle">HOLE 7</h3>
+                    <small class="holeSubTitle">PAR 5</small>
+                </div>
+                <p class="courseDetailText detail-right">
+                    비교적 긴 거리의 LONG HOLE이나 내리막코스이므로 힘을 빼고 TEE SHOT을 하더라도 생각이상의 비거리를 기록할 수 있을 것이다. 거리에 대한 고려보단 1ST IP 좌우측의
+                    벙커를 의식하고 LANDING POINT를 설정해야하며 2ND IP의 언듈레이션이 비교적 복잡하므로 이 역시 인지해야 한다.그린 좌측의 3개의 벙커들은 HOLE OUT까지
+                    PLAYER의 긴장을 놓지 못하게 하는 요소이다.이런 난관을 극복하고 PLAYE한다면 큰 성취감을 느낄 수 있는 홀이다.</p>
+            </div>
+
+            <div class="course-text">
+                <div class="holeTitle2">
+                    <h3 class="holeMainTitle">HOLE 7</h3>
+                    <small class="holeSubTitle">PAR 5</small>
+                </div>
+                <div class="courseLayoutWrap">
+                    <div class="courseLayout-img">
+                        <img src="/images/course/ocean/o7.png" alt="">
+                    </div>
+                    <ul class="courseMeterList">
+                        <li>
+                            <div class="courseMeterIcon black"></div>524m
+                        </li>
+                        <li>
+                            <div class="courseMeterIcon blue"></div>486m
+                        </li>
+                        <li>
+                            <div class="courseMeterIcon white"></div>450m
+                        </li>
+                        <li>
+                            <div class="courseMeterIcon yellow"></div>-m
+                        </li>
+                        <li>
+                            <div class="courseMeterIcon red"></div>416m
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="course-detail-right" id="courseCon8" style="display: none;">
+            <div class="right-content">
+                <div class="holeTitle">
+                    <h3 class="holeMainTitle">HOLE 8</h3>
+                    <small class="holeSubTitle">PAR 3</small>
+                </div>
+                <p class="courseDetailText detail-right">무난한 PAR 3홀로 보이나 그린 주변의 벙커들과 긴 거리는 PLAYER에게 부담으로 작용할 수 있는 홀이다.
+                    바람에 의한 변수가 많은 홀이므로 TEE SHOT시 바람을 고려 하여 CLUB선택과 어드레스 방향을 설정한다.BEGINNER에게는 2 ON 전략이 알맞을 수 있지만 장타
+                    PLAYER 에겐 자신의 SHOT감각을 시험 할 수 있는 홀이다.</p>
+            </div>
+
+            <div class="course-text">
+                <div class="holeTitle2">
+                    <h3 class="holeMainTitle">HOLE 8</h3>
+                    <small class="holeSubTitle">PAR 3</small>
+                </div>
+                <div class="courseLayoutWrap">
+                    <div class="courseLayout-img">
+                        <img src="/images/course/ocean/o8.png" alt="">
+                    </div>
+                    <ul class="courseMeterList">
+                        <li>
+                            <div class="courseMeterIcon black"></div>212m
+                        </li>
+                        <li>
+                            <div class="courseMeterIcon blue"></div>175m
+                        </li>
+                        <li>
+                            <div class="courseMeterIcon white"></div>158m
+                        </li>
+                        <li>
+                            <div class="courseMeterIcon yellow"></div>-m
+                        </li>
+                        <li>
+                            <div class="courseMeterIcon red"></div>123m
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="course-detail-right" id="courseCon9" style="display: none;">
+            <div class="right-content">
+                <div class="holeTitle">
+                    <h3 class="holeMainTitle">HOLE 9</h3>
+                    <small class="holeSubTitle">PAR 5</small>
+                </div>
+                <p class="courseDetailText detail-right">
+                    부담스럽지 않은 거리의 PAR 4홀이지만 1ST IP 주변에 위치한 벙커들은 정확한 TEE SHOT을 요구한다. 방향성에 자신 없는 PLAYER에겐 DRIVER이외의 CLUB으로
+                    TEE SHOT을 하고 2ND SHOT시 MIDDLE IRON 으로 그린을 공략하는 전략을 추천한다.장타 PLAYER의 경우 좁은 넓이의 그린은 정교한 SHORT GAME을
+                    요구한다.자신 있는 CLUB을 선택하여 확신을 갖고 PLAY하는 것이 이 홀을 공략하는 가장 중요한 열쇠이다.</p>
+            </div>
+
+            <div class="course-text">
+                <div class="holeTitle2">
+                    <h3 class="holeMainTitle">HOLE 9</h3>
+                    <small class="holeSubTitle">PAR 5</small>
+                </div>
+                <div class="courseLayoutWrap">
+                    <div class="courseLayout-img">
+                        <img src="/images/course/ocean/o9.png" alt="">
+                    </div>
+                    <ul class="courseMeterList">
+                        <li>
+                            <div class="courseMeterIcon black"></div>319m
+                        </li>
+                        <li>
+                            <div class="courseMeterIcon blue"></div>279m
+                        </li>
+                        <li>
+                            <div class="courseMeterIcon white"></div>233m
+                        </li>
+                        <li>
+                            <div class="courseMeterIcon yellow"></div>-m
+                        </li>
+                        <li>
+                            <div class="courseMeterIcon red"></div>197m
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<footer class="footer-sub">
+    <div class="down-arrow-wrap2">
+        <img src="/images/down-arrow.svg" alt="">
+    </div>
+</footer>
+</div>
+<script>
+    $(document).ready(function () {
+        $('.scroll').scroll(function () {
+            const container = $(this);
+            const scrollTop = container.scrollTop();
+            const containerHeight = container.height();
+            const contentHeight = container.get(0).scrollHeight;
+
+            if (scrollTop + containerHeight >= contentHeight) {
+                $('.down-arrow-wrap2').fadeOut('slow');
+            } else {
+                $('.down-arrow-wrap2').fadeIn('slow');
+            }
+        });
+    });
+</script>
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v4513226cdae34746b4dedf0b4dfa099e1781791509496" integrity="sha512-ZE9pZaUXND66v380QUtch/5sE9tPFh2zg45pR2PB0CVkCtOREv2AJKkSidISWkysEuQ0EH8faUU5du78bx87UQ==" data-cf-beacon='{"version":"2024.11.0","token":"de9f4891b32a4c7ba3c624fc918787fa","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a1e3e7369faf30fd',t:'MTc4NDU3MDgyMg=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
+
+<script>
+    function courseTab(num) {
+        for (i = 1; i <= 9; i++) {
+            if (i == num) {
+                $("#course" + i).addClass("on");
+                $("#courseCon" + i).show();
+                $("#courseVideo" + i).show();
+            } else {
+                $("#course" + i).removeClass("on");
+                $("#courseCon" + i).hide();
+                $("#courseVideo" + i).hide();
+            }
+        }
+    }
+
+    if (location.href.indexOf("/course/ocean.asp") < 0) {
+        $('.breadcrumbWrap').hide();
+    } else {
+        $('.breadcrumbWrap').show();
+    }
+</script>

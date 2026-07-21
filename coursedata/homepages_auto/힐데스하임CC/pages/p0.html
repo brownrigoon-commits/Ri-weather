@@ -1,0 +1,474 @@
+
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>힐데스하임 컨트리클럽</title>
+    <meta name="Title" content="힐데스하임 컨트리클럽">
+    <meta name="Publisher" content="힐데스하임 컨트리클럽">
+    <meta name="Other Agent" content="힐데스하임 컨트리클럽">
+    <meta name="Author" content="힐데스하임 컨트리클럽" />
+    <meta name="Classification" content="힐데스하임 컨트리클럽">
+    <meta name="Location" content="Korea">
+    <meta name="robots" content="follow, all" />
+    <meta name="keywords" content="힐데스하임 컨트리클럽, 힐데스하임gc, 힐데스하임cc" />
+    <meta name="description" content="힐데스하임 컨트리클럽은 대한민국의 중심 충북 음성에서 셀프라운드의 새로운 기준을 세웁니다.">
+    <meta name="subject" content="HILDESHEIM Country Club"/>
+    <meta name="copyright" content="Copyright @ HILDESHEIM CC. All rights reserved." />
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="힐데스하임 컨트리클럽">
+    <meta property="og:image" content="/images/og-image.jpg">
+    <meta property="og:description" content="힐데스하임 컨트리클럽은 대한민국의 중심 충북 음성에서 셀프라운드의 새로운 기준을 세웁니다.">
+
+    <!-- Favicon -->
+    
+    <link rel="shortcut icon" href="/images/favicon.ico" type="image/x-icon"/>
+    <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="/css/common_dark.css">
+    <link rel="stylesheet" href="/css/style_dark.css">
+
+    <!-- JavaScript -->
+    <script type="text/javascript" src="/js/jquery-1.12.3.min.js"></script>
+    <script type="text/javascript" src="/js/jquery.easing.min.js"></script>
+    <script type="text/javascript" src="/js/bootstrap.bundle.min.js"></script>
+    <script type="text/javascript" src="/js/common_dark.js"></script>
+    <script type="text/javascript" src="/js/commonUtil.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+
+
+
+
+
+<link rel="preload" as="image" href="/images/main_video_poster03.jpg">
+<link rel="stylesheet" href="/css/common_main_dark.css">
+<link rel="stylesheet" href="/css/main_dark.css?ver=20260701">
+<link rel="stylesheet" href="/css/aos.css">
+<link rel="stylesheet" href="/css/slick.css">
+<link rel="stylesheet" href="/css/slick-theme.css">
+
+<script type="text/javascript" src="/js/common_main_dark.js"></script>
+<script type="text/javascript" src="/js/slick.min.js"></script>
+<script type="text/javascript" src="/js/aos.js"></script>
+<script type="text/javascript" src="/js/main_dark.js"></script>
+
+<script>
+	$(document).ready(function () {
+		buildNoticeList('1');
+		loadMainWeather();
+	});
+
+	/** API wthrCd → /images/weather/*.png (wthrCdNm 기준 분류) */
+	const MAIN_WTHR_CD_TO_ICON = {
+		'010': 'clear.png',
+		'011': 'fewCloudy.png',
+		'012': 'clear.png',
+		'013': 'manyClouds.png',
+		'015': 'cloudy.png',
+		'016': 'fewCloudy.png',
+		'020': 'cloudy.png',
+		'021': 'cloudy.png',
+		'022': 'fewCloudy.png',
+		'025': 'manyClouds.png',
+		'029': 'snow.png',
+		'030': 'rain.png',
+		'031': 'rain.png',
+		'032': 'cloudyRain.png',
+		'033': 'clear.png',
+		'034': 'rain.png',
+		'035': 'rain.png',
+		'036': 'manyCloudyRain.png',
+		'037': 'manyCloudyRain.png',
+		'040': 'snow.png',
+		'042': 'snowrRain.png',
+		'045': 'snow.png',
+		'046': 'snow.png',
+		'047': 'clear.png',
+		'048': 'clear.png'
+	};
+
+	function mainWeatherIconFromCd(wthrCd) {
+		if (wthrCd == null || wthrCd === '') return null;
+		var digits = String(wthrCd).replace(/\D/g, '');
+		if (!digits) return null;
+		var num = parseInt(digits, 10);
+		if (isNaN(num)) return null;
+		var key = String(num).padStart(3, '0');
+		return MAIN_WTHR_CD_TO_ICON[key] || null;
+	}
+
+	function mainWeatherIcon(d) {
+		var byCd = mainWeatherIconFromCd(d && d.wthrCd != null ? d.wthrCd : '');
+		return byCd || 'clear.png';
+	}
+
+	function formatMainWeatherLine(d) {
+		if (!d) return '';
+		var temp = d.timeAtmpr != null && d.timeAtmpr !== '' ? d.timeAtmpr : '-';
+		var obs = d.obsDate != null ? String(d.obsDate).replace(/\D/g, '') : '';
+		if (obs.length === 8) {
+			var y = parseInt(obs.substring(0, 4), 10);
+			var m = parseInt(obs.substring(4, 6), 10);
+			var day = parseInt(obs.substring(6, 8), 10);
+			var dt = new Date(y, m - 1, day);
+			var days = ['일', '월', '화', '수', '목', '금', '토'];
+			var w = days[dt.getDay()];
+			var mm = obs.substring(4, 6);
+			var dd = obs.substring(6, 8);
+			return mm + '/' + dd + '(' + w + ') ' + temp;
+		}
+		var line = '';
+		if (d.monthNm && d.dateNm) line = d.monthNm + '/' + d.dateNm;
+		else if (d.dateNm) line = d.dateNm;
+		return (line ? line + ' ' : '') + temp;
+	}
+
+	function loadMainWeather() {
+		ajaxCallAsync('/main/getWeather', '{}', function (res) {
+			var ok = res && res.header && (res.header.result === true || res.header.result === 'true');
+			var d = ok && res.data ? res.data : null;
+			if (Array.isArray(d) && d.length > 0) {
+				d = d[0];
+			}
+			if (!ok || !d) {
+				$('#mainWeatherText').text('');
+				$('#mainWeatherImg').attr('src', '/images/weather/clear.png').attr('alt', '');
+				return;
+			}
+			$('#mainWeatherText').text(formatMainWeatherLine(d));
+			var iconFile = mainWeatherIcon(d);
+			$('#mainWeatherImg').attr('src', '/images/weather/' + iconFile).attr('alt', iconFile);
+		});
+	}
+
+	function buildNoticeList(currentPage){
+		var param = {
+			currentPage:currentPage
+			, popUseYn: "Y"
+			, pagingPrcsYn: "N"
+		}
+		var url = '/blt/getNoticeList';
+		var noticeList = [];
+		var totCount = 0;
+		ajaxCallAsync(url, JSON.stringify(param), function (res) {
+			noticeList = res
+			if(res.header.code=='SUCCESS_SRCH' && res.data.bltList.length > 0){
+				noticeList = res.data.bltList;
+				totCount = res.data.totCount;
+			}
+
+			function mainNoticePopSeqKey(item) {
+				var raw = item.pop_seqo;
+				if (raw == null || raw === '') raw = item.popSeq;
+				if (raw == null || raw === '') raw = item.pop_seq;
+				if (raw == null || raw === '') return Number.POSITIVE_INFINITY;
+				var v = Number(String(raw).trim());
+				if (isNaN(v)) return Number.POSITIVE_INFINITY;
+				return v;
+			}
+
+			if (Array.isArray(noticeList) && noticeList.length > 0) {
+				noticeList.sort(function (a, b) {
+					return mainNoticePopSeqKey(a) - mainNoticePopSeqKey(b);
+				});
+			}
+
+			$("#boardList > div").remove();
+
+			if(noticeList.length>0) {
+				for(let i=0;i<noticeList.length;i++){
+					const notice = noticeList[i];
+
+					if(notice.popUseYn !== "1") continue;
+
+					let imgUrl = '';
+					if (notice.popImgRid != null && notice.popImgRid != '') {
+						imgUrl = '/blt/img/'+notice.popImgRid;
+					}
+
+					let html = '<div class="">'
+							+ '<a href="javascript:goNoticeView(\'' + notice.bltRid + '\');">'
+							+ '<img src="' + imgUrl + '" alt="' + notice.title + '">'
+							+ '<p>' + notice.title + '</p>'
+							+ '</a>'
+							+ '</div>';
+
+					$("#boardList").append(html);
+				}
+			}else {
+				$("#boardList").append('<div class=""><div class="no-cont">등록된 글이 없습니다.</div></div>');
+			}
+
+			initMainNoticeSlick();
+		});
+	}
+
+	function initMainNoticeSlick() {
+		$('.slider').slick({
+			dots: true,
+			infinite: true,
+			speed: 300,
+			slidesToShow: 5,
+			slidesToScroll: 5,
+			responsive: [
+				{
+					breakpoint: 1024,
+					settings: {
+						slidesToShow: 3,
+						slidesToScroll: 3,
+						infinite: true,
+						dots: true
+					}
+				},
+				{
+					breakpoint: 640,
+					settings: {
+						slidesToShow: 1,
+						slidesToScroll: 1
+					}
+				}
+			]
+		});
+	}
+
+	function goNoticeView(bltRid){
+		var form = document.createElement('form'); // 폼객체 생성
+		var objs;
+		objs = document.createElement('input'); // 값이 들어있는 녀석의 형식
+		objs.setAttribute('type', 'hidden'); // 값이 들어있는 녀석의 type
+		objs.setAttribute('name', 'bltRid'); // 객체이름
+		objs.setAttribute('value', bltRid); //객체값
+		form.appendChild(objs);
+		form.setAttribute('method', 'post'); //get,post 가능
+		form.setAttribute('action', '/blt/notice_view'); //보내는 url
+		document.body.appendChild(form);
+		form.submit();
+	}
+
+</script>
+
+<body data-aos-easing="ease-in-out" data-aos-duration="0" data-aos-delay="0" >
+    <header id="header" class="header">
+		<div class="container d-flex align-items-center justify-content-between" >
+			<nav class="nav-menu d-none d-lg-block">
+				<ul>
+					<li><a href="#notice" >NOTICE</a></li>
+					<li><a href="#information" >INFORMATION</a></li>
+					<li><a href="#course" >COURSE</a></li>
+					<li><a href="#location" >LOCATION</a></li>
+				</ul>
+			</nav>
+			<div class="wrap-util">
+				<div class="main-weather">
+					<div class="wrap-util">
+						<div class="main-weather">
+							<div id="mainWeatherText"></div>
+							<div><img id="mainWeatherImg" src="/images/weather/clear.png" alt=""></div>
+						</div>
+					</div>
+        
+					<div><a href="/oauth/kakao/start"> 회원가입</a></div>
+        
+				</div>
+			</div>
+		</div>
+	</header>
+    <p style="display: none;"></p>
+    <main id="main">
+		<section id="hero" class="hero">
+			<div class="video_wrap" data-aos="fade-in">
+				<video autoplay muted loop playsinline preload="metadata" poster="/images/main_video_poster03.jpg" class="pc">
+					<source src="/video/main_video.mp4?ver=20260701" />
+				</video>
+				<video autoplay muted loop playsinline preload="metadata" poster="/images/main_video_poster03.jpg" class="mobile">
+					<source src="/video/main_video_m.mp4?ver=20260701" />
+				</video>
+			</div>
+			<div class="text">
+				<div class="container">
+					<p><img src="/images/logo_main.png" alt="힐데스하임"></p>
+					<p>
+						
+						<a href="/oauth/kakao/start">실시간예약</a>
+						<a href="/oauth/kakao/start">내예약현황</a>
+						
+					</p>
+				</div>
+			</div>
+		</section>
+
+        <section id="notice" class="notice">
+			<div class="container main-title">
+				<div class="row">
+					<h2 class="col-md-12">NOTICE</h2>
+				</div>
+			</div>
+			<div class="notice-banner" data-aos="fade-up" data-aos-delay="100">
+				<div class="slider board-event" id="boardList">
+				</div>
+			</div>
+		</section>
+
+        <section id="information" class="information">
+			<div class="container main-title">
+				<div class="row">
+					<h2 class="col-md-12">Information</h2>
+				</div>
+			</div>
+
+			<div class="container" data-aos="fade-up" data-aos-delay="100">
+				<div class="row">
+					<div class="col-md-6">
+						<p>
+							대한민국의 중심 충북 음성에 위치한 중부권 최초의 셀프라운드 골프클럽 음성힐데스하임CC는 102만여제곱 부지의 정규 27홀로 조성된 스마트 골프장으로 셀프라운드를 염두에 두고 조성된 국내 골프산업의 새로운 기준이 될 스마트 골프장입니다.<br><br>
+							클럽하우스 로비에 들어서는 순간부터 눈앞에 펼쳐지는 10m 높이의 폭포를 중심으로 수백여 그루의 자생 철쭉나무에 피어난 연분홍색 꽃은 아름다운 경관을 제공합니다. 27홀의 어떠한 지점에서 바라봐도 모든 홀이 한눈에 들어오도록 설계된 코스는 시각적으로나 전략적으로 흥미로움을 불러일으키며, 8개의 호수는 모든 코스에서 아름다운 자연과 어우러진 다이나믹한 뷰를 만끽할 수 있게 설계되었습니다.
+						</p>
+						<ul class="info-list">
+							<li><a href="/intro/company">클럽소개</a></li>
+							<li><a href="/guide/fee">이용요금</a></li>
+							<li><a href="/guide/policy">예약방법 및 위약규정</a></li>
+							<li><a href="/guide/guide">이용가이드</a></li>
+							<li><a href="/guide/localrule">로컬룰·에티켓</a></li>
+							<li><a href="/intro/facility">부대시설</a></li>
+							<li><a href="/intro/restaurant">식음 메뉴</a></li>
+
+						</ul>
+					</div>
+					<div class="col-md-6"><div class="info-img"></div></div>
+				</div>
+			</div>
+		</section>
+
+        <section id="course" class="course">
+			<div class="container main-title">
+				<div class="row">
+					<h2 class="col-md-12">Course</h2>
+				</div>
+			</div>
+
+			<div class="container">
+				<div class="row course-wrap" data-aos="fade-up" data-aos-delay="100">
+					<div class="col-md-4">
+						<a href="/course/course_strategy">
+							<dl>
+								<dt>LAKE course</dt>
+								<dd>괴산 수옥폭포를 모티브로한 인공폭포와 그린을 감싸고 있는 멋진 호수를 바라볼 수 있는 광활하고 아름다운 코스입니다.</dd>
+							</dl>
+							<div class="more">more</div>
+						</a>
+					</div>
+					<div class="col-md-4">
+						<a href="/course/course_strategy02">
+							<dl>
+								<dt>HILL course</dt>
+								<dd>아름다운 경관의 아일랜드 홀이 있으며 울창한 자연림이 있어 자연을 즐길 수 있는 코스입니다.</dd>
+							</dl>
+							<div class="more">more</div>
+						</a>
+					</div>
+					<div class="col-md-4">
+						<a href="/course/course_strategy03">
+							<dl>
+								<dt>VALLEY course</dt>
+								<dd>자연림 계곡과 아름다운 호수가 있어 자연의 웅장함에 감탄할 수 있으며 도전정신을 불러일으키는 전략적인 코스입니다.</dd>
+							</dl>
+							<div class="more">more</div>
+						</a>
+					</div>
+				</div>
+			</div>
+		</section>
+
+        <section id="location" class="location">
+			<div class="container main-title">
+				<div class="row">
+					<h2 class="col-md-12">Location</h2>
+				</div>
+			</div>
+
+			<div class="container">
+				<div class="row" data-aos="fade-up" data-aos-delay="100">
+					<div class="col-md-12">
+						<div id="daumRoughmapContainer1698725548829" class="root_daum_roughmap root_daum_roughmap_landing"></div>
+						<script charset="UTF-8" class="daum_roughmap_loader_script" src="https://ssl.daumcdn.net/dmaps/map_js_init/roughmapLoader.js"></script>
+						<script charset="UTF-8">
+							new daum.roughmap.Lander({
+								"timestamp" : "1698725548829",
+								"key" : "2gnhw"
+								/*"mapHeight" : "500"*/
+							}).render();
+						</script>
+					</div>
+				</div>
+			</div>
+		</section>
+	</main>
+    <script type="text/javascript">
+
+        function goUserRule(ruleNo) {
+          var form = document.createElement('form'); // 폼객체 생성
+          var objs;
+          objs = document.createElement('input'); // 값이 들어있는 녀석의 형식
+          objs.setAttribute('type', 'hidden'); // 값이 들어있는 녀석의 type
+          objs.setAttribute('name', 'ruleNo'); // 객체이름
+          objs.setAttribute('value', ruleNo); //객체값
+          form.appendChild(objs);
+          form.setAttribute('method', 'post'); //get,post 가능
+          form.setAttribute('action', '/terms/userule'); //보내는 url
+          document.body.appendChild(form);
+          form.submit();
+        }
+      
+      </script>
+    <div id="footer">
+		<div class="terms-wrap">
+			<div class="container">
+				<div class="terms">
+					<a href="javascript:goUserRule('1');">인터넷서비스 이용약관</a>
+                    <a href="javascript:goUserRule('2');">이용약관</a>
+                    <a href="javascript:goUserRule('3');" style="font-weight: 700;">개인정보처리방침</a>
+                    <a href="javascript:goUserRule('4');">영상정보처리기기 운영방침</a>
+				</div>
+			</div>
+		</div>
+		<div class="container">
+			<div class="footer-txt">
+				<ul>
+					<li>Address. 충청북도 음성군 소이면 후삼로158번길 101 힐데스하임 컨트리클럽</li>
+					<li>Tel. 043-750-4000</li>
+					<li>Email. hildesheimcc@wonenc.co.kr</li>
+				</ul>
+				<div>Copyright © 2023 HILDESHEIM COUNTRY CLUB ALL RIGHT RESERVED.</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- 버튼 탑// -->
+	<div class="btn-top"><span>TOP</span></div>
+	
+	<!-- //버튼 탑 -->
+
+	<script>
+		if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+			AOS.init({ disable: true });
+		} else {
+			AOS.init({
+				easing: 'ease-out-back',
+				duration: 1000,
+				once: true,
+				throttleDelay: 200,
+				debounceDelay: 100
+			});
+		}
+	</script>
+
+</body>
+</html>

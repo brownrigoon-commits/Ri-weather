@@ -1,0 +1,186 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ko" xml:lang="ko">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>델피노</title>
+
+<link rel="stylesheet" type="text/css" href="/css/golf/dp/footer.css" id="stylesheet" />
+<link rel="stylesheet" type="text/css" href="/css/golf/dp/header.css" id="stylesheet" />
+<link rel="stylesheet" type="text/css" href="/css/golf/dp/reset.css" id="stylesheet" />
+
+<link rel="stylesheet" type="text/css" href="/css/golf/vc/owl.carousel.css" id="stylesheet" />
+<link rel="stylesheet" type="text/css" href="/css/golf/vc/owl.theme.default.css" id="stylesheet" />
+<link rel="stylesheet" type="text/css" href="/css/golf/vc/paging.css" id="stylesheet" />
+<link rel="shortcut icon" type="image/x-icon" href="/img/golf/favicon.ico" />
+<link rel="canonical" href="https://www.sonofelicecc.com/dp" />
+
+<script type="text/javascript" src="/js/golf/vc/jquery-1.9.1.js"></script>
+<script type="text/javascript" src="/js/golf/vc/jquery.easing.1.3.js"></script>
+<script type="text/javascript" src="/js/golf/vc/jquery.backgroundpos.js"></script>
+<script type="text/javascript" src="/js/golf/jquery.sliderkit.1.9.2.pack.js"></script>
+<script type="text/javascript" src="/js/golf/dp/jquery.js"></script>
+<script type="text/javascript" src="/js/golf/vc/cookie.js"></script>
+<script type="text/javascript" src="/js/golf/vc/owl.carousel.js"></script>
+<script type="text/javascript" defer="defer" ></script>
+
+<script src="/js/dm.js"></script>
+
+
+
+
+<link rel="stylesheet" type="text/css" href="/css/golf/dp/main.css" id="stylesheet" />
+<script type="text/javascript" src="/js/golf/vc/main.js"></script>
+
+<script>
+
+$(document).ready(function(){
+	var param = JSON.stringify({jiyukCd:"01"});
+	$.ajax({
+	    url : "/newnotice.getNoticeList.dp/dmparse.dm",
+	    type: "POST",
+	    data:param,
+	    contentType: "application/json;charset=UTF-8",
+	    success: function(data, textStatus, jqXHR)
+	    {
+	    	var url = "/dp.newnotice.noticeView.dp/dmparse.dm?idx=";
+	    	$("#noticeList").append('<li><a class="textLength" href="'+url+data[0].idx+'">'+data[0].title+'</a><span>'+data[0].insertSysDate+'</span></li>')
+	    	$("#noticeList").append('<li><a class="textLength" href="'+url+data[1].idx+'">'+data[1].title+'</a><span>'+data[1].insertSysDate+'</span></li>')
+	    	$("#noticeList").append('<li><a class="textLength" href="'+url+data[2].idx+'">'+data[2].title+'</a><span>'+data[2].insertSysDate+'</span></li>')
+	    },
+	    error: function (jqXHR, textStatus, errorThrown)
+	    {
+	 
+	    }
+	});
+	$.ajax({
+	    url : "/newevent.eventAddList1.dp/dmparse.dm",
+	    type: "POST",
+	    data: param,
+	    //data : formData,
+	    contentType: "application/json;charset=UTF-8",
+	    success: function(data, textStatus, jqXHR)
+	    {
+	    	data = data.list;
+	    	var url = "/dp.newevent.eventView.dp/dmparse.dm?idx=";
+	    	$ele=$("#eventList");
+	    	$ele.append('<div><a href="'+(url+data[0].idx)+'"><img class="img_size" src="/newevent.thumbView.dp/dmparse.dm?idx='+data[0].idx+'" alt=""/><p class="textLength">'+data[0].title+'</p></a></div>');
+	    	$ele.append('<div><a href="'+(url+data[1].idx)+'"><img class="img_size" src="/newevent.thumbView.dp/dmparse.dm?idx='+data[1].idx+'" alt=""/><p class="textLength">'+data[1].title+'</p></a></div>');
+	    	$ele.append('<div><a href="'+(url+data[2].idx)+'"><img class="img_size" src="/newevent.thumbView.dp/dmparse.dm?idx='+data[2].idx+'" alt=""/><p class="textLength">'+data[2].title+'</p></a></div>');
+		
+	    },
+	    error: function (jqXHR, textStatus, errorThrown)
+	    {
+	 
+	    }
+	});
+	
+	/* weatherData(param); */
+});
+
+function weatherData(param){
+
+	$.ajax({
+	    url : "/dmWeather.wInfo1.dp/dmparse.dm",
+	    type: "POST",
+	    data:param,
+	    contentType: "application/json;charset=UTF-8",
+	    //data : formData,
+	    success: function(data, textStatus, jqXHR)
+	    {
+	    	var $banner = $(".banner");
+	    	$banner.children()[2].innerHTML = data.week[0].wtext+'<span>'+data.week[0].maxtemp+'℃</span>';
+	    },
+	    error: function (jqXHR, textStatus, errorThrown)
+	    {
+	 
+	    }
+	});
+}
+</script>
+<style>
+.textLength{
+max-width:300px; white-space: nowrap;overflow: hidden; text-overflow: ellipsis;
+}
+.img_size{
+width:300px;
+height:190px;
+display: block;
+}
+</style>
+</head>
+<body>
+	
+	<!--   HEADER 로드   -->
+	<header></header>
+	
+	<div class="visual">
+		<div class="image-wrap">
+			<!-- <p>현대적 감각의 세련된 코스,<br>대자연 속에서 경험하는 감동의 샷</p> -->
+			<div class="image one"><img src="/img/golf/dp/main/dp_visual_1.jpg"  alt=""/></div>
+			<div class="image"><img src="/img/golf/dp/main/dp_visual_2.jpg"  alt=""/></div>
+			<div class="image"><img src="/img/golf/dp/main/dp_visual_3.jpg"  alt=""/></div>
+		</div>
+		<ul class="indi" style="display:none">
+			<li class="on"></li>
+			<li></li>
+			<li></li>
+		</ul>
+	</div>
+	
+	<!--   CONTENTS   -->
+	<section class="container-full">
+		<div class="notice">
+				<div class="board"style="margin-top:0px;">
+					<div class="left">
+						<p>NOTICE</p>
+						<a href="/dp.newnotice.noticeList.dp/dmparse.dm">더보기</a>
+					</div>
+					<ul class="right" id="noticeList" >
+					</ul>
+				</div>
+				<div class="btn">
+				
+				<!-- 
+				<a href="javascript:loginAndGo('/rsv.cal.dp/dmparse.dm?fJiyukCd=01&amp;pop=Y');">
+				 -->
+				<a href="/rsv.cal.dp/dmparse.dm?fJiyukCd=01">
+				
+				<img src="/img/golf/dp/main/btn-reservation.png" alt=""/></a></div>
+			</div>
+		<div class="container">
+			
+
+			<div class="event">
+				<p class="title">Event & invitation</p>
+
+				<div class="list" id="eventList">
+<!-- 					<div> -->
+<!-- 						<a href="#"> -->
+<!-- 							<img src="/img/golf/dp/main/event1.jpg" alt=""/> -->
+<!-- 							<p>2017 SUNSET ROUND</p> -->
+<!-- 						</a> -->
+<!-- 					</div> -->
+<!-- 					<div> -->
+<!-- 						<a href="#"> -->
+<!-- 							<img src="/img/golf/dp/main/event2.jpg" alt=""/> -->
+<!-- 							<p>현장스케치</p> -->
+<!-- 						</a> -->
+<!-- 					</div> -->
+					
+				</div>
+
+				<div class="banner">
+					<a href="/dcard.dcardInfo.dp/dmparse.dm">D.CARD</a>
+					<a href="/dp.lounge.sketchList.dp/dmparse.dm">현장스케치</a>
+					<!-- <a href="/dp.info.weather.dp/dmparse.dm">맑음<span>13.5℃</span></a> -->
+				</div>
+			</div>
+		</div>
+	</section>
+	<div id="login"></div>
+	<!--   FOOTER 로드   -->
+	<footer class="container-full"></footer>
+	
+</body>
+</html>

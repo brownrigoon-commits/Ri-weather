@@ -1,0 +1,2153 @@
+
+
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+    <meta name="keywords" content="마우나오션 C.C, 골프장">
+    <meta name="description" content="마우나오션 C.C에 오신것을 환영합니다. 실시간예약 및 안내 제공">
+    <title>마우나오션 C.C</title>
+    <meta property="og:type" content="website"> 
+	<meta property="og:title" content="마우나오션 C.C">
+	<meta property="og:description" content="마우나오션 C.C에 오신것을 환영합니다. 실시간예약 및 안내 제공">
+	<meta property="og:image" content="/static/pc/images/common/ogimage.png">
+	<meta property="og:url" content="https://mauna.co.kr/">
+	<!-- custom favicon 설정 -->
+    <link rel="shortcut icon" href="/static/common/images/favicon.ico">
+    <script type="text/javascript" src="/static/common/libs/jquery-3.6.0.js" charset="UTF-8"></script>
+    <!-- ui -->
+    <script type="text/javascript" src="/static/common_control/js/ui.js?ver=20260506" data-ver="20260506"></script>
+    <!-- css -->
+    <script type="text/javascript" src="/static/pc/js/include_css.js?ver=20260506" data-ver="20260506" charset="UTF-8"></script>
+    <!-- js -->
+    <script type="text/javascript" src="/static/pc/js/include_js.js?ver=20260506" data-ver="20260506" charset="UTF-8"></script>
+    
+    <script type="text/javascript" src="/static/pc/templates/setting.js?ver=20260506" data-ver="20260506" charset="UTF-8"></script>
+    <script>
+        
+            goSSL();
+        
+
+        //page_type
+	    //ui_custom.page_type.init();
+
+        //--basic Customizing(origin)-s
+        var mPage;
+
+        $(document).ready(function() {
+            //setProtocol();
+
+            initHeader();
+
+            initHeaderListener();
+        });
+
+        function setProtocol() {
+            if (document.location.protocol == 'http:') {
+                var sUrl = document.location.href;
+                sUrl = sUrl.replace('http:', 'https:');
+                sUrl = sUrl.replace('www.mauna.co.kr', 'mauna.co.kr');
+
+                document.location.href = sUrl;
+            }
+        }
+
+        function initHeader() {
+            mPage = "";
+            var open = "";
+
+            if ((mPage != "" || open == "Y") && "" == "") {
+                $('.loginWrap').slideToggle(400);
+            }
+        }
+
+        function initHeaderListener() {
+            $(".nav li").hover(function() {
+                $(this).children("ul").stop().delay(200).animate({
+                    height: "toggle",
+                    opacity: "toggle"
+                }, 200);
+            });
+
+            var chkId = getCookie("chkSaveId");
+            var id = getCookie("cookieId");
+
+            if (chkId != null && chkId != "") {
+                $("#chkSaveId").attr('checked', true);
+            }
+
+            if (id != null && id != "") {
+                $("#txtHeaderId").val(id);
+            }
+
+            $("#txtHeaderId").keypress(function(event) {
+                if (event.keyCode == 13) {
+                    doLogin();
+                }
+            });
+
+            $("#txtHeaderPw").keypress(function(event) {
+                if (event.keyCode == 13) {
+                    doLogin();
+                }
+            });
+        }
+
+        function doLogin() {
+            var sUrl = "/controller/MemberController.asp";
+            var params = {};
+
+            var id = $("#txtHeaderId").val();
+            var pw = $("#txtHeaderPw").val();
+
+            if (id == "") {
+                alert("아이디를 입력하세요.");
+                return;
+            }
+
+            if (pw == "") {
+                alert("비밀번호를 입력하세요.");
+                return;
+            }
+
+            params["method"] = "doLogin";
+            params["coDiv"] = globals.coDiv;
+            params["id"] = id;
+            params["pw"] = pw;
+
+            mAjax(sUrl, params, "POST", true, function(data) {
+                if (data.resultCode == "0000") {
+                    var chkSaveId = $('input:checkbox[id="chkSaveId"]').is(":checked");
+
+                    if (chkSaveId) {
+                        setCookie("cookieId", $("#txtHeaderId").val(), 365);
+                        setCookie("chkSaveId", true, 365);
+                    } else {
+                        setCookie("cookieId", "", 365);
+                        setCookie("chkSaveId", "", 365);
+                    }
+
+                    if (mPage != "") {
+                        location.href = mPage;
+                    } else {
+                        location.reload();
+                    }
+                } else {
+                    alert(data.resultMessage);
+                }
+            });
+        }
+
+        function doLogout() {
+            var sUrl = "/Controller/MemberController.asp";
+            var params = {};
+
+            params["method"] = "doLogout";
+
+            mAjax(sUrl, params, "POST", true, function(data) {
+                if (data.resultCode == "0000") {
+                    alert("로그아웃 되었습니다.");
+                    location.href = "/index.asp"
+                }
+            });
+        }
+
+        function onlyMainMenu(val) {
+            if (val == "1") {
+                $("#onlyMain").show();
+            } else(
+                $("#onlyMain").hide()
+            )
+        }
+        //--basic Customizing(origin)-e
+        
+        
+		$(document).ajaxError(function(event, request, settings, thrownError) {
+			if (request.status == 555) {
+				alert('다른 환경에서 접속되었습니다');
+				location.reload(true);
+				
+			}else if(request.status == 556){
+				alert('로그아웃되었습니다.\n로그인을 다시 해주시기 바랍니다.');
+				location.reload(true);
+				
+			}
+		});
+        
+    </script>
+</head>
+<body>
+
+	
+    <div class="lds-ring"><div></div><div></div><div></div><div></div></div>
+    
+    <div id="wrapper">
+        <!-- SkipNav -->
+        <div id="skipNav">
+            <a href="#gnb">주요 메뉴 바로가기</a>
+            <a href="#content">컨텐트 바로가기</a>
+        </div>
+        <!-- //SkipNav -->
+        
+        
+        <!-- 
+        <div class="right_area">
+            <a href="#sec0" class="btn right_btn right_menu aside-menu-open full" aria-controls="asideMenu" aria-expanded="false"><span><i class="ico ico-menu white"></i>메뉴</span></a>
+            <a href="/field/board/notice" class="btn right_btn right_notice"><span><i class="ico ico-notice white"></i>공지사항</span></a>
+            <a href="/field/reservation/golf" class="btn right_btn right_res"><span><i class="ico ico-res white"></i>실시간예약</span></a>
+        </div>
+ 		-->
+ 		
+        <!-- header -->
+        
+
+
+
+
+
+
+        <!-- Header -->
+        <header id="header" class="ouF-sec">
+            <div class="header-inner in-sec">
+                <div class="header-anb">
+                    <div class="header-logo">
+						<a href="/field/main" class="logo">LOGO</a>
+					</div>
+                    <nav class="gnb">
+                        <ul class="node1-list">
+                	
+                            
+                            
+                            
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                	
+	                                
+	                                    <li class="node1-item">
+	                                        
+												
+												
+												
+														<a href="/field/swp/club" class="node1-link">클럽소개</a>	
+												
+											
+	                                        <div class="node2-menu">
+												<ul class="node2-list">
+	                                
+	                                
+	                                
+	                                
+	                                
+	                                    
+	                                        
+	                                    
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										<li class="node2-item">
+											<a href="/field/swp/club" class="node2-link"><span>클럽개요</span></a>	
+										</li>						  
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										<li class="node2-item">
+											<a href="/field/swp/lpga" class="node2-link"><span>U.S LPGA</span></a>	
+										</li>						  
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										<li class="node2-item">
+											<a href="/field/swp/wemix" class="node2-link"><span>위믹스 챔피언십</span></a>	
+										</li>						  
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										<li class="node2-item">
+											<a href="/field/swp/club_house" class="node2-link"><span>클럽하우스</span></a>	
+										</li>						  
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										<li class="node2-item">
+											<a href="/field/swp/club_restaurant" class="node2-link"><span>레스토랑</span></a>	
+										</li>						  
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										<li class="node2-item">
+											<a href="/field/swp/club_bbq" class="node2-link"><span>BBQ가든</span></a>	
+										</li>						  
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										<li class="node2-item">
+											<a href="/field/swp/location" class="node2-link"><span>오시는길</span></a>	
+										</li>						  
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                            </ul>
+	                                        </div>
+	                                    </li>
+	                                    
+	                                
+	                                
+	                                
+	                                
+	                                	
+	                                
+	                                    <li class="node1-item">
+	                                        
+												
+												
+												
+														<a href="/field/swp/reserve_guide" class="node1-link">예약안내</a>	
+												
+											
+	                                        <div class="node2-menu">
+												<ul class="node2-list">
+	                                
+	                                
+	                                
+	                                
+	                                
+	                                    
+	                                        
+	                                    
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										<li class="node2-item">
+											<a href="/field/swp/reserve_guide" class="node2-link"><span>예약 및 위약</span></a>	
+										</li>						  
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										<li class="node2-item">
+											<a href="/field/reservation/resLot" class="node2-link"><span>우선예약신청</span></a>	
+										</li>						  
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										<li class="node2-item">
+											<a href="/field/reservation/golf" class="node2-link"><span>실시간예약</span></a>	
+										</li>						  
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										<li class="node2-item">
+											<a href="/field/reservation/resWait" class="node2-link"><span>대기예약</span></a>	
+										</li>						  
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										<li class="node2-item">
+											<a href="/field/joinRoom/joinRoomList" class="node2-link"><span>조인예약</span></a>	
+										</li>						  
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										<li class="node2-item">
+											<a href="/field/reservation/contest" class="node2-link"><span>대회신청</span></a>	
+										</li>						  
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                            </ul>
+	                                        </div>
+	                                    </li>
+	                                    
+	                                
+	                                
+	                                
+	                                
+	                                	
+	                                
+	                                    <li class="node1-item">
+	                                        
+												
+												
+												
+														<a href="/field/swp/charge" class="node1-link">이용안내</a>	
+												
+											
+	                                        <div class="node2-menu">
+												<ul class="node2-list">
+	                                
+	                                
+	                                
+	                                
+	                                
+	                                    
+	                                        
+	                                    
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										<li class="node2-item">
+											<a href="/field/swp/charge" class="node2-link"><span>이용요금</span></a>	
+										</li>						  
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										<li class="node2-item">
+											<a href="/field/swp/useGuide" class="node2-link"><span>이용방법</span></a>	
+										</li>						  
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										<li class="node2-item">
+											<a href="/field/swp/selfChkIn" class="node2-link"><span>셀프 체크인</span></a>	
+										</li>						  
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										<li class="node2-item">
+											<a href="/field/swp/selfRound" class="node2-link"><span>셀프 라운드</span></a>	
+										</li>						  
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										<li class="node2-item">
+											<a href="/field/swp/use_membership" class="node2-link"><span>회원권</span></a>	
+										</li>						  
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										<li class="node2-item">
+											<a href="/field/swp/use_yearGroup" class="node2-link"><span>연단체</span></a>	
+										</li>						  
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										<li class="node2-item">
+											<a href="/field/swp/golfPkg" class="node2-link"><span>골프 패키지</span></a>	
+										</li>						  
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										<li class="node2-item">
+											<a href="/field/swp/lost" class="node2-link"><span>습득물 관리 규정</span></a>	
+										</li>						  
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                            </ul>
+	                                        </div>
+	                                    </li>
+	                                    
+	                                
+	                                
+	                                
+	                                
+	                                	
+	                                
+	                                    <li class="node1-item">
+	                                        
+												
+												
+												
+														<a href="/field/swp/course" class="node1-link">코스 & 스코어카드</a>	
+												
+											
+	                                        <div class="node2-menu">
+												<ul class="node2-list">
+	                                
+	                                
+	                                
+	                                
+	                                
+	                                    
+	                                        
+	                                    
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										<li class="node2-item">
+											<a href="/field/swp/course" class="node2-link"><span>스코어카드</span></a>	
+										</li>						  
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										<li class="node2-item">
+											<a href="/field/swp/course_mauna" class="node2-link"><span>마우나 코스</span></a>	
+										</li>						  
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										<li class="node2-item">
+											<a href="/field/swp/course_blue" class="node2-link"><span>블루 코스</span></a>	
+										</li>						  
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										<li class="node2-item">
+											<a href="/field/swp/course_ocean" class="node2-link"><span>오션 코스</span></a>	
+										</li>						  
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                            </ul>
+	                                        </div>
+	                                    </li>
+	                                    
+	                                
+	                                
+	                                
+	                                
+	                                	
+	                                
+	                                    <li class="node1-item">
+	                                        
+												
+												
+												
+														<a href="/field/board/notice" class="node1-link">공지&이벤트</a>	
+												
+											
+	                                        <div class="node2-menu">
+												<ul class="node2-list">
+	                                
+	                                
+	                                
+	                                
+	                                
+	                                    
+	                                        
+	                                    
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										<li class="node2-item">
+											<a href="/field/board/notice" class="node2-link"><span>공지사항</span></a>	
+										</li>						  
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										<li class="node2-item">
+											<a href="/field/board/news" class="node2-link"><span>마우나 소식</span></a>	
+										</li>						  
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										<li class="node2-item">
+											<a href="/field/board/event" class="node2-link"><span>이벤트</span></a>	
+										</li>						  
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										<li class="node2-item">
+											<a href="/field/swp/faq" class="node2-link"><span>FAQ</span></a>	
+										</li>						  
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										<li class="node2-item">
+											<a href="/field/golfContents/hioBoard" class="node2-link"><span>명예의 전당</span></a>	
+										</li>						  
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										<li class="node2-item">
+											<a href="/field/swp/HoleInOneEvent" class="node2-link"><span>홀인원 이벤트</span></a>	
+										</li>						  
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                            </ul>
+	                                        </div>
+	                                    </li>
+	                                    
+	                                
+	                                
+	                                
+	                                
+	                                	
+	                                
+	                                    <li class="node1-item">
+	                                        
+												
+												
+												
+														<a href="/field/reservation/resList" class="node1-link">고객라운지</a>	
+												
+											
+	                                        <div class="node2-menu">
+												<ul class="node2-list">
+	                                
+	                                
+	                                
+	                                
+	                                
+	                                    
+	                                        
+	                                    
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										<li class="node2-item">
+											<a href="/field/reservation/resList" class="node2-link"><span>예약 및 위약확인</span></a>	
+										</li>						  
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										<li class="node2-item">
+											<a href="/field/myContents/couponList" class="node2-link"><span>나의 쿠폰</span></a>	
+										</li>						  
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										<li class="node2-item">
+											<a href="/field/myContents/scoreList" class="node2-link"><span>나의 스코어</span></a>	
+										</li>						  
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										<li class="node2-item">
+											<a href="/field/reservation/groupGolfRes" class="node2-link"><span>연단체 조편성</span></a>	
+										</li>						  
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										<li class="node2-item">
+											<a href="/field/board/customer" class="node2-link"><span>고객의 소리</span></a>	
+										</li>						  
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										<li class="node2-item">
+											<a href="/field/myContents/myInfo" class="node2-link"><span>마이페이지</span></a>	
+										</li>						  
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                            </ul>
+	                                        </div>
+	                                    </li>
+	                                    
+	                                
+	                                
+	                                
+	                                
+	                                
+	                                
+	                                
+	                                    
+	                                        
+	                                    
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+							</li>
+							<li class="node1-item">
+								<a href="/resort/main" target="_blank" class="node1-link"><span>콘도 바로가기</span></a>
+								<div class="node2-menu">
+									<ul class="node2-list"></ul>
+								</div>
+							</li>
+						</ul>
+						
+                    </nav>
+
+					<div class="header-utilMenu">
+						<ul>
+						   
+								
+								
+									<li><a href="/field/member/login"><span>로그인</span></a></li>
+									<li><a href="/field/member/joinStep1"><span>회원가입</span></a></li>
+								
+							
+							<li><a href="/field/reservation/golf"><span>골프예약</span></a></li>
+							
+							
+						</ul>
+					</div>
+                </div>
+            </div>
+        </header>
+        <!-- //Header -->
+        <div class="header_bg"></div>
+        <!--// header -->
+
+        <!-- container -->
+        
+
+
+
+
+
+
+<!-- Container -->
+<div class="container">
+    <!-- Content -->
+    <div id="content" class="content course1">
+        
+        
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+		 
+		
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+		
+		
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+		 
+	
+
+	
+
+	
+
+	
+ 
+
+
+
+
+	
+		
+		<div class="content-header">
+			<div class="tit-wrap">
+				<div class="inner">
+					<div class="page_title">
+						<em class="tit_s">코스소개</em>
+						<span class="tit_l">스코어카드</span>
+					</div>
+					
+					<div class="depth2_list">
+						<ul class="depth2">
+							
+								<li class="on"><a href="/field/swp/course"><span>스코어카드</span></a></li>
+							
+								<li class=""><a href="/field/swp/course_mauna"><span>마우나 코스</span></a></li>
+							
+								<li class=""><a href="/field/swp/course_blue"><span>블루 코스</span></a></li>
+							
+								<li class=""><a href="/field/swp/course_ocean"><span>오션 코스</span></a></li>
+							
+						</ul>
+					</div>
+				</div>
+				<div class="btn_resort_main">
+					<a href="/field/reservation/golf">
+						<i class="ico ico_resort"></i>
+						<p>예약<br/>바로가기</p>
+					</a>
+				</div>
+			</div>
+			
+			<span class="bg sub-04 bgLoad-01"></span>
+		</div>
+		
+	
+	
+
+
+        
+        <div class="content-body">
+            <div class="con">
+                <div class="couse_title">
+                    <h4>COURSE MAP</h4>
+                    <p>전 홀 어디서나 동해바다가 보이는 아름다운 골프장, 싱그러운 자연속에서 티샷의 쾌감을 즐길 수 있는 마우나 오션 컨트리 클럽입니다. 코스를 알면 골프가 즐겁다!</p>
+                    <div class="num_chk"><span>각 홀번호 클릭 시 상세 이미지 및 공략법을 보실 수 있습니다.</span></div>
+                </div>
+                <div class="course_map">
+                    <img src="/static/pc/images/sub/course/course_map.png" alt="코스 지도" usemap="#course">
+                    <map name="course">
+                        <area shape="circle" coords="165, 253, 15" href="javascript:sub.course_map.set('mauna', 1);" alt="마우나코스 1홀">
+                        <area shape="circle" coords="193, 219, 15" href="javascript:sub.course_map.set('mauna', 2);" alt="마우나코스 2홀">
+                        <area shape="circle" coords="418, 240, 15" href="javascript:sub.course_map.set('mauna', 3);" alt="마우나코스 3홀">
+                        <area shape="circle" coords="570, 261, 15" href="javascript:sub.course_map.set('mauna', 4);" alt="마우나코스 4홀">
+                        <area shape="circle" coords="666, 240, 15" href="javascript:sub.course_map.set('mauna', 5);" alt="마우나코스 5홀">
+                        <area shape="circle" coords="804, 295, 15" href="javascript:sub.course_map.set('mauna', 6);" alt="마우나코스 6홀">
+                        <area shape="circle" coords="740, 277, 15" href="javascript:sub.course_map.set('mauna', 7);" alt="마우나코스 7홀">
+                        <area shape="circle" coords="619, 292, 15" href="javascript:sub.course_map.set('mauna', 8);" alt="마우나코스 8홀">
+                        <area shape="circle" coords="364, 289, 15" href="javascript:sub.course_map.set('mauna', 9);" alt="마우나코스 9홀">
+                        <area shape="circle" coords="439, 310, 15" href="javascript:sub.course_map.set('ocean', 1);" alt="오션코스 1홀">
+                        <area shape="circle" coords="505, 325, 15" href="javascript:sub.course_map.set('ocean', 2);" alt="오션코스 2홀">
+                        <area shape="circle" coords="661, 325, 15" href="javascript:sub.course_map.set('ocean', 3);" alt="오션코스 3홀">
+                        <area shape="circle" coords="795, 362, 15" href="javascript:sub.course_map.set('ocean', 4);" alt="오션코스 4홀">
+                        <area shape="circle" coords="704, 387, 15" href="javascript:sub.course_map.set('ocean', 5);" alt="오션코스 5홀">
+                        <area shape="circle" coords="585, 368, 15" href="javascript:sub.course_map.set('ocean', 6);" alt="오션코스 6홀">
+                        <area shape="circle" coords="477, 422, 15" href="javascript:sub.course_map.set('ocean', 7);" alt="오션코스 7홀">
+                        <area shape="circle" coords="433, 383, 15" href="javascript:sub.course_map.set('ocean', 8);" alt="오션코스 8홀">
+                        <area shape="circle" coords="388, 357, 15" href="javascript:sub.course_map.set('ocean', 9);" alt="오션코스 9홀">
+                        <area shape="circle" coords="885, 196, 15" href="javascript:sub.course_map.set('blue', 1);" alt="블루코스 1홀">
+                        <area shape="circle" coords="973, 217, 15" href="javascript:sub.course_map.set('blue', 2);" alt="블루코스 2홀">
+                        <area shape="circle" coords="1022, 322, 15" href="javascript:sub.course_map.set('blue', 3);" alt="블루코스 3홀">
+                        <area shape="circle" coords="976, 619, 15" href="javascript:sub.course_map.set('blue', 4);" alt="블루코스 4홀">
+                        <area shape="circle" coords="925, 601, 15" href="javascript:sub.course_map.set('blue', 5);" alt="블루코스 5홀">
+                        <area shape="circle" coords="937, 539, 15" href="javascript:sub.course_map.set('blue', 6);" alt="블루코스 6홀">
+                        <area shape="circle" coords="972, 466, 15" href="javascript:sub.course_map.set('blue', 7);" alt="블루코스 7홀">
+                        <area shape="circle" coords="974, 347, 15" href="javascript:sub.course_map.set('blue', 8);" alt="블루코스 8홀">
+                        <area shape="circle" coords="852, 234, 15" href="javascript:sub.course_map.set('blue', 9);" alt="블루코스 9홀">
+                    </map>
+                </div>
+                
+                <div class="box-tit2">
+                	<h4>스코어카드</h4>
+                </div>
+                <div class="box-content2">
+                	<table class="table_custom">
+						<colgroup>
+							<col width="16.66%">
+							<col width="16.66%">
+							<col width="16.66%">
+							<col width="16.66%">
+							<col width="16.66%">
+							<col width="16.66%">
+						</colgroup>
+						<thead>
+							<tr>
+								
+								<th></th>
+								<th>COURSE RATING</th>
+								<th>MAUNA</th>
+								<th>OCEAN</th>
+								<th>BLUE</th>
+								<th>TOTAL</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<th>Black Tee</th>
+								<td>71.4</td>
+								<td>3,053</td>
+								<td>3,030</td>
+								<td>3,258</td>
+								<td>9,341</td>
+							</tr>
+							<tr>
+								<th>White Tee1</th>
+								<td>69.3</td>
+								<td>2,882</td>
+								<td>2,772</td>
+								<td>3,066</td>
+								<td>8,720</td>
+							</tr>
+							<tr>
+								<th>White Tee2</th>
+								<td>68.4</td>
+								<td>2,513</td>
+								<td>2,412</td>
+								<td>2,680</td>
+								<td>7,605</td>
+							</tr>
+							<tr>
+								<th>Red Tee</th>
+								<td>67.5</td>
+								<td>2,328</td>
+								<td>2,214</td>
+								<td>2,394</td>
+								<td>6,936</td>
+							</tr>
+							<tr>
+								<th class="red">PAR</th>
+								<td></td>
+								<td class="red">36</td>
+								<td class="red">36</td>
+								<td class="red">36</td>
+								<td class="red">108</td>
+							</tr>
+						</tbody>
+					</table>
+					<ul class="bul bill content_list m_t-10px">
+						<li>스코어카드의 거리는 그린 센터까지의 거리입니다. (단위:m)</li>
+					</ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- //Content -->
+</div>
+<!-- //Container -->
+        <!--// container-->
+
+        <!-- footer -->
+        
+
+
+
+
+
+
+
+<!-- Footer -->
+<footer id="footer" class="out-sec">
+    <div class="footer-inner in-sec">
+        <div class="logo_inner">
+            <a href="/field/main" class="logo gray">LOGO</a>
+            <!--Family Site-->
+            <div class="drop up family_site">
+                <button type="button" aria-controls="family_site" aria-haspopup="listbox" aria-expanded="false" class="btn drop-toggle"><span>Family Site <i class="ico ico_family"></i></span></button>
+                <div id="family_site" class="drop-menu">
+                    <ul class="drop-list" role="listbox">
+                        <li class="drop-item" role="option"><a href="https://hotelpoco.com" target="_blank">호텔 포코</a></li>
+                        <li class="drop-item" role="option"><a href="https://seacloudhotel.com" target="_blank">코오롱 씨클라우드 호텔</a></li>
+                        <li class="drop-item" role="option"><a href="https://maunaoceanresort.co.kr" target="_blank">마우나오션 리조트</a></li>
+                        <li class="drop-item" role="option"><a href="https://www.kolonhotel.co.kr/" target="_blank">경주 코오롱호텔</a></li>
+                        <li class="drop-item" role="option"><a href="https://hotelcappuccino.co.kr/" target="_blank">호텔 카푸치노</a></li>
+                    </ul>
+                </div>
+            </div>
+            <!--//Family Site-->
+        </div>
+        <div class="info_inner">
+        
+            <!-- Company Information -->
+            <div class="company_info">
+                <div class="row-01">
+                    <!-- terms -->
+		            <div class="terms">
+		                <ul>
+		                    <li><a href="/static/pc/agreeform/개인정보_처리방침_MOD.html?ver=260526" target="_blank" class="link_clause"><span>개인정보처리방침</span></a></li>
+		                    <li><a href="javascript:ui.popup.open('terms-02');"><span>영상정보처리방침</span></a></li>
+		                    <li><a href="javascript:ui.popup.open('terms-03');"><span>이메일무단수집거부</span></a></li>
+                            <li><a href="javascript:ui.popup.open('terms-04');"><span>이용약관 (회원제)</span></a></li>
+                            <li><a href="javascript:ui.popup.open('terms-05');"><span>이용약관 (비회원제)</span></a></li>
+		                </ul>
+		            </div>
+		            <!-- //terms -->
+                    <!-- sns -->
+                    <div class="sns">
+                        <a href="https://www.instagram.com/kolonhotels/" target="_blank" class="btn_f_sns insta"><span>인스타그램</span></a>
+                        <a href="/field/swp/location" class="btn_f_sns location"><span>오시는길</span></a>
+                        <a href="/resort/main" target="_blank" class="btn_f_sns resort"><span>리조트 바로가기</span></a>
+                    </div>
+                    <!-- //sns -->
+                </div>
+                <div class="row-02">
+                    <dl class="row-02-1">
+                        <dt>주소</dt>
+                        <dd>&nbsp;경상북도 경주시 양남면 동남로 982</dd>
+                        <dt>대표전화</dt>
+                        <dd>&nbsp;골프 054-740-0678 (FAX 054-776-4800)</dd>
+                    </dl>
+                    <dl class="row-02-2">
+                    	 
+                        <dt>사업자등록번호</dt>
+                        <dd>&nbsp;505-85-28820</dd>
+                        <dt>통신판매업 신고번호</dt>
+                        <dd>&nbsp;제2025-경북경주-0635호</dd>
+                    </dl>
+                </div>
+                <!-- Copyright -->
+                <p class="copyright">Copyright © 2019 MAUNA OCEAN RESORT. All rights reserved.</p>
+                <!-- //Copyright -->
+            </div>
+            <!-- //Company Information -->
+        
+        </div>
+
+		<!-- top btn -->
+		<div class="sticky_area">
+		    <a href="javascript:void(0);" class="btn_sticky sticky01"><span>TOP</span></a>
+		</div>
+		<!-- //top btn -->
+		
+    </div>
+</footer>   
+<!-- //Footer -->
+        
+<!-- 개인정보처리방침 팝업 -->
+<div id="terms-01" class="popup-wrap type-basic type01 footer" role="dialog">
+    <section class="popup demo1" tabindex="0">
+        <div class="popup-head">
+            <h3 id="popupContentTitle1">개인정보처리방침</h3>
+        </div>
+        <div class="popup-body">
+            <div class="popup-cont" id="terms_in-01">
+                
+
+            </div>
+        </div>
+        <div class="popup-foot">
+            <div class="btn-area flex-center">
+                <button type="button" id="fnPopClose" class="btn demo1 secondary" onclick="ui.popup.close('terms-01')"><span>닫기</span></button>
+            </div>
+        </div>
+        <div class="popup-close">
+            <button type="button" class="btn-ico btn-close" title="팝업닫기" onclick="ui.popup.close('terms-01')"><span><i class="ico ico-close1 white">Close</i></span></button>
+        </div>
+    </section>
+</div>
+<!-- //개인정보처리방침 팝업 -->
+
+<!-- 영상정보처리방침 팝업 -->
+<div id="terms-02" class="popup-wrap type-basic type01 footer" role="dialog">
+    <section class="popup demo1" tabindex="0">
+        <div class="popup-head">
+            <h3 id="popupContentTitle2">영상정보처리방침</h3>
+        </div>
+        <div class="popup-body">
+            <div class="popup-cont" id="terms_in-02">
+                
+
+            </div>
+        </div>
+        <div class="popup-foot">
+            <div class="btn-area flex-center">
+                <button type="button" id="fnPopClose" class="btn demo1 secondary" onclick="ui.popup.close('terms-02')"><span>닫기</span></button>
+            </div>
+        </div>
+        <div class="popup-close">
+            <button type="button" class="btn-ico btn-close" title="팝업닫기" onclick="ui.popup.close('terms-02')"><span><i class="ico ico-close1 white">Close</i></span></button>
+        </div>
+    </section>
+</div>
+<!-- //영상정보처리방침 팝업 -->
+
+<!-- 이메일무단수집거부 팝업 -->
+<div id="terms-03" class="popup-wrap type-basic type01 footer" role="dialog">
+    <section class="popup demo1" tabindex="0">
+        <div class="popup-head">
+            <h3 id="popupContentTitle3">이메일무단수집거부</h3>
+        </div>
+        <div class="popup-body">
+            <div class="popup-cont" id="terms_in-03">
+                
+
+            </div>
+        </div>
+        <div class="popup-foot">
+            <div class="btn-area flex-center">
+                <button type="button" id="fnPopClose" class="btn demo1 secondary" onclick="ui.popup.close('terms-03')"><span>닫기</span></button>
+            </div>
+        </div>
+        <div class="popup-close">
+            <button type="button" class="btn-ico btn-close" title="팝업닫기" onclick="ui.popup.close('terms-03')"><span><i class="ico ico-close1 white">Close</i></span></button>
+        </div>
+    </section>
+</div>
+<!-- //이메일무단수집거부 팝업 -->
+
+<!-- 이용약관 (회원제) 팝업 -->
+<div id="terms-04" class="popup-wrap type-basic type01 footer" role="dialog">
+    <section class="popup demo1" tabindex="0">
+        <div class="popup-head">
+            <h3 id="popupContentTitle4">이용약관 (회원제)</h3>
+        </div>
+        <div class="popup-body">
+            <div class="popup-cont" id="terms_in-04">
+                
+
+            </div>
+        </div>
+        <div class="popup-foot">
+            <div class="btn-area flex-center">
+                <button type="button" id="fnPopClose" class="btn demo1 secondary" onclick="ui.popup.close('terms-04')"><span>닫기</span></button>
+            </div>
+        </div>
+        <div class="popup-close">
+            <button type="button" class="btn-ico btn-close" title="팝업닫기" onclick="ui.popup.close('terms-04')"><span><i class="ico ico-close1 white">Close</i></span></button>
+        </div>
+    </section>
+</div>
+<!-- //이용약관 (회원제) 팝업 -->
+
+<!-- 이용약관 (비회원제) 팝업 -->
+<div id="terms-05" class="popup-wrap type-basic type01 footer" role="dialog">
+    <section class="popup demo1" tabindex="0">
+        <div class="popup-head">
+            <h3 id="popupContentTitle5">이용약관 (비회원제)</h3>
+        </div>
+        <div class="popup-body">
+            <div class="popup-cont" id="terms_in-05">
+                
+
+            </div>
+        </div>
+        <div class="popup-foot">
+            <div class="btn-area flex-center">
+                <button type="button" id="fnPopClose" class="btn demo1 secondary" onclick="ui.popup.close('terms-05')"><span>닫기</span></button>
+            </div>
+        </div>
+        <div class="popup-close">
+            <button type="button" class="btn-ico btn-close" title="팝업닫기" onclick="ui.popup.close('terms-05')"><span><i class="ico ico-close1 white">Close</i></span></button>
+        </div>
+    </section>
+</div>
+<!-- //이용약관 (비회원제) 팝업 -->
+
+
+<div class="dimmer"></div>
+
+<script>
+$(function(){
+	$('#terms_in-01').load('/static/pc/agreeform/agreeform-01.html', function() {});
+    $('#terms_in-02').load('/static/pc/agreeform/agreeform-02.html', function() {});
+    $('#terms_in-03').load('/static/pc/agreeform/agreeform-03.html', function() {});
+    $('#terms_in-04').load('/static/pc/agreeform/agreeform-04.html?ver=251201', function() {});
+    $('#terms_in-05').load('/static/pc/agreeform/agreeform-05.html', function() {});
+});
+</script>
+        <!--// footer -->
+    
+    </div>
+	<div id="ie_chk" class="ie_chk_area dp-none">
+		<button type="button" onclick="javascript:popHide('ie_chk')" class="btn-close"><span class="blind">현재창 닫기</span></button>
+		<div class="con">
+			<p class="tit">
+				<img src="/static/pc/images/common/ico_ie.png" alt="ie" />
+				본사이트는 <strong>Internet Explorer 11</strong>버전<br/>에 <strong class="color-01">최적화</strong> 되어 있습니다.
+			</p>
+			<span>
+				<p class="btxt">‘Explorer 11이하’ 에서는 사용이 원활하지 않을 수 있습니다.</p>
+				<p class="btxt">Internet Explorer 11은 2022년 6월 15일부터 사용 및 지원이 중지됩니다. Microsoft Edge 사용을 권장합니다.</p>
+				<p class="txt">Explorer를 최신 버전으로 업데이트 하시거나, <br /><strong class="color-01">Chrome, 네이버 Whale</strong> 등의 브라우저를 이용해 주시기 바랍니다.</p>
+				<a href="http://windows.microsoft.com/ko-kr/internet-explorer/download-ie" target="_blank" title="새창열림" class="btn-upgrade">지금 업그레이드</a>
+				<p class="chk-uclose"><input type="checkbox" name="ie_chk_close" id="ie_chk_close" onclick="popHide('ie_chk')" /><label for="ie_chk_close">일주일간 표시 안하기</label></p>
+			</span>			
+		</div>
+	</div>
+	<script type="text/javascript">
+	//익스플로러 중지 안내 활성화
+	var agent = navigator.userAgent.toLowerCase();
+	
+	function ie_setCookie(name, value, days) {
+        if (days) {
+                var date = new Date();
+                date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+                var expires = "; expires=" + date.toGMTString();
+        } else {
+               var expires = "";
+        }
+        
+        document.cookie = name + "=" + value + expires + "; path=/";
+	}
+
+	 
+	//일주일간 표시 안하기
+	function ie_getCookie(name) {
+        var i, x, y, ARRcookies = document.cookie.split(";");
+        
+        for (i = 0; i < ARRcookies.length; i++) {     
+            x = ARRcookies[i].substr(0, ARRcookies[i].indexOf("="));
+            y = ARRcookies[i].substr(ARRcookies[i].indexOf("=") + 1);
+            
+            x = x.replace(/^\s+|\s+$/g, "");
+
+            if (x == name) {
+                    return unescape(y);
+            }
+        }
+	}
+	
+	//ie_chk 레이어팝업 닫기
+	function popHide(pop_id){
+		//document.getElementById(pop_id).style.display = "none";
+		$("#"+pop_id).hide(1000);
+		ie_setCookie('ie_chk_close', 'close', 7); //7일 후 만료
+	}
+
+	$(window).ready(function(){ 
+        var ie_Pchk = ie_getCookie('ie_chk_close');
+        //console.log(ie_Pchk);
+        if( ie_Pchk == 'close'){
+        	$("#"+pop_id).hide(1000);
+        }else{
+            if((navigator.appName == 'Netscape' && agent.indexOf('trident') != -1) || (agent.indexOf("msie") != -1)){
+    			$('#ie_chk').removeClass('dp-none');
+            }
+    	}
+    });
+    </script>
+</body>
+</html>

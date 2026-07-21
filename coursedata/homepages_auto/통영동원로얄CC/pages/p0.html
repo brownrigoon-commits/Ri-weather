@@ -1,0 +1,3118 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html lang="ko">
+<head>
+	<meta name="naver-site-verification" content="ca543d1a4d11b4d50b15c297aa6c629f8c709abc"/>
+	<meta http-equiv="Content-Type" content="text/html; charset=euc-kr" />
+    <meta http-equiv="Cache-Control" content="no-cache" />
+    <meta http-equiv="Imagetoolbar" content="no" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<!--[if lt IE 8]><meta http-equiv="refresh" content="0; url=/ieupdate/ieupdate.html" /><![endif]-->
+	<meta name="viewport" content="width=device-width, height=device-height, minimum-scale=0.15, maximum-scale=1.0, target-densitydpi=medium-dpi, width=800" />
+	<meta name="author" content="" />
+	<meta name="description" content="통영동원로얄컨트리클럽 , 통영로얄cc " />
+	<meta name="keywords" content="" />
+	<title>통영동원로얄컨트리클럽</title>
+
+	<link rel="shortcut icon" href="/image/common_icon_and.ico" />
+	<link rel="apple-touch-icon-precomposed" href="/image/common_icon_and.ico" />
+	<link rel="stylesheet" type="text/css" href="/css/common.css?ver=1" />
+	<link rel="stylesheet" type="text/css" href="/css/calender.css" />
+	<link rel="stylesheet" type="text/css" href="/css/sub_new.css" />
+	<link rel="stylesheet" type="text/css" href="/css/cminfor.css" />
+	<link href='https://fonts.googleapis.com/css?family=Lato:400,100,300,700' rel='stylesheet' type='text/css'>
+
+<link rel="stylesheet" type="text/css" href="/css/main.css" />
+
+<style type="text/css">
+   #pop04{left:650px}
+    /* 동영상 구간을 지나면 메뉴를 항상 열림 상태로 유지 */
+  body.menu-fixed-open #header {
+    display: block !important;
+    left: 0 !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
+
+  /* 외부 js가 left 값으로 숨기는 경우 대비 */
+  body.menu-fixed-open .toggle_menu {
+    left: 0 !important;
+    z-index: 10000 !important;
+  }
+
+  body.menu-fixed-open #menuTrigger {
+    pointer-events: none;
+  }
+</style>
+
+<script language="javascript" type="text/javascript" src="/cm_JavaScript/common.js"></script>
+
+<script language="javascript" type="text/javascript" src="/js/common.js"></script>
+
+<script language="javascript" type="text/javascript" src="/cm_JavaScript/jquery/jquery-1.11.1.js"></script>
+<!--script language="javascript" type="text/javascript"	src="/static/plugins/jquery/jquery-3.2.1.min.js"></script-->
+
+<script language='javascript' type='text/javascript' src='/cm_JavaScript/jQuery/jquery.DOMWindow.js'></script>
+
+<script language="javascript" type="text/javascript" src="/cm_JavaScript/jquery/jquery-ui-1.11.1/jquery-ui.min.js"></script>
+
+<!-- <script language="javascript" type="text/javascript" src="/cm_JavaScript/body_size.js"></script> -->
+
+<script language="JavaScript" type="text/javascript" src="/cm_JavaScript/class.tooltip.js"></script>
+
+<script type="text/javascript" src="/js/menu.layer.js"></script>
+<script language="JavaScript" type="text/JavaScript">
+//<!--
+	/* Common */
+	//주소창 숨겨서 최적사이즈 맞추기
+	if (window.addEventListener != null)
+	{
+		window.addEventListener('load', function(){
+		setTimeout(scrollTo, 0, 0, 0);//페이지 이동이나 새로고침시 화면 1px씩 올라가는것 때문에 setTimeout(scrollTo, 0, 0, 1);을 수정
+		}, false); 
+	}
+
+
+	/*##################################################################################################################################################################*/
+	//------------------------------------------------------------
+	// 현재세팅값으로 다시 로딩 작업 진행.
+	//------------------------------------------------------------	
+	function main_fnReload(cal, time){
+		//alert(cal+" | "+time);
+		// 기존값 가져오기	
+		var prevDate = $("#main_chang_prevDate").val();
+		var nowDate  = $("#main_chang_nowDate").val();
+		var nextDate = $("#main_chang_nextDate").val();
+		var pointdate = $("#main_toDay").val();
+
+		// 카렌더 호출
+		if (cal == "T"){
+			main_calendar_change(prevDate, nowDate, nextDate, pointdate)
+		}				
+	}
+
+	//------------------------------------------------------------
+	// 카렌더 처리 부분
+	//------------------------------------------------------------	
+	// 달렬변경 부분 (이전달, 현재달, 다음달, 선택날짜)
+	function main_calendar_change(prevDate, nowDate, nextDate, pointdate){
+		//alert(prevDate +" | "+nowDate +" | "+nextDate +" | "+pointdate +"");
+		
+		// 변경값 세팅 부분
+		$("#main_chang_prevDate").val(prevDate);
+		$("#main_chang_nowDate").val(nowDate);
+		$("#main_chang_nextDate").val(nextDate);
+		$("#main_toDay").val(pointdate)
+		
+		// 달력 갯수 세팅 부분
+		var scnt = 1;
+		
+		// 달력 세팅 부분
+		if (scnt == 3){
+			// 달력호출
+			main_calendar_view(prevDate, 1)
+			main_calendar_view(nowDate, 2)
+			main_calendar_view(nextDate, 3)
+		}else if (scnt == 2){
+			// 달력호출
+			main_calendar_view(nowDate, 1)
+			main_calendar_view(nextDate, 2)
+		}else{
+			// 달력호출
+			main_calendar_view(nowDate, 1)
+		}
+	}
+
+	// 달력 세팅 부분
+	function main_calendar_view(sdate, cid){
+
+		//alert(sdate +" | "+cid +"");
+	
+		var actionurl = "";
+
+		if (sdate != ""){ 
+			$("#main_schDate").val(sdate);
+		}
+		$("#main_calnum").val(cid);
+		
+		//
+	
+		actionurl = "/GolfRes/mainpage/main_calendar_new_ajax_view.asp";
+		
+		
+		var tt = 0;
+		if (tt == 1){
+			$("#main_listform_calender").attr("action", actionurl);
+			$("#main_listform_calender").submit();
+		}else{
+			$.ajax({
+				async: false,
+				type: "post",
+				url : actionurl,
+				data : $("#main_listform_calender").serialize(),
+				dataType : "html",
+				success: function(obj){
+					$("#main_calendar_view_ajax_"+cid+"").html(obj);
+				},
+				error: function(xhr, option, error){
+					  alert(xhr.status+" | "+error); //오류코드 | 오류내용
+				}
+				/*error : function(success){
+					meg = "서버와 통신중 에러가 발생하였습니다."
+					alert("처리결과 : "+meg);
+				}*/
+				, beforeSend: function() {
+					//통신을 시작할때 처리	
+					$("#main_calendar_view_ajax_"+cid+"").html('<img src="/image/loading.gif" alt="loading"/>');
+				}
+				, complete: function() {
+					//통신이 완료(success)된 후 처리
+					//$("#main_calendar_view_ajax_"+cid+"").html('');
+				}
+			});
+		}
+	}
+
+	/*##################################################################################################################################################################*/
+	//------------------------------------------------------------
+	// 타임리스트 데이터 처리 부분
+	//------------------------------------------------------------
+	// 타임리스트 호출 부분
+	function main_timefrom_change(pointdate, openyn, dategbn, courseid, time, atype, main_link_code){
+		//alert(pointdate+" | "+openyn+" | "+dategbn+" | "+courseid+" | "+time+" | "+atype+" | "+main_link_code)
+		//return;
+		// 카렌더에 날자변경 세팅 부분
+		$("#main_toDay").val(pointdate)
+		//alert($("#toDay").val());
+		
+		
+		// 초기화
+		if (pointdate == ""){ pointdate = $("#main_golf_pointdate").val() }
+		if (courseid == ""){ courseid = $("#main_golf_courseid").val() }
+		if (openyn == ""){ openyn = $("#main_golf_openyn").val() }
+		if (dategbn == ""){ dategbn = $("#main_golf_dategbn").val() }
+		if (time == ""){ time = $("#main_golf_choice_time").val() }
+		if (time == ""){ time = "00" }
+		if (atype == ""){ atype = $("#main_golf_restype").val() }		
+
+		// 처리
+		$("#main_golf_pointdate").val(pointdate);
+		$("#main_golf_openyn").val(openyn);
+		$("#main_golf_dategbn").val(dategbn);
+		$("#main_golf_choice_time").val(time);
+		$("#main_golf_restype").val(atype);
+	
+		var actionurl = "" 
+
+		//$("#golf_settype").val("R");
+//		if (main_link_code == ""){
+			
+				actionurl = "/GolfRes/onepage/real_reservation.asp"
+			
+//		}else{
+			
+//				actionurl = "/GolfRes/onepage/"+main_link_code+"_reservation.asp"
+			
+//		}
+
+		//
+		$("#main_golf_reservation").attr("action", actionurl);
+		$("#main_golf_reservation").submit();
+	}
+
+	/*##################################################################################################################################################################*/
+	//------------------------------------------------------------
+	// Div 달력 팝업
+	//------------------------------------------------------------
+	function mainDivCalendrShow(course_cnt, resdate, courseinfo, teaminfo, e, calltype) {
+		//alert("popDivCalendrShow");
+
+		//alert((posx)+"|"+(posy));
+		var cnt = course_cnt
+		var cntinfo = courseinfo.split("|");
+		var teaminfo = teaminfo.split("|");  
+		//
+
+		if (calltype == "L"){
+		}else{
+			//타이틀
+			//$("#popcalendardiv #bookgtitle").empty().append("[예약가능팀수("+totalcnt+"팀)]");
+			$("#res_date").empty().append(resdate);
+			
+			//
+			for (i=1; i<=cnt; i++)
+			{
+				$("#courseinfoname_"+i).empty().append(cntinfo[i-1]);
+				$("#courseinfoteam_"+i).empty().append(teaminfo[i-1]);
+			}
+		}
+	}
+
+	function mainDivCalendrHide(course_cnt, courseinfo) {
+		var cnt = course_cnt
+		var cntinfo = courseinfo.split("|");
+		//
+		for (i=1; i<=cnt; i++)
+		{
+			$("#courseinfoname_"+i).empty().append(cntinfo[i-1]);
+			$("#courseinfoteam_"+i).empty().append(0);
+		}
+	}
+
+
+
+	/*##########################################################################################*/
+	// 메인 게시판리스트 세팅 부분.
+	function main_multi_board_list(site, list_id, list_code, list_type, list_num, list_size){
+
+		//alert(site +" | "+list_id +" | "+list_code +" | "+list_type +"");
+
+		// 설정부분.....
+		$("#main_board_code").val(list_code);
+		$("#main_board_type").val(list_type);
+		$("#main_board_num").val(list_num);
+		$("#main_board_size").val(list_size);
+
+		var actionurl = "/cm_include/_ajax/"+site+"/ajax_main_multi_board_list_skin.asp";
+
+		var tt = 0;
+		if (tt == 1){
+			$("#main_multi_board_list").attr("action", actionurl);
+			$("#main_multi_board_list").submit();
+		}else{
+			$.ajax({
+				async: false,
+				type: "post",
+				url : actionurl,
+				data : $("#main_multi_board_list").serialize(),
+				dataType : "html",
+				success: function(obj){
+					$("#"+list_id+"").html(obj);
+					//
+					if (list_id == "main_board_list"){
+						//board_rolling();
+					}
+				},
+				error: function(xhr, option, error){
+					  alert(xhr.status+" | "+error); //오류코드 | 오류내용
+				}
+				/*error : function(success){
+					meg = "서버와 통신중 에러가 발생하였습니다."
+					alert("처리결과 : "+meg);
+				}*/
+				, beforeSend: function() {
+					//통신을 시작할때 처리	
+					$("#"+list_id+"").html('<img src="/image/loading.gif" alt="loading"/>');
+				}
+				, complete: function() {
+					//통신이 완료(success)된 후 처리
+					//$("#"+list_id+"").html('');
+				}
+			});
+		}
+	}
+
+
+
+	/*##########################################################################################*/
+	// 메인 이벤트리스트 세팅 부분.
+	function main_event_board_list(site, list_id, list_code, list_type, list_num, list_size){
+		//alert(site +" | "+list_id +" | "+list_code +" | "+list_type +"");
+
+		// 설정부분.....
+		$("#main_event_code").val(list_code);
+		$("#main_event_type").val(list_type);
+		$("#main_event_num").val(list_num);
+		$("#main_event_size").val(list_size);
+
+
+		var actionurl = "/cm_include/_ajax/"+site+"/ajax_main_event_board_list.asp";
+
+		var tt = 0;
+		if (tt == 1){
+			$("#main_event_board_list").attr("action", actionurl);
+			$("#main_event_board_list").submit();
+		}else{
+			$.ajax({
+				async: false,
+				type: "post",
+				url : actionurl,
+				data : $("#main_event_board_list").serialize(),
+				dataType : "html",
+				success: function(obj){
+					//alert(obj);
+					$("#"+list_id+"").html(obj);	
+					//
+					if (list_id == "main_event_list"){
+						//event_rolling();
+					}	
+				},
+				error: function(xhr, option, error){
+					  alert(xhr.status+" | "+error); //오류코드 | 오류내용
+				}
+				/*error : function(success){
+					meg = "서버와 통신중 에러가 발생하였습니다."
+					alert("처리결과 : "+meg);
+				}*/
+				, beforeSend: function() {
+					//통신을 시작할때 처리	
+					$("#"+list_id+"").html('<img src="/image/loading.gif" alt="loading"/>');
+				}
+				, complete: function() {
+					//통신이 완료(success)된 후 처리
+					//$('#main_event_list').html('');
+				}
+			});
+		}
+	}
+
+
+
+	/*##########################################################################################*/
+	// 메인 이벤트리스트 세팅 부분.
+	function main_popup_layer_list(site, list_id, list_code, list_type, list_num, list_size){
+		//alert(site +" | "+list_id +" | "+list_code +" | "+list_type +"");
+
+		// 설정부분.....
+		$("#main_popup_code").val(list_code);
+		$("#main_popup_type").val(list_type);
+		$("#main_popup_num").val(list_num);
+		$("#main_popup_size").val(list_size);
+
+
+		var actionurl = "/cm_include/_ajax/"+site+"/ajax_main_popup_layer_list.asp";
+
+		var tt = 0;
+		if (tt == 1){
+			$("#main_popup_layer_list").attr("action", actionurl);
+			$("#main_popup_layer_list").submit();
+		}else{
+			$.ajax({
+				async: false,
+				type: "post",
+				url : actionurl,
+				data : $("#main_popup_layer_list").serialize(),
+				dataType : "html",
+				success: function(obj){
+					//alert(obj);
+					$("#"+list_id+"").html(obj);	
+					//
+					if (list_id == "main_popup_list"){
+						//event_rolling();
+					}	
+				},
+				error: function(xhr, option, error){
+					  alert(xhr.status+" | "+error); //오류코드 | 오류내용
+				}
+				/*error : function(success){
+					meg = "서버와 통신중 에러가 발생하였습니다."
+					alert("처리결과 : "+meg);
+				}*/
+				, beforeSend: function() {
+					//통신을 시작할때 처리	
+					$("#"+list_id+"").html('<img src="/image/loading.gif" alt="loading"/>');
+				}
+				, complete: function() {
+					//통신이 완료(success)된 후 처리
+					//$('#main_event_list').html('');
+				}
+			});
+		}
+	}
+
+
+
+	/*##########################################################################################*/
+	// 메인 잔여타임 리스트 세팅 부분.
+	function main_golftime_list(golf, list_id, list_type, list_size){
+
+		//alert(golf +" | "+list_id +" | "+list_type +"");
+
+		// 설정부분.....
+		$("#main_golftime_type").val(list_type);
+		$("#main_golftime_size").val(list_size);
+
+
+		var actionurl = "/cm_include/_ajax/"+golf+"/ajax_main_golftime_list.asp";
+
+		var tt = 0;
+		if (tt == 1){
+			$("#main_golftime_list").attr("action", actionurl);
+			$("#main_golftime_list").submit();
+		}else{
+			$.ajax({
+				async: false,
+				type: "post",
+				url : actionurl,
+				data : $("#main_golftime_list").serialize(),
+				dataType : "html",
+				success: function(obj){
+					$("#"+list_id+"").html(obj);	
+					//
+					if (list_id == "main_res_time_list"){
+						//event_rolling();
+					}	
+				},
+				error: function(xhr, option, error){
+					  alert(xhr.status+" | "+error); //오류코드 | 오류내용
+				}
+				/*error : function(success){
+					meg = "서버와 통신중 에러가 발생하였습니다."
+					alert("처리결과 : "+meg);
+				}*/
+				, beforeSend: function() {
+					//통신을 시작할때 처리	
+					$("#"+list_id+"").html('<img src="/image/loading.gif" alt="loading"/>');
+				}
+				, complete: function() {
+					//통신이 완료(success)된 후 처리
+					//$('#main_event_list').html('');
+				}
+			});
+		}
+	}
+
+
+
+	/*##########################################################################################*/
+	// 메인 조인방 리스트 세팅 부분.
+	function main_joinroom_list(golf, list_id, list_num, list_size){
+
+		//alert(golf +" | "+list_id +" | "+list_code +" | "+list_type +"");
+
+		// 설정부분.....
+		$("#main_joinroom_num").val(list_num);
+		$("#main_joinroom_size").val(list_size);
+
+
+		var actionurl = "/cm_include/_ajax/"+golf+"/ajax_main_joinroom_list.asp";
+
+		var tt = 0;
+		if (tt == 1){
+			$("#main_joinroom_list").attr("action", actionurl);
+			$("#main_joinroom_list").submit();
+		}else{
+			$.ajax({
+				async: false,
+				type: "post",
+				url : actionurl,
+				data : $("#main_joinroom_list").serialize(),
+				dataType : "html",
+				success: function(obj){
+					$("#"+list_id+"").html(obj);	
+					//
+					if (list_id == "main_join_room_list"){
+						//event_rolling();
+					}	
+				},
+				error: function(xhr, option, error){
+					  alert(xhr.status+" | "+error); //오류코드 | 오류내용
+				}
+				/*error : function(success){
+					meg = "서버와 통신중 에러가 발생하였습니다."
+					alert("처리결과 : "+meg);
+				}*/
+				, beforeSend: function() {
+					//통신을 시작할때 처리	
+					$("#"+list_id+"").html('<img src="/image/loading.gif" alt="loading"/>');
+				}
+				, complete: function() {
+					//통신이 완료(success)된 후 처리
+					//$('#main_event_list').html('');
+				}
+			});
+		}
+	}
+
+
+	//자동실행 - body onload의 대체
+	$(function(){
+		// 모든 페이지에 보일때 오픈 달력 처리 부분
+		main_calendar_change('','','','');
+
+		// 모든 페이지에 보일때 게시판&이벤트 처리 부분
+		//main_multi_board_list("site", "main_board_list", "NOTICE", "L", "1", "5")
+		main_event_board_list("site", "main_event_list", "EVENT", "LI", "1", "5")
+		main_event_board_list("site", "main_package_list", "PACKAGE", "LI", "1", "5")
+
+		// 모든 페이지에 보일때 잔여타임&조인방 처리 부분
+		//main_golftime_list("golf", "main_res_time_list", "COURSE", "5")
+		//main_joinroom_list("golf", "main_join_room_list", "1", "5")
+	});	
+//-->
+</script>
+
+	
+	<!-- 반응형 css -->
+	<link rel="stylesheet" type="text/css" href="../../static/css/responsive.css">
+	<!-- 메인,서브메인 css -->
+	<link rel="stylesheet" type="text/css" href="../../static/css/main.css">
+	<!-- slick slide -->
+	<link rel="stylesheet" type="text/css"	href="../../static/plugins/slick/slick.css">
+	<!-- ga 쿠키 처리를 위한 스크립트-->
+	<script type="text/javascript"	src="../../static/plugins/cookie/jquery.cookie.js"></script>
+
+	<!-- 슬라이더 js -->
+	<script src="../../static/plugins/slick/slick.min.js"></script>
+	
+	<!-- 리조트 메인 js -->
+	<script src="../../static/js/main_ui.js"></script>
+	<script src="../../static/plugins/lazyload/lazyload.js"></script>
+
+
+<script language="JavaScript" type="text/JavaScript">
+   <!--
+   	/* user */	
+   
+   	//자동실행 - body onload의 대체
+   	$(function(){
+   		// 메인 페이지에 보일때 오픈 달력 처리 부분
+   		//main_calendar_change('','','','');
+   
+   		// 메인 페이지에 보일때 게시판&이벤트 처리 부분
+   		main_multi_board_list("site", "main_board_list", "NOTICE", "L", "1", "10")
+   		//main_event_board_list("site", "main_event_list", "EVENT", "LI", "1", "5")
+      main_event_board_list("site", "main_event_list2", "EVENT", "LI", "1", "3")
+      //main_event_board_list("site", "main_package_list2", "PACKAGE", "LI", "1", "2")
+   		//main_popup_layer_list("site", "main_popup_list", "POPUP", "I", "1", "7")
+      
+       //main_event_board_list("site", "main_event_list2", "EVENT_PACKAGE", "LI", "1", "4")
+   
+   		// 메인 페이지에 보일때 잔여타임&조인방 처리 부분
+   		//main_golftime_list("golf", "main_res_time_list", "COURSE", "5")
+   		//main_joinroom_list("golf", "main_join_room_list", "1", "5")
+   	});
+   
+   //-->
+</script>	
+<!-- facility 배너 스크립트 -->
+<script type="text/javascript" src="/js/jquery.sliderkit.1.9.2.pack.js"></script>		
+<!-- <script type="text/javascript" src="/js/loginfrom.js"></script>
+   <script type="text/javascript" src="/js/jquery.ui.core.js"></script>
+   <script type="text/javascript" src="/js/jquery.watermark.js"></script> -->
+
+<script language="javascript" type="text/javascript" src="/popup_service/popup.service.js"></script>
+<script language="JavaScript" type="text/JavaScript">
+   <!--
+   	/* user */
+   
+   	jQuery(document).ready(function($) {
+   		//로그인
+   		//$("#log_id").watermark("아이디를 입력하세요");
+   		//$("#login_pw").watermark("비밀번호를 입력하세요");
+   	});	
+   
+   	//
+   	function popUpService(){
+   
+   		//
+   		var actionurl = "/popup_service/site/popup_open_ajax.asp";
+   		
+   		var tt = 0;
+   		if (tt == 1){
+   			location.href = actionurl;
+   		}else{
+   			$.ajax({
+   				async: false,
+   				type: "get",
+   				url : actionurl,
+   				data : "",
+   				dataType : "json",
+   				success: function(data){
+   					//alert(data);
+   					// 성공처리
+   					if(data.result == "OK"){
+   						if(data.list.length == 0){
+   							//alert("PopUp Not Open");
+   						}else{
+   							//alert("PopUp Open");
+   
+   							var old_top  = 0
+   							var old_left = 0
+   
+   							for(var i=0; i<data.list.length; i++){
+   								//
+   								var popup = data.list[i];
+   								//
+   								var comcd         = popup.COMPANY_CD;
+   								var bbsno         = popup.BBSNO;
+   								var title         = popup.TITLE;
+   								var type          = popup.TYPE;
+   								var window_flag   = popup.WINDOW_FLAG
+   								var size_width    = popup.SIZE_WIDTH;
+   								var size_height   = popup.SIZE_HEIGHT;
+   								var location_top  = popup.LOCATION_TOP;
+   								var location_left = popup.LOCATION_LEFT;
+   								
+   								/***********************************************/
+   								//
+   								if (i > 0){
+   									if (location_top == 0 && location_left == 0){
+   										location_top  = old_top;
+   										location_left = 10;
+   									}else{
+   									}
+   								}else{
+   									if (location_top == 0 && location_left == 0){
+   										location_top  = 5;
+   										location_left = 5;
+   									}	
+   								}
+   								//
+   								/***********************************************/
+   								old_top  = old_top  + location_top  + size_width;
+   								old_left = old_left + location_left + size_height;
+   								
+   								//
+   								$("#open_bbsno").val(bbsno); 
+   								
+   								//alert(getPopupCookie("notice"+bbsno+""));								
+   								//
+   								if (getPopupCookie("notice"+comcd+"_"+bbsno+"") != "done" || window_flag == 0){
+   									/***********************************************/
+   									var popup_view_win = null;			
+   									/**
+   									 * 팝업열기
+   									 * var popup = windowPopupOpen('about:blank','popup',가로,세로,상단,좌단,스크롤바,리사이즈);
+   									 */
+   									popup_view_win = windowPopupOpen("about:blank", "popup_view_win"+bbsno+"", size_width, size_height, location_top, location_left);
+   										
+   									$("#openform").attr("action", "/popup_service/site/popup_open_view.asp");
+   									$("#openform").attr("method", "get");
+   									$("#openform").attr("target", "popup_view_win"+bbsno+"");
+   									$("#openform").submit();
+   
+   								}
+   							}
+   						}
+   					}else{
+   						// 에러처리							
+   						//alert("PopUp Error");
+   					}
+   
+   				},
+   				error: function(xhr, option, error){
+   					  alert(xhr.status+" | "+error); //오류코드 | 오류내용
+   				}
+   				/*error : function(success){
+   					meg = "서버와 통신중 에러가 발생하였습니다."
+   					alert("처리결과 : "+meg);
+   				}*/
+   			});
+   		}			
+   	}
+   
+   
+   	function open_weather(){
+   	var weatherWindow
+   	weatherWindow = window.open('/pagesite/club/weather.htm','weather','width=922, height=640, left=40, top=10, scrollbars=no');
+   	weatherWindow.window.focus();
+   }
+   	
+   	//자동실행 - body onload의 대체
+   	$(function(){
+   
+   		// 로그인
+   		//init();
+   
+   
+   		//팝업서비스 호출
+   		//alert('팝업서비스 호출');
+   		popUpService();
+   	});
+   
+   //-->
+</script>
+
+</head>
+
+<body>
+<!-- 메인 bg롤링 -->		
+<style>
+  .hero-video-player {
+    position: relative;
+    width: 100%;
+    height: 100vh; /* 필요시 조정 */
+    overflow: hidden;
+    background: #000;
+  }
+
+  .hero-video {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* 오른쪽 세로 네비 */
+  .video-side-nav {
+    position: absolute;
+    top: 50%;
+    right: 28px;
+    transform: translateY(-50%);
+    width: 70px;
+    height: 340px;
+    z-index: 30;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  /* 전체 세로 라인 */
+  .video-progress-track {
+    position: absolute;
+    top: 18px;
+    bottom: 18px;
+    left: 50%;
+    width: 2px;
+    transform: translateX(-50%);
+    background: rgba(255,255,255,0.22);
+    border-radius: 999px;
+    overflow: hidden;
+  }
+
+  /* 현재 진행된 영역 */
+  .video-progress-fill {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 0%;
+    background: linear-gradient(to top, #ffffff 0%, #8fc4ff 100%);
+    border-radius: 999px;
+    transition: height 0.15s linear;
+  }
+
+  /* 각 점 버튼 */
+  .video-dot {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    border: 0;
+    background: transparent;
+    padding: 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+  }
+
+  /* 점 */
+  .video-dot .dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.45);
+    border: 2px solid rgba(255,255,255,0.9);
+    box-sizing: border-box;
+    transition: all 0.2s ease;
+    flex: 0 0 14px;
+  }
+
+  /* 라벨 */
+  .video-dot .label {
+    min-width: 42px;
+    text-align: right;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: rgba(255,255,255,0.72);
+    transition: all 0.2s ease;
+  }
+
+  /* 현재 활성 지점 */
+  .video-dot.active .dot {
+    background: #fff;
+    box-shadow: 0 0 0 6px rgba(255,255,255,0.14);
+    transform: scale(1.08);
+  }
+
+  .video-dot.active .label {
+    color: #fff;
+  }
+
+  /* 지나간 지점 */
+  .video-dot.passed .dot {
+    background: #8fc4ff;
+    border-color: #ffffff;
+  }
+
+  .video-dot:hover .dot {
+    transform: scale(1.12);
+  }
+
+  .video-dot:hover .label {
+    color: #fff;
+  }
+
+  /* 모바일 */
+  @media (max-width: 768px) {
+    .video-side-nav {
+      right: 12px;
+      width: 58px;
+      height: 260px;
+    }
+
+    .video-dot .label {
+      font-size: 10px;
+      min-width: 34px;
+    }
+
+    .video-dot .dot {
+      width: 12px;
+      height: 12px;
+      flex-basis: 12px;
+    }
+  }
+</style>
+<div class="top_rolling" style="">	
+  <div class="hero-video-player">
+    <video id="mainVideo" class="hero-video" autoplay muted loop playsinline preload="metadata">
+      <source src="static/video/bg_video.mp4" type="video/mp4">
+      브라우저가 video 태그를 지원하지 않습니다.
+    </video>
+
+    <div class="video-side-nav" id="videoSideNav">
+      <div class="video-progress-track">
+        <div class="video-progress-fill" id="videoProgressFill"></div>
+      </div>
+
+      <button type="button" class="video-dot" data-percent="100">
+        <span class="dot"></span>
+        <span class="label">END</span>
+      </button>
+
+			
+      <button type="button" class="video-dot" data-percent="80">
+        <span class="dot"></span>
+        <span class="label">80%</span>
+      </button>
+
+			 <button type="button" class="video-dot" data-percent="50">
+        <span class="dot"></span>
+        <span class="label">50%</span>
+      </button>
+
+			 <button type="button" class="video-dot active" data-percent="0">
+        <span class="dot"></span>
+        <span class="label">START</span>
+      </button>
+    </div>
+		<script>
+			document.addEventListener('DOMContentLoaded', function () {
+				const video = document.getElementById('mainVideo');
+				const progressFill = document.getElementById('videoProgressFill');
+				const dots = document.querySelectorAll('.video-dot');
+
+				function getVideoPercent() {
+					if (!video.duration || isNaN(video.duration)) return 0;
+					return (video.currentTime / video.duration) * 100;
+				}
+
+				function setActiveDot(currentPercent) {
+					dots.forEach(dot => {
+						const percent = parseFloat(dot.dataset.percent || '0');
+
+						dot.classList.remove('active');
+						dot.classList.remove('passed');
+
+						if (currentPercent >= percent) {
+							dot.classList.add('passed');
+						}
+					});
+
+					let activeDot = dots[0];
+					let minDiff = Infinity;
+
+					dots.forEach(dot => {
+						const percent = parseFloat(dot.dataset.percent || '0');
+						const diff = Math.abs(currentPercent - percent);
+						if (diff < minDiff) {
+							minDiff = diff;
+							activeDot = dot;
+						}
+					});
+
+					if (activeDot) {
+						activeDot.classList.add('active');
+					}
+				}
+
+				function updateProgressUI() {
+					const percent = getVideoPercent();
+					progressFill.style.height = percent + '%';
+					setActiveDot(percent);
+				}
+
+				dots.forEach(dot => {
+					dot.addEventListener('click', function () {
+						const percent = parseFloat(this.dataset.percent || '0');
+						if (!video.duration || isNaN(video.duration)) return;
+
+						let targetTime = (video.duration * percent) / 100;
+
+						if (percent >= 100) {
+							targetTime = Math.max(video.duration - 0.2, 0);
+						}
+
+						video.currentTime = targetTime;
+
+						if (video.paused) {
+							video.play();
+						}
+
+						updateProgressUI();
+					});
+				});
+
+				video.addEventListener('loadedmetadata', updateProgressUI);
+				video.addEventListener('timeupdate', updateProgressUI);
+				video.addEventListener('seeked', updateProgressUI);
+				video.addEventListener('ended', updateProgressUI);
+			});
+		</script>
+  </div>
+  
+	<!--div class="slide_main">
+		<div id="rollingBanner">
+			 <ul>
+				<li>
+					<dl>
+						<dt class="btn1"><a href="#banner01"></a></dt>
+						<dd id="banner01"><img class="main_txt" src="/image/main/main2_text_02.png" alt="동양의 나폴리 통영에서 명품 컨트리클럽을 선보입니다." /></dd>
+					</dl>
+				</li>
+				<li>
+					<dl>
+						<dt class="btn2"><a href="#banner02"></a></dt>
+						<dd id="banner02"><img class="main_txt" src="/image/main/main2_text_02.png" alt="동양의 나폴리 통영에서 명품 컨트리클럽을 선보입니다." /></dd>
+					</dl>
+				</li>
+				<li>
+					<dl>
+						<dt class="btn3"><a href="#banner03"></a></dt>
+						<dd id="banner03"><img class="main_txt" src="/image/main/main2_text_01.png?ver=1" alt="세계적인 해양관광 휴양지, 동양의 나폴리 통영에서 명품 유스호스텔를 선보입니다." /></dd>
+					</dl>
+				</li>
+				<li>
+					<dl>
+						<dt class="btn4"><a href="#banner04"></a></dt>
+						<dd id="banner04"><img class="main_txt" src="/image/main/main2_text_01.png?ver=1" alt="세계적인 해양관광 휴양지, 동양의 나폴리 통영에서 명품 유스호스텔를 선보입니다." /></dd>
+					</dl>
+				</li>
+				<li>
+					<dl>
+						<dt class="btn5"><a href="#banner05"></a></dt>
+						<dd id="banner05"><img class="main_txt" src="/image/main/main2_text_01.png?ver=1" alt="세계적인 해양관광 휴양지, 동양의 나폴리 통영에서 명품 유스호스텔를 선보입니다." /></dd>
+					</dl>
+				</li>
+				<li>
+					<dl>
+						<dt class="btn6"><a href="#banner06"></a></dt>
+						<dd id="banner06"><img class="main_txt" src="/image/main/main2_text_01.png?ver=1" alt="세계적인 해양관광 휴양지, 동양의 나폴리 통영에서 명품 유스호스텔를 선보입니다." /></dd>
+					</dl>
+				</li>
+			</ul>
+		</div>
+	</div-->	
+</div>
+<!-- /메인 bg롤링 -->	
+
+<div id="wrap">
+	<!-- 바로가기 -->
+	<div class="skip_navi">
+		<ul>
+			<li><a href="#body">본문 바로가기</a></li>
+			<li><a href="#footer">하단 바로가기</a></li>
+		</ul>
+	</div>
+	<style>
+		/* 트리거 영역 스타일 */
+		  /* 트리거 영역 스타일 */
+  #menuTrigger {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100px; /* 트리거 영역의 너비 */
+    height: 100%;
+    background: transparent; /* 투명한 배경 */
+    z-index: 4; /* 메뉴 위에 배치 */
+  }
+	</style>
+
+	<div id="menuTrigger"></div> <!-- 트리거 영역 추가 -->
+
+	<!-- 헤더 -->
+  <div style="z-index: 9999; position: fixed;">
+    <a href="https://www.dongwonresort.co.kr/index.asp" ><img src="/image/common/menu_logo.png" style="position:relative; top: 20px; left: 90px;" /></a>
+  </div>
+  <div style="z-index: 9999; position: fixed;">
+   <div class="toggle_menu" style="position:fixed; top:50%; left:0;"><!--img src="image/common/bt_r00_2.png"--></div>
+  </div>
+	<div id="header" style="display:none" class="white header_scroll">
+		<div class="head">
+			<h1><a href="/"><img src="/image/common/logo2.png" alt="DONGWON Youth hostel" /></a></h1>
+			
+			<!-- 상단 -->
+			<div class="login_area">
+				
+				<a href="/login/login.asp" class="overimg"><img src="/image/common/bt_login.png" alt="로그인" /></a>
+				<a href="/memberInfor/joinTerms.asp" class="overimg"><img src="/image/common/bt_join.png" alt="회원가입" /></a>		
+				
+			</div>
+			<!-- /상단 -->
+
+			<!-- gnb -->
+			<div class="gnb" id="gnb">				
+				<ul> 
+<li class="gnb01" id="gnb_club"> 
+							<h2><a href="/pagesite/club/greet.asp" target="" >동원로얄CC&amp;리조트</a></h2> 
+							<ul class="dep2"> 
+										<li class="g01_1" id="gnb2_club_intro"><a href="/pagesite/club/intro.asp" target="" >동원로얄 소개</a></li> 
+										<li class="g01_2" id="gnb2_club_greet"><a href="/pagesite/club/greet.asp" target="" >인사말</a></li> 
+										<li class="g01_3" id="gnb2_club_location"><a href="/pagesite/club/location.asp" target="" >오시는길</a></li> 
+							</ul> 
+						</li> 
+						<li class="gnb02" id="gnb_reservation"> 
+							<h2><a href="/pagesite/reservation/golf/live.asp" target="" >인터넷예약</a></h2> 
+							<ul class="dep2"> 
+										<li class="g02_1" id="gnb2_reservation_golf"><a href="/pagesite/reservation/golf/live.asp" target="" >골프예약</a></li> 
+										<li class="g02_3" id="gnb2_reservation_resort"><a href="/pagesite/reservation/resort/live.asp" target="" >객실예약</a></li> 
+										<li class="g02_4" id="gnb2_reservation_glamping_live"><a href="/pagesite/reservation/glamping/live.asp" target="" >글램핑예약</a></li> 
+										<li class="g02_5" id="gnb2_reservation_package"><a href="/pagesite/reservation/package/live.asp" target="" >패키지예약</a></li> 
+							</ul> 
+						</li> 
+						<li class="gnb03" id="gnb_golf"> 
+							<h2><a href="/pagesite/golf/course/intro.asp" target="" >동원로얄CC 통영</a></h2> 
+							<ul class="dep2"> 
+										<li class="g03_1" id="gnb2_golf_guide"><a href="/pagesite/golf/guide.asp" target="" >이용안내</a></li> 
+										<li class="g03_2" id="gnb2_golf_course"><a href="/pagesite/golf/course/intro.asp" target="" >코스소개</a></li> 
+										<li class="g03_3" id="gnb2_golf_facilities"><a href="/pagesite/golf/facilities/house.asp" target="" >시설안내</a></li> 
+							</ul> 
+						</li> 
+						<li class="gnb04" id="gnb_resort"> 
+							<h2><a href="/pagesite/resort/room/sweet.asp" target="" >동원리조트 통영</a></h2> 
+							<ul class="dep2"> 
+										<li class="g04_1" id="gnb2_resort_room"><a href="/pagesite/resort/room/sweet.asp" target="" >객실</a></li> 
+										<li class="g04_2" id="gnb2_resort_banquet"><a href="/pagesite/resort/banquet/lee.asp" target="" >연회장/세미나</a></li> 
+										<li class="g04_3" id="gnb2_resort_restaurant"><a href="/pagesite/resort/restaurant/sapphire.asp" target="" >레스토랑</a></li> 
+										<li class="g04_6" id="gnb2_resort_facilities"><a href="/pagesite/resort/facilities/multi.asp" target="" >부대시설</a></li> 
+										<li class="g04_7" id="gnb2_resort_theme"><a href="/pagesite/resort/theme/grass.asp" target="" >야외테마공간</a></li> 
+							</ul> 
+						</li> 
+						<li class="gnb05" id="gnb_glamping"> 
+							<h2><a href="/pagesite/resort/glamping.asp" target="" >동원글램핑통영</a></h2> 
+							<ul class="dep2"> 
+										<li class="g05_1" id="gnb2_resort_glamping"><a href="/pagesite/resort/glamping.asp" target="" >글램핑 소개</a></li> 
+							</ul> 
+						</li> 
+						<li class="gnb06" id="gnb_culture"> 
+							<h2><a href="/pagesite/resort/culture/info.asp" target="" >청소년문화센터</a></h2> 
+							<ul class="dep2"> 
+										<li class="g06_1" id="gnb2_culture_info"><a href="/pagesite/resort/culture/info.asp" target="" >문화센터 소개</a></li> 
+										<li class="g06_2" id="gnb2_culture_notice"><a href="/pagesite/resort/culture/notice.asp" target="" >공지사항</a></li> 
+										<li class="g06_3" id="gnb2_culture_program"><a href="/pagesite/resort/culture/program.asp" target="" >활동프로그램</a></li> 
+										<li class="g06_4" id="gnb2_culture_autonomy"><a href="/pagesite/resort/culture/autonomy.asp" target="" >자치기구</a></li> 
+										<li class="g06_5" id="gnb2_culture_gallery"><a href="/pagesite/resort/culture/gallery.asp" target="" >포토갤러리</a></li> 
+										<li class="g06_6" id="gnb2_culture_board"><a href="/pagesite/resort/culture/board.asp" target="" >자유게시판</a></li> 
+							</ul> 
+						</li> 
+						<li class="gnb07" id="gnb_lounge"> 
+							<h2><a href="/pagesite/lounge/prepayment/info.asp" target="" >회원라운지</a></h2> 
+							<ul class="dep2"> 
+										<li class="g07_1" id="gnb2_lounge_golf"><a href="/pagesite/lounge/golf/in.asp" target="" >골프</a></li> 
+										<li class="g07_2" id="gnb2_reservation_golf_join"><a href="/pagesite/reservation/golf/join.asp" target="" >조인게시판</a></li> 
+										<li class="g07_3" id="gnb2_lounge_customer"><a href="/pagesite/lounge/customer.asp" target="" >고객의소리</a></li> 
+										<li class="g07_4" id="gnb2_lounge_info"><a href="/pagesite/lounge/info/edit.asp" target="" >회원정보</a></li> 
+										<li class="g07_5" id="gnb2_lounge_prepayment"><a href="/pagesite/lounge/prepayment/info.asp" target="" >선불카드</a></li> 
+										<li class="g07_6" id="gnb2_lounge_member"><a href="/pagesite/lounge/prepayment/member.asp" target="" >멤버쉽카드</a></li> 
+							</ul> 
+						</li> 
+						<li class="gnb08" id="gnb_information"> 
+							<h2><a href="/pagesite/information/event.asp" target="" >정보마당</a></h2> 
+							<ul class="dep2"> 
+										<li class="g08_1" id="gnb2_information_notice"><a href="/pagesite/information/notice.asp" target="" >공지사항</a></li> 
+										<li class="g08_2" id="gnb2_information_event"><a href="/pagesite/information/event.asp" target="" >이벤트</a></li> 
+										<li class="g08_3" id="gnb2_information_data"><a href="/pagesite/information/data.asp" target="" >자료실</a></li> 
+										<li class="g08_4" id="gnb2_information_gallery"><a href="/pagesite/information/gallery.asp" target="" >포토갤러리</a></li> 
+										<li class="g08_5" id="gnb2_information_honor"><a href="/pagesite/information/honor.asp" target="" >명예의전당</a></li> 
+										<li class="g08_6" id="gnb2_information_lost"><a href="/pagesite/information/lost.asp" target="" >분실물센터</a></li> 
+										<li class="g08_7" id="gnb2_information_tourist"><a href="/pagesite/information/tourist.asp" target="" >주변관광지 안내</a></li> 
+										<li class="g08_8" id="gnb2_information_qna"><a href="/pagesite/information/qna.asp" target="" >자주하는질문</a></li> 
+										<li class="g08_9" id="gnb2_information_weather"><a href="/pagesite/information/weather.asp" target="_blank" title="새창열림">날씨정보</a></li> 
+							</ul> 
+						</li> 
+ 
+					</ul>
+
+			  <!--ul> 
+          <li class="gnb01 on" id="gnb_club"> 
+							<h2><a href="/pagesite/club/greet.asp" target="">동원로얄CC&amp;리조트</a></h2> 
+							<ul class="dep2"> 
+										<li class="g01_1" id="gnb2_club_intro"><a href="/pagesite/club/intro.asp" target="">동원로얄 소개</a></li> 
+										<li class="g01_2 on" id="gnb2_club_greet"><a href="/pagesite/club/greet.asp" target="">인사말</a></li> 
+										<li class="g01_3" id="gnb2_club_location"><a href="/pagesite/club/location.asp" target="">오시는길</a></li> 
+							</ul> 
+						</li> 
+						<li class="gnb02 hide" id="gnb_reservation"> 
+							<h2><a href="/pagesite/reservation/golf/live.asp" target="">인터넷예약</a></h2> 
+							<ul class="dep2"> 
+										<li class="g02_1" id="gnb2_reservation_golf"><a href="/pagesite/reservation/golf/live.asp" target="">골프예약</a></li> 
+										<li class="g02_3" id="gnb2_reservation_resort"><a href="/pagesite/reservation/resort/live.asp" target="">객실예약</a></li> 
+										<li class="g02_4" id="gnb2_reservation_glamping_live"><a href="/pagesite/reservation/glamping/live.asp" target="">글램핑예약</a></li> 
+										<li class="g02_5" id="gnb2_reservation_package"><a href="/pagesite/reservation/package/live.asp" target="">패키지예약</a></li> 
+							</ul> 
+						</li> 
+						<li class="gnb03 hide" id="gnb_golf"> 
+							<h2><a href="/pagesite/golf/course/intro.asp" target="">동원로얄CC 통영</a></h2> 
+							<ul class="dep2"> 
+										<li class="g03_1" id="gnb2_golf_guide"><a href="/pagesite/golf/guide.asp" target="">이용안내</a></li> 
+										<li class="g03_2" id="gnb2_golf_course"><a href="/pagesite/golf/course/intro.asp" target="">코스소개</a></li> 
+										<li class="g03_3" id="gnb2_golf_facilities"><a href="/pagesite/golf/facilities/house.asp" target="">시설안내</a></li> 
+							</ul> 
+						</li> 
+						<li class="gnb04 hide" id="gnb_resort"> 
+							<h2><a href="/pagesite/resort/room/sweet.asp" target="">동원리조트 통영</a></h2> 
+							<ul class="dep2"> 
+										<li class="g04_1" id="gnb2_resort_room"><a href="/pagesite/resort/room/sweet.asp" target="">객실</a></li> 
+										<li class="g04_2" id="gnb2_resort_banquet"><a href="/pagesite/resort/banquet/lee.asp" target="">연회장/세미나</a></li> 
+										<li class="g04_3" id="gnb2_resort_restaurant"><a href="/pagesite/resort/restaurant/sapphire.asp" target="">레스토랑</a></li> 
+										<li class="g04_6" id="gnb2_resort_facilities"><a href="/pagesite/resort/facilities/multi.asp" target="">부대시설</a></li> 
+										<li class="g04_7" id="gnb2_resort_theme"><a href="/pagesite/resort/theme/grass.asp" target="">야외테마공간</a></li> 
+							</ul> 
+						</li> 
+						<li class="gnb05 hide" id="gnb_glamping"> 
+							<h2><a href="/pagesite/resort/glamping.asp" target="">동원글램핑통영</a></h2> 
+							<ul class="dep2"> 
+										<li class="g05_1" id="gnb2_resort_glamping"><a href="/pagesite/resort/glamping.asp" target="">글램핑 소개</a></li> 
+							</ul> 
+						</li> 
+						<li class="gnb06 hide" id="gnb_culture"> 
+							<h2><a href="/pagesite/resort/culture/info.asp" target="">청소년문화센터</a></h2> 
+							<ul class="dep2"> 
+										<li class="g06_1" id="gnb2_culture_info"><a href="/pagesite/resort/culture/info.asp" target="">문화센터 소개</a></li> 
+										<li class="g06_2" id="gnb2_culture_notice"><a href="/pagesite/resort/culture/notice.asp" target="">공지사항</a></li> 
+										<li class="g06_3" id="gnb2_culture_program"><a href="/pagesite/resort/culture/program.asp" target="">활동프로그램</a></li> 
+										<li class="g06_4" id="gnb2_culture_autonomy"><a href="/pagesite/resort/culture/autonomy.asp" target="">자치기구</a></li> 
+										<li class="g06_5" id="gnb2_culture_gallery"><a href="/pagesite/resort/culture/gallery.asp" target="">포토갤러리</a></li> 
+										<li class="g06_6" id="gnb2_culture_board"><a href="/pagesite/resort/culture/board.asp" target="">자유게시판</a></li> 
+							</ul> 
+						</li> 
+						<li class="gnb07 hide" id="gnb_lounge"> 
+							<h2><a href="/pagesite/lounge/prepayment/info.asp" target="">회원라운지</a></h2> 
+							<ul class="dep2"> 
+										<li class="g07_1" id="gnb2_lounge_golf"><a href="/pagesite/lounge/golf/in.asp" target="">골프</a></li> 
+										<li class="g07_2" id="gnb2_reservation_golf_join"><a href="/pagesite/reservation/golf/join.asp" target="">조인게시판</a></li> 
+										<li class="g07_3" id="gnb2_lounge_customer"><a href="/pagesite/lounge/customer.asp" target="">고객의소리</a></li> 
+										<li class="g07_4" id="gnb2_lounge_info"><a href="/pagesite/lounge/info/edit.asp" target="">회원정보</a></li> 
+										<li class="g07_5" id="gnb2_lounge_prepayment"><a href="/pagesite/lounge/prepayment/info.asp" target="">선불카드</a></li> 
+										<li class="g07_6" id="gnb2_lounge_member"><a href="/pagesite/lounge/prepayment/member.asp" target="">멤버쉽카드</a></li> 
+							</ul> 
+						</li> 
+						<li class="gnb08 hide" id="gnb_information"> 
+							<h2><a href="/pagesite/information/event.asp" target="">정보마당</a></h2> 
+							<ul class="dep2"> 
+										<li class="g08_1" id="gnb2_information_notice"><a href="/pagesite/information/notice.asp" target="">공지사항</a></li> 
+										<li class="g08_2" id="gnb2_information_event"><a href="/pagesite/information/event.asp" target="">이벤트</a></li> 
+										<li class="g08_3" id="gnb2_information_data"><a href="/pagesite/information/data.asp" target="">자료실</a></li> 
+										<li class="g08_4" id="gnb2_information_gallery"><a href="/pagesite/information/gallery.asp" target="">포토갤러리</a></li> 
+										<li class="g08_5" id="gnb2_information_honor"><a href="/pagesite/information/honor.asp" target="">명예의전당</a></li> 
+										<li class="g08_6" id="gnb2_information_lost"><a href="/pagesite/information/lost.asp" target="">분실물센터</a></li> 
+										<li class="g08_7" id="gnb2_information_tourist"><a href="/pagesite/information/tourist.asp" target="">주변관광지 안내</a></li> 
+										<li class="g08_8" id="gnb2_information_qna"><a href="/pagesite/information/qna.asp" target="">자주하는질문</a></li> 
+										<li class="g08_9" id="gnb2_information_weather"><a href="/pagesite/information/weather.asp" target="_blank" title="새창열림">날씨정보</a></li> 
+							</ul> 
+						</li> 
+ 
+			  </ul-->
+			</div>
+			<!-- /gnb -->
+		</div>
+
+
+        <!-- 달력 영역 -->
+        <div id="reservation" class="reservation_cal">
+        <!-- 메인 예약 달력 시작 -->
+        
+            <div id="main_cm_calendar_small_00">
+                <div id="main_calendar_view_ajax_0"></div>   
+            </div>
+        
+            <div id="main_cm_calendar_small_01">
+                <div id="main_calendar_view_ajax_1"></div>   
+            </div>
+        
+        <!-- 메인 예약 달력 종료 -->
+        </div>
+
+		<span class="sns_area">
+			<a href="https://www.instagram.com/tongyeong_dongwonroyal/" target="_blank" title="새창열기"><img src="/image/common/bt_fb2.png" alt="INSTAGRAM" /></a><a href="https://blog.naver.com/dongwonroyalcc" target="_blank" title="새창열기"><img src="/image/common/bt_tw2.png" alt="tweeter" /></a>
+		</span>
+		<span class="sns_area">
+			<a href="https://pf.kakao.com/_xkxcLFxj" target="_blank" title="새창열기"><img src="/image/common/bt_kt2.png" alt="KAKAOTALK" /></a><a href="https://booking.naver.com/booking/3/bizes/1647112?area=pl" target="_blank" title="새창열기"><img src="/image/common/bt_nv2.png" alt="naver" /></a>
+		</span>
+
+		<!-- /헤더 -->
+	</div>
+	<!-- 상단 종료 -->
+
+<form name="openform" id="openform" method="post" action="">
+   <input type="hidden" name="bbsno"  id="open_bbsno"  value="" />
+</form>
+<!-- <script type="text/javascript" src="js/popup.js"></script> -->
+<script type="text/jscript" language="JavaScript">
+   //open_notice1();
+   
+   function setCookie( name, value, expirehours ) {
+   var todayDate = new Date();
+   todayDate.setHours( todayDate.getHours() + expirehours );
+   document.cookie = name + "=" + escape( value ) + "; path=/; expires=" + todayDate.toGMTString() + ";"
+   }
+   
+   function closeWin() {
+   if($("input[name='chek01']").is(":checked") ==true){
+   	setCookie("close1","Y",1);
+   }					
+   document.getElementById('pop01').style.display = "none";
+   }
+   
+   function closeWin2() {
+   if ( document.notice_form2.chek02.checked ){
+   	setCookie( "popupcookie2", "done" , 24 );
+   }
+   document.getElementById('pop02').style.display = "none";
+   }
+   
+   function closeWin3() {
+   if ( document.notice_form3.chek03.checked ){
+   	setCookie( "popupcookie3", "done" , 24 );
+   }
+   if($("input[name='chek03']").is(":checked") ==true){
+   	setCookie("close3","Y",1);
+   }				
+   document.getElementById('pop03').style.display = "none";
+   }
+   function closeWin4() {
+   if ( document.notice_form4.chek04.checked ){
+   	setCookie( "popupcookie4", "done" , 24 );			
+   }
+   if($("input[name='chek04']").is(":checked") ==true){
+   	setCookie("close4","Y",1);
+   }		
+   document.getElementById('pop04').style.display = "none";
+   }	
+   function closeWin5() {
+   if ( document.notice_form5.chek05.checked ){
+   	setCookie( "popupcookie5", "done" , 24 );
+   }
+   document.getElementById('pop05').style.display = "none";
+   }
+   function closeWin6() {
+   if ( document.notice_form6.chek06.checked ){
+   	setCookie( "popupcookie6", "done" , 24 );
+   }
+   document.getElementById('pop06').style.display = "none";
+   }
+   function closeWin7() {
+   if ( document.notice_form7.chek07.checked ){
+   	setCookie( "popupcookie7", "done" , 24 );
+   }
+   document.getElementById('pop07').style.display = "none";
+   }
+   
+   $(document).ready(function(){
+   cookiedata = document.cookie;
+   if(cookiedata.indexOf("close1=Y")<0){
+   $("#pop01").show();
+   }else{
+   $("#pop01").hide();
+   }
+   
+   if(cookiedata.indexOf("close3=Y")<0){
+   $("#pop03").show();
+   }else{
+   $("#pop03").hide();
+   }
+   
+   if(cookiedata.indexOf("close4=Y")<0){
+   $("#pop04").show();
+   }else{
+   $("#pop04").hide();
+   }
+   });	
+</script>	
+<!-- content -->
+<div id="body" class="main">
+   <div class="content">	
+   </div>
+</div>
+<div id="body2">
+  <div class="main-content" style="margin-top:160px">
+    <div class="cont-head swipe-hidden">
+      
+       <h2 class="main-sub-title main-type">공지&이벤트</h2>
+       <!--a href="#" class="btn-icon btn-sm btn-more ico-plus"  title="더보기"><span class="blind">더보기</span></a-->
+    </div>
+    <div class="tab-container">
+      <div class="tab-content active" id="event-all">
+        <div class="main-slide-wrap">
+          <div class="slide-col4-list type2 col3 main-event paging-list">
+            <div class="slide-colum">
+              <div class="colum-content">
+                <a href="https://www.dongwonresort.co.kr/multi_board/site/board/view.asp?cmd=view&cmval=0&cmkind=&calltype=AJAX&gonexturl=.%2Flist.asp&groupcode=NOTICE&kind=0&bbsno=644&seq=0&depth=0&open_state=1&search_mode=%7B%7Cpage_name%7C%3A%7C.%2Flist.asp%7C%2C%7Cpage_num%7C%3A%7C1%7C%2C%7Cpage_size%7C%3A20%2C%7Cgroupcode%7C%3A%7CNOTICE%7C%2C%7Ckind%7C%3A%7C0%7C%2C%7Ctype%7C%3A%7C0%7C%2C%7Csortstr%7C%3A%7C%7C%2C%7Csearch%7C%3A%7C%7C%2C%7Ckeyword%7C%3A%7C%7C%2C%7Csdate%7C%3A%7C%7C%2C%7Cedate%7C%3A%7C%7C%2C%7Copen_state%7C%3A%7C1%7C%7D">
+                <span class="img"><img
+                   src="https://www.dongwonresort.co.kr/pop/image/20260713.png"
+                   data-src="https://www.dongwonresort.co.kr/pop/image/20260713.png"
+                   alt="27홀"></span>
+                </a>
+              </div>
+            </div>
+            
+            
+            <div class="slide-colum">
+              <div class="colum-content">
+                <a href="https://www.dongwonresort.co.kr/event_board/site/event/view.asp?cmd=view&cmval=0&cmkind=&calltype=AJAX&gonexturl=.%2Flist.asp&groupcode=EVENT&kind=0&bbsno=248&seq=0&depth=0&open_state=2&search_mode=%7B%7Cpage_name%7C%3A%7C.%2Flist.asp%7C%2C%7Cpage_num%7C%3A%7C1%7C%2C%7Cpage_size%7C%3A20%2C%7Cgroupcode%7C%3A%7CEVENT%7C%2C%7Ckind%7C%3A%7C0%7C%2C%7Ctype%7C%3A%7C0%7C%2C%7Csortstr%7C%3A%7C%7C%2C%7Csearch%7C%3A%7C%7C%2C%7Ckeyword%7C%3A%7C%7C%2C%7Csdate%7C%3A%7C%7C%2C%7Cedate%7C%3A%7C%7C%2C%7Copen_state%7C%3A%7C2%7C%7D">
+                <span class="img"><img
+                   src="https://www.dongwonresort.co.kr/pop/image/20260712.png"
+                   data-src="https://www.dongwonresort.co.kr/pop/image/20260712.png"
+                   alt="27홀"></span>
+                </a>
+              </div>
+            </div>
+            
+            <div class="slide-colum">
+              <div class="colum-content">
+                <a href="https://www.dongwonresort.co.kr/multi_board/site/board/view.asp?cmd=view&cmval=0&cmkind=&calltype=AJAX&gonexturl=.%2Flist.asp&groupcode=NOTICE&kind=0&bbsno=642&seq=0&depth=0&open_state=1&search_mode=%7B%7Cpage_name%7C%3A%7C.%2Flist.asp%7C%2C%7Cpage_num%7C%3A%7C1%7C%2C%7Cpage_size%7C%3A20%2C%7Cgroupcode%7C%3A%7CNOTICE%7C%2C%7Ckind%7C%3A%7C0%7C%2C%7Ctype%7C%3A%7C0%7C%2C%7Csortstr%7C%3A%7C%7C%2C%7Csearch%7C%3A%7C%7C%2C%7Ckeyword%7C%3A%7C%7C%2C%7Csdate%7C%3A%7C%7C%2C%7Cedate%7C%3A%7C%7C%2C%7Copen_state%7C%3A%7C1%7C%7D">
+                <span class="img"><img
+                   src="https://www.dongwonresort.co.kr/pop/image/260701_2_pop.jpg"
+                   data-src="https://www.dongwonresort.co.kr/pop/image/260701_2_pop.jpg"
+                   alt="해피카트"></span>
+                </a>
+              </div>
+            </div>
+            
+            <div class="slide-colum">
+              <div class="colum-content">
+                <a href="https://www.dongwonresort.co.kr/event_board/site/event/view.asp?cmd=view&cmval=0&cmkind=&calltype=AJAX&gonexturl=.%2Flist.asp&groupcode=EVENT&kind=0&bbsno=244&seq=0&depth=0&open_state=2&search_mode=%7B%7Cpage_name%7C%3A%7C.%2Flist.asp%7C%2C%7Cpage_num%7C%3A%7C1%7C%2C%7Cpage_size%7C%3A20%2C%7Cgroupcode%7C%3A%7CEVENT%7C%2C%7Ckind%7C%3A%7C0%7C%2C%7Ctype%7C%3A%7C0%7C%2C%7Csortstr%7C%3A%7C%7C%2C%7Csearch%7C%3A%7C%7C%2C%7Ckeyword%7C%3A%7C%7C%2C%7Csdate%7C%3A%7C%7C%2C%7Cedate%7C%3A%7C%7C%2C%7Copen_state%7C%3A%7C2%7C%7D">
+                <span class="img"><img
+                   src="https://www.dongwonresort.co.kr/pop/image/260624_pop.jpg"
+                   data-src="https://www.dongwonresort.co.kr/pop/image/260624_pop.jpg"
+                   alt="해피카트"></span>
+                </a>
+              </div>
+            </div>
+            
+            <div class="slide-colum">
+              <div class="colum-content">
+                <a href="https://www.dongwonresort.co.kr/multi_board/site/board/view.asp?cmd=view&cmval=0&cmkind=&calltype=AJAX&gonexturl=.%2Flist.asp&groupcode=NOTICE&kind=0&bbsno=639&seq=0&depth=0&open_state=1&search_mode=%7B%7Cpage_name%7C%3A%7C.%2Flist.asp%7C%2C%7Cpage_num%7C%3A%7C1%7C%2C%7Cpage_size%7C%3A20%2C%7Cgroupcode%7C%3A%7CNOTICE%7C%2C%7Ckind%7C%3A%7C0%7C%2C%7Ctype%7C%3A%7C0%7C%2C%7Csortstr%7C%3A%7C%7C%2C%7Csearch%7C%3A%7C%7C%2C%7Ckeyword%7C%3A%7C%7C%2C%7Csdate%7C%3A%7C%7C%2C%7Cedate%7C%3A%7C%7C%2C%7Copen_state%7C%3A%7C1%7C%7D">
+                <span class="img"><img
+                   src="https://www.dongwonresort.co.kr/pop/image/2026062401.jpg"
+                   data-src="https://www.dongwonresort.co.kr/pop/image/2026062401.jpg"
+                   alt="BBQ"></span>
+                </a>
+              </div>
+            </div>
+            
+              <div class="slide-colum">
+              <div class="colum-content">
+                <a href="https://www.dongwonresort.co.kr/multi_board/site/board/view.asp?cmd=view&cmval=0&cmkind=&calltype=AJAX&gonexturl=.%2Flist.asp&groupcode=NOTICE&kind=0&bbsno=640&seq=0&depth=0&open_state=1&search_mode=%7B%7Cpage_name%7C%3A%7C.%2Flist.asp%7C%2C%7Cpage_num%7C%3A%7C1%7C%2C%7Cpage_size%7C%3A20%2C%7Cgroupcode%7C%3A%7CNOTICE%7C%2C%7Ckind%7C%3A%7C0%7C%2C%7Ctype%7C%3A%7C0%7C%2C%7Csortstr%7C%3A%7C%7C%2C%7Csearch%7C%3A%7C%7C%2C%7Ckeyword%7C%3A%7C%7C%2C%7Csdate%7C%3A%7C%7C%2C%7Cedate%7C%3A%7C%7C%2C%7Copen_state%7C%3A%7C1%7C%7D">
+                <span class="img"><img
+                   src="https://www.dongwonresort.co.kr/pop/image/2026062402.jpg"
+                   data-src="https://www.dongwonresort.co.kr/pop/image/2026062402.jpg"
+                   alt="하모 샤브샤브"></span>
+                </a>
+              </div>
+            </div>
+     
+            
+          
+            <div class="slide-colum">
+              <div class="colum-content">
+                <a href="https://www.dongwonresort.co.kr/event_board/site/event/view.asp?cmd=view&cmval=0&cmkind=&calltype=AJAX&gonexturl=.%2Flist.asp&groupcode=PACKAGE&kind=0&bbsno=239&seq=0&depth=0&open_state=2&search_mode=%7B%7Cpage_name%7C%3A%7C.%2Flist.asp%7C%2C%7Cpage_num%7C%3A%7C1%7C%2C%7Cpage_size%7C%3A20%2C%7Cgroupcode%7C%3A%7CPACKAGE%7C%2C%7Ckind%7C%3A%7C0%7C%2C%7Ctype%7C%3A%7C0%7C%2C%7Csortstr%7C%3A%7C%7C%2C%7Csearch%7C%3A%7C%7C%2C%7Ckeyword%7C%3A%7C%7C%2C%7Csdate%7C%3A%7C%7C%2C%7Cedate%7C%3A%7C%7C%2C%7Copen_state%7C%3A%7C2%7C%7D">
+                <span class="img"><img
+                   src="https://www.dongwonresort.co.kr/pop/image/260518_pop.jpg"
+                   data-src="https://www.dongwonresort.co.kr/pop/image/260518_pop.jpg"
+                   alt="선셋36패키지"></span>
+                </a>
+              </div>
+            </div>
+            
+            <div class="slide-colum">
+              <div class="colum-content">
+                <a href="#">
+                <span class="img"><img
+                   src="https://www.dongwonresort.co.kr/pop/image/260508_pop.jpg"
+                   data-src="https://www.dongwonresort.co.kr/pop/image/260508_pop.jpg"
+                   alt="캐디피변경"></span>
+                </a>
+              </div>
+            </div>
+
+            <div class="slide-colum">
+              <div class="colum-content">
+                <a href="https://www.dongwonresort.co.kr/event_board/site/event/view.asp?cmd=view&cmval=0&cmkind=&calltype=AJAX&gonexturl=.%2Flist.asp&groupcode=PACKAGE&kind=0&bbsno=243&seq=0&depth=0&open_state=2&search_mode=%7B%7Cpage_name%7C%3A%7C.%2Flist.asp%7C%2C%7Cpage_num%7C%3A%7C1%7C%2C%7Cpage_size%7C%3A20%2C%7Cgroupcode%7C%3A%7CPACKAGE%7C%2C%7Ckind%7C%3A%7C0%7C%2C%7Ctype%7C%3A%7C0%7C%2C%7Csortstr%7C%3A%7C%7C%2C%7Csearch%7C%3A%7C%7C%2C%7Ckeyword%7C%3A%7C%7C%2C%7Csdate%7C%3A%7C%7C%2C%7Cedate%7C%3A%7C%7C%2C%7Copen_state%7C%3A%7C2%7C%7D">
+                <span class="img"><img
+                   src="https://www.dongwonresort.co.kr/pop/image/260422_1_pop.jpg"
+                   data-src="https://www.dongwonresort.co.kr/pop/image/260422_1_pop.jpg"
+                   alt="통영다찌패키지"></span>
+                </a>
+              </div>
+            </div>
+
+            <div class="slide-colum">
+              <div class="colum-content">
+                <a href="https://www.dongwonresort.co.kr/event_board/site/event/view.asp?cmd=view&cmval=0&cmkind=&calltype=AJAX&gonexturl=.%2Flist.asp&groupcode=EVENT&kind=0&bbsno=245&seq=0&depth=0&open_state=2&search_mode=%7B%7Cpage_name%7C%3A%7C.%2Flist.asp%7C%2C%7Cpage_num%7C%3A%7C1%7C%2C%7Cpage_size%7C%3A20%2C%7Cgroupcode%7C%3A%7CEVENT%7C%2C%7Ckind%7C%3A%7C0%7C%2C%7Ctype%7C%3A%7C0%7C%2C%7Csortstr%7C%3A%7C%7C%2C%7Csearch%7C%3A%7C%7C%2C%7Ckeyword%7C%3A%7C%7C%2C%7Csdate%7C%3A%7C%7C%2C%7Cedate%7C%3A%7C%7C%2C%7Copen_state%7C%3A%7C2%7C%7D">
+                <span class="img"><img
+                   src="https://www.dongwonresort.co.kr/pop/image/260420_pop.jpg"
+                   data-src="https://www.dongwonresort.co.kr/pop/image/260420_pop.jpg"
+                   alt="7월이벤트"></span>
+                </a>
+              </div>
+            </div>
+
+            <div class="slide-colum">
+              <div class="colum-content">
+                <a href="https://www.dongwonresort.co.kr/event_board/site/event/view.asp?cmd=view&cmval=0&cmkind=&calltype=AJAX&gonexturl=.%2Flist.asp&groupcode=EVENT&kind=0&bbsno=246&seq=0&depth=0&open_state=2&search_mode=%7B%7Cpage_name%7C%3A%7C.%2Flist.asp%7C%2C%7Cpage_num%7C%3A%7C1%7C%2C%7Cpage_size%7C%3A20%2C%7Cgroupcode%7C%3A%7CEVENT%7C%2C%7Ckind%7C%3A%7C0%7C%2C%7Ctype%7C%3A%7C0%7C%2C%7Csortstr%7C%3A%7C%7C%2C%7Csearch%7C%3A%7C%7C%2C%7Ckeyword%7C%3A%7C%7C%2C%7Csdate%7C%3A%7C%7C%2C%7Cedate%7C%3A%7C%7C%2C%7Copen_state%7C%3A%7C2%7C%7D">
+                <span class="img"><img
+                   src="https://www.dongwonresort.co.kr/pop/image/260602_pop.jpg"
+                   data-src="https://www.dongwonresort.co.kr/pop/image/260602_pop.jpg"
+                   alt="3부이벤트"></span>
+                </a>
+              </div>
+            </div>
+
+            <div class="slide-colum">
+              <div class="colum-content">
+                <a href="#">
+                <span class="img"><img
+                   src="https://www.dongwonresort.co.kr/pop/image/260304_pop.jpg"
+                   data-src="https://www.dongwonresort.co.kr/pop/image/260304_pop.jpg"
+                   alt="조식뷔페"></span>
+                </a>
+              </div>
+            </div>
+
+
+            <div class="slide-colum">
+              <div class="colum-content">
+                <a href="https://www.dongwonresort.co.kr/event_board/site/event/view.asp?cmd=view&cmval=0&cmkind=&calltype=AJAX&gonexturl=.%2Flist.asp&groupcode=EVENT&kind=0&bbsno=218&seq=0&depth=0&open_state=2&search_mode=%7B%7Cpage_name%7C%3A%7C.%2Flist.asp%7C%2C%7Cpage_num%7C%3A%7C1%7C%2C%7Cpage_size%7C%3A20%2C%7Cgroupcode%7C%3A%7CEVENT%7C%2C%7Ckind%7C%3A%7C0%7C%2C%7Ctype%7C%3A%7C0%7C%2C%7Csortstr%7C%3A%7C%7C%2C%7Csearch%7C%3A%7C%7C%2C%7Ckeyword%7C%3A%7C%7C%2C%7Csdate%7C%3A%7C%7C%2C%7Cedate%7C%3A%7C%7C%2C%7Copen_state%7C%3A%7C2%7C%7D">
+                <span class="img"><img
+                   src="https://www.dongwonresort.co.kr/pop/image/251124_pop.jpg"
+                   data-src="https://www.dongwonresort.co.kr/pop/image/251124_pop.jpg"
+                   alt="카톡이벤트"></span>
+                </a>
+              </div>
+            </div>
+
+            <div class="slide-colum">
+              <div class="colum-content">
+                <a href="#">
+                <span class="img"><img
+                   src="https://www.dongwonresort.co.kr/pop/image/250228_pop.jpg"
+                   data-src="https://www.dongwonresort.co.kr/pop/image/250228_pop.jpg"
+                   alt="픽업"></span>
+                </a>
+              </div>
+            </div>
+
+            <div class="slide-colum">
+                    <div class="colum-content">
+                      <a href="#">
+                      <span class="img"><img
+                         src="https://www.dongwonresort.co.kr/pop/image/230112_pop.jpg"
+                         data-src="https://www.dongwonresort.co.kr/pop/image/230112_pop.jpg"
+                         alt="리무진"></span>
+                      </a>
+                    </div>
+            </div>
+         
+            <!--<div class="slide-colum"
+               data-th-if="${#lists.size(eventList) lt 3}"
+               data-th-each="index : ${#numbers.sequence(1, 3 - #lists.size(eventList))}">
+               <div class="colum-content">
+               	<span class="img"><img src="/static/image/bg/1pixel.gif" data-th-data-src="|/static/image/img/img_event_default${index}.jpg|" data-th-alt="|기본 이미지${index}|" /></span>
+               </div>
+               </div>-->
+          </div>
+          <div class="slide-paging number">
+            <button class="slick-prev-custom slick-arrow ui-event-prev" type="button">Previous</button>
+            <div class="page-num">
+               <span class="num">1</span>
+               <span class="slash">/</span>
+               <!--<span class="total" data-th-text="${listSize > 3 ? listSize : 3}">3</span>-->
+               <span class="total">12</span>
+            </div>
+            <button class="slick-next-custom slick-arrow ui-event-next" type="button">Next</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="main-content">
+    <style>
+      /* 페이지 기본 설정 */
+      body {
+          margin: 0;
+          padding: 0;
+          font-family: 'Malgun Gothic', sans-serif;
+          background: #f5f6f8;
+      }
+
+      .section-wrap {
+          width: 100%;
+          padding: 0 20px;
+          box-sizing: border-box;
+      }
+
+      .section-inner {
+          max-width: 1200px;
+          margin: 0 auto;
+      }
+
+      /* 핵심: flex 말고 grid */
+      .img-area {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          column-gap: 30px;   /* 가로 간격 */
+          row-gap: 120px;      /* 1행 / 2행 간격 */
+          align-items: start; 
+      }
+
+      /* 박스 */
+      .img-box {
+          --offset: 0px;
+          background: #fff;
+          /* border-radius: 18px; */
+          overflow: hidden;
+          box-sizing: border-box;
+          transform: translateY(var(--offset));
+          box-shadow:
+              0 18px 40px rgba(0, 0, 0, 0.25),
+              0 6px 14px rgba(0, 0, 0, 0.15);
+          transition: transform 0.3s ease, box-shadow 0.3s ease;
+      }
+
+      /* 홀수 위로 / 짝수 아래로 */
+      .img-box.zig:nth-child(odd) {
+          --offset: -20px;
+      }
+
+      .img-box.zig:nth-child(even) {
+          --offset: 20px;
+      }
+
+      /* hover */
+      .img-box:hover {
+          transform: translateY(calc(var(--offset) - 8px));
+          box-shadow:
+              0 28px 55px rgba(0, 0, 0, 0.22),
+              0 10px 20px rgba(0, 0, 0, 0.12);
+      }
+
+      .img-box img {
+          display: block;
+          width: 100%;
+          height: auto;
+      }
+
+      /* 기존 모양 유지 */
+      .img-box.ex1 { border-radius: 10px 100px / 30px; }
+      .img-box.ex2 {
+        border-radius: 100px 10px 100px 10px / 30px 30px 30px 30px;
+      }
+      /*.img-box.ex2 { border-radius: 30% 10%; } */
+
+      /* 태블릿 */
+      @media (max-width: 1024px) {
+          .img-area {
+              grid-template-columns: repeat(2, 1fr);
+              column-gap: 24px;
+              row-gap: 40px;
+          }
+
+          .img-box:nth-child(odd),
+          .img-box:nth-child(even) {  
+              --offset: 0px;
+          }
+      }
+
+      /* 모바일 */
+      @media (max-width: 768px) {
+          .section-wrap {
+              padding: 0 15px;
+          }
+
+          .img-area {
+              grid-template-columns: 1fr;
+              gap: 20px;
+          }
+      }
+        
+    </style>
+    <div class="cont-head swipe-hidden">
+      <h2 class="main-sub-title main-type">그린피 & 패키지</h2>
+    </div>
+
+    <section class="section-wrap">
+      <div class="section-inner">
+        <div class="img-area">
+          
+
+          <div class="img-box zig ex1">
+            <a href="https://www.dongwonresort.co.kr/multi_board/site/board/view.asp?cmd=view&cmval=0&cmkind=&calltype=AJAX&gonexturl=.%2Flist.asp&groupcode=NOTICE&kind=0&bbsno=636&seq=0&depth=0&open_state=1&search_mode=%7B%7Cpage_name%7C%3A%7C.%2Flist.asp%7C%2C%7Cpage_num%7C%3A%7C1%7C%2C%7Cpage_size%7C%3A20%2C%7Cgroupcode%7C%3A%7CNOTICE%7C%2C%7Ckind%7C%3A%7C0%7C%2C%7Ctype%7C%3A%7C0%7C%2C%7Csortstr%7C%3A%7C%7C%2C%7Csearch%7C%3A%7C%7C%2C%7Ckeyword%7C%3A%7C%7C%2C%7Csdate%7C%3A%7C%7C%2C%7Cedate%7C%3A%7C%7C%2C%7Copen_state%7C%3A%7C1%7C%7D">
+              <img src="https://www.dongwonresort.co.kr/pop/image/pac_16.jpg" alt="첫 번째 이미지">
+            </a>
+          </div>
+          
+          <div class="img-box zig ex1">
+            <a href="https://www.dongwonresort.co.kr/multi_board/site/board/view.asp?cmd=view&cmval=0&cmkind=&calltype=AJAX&gonexturl=.%2Flist.asp&groupcode=NOTICE&kind=0&bbsno=641&seq=0&depth=0&open_state=1&search_mode=%7B%7Cpage_name%7C%3A%7C.%2Flist.asp%7C%2C%7Cpage_num%7C%3A%7C1%7C%2C%7Cpage_size%7C%3A20%2C%7Cgroupcode%7C%3A%7CNOTICE%7C%2C%7Ckind%7C%3A%7C0%7C%2C%7Ctype%7C%3A%7C0%7C%2C%7Csortstr%7C%3A%7C%7C%2C%7Csearch%7C%3A%7C%7C%2C%7Ckeyword%7C%3A%7C%7C%2C%7Csdate%7C%3A%7C%7C%2C%7Cedate%7C%3A%7C%7C%2C%7Copen_state%7C%3A%7C1%7C%7D">
+              <img src="https://www.dongwonresort.co.kr/pop/image/pac_19.jpg" alt="두 번째 이미지">
+            </a>
+          </div>
+
+          
+
+          <div class="img-box zig ex1">
+            <a href="https://www.dongwonresort.co.kr/event_board/site/event/view.asp?cmd=view&cmval=0&cmkind=&calltype=AJAX&gonexturl=.%2Flist.asp&groupcode=PACKAGE&kind=0&bbsno=242&seq=0&depth=0&open_state=2&search_mode=%7B%7Cpage_name%7C%3A%7C.%2Flist.asp%7C%2C%7Cpage_num%7C%3A%7C1%7C%2C%7Cpage_size%7C%3A20%2C%7Cgroupcode%7C%3A%7CPACKAGE%7C%2C%7Ckind%7C%3A%7C0%7C%2C%7Ctype%7C%3A%7C0%7C%2C%7Csortstr%7C%3A%7C%7C%2C%7Csearch%7C%3A%7C%7C%2C%7Ckeyword%7C%3A%7C%7C%2C%7Csdate%7C%3A%7C%7C%2C%7Cedate%7C%3A%7C%7C%2C%7Copen_state%7C%3A%7C2%7C%7D">
+              <img src="https://www.dongwonresort.co.kr/pop/image/pac_17.jpg" alt="세 번째 이미지">
+            </a>
+          </div>
+
+          <div class="img-box zig ex1">
+            <a href="https://www.dongwonresort.co.kr/event_board/site/event/view.asp?cmd=view&cmval=0&cmkind=&calltype=AJAX&gonexturl=.%2Flist.asp&groupcode=PACKAGE&kind=0&bbsno=247&seq=0&depth=0&open_state=2&search_mode=%7B%7Cpage_name%7C%3A%7C.%2Flist.asp%7C%2C%7Cpage_num%7C%3A%7C1%7C%2C%7Cpage_size%7C%3A20%2C%7Cgroupcode%7C%3A%7CPACKAGE%7C%2C%7Ckind%7C%3A%7C0%7C%2C%7Ctype%7C%3A%7C0%7C%2C%7Csortstr%7C%3A%7C%7C%2C%7Csearch%7C%3A%7C%7C%2C%7Ckeyword%7C%3A%7C%7C%2C%7Csdate%7C%3A%7C%7C%2C%7Cedate%7C%3A%7C%7C%2C%7Copen_state%7C%3A%7C2%7C%7D">
+              <img src="https://www.dongwonresort.co.kr/pop/image/pac_18.jpg" alt="네 번째 이미지">
+            </a>
+          </div>
+
+          <div class="img-box zig ex2">
+            <a href="https://www.dongwonresort.co.kr/event_board/site/event/view.asp?cmd=view&cmval=0&cmkind=&calltype=AJAX&gonexturl=.%2Flist.asp&groupcode=PACKAGE&kind=0&bbsno=243&seq=0&depth=0&open_state=2&search_mode=%7B%7Cpage_name%7C%3A%7C.%2Flist.asp%7C%2C%7Cpage_num%7C%3A%7C1%7C%2C%7Cpage_size%7C%3A20%2C%7Cgroupcode%7C%3A%7CPACKAGE%7C%2C%7Ckind%7C%3A%7C0%7C%2C%7Ctype%7C%3A%7C0%7C%2C%7Csortstr%7C%3A%7C%7C%2C%7Csearch%7C%3A%7C%7C%2C%7Ckeyword%7C%3A%7C%7C%2C%7Csdate%7C%3A%7C%7C%2C%7Cedate%7C%3A%7C%7C%2C%7Copen_state%7C%3A%7C2%7C%7D">
+              <img src="https://www.dongwonresort.co.kr/pop/image/pac_15.jpg" alt="다섯 번째 이미지">
+            </a>
+          </div>
+
+          <div class="img-box zig ex2">
+            <a href="https://www.dongwonresort.co.kr/pagesite/golf/facilities/restaurant.asp">
+              <img src="https://www.dongwonresort.co.kr/pop/image/pac_11.png" alt="일곱 번째 이미지">
+            </a>
+          </div>
+
+
+          <div class="img-box zig ex2">
+            <a href="https://www.dongwonresort.co.kr/youthhostel/"  target='_blank'>
+              <img src="https://www.dongwonresort.co.kr/pop/image/pac_09.jpg" alt="여섯 번째 이미지">
+            </a>
+          </div>
+
+          
+
+          <div class="img-box zig ex2">
+            <a href="https://www.dongwonresort.co.kr/GolfRes/joinRoom/list.asp">
+              <img src="https://www.dongwonresort.co.kr/pop/image/pac_08.jpg" alt="여덟 번째 이미지">
+            </a>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+   
+  
+  <div class="main-content left-content">
+    <div class="cont-head">
+      <h2 class="main-sub-title main-type">세미나실 / 연회장 / 객실</h2>
+    </div>
+
+    <div class="main-news-area">
+      <div class="jw-carousel-wrap">
+        <div class="jw-carousel" id="customCarousel1">
+          <div class="jw-carousel-track">
+            <div class="jw-carousel-slide active">
+              <a href="https://www.dongwonresort.co.kr/youthhostel/" target='_blank'>
+                <img src="https://www.dongwonresort.co.kr/image/common/mid00.jpg" alt="이순신홀 1">
+              </a>
+            </div>
+
+            <div class="jw-carousel-slide active">
+              <a href="https://www.dongwonresort.co.kr/youthhostel/" target='_blank'>
+                <img src="https://www.dongwonresort.co.kr/image/common/mid01.jpg" alt="이순신홀 1">
+              </a>
+            </div>
+      
+            <div class="jw-carousel-slide">
+              <a href="https://www.dongwonresort.co.kr/youthhostel/" target='_blank'>
+                <img src="https://www.dongwonresort.co.kr/image/common/mid03.jpg" alt="이순신홀 3">
+              </a>
+            </div>
+            <div class="jw-carousel-slide">
+              <a href="https://www.dongwonresort.co.kr/youthhostel/" target='_blank'>
+                <img src="https://www.dongwonresort.co.kr/image/common/mid06.jpg" alt="이순신홀 3">
+              </a>
+            </div>
+
+            <div class="jw-carousel-slide">
+              <a href="https://www.dongwonresort.co.kr/youthhostel/" target='_blank'>
+                <img src="https://www.dongwonresort.co.kr/image/common/mid04.jpg" alt="이순신홀 4">
+              </a>
+            </div>
+
+            <div class="jw-carousel-slide">
+              <a href="https://www.dongwonresort.co.kr/youthhostel/" target='_blank'>
+                <img src="https://www.dongwonresort.co.kr/image/common/mid05.jpg" alt="이순신홀 4">
+              </a>
+            </div>
+          </div>
+
+          <button type="button" class="jw-carousel-btn prev" aria-label="이전 이미지">&#10094;</button>
+          <button type="button" class="jw-carousel-btn next" aria-label="다음 이미지">&#10095;</button>
+
+          <div class="jw-carousel-dots"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <style>
+    .jw-carousel-wrap {
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    .jw-carousel {
+      position: relative;
+      width: 100%;
+      overflow: hidden;
+      border-radius: 0;
+    }
+
+    .jw-carousel-track {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 1200 / 520;
+      background: #ddd;
+    }
+
+    .jw-carousel-slide {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.5s ease;
+    }
+
+    .jw-carousel-slide.active {
+      opacity: 1;
+      visibility: visible;
+      z-index: 1;
+    }
+
+    .jw-carousel-slide img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .jw-carousel-btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 10;
+      width: 52px;
+      height: 52px;
+      border: 0;
+      border-radius: 50%;
+      background: rgba(0, 0, 0, 0.35);
+      color: #fff;
+      font-size: 24px;
+      cursor: pointer;
+      line-height: 1;
+      transition: background 0.2s ease;
+    }
+
+    .jw-carousel-btn.prev {
+      left: 20px;
+    }
+
+    .jw-carousel-btn.next {
+      right: 20px;
+    }
+
+    .jw-carousel-btn:hover {
+      background: rgba(0, 0, 0, 0.55);
+    }
+
+    .jw-carousel-dots {
+      position: absolute;
+      left: 50%;
+      bottom: 18px;
+      transform: translateX(-50%);
+      z-index: 10;
+      display: flex;
+      gap: 10px;
+    }
+
+    .jw-carousel-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      border: 0;
+      background: rgba(255, 255, 255, 0.5);
+      cursor: pointer;
+      padding: 0;
+    }
+
+    .jw-carousel-dot.active {
+      background: #fff;
+    }
+
+    @media (max-width: 768px) {
+      .jw-carousel {
+        border-radius: 16px;
+      }
+
+      .jw-carousel-track {
+        aspect-ratio: 16 / 9;
+      }
+
+      .jw-carousel-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 20px;
+      }
+
+      .jw-carousel-btn.prev {
+        left: 12px;
+      }
+
+      .jw-carousel-btn.next {
+        right: 12px;
+      }
+
+      .jw-carousel-dots {
+        bottom: 12px;
+        gap: 8px;
+      }
+
+      .jw-carousel-dot {
+        width: 10px;
+        height: 10px;
+      }
+    }
+  </style>
+
+  <script>
+    (function () {
+      var carousel = document.getElementById('customCarousel1');
+      if (!carousel) return;
+
+      var slides = carousel.querySelectorAll('.jw-carousel-slide');
+      var prevBtn = carousel.querySelector('.jw-carousel-btn.prev');
+      var nextBtn = carousel.querySelector('.jw-carousel-btn.next');
+      var dotsWrap = carousel.querySelector('.jw-carousel-dots');
+
+      var currentIndex = 0;
+      var autoSlide = null;
+      var intervalTime = 3000;
+
+      slides.forEach(function (_, index) {
+        var dot = document.createElement('button');
+        dot.type = 'button';
+        dot.className = 'jw-carousel-dot' + (index === 0 ? ' active' : '');
+        dot.setAttribute('aria-label', (index + 1) + '번 이미지 보기');
+        dot.addEventListener('click', function () {
+          goToSlide(index);
+        });
+        dotsWrap.appendChild(dot);
+      });
+
+      var dots = dotsWrap.querySelectorAll('.jw-carousel-dot');
+
+      function updateSlides() {
+        slides.forEach(function (slide, index) {
+          slide.classList.toggle('active', index === currentIndex);
+        });
+
+        dots.forEach(function (dot, index) {
+          dot.classList.toggle('active', index === currentIndex);
+        });
+      }
+
+      function goToSlide(index) {
+        currentIndex = index;
+
+        if (currentIndex < 0) {
+          currentIndex = slides.length - 1;
+        }
+
+        if (currentIndex >= slides.length) {
+          currentIndex = 0;
+        }
+
+        updateSlides();
+      }
+
+      function nextSlide() {
+        goToSlide(currentIndex + 1);
+      }
+
+      function prevSlide() {
+        goToSlide(currentIndex - 1);
+      }
+
+      function startAutoSlide() {
+        stopAutoSlide();
+        autoSlide = setInterval(nextSlide, intervalTime);
+      }
+
+      function stopAutoSlide() {
+        if (autoSlide) {
+          clearInterval(autoSlide);
+          autoSlide = null;
+        }
+      }
+
+      prevBtn.addEventListener('click', prevSlide);
+      nextBtn.addEventListener('click', nextSlide);
+
+      carousel.addEventListener('mouseenter', stopAutoSlide);
+      carousel.addEventListener('mouseleave', startAutoSlide);
+
+      updateSlides();
+      startAutoSlide();
+    })();
+  </script>
+  <div class="main-content">
+      <div class="tab-container" style="display: flex;">
+         <video  loop muted autoplay controls style="max-width: 1280px; margin: 0 auto;" >
+            <source type="video/mp4" src="static/video/golf.mp4">
+         </video>
+      </div>
+  </div>
+  
+
+
+  <div calss="main-content" style="margin-top:80px">
+    <style>
+      /* 전체 영역 */
+      .box4.section-wrap {
+          width: 100%;
+          padding: 0px 20px;
+          box-sizing: border-box;
+      }
+
+      /* 가운데 정렬용 내부 박스 */
+      .box4.section-inner {
+          max-width: 1200px;
+          margin: 0 auto;
+          text-align: center;
+      }
+
+      /* 이미지 4개 배치 영역 */
+      .box4.img-area {
+          display: flex;
+          justify-content: center;
+          align-items: flex-start;
+          gap: 30px;
+          flex-wrap: wrap; /* 2개씩 아래줄로 내려감 */
+      }
+
+      /* 이미지 박스 */
+      .box4.img-box {
+          background: #fff;
+          /*border-radius: 18px; */
+          overflow: hidden;
+          box-sizing: border-box;
+
+          /* 한 줄에 2개씩 배치 */
+          width: calc((100% - 30px) / 2);
+
+          /* 바닥에서 떠 있는 느낌의 그림자 */
+          box-shadow:
+              0 18px 40px rgba(0, 0, 0, 0.25),
+              0 6px 14px rgba(0, 0, 0, 0.15);
+
+          transition: transform 0.3s ease, box-shadow 0.3s ease;
+      }
+
+      /* 마우스 올리면 조금 더 떠오르는 느낌 */
+      .box4.img-box:hover {
+          transform: translateY(-8px);
+          box-shadow:
+              0 28px 55px rgba(0, 0, 0, 0.22),
+              0 10px 20px rgba(0, 0, 0, 0.12);
+      }
+
+      /* 실제 이미지 */
+      .box4.img-box img {
+        display: block;
+        width: 100%;
+        height: auto;
+
+        transition: transform 0.5s ease; /* 추가 */
+      }
+
+      .box4.img-box:hover img {
+          transform: scale(1.1); /* 1.1~1.2 사이 추천 */
+      }
+
+      /* 태블릿/모바일 대응 */
+      @media (max-width: 768px) {
+          .box4.section-wrap {
+              padding: 50px 15px;
+          }
+
+          .box4.img-area {
+              gap: 20px;
+          }
+
+          .box4.img-box {
+              width: 100%;
+          }
+      }
+
+      /* 캡션 영역 */
+      .box4.img-box {
+          position: relative;
+      }
+
+      .box4.caption {
+          position: absolute;
+          width: 100%;
+          color: #fff;
+          background: linear-gradient(to top, rgba(0,0,0,0.6), transparent);
+         
+          bottom: 15px;
+          right: 20px;   /* ← 이걸로 위치 직접 제어 */
+          left: auto;
+          width: auto;   /* ← 중요 */
+          padding: 0;
+      }
+    </style>
+    <div class="cont-head">
+      <h2 class="main-sub-title main-type">동원로얄CC</h2>
+    </div>
+    
+    <section class="box4 section-wrap">
+      <div class="box4 section-inner">
+        <div class="box4 img-area">
+
+          <div class="box4 img-box">
+            <a href="#">
+              <img src="/static/upload/images/golf_01.jpg" alt="">
+              <div class="box4 caption">통영 동원로얄CC</div>
+            </a>
+          </div>
+
+          <div class="box4 img-box">
+            <a href="https://www.dongwonresort.co.kr/youthhostel/" target="_blank">
+              <img src="/static/upload/images/golf_04.jpg" alt="">
+              <div class="box4 caption">통영 동원유스호스텔</div>
+            </a>
+          </div>
+
+          <div class="box4 img-box">
+            <a href="https://www.dongwonroyalcc.co.kr/index.asp" target="_blank">
+              <img src="/static/upload/images/golf_03.jpg" alt="">
+              <div class="box4 caption">양산 동원로얄CC</div>
+            </a>
+          </div>
+
+          <div class="box4 img-box">
+            <a href="https://www.dongwongolf.co.kr/" target="_blank">
+              <img src="/static/upload/images/golf_02.jpg" alt="">
+              <div class="box4 caption">기장 동원로얄CC</div>
+            </a>
+          </div>
+
+        </div>
+      </div>
+    </section>
+    
+  </div>
+
+ 
+  
+</div>
+<!-- /content -->
+<!--div id="quick_menu" class="header_scroll" style="display:none;"-->
+   <!-- quick -->			
+   <!--div class="quick_area" id="quick_area">
+      <span class="quick_area_bg"></span>
+      <a href="/GolfRes/onepage/real_reservation.asp" target="_parent" class="quick_main01" target="_blank" title="새창열기"><img src="./image/common/bt_r01.png" alt="통합예약" /></a>
+      <a href="#tab2" class="quick_main02"><img src="./image/common/bt_r02.png" alt="이벤트" /></a>
+      <a href="#tab3" class="quick_main03"><img src="./image/common/bt_r03.png" alt="패키지" /></a>
+      <div class="right"-->
+         <!-- 이벤트 -->
+         <!--div  id="tab2">
+            <h4>이벤트</h4>
+            <ul class="ev_con" id ="main_event_list">
+               <li>
+                  <dl>
+                     <dt></dt>
+                     <dd></dd>
+                     <dd class="photo"></dd>
+                  </dl>
+               </li>
+               <li>
+                  <dl>
+                     <dt></dt>
+                     <dd></dd>
+                     <dd class="photo"></dd>
+                  </dl>
+               </li>
+               <li>
+                  <dl>
+                     <dt></dt>
+                     <dd></dd>
+                     <dd class="photo"></dd>
+                  </dl>
+               </li>
+               <li>
+                  <dl>
+                     <dt></dt>
+                     <dd></dd>
+                     <dd class="photo"></dd>
+                  </dl>
+               </li>
+               <li>
+                  <dl>
+                     <dt></dt>
+                     <dd></dd>
+                     <dd class="photo"></dd>
+                  </dl>
+               </li>
+            </ul>
+         </div-->
+         <!-- 패키지 -->
+         <!--div  id="tab3">
+            <h4>패키지</h4>
+            <ul class="ev_con" id ="main_package_list">
+               <li>
+                  <dl>
+                     <dt></dt>
+                     <dd></dd>
+                     <dd class="photo"></dd>
+                  </dl>
+               </li>
+               <li>
+                  <dl>
+                     <dt></dt>
+                     <dd></dd>
+                     <dd class="photo"></dd>
+                  </dl>
+               </li>
+               <li>
+                  <dl>
+                     <dt></dt>
+                     <dd></dd>
+                     <dd class="photo"></dd>
+                  </dl>
+               </li>
+               <li>
+                  <dl>
+                     <dt></dt>
+                     <dd></dd>
+                     <dd class="photo"></dd>
+                  </dl>
+               </li>
+               <li>
+                  <dl>
+                     <dt></dt>
+                     <dd></dd>
+                     <dd class="photo"></dd>
+                  </dl>
+               </li>
+            </ul>
+         </div>
+      </div>
+   </div-->
+   <!-- /quick -->
+   <!--div class="quick_list">
+      <ul>
+         <li><a href="/pagesite/reservation/golf/live.asp"><img src="/image/common/qu01.png" alt="실시간예약" /></a></li>
+         <li><a href="/pagesite/reservation/golf/confirm.asp"><img src="/image/common/qu02.png" alt="예약확인" /></a></li>
+         <li><a href="/pagesite/information/gallery.asp"><img src="/image/common/qu03.png" alt="갤러리" /></a></li-->
+         <!-- <li><a href="/pagesite/lounge/customer.asp"><img src="/image/common/qu04.png" alt="문의" /></a></li> -->
+         <!--li><a href="/pagesite/golf/mobile.asp"><img src="/image/common/qu04.png" alt="모바일웹" /></a></li>
+         <li><a href="/pagesite/information/notice.asp"><img src="/image/common/qu05.png" alt="공지사항" /></a></li>
+         <li><a href="/pagesite/information/data.asp"><img src="/image/common/qu06.png" alt="자료실" /></a></li>
+         <li><a href="/pagesite/lounge/customer.asp"><img src="/image/common/qu07.png" alt="고객센터" /></a></li>
+         <li><a href="/pagesite/club/location.asp"><img src="/image/common/qu08.png" alt="오시는길" /></a></li>
+      </ul>
+   </div>
+</div-->
+<!-- 바디 종료 -->
+
+			
+	<!-- footer -->
+	<div id="footer">
+		<div class="foot_in">
+			<span class="clause_area">
+				<a href="/pagesite/clause/guide.asp">이용약관</a> l
+				<a href="/pagesite/clause/internet.asp">인터넷서비스 이용약관</a> l
+				<a href="/pagesite/clause/info.asp"><span style="color:yellow">개인정보취급방침</span></a> l
+				<a href="/pagesite/clause/business.asp" target="" target="_blank" title="새창열림">사업자정보확인</a>
+			</span>
+			<address>경상남도 통영시 산양읍 영운리 산184-5번지     tel  055-640-5000     fax   055-640-5090<br />
+			통신판매신고업 : 2015-경남통영-0103   사업자등록번호 : 605-86-10272    상호 : 동원관광개발(주)   대표자명 : 류경규</address>
+			<p class="copy">Copyright ⓒ Dongwon Royal Country Club &amp; YouthHostel. All rights reserved.</p>
+
+
+<a style="text-align:center;position:absolute; right:190px; top:10px;" href="http://www.utour.go.kr/utour.web" target="_blank"><img src="/image/common/utour_logo.png" alt="" /></a>
+
+<a style="text-align:center;position:absolute; right:84px; top:10px;" href="http://corp.ttdc.kr/" target="_blank"><img src="/image/common/ty_logo.gif" alt="" /></a>
+
+<div id="thawteseal" style="text-align:center;position:absolute; right:0; top:10px;" title="Click to Verify - This site chose Thawte SSL for secure e-commerce and confidential communications.">
+<div><script type="text/javascript" src="https://seal.thawte.com/getthawteseal?host_name=www.dongwonresort.co.kr&amp;size=L&amp;lang=ko"></script></div>
+
+
+
+<!-- <div><a href="http://www.thawte.com/ssl-certificates/" target="_blank" style="color:#000000; text-decoration:none; font:bold 10px arial,sans-serif; margin:0px; padding:0px;">SSL &#51064;&#51613;&#49436; &#51221;&#48372;</a></div>
+</div> -->
+
+<!--div id="thawteseal" style="text-align:center;" title="Click to Verify - This site chose Thawte SSL for secure e-commerce and confidential communications.">
+<div>
+<a tabindex="-1" _onmousedown="return v_mDown(event);" href="https://sealinfo.thawte.com/thawtesplash?form_file=fdf/thawtesplash.fdf&amp;dn=WWW.DONGWONRESORT.CO.KR&amp;lang=ko" target="blank"><img name="seal" style="position: absolute;right: 0px;top: 30px;" oncontextmenu="return false;" alt="Click to Verify - This site has chosen a thawte SSL Certificate to improve Web site security" src="https://seal.thawte.com/getthawteseal?at=0&amp;sealid=1&amp;dn=WWW.DONGWONRESORT.CO.KR&amp;lang=ko&amp;gmtoff=-540" border="true"></a>
+</div>
+<div><a href="http://www.thawte.com/ssl-certificates/" target="_blank" style="color:#000000; text-decoration:none; font:bold 10px arial,sans-serif; margin:0px; padding:0px;"></a></div>
+</div-->  
+		</div>
+	</div>
+	<!-- /footer -->
+</div>
+
+
+<script type="text/javascript">
+   <!--
+   
+   //메인 bg롤링
+   function play(){
+    var imgNum = 6;//배너이미지갯수, 변경시 위 btn1~4 위치 수정으로 적용 가능
+    var currentCName = $("#rollingBanner ul li dl dt").has(".on").attr("class");
+    if(currentCName!=null){
+     var cImg = $("."+currentCName).attr("class").slice(3,4);
+     var fImg = 1+Number(cImg);
+    }
+   
+    if(cImg<imgNum){
+     $("#rollingBanner ul li dl dd#banner0"+cImg).fadeOut(3000);
+     $("#rollingBanner ul li dl dd#banner0"+fImg).fadeIn(3000);
+     $("#rollingBanner ul li dl dt.btn"+cImg+" a").removeAttr("class");
+     $("#rollingBanner ul li dl dt.btn"+fImg+" a").attr("class","on");
+    }
+   
+    if(cImg==imgNum){
+    $("#rollingBanner ul li dl dd#banner0"+cImg).fadeOut(3000);
+    $("#rollingBanner ul li dl dd#banner01").fadeIn(3000);
+    $("#rollingBanner ul li dl dt.btn"+cImg+" a").removeAttr("class");
+    $("#rollingBanner ul li dl dt.btn1 a").attr("class","on");
+    }
+   } 
+   
+   $(document).ready(function(){ 
+    $("#rollingBanner ul li dl dd").hide();
+    $("#rollingBanner ul li dl dd").css({position:"absolute",left:"0",top:"0"});
+    $("#rollingBanner ul li dl dd#banner01 ").show();
+    $("#rollingBanner ul li dl dt.btn1 a").attr("class","on"); 
+    playImg = setInterval(play, 7000);
+   
+    $("#rollingBanner ul li dl dt a").hover(function(){
+     if($(this).attr("class") != "on"){
+      var fRollBanner = $(this).parent().attr("class").slice(3,4);
+      $("#rollingBanner ul li dl dd").fadeOut(3000);
+      $("#rollingBanner ul li dl dd#banner0"+fRollBanner).fadeIn(3000);
+      $("#rollingBanner ul li dl dt a").removeAttr("class");
+      $("#rollingBanner ul li dl dt.btn"+fRollBanner+" a").attr("class","on");
+      return false;
+     }
+    });
+    $("#rollingBanner ul li dl dt a").hover(function(){
+     clearInterval(playImg);
+     },function(){
+     playImg = setInterval(play, 7000);
+    });
+   });
+   //-->
+</script>
+<script>
+		// 전역 변수 설정
+		window.availDate = {
+			startDate: $("#date-checkin-web").val()
+			, endDate: ""
+			, invalidDateArray: []
+			, invalidDateArray: []
+		};
+		$(document).ready(function () {
+			flow.init();
+
+			if (false) {
+				var _objIdx = 0;
+
+				// '회원번호선택' 자동 선택을 위한 처리
+				$('.wp-20').find('.box-select-list').find('li').eq(_objIdx).children('a').click();
+				$('.wp-20').find('.box-select-list').find('li').eq(_objIdx).find('li').eq(0).children('a').click();
+				$('.wp-20').find('.box-select-list').find('li').eq(_objIdx).find('li').eq(0).find('li').eq(0).children('a').click();
+
+				// '예약선택' 자동 선택을 위한 selector 구분자 추출
+				var dataVal = $('.wp-20').find('.box-select-list').find('li').eq(_objIdx).children('a').data().value;
+
+				// '예약선택' 자동 선택을 위한 처리
+				$('div[data-toggle-key=' + dataVal + ']').find('li').eq(0).children('a').click();
+			}
+		});
+
+		var flow = {
+			lang: "ko" || 'ko',
+			$wrap: $('._flow-wrap'),
+			init: function () {
+				flow.render.init();
+				flow.bind.event();
+
+				flow.bind.action.timer.init();
+
+				// 스크립트 순서 조절 main_ui.js
+				if (fnUISlick && $.isFunction(fnUISlick)) {
+					fnUISlick();
+				}
+
+				flow.bind.action.setLazy();
+
+				// 예약영역 초기화
+				flow.bind.action.reservation.init();
+				// 예약 영역 달력 노출 관련 처리
+				$('#main-calendar-web').trigger('datepicker-change');
+			},
+			bind: {
+				event: function () {
+
+					// 탭 선택 할 때 이미지 레이지 로딩 재호출
+					$('ul.ui-tab>li>a').on('click.main', function () {
+						var $container = $($(this).attr('href'));
+
+						flow.bind.action.setLazy($container);
+					});
+
+					// 프로모션 코드 초기화
+					$('#rsvTypeCd').off('click.promotion-code-reset').on('click.promotion-code-reset', function () {
+						//데이트피커 날짜 세팅
+						flow.bind.action.reserDateRangePicker(null, null, null);
+					});
+
+
+					$('.travelbraryPop .closePopup').click(function () {
+
+						var checkYn = $('.travelbraryPop .checkbox').is(':checked');
+						//alert(checkYn);
+
+						if (checkYn) {
+							var obj = {};
+							$.core.ajax.post({
+								url: '/app/travelclubflag.json'
+								, data: JSON.stringify(obj)
+								, success: function (travelClubMap) {
+									$.core.alert(travelClubMap.NotiMsg);
+									//location.reload()
+
+								}
+								, error: function (e) {
+									$.core.alert("[" + e.status + "] 처리 중 오류가 발생하였습니다. 다시 시도하거나 관리자에게 문의바랍니다.");
+								}
+							});
+						}
+						$('.travelbraryPop').hide();
+						$('.dimm').hide();
+					})
+
+					$('.btn-changePrvAg').off('click').on('click', function () {
+						if (isLogin) {
+							//window.open('/member/changePrvAg',"","_blank");
+
+							var obj = {};
+
+							$.core.ajax.post({
+								url: '/member/changePrvAg.json'
+								, data: JSON.stringify(obj)
+								, success: function (lpointMemberMap) {
+									//alert(lpointMemberMap.rspC);
+									if ('44' == lpointMemberMap.rspC && '451' == lpointMemberMap.rspDtc) {
+										//로그인 필요
+										location.href = "/main/" + "ko" + "/member/login?returnUrl=" + encodeURIComponent($(location).attr('href'));
+									} else {
+
+										//동의해도 나중에 상태변경되면 다시노출
+										// 										$.core.ajax.post({
+										// 											url: '/app/travelclubflag.json'
+										// 											, data: JSON.stringify(obj)
+										// 											, success : function(travelClubMap) {
+										// 													//$.core.alert(travelClubMap.NotiMsg);
+										// 													location.reload()
+
+										// 											}
+										// 											, error: function (e) {
+										// 												$.core.alert("[" + e.status + "] 처리 중 오류가 발생하였습니다. 다시 시도하거나 관리자에게 문의바랍니다.");
+										// 											}
+										// 										});
+
+
+										$.core.alert(lpointMemberMap.rspMsgCn);
+
+										// 										location.href = "https://lotteresorts.wixsite.com/travelibraryclub";
+										if (!$(this).parents(".travelbraryPop").hasClass("on-layer")) {
+											$('.travelbraryPop').hide();
+											$('.dimm').hide();
+											//$(document).scrollTop(scrollValue);
+										}
+										//location.reload();
+									}
+								}
+								, error: function (e) {
+									$.core.alert("[" + e.status + "] 처리 중 오류가 발생하였습니다. 다시 시도하거나 관리자에게 문의바랍니다.");
+								}
+							});
+
+
+						} else {
+							location.href = "/main/" + "ko" + "/member/login?returnUrl=" + encodeURIComponent($(location).attr('href'));
+						}
+					});
+
+				},
+				action: {
+					timer: {
+						$layers: null,
+						interval: null,
+						init: function () {
+							this.$layers = $('#mainVisualTime').find('span');
+							this.start();
+						},
+						job: function () {
+							var now = moment();
+							// 오후 <span class="num">8:32:00</span>
+							this.$layers
+								//.eq(0).text(now.format('A')).end()
+								.eq(1).text(now.format('h:mm:ss'));
+						},
+						start: function () {
+							this.interval = setInterval(this.job.bind(this), 1000);
+						},
+						stop: function () {
+							clearInterval(this.interval);
+						}
+					},
+					setLazy: function ($container) {
+						var options = {
+							rootMargin: '100px'
+						},
+							$target = $container && $container.length ? $container.find("[data-src]") : $("[data-src]");
+						$target.lazyload(options);
+					},
+					// 프로모션 적용 내역 초기화
+					resetPromotion: function () {
+						$(".ui-btn-del").trigger('click.pub');
+						flow.bind.action.reserDateRangePicker($('#date-checkin-default').val(), $('#date-checkout-default').val(), null);
+					},
+					getPromotionInfo: function () {
+						var data = {
+							procType: 'PRO',
+							bizCd: $('#frmMainReservation > :hidden[name="bizCd"]').val(),
+							mainCd: $('#item-code').val()
+						},
+							flag = true;
+
+						// 유효성 체크
+						if (!data.bizCd) {
+							$.core.alert("\uD504\uB85C\uBAA8\uC158 \uCF54\uB4DC\uAC00 \uC77C\uCE58\uD558\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4." + '\n' + "\uB9AC\uC870\uD2B8 \uC9C0\uC810\uACFC \uCF54\uB4DC\uBC88\uD638\uB97C \uD655\uC778\uD558\uC138\uC694.");
+							return false;
+						} else if (!data.mainCd) {
+							$.core.alert("\uD504\uB85C\uBAA8\uC158 \uCF54\uB4DC\uB97C \uC785\uB825\uD558\uC138\uC694.");
+							return false;
+						}
+
+						$.core.ajax.get({
+							url: "/reservation" + getNextUrl(data.bizCd) + "/api/rsvCodeInfo.json"
+							, async: false
+							, data: data
+							, success: function (json) {
+								var rsltCd = nvl(json.rsltCd),
+									rsltAlert = nvl(json.rsltAlert),
+									rsvCodeInfo;
+
+								// 정상이 아닐 떄
+								if (rsltCd != "200") {
+									if (nvl(rsltAlert) != "") {
+										$.core.alert(rsltAlert);
+									} else {
+										$.core.alert("\uCC98\uB9AC \uC911 \uC624\uB958\uAC00 \uBC1C\uC0DD\uD558\uC600\uC2B5\uB2C8\uB2E4.\n\uB2E4\uC2DC \uC2DC\uB3C4\uD558\uAC70\uB098 \uAD00\uB9AC\uC790\uC5D0\uAC8C \uBB38\uC758 \uBC14\uB78D\uB2C8\uB2E4.");
+									}
+									flag = false;
+									return false;
+								} else if ((json.rsltMsg == 'NODATA' || json.rsltMsg == 'NOVALID')) {
+									// 결과 없음!!
+									$.core.alert("\uD504\uB85C\uBAA8\uC158 \uCF54\uB4DC\uAC00 \uC77C\uCE58\uD558\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4." + '\n' + "\uB9AC\uC870\uD2B8 \uC9C0\uC810\uACFC \uCF54\uB4DC\uBC88\uD638\uB97C \uD655\uC778\uD558\uC138\uC694.");
+									flag = false;
+									return false;
+								}
+								//데이트피커 날짜 세팅
+								rsvCodeInfo = json.rsvCodeInfo;
+								flow.bind.action.reserDateRangePicker(rsvCodeInfo.rsvFromDt, rsvCodeInfo.rsvToDt, rsvCodeInfo.exceptDt);
+							}
+						});
+						return flag;
+					},
+					reserDateRangePicker: function (st, et, ex) {
+						if (st === null || st === undefined || nvl(st) == '') {
+							availDate.startDate = "";
+						} else {
+							availDate.startDate = st;
+						}
+
+						if (et === null || et === undefined || nvl(et) == '') {
+							availDate.endDate = "";
+						} else {
+							availDate.endDate = et;
+						}
+
+						// ',' 연결자로 들어올시 배열로 변환
+						if (ex === null || ex === undefined || nvl(ex) == '') {
+							availDate.invalidDateArray = [];
+						} else {
+							availDate.invalidDateArray = ex.split(",");
+						}
+
+						st = st || $('#date-checkin-web').val().replace(/[^\d]/gim, '');
+						et = et || $('#date-checkout-web').val().replace(/[^\d]/gim, '');
+
+						// PC 처리
+						$('#main-calendar-web').data('dateRangePicker').resetMonthsView();
+						$('#main-calendar-web').data('dateRangePicker').setDateRange(st, et, true);
+						// $('#main-calendar-web').data('dateRangePicker').clear();
+
+						// MB 처리
+						$('#main-calendar-mob').data('dateRangePicker').resetMonthsView();
+						$('#main-calendar-mob').data('dateRangePicker').setDateRange(st, et, true);
+						// $('#main-calendar-mob').data('dateRangePicker').clear();
+					},
+					reservation: {
+						isResortMember: false,
+						isIntgMember: false,
+						$form: null,
+						$area: null,
+						nextUrl: '',
+						init: function () {
+							this.$area = $('.main-reser-wrap');
+							this.$form = $('#frmMainReservation');
+							this.event();
+						},
+						event: function () {
+							var that = this;
+
+							// 객실검색 버튼 선택
+							this.$area.find('.ui-search').off('click').on('click', function () {
+								that.nextPage();
+								return false;
+							});
+						},
+						nextPage: function () {
+							var data = this.buildData();
+
+							if (!this.validator(data)) {
+								return false;
+							}
+
+							// 회원권 인증 여부
+							if (this.isIntgMember) {
+								this.$form
+									.find('[name="memberNo"]').val(data.memberNo).end()
+									.find('[name="exclusiveCd"]').val(data.exclusiveCd).end()
+									.find('[name="exclusiveChargeYn"]').val(data.exclusiveChargeYn).end()
+									.find('[name="membYearUseDaysType"]').val(data.membYearUseDaysType).end()
+									.find('[name="ownType"]').val(data.ownType);
+
+								// 전용객실 선택 했을 때
+								if (data.exclusiveCd == '02') {
+									this.$form
+										.find('[name="ownType"]').val('').end()
+										.find('[name="roomCnt"]').val('1');
+								}
+							}
+							// console.log("결제시작");
+							fbq('track', 'InitiateCheckout');
+							this.$form.submit();
+						},
+						buildData: function () {
+							var data = $.extend(
+								$('#frmMainReservation').serializeObject(), {
+
+							});
+
+							return data;
+						},
+						validator: function (data) {
+							// 분양회원
+							if (this.isIntgMember) {
+								// 회원번호 memberNo
+								// 전용객실, 추가객실 exclusiveCd
+								// 유료객실, 무료객실 exclusiveChargeYn
+								// 예약선택 ownType
+							}
+							if (!data.bizCd) {		// 지점코드 bizCd
+								$.core.alert("\uB9AC\uC870\uD2B8 \uC9C0\uC810\uC744 \uC120\uD0DD\uD574\uC8FC\uC138\uC694.");
+								return false;
+							} else if (!data.checkinDt) {		// 종료일자 checkoutDt
+								$.core.alert("\uCCB4\uD06C\uC778 \uB0A0\uC9DC\uB97C \uC120\uD0DD\uD574\uC8FC\uC138\uC694.");
+								return false;
+							} else if (!data.checkoutDt) {		// 시작일자 checkinDt
+								$.core.alert("\uCCB4\uD06C\uC544\uC6C3 \uB0A0\uC9DC\uB97C \uC120\uD0DD\uD574\uC8FC\uC138\uC694.");
+								return false;
+							} else if (!data.roomCnt) {		// 객실 수 roomNo
+								$.core.alert('객실 수를 선택해 주세요.');
+								return false;
+							}
+
+							return true;
+						}
+					}
+				}
+			},
+			render: {
+				init: function () {
+					flow.render.top.init();
+					flow.render.popup.init();
+				},
+				popup: {
+					init: function () {
+
+						var deviceType = "PC";
+						var today = "20230217";
+						var windowWidth = $(window).width();
+						//if( deviceType == 'MB' ){
+						if (windowWidth < 1280) {
+							$("map[name=resortMap]").remove();
+						} else {
+							$("div[name=resortMapM]").remove();
+						}
+						/*if( $("._100event").length > 0 ){
+							if( today == '20190829' ){
+								$("._100event").attr('src', '');
+							}else if( today == '20190830' ){
+								$("._100event").attr('src', '');
+							}else if( today == '20190831' ){
+								$("._100event").attr('src', '');
+							}else if( today == '20190901' ){
+								$("._100event").attr('src', '');
+							}else if( today == '20190902' ){
+								$("._100event").attr('src', '');
+							}else if( today == '20190903' ){
+								$("._100event").attr('src', '');
+							}else{
+								$("._100event").attr('src', '');
+							}*/
+
+						/*if( Number(today) >= Number('20190904') ){
+							$("map[name=resortMap].resortMap3").remove();
+							$("div[name=resortMapM].resortMap3").remove();
+						}else{
+							$("map[name=resortMap].resortMap2").remove();
+							$("div[name=resortMapM].resortMap2").remove();
+						}
+
+					}*/
+
+						this.event();
+						this.remove();
+						this.show();
+					},
+					event: function () {
+						var that = this;
+
+						// 닫기 클릭
+						$('.layer-notice-pop').find('.closePopup').on('click.close', function () {
+							var $btnClose = $(this);
+							if (that.check($btnClose)) {
+								that.addCookie($btnClose);
+							}
+						});
+					},
+					remove: function () {
+						var $layer = $(".layer-notice-pop"),
+							excludeId = $.cookie('excludePopupId') || '',
+							isPreview = location.href.indexOf('preview') > -1;
+						popupIdList = [];
+
+						popupIdList = $layer.find('.popup-notice-box').map(function () {
+							return this.id;
+						});
+
+						if (isPreview) {
+							$layer.find('.popup-notice-box').addClass('show');
+						} else {
+							popupIdList
+								.filter(function () {
+									return excludeId.indexOf(this) < 0;
+								})
+								.each(function () {
+									$('#' + this).addClass('show');
+								});
+						}
+					},
+					show: function () {
+						if (openNoticePop && $.isFunction(openNoticePop)) {
+							openNoticePop();
+						}
+					},
+					check: function ($btnClose) {
+						return $btnClose.closest('.popup-notice-bottom').find(':checkbox').is(':checked');
+					},
+					addCookie: function ($btnClose) {
+						var data = $btnClose.closest('div.popup-notice-box').data(),
+							popupId = data.id,
+							days = data.days,
+							excludePopupId;
+
+						excludePopupId = $.cookie("excludePopupId");
+
+						if (excludePopupId) {
+							popupId += (',' + excludePopupId);
+						}
+
+						$.cookie("excludePopupId", popupId, { expires: days });
+					}
+
+				},
+				top: {
+					$target: null,
+					$slider: null,
+					init: function () {
+						this.$target = $('.notice-ban-slide-wrap');
+						this.$slider = $('.notice-ban-slide');
+						this.event();
+						if (this.isOpen()) {
+							this.show();
+						}
+					},
+					isOpen: function () {
+						return $.cookie("openNoticeTopYn") != 'N';
+					},
+					event: function () {
+						var that = this;
+
+						// 슬라이더 동작 처리
+						this.$slider.slick({
+							// 							slidesToShow:1,
+							// 							dots: true,
+							// 							prevArrow:false,
+							// 							nextArrow:false,
+							// 							adaptiveHeight: true, // 190514 추가
+							// 							autoplaySpeed : 3000,
+							// 							autoplay : true,
+							// 							infinite: true,
+							// 							responsive: [
+							// 								{
+							// 									breakpoint: 768,
+							// 									settings: {
+							// 										arrows: false,
+							// 										dots: true,
+							// 									}
+							// 								}
+							// 							]
+							slidesToShow: 1,
+							vertical: true,
+							autoplay: true,
+							autoplaySpeed: 3000,
+							infinite: true,
+							dots: false,
+							prevArrow: false,
+							nextArrow: false,
+							responsive: [
+								{
+									breakpoint: 768,
+									settings: {
+										slidesToShow: 1,
+										arrows: false,
+										dots: false,
+									}
+								}
+							]
+						});
+
+						// 닫기 클릭
+						this.$target.find('.closePopup').on('click.close', function () {
+							var $btnClose = $(this);
+							if (that.check($btnClose)) {
+								that.addCookie();
+							}
+							$(this).closest('.notice-ban-slide-wrap').addClass('hide');
+							$('.notice-ban-slide').slick('unslick')
+						});
+					},
+					show: function () {
+						// 						this.$target.show();
+					},
+					check: function ($btnClose) {
+						return $btnClose.prev().find('#chkDoNotOpenNoticeTop').is(':checked');
+					},
+					addCookie: function () {
+						$.cookie("openNoticeTopYn", 'N');
+					}
+				}
+			}
+		}
+
+
+		
+  $(window).scroll(function() {    
+    var scroll = $(window).scrollTop();
+    //console.log(scroll);
+    if (scroll >= 700) {
+        //console.log('a');
+        $(".header_scroll").addClass("sticky");
+    } else {
+        //console.log('a');
+        $(".header_scroll").removeClass("sticky");
+    }
+  });
+  
+
+</script>
+<script>
+  $(function () {
+    var $window = $(window);
+    var $body = $('body');
+    var $header = $('#header');
+    var $videoSection = $('.top_rolling');
+    var $menuTrigger = $('#menuTrigger');
+
+    function openMenuAlways() {
+      $body.addClass('menu-fixed-open');
+      $header.stop(true, true).show();
+      $header.find('.gnb > ul > li').removeClass('hide');
+      $header.addClass('open on active');
+      $header.find('.gnb').addClass('open on active');
+    }
+
+    function restoreHoverMenu() {
+      $body.removeClass('menu-fixed-open');
+      $header.removeClass('open on active');
+      $header.find('.gnb').removeClass('open on active');
+      $header.hide();
+    }
+
+    function checkMenuState() {
+      if (!$videoSection.length) return;
+
+      var sectionTop = $videoSection.offset().top;
+      var sectionHeight = $videoSection.outerHeight();
+      var triggerPoint = sectionTop + (sectionHeight * 2 / 4);
+      var scrollTop = $window.scrollTop();
+
+      if (scrollTop >= triggerPoint) {
+        openMenuAlways();
+      } else {
+        restoreHoverMenu();
+      }
+    }
+
+    $window.on('scroll resize load', checkMenuState);
+    checkMenuState();
+
+    $menuTrigger.on('mouseenter', function () {
+      if ($body.hasClass('menu-fixed-open')) {
+        openMenuAlways();
+      }
+    });
+
+    $('#header').on('mouseleave', function () {
+      if ($body.hasClass('menu-fixed-open')) {
+        openMenuAlways();
+        return false;
+      }
+    });
+  });
+</script>
+<script>
+(function () {
+    var todayVisitorCount = 11;
+
+    if (todayVisitorCount >= 0) {
+        console.log("오늘 접속자수:", todayVisitorCount + "명");
+    } else {
+        console.warn("오늘 접속자수 체크 실패: _visit_counter 폴더 쓰기 권한을 확인하세요.");
+    }
+})();
+</script>
+
+<form name="main_listform_calender" id="main_listform_calender" method="post" action="">
+	<input type="hidden" id="main_golfrestype" name="golfrestype" value="real" />
+	<input type="hidden" id="main_schDate" name="schDate" value="" />
+	<input type="hidden" id="main_usrmemcd" name="usrmemcd" value="10" />
+	<input type="hidden" id="main_toDay" name="toDay" value="" />	
+	<input type="hidden" id="main_calnum" name="calnum" />
+</form>
+
+<form name="main_golf_reservation" id="main_golf_reservation" method="get" action="">
+	<input type="hidden" id="main_golf_usrmemcd" name="usrmemcd" value="10" />
+	<input type="hidden" id="main_golf_pointdate" name="pointdate" value="" />
+	<input type="hidden" id="main_golf_courseid" name="courseid" value="0" />
+	<input type="hidden" id="main_golf_openyn" name="openyn" value="" />
+	<input type="hidden" id="main_golf_dategbn" name="dategbn" value="" />
+	<input type="hidden" id="main_golf_choice_time" name="choice_time" value="" />
+	<input type="hidden" id="main_golf_restype" name="settype" value="R" />	
+</form>
+
+<div style="display:none">
+	<div id="mainpreviewContents" style="height:24px; line-height:26px; padding:0 10px; border:1px solid #a36a13; font-size:12px; color:#fff; background-color:#ba822c;"></div>
+</div>
+
+<script type="text/javascript">	
+	/* 풍성 도움말 설정 부분 */
+	function mainhelperMouseOver(activedObject, previewWindow, strHelp)
+	{
+		//activedObject.style.color = "#666";
+		//activedObject.style.fontWeight = "normal";
+		//activedObject.style.backgroundColor = "#ccc";
+		//activedObject.parentNode.style.backgroundColor = "";
+		previewWindow.innerHTML = strHelp;
+	}
+
+
+	function mainhelperMouseOut(activedObject, previewWindow)
+	{
+		//activedObject.style.color = "#666";
+		//activedObject.style.fontWeight = "normal";
+		//activedObject.style.backgroundColor = "#ccc";
+		//activedObject.parentNode.style.backgroundColor = "";
+		previewWindow.innerHTML = "";
+	}
+
+	var mainhelper = new TOOLTIP;
+		mainhelper.setPreviewWindow("mainpreviewContents");
+		mainhelper.mouseoutFunc = mainhelperMouseOut;
+		mainhelper.mouseoverFunc = mainhelperMouseOver;
+		
+</script>
+
+<form name="main_multi_board_list" id="main_multi_board_list" method="post" action="">
+	<input type="hidden" id="main_board_code" name="main_board_code" value="" />	
+	<input type="hidden" id="main_board_type" name="main_board_type" value="L" />	
+	<input type="hidden" id="main_board_num"  name="main_board_num"  value="1" />	
+	<input type="hidden" id="main_board_size" name="main_board_size" value="5" />	
+</form>
+
+<form name="main_event_board_list" id="main_event_board_list" method="post" action="">
+	<input type="hidden" id="main_event_code" name="main_event_code" value="" />	
+	<input type="hidden" id="main_event_type" name="main_event_type" value="LI" />	
+	<input type="hidden" id="main_event_num"  name="main_event_num"  value="1" />	
+	<input type="hidden" id="main_event_size" name="main_event_size" value="5" />	
+</form>
+
+<form name="main_popup_layer_list" id="main_event_board_list" method="post" action="">
+	<input type="hidden" id="main_popup_code" name="main_popup_code" value="" />	
+	<input type="hidden" id="main_popup_type" name="main_popup_type" value="I" />	
+	<input type="hidden" id="main_popup_num"  name="main_popup_num"  value="1" />	
+	<input type="hidden" id="main_popup_size" name="main_popup_size" value="7" />	
+</form>
+
+<form name="main_golftime_list" id="main_golftime_list" method="post" action="">
+	<input type="hidden" id="main_golftime_type" name="main_golftime_type" value="" />	
+	<input type="hidden" id="main_golftime_size" name="main_golftime_size" value="" />	
+</form>
+
+<form name="main_joinroom_list" id="main_joinroom_list" method="post" action="">
+	<input type="hidden" id="main_joinroom_num"  name="main_joinroom_num"  value="1" />	
+	<input type="hidden" id="main_joinroom_size" name="main_joinroom_size" value="5" />	
+</form>
+
+<script type="text/javascript" src="https://wcs.naver.net/wcslog.js"></script>
+<script type="text/javascript">
+if(!wcs_add) var wcs_add = {};
+wcs_add["wa"] = "1392752c8f14c68";
+wcs_do();
+</script>
+
+
+<div id="ie_chk" class="ie_chk_area dp-none">
+    <button type="button" onclick="javascript:popHide('ie_chk')" class="btn-close"><span class="blind">현재창 닫기</span></button>
+    <div class="con">
+        <p class="tit">
+            <img src="/image/common/ico_ie.png" alt="ie" />
+            본사이트는 <strong>Internet Explorer 11</strong>버전<br/>에 <strong class="color-01">최적화</strong> 되어 있습니다.
+        </p>
+        <span>
+            <p class="btxt">‘Explorer 11이하’ 에서는 사용이 원활하지 않을 수 있습니다.</p>
+            <p class="btxt">Internet Explorer 11은 2022년 6월 15일부터 사용 및 지원이 중지됩니다. Microsoft Edge 사용을 권장합니다.</p>
+            <p class="txt">Explorer를 최신 버전으로 업데이트 하시거나, <br /><strong class="color-01">Chrome, 네이버 Whale</strong> 등의 브라우저를 이용해 주시기 바랍니다.</p>
+            <a href="http://windows.microsoft.com/ko-kr/internet-explorer/download-ie" target="_blank" title="새창열림" class="btn-upgrade">지금 업그레이드</a>
+            <p class="chk-uclose"><input type="checkbox" name="ie_chk_close" id="ie_chk_close" onclick="popHide('ie_chk')" /><label for="ie_chk_close">일주일간 표시 안하기</label></p>
+        </span>			
+    </div>
+</div>
+<script type="text/javascript">
+//익스플로러 중지 안내 활성화
+var agent = navigator.userAgent.toLowerCase();
+
+function ie_setCookie(name, value, days) {
+    if (days) {
+            var date = new Date();
+            date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+            var expires = "; expires=" + date.toGMTString();
+    } else {
+           var expires = "";
+    }
+    
+    document.cookie = name + "=" + value + expires + "; path=/";
+}
+
+ 
+//일주일간 표시 안하기
+function ie_getCookie(name) {
+    var i, x, y, ARRcookies = document.cookie.split(";");
+    
+    for (i = 0; i < ARRcookies.length; i++) {     
+        x = ARRcookies[i].substr(0, ARRcookies[i].indexOf("="));
+        y = ARRcookies[i].substr(ARRcookies[i].indexOf("=") + 1);
+        
+        x = x.replace(/^\s+|\s+$/g, "");
+
+        if (x == name) {
+                return unescape(y);
+        }
+    }
+}
+
+//ie_chk 레이어팝업 닫기
+function popHide(pop_id){
+    //document.getElementById(pop_id).style.display = "none";
+    $("#"+pop_id).hide(1000);
+    ie_setCookie('ie_chk_close', 'close', 7); //7일 후 만료
+}
+
+$(window).ready(function(){ 
+    var ie_Pchk = ie_getCookie('ie_chk_close');
+    //console.log(ie_Pchk);
+    if( ie_Pchk == 'close'){
+        $('#ie_chk').hide(1000);
+    }else{
+        if((navigator.appName == 'Netscape' && agent.indexOf('trident') != -1) || (agent.indexOf("msie") != -1)){
+            $('#ie_chk').removeClass('dp-none');
+        }
+    }
+});
+</script>
+
+</body>
+</html>
+<!-- ////////////////////////////////////////////////////////////////////////////////
+	Copyright(c)2026. cminfortek.com. All rights reserved.
+	이 사이트에 게제한 모든 소스와 정보에 대한 모든 권리는 씨엠인포텍(주)에게 있습니다.
+	사전 동의없이는 어떠한 형식과 방법으로든 무단 도용을 금합니다.
+	만일 위와 같은 권고에도 불구하고 무단 도용시 법적인 제재를 받으실 수 있습니다.
+	================================================================================
+	개인정보보호책임자 : XXXX (master@cminfor.co.kr)
+	기술 책임자 : XXXX (master@cminfor.co.kr)
+	컨텐츠 책임자 : XXXX (service@cminfor.co.kr)
+//////////////////////////////////////////////////////////////////////////////// -->

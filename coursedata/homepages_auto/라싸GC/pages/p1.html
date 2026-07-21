@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+    <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <meta name="format-detection" content="telephone=no">
+        <title>라싸GC</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+        <script src="/js/jquery.min.js"></script>
+        <script src="/js/const.js"></script>
+        <script src="/js/utils/ajax.js?v=1"></script>
+        <script src="/js/utils/common.js"></script>
+        <script src="/js/utils/date.js"></script>
+        <script src="/js/utils/popup.js"></script>
+        <script src="/js/utils/string.js"></script>
+        <script src="/js/utils/template.js"></script>
+        <script src="/js/jquery.preloaders.js"></script>
+        <script src="/pc/js/view.js"></script>
+        <script src="/pc/js/swiper.js"></script>
+        <script src="/pc/js/aos.js"></script>
+        <!--<script src="/pc/js/smoothscroll.js"></script>-->
+        <script src="/js/jquery.rwdImageMaps.min.js"></script><!-- image map -->
+        <link rel="stylesheet" href="/css/common.css" type="text/css">
+        <link rel="stylesheet" href="/css/swiper.css" type="text/css">
+        <link rel="stylesheet" href="/css/layout.css" type="text/css">
+        <link rel="stylesheet" href="/css/contents.css" type="text/css">
+        <link rel="stylesheet" href="/css/contents_m.css" type="text/css">
+        <link rel="stylesheet" href="/css/aos.css" type="text/css">
+        <link rel="icon" href="/images/favicon.ico">
+        <link rel="stylesheet" href="https://unpkg.com/lenis@1.3.8/dist/lenis.css">
+        <script src="https://unpkg.com/lenis@1.3.8/dist/lenis.min.js"></script>
+    </head>
+
+    <header class="pc">
+        <div class="nav-area">
+            <div class="top-left">
+                <script>
+                    $(document).ready(function () {
+                        $.ajax("/api/open/common/weather").done((data) => {
+                            $("p.weather-area").html(`포천시 이동면<em></em>${data.temp}º ${data.wfKor}<em></em><img src="/images/weather/${data.wfEn.replaceAll("/", "&")}.svg">`)
+                        })
+                    });
+                </script>
+                <p class="weather-area"></p>
+                <a href="/" class="logo-area"><img src="/images/logo.svg"></a>
+            </div>
+            <div class="top-right">
+                <a href="/"><img src="/images/ic_reservation.svg"></a>
+            </div>
+        </div>
+        <!--메뉴-->
+        <nav>
+            <ul class="nav-menu">
+                <li class="gnb"><a href="/reservation/main">예약안내</a></li>
+                <li class="gnb"><a href="/club/intro">클럽안내</a></li>
+                <li class="gnb"><a href="/course/intro">코스안내</a></li>
+                <li class="gnb"><a href="/board/notice">클럽소식</a></li>
+                <li class="gnb"><a href="/mypage/check">마이페이지</a></li>
+            </ul>
+        </nav>
+        <div class="lnb">
+            <div class="lnb-area">
+                <div class="btn-lnb-area login-container" style="display: none">
+                    <a href="javascript:logout()" class="on">로그아웃</a>
+                    <a href="/mypage/check">마이페이지</a>
+                </div>
+                <div class="btn-lnb-area logout-container" style="display: none">
+                    <a href="/member/login" class="on">로그인</a>
+                    <a href="/member/terms">회원가입</a>
+                </div>
+                <div class="lnb-box">
+                    <ul>
+                        <li><h3>예약안내</h3></li>
+                        <li><a href="/reservation/main">실시간예약</a></li>
+                        <li><a href="/reservation/guide">이용안내</a></li>
+                        <li><a href="/reservation/fee">이용요금</a></li>
+                    </ul>
+                    <ul>
+                        <li><h3>클럽안내</h3></li>
+                        <li><a href="/club/intro">클럽소개</a></li>
+                        <li><a href="/club/facil01">부대시설</a></li>
+                        <li><a href="/club/map">오시는길</a></li>
+                    </ul>
+                    <ul>
+                        <li><h3>코스안내</h3></li>
+                        <li><a href="/course/intro">코스소개</a></li>
+                        <li><a href="/course/mountain">마운틴</a></li>
+                        <li><a href="/course/lake">레이크</a></li>
+                        <li><a href="/course/valley">밸리</a></li>
+                    </ul>
+                    <ul>
+                        <li><h3>클럽소식</h3></li>
+                        <li><a href="/board/notice">공지사항</a></li>
+                        <li><a href="/board/event">이벤트</a></li>
+                        <li><a href="/board/honor">영광의순간</a></li>
+                        <li><a href="/board/voc-list">고객의소리</a></li>
+                    </ul>
+                    <ul>
+                        <li><h3>마이페이지</h3></li>
+                        <li><a href="/mypage/check">예약확인</a></li>
+                        <li><a href="/mypage/coupon">쿠폰조회</a></li>
+                        <li><a href="/mypage/mypage">정보수정</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="menu-bg"></div>
+        <!--//메뉴-->
+    </header>
+    <header class="mobile">
+        <div class="top-left">
+            <p class="weather-area">21.6º 맑음<em></em><img src="/images/weather/Clear.svg"></p>
+            <a href="/" class="logo-area"><img src="/images/logo.svg"></a>
+        </div>
+        <div class="top-right">
+            <a href="/reservation/main"><img src="/images/ic_reservation.svg"></a>
+        </div>
+        <input type="checkbox" id="toggleNav"/>
+        <label class="toggle-btn" for="toggleNav" id="toggleTop">
+            <span></span>
+            <span></span>
+            <span></span>
+        </label>
+        <nav>
+            <div class="nav-box">
+                <div class="nav-header">
+                    <div class="logo">
+                        <a href="/"><img src="/images/logo.svg"></a>
+                    </div>
+                    <!--로그인전-->
+                    <div class="menu-login logout-container" style="display: none">
+                        <a href="/member/login" class="login">로그인</a>
+                        <a href="/member/terms">회원가입</a>
+                    </div>
+                    <!--로그인후-->
+                    <div class="menu-login login-container" style="display: none">
+                        <a href="javascript:logout()" class="login">로그아웃</a>
+                        <a href="/mypage/check" class="mypage">마이페이지</a>
+                    </div>
+                </div>
+                <ul class="menu-list">
+                    <li>
+                        <a href="javascript:void(0)"><p><span>reservation</span>예약안내</p><b><span></span></b></a>
+                        <div class="lnb">
+                            <a href="/reservation/main">실시간예약</a>
+                            <a href="/reservation/guide">이용안내</a>
+                            <a href="/reservation/fee">이용요금</a>
+                        </div>
+                    </li>
+                    <li>
+                        <a href="javascript:void(0)"><p><span>CLUB</span>클럽소개</p><b><span></span></b></a>
+                        <div class="lnb">
+                            <a href="/club/intro">클럽소개</a>
+                            <a href="/club/facil01">부대시설</a>
+                            <a href="/club/map">오시는길</a>
+                        </div>
+                    </li>
+                    <li>
+                        <a href="javascript:void(0)"><p><span>COURSE</span>코스안내</p><b><span></span></b></a>
+                        <div class="lnb">
+                            <a href="/course/intro">코스소개</a>
+                            <a href="/course/mountain">마운틴</a>
+                            <a href="/course/lake">레이크</a>
+                            <a href="/course/valley">밸리</a>
+                        </div>
+                    </li>
+                    <li>
+                        <a href="javascript:void(0)"><p><span>NEWS</span>클럽소식</p><b><span></span></b></a>
+                        <div class="lnb">
+                            <a href="/board/notice">공지사항</a>
+                            <a href="/board/event">이벤트</a>
+                            <a href="/board/honor">영광의순간</a>
+                            <a href="/board/voc-list">고객의소리</a>
+                        </div>
+                    </li>
+                    <li>
+                        <a href="javascript:void(0)"><p><span>MY PAGE</span>마이페이지</p><b><span></span></b></a>
+                        <div class="lnb">
+                            <a href="/mypage/check">예약확인</a>
+                            <a href="/mypage/coupon">쿠폰조회</a>
+                            <a href="/mypage/mypage">정보수정</a>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <script>
+        new Lenis({ //스크롤지연 script
+            autoRaf: true,
+            duration: 2,
+            anchors: { offset: 0 },
+        });
+
+        AOS.init({ duration: 800, easing: 'ease' });
+        window.addEventListener('load', () => AOS.refresh());
+
+        $(document).ready(async function () {
+            const memberId = null;
+            if (memberId) {
+                $(".login-container").show();
+            } else {
+                $(".logout-container").show();
+            }
+        });
+
+        function logout() {
+            ajax.post("/api/member/logout").then(() => {
+                location.href = "/";
+            });
+        }
+    </script>
+
+<body>
+
+    <div class="container">
+        <div class="breadcrumb">
+            <ul>
+                <li class="home">
+                    <img src="/images/ic_home.svg" alt="홈">
+                </li>
+                <li class="dropdown">
+                    <button class="dropdown-btn">코스안내</button>
+                    <ul class="dropdown-menu">
+                        <li><a href="/reservation/main">예약안내</a></li>
+                        <li><a href="/club/intro">클럽안내</a></li>
+                        <li><a href="/course/intro">코스안내</a></li>
+                        <li><a href="/board/notice">클럽소식</a></li>
+                        <li><a href="/mypage/check">마이페이지</a></li>
+                    </ul>
+                </li>
+                <li class="dropdown">
+                    <button class="dropdown-btn">코스소개</button>
+                    <ul class="dropdown-menu">
+                        <li><a href="/course/intro">코스소개</a></li>
+                        <li><a href="/course/mountain">마운틴</a></li>
+                        <li><a href="/course/lake">레이크</a></li>
+                        <li><a href="/course/valley">밸리</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+
+        <div class="common-tit">
+            <h4>COURSE</h4>
+            <h2>코스안내</h2>
+        </div>
+        <div class="common-tab-wrap">
+            <a href="/course/intro" class="on">코스소개</a>
+            <a href="/course/mountain">마운틴</a>
+            <a href="/course/lake">레이크</a>
+            <a href="/course/valley">밸리</a>
+        </div>
+
+        <div></div>
+        <h2 class="title-bar">코스소개</h2>
+        <ul class="course-list-card">
+            <li data-aos="fade-in" data-aos-delay="50"><a href="/course/mountain"><h2>mountain<span>course</span></h2></a></li>
+            <li data-aos="fade-in" data-aos-delay="250"><a href="/course/lake"><h2>lake<span>course</span></h2></a></li>
+            <li data-aos="fade-in" data-aos-delay="450"><a href="/course/valley"><h2>valley<span>course</span></h2></a></li>
+        </ul>
+
+        <div class="design-concept">
+            <h1>DESIGN CONCEPT for <span>LASSA</span></h1>
+            <p class="concept-title">레이크코스 / 밸리코스 / 마운틴코스는 윈난성(雲南省), 티베트족 자치구에 있는 쿤룬산맥의 서쪽 끝, 샹그릴라(香格里拉,
+                Shangri-La / Xianggelila)에 도달하는 모습을 단계적으로 상징한다.</p>
+            <p class="concept-text">샹그릴라는 1933년 영국의 소설가 James Hilton의 "잃어버린 지평선/Lost Horizon" 눈 덮인 산, 계곡, 호수 울창한 숲의 모습으로
+                묘사된 지상의 이상향이며 티벳의 전설 속에 나타나는 “마음속의 해와 달” “푸른달빛 골짜기”라는 의미의 장소이기도 하다.</p>
+        </div>
+
+        <h2 class="title-bar">코스 레이팅</h2>
+        <p class="rating-desc">상기 골프장은 R&A와 USGA의 월드 핸디캡 시스템에 의거하여 대한골프협회에서 측정·평가한 공인 코스입니다.</p>
+        <p class="rating-img"><img src="/images/img_rating.jpg"></p>
+
+        <div class="tbl-scroll">
+            <table class="tbl-sty01">
+                <colgroup>
+                    <col>
+                </colgroup>
+                <thead>
+                <tr>
+                    <th rowspan="2">코스</th>
+                    <th rowspan="2">TEE</th>
+                    <th colspan="2">거리</th>
+                    <th rowspan="2">장해물 수치</th>
+                    <th rowspan="2">코스 레이팅</th>
+                    <th rowspan="2">슬로프 레이팅</th>
+                </tr>
+                <tr>
+                    <th>야드</th>
+                    <th>레이팅</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <th rowspan="3">마운틴+레이크</th>
+                    <td>BLUE</td>
+                    <td>6,949</td>
+                    <td>72.2</td>
+                    <td>2.1</td>
+                    <td>74.3</td>
+                    <td>139</td>
+                </tr>
+                <tr>
+                    <td>WHITE</td>
+                    <td>6,343</td>
+                    <td>69.3</td>
+                    <td>1.7</td>
+                    <td>71.0</td>
+                    <td>131</td>
+                </tr>
+                <tr>
+                    <td>RED</td>
+                    <td>5,153</td>
+                    <td>68.9</td>
+                    <td>0.6</td>
+                    <td>69.5</td>
+                    <td>119</td>
+                </tr>
+
+                <tr>
+                    <th rowspan="3">레이크+밸리</th>
+                    <td>BLUE</td>
+                    <td>6,745</td>
+                    <td>71.3</td>
+                    <td>1.8</td>
+                    <td>73.1</td>
+                    <td>137</td>
+                </tr>
+                <tr>
+                    <td>WHITE</td>
+                    <td>6,344</td>
+                    <td>69.5</td>
+                    <td>1.5</td>
+                    <td>71.0</td>
+                    <td>131</td>
+                </tr>
+                <tr>
+                    <td>RED</td>
+                    <td>4,963</td>
+                    <td>67.9</td>
+                    <td>0.7</td>
+                    <td>68.6</td>
+                    <td>114</td>
+                </tr>
+
+                <tr>
+                    <th rowspan="3">밸리+마운틴</th>
+                    <td>BLUE</td>
+                    <td>6,780</td>
+                    <td>71.5</td>
+                    <td>1.9</td>
+                    <td>73.4</td>
+                    <td>137</td>
+                </tr>
+                <tr>
+                    <td>WHITE</td>
+                    <td>6,341</td>
+                    <td>69.5</td>
+                    <td>1.6</td>
+                    <td>71.1</td>
+                    <td>132</td>
+                </tr>
+                <tr>
+                    <td>RED</td>
+                    <td>5,032</td>
+                    <td>68.2</td>
+                    <td>0.9</td>
+                    <td>69.1</td>
+                    <td>119</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</body>
+
+<aside>
+    
+    <div class="footer-menu">
+        <a href="/board/notice">
+            <img src="/images/ic_ft_menu01.svg">
+            공지사항
+        </a>
+        <a href="https://www.weather.go.kr/w/weather/forecast/short-term.do" target="_blank">
+            <img src="/images/ic_ft_menu02.svg">
+            일기예보
+        </a>
+        <a href="/mypage/check">
+            <img src="/images/ic_ft_menu03.svg">
+            예약확인
+        </a>
+        <a href="/reservation/main">
+            <img src="/images/ic_ft_menu04.svg">
+            예약하기
+        </a>
+        <a href="/member/login" class="logout-container" style="display: none">
+            <img src="/images/ic_ft_menu05.svg">
+            로그인
+        </a>
+        <a href="javascript:logout()" class="login-container" style="display: none">
+            <img src="/images/ic_ft_menu06.svg">
+            로그아웃
+        </a>
+    </div>
+
+</aside>
+
+
+    <footer>
+        
+    <div class="footer-menu">
+        <a href="/board/notice">
+            <img src="/images/ic_ft_menu01.svg">
+            공지사항
+        </a>
+        <a href="https://www.weather.go.kr/w/weather/forecast/short-term.do" target="_blank">
+            <img src="/images/ic_ft_menu02.svg">
+            일기예보
+        </a>
+        <a href="/mypage/check">
+            <img src="/images/ic_ft_menu03.svg">
+            예약확인
+        </a>
+        <a href="/reservation/main">
+            <img src="/images/ic_ft_menu04.svg">
+            예약하기
+        </a>
+        <a href="/member/login" class="logout-container" style="display: none">
+            <img src="/images/ic_ft_menu05.svg">
+            로그인
+        </a>
+        <a href="javascript:logout()" class="login-container" style="display: none">
+            <img src="/images/ic_ft_menu06.svg">
+            로그아웃
+        </a>
+    </div>
+
+
+        <h1>footer logo</h1>
+        <p class="phone">031-538-0600</p>
+        <address>
+            회사명 : 라싸디벨로프먼트&emsp;대표자 : 양창모&emsp;사업자등록번호 : 127-86-23923&emsp;통신판매신고 : 제 2020-경기포천-0311호<br>
+            경기도 포천시 이동면 제비울2길 161&emsp;대표전화 : 031-538-0600&emsp;팩스번호 : 031-538-0679
+        </address>
+        <ul class="sns-box">
+            <li><a href="https://www.youtube.com/channel/UCmMCBmqpaJ330e2uAPmnY9A/" target="_blank"><img src="/images/ic_youtube.svg" alt="유투브"></a></li>
+            <li><a href="https://www.instagram.com/lassa_golf_club/" target="_blank"><img src="/images/ic_instagram.svg" alt="인스타그램"></a></li>
+            <li><a href="http://pf.kakao.com/_PUxgwxb" target="_blank"><img src="/images/ic_kakaotalk.svg" alt="카카오톡"></a></li>
+        </ul>
+        <ul class="footer-bottom">
+            <li>COPYRIGHT (C) LASSA GOLF CLUB ALL RIGHT RESERVED.</li>
+            <li class="footer-links">
+                <a href="/reservation/terms">이용약관</a>
+                <a href="/policy/privacy">개인정보처리방침</a>
+                <a href="/policy/privacy-consent">개인정보 제공, 처리 위탁에 대한 동의</a>
+                <a href="/policy/video">영상정보처리기기 운영 및 방침</a>
+            </li>
+            <li class="scroll-top">
+                <a href="#">
+                    <img src="/images/ic_top.svg">
+                    Top
+                </a>
+            </li>
+        </ul>
+    </footer>
+
+</html>

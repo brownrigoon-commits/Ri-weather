@@ -1,0 +1,989 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="user-scalable=yes, initial-scale=0.3, maximum-scale=1.0, minimum-scale=0.1, width=device-width" />
+    <meta name="title" content="세레니티 강촌CC">
+    <meta name="author" content="세레니티 강촌CC">
+    <meta name="Keywords" content="세레니티 강촌CC, 세레니티 강촌 컨트리 클럽 ">
+    <meta name="description" content="세레니티 강촌CC, 세레니티 강촌 컨트리 클럽 ">
+    <meta name="copyright" content="All Contents Copyright©Serenity Gangchon Country Club">
+    <meta name="format-detection" content="telephone=no, address=no, email=no" />
+    <meta property="og:type" content="mobile">
+    <meta property="og:title" content="세레니티 강촌CC, 세레니티 강촌 컨트리 클럽">
+    <meta property="og:description" content="세레니티 강촌CC, ">
+    <meta property="og:url" content="">
+    <title>세레니티 강촌CC</title>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/bxslider/4.2.12/jquery.bxslider.min.js"></script>
+    <script type="text/javascript" src="/js/common.js"></script>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.8.2/css/all.min.css" />
+
+    <link rel="stylesheet" type="text/css" href="/css/import.css?v=1.6">
+    <link rel="stylesheet" type="text/css" href="/css/main.css?v=2.4">
+    <link rel="stylesheet" type="text/css" href="/css/motion.css">
+    <link rel="stylesheet" type="text/css" href="/css/animate.css">
+
+    <!-- 메인 배경 줌아웃 zoomOut -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.6.0/slick.min.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.6.0/slick.min.js"></script>
+
+    <script src="/js/jquery.preloaders.js"></script>
+    <script src="/js/tools.js"></script>
+    <script src="/js/globals.js"></script>
+    <script src="/js/wow.js"></script>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flickity/2.0.5/flickity.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flickity/2.0.5/flickity.pkgd.min.js"></script>
+
+    <script type="text/javascript">
+        /* 컨텐츠 fade in */
+        wow = new WOW({
+            boxClass: 'fadeBox',
+            animateClass: 'animated',
+            offset: 100,
+            callback: function(box) {
+                //console.log("WOW: animating <" + box.tagName.toLowerCase() + ">")
+            }
+        });
+        wow.init();
+        /*//컨텐츠 fade in */
+        
+        $(window).off("scroll");
+    </script>
+    <script>
+        var mDate;
+        var mYear, mMonth;
+        var rowData;
+
+        $(document).ready(function() {
+            init();
+            setProtocol();
+            sessionCheck();
+        });
+
+        function init() {
+            $('.hero-slider').slick({
+                dots: true,
+                infinite: true,
+                speed: 2000,
+                dots: false,
+                arrows: false,
+                autoplay: true,
+                autoplaySpeed: 6000,
+                fade: true,
+                pauseOnHover: false,
+                pauseOnFocus: false
+            });
+            $('.slider2').bxSlider({
+                speed: 300,
+                pause: 3000,
+                auto: true,
+                controls: true,
+                pager: false,
+                touchEnabled: false
+            });
+            $("#mainCourseMore").mouseenter(
+                function() {
+                    $('#courseInfoTxt').show();
+                    $('#courseIntroBox').hide();
+                }
+            );
+            $("#courseInfoTxt").mouseleave(
+                function() {
+                    $('#courseInfoTxt').hide();
+                    $('#courseIntroBox').show();
+                }
+            );
+            $("#mainCourseMore2").mouseenter(
+                function() {
+                    $('#courseInfoTxt2').show();
+                    $('#courseIntroBox2').hide();
+                }
+            );
+            $("#courseInfoTxt2").mouseleave(
+                function() {
+                    $('#courseInfoTxt2').hide();
+                    $('#courseIntroBox2').show();
+                }
+            );
+
+            if (getCookie("notToday") == "Y") {
+                $("#mainPop").hide();
+            }
+
+            var date = new Date();
+            mYear = date.yyyy();
+            mMonth = date.mm();
+
+            initCalendar("#calendarBox1", mYear, mMonth);
+            getMainNotice(1);
+        }
+
+        function setProtocol() {
+            if (document.location.protocol == 'http:') {
+                document.location.href = document.location.href.replace('http:', 'https:');
+            }
+        }
+
+        function sessionCheck() {
+            var sUrl = "/controller/SessionManager.asp";
+            var params = {
+                "method": "sessionConfirm"
+            };
+
+            mAjax(sUrl, params, "POST", false, function(data) {
+                if (data.resultCode == "2000") {
+                    alert(data.resultMessage);
+                    location.reload();
+                }
+            });
+        }
+
+        function initCalendar(selector, year, month) {
+            var sUrl = "/controller/ReservationController.asp";
+            var params = {};
+
+            params["method"] = "getCalendar";
+            params["coDiv"] = globals.coDiv;
+            params["selYm"] = year + month;
+
+            mAjax(sUrl, params, "POST", true, function(data) {
+                if (data.resultCode == "0000") {
+                    $(selector + " #calHeader").empty().append(month + "월");
+
+                    var currentDay = new Date().yyyymmdd();
+                    var tBody = $(selector + " #calendar-body");
+                    tBody.empty();
+
+                    var rows = data.rows;
+
+                    if (rows.length > 0) {
+                        var row = $("<tr></tr>");
+
+                        var fWeek = rows[0].CL_DAYDIV - 1;
+
+                        for (i = 0; i < fWeek; i++) {
+                            row.append($("<td></td>"));
+                        }
+                        for (i = 0; i < rows.length; i++) {
+                            if (rows[i].CL_SOLAR >= currentDay) {
+                                if (rows[i].CL_SOLAR == currentDay) {
+                                    var td = $("<td>" + rows[i].DAYNUM + "</td>");
+                                    td.addClass('today');
+                                } else if (rows[i].BK_TEAM > 0) {
+                                    var td = $("<td>" + rows[i].DAYNUM + "</td>");
+                                    if (rows[i].CL_BUSINESS == "2") {
+                                        td.addClass('sat');
+                                    } else if (rows[i].CL_BUSINESS == "3" || rows[i].CL_BUSINESS == "4") {
+                                        td.addClass('sun');
+                                    }
+                                    td.data('date', rows[i].CL_SOLAR);
+                                    td.addClass('possible');
+                                    td.on('click', function() {
+                                        onClickDay($(this).data('date'));
+                                    });
+                                } else {
+                                    var td = $("<td>" + rows[i].DAYNUM + "</td>");
+                                    if (rows[i].CL_BUSINESS == "2") {
+                                        td.addClass('sat');
+                                    } else if (rows[i].CL_BUSINESS == "3" || rows[i].CL_BUSINESS == "4") {
+                                        td.addClass('sun');
+                                    }
+                                    td.addClass('impossible');
+                                }
+                            } else {
+                                var td = $("<td>" + rows[i].DAYNUM + "</td>");
+                                if (rows[i].CL_BUSINESS == "2") {
+                                    td.addClass('sat');
+                                } else if (rows[i].CL_BUSINESS == "3" || rows[i].CL_BUSINESS == "4") {
+                                    td.addClass('sun');
+                                }
+                                td.addClass('impossible');
+                            }
+
+                            row.append(td);
+
+                            if (rows[i].CL_DAYDIV == 7) {
+                                row.appendTo(tBody);
+                                row = $("<tr></tr>");
+                            }
+                        }
+
+                        var addTd = 7 - row.children("td").length;
+
+                        if (addTd != 7) {
+                            for (i = 0; i < addTd; i++) {
+                                row.append($("<td></td>"));
+                            }
+                        }
+
+                        row.appendTo(tBody);
+                    } else {
+                        tBody.append($("<tr><td colspan='7'></td></tr>"));
+                        tBody.append($("<tr><td colspan='7'></td></tr>"));
+                        tBody.append($("<tr><td colspan='7'></td></tr>"));
+                        tBody.append($("<tr><td colspan='7'></td></tr>"));
+                        tBody.append($("<tr><td colspan='7'></td></tr>"));
+                        tBody.append($("<tr><td colspan='7'></td></tr>"));
+                    }
+                } else {
+                    alert(data.resultMessage);
+                }
+            });
+        }
+
+        function sNextMonth() {
+            if (mMonth == "12") {
+                mYear += 1;
+                mMonth = "01";
+            } else {
+                mMonth = Number(mMonth) + 1;
+                mMonth = (mMonth > 9 ? '' : '0') + mMonth;
+            }
+
+            initCalendar("#calendarBox1", mYear, mMonth);
+        }
+
+        function sPrevMonth() {
+            if (mMonth == "01") {
+                mYear -= 1;
+                mMonth = "12";
+            } else {
+                mMonth = Number(mMonth) - 1;
+                mMonth = (mMonth > 9 ? '' : '0') + mMonth;
+            }
+
+            initCalendar("#calendarBox1", mYear, mMonth);
+        }
+
+        function onClickDay(date) {
+            mDate = date;
+            bkSumit();
+        }
+
+        function bkSumit() {
+            if (mDate == "") {
+                alert("날짜를 선택해주세요.");
+                return;
+            }
+            $("#BK_DAY").val(mDate);
+            $('#resv_info').submit();
+        }
+
+        function getMainNotice(paraType) {
+
+            /*if (paraType == 1) {
+            	$(".btn1").addClass("on");
+            	$(".btn2").removeClass("on");
+            	var bbsTitle = "공지사항";
+            } else {
+            	$(".btn2").addClass("on")
+            	$(".btn1").removeClass("on")
+            	var bbsTitle = "이벤트";
+            }*/
+
+            var sUrl = "/controller/BoardController.asp";
+            var params = {};
+
+            params["method"] = "getBoardList";
+
+            params["coDiv"] = globals.coDiv;
+            params["type"] = paraType;
+			params["mainYn"] = "Y";
+            params["startCnt"] = 0;
+            params["pageCnt"] = 5;
+
+            mAjax(sUrl, params, "POST", false, function(data) {
+                if (data.resultCode == "0000") {
+
+                    var rows = data.rows;
+
+                    if (rows.length == 0) {
+
+                        var notice = ""
+                        notice += "<li>	";
+                        notice += " <img src='/images/main/bg_blank.png'>";
+                        notice += " <div class='slideText'>	";
+                        notice += " <h1> 등록된 공지사항이 없습니다. </h1>	";
+                        notice += " <h4> - </h4>	"
+                        notice += " <a href='#' class='slideBtn'>자세히 보기 <i class='fas fa-chevron-circle-right'></i></a>	";
+                        notice += " </div>	";
+                        notice += " </li>	";
+
+                        $("#mainNotice").empty().append(notice);
+                        setTimeout(function() {
+                            $('.slider1').bxSlider({
+                                mode: 'horizontal',
+                                speed: 300,
+                                pause: 3000,
+                                auto: true,
+                                controls: true,
+                                pager: true,
+                                touchEnabled: false
+                            });
+                        }, 300);
+                        return;
+                    }
+
+                    $("#mainNotice").empty();
+
+                    for (i = 0; i < rows.length; i++) {
+
+                        var notice = ""
+
+                        var link = "/board/view.asp?type=1&idx=" + rows[i].IDX;
+                        var title = rows[i].TITLE;
+                        var inputDate = rows[i].INPUT_DATETIME;
+
+                        notice += "<li>	";
+                        notice += " <img src='/images/main/bg_blank.png'>";
+                        notice += " <div class='slideText'>	";
+                        notice += " <h1> " + title + " </h1>	";
+                        notice += " <h4> " + inputDate + " </h4>	"
+                        notice += " <a href='" + link + "' class='slideBtn'>자세히 보기 <i class='fas fa-chevron-circle-right'></i></a>	";
+                        notice += " </div>	";
+                        notice += " </li>	";
+                        $("#mainNotice").append(notice);
+
+                    }
+                    setTimeout(function() {
+                        $('.slider1').bxSlider({
+                            mode: 'horizontal',
+                            speed: 300,
+                            pause: 3000,
+                            auto: true,
+                            controls: true,
+                            pager: true,
+                            touchEnabled: false
+                        });
+                    }, 300);
+                } else {
+                    alert(data.resultMessage);
+                }
+            });
+        }
+
+        function doLogout() {
+            var sUrl = "/controller/MemberController.asp";
+            var params = {};
+
+            params["method"] = "doLogout";
+
+            mAjax(sUrl, params, "POST", true, function(data) {
+                if (data.resultCode == "0000") {
+                    alert("로그아웃 되었습니다.");
+
+                    location.href = "/index.asp";
+                }
+            });
+        }
+
+        function closePopupNotToday() {
+            setCookie('notToday', 'Y', 1);
+            $("#mainPop").hide('fade');
+        }
+
+    </script>
+</head>
+
+
+<script>
+	/*팝업쿠키생성*/
+
+
+	function closePopupNotToday1(){
+		setCookie('notToday1','Y', 1);
+		$("#main_popup1").hide('fade');
+	}
+
+	function closePopupNotToday2(){
+		setCookie('notToday2','Y', 1);
+		$("#main_popup2").hide('fade');
+	}
+
+	function closePopupNotToday3(){
+		setCookie('notToday3','Y', 1);
+		$("#main_popup3").hide('fade');
+	}
+
+	function closeMainPopup1(){
+		$("#main_popup1").hide('fade');
+	}
+
+
+
+	function closeMainPopup2(){
+		$("#main_popup2").hide('fade');
+	}
+	
+
+	function closePopupNotToday3(){
+			setCookie('notToday3','Y', 1);
+			$("#main_popup3").hide('fade');
+	}
+
+	function closeMainPopup3(){
+		$("#main_popup3").hide('fade');
+	}
+
+
+	function closePopupNotToday4(){
+			setCookie('notToday4','Y', 1);
+			$("#main_popup4").hide('fade');
+	}
+
+	function closeMainPopup4(){
+		$("#main_popup4").hide('fade');
+	}
+
+	function closePopupNotToday5(){
+			setCookie('notToday5','Y', 1);
+			$("#main_popup5").hide('fade');
+	}
+
+	function closeMainPopup5(){
+		$("#main_popup5").hide('fade');
+	}
+
+	function closePopupNotToday6(){
+			setCookie('notToday6','Y', 1);
+			$("#main_popup6").hide('fade');
+	}
+
+	function closeMainPopup6(){
+		$("#main_popup6").hide('fade');
+	}
+
+	
+	$(function () {
+		if(getCookie("notToday1") == "Y"){
+			$("#main_popup1").hide();
+		}
+		
+		if(getCookie("notToday2") == "Y"){
+			$("#main_popup2").hide();
+		}
+		
+		if(getCookie("notToday3") == "Y"){
+			$("#main_popup3").hide();
+		}
+
+		if(getCookie("notToday4") == "Y"){
+			$("#main_popup4").hide();
+		}
+
+		if(getCookie("notToday6") == "Y"){
+			$("#main_popup6").hide();
+		}
+	});	
+</script>
+
+<body>
+    <form id="resv_info" method="POST" action="/reservation/reservation.asp">
+        <input type="hidden" name="BK_DAY" id="BK_DAY">
+    </form>
+
+    <div class="siteAll">
+        <div class="toggleMenu"><span class="move"></span></div>
+    </div>
+
+    <div id="wrap">
+        <div class="mainWrap" style="height: auto;">
+            <div class="headerBox move">
+                <!--메뉴-->
+                <div class="header move">
+                    <a href="index.asp" class="logoBox2" id="logo"></a>
+                    <ul class="mainList move">
+                        <li onclick="location.href='/reservation/reservation.asp'">인터넷예약</li>
+                        <li onclick="location.href='/guide/fee.asp'">이용안내</li>
+                        <li onclick="location.href='/club/intro.asp'">클럽소개</li>
+                        <li onclick="location.href='/course/intro.asp'">코스소개</li>
+                        <!--<li onclick="javascript:alert('준비중입니다.');">시설안내</li>-->
+                        <li onclick="location.href='/fac/fac01.asp'">시설안내</li>
+                        <li onclick="location.href='/board/list.asp?type=1.asp'">정보마당</li>
+                    </ul>
+                    <div id="scrollmenuwrap">
+    <div id="scrollmenu2">
+        <div class="menuBox">
+            <ul class="subMenu ul1">
+                <li><a href="/reservation/reserGuide.asp">예약안내</a></li>
+                <li><a href="/reservation/reservation.asp">실시간예약</a></li>
+                <li><a href="/reservation/reserCheck.asp">예약확인/취소</a></li>
+                <li><a href="/reservation/package-info.asp">1박2일 패키지</a></li>
+            </ul>
+
+            <ul class="subMenu ul2">
+                <!--<li><a href="/guide/reserGuide.asp">예약안내</a></li>-->
+                <li><a href="/guide/fee.asp">이용요금</a></li>
+                <li><a href="/guide/break.asp">위약안내</a></li>
+                <li><a href="/guide/membership.asp">회원모집</a></li>
+                <li><a href="/guide/menu.asp">식음안내</a></li>
+                <!--<li><a href="/guide/etiquette.asp">에티켓</a></li>-->
+                <!--<li><a href="/guide/inquiry.asp">예약/기타문의</a></li>-->
+            </ul>
+
+            <ul class="subMenu ul3">
+                <li><a href="/club/intro.asp">클럽소개</a></li>
+                <!--<li><a href="/club/greeting.asp">인사말</a></li>-->
+                <li><a href="/club/location.asp">오시는길</a></li>
+                <li><a href="/club/manner.asp">클럽에티켓</a></li>
+            </ul>
+
+            <ul class="subMenu ul4">
+                <li><a href="/course/intro.asp">코스소개</a></li>
+                <li><a href="/course/forest_01.asp">파란 코스</a></li>
+                <li><a href="/course/hill_01.asp">청춘 코스</a></li>                
+                <li><a href="/board/list.asp?type=5">코스갤러리</a></li>
+            </ul>
+
+            <ul class="subMenu ul5">
+                <li><a href="/fac/fac01.asp">클럽하우스</a></li>
+                <li><a href="javascript:alert('준비중입니다.');">2층 라운지</a></li>
+                <li><a href="/fac/fac02.asp">레스토랑</a></li>
+                <li><a href="/fac/fac03.asp">프로샵</a></li>
+                <li><a href="/fac/fac04.asp">락카</a></li>
+                <!--<li><a href="javascript:alert('준비중입니다.');">클럽하우스</a></li>
+                <li><a href="javascript:alert('준비중입니다.');">레스토랑</a></li>
+                <li><a href="javascript:alert('준비중입니다.');">프로샵</a></li>
+                <li><a href="javascript:alert('준비중입니다.');">락카</a></li>-->
+            </ul>
+
+            <ul class="subMenu ul6">
+                <li><a href="/board/list.asp?type=1">공지사항</a></li>
+                <li><a href="/board/list.asp?type=2">이벤트</a></li>
+                <li><a href="/board/list.asp?type=11">보도자료</a></li>
+                <li><a href="/board/list.asp?type=7">포토스케치</a></li>				
+                <li><a href="/board/list.asp?type=3">자료실</a></li>
+				<!--								
+                <li><a href="/board/Honor.asp">홀인원</a></li>
+                <li><a href="/reservation/joinList.asp">조인게시판</a></li>
+                <li><a href="/board/list.asp?type=7">명예의 전당</a></li>-->
+            </ul>
+        </div>
+
+        <div class="menuLine"></div>
+        
+        <div class="subMenuLink">
+            <ul class="menuLinkBox" onclick="location.href='/member/login.asp'">
+                <li class="icon"><img src="/images/menuIcon01.png" alt=""></li>
+                <li class="title">로그인</li>
+                <li class="txt">새로워진 세레니티 강촌 CC를<br>
+                    만나보세요</li>
+            </ul>
+            <div class="line"></div>
+            <ul class="menuLinkBox" onclick="location.href='/member/join01.asp'">
+                <li class="icon"><img src="/images/menuIcon02.png" alt=""></li>
+                <li class="title">회원가입</li>
+                <li class="txt">회원가입 하면 더 많은 혜택을<br>
+                    받을 수 있습니다.</li>
+            </ul>
+        </div>
+        
+    </div>
+</div>
+
+                    <ul class="rightBtn">
+                        <li class="topJoin move">
+                            <a href="https://www.serenitycc.co.kr/index.asp" class="serenity">세레니티</a>
+                            <a href="https://www.podocc.com/index.asp" class="podo">포도CC</a>
+                            
+                            <a href="/member/login.asp" class="topLogin2" id="login"></a>
+                            
+                        </li>
+                    </ul>
+                </div>
+                <div id="menu">
+	<div class="main-nav">
+		<img src="/images/logo.svg" alt="로고" class="hambergerLogo">
+		<ul class="menuTitleBox">
+			<li><a href="/reservation/reservation.asp" class="title">인터넷예약</a></li>
+			<li><a href="/reservation/reserGuide.asp">예약안내</a></li>
+			<li><a href="/reservation/reservation.asp">실시간예약</a></li>
+			<li><a href="/reservation/reserCheck.asp">예약확인/취소</a></li>
+            <li><a href="/reservation/package-info.asp">1박2일 패키지</a></li>
+		</ul>
+		<ul class="menuTitleBox">
+			<li><a class="title" href="/guide/fee.asp">이용안내</a></li>
+			<!--<li><a href="/guide/reserGuide.asp">예약안내</a></li>-->
+            <li><a href="/guide/fee.asp">이용요금</a></li>
+            <li><a href="/guide/break.asp">위약안내</a></li>
+            <li><a href="/guide/membership.asp">회원모집</a></li>
+						<li><a href="/guide/menu.asp">식음안내</a></li>
+            <!--<li><a href="/guide/etiquette.asp">에티켓</a></li>-->
+            <!--<li><a href="/guide/inquiry.asp">예약/기타문의</a></li>-->
+		</ul>
+		<ul class="menuTitleBox">
+			<li><a class="title" href="/club/intro.asp">클럽소개</a></li>
+			<li><a href="/club/intro.asp">클럽소개</a></li>
+            <!--<li><a href="/club/greeting.asp">인사말</a></li>-->
+            <li><a href="/club/location.asp">오시는길</a></li>
+            <li><a href="/club/manner.asp">클럽에티켓</a></li>
+		</ul>
+		<ul class="menuTitleBox">
+			<li><a class="title" href="/course/intro.asp">코스소개</a></li>
+			<li><a href="/course/intro.asp">코스소개</a></li>
+			<li><a href="/course/forest_01.asp">파란 코스</a></li>
+            <li><a href="/course/hill_01.asp">청춘 코스</a></li>
+			<li><a href="/board/list.asp?type=5">코스갤러리</a></li>
+		</ul>
+		<ul class="menuTitleBox">
+			<li><a class="title" href="/fac/fac01.asp">시설안내</a></li>
+			<li><a href="/fac/fac01.asp">클럽하우스</a></li>
+            <li><a href="javascript:alert('준비중입니다.');">2층 라운지</a></li>
+            <li><a href="/fac/fac02.asp">레스토랑</a></li>
+            <li><a href="/fac/fac03.asp">프로샵</a></li>
+            <li><a href="/fac/fac04.asp">락카</a></li>
+            <!--<li><a href="javascript:alert('준비중입니다.');">클럽하우스</a></li>
+            <li><a href="javascript:alert('준비중입니다.');">레스토랑</a></li>
+            <li><a href="javascript:alert('준비중입니다.');">프로샵</a></li>
+            <li><a href="javascript:alert('준비중입니다.');">락카</a></li>-->
+		</ul>
+		<ul class="menuTitleBox">
+			<li><a class="title" href="/board/list.asp?type=1">정보마당</a></li>
+			<li><a href="/board/list.asp?type=1">공지사항</a></li>
+			<!--<li><a href="/board/list.asp?type=2">이벤트</a></li>
+			<li><a href="/board/list.asp?type=3">보도자료</a></li>
+			<li><a href="/board/list.asp?type=4">자료실</a></li>
+			<li><a href="/board/Honor.asp">홀인원</a></li>
+			<li><a href="/reservation/joinList.asp">조인게시판</a></li>
+			<li><a href="/board/list.asp?type=7">명예의 전당</a></li>-->			
+		</ul>
+	</div>
+</div>
+
+            </div>
+
+            <!--메인팝업 start-->
+            <div class="popupWrap text-focus-in" id="mainPop" hidden>
+                <h1>green fee &amp; event</h1>
+                <h4>세레니티 강촌CC 그린피 안내 및 이벤트</h4>
+                <div class="slider2" height="400px">
+                    <div>
+                        <p><a href="/board/view.asp?type=1&idx=9"><img src="/images/251126_bn.jpg" title="리뉴얼 안내"></a></p>
+                        <p><a href="/board/view.asp?type=1&idx=7"><img src="/images/251021pn_bn.jpg" title="연단체 모집안"></a></p>
+                        <p><a href="/board/view.asp?type=1&idx=3"><img src="/images/250930pn_bn1.jpg" title="운영사 변경안내"></a></p>      
+                    </div>
+                    <div>
+                        <p><a href="/board/view.asp?type=1&idx=2"><img src="/images/250930pn_bn2.jpg" title="신규회원 가입안내"></a></p>    
+                        <p><a href="/board/view.asp?type=1&idx=5"><img src="/images/251002pn_bn.jpg" title="기존예약 이용안내"></a></p>
+                        <p><a href="/board/view.asp?type=1&idx=6"><img src="/images/251022pn_bn.jpg" title="신규회원 쿠폰"></a></p>
+                    </div>
+                </div>
+                <div class="popX"><a href="javascript:closePopupNotToday();">오늘하루안보기</a><span onclick="$('#mainPop').hide()"><img src="/images/x-box.png"></span></div>
+            </div>
+            <!--메인팝업 end-->
+
+            <div class="hero-slider" style="display: none">
+                <div class="columns">
+                    <div class="hero-image">
+                        <img src="/images/main/mainBg01.jpg" alt="">
+                    </div>
+                </div>
+                <div class="columns">
+                    <div class="hero-image">
+                        <img src="/images/main/mainBg01.jpg" alt="">
+                    </div>
+                </div>
+            </div><!-- hero-slider End -->
+            <div class="mainCont" style="display: none">
+                <div class="leftTxtBox">
+                    <img src="/images/main/mainTxt.png" alt="" class="leftTxt text-focus-in">
+                </div>
+                <div class="rightCalBox">
+                    <div class="rightCal"></div>
+                    <div class="calBox" id="calendarBox1">
+                        <div class="monthChoice">
+                            <li class="title tt2">실시간예약</li>
+                            <li class="monthBtnBox">
+                                <a href="javascript:sPrevMonth()" class="monthBtn">◀</a>
+                                <span class="month" id="calHeader"></span>
+                                <a href="javascript:sNextMonth()" class="monthBtn">▶</a>
+                            </li>
+                        </div>
+                        <table class="mainCalendar" summary="실시간 예약" cellspacing="5">
+                            <caption>실시간 예약</caption>
+                            <colgroup>
+                                <col width="*">
+                                <col width="*">
+                                <col width="*">
+                                <col width="*">
+                                <col width="*">
+                                <col width="*">
+                                <col width="*">
+                            </colgroup>
+                            <thead>
+                                <tr>
+                                    <th scope="col" class="sun">SUN</th>
+                                    <th scope="col">MON</th>
+                                    <th scope="col">TUE</th>
+                                    <th scope="col">WED</th>
+                                    <th scope="col">THU</th>
+                                    <th scope="col">FRI</th>
+                                    <th scope="col" class="sat">SAT</th>
+                                </tr>
+                            </thead>
+                            <tbody id="calendar-body">
+                            </tbody>
+
+                        </table>
+                    </div>
+
+                </div><!-- rightCalBox End -->
+            </div><!-- mainCont End -->
+        </div><!-- mainWrap End -->
+
+        <div class="secondContBox">
+            <div class="secondLeft">
+                <div class="textBox fromLeftIn" data-scroll="toggle(.fromLeftIn, .fromLeftOut)">
+                    <h3>품격을 완성하는 가장 아름다운 라운드</h3>
+                    <h2>SERENITY<br>GANGCHONE<br>Country Club</h2>
+                    <p>
+                        자연이 선사하는 깊은 휴식과 예술이 전하는 영감.<br>
+                        세레니티 강촌은 라운드 이상의 가치와<br>
+                        오래 기억될 특별한 순간을 제공합니다.
+                    </p>
+                </div>
+            </div>
+            <div class="secondRight">
+                <div class="hero-slider2" data-carousel>
+                    <div class="carousel-cell" style="background-image:url(/images/main/Img03.jpg);">
+                    </div>
+                    <!-- <div class="carousel-cell" style="background-image:url(/images/main/Img01.jpg);">
+                        <div class="overlay"></div>
+                        <div class="inner">
+                            “지친 삶 속에서 자연과 함께하는 즐거운 시간”
+                        </div>
+                    </div>
+                    <div class="carousel-cell" style="background-image:url(/images/main/Img02.jpg);">
+                        <div class="overlay"></div>
+                        <div class="inner">
+                            “고객에게 감사의 마음으로 최고의 서비스를 약속합니다.”
+                        </div>
+                    </div> -->
+                </div>
+                <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flickity/2.0.5/flickity.min.css">
+                <script src="https://cdnjs.cloudflare.com/ajax/libs/flickity/2.0.5/flickity.pkgd.min.js"></script>
+                <script id="rendered-js">
+                    var options = {
+                        accessibility: true,
+                        prevNextButtons: true,
+                        pageDots: false,
+                        setGallerySize: false,
+                        arrowShape: {
+                            x0: 10,
+                            x1: 60,
+                            y1: 50,
+                            x2: 60,
+                            y2: 45,
+                            x3: 15
+                        }
+                    };
+
+                    var carousel = document.querySelector('[data-carousel]');
+                    var slides = document.getElementsByClassName('carousel-cell');
+                    var flkty = new Flickity(carousel, options);
+
+                    flkty.on('scroll', function() {
+                        flkty.slides.forEach(function(slide, i) {
+                            var image = slides[i];
+                            var x = (slide.target + flkty.x) * -1 / 3;
+                            image.style.backgroundPosition = x + 'px';
+                        });
+                    });
+                    //# sourceURL=pen.js
+
+                </script> -->
+
+                <!-- s: 팝업 -->
+                <!-- <div id="main_popup1" class="main_popup" style="position: absolute; z-index:10000000; top:100px; left:0;">
+                    <a href="/board/view.asp?type=1&idx=13"><img src="/images/260610_pop4.jpg" alt="6월그린피"></a>
+                    <div class="popup_bottom">
+                        <a style="float:left" href="javascript:closePopupNotToday1()">오늘하루 그만보기</a>
+                        <a class="pull-right" href="javascript:closeMainPopup1();">닫기</a>
+                    </div> 
+                </div> -->
+
+				<!-- <div id="main_popup2" class="main_popup" style="position: absolute; z-index:10000000; top:100px; left:0;">
+                    <a href="/board/view.asp?type=2&idx=5"><img src="/images/260703_pop.png" style="width: 400px;" alt="다이닝"></a>
+                    <div class="popup_bottom">
+                        <a style="float:left" href="javascript:closePopupNotToday2()">오늘하루 그만보기</a>
+                        <a class="pull-right" href="javascript:closeMainPopup2();">닫기</a>
+                    </div> 
+                </div> -->
+                
+                <!-- <div id="main_popup3" class="main_popup" style="position: absolute; z-index:10000000; top:100px; left:0;">
+                    <a href="/board/view.asp?type=2&idx=3"><img src="/images/260506_pop.jpg" style="width: 400px;" alt="피아노 이벤트"></a>
+                    <div class="popup_bottom">
+                        <a style="float:left" href="javascript:closePopupNotToday3()">오늘하루 그만보기</a>
+                        <a class="pull-right" href="javascript:closeMainPopup3();">닫기</a>
+                    </div> 
+                </div> -->
+
+                <!-- <div id="main_popup4" class="main_popup" style="position: absolute; z-index:10000000; top:100px; left:400px;">
+                    <a href="/board/view.asp?type=2&idx=4"><img src="/images/260610_pop.jpg" style="width: 400px;" alt="소프트아이스크림 무상"></a>
+                    <div class="popup_bottom">
+                        <a style="float:left" href="javascript:closePopupNotToday4()">오늘하루 그만보기</a>
+                        <a class="pull-right" href="javascript:closeMainPopup4();">닫기</a>
+                    </div> 
+                </div> -->
+                <!-- pop end -->
+
+                <!-- <div class="secondBottom">
+                    <a href="/club/intro.asp" class="clubIntroBtn fromTopIn" data-scroll="toggle(.fromTopIn, .fromTopOut)">
+                        <button id="js-trigger-overlay" type="button">클럽소개 자세히보기<span class="arrow_btn arrow-left"></span></button>
+                    </a>
+                </div> -->
+
+            </div>
+        </div><!-- secondContBox End -->
+
+        <ul class="thirdContBox">
+            <li class="mainCourseBox">
+                <div class="courseIntroBox box2" id="courseIntroBox2">
+                    <div class="courseIntro fromTopIn" data-scroll="toggle(.fromTopIn, .fromTopOut)" id="mainCourseMore2">
+                        <span class="miniTitle">전통적인 스타일 골프클럽</span>
+                        <span class="title">파란 COURSE</span>
+                    </div>
+                </div>
+
+                <div class="courseInfoTxt txt2" style="display:none;" id="courseInfoTxt2">
+                    <span class="miniTitle">전통적인 스타일 골프클럽</span>
+                    <span class="title">파란 COURSE</span>
+                    <p class="infoTxt">
+                        능선으로 둘러싸인 계곡형 코스로,<br>
+                        주변이 숲으로 가려져 있어 마치 고요한 숲 속에 와 있는 듯<br>
+                        주변의 방해없이 플레이에 집중할 수 있습니다.
+                    </p>
+                    <a href="/course/forest_01.asp">코스안내 자세히 보기</a>
+                </div>
+            </li>
+            
+            <li class="mainCourseBox">
+                <div class="courseIntroBox" id="courseIntroBox">
+                    <div class="courseIntro fromTopIn" data-scroll="toggle(.fromTopIn, .fromTopOut)" id="mainCourseMore">
+                        <span class="miniTitle">자연친화적 클래식 골프코스 </span>
+                        <span class="title">청춘 COURSE</span>
+                    </div>
+                </div>
+
+                <div class="courseInfoTxt" id="courseInfoTxt" style="display:none;">
+                    <span class="minititle">자연친화적 클래식 골프코스 </span>
+                    <span class="title">청춘 COURSE</span>
+                    <p class="infoTxt">
+                        봉화산에서 발달된 능선자락을 이용한 코스로<br>
+                        넓고 완만한 구릉성 지형을 살려 비교적 길면서<br>
+                        편안한 코스로 조성하였습니다.
+                    </p>
+                    <a href="/course/hill_01.asp">코스안내 자세히 보기</a>
+                </div>
+            </li>            
+        </ul><!-- thirdContBox End -->
+
+        <div class="forthContBox">
+            <div class="mapNoticeWrap">
+                <div class="noticeBox">
+                    <div class="bx-wrapper">
+                        <ul class="slider1" id="mainNotice">
+                        </ul>
+                    </div>
+                </div>
+                <div class="mainMapWrap">
+                    <!-- * 카카오맵 - 지도퍼가기 -->
+                    <!-- 1. 지도 노드 -->
+                    <div id="daumRoughmapContainer1761626214868" class="root_daum_roughmap root_daum_roughmap_landing"></div>
+
+                    <!--
+                        2. 설치 스크립트
+                        * 지도 퍼가기 서비스를 2개 이상 넣을 경우, 설치 스크립트는 하나만 삽입합니다.
+                    -->
+                    <script charset="UTF-8" class="daum_roughmap_loader_script" src="https://ssl.daumcdn.net/dmaps/map_js_init/roughmapLoader.js"></script>
+
+                    <!-- 3. 실행 스크립트 -->
+                    <script charset="UTF-8">
+                        new daum.roughmap.Lander({
+                            "timestamp" : "1761626214868",
+                            "key" : "2dzwtrvv2uhf",
+                            "mapHeight" : "600"
+                        }).render();
+                    </script>
+                    <div class="mainMapInfo fromRightIn" data-scroll="toggle(.fromRightIn, .fromRightOut)">
+                        <h1><i class="fas fa-map-marker-alt" style="font-size: 20px"></i> <span>Serenity Gangchon CC</span> map.</h1>
+                        <h3>Golf Healing Life</h3>
+                        <p>강원도 춘천시 남면 소주고개로 145-14일원<br>(강원특별자치도 춘천시 남면 후동리 618)</p>
+                        <h4>예약관련 문의</h4>
+                        <h2>033-261-6556</h2>
+                        <h5>24시간 운영중인 홈페이지 예약과 모바일 예약을 이용하시면 더욱 편리합니다. </h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!--textmotion-->
+        <script src="js/ScrollTrigger.js"></script>
+        <script>
+            window.counter = function($) {
+                // this refers to the html element with the data-scroll-showCallback tag
+                var span = this.querySelector('span');
+                var current = parseInt(span.textContent);
+
+                span.textContent = current + 1;
+            };
+
+            document.addEventListener('DOMContentLoaded', function($) {
+                var trigger = new ScrollTrigger({
+                    addHeight: true
+                });
+            });
+
+        </script>
+
+        <!--textmotion-->
+	<script src="/js/ScrollTrigger.js"></script>
+	<script>
+		window.counter = function($) {
+			// this refers to the html element with the data-scroll-showCallback tag
+			var span = this.querySelector('span');
+			var current = parseInt(span.textContent);
+				span.textContent = current + 1;
+		};
+
+			document.addEventListener('DOMContentLoaded', function($){
+			var trigger = new ScrollTrigger({
+				addHeight: true
+			});
+		});
+	</script>
+<!-- footer 영역 -->
+<div id="footerWrap">
+			<div class="footerBox">
+				<img src="/images/logo.svg" alt="" class="logo_g">
+				<!--<ul class="snsLink">
+					<li class=""><a href="javascript:alert('준비중입니다.')"><img src="/images/sns_f.png" alt=""></a></li>
+					<li class=""><a href="javascript:alert('준비중입니다.')"><img src="/images/sns_t.png" alt=""></a></li>
+					<li class=""><a href="javascript:alert('준비중입니다.')"><img src="/images/sns_i.png" alt=""></a></li>
+				</ul>-->
+				<ul class="termsBox">
+					<li class=""><a href="/member/clause.asp">사이트 이용약관</a></li>
+					<li class="bar"></li>
+					<li class=""><a href="/member/policy.asp">개인정보처리방침</a></li>
+					<li class="bar"></li>
+					<li class=""><a href="/member/email.asp">이메일무단수집거부</a></li>
+				</ul>
+				<p class="addBox">
+					상호명 : 주식회사 다옴드노엘 &emsp; 강원도 춘천시 남면 소주고개로 145-14일원(강원특별자치도 춘천시 남면 후동리 618) &emsp; 예약문의 : 033-261-6556 &emsp; 대표전화 : 033-261-6556 &emsp; <br> 
+					대표 FAX : 033-261-0760 &emsp; 사업자등록번호 : 847-88-03248 <!--&emsp; 통신판매업 : 제2025-강원춘천-0479호--> &emsp; 대표이사 : 김주영<br>
+					<br><br>
+					Copyright ⓒ 2025 Serenity Gangchon Country Club. All rights reserverd. 
+				</p>
+			</div>
+			<p id="topArrow" style=""><a href="#top"></a></p>
+		</div>
+
+</body>
+</html>

@@ -1,0 +1,499 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=Edge">
+	<meta name="apple-mobile-web-app-capable" content="no" />
+	<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+	<meta name="format-detection" content="telephone=no,email=no,address=no">
+	<meta name="title" content="로얄링스">
+	<meta name="author" content="로얄링스">
+	<meta name="Keywords" content="로얄링스">
+	<meta name="description" content="로얄링스">
+	<meta name="copyright" content="All Contents COPYRIGHTⓒ  All RIGHTS RESERVED.">
+	<meta property="og:type" content="website">
+	<meta property="og:title" content="로얄링스">
+	<meta property="og:description" content="로얄링스">
+	<meta property="og:url" content="">
+	<link rel="canonical" href="">
+	<title>로얄링스 골프클럽</title>
+	<!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script> -->
+	<!-- <script src="https://cdn.jsdelivr.net/bxslider/4.2.12/jquery.bxslider.min.js"></script> -->
+	<script src="/js/jquery.js"></script>
+	<script src="/js/jquery.bxslider.js"></script>
+	<script src="/js/jquery.fullpage.js"></script>
+	<script src="/js/jquery.preloaders.js"></script>
+	<script src="/js/globals.js?v=1"></script>
+	<script src="/js/common.js"></script>
+	<script src="/js/tools.js"></script>
+	<script src="/js/scrolloverflow.js"></script>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.8.2/css/all.min.css" />
+	<link rel="stylesheet" type="text/css" href="/css/import.css?v=1.0">
+	<link rel="stylesheet" type="text/css" href="/css/jquery.fullpage.css" />
+	<link rel="stylesheet" type="text/css" href="/css/contents.css?v=4">
+
+	<script>
+		function sessionCheck() {
+			var sUrl = "/controller/SessionManager.asp";
+			var params = {"method" : "sessionConfirm"};
+
+			mAjax(sUrl, params, "POST", false, function(data) {
+				if(data.resultCode == "2000") {
+					alert(data.resultMessage);
+					location.reload();
+				}
+			});
+		}
+	</script>
+
+	<script>
+		/*navi menu*/
+		$(document).ready(function() {
+			// 이용약관 변경 동의 : 2023.04.26
+			if("" != "Y" && "" != "") {
+				alert("로얄링스 이용약관변경으로 인해 이용약관에 재동의 이후 사용해주세요.");
+				location.href = "/member/reAgreePage.asp";
+				return;
+			}
+
+			chkMobile();
+			sessionCheck();
+
+			$(".nav li").hover(function () {
+				$(this).children("ul").stop().delay(200).animate({height: "toggle", opacity: "toggle"}, 200);
+			});
+		});
+
+		$(window).ready(function() {
+			setProtocol();
+		})
+
+		function onlyMainMenu(val){
+			if(val == "1") {
+				$(".logo").hide();
+			}else (
+				$(".logo").show()
+			)
+		}
+
+		function doLogout() {
+			/*var sUrl = "/Controller/MemberController.asp";
+			var params = {};
+
+			params["method"] = "doLogout";
+
+			mAjax(sUrl, params, "POST", true, function(data) {
+				if(data.resultCode == "0000") {
+					alert("로그아웃 되었습니다.");
+					location.href = "/index.asp"
+				}
+			});*/
+			location.href = "/member/logout.asp"
+		}
+
+
+		function setProtocol() {
+			if(document.location.href.indexOf("thelinkscc.co.kr") > 0) {
+				document.location.href = document.location.href.replace('thelinkscc.co.kr', 'royallinks.co.kr');
+			} else if(document.location.href.indexOf("royallinkscc.com") > 0) {
+				document.location.href = document.location.href.replace('royallinkscc.com', 'royallinks.co.kr');
+			} else if(document.location.href.indexOf("royallinks.net") > 0) {
+				document.location.href = document.location.href.replace('royallinks.net', 'royallinks.co.kr');
+			} else if(document.location.href.indexOf("royallinkscc.co.kr") > 0) {
+				document.location.href = document.location.href.replace('royallinkscc.co.kr', 'royallinks.co.kr');
+			} else if(document.location.href.indexOf("royallinkscc.net") > 0) {
+				document.location.href = document.location.href.replace('royallinkscc.net', 'royallinks.co.kr');
+			} else if(document.location.href.indexOf("royallinks.co.kr") > 0) {
+				if (document.location.protocol == 'http:') {
+					document.location.href = document.location.href.replace('http:', 'https:');
+				}
+			}
+		}
+	</script>
+
+</head>
+<body>
+<div id="wrap">
+	<div id="header">
+		<div class="top_menu_left">
+			<a href="/reservation/reservation.asp">인터넷예약</a>
+			<a href="/guide/guide.asp">이용안내</a>
+			<a href="/club/club.asp">클럽소개</a>
+			<a href="/board/list.asp?type=1">공지&amp;이벤트</a>
+		</div>
+		<a class="logo h_logo" href="/"></a>
+		<div class="top_menu_right">
+			
+			<a href="https://reserv.kakao.golf/login?type=LOGIN&golfcode=KG20221012ROYALLINKS&resultUrl=https://www.royallinks.co.kr/agency/kakaoPath.asp">카카오로그인</a>
+			<a href="https://reserv.kakao.golf/login?type=LOGIN&golfcode=KG20221012ROYALLINKS&resultUrl=https://www.royallinks.co.kr/agency/kakaoPath.asp">회원가입</a>
+			
+			<button class="toggle-menu"><span></span></button>
+		</div>
+		<!--hamberger전체메뉴-->
+		<div id="menu" class="">
+			<div class="main-nav">
+				<h1>royal links menu</h1>
+				<ul>
+					<li>
+						<a href="/reservation/reservation.asp" class="big">인터넷예약</a>
+						<a href="/reservation/reservation.asp" class="small">실시간예약</a>
+						<a href="/reservation/package.asp" class="small">패키지예약</a>
+						<a href="/reservation/joinList.asp" class="small">조인게시판</a>
+						<a href="/reservation/reservation2.asp" class="small">예약확인및취소</a>
+					</li>
+					<li>
+						<a href="/guide/guide.asp" class="big">이용안내</a>
+						<a href="/guide/guide.asp" class="small">이용안내</a>
+						<a href="/guide/fee.asp" class="small">요금안내</a>
+						<a href="/guide/userGuide.asp" class="small">예약안내</a>
+						<a href="/guide/penalty.asp" class="small">위약규정</a>
+						<a href="/guide/local.asp" class="small">로컬룰</a>
+						<a href="/guide/lostitem.asp" class="small">분실물관리</a>
+						<a href="/guide/golf-terms.asp" class="small">로얄링스 골프장 이용약관</a>
+					</li>
+					<li>
+						<a href="/club/club.asp" class="big">클럽소개</a>
+						<a href="/club/club.asp" class="small">클럽안내</a>
+						<a href="/club/intro.asp" class="small">인사말</a>
+						<a href="/course/courseIntro.asp" class="small">코스안내</a>
+						<a href="/course/course01.asp" class="small">코스공략도</a>
+						<a href="/club/facil.asp" class="small">부대시설</a>
+						<a href="/club/restaurant.asp" class="small">레스토랑</a>
+						<a href="/club/map.asp" class="small">오시는길</a>
+					</li>
+					<li>
+						<a href="/board/list.asp?type=1" class="big">공지사항&amp;이벤트</a>
+						<a href="/board/list.asp?type=1" class="small">공지사항</a>
+						<a href="/board/list.asp?type=2" class="small">이벤트</a>
+						<a href="/board/honor.asp" class="small">명예의전당</a>
+						<a href="/board/qna.asp" class="small">고객의말씀</a>
+					</li>
+					<li>
+						<a href="/member/modify.asp" class="big">마이페이지</a>
+						<a href="/member/modify.asp" class="small">회원정보변경</a>
+						<a href="/member/coupon.asp" class="small">쿠폰내역</a>
+						<a href="/member/round.asp" class="small">라운드내역</a>
+						<a href="/member/penaltyInfo.asp" class="small">위약정보조회</a>
+						<a href="https://reserv.kakao.golf/route?type=MYINFO&golfcode=KG20221012ROYALLINKS" class="small">회원탈퇴</a>
+					</li>
+				</ul>
+			</div>
+			<!--//hamberger전체메뉴-->
+		</div>
+	</div>
+	
+		<div id="contents">
+			<div class="visualWrap">
+				<div class="visualBox bg16 zoomImg"></div>
+				<div class="v_tit">
+					<h4><div class="visualLine"></div><span>COURSE attack</span></h4>
+					<h1>코스공략도</h1>
+				</div>
+				<div class="submenuTab">
+					<a href="/club/club.asp" class="">클럽안내</a>
+					<span></span>
+					<a href="/club/intro.asp" class="">인사말</a>
+					<span></span>
+					<a href="/course/courseIntro.asp" class="">코스안내</a>
+					<span></span>
+					<a href="/course/course01.asp" class="on">코스공략도</a>
+					<span></span>
+					<a href="/club/facil.asp" class="">부대시설</a>
+					<span></span>
+					<a href="/club/restaurant.asp" class="">레스토랑</a>
+					<span></span>
+					<a href="/club/map.asp" class="">오시는길</a>
+				</div>
+			</div>	
+			<script>
+
+  var bigMenu, midMenu;
+  var bigMenus = {
+	"reservation" : "인터넷예약",
+	"guide" : "이용안내",
+	"club" : "클럽소개",	
+	"board" : "공지사항&이벤트",
+  }
+
+  var midMenus = {
+	"club" : {
+	  "/club/club.asp" : ["클럽소개", true],
+	  "/club/intro.asp" : ["인사말", true],
+      "/course/courseIntro.asp" : ["코스안내", true],
+      "/course/course01.asp" : ["코스공략도", true],
+      "/course/course02.asp" : ["코스공략도", false],
+      "/course/course03.asp" : ["코스공략도", false],
+      "/course/course04.asp" : ["코스공략도", false],
+      "/course/course05.asp" : ["코스공략도", false],
+      "/course/course06.asp" : ["코스공략도", false],
+      "/course/course07.asp" : ["코스공략도", false],
+      "/course/course08.asp" : ["코스공략도", false],
+      "/course/course09.asp" : ["코스공략도", false],
+      "/course/course10.asp" : ["코스공략도", false],
+      "/course/course11.asp" : ["코스공략도", false],
+      "/course/course12.asp" : ["코스공략도", false],
+      "/course/course13.asp" : ["코스공략도", false],
+      "/course/course14.asp" : ["코스공략도", false],
+      "/course/course15.asp" : ["코스공략도", false],
+      "/course/course16.asp" : ["코스공략도", false],
+      "/course/course17.asp" : ["코스공략도", false],
+      "/course/course18.asp" : ["코스공략도", false],
+      "/course/course19.asp" : ["코스공략도", false],
+      "/course/course20.asp" : ["코스공략도", false],
+      "/course/course21.asp" : ["코스공략도", false],
+      "/course/course22.asp" : ["코스공략도", false],
+      "/course/course23.asp" : ["코스공략도", false],
+      "/course/course24.asp" : ["코스공략도", false],
+      "/course/course25.asp" : ["코스공략도", false],
+      "/course/course26.asp" : ["코스공략도", false],
+      "/course/course27.asp" : ["코스공략도", false],
+      "/course/course28.asp" : ["코스공략도", false],
+      "/course/course29.asp" : ["코스공략도", false],
+      "/course/course30.asp" : ["코스공략도", false],
+      "/course/course31.asp" : ["코스공략도", false],
+      "/course/course32.asp" : ["코스공략도", false],
+      "/course/course33.asp" : ["코스공략도", false],
+      "/course/course34.asp" : ["코스공략도", false],
+      "/course/course35.asp" : ["코스공략도", false],
+      "/course/course36.asp" : ["코스공략도", false],
+      "/club/facil.asp" : ["부대시설", true],
+      "/club/restaurant.asp" : ["레스토랑", true],
+      "/club/map.asp" : ["오시는길", true]
+    },
+    "reservation" : {
+      "/reservation/reservation.asp" : ["실시간예약", true],
+      "/reservation/package.asp" : ["패키지예약", true],
+      "/reservation/joinList.asp" : ["조인게시판", true],
+      "/reservation/joinView.asp" : ["조인게시판", false],
+      "/reservation/joinWrite.asp" : ["조인게시판", false],
+      "/reservation/joinWrite2.asp" : ["조인게시판", false],
+      "/reservation/joinCalendar.asp" : ["조인게시판", false],		
+      "/reservation/reservation2.asp" : ["예약확인및취소", true]
+    },
+	 "guide" : {
+      "/guide/guide.asp" : ["이용안내", true],
+      "/guide/fee.asp" : ["요금안내", true],
+	    "/guide/userGuide.asp" : ["예약안내", true],
+      "/guide/penalty.asp" : ["위약규정", true],
+	    "/guide/local.asp" : ["로컬룰", true],
+      "/guide/lostitem.asp" : ["분실물관리", true],
+	    "/guide/golf-terms.asp" : ["로얄링스 골프장 이용약관", true]
+    },
+	"board" : {
+      "/board/list.asp?type=1" : ["공지사항", true],
+      "/board/list.asp?type=2" : ["이벤트", true],
+      "/board/view.asp?type=1" : ["공지사항", false],
+      "/board/view.asp?type=2" : ["이벤트", false],
+      "/board/honor.asp" : ["명예의전당", true],
+      "/board/qna.asp" : ["고객의말씀", true],
+    }
+  }
+
+	$(document).ready(function() {
+		initMenus();
+	});
+
+	function initMenus() {
+		var url = window.location.href;
+
+		for(var key in midMenus) {
+			for(var page in midMenus[key]) {
+				if(url.indexOf(page) > 0) {
+					$("#txtBigMenuName").html(bigMenus[key]);
+					$("#txtMidMenuName").html(midMenus[key][page][0]);
+					bigMenu = key;
+					midMenu = page;
+					break;
+				}
+			}
+
+			if(bigMenu != null && bigMenu != "") {
+				break;
+			}
+		}
+
+		$("#menuContainer").empty();
+
+		for(var key in midMenus[bigMenu]) {
+			if(midMenus[bigMenu][key][1]){
+				$("#menuContainer").append(String.format("<li><a href='{0}'>{1}</a></li>", key, midMenus[bigMenu][key][0]));
+			}
+		}
+
+		for(var key in midMenus) {
+			for(var page in midMenus[key]) {
+				$("#bigMenuContainer").append(String.format("<li><a href='{0}'>{1}</a></li>", page, bigMenus[key]));
+				break;
+			}
+		}
+	}
+</script>
+<div class="naviLine" id="onlySub">
+  <div class="naviBox">
+    <div class="nav">
+      <ul>
+        <li>
+          <a class="home" href="#">
+            <img src="/images/home.png" alt="홈">
+          </a>
+        </li>
+        <li>
+          <a href="#"><txt id="txtBigMenuName">더링스CC</txt><span><img src="/images/arw.png" alt="대메뉴선택"></span>
+          </a>
+          <ul class="menu" id="bigMenuContainer">
+          </ul>
+        </li>
+        <li>
+          <a href="#"><txt id="txtMidMenuName">더링스CC</txt><span><img src="/images/arw.png" alt="중메뉴선택"></span>
+          </a>
+          <ul class="menu" id="menuContainer">
+          </ul>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>
+		
+			<div class="contentWrap">
+				<!--title-->
+				<div class="titleBox">
+					<h2>COURSE attack</h2>
+					<h3>코스공략도</h3>
+					<p class="bgTit">COURSE attack</p>
+				</div>
+				
+				<div class="courseTab">
+					<a href="/course/course01.asp" class="on">Queens Course</a>
+					<a href="/course/course19.asp" class="">Kings Course</a>
+				</div>
+				
+				<!--코스 상단이미지-->
+				<div class="courseIntro">					
+					<p><img src="/images/course/course_a.jpg" usemap="#Map" border="0" alt="" width="1200" height="411"></p>
+					<map name="Map">
+						<area shape="circle" coords="786,246,15" href="course01.asp">
+						<area shape="circle" coords="849,347,15" href="course02.asp">
+						<area shape="circle" coords="815,381,15" href="course03.asp">
+						<area shape="circle" coords="630,352,15" href="course04.asp">
+						<area shape="circle" coords="459,298,15" href="course05.asp">
+						<area shape="circle" coords="209,225,15" href="course06.asp">
+						<area shape="circle" coords="396,224,15" href="course07.asp">
+						<area shape="circle" coords="560,257,15" href="course08.asp">
+						<area shape="circle" coords="741,202,15" href="course09.asp">
+						<area shape="circle" coords="715,94,15" href="course10.asp">
+						<area shape="circle" coords="473,95,15" href="course11.asp">
+						<area shape="circle" coords="159,108,15" href="course12.asp">
+						<area shape="circle" coords="119,68,15" href="course13.asp">
+						<area shape="circle" coords="341,44,15" href="course14.asp">
+						<area shape="circle" coords="539,53,15" href="course15.asp">
+						<area shape="circle" coords="761,56,15" href="course16.asp">
+						<area shape="circle" coords="891,68,15" href="course17.asp">
+						<area shape="circle" coords="891,128,15" href="course18.asp">
+					</map>					
+				</div>
+				<!--//코스 상단이미지-->
+				
+				<div class="courseWrap">
+					<div class="courseBox">
+						<div class="holeNumBox">
+							<div class="holeNum">10</div>
+							<ul class="holeText">
+								<li class="hole1">hole</li>
+								<li class="hole2">PAR 4</li>
+							</ul>
+						</div>
+						
+						<div class="courseInfo">
+							<div class="cInfoLeft">
+								<div class="blackBox">Black <strong>390</strong>
+								</div>
+								<div class="blueBox">Blue <strong>365</strong>
+								</div>
+								<ul>
+									<li><span class="whiteBull"></span> White <strong>340</strong> </li>
+									<li><span class="yellowBull"></span> Yellow <strong>295</strong> </li>
+									<li><span class="redBull"></span> Red <strong>265</strong> </li>
+								</ul>
+							</div>
+							<div class="cInfoRight">
+								<a href="course01.asp">1H</a>
+								<a href="course02.asp">2H</a>
+								<a href="course03.asp">3H</a>
+								<a href="course04.asp">4H</a>
+								<a href="course05.asp">5H</a>
+								<a href="course06.asp">6H</a>
+								<a href="course07.asp">7H</a>
+								<a href="course08.asp">8H</a>
+								<a href="course09.asp">9H</a>
+								<a href="course10.asp" class="on">10H</a>
+								<a href="course11.asp">11H</a>
+								<a href="course12.asp">12H</a>
+								<a href="course13.asp">13H</a>
+								<a href="course14.asp">14H</a>
+								<a href="course15.asp">15H</a>
+								<a href="course16.asp">16H</a>
+								<a href="course17.asp">17H</a>
+								<a href="course18.asp">18H</a>
+							</div>
+						</div>					
+					</div>
+				</div>
+				
+				<div class="courseWrap2">
+					<div class="courseBox2">
+						<div class="cExplanLeft">
+							<div class="cExplanText">
+								<h1>코스공략방법</h1>
+								<h4>왼쪽 (Dog-leg) 다운힐(Downhill) 홀로 좌우 워터해저드 사이에서 티샷을 해야 하는 부담스런 홀이다. 페어웨이 벙커 오른쪽을 공략하는 것이 좋다. 세컨샷은 단타자는 그린 왼쪽의 베일아웃(Bail-out) 지역을 이용한 레이 업을 할 수 있으며, 장타자는 페이드 샷을 통한 투 온을 시도할 수 있고, 비교적 용이한 스타트 홀이다.</h4>
+							</div>
+							
+							<div class="courseSlider">
+								<div class="bx-wrapper">
+									<ul class="slider">
+										<li><img src="/images/course/courseImg.jpg" title=""></li>
+										<li><img src="/images/course/courseImg2.jpg" title=""></li>
+									</ul>
+									<script>
+									$('.slider').bxSlider({
+										mode:'fade',
+										speed : 300,
+										pause : 3000,
+										auto: true,
+										controls: false,
+										pager:true,
+										touchEnabled:false
+									});
+									</script>
+								</div>
+							</div>
+						</div>
+						<div class="cExplanRight">
+							<img src="/images/course/a/10.jpg">
+						</div>
+					</div>
+				</div>
+				
+			</div>					
+		</div>
+
+		<div id="footer">
+			<h1>로얄링스</h1>
+	<!--		<div class="snsBox">
+				<a href=""><i class="fab fa-facebook-f"></i></a>
+				<a href=""><i class="fab fa-twitter"></i></a>
+				<a href=""><i class="fab fa-instagram"></i></a>
+			</div>-->
+			<div class="footerBox">
+				<a href="/member/terms.asp">사이트 이용약관</a> | <a href="/member/policy.asp">개인정보취급방침</a> | <a href="http://939.co.kr/moonos/" target="_blank">고객원격지원</a>
+			</div>
+			<p class="footerText">
+			충남 태안군 태안읍 기업도시 6길 43 로얄링스 컨트리클럽,  대표이사 : 정재섭 | 사업자등록번호 120-87-98658<br>
+통판매업신고 : 제2014-충남태안-133호 | 개인정보관리책임자 : 김화영 (hykim@amikogolf.com) 
+			</p>
+			<p class="footerCopy">Copyright© ROYAL LINKS country club CO., LTD. All rights reserved.</p>
+		</div>
+	</div>
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v4513226cdae34746b4dedf0b4dfa099e1781791509496" integrity="sha512-ZE9pZaUXND66v380QUtch/5sE9tPFh2zg45pR2PB0CVkCtOREv2AJKkSidISWkysEuQ0EH8faUU5du78bx87UQ==" data-cf-beacon='{"version":"2024.11.0","token":"de9f4891b32a4c7ba3c624fc918787fa","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a1e3f00c2e74ea97',t:'MTc4NDU3MTE4NA=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

@@ -1,0 +1,511 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=Edge">
+	<meta name="apple-mobile-web-app-capable" content="no" />
+	<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+	<meta name="format-detection" content="telephone=no,email=no,address=no">
+	<meta name="title" content="코브스윙">
+	<meta name="author" content="코브스윙">
+	<meta name="Keywords" content="코브스윙">
+	<meta name="description" content="코브스윙">
+	<meta name="copyright" content="All Contents COPYRIGHTⓒ coveswing.Gc. All RIGHTS RESERVED.">
+	<meta property="og:type" content="website">
+	<meta property="og:title" content="코브스윙">
+	<meta property="og:description" content="코브스윙">
+	<meta property="og:url" content="">
+    <meta property="og:image" content="/images/Kakao_img2.jpg">
+	<link rel="canonical" href="">
+	<title>코브스윙</title>
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+	<script src="/js/common.js?v=1.2"></script>
+	<script src="/js/tools.js"></script>
+	<script src="/js/jquery.preloaders.js"></script>
+	<script src="/js/globals.js"></script>
+	<script src="/js/jquery.subtle-slideshow.js"></script>
+	<script src="/js/cbpHorizontalMenu.js"></script>
+	<script src="https://cdn.jsdelivr.net/bxslider/4.2.12/jquery.bxslider.min.js"></script>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.8.2/css/all.min.css" />	
+	<link rel="stylesheet" type="text/css" href="/css/import.css?v=1.3">	
+	<link rel="stylesheet" type="text/css" href="/css/layout_new.css?v=2.8">
+	<link rel="icon" href="/images/favicon.ico">
+	<!--폰트-->
+	<link href="https://fonts.googleapis.com/css2?family=Babylonica&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Montaga&family=Noto+Sans+KR:wght@100..900&family=Noto+Serif+KR:wght@200..900&family=Noto+Serif:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">	
+
+	<link rel="stylesheet" type="text/css" href="/css/contents.css?v=2.6">
+
+	<script>		
+		$(document).ready(function() {
+			chkMobile();
+			setProtocol();
+		});
+
+		function setProtocol() {
+			if (document.location.protocol == 'http:') {
+				document.location.href = document.location.href.replace('http:', 'https:');
+			}
+		}
+
+		function doLogout() {
+			var sUrl = "/controller/MemberController.asp";
+			var params = {};
+
+			params["method"] = "doLogout";
+
+			mAjax(sUrl, params, "POST", true, function(data) {
+				if(data.resultCode == "0000") {
+					alert("로그아웃 되었습니다.");
+
+					location.href = "/index.asp";
+				}
+			});
+		}
+
+	  function chkMobile() {
+	    var mobileKeyWords = new Array('iPhone', 'iPod', 'iPad', 'BlackBerry', 'Android', 'Windows CE', 'MOT', 'SAMSUNG', 'SonyEricsson');
+	    for (var word in mobileKeyWords) {
+	    	if ( navigator.userAgent.match(mobileKeyWords[word]) != null ) {
+	    		location.href = "/mobile/index.asp";
+	    		break;
+	    	}
+	    }
+	  }
+
+	function onlyMainMenu(val){
+		if(val == "1") {
+			$("#onlySub").hide();
+		}else (
+			$("#onlySub").show()
+		)
+	}
+	</script>
+</head>
+	
+<body>
+	<div id="wrap">	
+		
+		<!--header-->
+		<div id="header">
+			
+
+			<!-- 서브 헤더 영역 -->
+			<h1 class="topLeft"><a href="/"><img src="/images/logo.svg" alt="logo"></a></h1>
+
+			<div class="top_menu">
+				<a href="/club/story.asp">COVE Swing</a>
+				<a href="/course/courseIntro.asp">코스소개</a>
+				<!--<a href="/facil/facil01.asp">시설물소개</a>-->
+				<a href="/reservation/reservation.asp">예약하기</a>
+				<a href="/guide/guide.asp">이용안내</a>
+				<!--<a href="/board/list.asp?type=1">커뮤니티</a>-->
+				<a href="/member/modify.asp">마이페이지</a>
+			</div>
+
+			<div class="topRight">
+				<a href="/reservation/reservation.asp"><img src="/images/top_icon1.png" alt="실시간예약"></a>
+				<a href="http://www.weather.go.kr/weather/forecast/timeseries.jsp?searchType=INTEREST&wideCode=4100000000&cityCode=4165000000&dongCode=4165052000" target="_blank"><img src="/images/top_icon2.png" alt="날씨"></a>
+
+				<a href="/join/login.asp"><img src="/images/top_icon3.png" alt="로그인"></a>				
+
+
+<!--
+				<button class="toggle-menu">
+					<span></span>
+				</button>	
+-->
+			</div>
+
+			
+
+			<!--hamberger전체메뉴-->
+			<div id="menu" class="">
+				<!--only main-->
+				<a href="" class="main-menu-close"><img src="/images/menu-close.svg"></a>
+				<a href="/" class="menu-top-logo"><img src="/images/main-color-logo.svg?v=2"></a>
+				
+				<div class="main-nav">
+<!--						<h1> charmvalley menu</h1>-->
+					<ul>
+						<li>
+<!--								<a href="/club/intro.asp" class="big">참밸리소개<span>INTRODUCE</span></a>-->
+							<a href="" class="only-main">COVE Swing</a>
+							<a href="/club/story.asp" class="small">COVE Swing 스토리</a>
+							<a href="/club/map.asp" class="small">오시는 길</a>
+							<a href="/club/facil.asp" class="small">부대시설</a>
+							<a href="/board/list.asp?type=1" class="small">공지사항</a>
+							<!--<a href="/club/ci.asp" class="small">CI소개</a>
+							<a href="/club/intro.asp" class="small">코브스윙 소개</a>-->
+						</li>
+						<li>
+<!--								<a href="/course/courseIntro.asp" class="big">코스소개<span>COURSE</span></a>-->
+							<a href="" class="only-main">코스 소개</a>
+							<a href="/course/courseIntro_new.asp" class="small">코스 개요</a>
+							<a href="/course/cove.asp" class="small">코스 공략도</a>
+							<!--<a href="/course/queens.asp" class="small">코브 코스 공략도</a>
+							<a href="/course/valley.asp" class="small">스윙 코스 공략도</a>
+							<a href="/board/list.asp?type=3" class="small">코스갤러리</a>-->
+						</li>
+						<!--<li>
+							<a href="" class="only-main">시설물소개</a>
+							<a href="/facil/facil01.asp" class="small">클럽하우스</a>
+							<a href="/facil/facil02.asp" class="small">레스토랑</a>
+							<a href="/facil/facil03.asp" class="small">프로샵</a>
+						</li>-->
+						<li>
+<!--								<a href="/reservation/reservation.asp" class="big">예약하기<span>RESERVATION</span></a>-->
+							<a href="" class="only-main">예약</a>
+							<a href="/reservation/reservation.asp" class="small">예약하기</a>
+							<a href="/reservation/reservation2.asp" class="small">예약확인/취소</a>
+							<a href="/reservation/group.asp" class="small">단체예약</a>
+						</li>
+						<li>
+<!--								<a href="/guide/guide.asp" class="big">이용안내<span>INFORMATION</span></a>-->
+							<a href="" class="only-main">이용안내</a>
+							<a href="/guide/local.asp" class="small">로컬룰</a>
+							<a href="/guide/penalty.asp" class="small">위약및퇴장</a>
+							<a href="/guide/fee.asp" class="small">이용요금</a>
+							<!--<a href="/guide/guide.asp" class="small">이용안내</a>-->
+						</li>
+						<!--<li>
+							<a href="/board/list.asp?type=1" class="big">커뮤니티<span>COMMUNITY</span></a>
+							<a href="" class="only-main">커뮤니티</a>
+							<a href="/board/list.asp?type=2" class="small">이벤트</a>
+							<a href="/board/list.asp?type=4" class="small">명예의전당</a>
+						</li>-->
+						<li>
+<!--								<a href="/member/score.asp" class="big">마이페이지<span>MYPAGE</span></a>-->
+							<a href="" class="only-main">마이페이지</a>
+							<a href="/join/join.asp" class="small">회원가입</a>
+							<a href="/member/modify.asp" class="small">정보수정</a>
+							<a href="/member/score.asp" class="small">스코어관리</a>
+							<a href="/member/enter.asp" class="small">내장 및 위약현황</a>
+						</li>
+					</ul>
+				</div>
+				<!--//hamberger전체메뉴-->
+			</div>
+		
+		
+	</div>
+	<style>
+		.root_daum_roughmap .cont {
+			display: none;
+		}
+	</style>
+
+	<!--Contents-->
+	<div id="contents">
+		<div class="course-bg">
+			<div class="c-bg-wrap">
+				<p class="img"><img src="/images/david-remove.png"></p>
+				<div class="course-intro-text">
+					<h1>데이비드 데일(David Dale)</h1>
+					<h3>Golf Course Architect</h3>
+					<h4>
+						세계 유수의 골프코스를 설계한 데이비드 데일(David Dale)과<br>
+						조형의 마술사 에런 프레드릭슨(Aren Fredricson),<br>
+						그리고 참빛그룹 이호웅 회장이 함께 만들어낸 또 하나의 걸작, 코브 스윙.<br><br>
+
+						대중제 골프장이지만 어느 회원제 못지않은 투자와 정성을 담아 완성했습니다.<br>
+						구름 위에 선 듯한 청량한 풍경 속에서 자연과 호흡하며 라운드를 즐기다 보면,<br>
+						어느새 18홀이 끝났는지도 모를 만큼 특별한 시간이 흐릅니다.
+					</h4>
+				</div>
+			</div>
+		</div>
+		<div class="course-btn">
+			<a href="/course/cove.asp">코브코스 ></a>
+			<a href="/course/swing.asp">스윙코스 ></a>
+		</div>
+
+		<div class="contentWrap" style="padding: 80px 0 100px;">
+			<div class="allcourseWrap">
+				<div class="allcourseImg">
+					<!-- * 카카오맵 - 지도퍼가기 -->
+					<!-- 1. 지도 노드 -->
+					<div id="daumRoughmapContainer1774513010272" class="root_daum_roughmap root_daum_roughmap_landing"></div>
+
+					<!--
+						2. 설치 스크립트
+						* 지도 퍼가기 서비스를 2개 이상 넣을 경우, 설치 스크립트는 하나만 삽입합니다.
+					-->
+					<script charset="UTF-8" class="daum_roughmap_loader_script" src="https://ssl.daumcdn.net/dmaps/map_js_init/roughmapLoader.js"></script>
+
+					<!-- 3. 실행 스크립트 -->
+					<script charset="UTF-8">
+						new daum.roughmap.Lander({
+							"timestamp" : "1774513010272",
+							"key" : "kz59xpsosgs",
+							"mapWidth" : "1200",
+							"mapHeight" : "570"
+						}).render();
+					</script>
+				</div>
+
+				<p class="right font12">(yard/meter)</p>
+				<table class="courseTable1">
+					<colgroup>
+						<col width="15%">
+						<col width="11%">
+						<col width="7%">
+						<col width="7%">
+						<col width="7%">
+						<col width="7%">
+						<col width="7%">
+						<col width="7%">
+						<col width="7%">
+						<col width="7%">
+						<col width="7%">
+						<col width="11%">
+					</colgroup>
+
+					<tbody>
+						<tr>
+							<th scope="col" rowspan="7" class="bold bgWhite">코브 코스<br>Cove Course</th>
+							<th scope="col">Tee</th>
+							<th scope="col">1</th>
+							<th scope="col">2</th>
+							<th scope="col">3</th>
+							<th scope="col">4</th>
+							<th scope="col">5</th>
+							<th scope="col">6</th>
+							<th scope="col">7</th>
+							<th scope="col">8</th>
+							<th scope="col">9</th>
+							<th scope="col">TOTAL</th>
+						</tr>
+						<tr>
+							<td>Blue Tee</td>
+							<td>459/420</td>
+							<td>402/368</td>
+							<td>442/404</td>
+							<td>460/329</td>
+							<td>159/145</td>
+							<td>387/354</td>
+							<td>507/464</td>
+							<td>130/119</td>
+							<td>600/549</td>
+							<td>3,447/3,152</td>
+						</tr>
+						<tr>
+							<td>White Tee</td>
+							<td>411/376</td>
+							<td>369/337</td>
+							<td>406/371</td>
+							<td>327/299</td>
+							<td>-/-</td>
+							<td>363/332</td>
+							<td>478/437</td>
+							<td>-/-</td>
+							<td>566/518</td>
+							<td>2,920/2,670</td>
+						</tr>
+						<tr>
+							<td>Silver Tee</td>
+							<td>374/342</td>
+							<td>339/310</td>
+							<td>370/338</td>
+							<td>300/274</td>
+							<td>139/127</td>
+							<td>330/302</td>
+							<td>453/414</td>
+							<td>114/104</td>
+							<td>521/476</td>
+							<td>2,939/2,687</td>
+						</tr>
+						<tr>
+							<td>Red Tee</td>
+							<td>339/310</td>
+							<td>319/286</td>
+							<td>340/311</td>
+							<td>270/247</td>
+							<td>120/110</td>
+							<td>293/268</td>
+							<td>394/360</td>
+							<td>84/77</td>
+							<td>468/428</td>
+							<td>2,621/2,397</td>
+						</tr>
+						<tr>
+							<td>Par</td>
+							<td>4</td>
+							<td>4</td>
+							<td>4</td>
+							<td>4</td>
+							<td>3</td>
+							<td>4</td>
+							<td>5</td>
+							<td>3</td>
+							<td>5</td>
+							<td>36</td>
+						</tr>
+						<tr>
+							<td>HDCP</td>
+							<td>14</td>
+							<td>4</td>
+							<td>8</td>
+							<td>10</td>
+							<td>16</td>
+							<td>12</td>
+							<td>6</td>
+							<td>18</td>
+							<td>2</td>
+							<td>&nbsp;</td>
+						</tr>
+					</tbody>
+				</table>
+
+				<div class="padding10"></div>
+				<p class="right font12">(yard/meter)</p>
+				<table class="courseTable1">
+					<colgroup>
+						<col width="15%">
+						<col width="11%">
+						<col width="7%">
+						<col width="7%">
+						<col width="7%">
+						<col width="7%">
+						<col width="7%">
+						<col width="7%">
+						<col width="7%">
+						<col width="7%">
+						<col width="7%">
+						<col width="11%">
+					</colgroup>
+
+					<tbody>
+						<tr>
+							<th scope="col" rowspan="7" class="bold bgWhite">스윙 코스<br>Swing Course</th>
+							<th scope="col">Tee</th>
+							<th scope="col">1</th>
+							<th scope="col">2</th>
+							<th scope="col">3</th>
+							<th scope="col">4</th>
+							<th scope="col">5</th>
+							<th scope="col">6</th>
+							<th scope="col">7</th>
+							<th scope="col">8</th>
+							<th scope="col">9</th>
+							<th scope="col">TOTAL</th>
+						</tr>
+						<tr>
+							<td>Blue Tee</td>
+							<td>385/352</td>
+							<td>376/344</td>
+							<td>200/183</td>
+							<td>479/438</td>
+							<td>414/379</td>
+							<td>385/352</td>
+							<td>289/264</td>
+							<td>401/367</td>
+							<td>626/572</td>
+							<td>3,555/3,251</td>
+					    </tr>
+						<tr>
+							<td>White Tee</td>
+							<td>370/338</td>
+							<td>349/319</td>
+							<td>175/160</td>
+							<td>461/422</td>
+							<td>371/339</td>
+							<td>360/329</td>
+							<td>238/218</td>
+							<td>364/333</td>
+							<td>598/547</td>
+							<td>3,286/3,005</td>
+					    </tr>
+						<tr>
+							<td>Silver Tee</td>
+							<td>308/282</td>
+							<td>296/271</td>
+							<td>148/135</td>
+							<td>416/380</td>
+							<td>347/317</td>
+							<td>331/303</td>
+							<td>187/171</td>
+							<td>339/310</td>
+							<td>526/481</td>
+							<td>2,898/2,650</td>
+					    </tr>
+						<tr>
+							<td>Red Tee</td>
+							<td>294/269</td>
+							<td>266/243</td>
+							<td>130/119</td>
+							<td>295/270</td>
+							<td>309/283</td>
+							<td>287/262</td>
+							<td>126/115</td>
+							<td>300/274</td>
+							<td>469/429</td>
+							<td>2,476/2264</td>
+					    </tr>
+						<tr>
+							<td>Par</td>
+							<td>4</td>
+							<td>4</td>
+							<td>3</td>
+							<td>5</td>
+							<td>4</td>
+							<td>4</td>
+							<td>3</td>
+							<td>4</td>
+							<td>5</td>
+							<td>36</td>
+					    </tr>
+						<tr>
+							<td>HDCP</td>
+							<td>9</td>
+							<td>7</td>
+							<td>11</td>
+							<td>3</td>
+							<td>13</td>
+							<td>17</td>
+							<td>5</td>
+							<td>15</td>
+							<td>1</td>
+							<td>&nbsp;</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+
+		<div id="footer">
+			<!-- <div class="bottomLine">
+				<div class="btTopWrap">
+					<ul>
+						<li><a href="http://hanoigolf.co.kr/" target="_blank"><img src="/images/blogo_1.png"></a></li>
+						<li><a href="http://yakam.co.kr/" target="_blank"><img src="/images/blogo_2.png"></a></li>
+						<li><a href="http://grandplazahanoi.net/" target="_blank"><img src="/images/blogo_3.png"></a></li>
+						<li><a href="javascript:void(0)"><img src="/images/blogo_4.png"></a></li>
+						<li><a href="javascript:void(0)"><img src="/images/blogo_5.png"></a></li>
+					</ul>
+				</div>
+			</div> -->
+			<div class="footerBox">
+				<h1></h1>
+				<div class="f_sns">
+<!--
+					<a href="#"><i class="fab fa-facebook-f"></i></a>
+					<a href="#"><i class="fab fa-twitter"></i></a>
+					<a href="#"><i class="fab fa-instagram"></i></a>
+-->
+				</div>
+				<div class="f_descript">
+					<div class="ftop">
+						<a href="/member/policy.asp">개인정보취급방침</a>
+						<span>|</span>
+						<a href="/member/terms.asp">이용약관</a>
+					</div>
+				경기 포천시 설운동 산38-17 | 대표번호 : 1899-6200 | 대표자 : 이한일 | 사업자등록번호 231-85-02083 | 이메일 : help@coveswing.com<br>
+Copyright © 2014 cove swing All rights reserved.	
+				</div>							
+			</div>
+		</div>
+	</div>
+</body>
+</html>

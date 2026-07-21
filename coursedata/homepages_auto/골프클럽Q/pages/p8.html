@@ -1,0 +1,746 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="user-scalable=yes, initial-scale=0.3, maximum-scale=1.0, minimum-scale=0.1, width=device-width" />
+<meta name="title" content="골프클럽Q">
+<meta name="author" content="골프클럽Q">
+<meta name="Keywords" content="골프클럽Q">
+<meta name="description" content="골프클럽Q ">
+<meta name="copyright" content="All Contents Copyright©GOLF CLUB Q">
+<meta name="format-detection" content="telephone=no, address=no, email=no"/>
+<meta property="og:type" content="mobile">
+<meta property="og:title" content="골프클럽Q">
+<meta property="og:description" content="골프클럽Q">
+<meta property="og:url" content="">
+<title>골프클럽Q</title>
+<link rel="stylesheet" type="text/css" href="/css/import.css?v=5">
+<link rel="stylesheet" type="text/css" href="/css/content.css?v=4">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/bxslider/4.2.12/jquery.bxslider.min.js"></script>
+<script type="text/javascript" src="/js/common.js"></script>
+<script src="/js/jquery.preloaders.js"></script>
+<script src="/js/tools.js?v=3"></script>
+<script src="/js/globals.js"></script>
+</head>
+<script>
+
+	var isOpenReserBox = false;
+
+	$(document).ready(function() {
+		//setProtocol();
+		checkUrl();
+		$("#home").on("click", function() {
+			if(isOpenReserBox) {
+				$("#linkBoxBtn").animate({right: "100px"}, 50);
+				$("#mainLink").attr("src", "/images/main/mainArrow.png");
+			} else {
+				$("#linkBoxBtn").animate({right: "-200px"}, 50);
+				$("#mainLink").attr("src", "/images/main/mainArrow2.png");
+			}
+
+			isOpenReserBox = !isOpenReserBox;
+			toggleBanner("01");
+		});
+		$('.sub_1').hide();
+		$('.sub_2').hide();
+
+		$('.photoON').mouseover(function(){
+			$('.sub_1').slideDown();
+			$('.sub_2').slideDown();
+		});
+		$('.menuBox').mouseleave(function(){
+			$('.sub_1').hide();
+			$('.sub_2').hide();
+		});
+		$('.menu1').mouseover(function(){
+			$('.sub_1').hide();
+			$('.sub_2').hide();
+		});
+		$('.menu2').mouseover(function(){
+			$('.sub_1').hide();
+			$('.sub_2').hide();
+		});
+		$('.menu3').mouseleave(function(){
+			$('.sub_1').hide();
+			$('.sub_2').hide();
+		});
+
+
+		$('.slider3').bxSlider({
+			mode:'horizontal',
+			speed : 400,
+			pause : 3000,
+			touchEnabled: false,
+			auto: true,
+			controls: false,
+			pager:true
+		});
+
+		$('.slider4').bxSlider({
+			mode:'horizontal',
+			speed : 400,
+			pause : 3000,
+			touchEnabled: false,
+			auto: true,
+			controls: false,
+			pager:true
+		});
+		
+				
+	});
+
+	function toggleBanner(arg_bnr_id) {
+
+		var sUrl = "/controller/CommonController.asp";
+		var params = {};
+		
+		params["method"] = "toggleBanner";
+		params["bnrID"] = arg_bnr_id;	
+
+		mAjax(sUrl, params, "POST", true, function(data) {
+
+		});
+	}
+
+
+
+	function setProtocol() {
+		if (document.location.protocol == 'http:') {
+			document.location.href = document.location.href.replace('http:', 'https:');
+		}
+	}
+
+	function checkUrl() {
+		if ("www.golfclubq.com" == "anseongq.com" || "www.golfclubq.com" == "www.anseongq.com") {
+			document.location.href = "https://www.golfclubq.com";
+		}
+	}
+    
+    /* 홍보영상 popup */
+    var openIdx = -1;
+
+    function normalOpen(i) {
+        initPopup(i);
+    }
+
+    function initPopup(i) {
+        $("#layerPop" + i).fadeIn();
+        $("#overlay").fadeIn();    
+        $("body").addClass("overflow-h");
+        openIdx = i;
+    }
+    function popupClose(i) {
+        $("#layerPop" + i).fadeOut();
+        $("#overlay").fadeOut();
+        $("body").removeClass("overflow-h");
+    }
+    function overlayClose() {
+        if(openIdx > 0){
+            $("#layerPop" + openIdx).fadeOut();    
+            $("#overlay").fadeOut();
+            $("body").removeClass("overflow-h");
+        }
+    }
+
+</script>
+
+<body>
+	<div class="menuBg">
+			<a href="/index.asp" class="leftLogo"><img src="/images/leftLogo.png" alt="로고"></a>
+
+			<ul class="leftBtn">
+				<li><a href="/members/login.asp"><img src="/images/leftIcon01.png" alt="로그인"> 로그인</a></li>
+				<li><a href="/members/join.asp" class="join"><img src="/images/leftIcon02.png" alt="회원가입"> 회원가입</a></li>
+			</ul>
+
+
+			<div class="leftMenu">
+				<ul class="menuListBox">
+				   <li class="menuBox">
+						<a class="menuTitle" tabindex="-1" href="/reservation/reservation.asp">실시간예약</a>
+						<ul class="menuList">
+							<li class=""><a tabindex="-1" href="/reservation/reservation.asp">실시간예약</a></li>
+							<li class=""><a href="/reservation/reserCheck.asp">예약확인/취소</a></li>
+							<!--
+							<li class=""><a href="/board/list.asp?type=5">조인게시판</a></li>
+							<li class=""><a href="https://www.teeupnjoy.com/hp/clubid/668.do" target="_blank">실시간조인</a></li> -->
+							<li class=""><a href="/reservation/joinReservation.asp">조인예약</a></li>							
+						</ul>
+					</li>
+					<li class="menuBox">
+						<a class="menuTitle" tabindex="-1" href="/guide/guide.asp">클럽이용안내</a>
+						<ul class="menuList">
+							<li class=""><a tabindex="-1" href="/guide/guide.asp">이용 및 요금안내</a></li>
+							<li class=""><a href="/guide/reserGuide.asp">예약안내</a></li>
+							<li class=""><a href="/guide/map.asp">오시는길</a></li>
+						</ul>
+					</li>
+					<li class="menuBox">
+						<a class="menuTitle" tabindex="-1" href="/facil/facil01.asp">시설안내</a>
+						<ul class="menuList">
+							<li class=""><a tabindex="-1" href="/facil/facil01.asp">클럽하우스</a></li>
+							<li class=""><a href="/facil/facil02.asp">그늘집</a></li>
+							<li class=""><a href="/facil/facil03.asp">레스토랑</a></li>
+							<li class=""><a href="/facil/facil04.asp">프로샵</a></li>
+						</ul>
+					</li>
+					<li class="menuBox">
+						<a class="menuTitle" tabindex="-1" href="/course/allcourse.asp">코스소개</a>
+						<ul class="menuList">
+							<li class=""><a tabindex="-1" href="/course/allcourse.asp">코스소개</a></li>
+							<li class=""><a href="/course/p1.asp">코스공략도</a></li>
+							<!--<li class=""><a href="javascript:alert('코스소개 수정 준비중입니다');">코스공략도</a></li>-->
+						</ul>
+					</li>
+					<li class="menuBox">
+						<a class="menuTitle" tabindex="-1" href="/board/list.asp?type=1">클럽소식</a>
+						<ul class="menuList">
+							<li class="menu1"><a tabindex="-1" href="/board/list.asp?type=1">공지사항</a></li>
+							<li class="menu2"><a href="/board/list.asp?type=2">이벤트</a></li>
+							<li class="photoON"><a>포토갤러리</a></li>
+							<li class="sub_1"><a href="/board/list.asp?type=3">2021 클럽큐展</a></li>
+							<li class="sub_2"><a href="/board/list.asp?type=6">2022 클럽큐展</a></li>
+							<li class="menu3"><a href="/board/honor.asp">명예의전당</a></li>
+						</ul>
+					</li>
+					<li class="menuBox">
+						<a class="menuTitle" tabindex="-1" href="/reservation/reserCheck.asp">Myzone</a>
+						<ul class="menuList">
+							<li class=""><a tabindex="-1" href="/reservation/reserCheck.asp">예약확인/취소</a></li>
+							<li class=""><a href="/myzone/score.asp">스코어카드</a></li>
+							<!--<li class=""><a href="/myzone/nasmo.asp">필드나스모</a></li>-->
+							<li class=""><a href="/myzone/coupon.asp">쿠폰함</a></li>
+							<li class=""><a href="/members/modify.asp">회원정보관리</a></li>
+						</ul>
+					</li>
+				</ul>
+			</div>
+
+			<div class="monthBox" id="monthBox">
+				<div class="monthChoice">
+					  <a href="javascript:doPrevMonthFooter()"><img src="/images/arrow_l.png" alt="전 달" width="15" height="20"></a>
+					  <span class="month" id="calHeaderFooter"></span>
+					  <a href="javascript:doNextMonthFooter();"><img src="/images/arrow_r.png" alt="다음달" width="15" height="20"></a>
+				</div>
+				<table class="mainCalendar" summary="실시간 예약" cellspacing="5">
+					<caption>
+						실시간 예약
+					</caption>
+					<colgroup>
+						<col width="*">
+						<col width="*">
+						<col width="*">
+						<col width="*">
+						<col width="*">
+						<col width="*">
+						<col width="*">
+					</colgroup>
+					<thead>
+					  <tr>
+						<th scope="col" class="sun">SUN</th>
+						<th scope="col">MON</th>
+						<th scope="col">TUE</th>
+						<th scope="col">WEN</th>
+						<th scope="col">THU</th>
+						<th scope="col">FRI</th>
+						<th scope="col">SAT</th>
+					  </tr>
+					</thead>
+					<tbody id="calendar-footer">
+					</tbody>
+				</table>
+			</div><!-- monthBox End -->
+
+			<a href="/reservation/reservation.asp" class="leftReserBtn"><img src="/images/main/leftCal.png" alt="실시간예약"> 실시간예약하기</a>
+
+			<!--<a href="https://www.xgolf.com/eventzone/event_zone_view.asp?pr_event_no=178167" target="_blank"><img src="../images/main/banner1.jpg" alt="실시간예약" style="margin: 10px auto;display: block;"></a> -->
+		</div><!-- menuBg End -->
+<div class="mainLinkBox" id="home">
+		<img id="mainLink" src="/images/main/mainArrow.png" alt="">
+	</div>
+
+	<div class="panel">
+		<ul class="contentBox" class="linkBoxBtn" id="linkBoxBtn">
+			<li class="eventbox">
+				<div class="bx-wrapper2">
+					<ul class="slider3">
+						<li><a href="https://www.ibkc.co.kr/ib20/mnu/MNUPCKMAIN000" target="_blank"><img src="/images/main/240207_gq.jpg" alt="ibk캐피탈"></a></li>
+					    <li><a href="https://www.nh-amundi.com/?NaPm=ct%3Dlhplqsgg%7Cci%3D0zC0003oRk9ybxqlDfpW%7Ctr%3Dbrnd%7Chk%3Daa9160a4b60a565561506ee9273ea1d63b369476" target="_blank"><img src="/images/main/230516_gq.png" alt="농협"></a></li>
+						<li><a href="http://www.dages.co.kr" target="_blank"><img src="/images/main/220824.jpg" alt="한림제약"></a></li>
+
+						<!-- <li><a href="http://www.winepoint.co.kr" target="_blank"><img src="/images/main/210901_bn.png" alt="이마트와인"></a></li> -->
+                        <!--<li><a href="/board/view.asp?type=1&idx=92"><img src="/images/main/220822_bn.jpg" alt="추석이벤트"></a></li>-->
+                        <!--<li><a href="/board/view.asp?type=1&idx=90"><img src="/images/main/220706_bn.jpg" alt="여름맥주이벤트"></a></li>-->
+						<!-- <li><a href="/board/view.asp?type=2&idx=43"><img src="/images/main/221011_bn.jpg" alt="포토콘테스트"></a></li>
+					    <li><a href="/board/view.asp?type=1&idx=78"><img src="/images/main/220302_bn.jpg" alt="나이트골프"></a></li> -->
+					</ul>
+				</div>
+			</li>
+
+			<li class="eventbox">
+				<div class="bx-wrapper2">
+					<ul class="slider3">
+						<!--
+						<li><a href="/board/view.asp?type=1&idx=109"><img src="/images/main/231024b_gq.jpg" alt="복장금지"></a></li>
+						<li><a href="/board/view.asp?type=1&idx=108"><img src="/images/main/231023qp.jpg?v=1" alt="가을철 산불조심"></a></li>
+					    <li><a href="/board/view.asp?type=1&idx=115"><img src="/images/main/231218qb.jpg" alt="예약실운영시간"></a></li>
+						 <li><a href="/board/view.asp?type=1&idx=118"><img src="/images/main/240108qb.jpg" alt="사우나이용금지"></a></li> 
+                        <li><a href="/board/view.asp?type=2&idx=49"><img src="/images/main/231103qp.jpg?v=1" alt="빼빼로데이이벤트"></a></li>
+						<li><a href="/board/view.asp?type=2&idx=48"><img src="/images/main/230925qp.jpg?v=1" alt="10월맥주이벤트"></a></li>
+-->
+					    <li><a href="/board/view.asp?type=2&idx=63"><img src="/images/main/230726qp.jpg?v=1" alt="설문조사"></a></li>
+<!--					    <li><a href="/board/view.asp?type=1&idx=129"><img src="/images/main/240618gqp.jpg" alt="반바지라운드"></a></li>-->
+					    <li><a href="/board/view.asp?type=1&idx=130"><img src="/images/main/240618_gqp.jpg" alt="슬리퍼금지"></a></li>
+					</ul>
+				</div>
+			</li>
+            
+            <li class="eventbox">
+				<a href="javascript:normalOpen(99)" class="video-area">
+                    <img src="/images/main/q-video.jpg" alt="홍보영상_썸네일" class="v-sum">
+                    
+                    <div class="video-con">
+                        <img src="/images/main/play.svg" alt="재생버튼">
+                        <h3 class="video-text">골프클럽큐 홍보영상보기</h3>
+                    </div>
+                </a>
+			</li>
+
+<!--
+		 <li class="eventbox">
+				<div class="bx-wrapper2">
+					<ul class="slider4">
+						
+						<li><a href="/board/view.asp?type=1&idx=102"><img src="/images/main/230703qp.jpg" alt="반바지"></a></li>
+						<li><a href="/board/view.asp?type=1&idx=105"><img src="/images/main/230728b_gq.jpg" alt="한시적3부캐디"></a></li>
+						<li><a href="/board/view.asp?type=1&idx=76"><img src="/images/main/210609_bn.jpg" alt="설문조사"></a></li>
+						<li><a href="/board/view.asp?type=1&idx=80"><img src="/images/main/220415_bn.jpg" alt="반바지"></a></li>
+					    <li><a href="/board/view.asp?type=1&idx=83"><img src="/images/main/220513_bn.jpg" alt="캐디피변경"></a></li> 
+					    <li><a href="/board/view.asp?type=1&idx=91"><img src="/images/main/220802_그린피인하_bn.jpg" alt="그린피인하"></a></li>
+						
+					</ul>
+				</div>
+			</li> 
+-->
+
+				<li class="mainNews">
+					<ul class="newsBox" hidden>
+						<li class="big">NEWS <a href="/board/view.asp?type=1&idx=185"><img src="../images/main/plusBox.png" alt="더보기"></a></li>
+						<li class="title">7월 그린피 안내</li>
+						<li class="text">
+							
+						</li>
+						<li class="date">2026.07.06</li>
+					</ul>
+				</li>
+
+
+		</ul><!-- contentBox End -->
+	</div>
+                                            
+<!--홍보영상-->
+<div id="layerPop99" class="pop-video" style="display: none;">
+    <div class="pop-close" onclick="popupClose(99)"><img src="/images/main/close.svg"></div>
+    <video autoplay controls loop muted>
+        <source src="/images/main/231228.mp4" type="video/mp4" />
+    </video>
+</div>
+<div id="overlay" class="overlay" onclick="overlayClose()" style="display: none;"></div>  
+
+<!-- FlexSlider -->
+<script src="/js/jquery.flexslider.js"></script>
+<script type="text/javascript">
+	$(window).ready(function() {
+	  // The slider being synced must be initialized first
+	  $('#carousel').flexslider({
+		animation: "slide",
+		controlNav: false,
+		animationLoop: false,
+		slideshow: false,
+		itemWidth: 210,
+		itemMargin: 5,
+		asNavFor: '#slider'
+	  });
+
+	  $('#slider').flexslider({
+		animation: "slide",
+		controlNav: false,
+		animationLoop: false,
+		slideshow: true,
+		slideshowSpeed: 3000,
+		sync: "#carousel"
+	  });
+	});
+
+</script>		
+	<div id="contents">
+		<!--현재페이지위치-->
+		<div class="lnbWrap">
+			<div class="lnb">
+				<img src="../images/icon_navihome.jpg"> HOME > <span>코스공략법</span>
+			</div>
+		</div>
+		
+		<div class="container">
+			
+			<div class="commonTab2" id="rTab">
+				<a href="/course/allcourse.asp">전체코스</a>
+				<a href="/course/p1.asp" class="on">코스공략법</a>
+			</div>
+			
+			<h2 class="commonTitle"> 코스공략법</h2>
+			
+			<div class="facilTab">
+				<a href="/course/p1.asp" class="on">팜파스</a>
+				<a href="/course/v1.asp">밸리</a>
+			</div>
+			<div class="courseTab">
+				<a href="p1.asp" class="">1h</a>
+				<a href="p2.asp" class="">2h</a>
+				<a href="p3.asp" class="">3h</a>
+				<a href="p4.asp" class="">4h</a>
+				<a href="p5.asp" class="">5h</a>
+				<a href="p6.asp" class="on">6h</a>
+				<a href="p7.asp" class="">7h</a>
+				<a href="p8.asp" class="">8h</a>
+				<a href="p9.asp" class="">9h</a>
+			</div>
+			
+			<div class="grayBg courseBg">
+				
+				<div class="holeNumBox">
+					<div class="holeNum">06</div>
+					<ul class="holeText">
+						<li class="hole1">hole</li>
+						<li class="hole2">COURSE</li>
+					</ul>
+				</div>
+				
+				<div class="holeInfoBox">
+					<img src="/images/course/p6.png" class="courseImg">
+
+					<div class="videoBox">
+						<div class="video">
+							<video autoplay="autoplay" muted="true" loop="loop" id="bgvid" width="400" height="300" controls="true">
+								<source src="/course/video/p6.mp4" type="video/mp4"> 
+							</video>
+						</div>
+						<div class="slope">			
+							<img src="../images/course/s_p6.jpg" alt="경사도이미지">
+						</div>
+					</div>
+				</div>
+					
+				<div class="holeInfo">
+					<div class="green">
+						<img src="../images/course/g_p6.jpg" alt="그린이미지">
+					</div>
+
+					<div class="holeRight">
+						<p class="holeInfoTxt">티샷 랜딩지점까지는 내리막이고 그린까지 오르막이지만, 페어웨이가 넓어 시원한 티샷을 할 수 있습니다. <br>
+						그린 좌측에 포진되어 있는 벙커들을 주의한다면 욕심을 내 볼만한 홀 입니다.</p>
+
+						<ul class="teeBox">							
+							<li class=""><span class="red">●</span> 302m</li>
+							<li class=""><span class="white"></span> 366m</li>
+							<li class=""><span class="blue">●</span> 394m</li>
+							<li class=""><span class="black">●</span> 429m</li>			
+						</ul>
+
+						<table class="gwTable">
+							<colgroup>
+								<col width="*">
+								<col width="*">
+							</colgroup>
+
+							<thead>
+								<tr>
+									<th scope="col">HOLE</th>
+									<th scope="col">PAR</th>
+								</tr>
+							</thead>
+									
+							<tbody>
+								<tr>
+									<td>6H</td>
+									<td>4</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+
+				<div class="slider top">
+					<div id="slider" class="flexslider">
+						<ul class="slides">
+							<li><img src="/images/course/06/01.png"></li>
+							<li><img src="/images/course/06/02.png"></li>
+						</ul>
+					</div>
+					<div id="carousel" class="flexslider1">
+						<ul class="slides">
+							<li><img src="/images/course/06/01.png"></li>
+							<li><img src="/images/course/06/02.png"></li>
+						</ul>
+					</div>
+				</div>
+				
+			</div>			
+		</div>
+	</div>
+	
+	<script>
+
+var footerYear, footerMonth;
+var rowData;
+
+$(document).ready(function(data) {
+	init2();
+});
+
+function init2() {
+	var date = new Date();
+	footerYear = date.yyyy();
+	footerMonth = date.mm();
+
+	initCalendarFooter("#monthBox", footerYear, footerMonth);
+}
+
+function initCalendarFooter(selector, year, month) {
+	var sUrl = "/controller/ReservationController.asp";
+	var params = {};
+
+	params["method"] = "getCalendar";
+	params["coDiv"] = globals.coDiv;
+	params["selYm"] = year + month;
+
+	mAjax(sUrl, params, "POST", true, function(data) {
+		if(data.resultCode == "0000") {
+			$(selector + " #calHeaderFooter").html(year + " / " + month);
+
+			var currentDay = new Date().yyyymmdd();
+			var tBody = $(selector + " #calendar-footer");
+			tBody.empty();
+
+			var rows = data.rows;
+
+			if(rows.length > 0) {
+				var row = $("<tr></tr>");
+
+				var fWeek = rows[0].CL_DAYDIV - 1;
+
+				for(i=0; i<fWeek; i++) {
+					row.append($("<td></td>"));
+				}
+				for(i=0; i<rows.length; i++) {
+					var td = $("<td>" + rows[i].DAYNUM + "</td>");
+
+					if(rows[i].CL_SOLAR == currentDay) {
+						td.addClass('today');
+					}else if(rows[i].CL_SOLAR > currentDay) {
+						if(rows[i].BK_TEAM > 0) {
+							td.data('date', rows[i].CL_SOLAR);
+							td.addClass('possible');
+							td.on('click', function() {
+								onClickDayFooter($(this).data('date'));
+							});
+						} else {
+							td.addClass('impossible');
+						}
+					}
+
+					row.append(td);
+
+					if(rows[i].CL_DAYDIV == 7) {
+						row.appendTo(tBody);
+						row = $("<tr></tr>");
+					}
+				}
+
+				var addTd = 7 - row.children("td").length;
+
+				if(addTd != 7) {
+					for(i=0; i<addTd; i++) {
+						row.append($("<td></td>"));
+					}
+				}
+
+				row.appendTo(tBody);
+			} else {
+				tBody.append($("<tr><td colspan='7'></td></tr>"));
+				tBody.append($("<tr><td colspan='7'></td></tr>"));
+				tBody.append($("<tr><td colspan='7'></td></tr>"));
+				tBody.append($("<tr><td colspan='7'></td></tr>"));
+				tBody.append($("<tr><td colspan='7'></td></tr>"));
+				tBody.append($("<tr><td colspan='7'></td></tr>"));
+			}
+		} else {
+			alert(data.resultMessage);
+		}
+	});
+}
+
+function doNextMonthFooter() {
+	if(footerMonth == "12") {
+		footerYear += 1;
+		footerMonth = "01";
+	} else {
+		footerMonth = Number(footerMonth) + 1;
+		footerMonth = (footerMonth>9 ? '' : '0') + footerMonth;
+	}
+
+	initCalendarFooter("#monthBox", footerYear, footerMonth);
+}
+
+function doPrevMonthFooter() {
+	if(footerMonth == "01") {
+		footerYear -= 1;
+		footerMonth = "12";
+	} else {
+		footerMonth = Number(footerMonth) - 1;
+		footerMonth = (footerMonth>9 ? '' : '0') + footerMonth;
+	}
+
+	initCalendarFooter("#monthBox", footerYear, footerMonth);
+}
+
+function onClickDayFooter(date) {
+	$("#BK_DAY_FOOTER").val(date);
+	document.footer.submit();
+}
+
+</script>
+
+<!-- footer 영역 -->
+		<div id="footerWrap">
+			
+			<div class="footerBox">
+				<div class="terms">
+					<a href="/members/sitemap.asp">사이트맵</a><span> l </span>
+					<a href="/members/terms.asp" >인터넷 회원약관</a><span> l </span>
+					<a href="/members/policy.asp" style="font-weight: bold; color: #000;">개인정보처리방침</a><span> l </span>
+					<a href="/members/golfterms.asp">골프장 이용약관</a>				
+				</div>
+				<div class="snsBox">
+					<a href="https://pf.kakao.com/_VldkK" target="_blank"><img src="/images/sns03.jpg" alt="카카오"></a>
+					<a href="javascript:alert('준비중입니다');"><img src="/images/sns02.jpg" alt="페이스북"></a>
+					<a href="https://www.instagram.com/golfclub_q/" target="_blank"><img src="/images/sns01.jpg" alt="인스타"></a>
+					<a href="https://band.us/band/82917812" target="_blank"><img src="/images/sns05.jpg" alt="밴드"></a>
+					<a href="https://blog.naver.com/golfclub_q" target="_blank"><img src="/images/sns04.jpg" alt="블로그"></a>
+				</div>
+				<div class="main-weather" id="calendar_main" style="position: absolute; left: 70%;">
+					<div class="weather-view">
+								<img id="climate_0DayLater" hidden src="" width="45" alt="날씨:오늘">
+					</div>
+					<div class="weather-view">
+						<p class="weather-data1">오늘 (7/21)</p>
+						<p class="weather-data2">
+							<text id="temperature_0DayLater"></text>℃
+							<span><text id="climate_kor_0DayLater"></text></span>
+						</p>
+					</div>
+					<div class="weather-view">
+								<img id="climate_1DayLater" hidden src="" width="45" alt="날씨:내일">
+					</div>
+					<div class="weather-view">
+						<p class="weather-data1">내일(7/22)</p>
+						<p class="weather-data2">
+							<text id="temperature_1DayLater"></text>℃
+							<span><text id="climate_kor_1DayLater"></text>	</span>
+						</p>
+						<p class="weather-btnbox">
+							<a class="btn-yellow" href="https://www.weather.go.kr/w/weather/forecast/short-term.do#" target="_blank">이번주 날씨보기</a>
+						</p>
+					</div>
+					<div class="weather-view">
+								<img id="climate_2DayLater" hidden src=""	 width="45" alt="날씨:모레">
+					</div>
+					<div class="weather-view">
+						<p class="weather-data1">모레(7/23)</p>
+						<p class="weather-data2">
+							<text id="temperature_2DayLater"></text>℃
+							<span><text id="climate_kor_2DayLater"></text></span>
+						</p>
+					</div>
+				</div>
+				<p class="footer">
+					경기도 안성시 죽산면 장계길 20-229 (우)17522 전화문의 031)8046-7000 FAX 031)8046-7101 <br>
+					사업자등록번호 : 120-86-87945 &nbsp;통신판매업신고번호 : 제2023-경기안성-0095호 &nbsp;대표자 : 전성호 &nbsp;COPYRIGHT BY GOLF CLUB Q. ALL RIGHTS RESERVED. <br>
+					개인정보보호 관리담당자 : 대표자 전성호
+				</p>
+				<p id="topArrow" style="margin: auto; width: 50px; display: block;"><a href="#top"><span></span></a></p>
+			</div>
+		</div>
+		
+	<script>
+		function loadWeatherData() {
+			// v2025-12-03-03
+			var urlClimateImg = "/images/weather/{0}.png";
+			fetch('/controller/WeatherController.asp?method=getWeather')
+				.then(response => response.json())
+				.then(data => {
+					if (data && data.rows && Array.isArray(data.rows)) {
+						data.rows.forEach(row => {
+							const day = row.day;
+							const temperature = row.temperature;
+							const climateKor = row.climate_kor;
+							const climateEng = row.climate_eng;
+							const fall = row.fall;							
+														
+							if (day == 0) {
+								const tempElement = document.getElementById('temperature_0DayLater');		// <text id="temperature_0DayLater"></text>
+								const fallElement = document.getElementById('fall');								
+								const climateKorElement = document.getElementById('climate_kor_0DayLater');	// <text id="climate_kor_0DayLater"></text>	alt="날씨:오늘"
+								
+								if (tempElement) tempElement.textContent = temperature;
+								if (fallElement) fallElement.textContent = fall;								
+								if (climateKorElement) climateKorElement.textContent = climateKor;
+								
+								const climateImgElement = document.getElementById('climate_0DayLater');		// id="climate_0DayLater" hidden src=""							
+								if (climateImgElement && climateEng) {
+									climateImgElement.src = urlClimateImg.replace("{0}", climateEng);
+									climateImgElement.style.display = "block";
+								}
+							} else if (day == 1) {
+								const tempElement		= document.getElementById('temperature_1DayLater');	// <text id="temperature_1DayLater"></text>
+								const climateKorElement = document.getElementById('climate_kor_1DayLater');	// <text id="climate_kor_1DayLater"></text>	alt="날씨:오늘"								
+								if (tempElement) tempElement.textContent = temperature;								
+								if (climateKorElement) climateKorElement.textContent = climateKor;
+								
+								const climateImgElement = document.getElementById('climate_1DayLater');		// id="climate_1DayLater" hidden src=""							
+								if (climateImgElement && climateEng) {
+									climateImgElement.src = urlClimateImg.replace("{0}", climateEng);									
+									climateImgElement.style.display = "block";									
+								}
+							} else if (day == 2) {
+								const tempElement		= document.getElementById('temperature_2DayLater');	// <text id="temperature_2DayLater"></text>
+								const climateKorElement = document.getElementById('climate_kor_2DayLater');	// <text id="climate_kor_2DayLater"></text>	alt="날씨:오늘"								
+								if (tempElement) tempElement.textContent = temperature;	
+								if (climateKorElement) climateKorElement.textContent = climateKor;								
+								
+								const climateImgElement = document.getElementById('climate_2DayLater');		// id="climate_2DayLater" hidden src=""							
+								if (climateImgElement && climateEng) {
+									climateImgElement.src = urlClimateImg.replace("{0}", climateEng);
+									climateImgElement.style.display = "block";									
+								}
+							}
+						}); // data.rows.forEach(row => {
+					} // if (data && data.rows && Array.isArray(data.rows)) {
+				}) // .then(data => {
+				.catch(error => {
+					console.error('날씨 정보를 불러오는데 실패했습니다:', error);
+				});
+		}
+		document.addEventListener('DOMContentLoaded', loadWeatherData);
+	</script>		
+		
+		
+<form name="footer" method="post" action="/reservation/reservation.asp">
+<input type="hidden" id="BK_DAY_FOOTER" name="BK_DAY_FOOTER">
+</form>
+</div><!-- wrap End -->
+</body>
+</html>

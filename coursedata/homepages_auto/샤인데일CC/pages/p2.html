@@ -1,0 +1,833 @@
+
+<!DOCTYPE html>
+<html>
+<head><meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><meta name="description" content="강원도 홍천 샤인데일 샤인데일cc shinedale 퍼블릭 골프장" /><meta property="og:type" content="website" /><meta property="og:title" content="샤인데일cc" /><meta property="og:description" content="강원도 홍천 샤인데일 샤인데일cc shinedale 퍼블릭 골프장" /><meta property="og:image" content="http://www.shinedale.com/img/shinedale_img_005.jpg" /><meta property="og:url" content="http://www.shinedale.com" /><title>
+	샤인데일CC에 오신걸 환영합니다.
+</title><link rel="stylesheet" href="/css/common.css?v=1" /><link rel="stylesheet" href="/css/sub.css?v=1" /><link rel="shortcut icon" href="/img/favicon.ico" type="image/x-icon" /><link rel="icon" href="/img/favicon.ico" type="image/x-icon" />
+    <link rel="stylesheet" href="/css/course.css" />
+	<style>
+		.slideVisual span img{
+			width: 630px;
+			height: 350px;
+		    }
+	     </style>
+
+    <script src="/js/jquery-1.12.3.min.js"></script>
+    <script type="text/javascript" src="/js/slick.min.js"></script>
+    <script src="/js/cmmfun.js"></script>
+    <script type="text/javascript">
+		var url1 = window.location.toString();
+        var iLen = url1.length;
+        var s = url1.indexOf("/");
+        var sUrl1 = url1.substring(0, s - 1);
+        var sUrl2 = url1.substring(s + 2, iLen);
+        var e = sUrl2.indexOf("/");
+        var sDomain = sUrl1 + "//" + sUrl2.substring(0, e);
+
+        if (sUrl1 == "http") location.href = "https://www.shinedale.com";
+	
+        $(document).ready(function(){
+            /*nav*/
+            $("#header").mouseenter(function(){
+                $(this).addClass("over")
+            });
+            $(window).scroll(function () {
+                var sc = $(window).scrollTop()
+                if (sc > 150) {
+                    $("#header").addClass("over").mouseleave(function(){
+                        $(this).addClass("over")
+                    });
+                    $(".lnb li").addClass("bgColor");
+                } else {
+                    $("#header").removeClass("over").mouseenter(function(){
+                        $(this).addClass("over")
+                    }).mouseleave(function(){
+                        $(this).removeClass("over")
+                    });
+                    $(".lnb li").removeClass("bgColor");
+                }
+            });
+            $("#header").mouseleave(function(){
+                $(this).removeClass("over")
+            });
+
+            /*weather*/
+            $('.weather').hover(function () {
+                $(this).addClass("dropDown")
+            });
+            $('.weather').mouseleave(function () {
+                $(this).removeClass("dropDown")
+            });
+        });
+    </script>
+	<script type="application/ld+json">
+     {
+      "@context": "http://schema.org",
+      "@type": "Person",
+      "name": "샤인데일CC",
+      "url": "https://www.shinedale.com",
+      "sameAs": [
+        "https://www.instagram.com/shinedale_golf",
+        "https://post.naver.com/shinedale1111",
+        "https://post.naver.com/shinedale1111",
+        "https://pf.kakao.com/_xhxfzMd"
+      ]
+     }
+    </script>
+    
+     <script type="text/javascript">
+        $(document).ready(function () {
+            /*-- 코스맵 --*/
+            var focus = $('.courseList');
+            /*탭*/
+            var $wrapper = $('.popInner');
+            var $allTabs = $wrapper.find('.tabContent > div');
+            var $tabMenu = $wrapper.find('.holeTab li');
+
+            $(".courseList a").click(function () {
+                //alert($(this).find("p.cosTit").find("span").text());
+                $('.cosPopup').show();
+                $('html, body').animate({
+                    scrollTop: focus.offset().top - 50
+                }, 500);
+
+                var num = parseInt($(this).find("p.cosTit").find("span").text(), 10);
+                //alert(num);
+                selectCourse(num - 1);
+                //$tabMenu.trigger("click", [num - 1]);
+            });
+            $(".closedBtn").click(function () {
+                $('.cosPopup').hide();
+            });
+
+        
+            $allTabs.not(':first-of-type').hide();
+            $tabMenu.filter(':first-of-type').find(':first').width('100%');
+
+            $tabMenu.each(function (i) {
+                $(this).attr('data-tab', 'tab' + i);
+            });
+
+            $allTabs.each(function (i) {
+                $(this).attr('data-tab', 'tab' + i);
+            });
+
+            $tabMenu.on('click', function () {
+                var dataTab = $(this).data('tab');
+                var $getWrapper = $(this).closest($wrapper);
+                                
+                $getWrapper.find($tabMenu).removeClass('active');
+                $(this).addClass('active');
+                $getWrapper.find($allTabs).hide();
+                $getWrapper.find($allTabs).filter('[data-tab=' + dataTab + ']').show();
+
+                courseSlide(dataTab.substr(3, 1));
+            });
+
+            
+            /*-- END 코스맵 --*/
+        });
+
+        function selectCourse(index) {
+            var $wrapper = $('.popInner');
+            var $allTabs = $wrapper.find('.tabContent > div');
+            var $tabMenu = $wrapper.find('.holeTab li');
+            var dataTab = "tab" + index;
+            //var $getWrapper = $tabMenu.eq(index).closest($wrapper);
+
+            $wrapper.find($tabMenu).removeClass('active');
+            $tabMenu.eq(index).addClass('active');
+            $wrapper.find($allTabs).hide();
+            $wrapper.find($allTabs).filter('[data-tab=' + dataTab + ']').show();
+
+            courseSlide(index);
+        }
+
+        function courseSlide(index) {
+            /*main-noticeSlide*/
+            $('.slideVisual').eq(index).slick({
+                autoplay: true,
+                autoplaySpeed: 2500,
+                dots: true,
+                arrows: true,
+                infinite: true,
+                slidesToShow: 1,
+                pauseOnHover: true
+            });
+        }
+    </script>
+</head>
+<body>
+    <form method="post" action="./DaleCourse.aspx" id="aspnetForm">
+<div class="aspNetHidden">
+<input type="hidden" name="__VIEWSTATE" id="__VIEWSTATE" value="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" />
+</div>
+
+<div class="aspNetHidden">
+
+	<input type="hidden" name="__VIEWSTATEGENERATOR" id="__VIEWSTATEGENERATOR" value="4DA33411" />
+</div>
+        <!-- 상단메뉴 시작 -->
+        
+<div id="header">
+    <div class="topNavi">
+        <div class="wrap">
+            
+            <div id="ctl00_Top_ulLogin" class="utilInner">
+                <a href="/Member/JoinStep1.aspx">회원가입</a>
+                <a href="/Member/Login.aspx">로그인</a>
+                <a href="/Member/AskID.aspx">ID/PW찾기</a>
+            </div>  
+            <div class="utilTerms">
+              <a href="/Privacy/Privacy.aspx">개인정보처리방침</a>
+            </div>
+            
+            
+
+            
+
+        </div>
+    </div>
+    <div class="nav wrap">
+            <h1 class="logo">
+            <a href="/">LOGO</a>
+        </h1>
+        <ul class="lnb">
+            <li><a href="/Club/ClubInfo.aspx" class="depth1">샤인데일</a><div class="depth2"><a href="/Club/ClubInfo.aspx">샤인데일소개</a><a href="/Club/History.aspx">연혁</a><a href="/Club/Location.aspx">오시는길</a></div></li><li><a href="/Course/ShineCourse.aspx" class="depth1">코스소개</a><div class="depth2"><a href="/Course/ShineCourse.aspx">샤인코스</a><a href="/Course/DaleCourse.aspx">데일코스</a><a href="/Course/LakeCourse.aspx">레이크코스</a></div></li><li><a href="/Guide/UsingGuide.aspx" class="depth1">이용안내</a><div class="depth2"><a href="/Guide/Fees.aspx">요금안내</a><a href="/Guide/UsingGuide.aspx">이용안내</a><a href="/Guide/RservationGuide.aspx">예약안내</a><a href="/Guide/Contact.aspx">주요연락처</a></div></li><li><a href="/Facilities/ClubHouse.aspx" class="depth1">부대시설</a><div class="depth2"><a href="/Facilities/ClubHouse.aspx">클럽하우스</a><a href="/Facilities/Restaurant.aspx">레스토랑</a><a href="/Facilities/StartHouse.aspx">스타트하우스</a><a href="/Facilities/ShadeHouse.aspx">그늘집</a></div></li><li><a href="/Reservation/Reservation.aspx" class="depth1">온라인회원</a><div class="depth2"><a href="/Reservation/Reservation.aspx">예약하기</a><a href="/Reservation/ReservationList.aspx">예약현황</a><a href="/Board/JoinList.aspx?cfgid=join">조인및초대</a><a href="/Board/HonorList.aspx?cfgid=honor">명예의전당</a><a href="/Reservation/TeamInfo.aspx">연단체신청</a></div></li><li><a href="/Board/BoardList.aspx?cfgid=notice" class="depth1">커뮤니티</a><div class="depth2"><a href="/Board/EventList.aspx?cfgid=event">이벤트</a><a href="/Board/BoardList.aspx?cfgid=notice">공지사항</a><a href="/Board/BoardList.aspx?cfgid=investNotice">투자공지사항</a><a href="/Board/FAQList.aspx?cfgid=faq">FAQ</a><a href="/Board/BoardList.aspx?cfgid=pds">자료실</a></div></li>
+            <li>
+                <a href="/Reservation/Reservation.aspx" class="depth1 reservMenu">실시간예약<span class="calIcon"></span></a>
+            </li>
+        </ul>
+    </div>
+    <div class="endline"></div>
+</div>
+        <!-- 상단메뉴 끝 -->
+        <!-- 본문 시작 -->
+        
+    <div id="section">
+        <div class="subTop">
+            <div class="subVisual"><div class="subTit"><h2>데일코스</h2><p>Dale Course</p></div><div class="subBg subBg03"></div></div>
+            <ul class="subMenu"><li><a href="/Course/ShineCourse.aspx">샤인코스</a></li><li><a href="/Course/DaleCourse.aspx" class="menuOn">데일코스</a></li><li><a href="/Course/LakeCourse.aspx">레이크코스</a></li></ul>
+        </div>
+        <div class="contents">
+           <div class="wrap">
+               <div class="courseInfo">
+                   <h2 class="infoTit">DALE COURSE</h2>
+                   <div>
+                       <dl class="infoTxt">
+                          <dt>PAR</dt>
+                          <dd>36</dd> 
+                       </dl>
+                       <dl class="infoTxt">
+                          <dt>거리</dt>
+                          <dd>3,224</dd> 
+                       </dl>
+                   </div>
+                   <div class="mapImg">
+                       <img src="/img/course/daleCourse.png" alt="데일코스맵">
+                   </div>
+               </div>
+               <div class="courseList">
+                   <a href="#">
+                       <p class="cosTit"><span>1</span>Hole</p>
+                       <img src="../img/course/thumbnail/dale01.jpg" class="cosImg" alt="데일1번홀">
+                   </a>
+                   <a href="#">
+                       <p class="cosTit"><span>2</span>Hole</p>
+                       <img src="../img/course/thumbnail/dale02.jpg" class="cosImg" alt="데일2번홀">
+                   </a>
+                   <a href="#">
+                       <p class="cosTit"><span>3</span>Hole</p>
+                       <img src="../img/course/thumbnail/dale03.jpg" class="cosImg" alt="데일3번홀">
+                   </a>
+                   <a href="#">
+                       <p class="cosTit"><span>4</span>Hole</p>
+                       <img src="../img/course/thumbnail/dale04.jpg" class="cosImg" alt="데일4번홀">
+                   </a>
+                   <a href="#">
+                       <p class="cosTit"><span>5</span>Hole</p>
+                       <img src="../img/course/thumbnail/dale05.jpg" class="cosImg" alt="데일5번홀">
+                   </a>
+                   <a href="#">
+                       <p class="cosTit"><span>6</span>Hole</p>
+                       <img src="../img/course/thumbnail/dale06.jpg" class="cosImg" alt="데일6번홀">
+                   </a>
+                   <a href="#">
+                       <p class="cosTit"><span>7</span>Hole</p>
+                       <img src="../img/course/thumbnail/dale07.jpg" class="cosImg" alt="데일7번홀">
+                   </a>
+                   <a href="#">
+                       <p class="cosTit"><span>8</span>Hole</p>
+                       <img src="../img/course/thumbnail/dale08.jpg" class="cosImg" alt="데일8번홀">
+                   </a>
+                   <a href="#">
+                       <p class="cosTit"><span>9</span>Hole</p>
+                       <img src="../img/course/thumbnail/dale09.jpg" class="cosImg" alt="데일9번홀">
+                   </a>
+               </div>
+               <div class="endline"></div>
+           </div>
+        </div>
+        
+        <!-- 코스 레이어 팝업 -->
+        <div class="cosPopup">
+            <div class="popInner">
+                <div class="closedBtn"><span></span></div>
+                <ol class="holeTab">
+                    <li class="active">1H</li>
+                    <li>2H</li>
+                    <li>3H</li>
+                    <li>4H</li>
+                    <li>5H</li>
+                    <li>6H</li>
+                    <li>7H</li>
+                    <li>8H</li>
+                    <li>9H</li>
+                </ol>
+                <div class="endline"></div>
+                <div class="tabContent">
+                    <div>
+                        <span class="holeMap">
+                            <img src="../img/course/dale01.png" alt="데일코스1번홀">
+                        </span>
+                        <table class="cosTbl">
+                            <colgroup>
+                                <col width="20%">
+                                <col width="20%">
+                                <col width="20%">
+                                <col width="20%">
+                                <col width="20%">
+                            </colgroup>
+                            <tbody>
+                                <tr>
+                                    <th>471</th>
+                                    <th>445</th>
+                                    <th>412</th>
+                                    <th>385</th>
+                                    <th>363</th>
+                                </tr>
+                                <tr>
+                                    <td>Champion</td>
+                                    <td>Blue</td>
+                                    <td>White</td>
+                                    <td>Senior</td>
+                                    <td>Lady</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div class="holeCnt">
+                            <div class="slideVisual">
+							    <span><img src="../img/course/D1,9,CH_4.png" alt="데일코스1번홀"></span>
+								<span><img src="../img/course/dale01_1.png" alt="데일코스1번홀"></span>
+								<span><img src="../img/course/d1_12.png" alt="데일코스1번홀"></span>
+								<span><img src="../img/course/d1_0.png" alt="데일코스1번홀"></span>						
+								<!--
+								<span><img src="../img/course/d1_11.png" alt="데일코스1번홀"></span>
+								-->					    
+								<span><img src="../img/course/D1,9,CH_12.png" alt="데일코스1번홀"></span>
+								<span><img src="../img/course/D1,9,CH_18.png" alt="데일코스1번홀"></span>
+                            </div>
+                            <div class="cosInfo">
+                                <p class="cosTit"><span>1</span>Hole</p>
+                                <p class="par">Par5, 거리 471m</p>
+                                <dl class="infoInner">
+                                    <dt>Tip!</dt>
+                                    <dd>
+                                        <ol class="attack">
+                                            <li>티잉 그라운드에서 그린까지 좌측으로 휘어져 있어 티 박스에서 보이는 왼쪽 벙커 방향으로 180m 이상 넘겨야 한다.</li>
+                                            <li>세컨 샷에서는 그린까지 약간의 오르막이며, 100m 지점에서 가로 지르는 건천이 있으나 시각적 함정으로 만들어 놓았을 뿐, 그린 공략에는 전혀 지장이 없는 홀이다.</li>
+                                        </ol>
+                                    </dd>
+                                </dl>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="holeMap">
+                            <img src="../img/course/dale02.png" alt="데일코스2번홀">
+                        </span>
+                        <table class="cosTbl">
+                            <colgroup>
+                                <col width="20%">
+                                <col width="20%">
+                                <col width="20%">
+                                <col width="20%">
+                                <col width="20%">
+                            </colgroup>
+                            <tbody>
+                                <tr>
+                                    <th>393</th>
+                                    <th>379</th>
+                                    <th>355</th>
+                                    <th>334</th>
+                                    <th>306</th>
+                                </tr>
+                                <tr>
+                                    <td>Champion</td>
+                                    <td>Blue</td>
+                                    <td>White</td>
+                                    <td>Senior</td>
+                                    <td>Lady</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div class="holeCnt">
+                            <div class="slideVisual">
+                                 <span><img src="../img/course/dale02_1.png" alt="데일코스2번홀"></span>
+								<span><img src="../img/course/dale02_2.png" alt="데일코스2번홀"></span>
+								<span><img src="../img/course/d2_12.png" alt="데일코스2번홀"></span>
+								<span><img src="../img/course/d2_11.png" alt="데일코스2번홀"></span>
+                            </div>
+                            <div class="cosInfo">
+                                <p class="cosTit"><span>2</span>Hole</p>
+                                <p class="par">Par4, 거리 393m</p>
+                                <dl class="infoInner">
+                                    <dt>Tip!</dt>
+                                    <dd>
+                                        <ol class="attack">
+                                            <li>이 홀은 깊은 웅덩이 해저드와 숲이 우거진 우측 해저도의 슬라이스 홀이다.</li>
+                                            <li>티 박스 앞의 해저드는 페어웨이 좌측 벙커 방향으로 120m 이상 치면 무난히 넘길 수 있다.</li>
+                                            <li>세컨샷시 그린 뒤에 여유가 없고 80m 지점부터 우측에 큰 웅덩이 해저드가 있어 정교한 샷을 필요로 하는 홀이다.</li>
+                                        </ol>
+                                    </dd>
+                                </dl>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="holeMap">
+                            <img src="../img/course/dale03.png" alt="데일코스3번홀">
+                        </span>
+                        <table class="cosTbl">
+                            <colgroup>
+                                <col width="20%">
+                                <col width="20%">
+                                <col width="20%">
+                                <col width="20%">
+                                <col width="20%">
+                            </colgroup>
+                            <tbody>
+                                <tr>
+                                    <th>173</th>
+                                    <th>151</th>
+                                    <th>142</th>
+                                    <th>120</th>
+                                    <th>115</th>
+                                </tr>
+                                <tr>
+                                    <td>Champion</td>
+                                    <td>Blue</td>
+                                    <td>White</td>
+                                    <td>Senior</td>
+                                    <td>Lady</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div class="holeCnt">
+                            <div class="slideVisual">
+                                <span><img src="../img/course/dale03_2.png" alt="데일코스3번홀"></span>
+								<span><img src="../img/course/d3_11.png" alt="데일코스3번홀"></span>
+								<span><img src="../img/course/dale03_3.png" alt="데일코스3번홀"></span>
+                            </div>
+                            <div class="cosInfo">
+                                <p class="cosTit"><span>3</span>Hole</p>
+                                <p class="par">Par3, 거리 173m</p>
+                                <dl class="infoInner">
+                                    <dt>Tip!</dt>
+                                    <dd>
+                                        <ol class="attack">
+                                            <li>계곡을 가로지르는 해저드를 넘겨야한다.</li>
+                                            <li>그린 우측에는 벙커가 있어 그린 좌측 방향으로 공략해야 하며, 특히 앞 핀일 경우 그린 앞에 떨어지면 뒤로 내려오는 경우가 있어 정교한 샷을 요하는 홀이다.</li>
+                                        </ol>
+                                    </dd>
+                                </dl>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="holeMap">
+                            <img src="../img/course/dale04.png" alt="데일코스4번홀">
+                        </span>
+                        <table class="cosTbl">
+                            <colgroup>
+                                <col width="20%">
+                                <col width="20%">
+                                <col width="20%">
+                                <col width="20%">
+                                <col width="20%">
+                            </colgroup>
+                            <tbody>
+                                <tr>
+                                    <th>523</th>
+                                    <th>499</th>
+                                    <th>467</th>
+                                    <th>425</th>
+                                    <th>399</th>
+                                </tr>
+                                <tr>
+                                    <td>Champion</td>
+                                    <td>Blue</td>
+                                    <td>White</td>
+                                    <td>Senior</td>
+                                    <td>Lady</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div class="holeCnt">
+                            <div class="slideVisual">
+							     <span><img src="../img/course/D4_20_2.png" alt="데일코스4번홀"></span>
+								<span><img src="../img/course/d4_12.png" alt="데일코스4번홀"></span>
+								<span><img src="../img/course/d4_11.png" alt="데일코스4번홀"></span>
+								<!--
+								<span><img src="../img/course/dale04_1.png" alt="데일코스4번홀"></span>
+								-->
+								<span><img src="../img/course/d4_13.png" alt="데일코스4번홀"></span>
+								<!--
+								<span><img src="../img/course/dale04_2.png" alt="데일코스4번홀"></span>
+                        
+								<span><img src="../img/course/dale04_3.png" alt="데일코스4번홀"></span>
+								<span><img src="../img/course/dale04_4.png" alt="데일코스4번홀"></span>
+								<span><img src="../img/course/dale04_5.png" alt="데일코스4번홀"></span>
+								<span><img src="../img/course/dale04_6.png" alt="데일코스4번홀"></span>
+								-->
+                            </div>
+                            <div class="cosInfo">
+                                <p class="cosTit"><span>4</span>Hole</p>
+                                <p class="par">Par5, 거리 523m</p>
+                                <dl class="infoInner">
+                                    <dt>Tip!</dt>
+                                    <dd>
+                                        <ol class="attack">
+                                            <li>티잉 그라운드가 우측 장락산을 바라보고 있어 페어웨이 중앙 IP 깃대를 보고 샷을 해야 드로우가 걸려 페어웨이 중앙에 안착 할 수 있다. </li>
+                                            <li>세컨 샷 또한 그린 앞에 좌우로 가로지르는 해저드가 있어 180m~200m까지 끊어서 샷을 해야 그린까지 공략을 무난하게 할 수 있는 홀이다. </li>
+                                        </ol>
+                                    </dd>
+                                </dl>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="holeMap">
+                            <img src="../img/course/dale05.png" alt="데일코스5번홀">
+                        </span>
+                        <table class="cosTbl">
+                            <colgroup>
+                                <col width="20%">
+                                <col width="20%">
+                                <col width="20%">
+                                <col width="20%">
+                                <col width="20%">
+                            </colgroup>
+                            <tbody>
+                                <tr>
+                                    <th>400</th>
+                                    <th>377</th>
+                                    <th>360</th>
+                                    <th>306</th>
+                                    <th>279</th>
+                                </tr>
+                                <tr>
+                                    <td>Champion</td>
+                                    <td>Blue</td>
+                                    <td>White</td>
+                                    <td>Senior</td>
+                                    <td>Lady</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div class="holeCnt">
+                            <div class="slideVisual">
+							    <span><img src="../img/course/d5_13.png" alt="데일코스5번홀"></span>
+								<span><img src="../img/course/d5_12.png" alt="데일코스5번홀"></span>
+								<span><img src="../img/course/D5G_15.png" alt="데일코스5번홀"></span>
+								<!--
+								<span><img src="../img/course/dale05_1.png" alt="데일코스5번홀"></span>
+								<span><img src="../img/course/dale05_2.png" alt="데일코스5번홀"></span>
+								-->
+                            </div>
+                            <div class="cosInfo">
+                                <p class="cosTit"><span>5</span>Hole</p>
+                                <p class="par">Par4, 거리 400m</p>
+                                <dl class="infoInner">
+                                    <dt>Tip!</dt>
+                                    <dd>
+                                        <ol class="attack">
+                                            <li>오르막 우측 dog-leg 홀로 우측 여유가 많지 않는 홀이다.</li>
+                                            <li>티잉 그라운드에서 보이는 우측벙커는 200m이상 샷을 하면 넘길 수 있다. 우측의 나무와 러프의 공간이 없으므로 좌측 벙커를 보거나 벙커와 벙커사이 페어웨이 중앙을 보고 샷을 하면 공략이 쉬워진다.</li>
+                                            <li>세컨 지점부터는 그린 앞 좌측 벙커와 해저드를 조심해야 하는 홀이다.</li>
+                                        </ol>
+                                    </dd>
+                                </dl>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="holeMap">
+                            <img src="../img/course/dale06.png" alt="데일코스6번홀">
+                        </span>
+                        <table class="cosTbl">
+                            <colgroup>
+                                <col width="20%">
+                                <col width="20%">
+                                <col width="20%">
+                                <col width="20%">
+                                <col width="20%">
+                            </colgroup>
+                            <tbody>
+                                <tr>
+                                    <th>175</th>
+                                    <th>159</th>
+                                    <th>139</th>
+                                    <th>118</th>
+                                    <th>81</th>
+                                </tr>
+                                <tr>
+                                    <td>Champion</td>
+                                    <td>Blue</td>
+                                    <td>White</td>
+                                    <td>Senior</td>
+                                    <td>Lady</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div class="holeCnt">
+                            <div class="slideVisual">
+							     <span><img src="../img/course/dale06_03.png" alt="데일코스6번홀"></span>
+								<span><img src="../img/course/dale06_1.png" alt="데일코스6번홀"></span>
+								<span><img src="../img/course/d6_11.png" alt="데일코스6번홀"></span>
+								<span><img src="../img/course/dale06_2.png" alt="데일코스6번홀"></span>
+								<!--
+								<span><img src="../img/course/dale06_3.png" alt="데일코스6번홀"></span>
+								-->
+                            </div>
+                            <div class="cosInfo">
+                                <p class="cosTit"><span>6</span>Hole</p>
+                                <p class="par">Par3, 거리 175m</p>
+                                <dl class="infoInner">
+                                    <dt>Tip!</dt>
+                                    <dd>
+                                        <ol class="attack">
+                                            <li>데일 코스 시그니쳐 홀로 풍경이 가장 아름다운 PAR3 홀이다.</li>
+                                            <li>내리막 홀이라 거리는 짧지만 그린의 난이도가 높아 정교한 퍼팅을 필요로 하는 홀이다.</li>
+                                        </ol>
+                                    </dd>
+                                </dl>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="holeMap">
+                            <img src="../img/course/dale07.png" alt="데일코스7번홀">
+                        </span>
+                        <table class="cosTbl">
+                            <colgroup>
+                                <col width="20%">
+                                <col width="20%">
+                                <col width="20%">
+                                <col width="20%">
+                                <col width="20%">
+                            </colgroup>
+                            <tbody>
+                                <tr>
+                                    <th>328</th>
+                                    <th>314</th>
+                                    <th>282</th>
+                                    <th>275</th>
+                                    <th>208</th>
+                                </tr>
+                                <tr>
+                                    <td>Champion</td>
+                                    <td>Blue</td>
+                                    <td>White</td>
+                                    <td>Senior</td>
+                                    <td>Lady</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div class="holeCnt">
+                            <div class="slideVisual">
+                                <span><img src="../img/course/dale07_2.png" alt="데일코스7번홀"></span>
+								<!--
+								<span><img src="../img/course/dale07_4.png" alt="데일코스7번홀"></span>
+								-->
+								<span><img src="../img/course/d7_11.png" alt="데일코스7번홀"></span>
+								<span><img src="../img/course/dale07_5.png" alt="데일코스7번홀"></span>
+                            </div>
+                            <div class="cosInfo">
+                                <p class="cosTit"><span>7</span>Hole</p>
+                                <p class="par">Par4, 거리 328m</p>
+                                <dl class="infoInner">
+                                    <dt>Tip!</dt>
+                                    <dd>
+                                        <ol class="attack">
+                                            <li>우측 해저드로 인해 심리적으로 좌측으로 공략해야 하는 홀처럼 보이지만 세컨 지점에 좌측 벙커가 있어 중앙을 공략하는 것이 좋다.</li>
+                                            <li>그린이 중앙부터 내리막이기 때문에 그린 공략시 짧은 샷이 유리한 홀이다.</li>
+                                        </ol>
+                                    </dd>
+                                </dl>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="holeMap">
+                            <img src="../img/course/dale08.png" alt="데일코스8번홀">
+                        </span>
+                        <table class="cosTbl">
+                            <colgroup>
+                                <col width="20%">
+                                <col width="20%">
+                                <col width="20%">
+                                <col width="20%">
+                                <col width="20%">
+                            </colgroup>
+                            <tbody>
+                                <tr>
+                                    <th>351</th>
+                                    <th>330</th>
+                                    <th>307</th>
+                                    <th>284</th>
+                                    <th>226</th>
+                                </tr>
+                                <tr>
+                                    <td>Champion</td>
+                                    <td>Blue</td>
+                                    <td>White</td>
+                                    <td>Senior</td>
+                                    <td>Lady</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div class="holeCnt">
+                            <div class="slideVisual">
+							    <!--
+								<span><img src="../img/course/dale08_1.png" alt="데일코스8번홀"></span>
+								<span><img src="../img/course/dale08_2.png" alt="데일코스8번홀"></span>
+								-->
+								<span><img src="../img/course/D8G_21.png" alt="데일코스8번홀"></span>
+								<!--
+								<span><img src="../img/course/d8_11.png" alt="데일코스8번홀"></span>
+						
+								<span><img src="../img/course/d8_12.png" alt="데일코스8번홀"></span>
+								-->
+								<span><img src="../img/course/d8_13.png" alt="데일코스8번홀"></span>
+								<span><img src="../img/course/dale08_4.png" alt="데일코스8번홀"></span>
+								<span><img src="../img/course/d8_14.png" alt="데일코스8번홀"></span>
+								<!--
+								<span><img src="../img/course/dale08_5.png" alt="데일코스8번홀"></span>
+								-->
+                            </div>
+                            <div class="cosInfo">
+                                <p class="cosTit"><span>8</span>Hole</p>
+                                <p class="par">Par4, 거리 351m</p>
+                                <dl class="infoInner">
+                                    <dt>Tip!</dt>
+                                    <dd>
+                                        <ol class="attack">
+                                            <li>좌측 dog-leg 홀로써 좌측 해저드와 벙커를 넘기는 거리가 200m라 공격적으로 티 샷을 한다면 행복한 결과를 기대할 수 있는 홀이다. </li>
+                                        </ol>
+                                    </dd>
+                                </dl>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="holeMap">
+                            <img src="../img/course/dale09.png" alt="데일코스9번홀">
+                        </span>
+                        <table class="cosTbl">
+                            <colgroup>
+                                <col width="20%">
+                                <col width="20%">
+                                <col width="20%">
+                                <col width="20%">
+                                <col width="20%">
+                            </colgroup>
+                            <tbody>
+                                <tr>
+                                    <th>405</th>
+                                    <th>370</th>
+                                    <th>355</th>
+                                    <th>331</th>
+                                    <th>253</th>
+                                </tr>
+                                <tr>
+                                    <td>Champion</td>
+                                    <td>Blue</td>
+                                    <td>White</td>
+                                    <td>Senior</td>
+                                    <td>Lady</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div class="holeCnt">
+                            <div class="slideVisual">
+                                <!--
+								<span><img src="../img/course/dale09_1.png" alt="데일코스9번홀"></span>
+								-->
+								<span><img src="../img/course/d9_12.png" alt="데일코스9번홀"></span>
+								<span><img src="../img/course/D9,CH (2)_11.png" alt="데일코스9번홀"></span>
+								<span><img src="../img/course/D9,CH_13.png" alt="데일코스9번홀"></span>
+								<span><img src="../img/course/D9_3.png" alt="데일코스9번홀"></span>
+								<span><img src="../img/course/D9_11.png" alt="데일코스9번홀"></span>
+								<span><img src="../img/course/dale09_4.png" alt="데일코스9번홀"></span>
+								<span><img src="../img/course/dale09_5.png" alt="데일코스9번홀"></span>
+								
+                            </div>
+                            <div class="cosInfo">
+                                <p class="cosTit"><span>9</span>Hole</p>
+                                <p class="par">Par4, 거리 405m</p>
+                                <dl class="infoInner">
+                                    <dt>Tip!</dt>
+                                    <dd>
+                                        <ol class="attack">
+                                            <li>티잉 그라운드에서는 길고 드넓은 페어웨이를 연상하며 중앙으로 호쾌한 티샷을 구사할 수 있는 홀이다.</li>
+                                            <li>세컨 샷에서는 해저드를 넘겨야 짜릿함을 맛 볼 수 있는 홀이다.</li>
+                                            <li>그린에서는 정교함을 요하는 홀이다.</li>
+                                        </ol>
+                                    </dd>
+                                </dl>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- //코스 레이어 팝업 -->
+        
+    </div>
+
+	<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-110787823-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-110787823-1');
+</script>
+
+
+
+
+        <!-- 본문 시작 -->
+        <!-- 하단 시작 -->
+        
+<div id="footer">
+    <div class="footInner wrap">
+        <div class="footLink">
+            <a href="javascript:;" onclick="javascript:window.open('/Privacy/agreement01.html','personPop','resizable=yes, height=650, width=740 ,menubar=no,scrollbars=yes, resizable=no')">이용약관</a>
+            <a href="/Privacy/Privacy.aspx" class="point">개인정보처리방침</a>
+        </div>
+        <p class="footTxt">
+            주소 : 강원도 홍천군 서면 한서로 247-156 ㅣ 사무소 : 서울특별시 강남구 테헤란로 88길 17 (대치동) ㅣ 사업자등록번호 : 세안레져산업(주) 223-81-08109 ㅣ 통신판매업신고번호: 2019-강원홍천-0071 <br>
+            대표전화 : 033-430-1000 예약전화 : 033-432-7070 또는 033-432-1111 ㅣ 팩스 : 033-430-1019 ㅣ 개인정보보호책임자 : 조성돈 ㅣ shineweb@shinedale.com <br>
+	    대표이사: 이한상 | 코스관리 총괄: 조상철 |<br>
+            ©2015 Shinedale. ALL RIGHTS RESERVED
+        </p>
+        </div>
+</div>
+
+        <!-- 하단 끝 -->
+    </form>
+</body>
+</html>

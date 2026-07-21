@@ -1,0 +1,516 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=Edge">
+	<meta name="apple-mobile-web-app-capable" content="no" />
+	<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+	<meta name="format-detection" content="telephone=no,email=no,address=no">
+	<meta name="title" content="코브스윙">
+	<meta name="author" content="코브스윙">
+	<meta name="Keywords" content="코브스윙">
+	<meta name="description" content="코브스윙">
+	<meta name="copyright" content="All Contents COPYRIGHTⓒ coveswing.Gc. All RIGHTS RESERVED.">
+	<meta property="og:type" content="website">
+	<meta property="og:title" content="코브스윙">
+	<meta property="og:description" content="코브스윙">
+	<meta property="og:url" content="">
+    <meta property="og:image" content="/images/Kakao_img2.jpg">
+	<link rel="canonical" href="">
+	<title>코브스윙</title>
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+	<script src="/js/common.js?v=1.2"></script>
+	<script src="/js/tools.js"></script>
+	<script src="/js/jquery.preloaders.js"></script>
+	<script src="/js/globals.js"></script>
+	<script src="/js/jquery.subtle-slideshow.js"></script>
+	<script src="/js/cbpHorizontalMenu.js"></script>
+	<script src="https://cdn.jsdelivr.net/bxslider/4.2.12/jquery.bxslider.min.js"></script>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.8.2/css/all.min.css" />	
+	<link rel="stylesheet" type="text/css" href="/css/import.css?v=1.3">	
+	<link rel="stylesheet" type="text/css" href="/css/layout_new.css?v=2.8">
+	<link rel="icon" href="/images/favicon.ico">
+	<!--폰트-->
+	<link href="https://fonts.googleapis.com/css2?family=Babylonica&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Montaga&family=Noto+Sans+KR:wght@100..900&family=Noto+Serif+KR:wght@200..900&family=Noto+Serif:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">	
+
+	<link rel="stylesheet" type="text/css" href="/css/contents.css?v=2.6">
+
+	<script>		
+		$(document).ready(function() {
+			chkMobile();
+			setProtocol();
+		});
+
+		function setProtocol() {
+			if (document.location.protocol == 'http:') {
+				document.location.href = document.location.href.replace('http:', 'https:');
+			}
+		}
+
+		function doLogout() {
+			var sUrl = "/controller/MemberController.asp";
+			var params = {};
+
+			params["method"] = "doLogout";
+
+			mAjax(sUrl, params, "POST", true, function(data) {
+				if(data.resultCode == "0000") {
+					alert("로그아웃 되었습니다.");
+
+					location.href = "/index.asp";
+				}
+			});
+		}
+
+	  function chkMobile() {
+	    var mobileKeyWords = new Array('iPhone', 'iPod', 'iPad', 'BlackBerry', 'Android', 'Windows CE', 'MOT', 'SAMSUNG', 'SonyEricsson');
+	    for (var word in mobileKeyWords) {
+	    	if ( navigator.userAgent.match(mobileKeyWords[word]) != null ) {
+	    		location.href = "/mobile/index.asp";
+	    		break;
+	    	}
+	    }
+	  }
+
+	function onlyMainMenu(val){
+		if(val == "1") {
+			$("#onlySub").hide();
+		}else (
+			$("#onlySub").show()
+		)
+	}
+	</script>
+</head>
+	
+<body>
+	<div id="wrap">	
+		
+		<!--header-->
+		<div id="header">
+			
+
+			<!-- 서브 헤더 영역 -->
+			<h1 class="topLeft"><a href="/"><img src="/images/logo.svg" alt="logo"></a></h1>
+
+			<div class="top_menu">
+				<a href="/club/story.asp">COVE Swing</a>
+				<a href="/course/courseIntro.asp">코스소개</a>
+				<!--<a href="/facil/facil01.asp">시설물소개</a>-->
+				<a href="/reservation/reservation.asp">예약하기</a>
+				<a href="/guide/guide.asp">이용안내</a>
+				<!--<a href="/board/list.asp?type=1">커뮤니티</a>-->
+				<a href="/member/modify.asp">마이페이지</a>
+			</div>
+
+			<div class="topRight">
+				<a href="/reservation/reservation.asp"><img src="/images/top_icon1.png" alt="실시간예약"></a>
+				<a href="http://www.weather.go.kr/weather/forecast/timeseries.jsp?searchType=INTEREST&wideCode=4100000000&cityCode=4165000000&dongCode=4165052000" target="_blank"><img src="/images/top_icon2.png" alt="날씨"></a>
+
+				<a href="/join/login.asp"><img src="/images/top_icon3.png" alt="로그인"></a>				
+
+
+<!--
+				<button class="toggle-menu">
+					<span></span>
+				</button>	
+-->
+			</div>
+
+			
+
+			<!--hamberger전체메뉴-->
+			<div id="menu" class="">
+				<!--only main-->
+				<a href="" class="main-menu-close"><img src="/images/menu-close.svg"></a>
+				<a href="/" class="menu-top-logo"><img src="/images/main-color-logo.svg?v=2"></a>
+				
+				<div class="main-nav">
+<!--						<h1> charmvalley menu</h1>-->
+					<ul>
+						<li>
+<!--								<a href="/club/intro.asp" class="big">참밸리소개<span>INTRODUCE</span></a>-->
+							<a href="" class="only-main">COVE Swing</a>
+							<a href="/club/story.asp" class="small">COVE Swing 스토리</a>
+							<a href="/club/map.asp" class="small">오시는 길</a>
+							<a href="/club/facil.asp" class="small">부대시설</a>
+							<a href="/board/list.asp?type=1" class="small">공지사항</a>
+							<!--<a href="/club/ci.asp" class="small">CI소개</a>
+							<a href="/club/intro.asp" class="small">코브스윙 소개</a>-->
+						</li>
+						<li>
+<!--								<a href="/course/courseIntro.asp" class="big">코스소개<span>COURSE</span></a>-->
+							<a href="" class="only-main">코스 소개</a>
+							<a href="/course/courseIntro_new.asp" class="small">코스 개요</a>
+							<a href="/course/cove.asp" class="small">코스 공략도</a>
+							<!--<a href="/course/queens.asp" class="small">코브 코스 공략도</a>
+							<a href="/course/valley.asp" class="small">스윙 코스 공략도</a>
+							<a href="/board/list.asp?type=3" class="small">코스갤러리</a>-->
+						</li>
+						<!--<li>
+							<a href="" class="only-main">시설물소개</a>
+							<a href="/facil/facil01.asp" class="small">클럽하우스</a>
+							<a href="/facil/facil02.asp" class="small">레스토랑</a>
+							<a href="/facil/facil03.asp" class="small">프로샵</a>
+						</li>-->
+						<li>
+<!--								<a href="/reservation/reservation.asp" class="big">예약하기<span>RESERVATION</span></a>-->
+							<a href="" class="only-main">예약</a>
+							<a href="/reservation/reservation.asp" class="small">예약하기</a>
+							<a href="/reservation/reservation2.asp" class="small">예약확인/취소</a>
+							<a href="/reservation/group.asp" class="small">단체예약</a>
+						</li>
+						<li>
+<!--								<a href="/guide/guide.asp" class="big">이용안내<span>INFORMATION</span></a>-->
+							<a href="" class="only-main">이용안내</a>
+							<a href="/guide/local.asp" class="small">로컬룰</a>
+							<a href="/guide/penalty.asp" class="small">위약및퇴장</a>
+							<a href="/guide/fee.asp" class="small">이용요금</a>
+							<!--<a href="/guide/guide.asp" class="small">이용안내</a>-->
+						</li>
+						<!--<li>
+							<a href="/board/list.asp?type=1" class="big">커뮤니티<span>COMMUNITY</span></a>
+							<a href="" class="only-main">커뮤니티</a>
+							<a href="/board/list.asp?type=2" class="small">이벤트</a>
+							<a href="/board/list.asp?type=4" class="small">명예의전당</a>
+						</li>-->
+						<li>
+<!--								<a href="/member/score.asp" class="big">마이페이지<span>MYPAGE</span></a>-->
+							<a href="" class="only-main">마이페이지</a>
+							<a href="/join/join.asp" class="small">회원가입</a>
+							<a href="/member/modify.asp" class="small">정보수정</a>
+							<a href="/member/score.asp" class="small">스코어관리</a>
+							<a href="/member/enter.asp" class="small">내장 및 위약현황</a>
+						</li>
+					</ul>
+				</div>
+				<!--//hamberger전체메뉴-->
+			</div>
+		
+		
+	</div>
+
+<script>
+  $(document).ready(function() {
+    for(i=1; i<=9; i++) {
+      $("#course" + i).data("idx", i);
+      $("#course" + i).click(function() {
+        $("#con" + $(this).data("idx")).css("z-index","10")
+        $("#con" + $(this).data("idx")).animate({
+          opacity:1
+        }, 500);
+      });
+
+      $("#con" + i).data("idx", i);
+      $("#con" + i).click(function() {
+        $("#con" + $(this).data("idx")).animate({
+          opacity:0,
+          zIndex:0
+        }, 500);
+      });
+    }
+  });
+</script>
+	<!--Contents-->
+	<div id="contents">
+		<div class="contentWrap">
+			<div class="subTitle">
+				<h2>코스소개</h2>
+				<!-- <h1>COVESWING</h1> -->
+			</div>
+
+			<!--<div class="tabBox">
+				<a href="/course/courseIntro.asp" class="">
+					<h4>01.</h4>
+					<h2>코스소개</h2>
+					<h3>course</h3>
+				</a>
+				<a href="/course/queens.asp" class="on">
+					<h4>02.</h4>
+					<h2>코브 코스 공략도</h2>
+					<h3>queens</h3>
+				</a>
+				<a href="/course/valley.asp" class="">
+					<h4>03.</h4>
+					<h2>스윙 코스 공략도</h2>
+					<h3>valley</h3>
+				</a>
+  			<a href="/board/list.asp?type=3" class="">
+					<h4>04.</h4>
+					<h2>코스갤러리</h2>
+					<h3>gallery</h3>
+				</a>
+			</div> -->
+
+			<div class="courseWrap">
+				<h2 class="b_title">Cove Course</h2>
+<!--				<h4 class="s_title">코브 코스는 포천시내가 한눈에 보이는 탁 트인 환경에서 라운딩을 할 수 있습니다. </h4>-->
+
+				<div class="courseBox">
+					<div class="label">1H</div>
+					<h2>Par 4 / HDCP 14</h2>
+					<p><img src="/images/course/back/q01.jpg"></p>
+					<div class="courseInfo">
+						<ul>
+							<li><span class="blueP"></span>459yd (420m)</li>
+							<li><span class="whiteP"></span>410yd (376m)</li>
+							<li><span class="silverP"></span>374yd (342m)</li>
+							<li><span class="redP"></span>339yd (310m)</li>
+						</ul>
+					</div>
+
+					<div class="courseBtn" id="course1"> 코스공략안내</div>
+
+					<div class="courseOver" id="con1">
+						<div class="overBox">
+							<h1></h1>
+							<p>완만한 상향코스로 드라이버를 구사하는데 무리가 없는 넓은 페어웨이를 가졌으며 낙구지점은 비교적 평탄하고 그린까지는 완만한 오르막이다.
+							그린주변에 별다른 장애물이 없어 세컨샷에 지장은 없으나 그린 좌측보다는 우측으로 공략하는 것이 홀 OUT에 유리하다.
+							</p>
+						</div>
+					</div>
+				</div>
+
+				<div class="courseBox">
+					<div class="label">2H</div>
+					<h2>Par 4 / HDCP 4</h2>
+					<p><img src="/images/course/back/q02.jpg"></p>
+					<div class="courseInfo">
+						<ul>
+							<li><span class="blueP"></span>402yd (368m)</li>
+							<li><span class="whiteP"></span>369yd (337m)</li>
+							<li><span class="silverP"></span>339yd (310m)</li>
+							<li><span class="redP"></span>313yd (286m)</li>
+						</ul>
+					</div>
+
+					<div class="courseBtn" id="course2"> 코스공략안내</div>
+
+					<div class="courseOver" id="con2">
+						<div class="overBox">
+							<h1></h1>
+							<p>낙구지점까지는 하향홀이나 전면에 POND가 있어며 정확한 티샷을 요구하고 있다.가능하면 페어웨이 좌측방향으로 티샷을 하면 무난하다.
+							세컨샷은 비교적 짧은거리의 완만한 오르막으로 되어있으며 그린앞 벙커는 플레이에 방해요소가 적을것으로 보이며 그린의 중심을 겨냥하여 공략하는것이 최선의 전략이다.
+							</p>
+						</div>
+					</div>
+				</div>
+
+				<div class="courseBox">
+					<div class="label">3H</div>
+					<h2>Par 4 / HDCP 8</h2>
+					<p><img src="/images/course/back/q03.jpg"></p>
+					<div class="courseInfo">
+						<ul>
+							<li><span class="blueP"></span>442yd (404m)</li>
+							<li><span class="whiteP"></span>406yd (371m)</li>
+							<li><span class="silverP"></span>370yd (338m)</li>
+							<li><span class="redP"></span>340yd (311m)</li>
+						</ul>
+					</div>
+
+					<div class="courseBtn" id="course3"> 코스공략안내</div>
+
+					<div class="courseOver" id="con3" >
+						<div class="overBox">
+							<h1></h1>
+							<p>낙구지점까지는 비교적 평탄하나 IP지점은 좌측으로 경사져 있으며, 그 아래는 옹벽이므로 가능하면 우측을 겨냥하여 티샷을 하되 거리에 대한 욕심보다는 정확성이 필요하다.
+							그린까지는 경사는 완만한 오르막으로 그린 좌측앞에 벙커가 있으나 그린앞쪽 페어웨이가 넓어 세컨샷에 대한 부담은 없으나 2on에 실패할 경우 낙구지점에 따라 그린공략이 현저히 차이가 홀로서 홀아웃까지 신중한 전략이 필요한 홀이다.
+							</p>
+						</div>
+					</div>
+				</div>
+
+				<div class="courseBox">
+					<div class="label">4H</div>
+					<h2>Par 4 / HDCP 10</h2>
+					<p><img src="/images/course/back/q04.jpg"></p>
+					<div class="courseInfo">
+						<ul>
+							<li><span class="blueP"></span>360yd (329m)</li>
+							<li><span class="whiteP"></span>327yd (299m)</li>
+							<li><span class="silverP"></span>300yd (274m)</li>
+							<li><span class="redP"></span>270yd (247m)</li>
+						</ul>
+					</div>
+
+					<div class="courseBtn" id="course4"> 코스공략안내</div>
+
+					<div class="courseOver" id="con4" >
+						<div class="overBox">
+							<h1></h1>
+							<p>비교적 짧은 Par4 홀로서 티에서 I.P지점까지는 완만한 경사로 되어있으며 일부 낙구 시작점이 좁은감이 있어 티샷에 부담감을 느낄수 있으나 I.P주변 페어웨이가 넓어 홀 우측을 겨냥하면 좋은 결과가 예상되는 홀이다.
+							I.P 지점에서 그린의 높이가 10M 정도의 차이가 있어 경사도가 심하나 거리가 짧아 무난한 홀 OUT이 가능하다.
+							</p>
+						</div>
+					</div>
+				</div>
+
+				<div class="courseBox">
+					<div class="label">5H</div>
+					<h2>Par 3 / HDCP 16</h2>
+					<p><img src="/images/course/back/q05.jpg"></p>
+					<div class="courseInfo">
+						<ul>
+							<li><span class="blueP"></span>158yd (144m)</li>
+							<li><span class="whiteP"></span>139yd (127m)</li>
+							<li><span class="silverP"></span>139yd (127m)</li>
+							<li><span class="redP"></span>120yd (110m)</li>
+						</ul>
+					</div>
+
+					<div class="courseBtn" id="course5"> 코스공략안내</div>
+
+					<div class="courseOver" id="con5" >
+						<div class="overBox">
+							<h1></h1>
+							<p>전형적인 내리막 홀이며, 숲속에 독립되어 있어 풍광이 매우 뛰어난 홀이다. 4홀에서 교량을 건너오면 티앞에 그늘집이 있어 잠시 쉬어가는 홀이다.
+							비교적 짧은 Par3 홀로서 그린앞쪽에 POND 와 벙커가 있으나 장애요소가 크지않으며 평정심만 유지한다면 무난하게 홀을 마감할 수 있을 것이다.
+							</p>
+						</div>
+					</div>
+				</div>
+
+				<div class="courseBox">
+					<div class="label">6H</div>
+					<h2>Par 4 / HDCP 12</h2>
+					<p><img src="/images/course/back/q06.jpg"></p>
+					<div class="courseInfo">
+						<ul>
+							<li><span class="blueP"></span>387yd (354m)</li>
+							<li><span class="whiteP"></span>363yd (332m)</li>
+							<li><span class="silverP"></span>330yd (302m)</li>
+							<li><span class="redP"></span>293yd (268m)</li>
+						</ul>
+					</div>
+
+					<div class="courseBtn" id="course6"> 코스공략안내</div>
+
+					<div class="courseOver" id="con6" >
+						<div class="overBox">
+							<h1></h1>
+							<p>전체적으로 내리막홀이며 지형 여건을 고려하여 자연에 순응토록 설계된 홀이다. 전반적으로 페어웨이폭이 협소하고 낙구지점에 벙커가 있어 티샷에 있어 거리보다는 정확성이 요구되는 홀이다.
+							세컨샷은 경사가 심한 내리막임을 감안하여 가능하면 자신의 거리보다 짧게치는 것이 현명한 방법이 될 수 있으며 그린뒤쪽에 있는 벙커는 구제벙커 역할을 하지만 조금만 길게치는 바로 벙커에 빠질수 있음을 필히 숙지하여야 한다.
+							전반적으로 욕심을 부리지않으면 좋은 결과과 예상되는 홀이다.
+							</p>
+						</div>
+					</div>
+				</div>
+
+				<div class="courseBox">
+					<div class="label">7H</div>
+					<h2>Par 5 / HDCP 6</h2>
+					<p><img src="/images/course/back/q07.jpg"></p>
+					<div class="courseInfo">
+						<ul>
+							<li><span class="blueP"></span>507yd (464m)</li>
+							<li><span class="whiteP"></span>478yd (437m)</li>
+							<li><span class="silverP"></span>453yd (414m)</li>
+							<li><span class="redP"></span>394yd (360m)</li>
+						</ul>
+					</div>
+
+					<div class="courseBtn" id="course7"> 코스공략안내</div>
+
+					<div class="courseOver" id="con7" >
+						<div class="overBox">
+							<h1></h1>
+							<p>티에서 I.P지점까지는 평탄한 홀로서 낙구지점 우측에 벙커가 있으며 티샷은 가능하면 벙커를 피해서 좌측으로 공략하고 장타자는 벙커를 넘겨치면 다음샷에 좋은 기대를 할 수 있다.
+							세컨샷은 그린 조망이 잘되지 않는 좌측도그레그 오르막홀로서 짧은거리에 비해 직접 공략하기가 쉽지않는 홀이며 그린앞 우측벙커에 빠지면 탈출하기가 쉽지않으므로 짧게 끊어지는 것이 현명한 선택이다.
+							</p>
+						</div>
+					</div>
+				</div>
+
+				<div class="courseBox">
+					<div class="label">8H</div>
+					<h2>Par 3 / HDCP 18</h2>
+					<p><img src="/images/course/back/q08.jpg"></p>
+					<div class="courseInfo">
+						<ul>
+							<li><span class="blueP"></span>310yd (119m)</li>
+							<li><span class="whiteP"></span>114yd (104m)</li>
+							<li><span class="silverP"></span>114yd (104m)</li>
+							<li><span class="redP"></span>84yd (77m)</li>
+						</ul>
+					</div>
+
+					<div class="courseBtn" id="course8"> 코스공략안내</div>
+
+					<div class="courseOver" id="con8" >
+						<div class="overBox">
+							<h1></h1>
+							<p>거리가 짧은 심한 내리막 홀로서, 티에서 내려다보는 높이는 클럽선택이 신중함이 요구된다.
+							티와 그린사이에 일부수목이 장애요소로 작용할 수 있으며 그린좌측 및 뒤쪽은 석축을 축조하였으며 앞쪽벙커는 장애물로서의 역할을 뒤쪽벙커는 구제벙커로서의 역할을 하는 것으로 티샷은 가능하면 그린 우측으로 공략하는것이 바람직하다.
+							바람의 영향도 고려하여야 하며, 짧아도 지나쳐도 되지않는 중용의 도를 배울 수 있는 홀이다.
+							</p>
+						</div>
+					</div>
+				</div>
+
+				<div class="courseBox">
+					<div class="label">9H</div>
+					<h2>Par 5 / HDCP 2</h2>
+					<p><img src="/images/course/back/q09.jpg"></p>
+					<div class="courseInfo">
+						<ul>
+							<li><span class="blueP"></span>599yd (549m)</li>
+							<li><span class="whiteP"></span>565yd (518m)</li>
+							<li><span class="silverP"></span>520yd (476m)</li>
+							<li><span class="redP"></span>467yd (428m)</li>
+						</ul>
+					</div>
+
+					<div class="courseBtn" id="course9"> 코스공략안내</div>
+
+					<div class="courseOver" id="con9" >
+						<div class="overBox">
+							<h1></h1>
+							<p>티에서 클럽하우스와 주변의 아름다운 경관을 조망할수 있는 홀이나 까마득한 내리막 경사와 낙구지점 이전에 POND가 있어 긴장은 곧 실수로 이어질 수 밖에 없는 이중성을 가진 홀이다.
+							낙구지점 이전에 POND가 있어 긴장은 곧 실수로 이어질 수 밖에 없는 이중성을 가진 홀이다. 세컨샷 지점은 완만한 경사로 되어있으며 중간에 벙커가 설치되어 있으나 영향은 크지 않다.
+							그린 공략은 그린우측에 POND를 피해 좌측으로 공략하는 것이 좋으며 그린앞에 공을 떨어뜨린후 굴러서 그린에 올리는 것도 좋은 결과로 이어질 수 있는 전략이다. 떨어뜨린후 굴러서 그린에 올리는 것도 좋은 결과로 이어질 수 있는 전략이다.
+							</p>
+						</div>
+					</div>
+				</div>
+
+
+			</div>
+		</div>
+	</div>
+
+		<div id="footer">
+			<!-- <div class="bottomLine">
+				<div class="btTopWrap">
+					<ul>
+						<li><a href="http://hanoigolf.co.kr/" target="_blank"><img src="/images/blogo_1.png"></a></li>
+						<li><a href="http://yakam.co.kr/" target="_blank"><img src="/images/blogo_2.png"></a></li>
+						<li><a href="http://grandplazahanoi.net/" target="_blank"><img src="/images/blogo_3.png"></a></li>
+						<li><a href="javascript:void(0)"><img src="/images/blogo_4.png"></a></li>
+						<li><a href="javascript:void(0)"><img src="/images/blogo_5.png"></a></li>
+					</ul>
+				</div>
+			</div> -->
+			<div class="footerBox">
+				<h1></h1>
+				<div class="f_sns">
+<!--
+					<a href="#"><i class="fab fa-facebook-f"></i></a>
+					<a href="#"><i class="fab fa-twitter"></i></a>
+					<a href="#"><i class="fab fa-instagram"></i></a>
+-->
+				</div>
+				<div class="f_descript">
+					<div class="ftop">
+						<a href="/member/policy.asp">개인정보취급방침</a>
+						<span>|</span>
+						<a href="/member/terms.asp">이용약관</a>
+					</div>
+				경기 포천시 설운동 산38-17 | 대표번호 : 1899-6200 | 대표자 : 이한일 | 사업자등록번호 231-85-02083 | 이메일 : help@coveswing.com<br>
+Copyright © 2014 cove swing All rights reserved.	
+				</div>							
+			</div>
+		</div>
+	</div>
+</body>
+</html>

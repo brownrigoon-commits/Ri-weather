@@ -1,0 +1,814 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	<meta name="viewport" content="user-scalable=yes, initial-scale=0.3, maximum-scale=1.0, minimum-scale=0.1, width=device-width" />
+	<meta name="title" content="샴발라cc">
+	<meta name="author" content="샴발라cc">
+	<meta name="Keywords" content="샴발라cc, 샴발라컨트리클럽, ">
+	<meta name="description" content="샴발라cc, 샴발라컨트리클럽, ">
+	<meta name="copyright" content="All Contents Copyright©Estern">
+	<meta name="format-detection" content="telephone=no, address=no, email=no"/>
+	<meta property="og:type" content="mobile">
+	<meta property="og:title" content="샴발라cc, 샴발라컨트리클럽">
+	<meta property="og:description" content="샴발라cc, 샴발라컨트리클럽">
+	<meta property="og:url" content="">
+	<title>샴발라cc</title>
+	<link rel="stylesheet" type="text/css" href="/css/import.css">
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+	<script src="//code.jquery.com/jquery-3.3.1.min.js"></script>
+	<script type="text/javascript" src="/js/common.js"></script>
+	<script type="text/javascript" src="/js/jquery.preloaders.js"></script>
+	<script type="text/javascript" src="/js/tools.js"></script>
+	<script type="text/javascript" src="/js/globals.js"></script>
+
+	<link rel="stylesheet" type="text/css" href="css/main.css?v=2">
+	<link rel="stylesheet" type="text/css" href="css/animate.css">
+	<link rel="stylesheet" type="text/css" href="css/motion.css">
+
+	<!-- 메인 배경 줌아웃 zoomOut -->
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.6.0/slick.min.css" rel="stylesheet"/>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.6.0/slick.min.js"></script>
+	<script type="text/javascript">
+
+	var mYear, mMonth;
+    
+	$(document).ready(function() {
+//		checkMobile();
+		init();
+		getMainNotice();
+		getPopupList();
+		setProtocol();
+
+		$('.hero-slider').slick({
+			dots: true,
+			infinite: true,
+			speed: 3000,
+			dots: false,
+			arrows: false,
+			autoplay: true,
+			autoplaySpeed: 8000,
+			fade: true,
+			pauseOnHover: false,
+			pauseOnFocus: false
+		});
+		
+	});
+
+	function doLogout() {
+		var sUrl = "/controller/MemberController.asp";
+		var params = {};
+
+		params["method"] = "doLogout";
+
+		mAjax(sUrl, params, "POST", false, function(data) {
+			if(data.resultCode == "0000") {
+				alert("로그아웃 되었습니다.");
+
+				location.href = "/index.asp";
+			}
+		});
+	}
+/*
+	function checkMobile() {
+		var mobileKeyWords = new Array('iPhone', 'iPod', 'iPad', 'BlackBerry', 'Android', 'Windows CE', 'MOT', 'SAMSUNG', 'SonyEricsson');
+
+		for (var word in mobileKeyWords) {
+			if ( navigator.userAgent.match(mobileKeyWords[word]) != null ) {
+				location.href = "/mobile/index.asp";
+				break;
+			}
+		}
+	}
+*/
+	function setProtocol() {
+		if (document.location.protocol == 'http:') {
+			document.location.href = document.location.href.replace('http:', 'https:');
+		}
+	}
+
+	function init() {
+		var date = new Date();
+		mYear = date.yyyy();
+		mMonth = date.mm();
+
+		$("#BK_DAY").val(date.yyyymmdd());
+
+		$("#show_hide").html(String.format("{0}년 {1}월 {2}일 ({3})", date.yyyy(), date.mm(), date.dd(), date.week()));
+
+		initCalendar();
+
+		var $layer = $(".divSelectText");
+		var $current = $(".selectboxUl");
+		var $curli = $(".selectboxUl li");
+
+		$layer.on('click',function(){
+			$current.slideToggle("fast");
+		});
+
+		if($current){
+			if(!$curli.hasClass("selected")) $curli.first().addClass("selected");
+
+			$curli.click(function(e){
+				$("#BK_COS").val($(this).data("cos"));
+
+				$('.divSelectText').text($(this).text());
+
+				$(e.currentTarget).addClass("selected").siblings().removeClass("selected");
+
+				$current.hide();
+			});
+		}
+	}
+
+	function initCalendar() {
+		var sUrl = "/controller/ReservationController.asp";
+		var params = {};
+
+		params["method"] = "getCalendar";
+		params["coDiv"] = globals.coDiv;
+		params["selYm"] = mYear + mMonth;
+
+		mAjax(sUrl, params, "POST", false, function(data) {
+			if(data.resultCode == "0000") {
+				$("#calHeader").html(mMonth + "월");
+
+				var currentDay = new Date().yyyymmdd();
+				var tBody = $("#calendar-body");
+				tBody.empty();
+
+				var rows = data.rows;
+
+				if(rows.length > 0) {
+					var row = $("<tr></tr>");
+
+					var fWeek = rows[0].CL_DAYDIV - 1;
+
+					for(i=0; i<fWeek; i++) {
+						row.append($("<td><div></div></td>"));
+					}
+					for(i=0; i<rows.length; i++) {
+						var td = $("<td><div>" + rows[i].DAYNUM + "</div></td>");
+
+						if(rows[i].CL_SOLAR == currentDay) {
+							var td = $("<td><span></span>" + rows[i].DAYNUM + "</td>");
+							td.addClass('today');
+							td.on('click', function() {
+								onClickDay($(this).data('date'));
+							});
+						}else if(rows[i].CL_SOLAR > currentDay) {
+							if(rows[i].BK_TEAM > 0) {
+//								var td = $("<td>" + rows[i].DAYNUM + "<span>" + rows[i].BK_TEAM + "</span></td>");
+								var td = $("<td>" + rows[i].DAYNUM + "</td>");
+								td.data('date', rows[i].CL_SOLAR);
+								td.addClass('possible');
+								td.on('click', function() {
+									onClickDay($(this).data('date'));
+								});
+							} else {
+								td.addClass('impossible');
+							}
+						}
+
+						row.append(td);
+
+						if(rows[i].CL_DAYDIV == 7) {
+							row.appendTo(tBody);
+							row = $("<tr></tr>");
+						}
+					}
+
+					row.appendTo(tBody);
+				} else {
+					tBody.append($("<tr><td colspan='7'></td></tr>"));
+					tBody.append($("<tr><td colspan='7'></td></tr>"));
+					tBody.append($("<tr><td colspan='7'></td></tr>"));
+					tBody.append($("<tr><td colspan='7'></td></tr>"));
+					tBody.append($("<tr><td colspan='7'></td></tr>"));
+					tBody.append($("<tr><td colspan='7'></td></tr>"));
+				}
+			} else {
+				alert(data.resultMessage);
+			}
+		});
+	}
+
+	function doNextMonth() {
+		if(mMonth == "12") {
+			mYear += 1;
+			mMonth = "01";
+		} else {
+			mMonth = Number(mMonth) + 1;
+			mMonth = (mMonth>9 ? '' : '0') + mMonth;
+		}
+
+		initCalendar();
+	}
+
+	function doPrevMonth() {
+		if(mMonth == "01") {
+			mYear -= 1;
+			mMonth = "12";
+		} else {
+			mMonth = Number(mMonth) - 1;
+			mMonth = (mMonth>9 ? '' : '0') + mMonth;
+		}
+
+		initCalendar();
+	}
+
+	function getMainNotice() {
+		var sUrl = "/controller/BoardController.asp";
+		var params = {};
+
+		params["method"] = "getBoardList";
+
+		params["coDiv"]    = globals.coDiv;
+		params["type"]     = "1";
+		params["startCnt"] = 0;
+		params["pageCnt"]  = 1;
+
+		mAjax(sUrl, params, "POST", false, function(data) {
+			if(data.resultCode == "0000") {
+
+				var rows = data.rows;
+
+				if (rows.length == 0) {
+
+					var notice = ""
+				    notice += " <li class='title'><a href='#'>'등록된 공지사항이 없습니다.'</a></li>	 <li class='date'></li>	";
+
+				    $("#mainNotice").empty().append(notice);
+					return;
+				}
+
+			    for(i=0; i<rows.length; i++) {
+
+					var link = "/board/view.asp?type=1&idx=" + rows[i].IDX + "&seq=" + rows[i].SEQ;
+					var title = rows[i].TITLE;
+					var inputDate = rows[i].INPUT_DATETIME;
+
+					var notice = ""
+				    notice += " <li class='title'><a href='{0}'>{1}</a></li>	 <li class='date'>{2}</li>	";
+
+				    notice = String.format(notice, link, title, inputDate);
+
+			    }
+				$("#mainNotice").empty().append(notice);
+			} else {
+				alert(data.resultMessage);
+			}
+		});
+	}
+	
+	function getPopupList() {
+		var sUrl = "/controller/BoardController.asp";
+		var params = {};
+
+		params["method"] = "getBoardList";
+
+		params["coDiv"]    = globals.coDiv;
+		params["type"]     = "6";
+		params["seq"]     = "1";
+		params["startCnt"] = 0;
+		params["pageCnt"]  = 10;
+
+		mAjax(sUrl, params, "POST", false, function(data) {
+			if(data.resultCode == "0000") {
+				var rows = data.rows;
+
+		  for(i=0; i<rows.length; i++) {
+			var popId = "popContainer" + rows[i].IDX;
+			var content =rows[i].CONTENT;
+			var loc = rows[i].POSI.split("|");
+			var top  = loc[0];
+			var left = loc[1];
+			var link = rows[i].LINK;
+			var popSeq = 999;
+			var file = rows[i].FILE_PATH1 + "/" + rows[i].FILE_NAME1;
+			if (link == "") {
+				link = "#";
+			}
+
+			var aac = rows[i].TITLE;
+
+			if(getCookie(popId) != "Y") {
+			  var pop = "";
+			  pop += " <div id='{0}'  style='top:{1}px; left: {2}px; z-index: {3}; position: absolute;'>				  "
+			  pop += " 		<div class='main_popup' style=' width: 100%;  display: block;'>																  "
+			  if (rows[i].FILE_PATH1 !="")  {
+			  pop += "			<h1>																			  "
+			  pop += "				<a href='{4}'>																  "
+			  pop += "					<img src='{5}' style=' width: 100%;' >															  "
+			  pop += "				</a>																		  "
+			  pop += "			</h1>																			  "
+			  }else{
+			  pop += content
+			  }
+			  pop += "			<div class='popup_bottom' >                                                          				  "
+			  pop += "				<a class='popToday' href='javascript:closePopup(\"{0}\", 1)'>오늘하루 그만보기</a>    				   "
+			  pop += "				<a class='popClose' href='javascript:closeMainPopup(\"{0}\")';'>닫기</a>                				  "
+			  pop += "			</div>																				  "
+			  pop += " 		</div>																				  "		
+			  pop += " </div>																				  "
+
+			  pop = String.format(pop, popId, top, left, popSeq, link, file);
+
+			  $("#main_popup").append(pop);
+
+			  $("#" + popId).show('fade');
+			}
+		  }
+			} else {
+				alert(data.resultMessage);
+			}
+		});
+	}
+
+	function closePopup(id, day) {
+		$("#" + id).hide('fade');
+
+		if(day > 0) {
+			setCookie(id, "Y", day);
+		}
+	}
+	function closeMainPopup(id){
+		$("#" + id).hide('fade');
+	}
+
+	function onClickDay(sDate) {
+		$(".monthBox").slideToggle();
+
+		$("#BK_DAY").val(sDate);
+
+		var date = getDateFormat(sDate);
+
+		$("#show_hide").html(String.format("{0}년 {1}월 {2}일 ({3})", date.yyyy(), date.mm(), date.dd(), date.week()));
+        
+        $("#resv_info").submit();
+    }
+
+
+</script>
+
+</head>
+
+<body>
+    <!--  -->
+    <form action="/reservation/reservation.asp" id="resv_info" method="POST">
+        <input type="hidden" id="BK_DAY" name="BK_DAY" />
+    </form>
+<!-- s: 팝업 -->
+
+<div id="main_popup">
+</div>
+
+
+<!--새해인사-->
+ <!-- <div id="main_popup3" class="main_popup" style=" position: absolute; z-index: 99; top: 120px; left:50%; transform: translateX(-50%);">
+	<img src="/images/250409sb.png" alt="예약안내" border="0">
+	<div class="popup_bottom">
+        <a class="popClose" href="javascript:closeMainPopup('main_popup3')">닫기</a>
+	</div>
+</div>  -->
+<!-- e: 팝업 -->
+
+<div class="siteAll"><div class="toggleMenu"><span class=""></span></div></div>
+
+	<div id="wrap">
+<!--
+		<div class="hero-slider ">
+            <div class="columns">
+				<div class="hero-image" ><img src="/images/mainBg000.jpg" alt="이미지01"></div>
+			</div>
+            <div class="columns">
+				<div class="hero-image" ><img src="/images/mainBg001.jpg" alt="이미지02"></div>
+			</div>
+            <div class="columns">
+				<div class="hero-image" ><img src="/images/mainBg002.jpg" alt="이미지03"></div>
+			</div>
+            <div class="columns">
+				<div class="hero-image" ><img src="/images/mainBg003.jpg" alt="이미지04"></div>
+			</div>
+		</div>
+-->
+        <div class="video-wrap">
+            <video muted autoplay loop>
+              <source src="/images/media/main_video2.mp4" type="video/mp4" />
+            </video>
+        </div>
+
+		<div id="mainWrap">
+			<div class="mainHeader">
+					<div class="gnbBox">
+						<div class="gnbList" id="mainGnb">
+							<li><a href="/club/intro.asp">클럽소개</a></li>
+							<li><a href="/reservation/reservation.asp">예약</a></li>
+							<li><a href="/course/m1.asp">코스</a></li>
+							<li class="logoBox">
+								<a href="../index.asp"><img src="../images/logo_tw.png" alt="샴발라cc 로고"></a>
+							</li>
+							<li><a href="/facility/facility02.asp">부대시설</a></li>
+							<li><a href="/guide/charge.asp">이용안내</a></li>
+							<li><a href="/board/list.asp?type=1">고객센터</a></li>
+						</div>
+					</div>
+
+<!-- 24.07.31시점 주석
+					<a href="/member/join01.asp" class="topBtn login">
+						<img src="../images/topIcon01.png" alt="로그인"> 
+					</a>
+
+					<div class="topBtn weather">
+						<img src="../images/topIcon02.png" alt="날씨"> 
+					</div>
+-->
+					
+					
+				<!--메뉴-->
+				<div id="scrollmenuwrap">
+	<div id="scrollmenu">
+		<div class="menuBox">
+			<div class="menu">
+				<ul class="subMenu ul1">
+					<li><a href="/club/intro.asp">클럽소개</a></li>
+					<li><a href="/club/greeting.asp">인사말</a></li>
+					<li><a href="/club/geo.asp">GEO인증<br>
+						친환경골프장</a></li>
+					<li><a href="/club/ci.asp">CI소개</a></li>
+					<li><a href="/club/location.asp">오시는길</a></li>
+				</ul>
+			</div>
+			<div class="menu">
+				<ul class="subMenu ul2">
+					<li><a href="/reservation/reservation.asp">실시간예약</a></li>
+					<li><a href="/reservation/breakCont.asp">위약내역및규정</a></li>
+					<li><a href="/reservation/reserCheck.asp">예약확인/취소</a></li>
+					<!--<li class=""><a href="https://www.teeupnjoy.com/hp/clubid/540.do" target="_blank">실시간조인</a></li>-->
+					<!-- <li class=""><a href="/board/list.asp?type=5">조인게시판</a></li> -->
+					<!--<li><a href="/etc/card.asp">선불카드</a></li>-->
+					<!--<li><a href="/etc/teamJoin.asp">연단체신청서</a></li>-->
+				</ul>
+			</div>			
+			<div class="menu">
+				<ul class="subMenu ul3">
+					<!-- <li><a href="/course/courseIntro.asp">코스소개</a></li> -->
+					<li><a href="/course/m1.asp">코스공략</a></li>
+				</ul>
+			</div>
+			<div class="menu">
+				<ul class="subMenu ul4">
+					<li><a href="/facility/facility01.asp">클럽하우스</a></li>
+					<li><a href="/facility/facility02.asp">레스토랑</a></li>
+					<li><a href="/facility/facility03.asp">샴페인바</a></li>
+				</ul>
+			</div>
+			<div class="menu">
+				<ul class="subMenu ul5">
+					<li><a href="/guide/charge.asp">이용요금</a></li>
+					<li><a href="/guide/guide.asp">이용안내</a></li>
+					<li><a href="/member/terms.asp">골프장이용약관</a></li>
+					<li><a href="/member/memTerms.asp">이용약관</a></li>
+					<li><a href="/member/policy.asp">개인정보처리방침</a></li>
+				</ul>
+			</div>
+			<div class="menu">
+				<ul class="subMenu ul6">
+					<li><a href="/board/list.asp?type=1">공지사항</a></li>
+					<!--<li><a href="/board/list.asp?type=2">명예의전당</a></li>-->
+					<li><a href="/board/list.asp?type=3">고객의소리</a></li>
+					<!--<li><a href="/board/list.asp?type=4">포토갤러리</a></li>-->
+					<li><a href="http://www.weather.go.kr/weather/forecast/timeseries.jsp?searchType=SETINFO&setinfoCode=4155033000" target="_blank">날씨정보</a></li>
+					<li><a href="/club/call.asp">부서별 연락처</a></li>
+					<li><a href="/member/modify.asp">회원정보수정</a></li>
+					<li><a href="/board/membership.asp">통합 멤버십 분양</a></li>
+				</ul>
+			</div>
+		</div>
+	</div>
+</div>
+<div id="menu">
+	<div class="main-nav">
+		<img src="/images/logo.png" alt="로고" class="hambergerLogo">
+		<ul class="menuTitleBox">
+			<li><a href="/club/intro.asp" class="title">클럽소개</a></li>
+			<li><a href="/club/intro.asp">클럽소개</a></li>
+			<li><a href="/club/greeting.asp">인사말</a></li>
+			<li><a href="/club/geo.asp" style="letter-spacing:-3px;">GEO인증 친환경골프장</a></li>
+			<li><a href="/club/ci.asp">CI소개</a></li>
+			<li><a href="/club/location.asp">오시는길</a></li>
+		</ul>
+		<ul class="menuTitleBox">
+			<li><a href="/reservation/reservation.asp" class="title">예약</a></li>
+			<li><a href="/reservation/reservation.asp">실시간예약</a></li>
+			<li><a href="/reservation/breakCont.asp">위약내역및규정</a></li>
+			<li><a href="/reservation/reserCheck.asp">예약확인/취소</a></li>
+			<!--<li class=""><a href="https://www.teeupnjoy.com/hp/clubid/540.do" target="_blank">실시간조인</a></li>-->
+			<!-- <li class=""><a href="/board/list.asp?type=5">조인게시판</a></li> -->
+			<!--<li><a href="/etc/card.asp">선불카드</a></li>-->
+			<!--<li><a href="/etc/teamJoin.asp">연단체신청서</a></li>-->
+		</ul>
+		<ul class="menuTitleBox">
+			<li><a href="/course/m1.asp" class="title">코스</a></li>
+			<!-- <li><a href="/course/courseIntro.asp">코스소개</a></li> -->
+			<li><a href="/course/m1.asp">코스공략</a></li>
+		</ul>
+		<ul class="menuTitleBox">
+			<li><a href="/facility/facility01.asp" class="title">부대시설</a></li>
+			<li><a href="/facility/facility01.asp">클럽하우스</a></li>
+			<li><a href="/facility/facility02.asp">레스토랑</a></li>
+			<li><a href="/facility/facility03.asp">샴페인바</a></li>
+		</ul>
+		<ul class="menuTitleBox">
+			<li><a href="/guide/charge.asp" class="title">이용요금</a></li>
+			<li><a href="/guide/charge.asp">이용요금</a></li>
+			<li><a href="/guide/guide.asp">이용안내</a></li>
+			<li><a href="/member/terms.asp">골프장이용약관</a></li>
+			<li><a href="/member/memTerms.asp">이용약관</a></li>
+			<li><a href="/member/policy.asp">개인정보처리방침</a></li>
+		</ul>
+		<ul class="menuTitleBox">
+			<li><a href="/board/list.asp?type=1" class="title">고객센터</a></li>
+			<li><a href="/board/list.asp?type=1">공지사항</a></li>
+			<li><a href="/board/list.asp?type=3">고객의소리</a></li>
+			<li><a href="http://www.weather.go.kr/weather/forecast/timeseries.jsp?searchType=SETINFO&setinfoCode=4155033000" target="_blank">날씨정보</a></li>
+			<li><a href="/club/call.asp">주요연락처</a></li>
+			<li><a href="/member/modify.asp">회원정보수정</a></li>
+			
+		</ul>
+	</div>
+</div>
+
+			</div>
+
+			<!-- <div class="mainTxtBox text-focus-in">
+				<img src="images/main/mainTxt2.png" alt="" class="mainTxt"><br>
+			</div> -->
+
+			<div class="mainCalendar">
+				<h2>RESERVATION</h2>
+
+				<h3>실시간예약</h3>
+				<div class="mainCalendarBox" id="calendarBox">
+					<div class="monthTit">
+						<span onclick="doPrevMonth()">◀</span>
+						<h3 id="calHeader"></h3>
+						<span onclick="doNextMonth()">▶</span>
+					</div>
+					<table class="mCalendar">
+						<colgroup>
+							<col width="13%">
+							<col width="13%">
+							<col width="13%">
+							<col width="13%">
+							<col width="13%">
+							<col width="13%">
+							<col width="13%">
+						</colgroup>
+	
+						<thead>
+							<tr>
+								<th scope="col">SUN</th>
+								<th scope="col">MON</th>
+								<th scope="col">TUE</th>
+								<th scope="col">WEN</th>
+								<th scope="col">THU</th>
+								<th scope="col">FRI</th>
+								<th scope="col">SAT</th>
+							</tr>
+						</thead>
+	
+						<tbody id="calendar-body">
+						</tbody>
+					</table>
+				</div>
+			</div>
+
+		</div><!-- mainWrap End -->
+
+
+
+		<div class="mainSecondCont">
+			<div class="mainContentsBox">
+				<div class="slideBox">
+					<script src="https://cdn.jsdelivr.net/bxslider/4.2.12/jquery.bxslider.min.js"></script>
+					<div class="bx-wrapper2">
+							<ul class="slider2">
+								<li><a href="/facility/facility01.asp"><img src="/images/main/230810sbw.jpg" title="신규 클럽하우스"></a></li>
+								<!--<li><a href="/board/view.asp?type=1&idx=167&seq=1"><img src="/images/main/240416sbl_bn_2.jpg" title="샴페인증정프로모션"></a></li>-->
+                                <li><a href="/club/geo.asp"><img src="/images/main/240404sbl_bn.jpg" title="GEO인증"></a></li>
+                                <li><a href="/board/view.asp?type=1&idx=198&seq=1"><img src="/images/main/241218_sbl_bn.jpg" title="생일+레이디스이벤트"></a></li>
+                                <!--<li><a href="/board/view.asp?type=1&idx=202&seq=1"><img src="/images/main/240717sbl_bn.jpg" title="하계그린피이벤트"></a></li>-->
+<!--
+                                <li><a href="/board/view.asp?type=1&idx=133&seq=1"><img src="/images/main/240513_생일이벤트_bn.jpg" title="생일이벤트"></a></li>
+								<li><a href="/board/view.asp?type=1&idx=168&seq=1"><img src="/images/main/240408_레이디스_bn.jpg" title="레이디스 이벤트"></a></li>
+-->
+
+								<!--	
+								<li><a href="/board/view.asp?type=1&idx=112&seq=1"><img src="/images/main/230103sbw.jpg" title="연단체3차모집"></a></li>
+								<li><a href="/board/view.asp?type=1&idx=3&seq=1"><img src="/images/main/210609-1.jpg" title="인터넷회원모집"></a></li>
+								<li><a href="/board/view.asp?type=1&idx=56&seq=1"><img src="/images/210615_bn.jpg" title="단체팀안내"></a></li>
+								<li><a href="/board/view.asp?type=1&idx=34&seq=1"><img src="/images/main/210609-3.jpg" title="연부킹단체"></a></li> 연말에 씀
+								<li><a href="/board/view.asp?type=1&idx=39&seq=1"><img src="/images/main/210609-4.jpg" title="4인플레이"></a></li>
+								-->
+
+							</ul>
+							<script>
+								$('.slider2').bxSlider({
+									mode:'fade',
+									speed : 300,
+									pause : 6000,
+									auto: true,
+									controls: false,
+									pager:true,
+									touchEnabled:false
+								});
+							</script>
+					</div>
+				</div>
+
+				<div class="mainLinkBox">
+					<ul class="">
+						<li class="img"><img src="/images/main/mainLinkIcon01.png" alt=""></li>
+						<li class="title">예약확인 및 취소</li>
+						<li class="txt">고객님이 예약하신 내역 및 예약취소를 <br>
+						진행하실 수 있습니다.</li>
+						<li class="btn" onclick="location.href='/reservation/reserCheck.asp'">자세히보기</li>
+					</ul>
+					<ul class="colorBg">
+						<li class="img"><img src="/images/main/mainLinkIcon02.png" alt=""></li>
+						<li class="title">이용안내</li>
+						<li class="txt">샴발라CC 이용안내 및 요금관련 내용을 <br>
+						확인하실 수 있습니다.</li>
+						<li class="btn white" onclick="location.href='/guide/charge.asp'">자세히보기</li>
+					</ul>
+					<ul class="imgBg">
+						<li class="img"><img src="/images/main/mainLinkIcon03.png" alt=""></li>
+						<li class="title">부대시설</li>
+						<li class="txt">샴발라CC 가 자랑스럽게 소개하는<br> 자연을 그대로 옮긴듯한 <br>아름다운 코스.</li>
+						<li class="btn" onclick="location.href='/facility/facility01.asp'">자세히보기</li>
+					</ul>
+					<ul class="colorBg">
+						<li class="img"><img src="/images/main/mainLinkIcon04.png" alt=""></li>
+						<li class="title">오시는길</li>
+						<li class="txt">샴발라CC 오시는 길을 아주 쉽게  <br>
+						자세히 알려드립니다.</li>
+						<li class="btn white" onclick="location.href='/club/location.asp'">자세히보기</li>
+					</ul>
+				</div>
+			</div>
+
+			<div class="mainSecondCourse fromTopIn" data-scroll="toggle(.fromTopIn, .fromTopOut)">
+				<div class="article" onclick="location.href='/course/m1.asp'">
+					<h2>MOUNTAIN</h2>
+					<h4>COURSE</h4>
+					
+					<span class="bar"></span>
+					<p>다이나믹한 코스설계로 고객님의<br>
+					도전 의욕을 충족시켜 드립니다.</p>
+					<div class="linkBtn">자세히보기</div>
+				</div>
+				<div class="article active" onclick="location.href='/course/m1.asp'">
+					<h2>COURSE</h2>
+					<h4>GUIDE</h4>
+					
+					<span class="bar"></span>
+					<p>네츄럴 천연미인, 자연주의 코스설계 <br>
+					최고의 시간을 선물해 드립니다.</p>
+					<div class="linkBtn">자세히보기</div>
+				</div>
+				<div class="article" onclick="location.href='/course/l1.asp'">
+					<h2>LAKE</h2>
+					<h4>COURSE</h4>
+					
+					<span class="bar"></span>
+					<p>자연속에서 라운딩하는 느낌 최고의<br>
+					힐링시간을 선물해 드립니다.</p>
+					<div class="linkBtn">자세히보기</div>
+				</div>
+			</div>
+
+
+		</div>
+
+		<div class="thirdCont">
+		<p class="titleTxt fromTopIn" data-scroll="toggle(.fromTopIn, .fromTopOut)">NEW &amp; NOTICE </p>
+
+		<div class="infoListBox">
+			<div class="noticeBox">
+				<ul class="notice" id="mainNotice"></ul>
+
+				<div class="noticeMore">
+					<a href="/board/list.asp?type=1" class="list">NOTICE <img src="/images/p_notice.png" alt=""></a>
+				</div>
+			</div>
+
+			<ul class="infoList">
+				<li class="infoBox">
+					<p class="title">대표전화</p>
+					<p class="text txt1">031-538-0508~9<span class="miniTxt">평일:09:00 ~ 18:00</span></p>
+				</li>
+
+				<li>
+					<a href="/board/list.asp?type=1" class="infoBox">
+					<p class="title">이벤트 안내</p>
+					<p class="text">항상 새로운 이벤트로 <br>고객을 즐겁게</p>
+					</a>
+				</li>
+			</ul>
+			<ul class="infoList">
+				<li>
+					<a href="javascript:alert('준비중입니다.');" onfocus="this.blur()" class="infoBox">
+					<!-- <a href="/board/list.asp?type=4" class="infoBox"> -->
+						<p class="title">포토갤러리</p>
+						<p class="text txt1">샴발라CC의 새로운 모습들을<br>보실 수 있습니다.</p>
+					</a>
+				</li>
+
+				<li>
+					<a href="/club/location.asp" class="infoBox">
+					<p class="title">오시는길</p>
+					<p class="text">가장 편안한 길로 안내해 <br>드립니다.</p>
+					</a>
+				</li>
+			</ul>
+
+
+		</div>
+	</div>
+        
+        <div class="quickMenu">
+            <a href="https://www.instagram.com/shambhalacc/" target="_blank"><img src="images/QuickMenu.png" alt="인스타그램"></a>
+            <ul>
+                <li>
+                    <a href="/reservation/reservation.asp">
+                    <img src="images/icon1.png">
+                    <span>실시간예약</span></a>
+                </li>
+                
+                <li>
+                    <a href="https://play.google.com/store/apps/details?id=com.jbog.shambhala">
+                    <img src="images/icon2.png">
+                    <span>모바일버전</span></a>
+                </li>
+                
+                <li>
+                    <a href="/board/list.asp?type=1">
+                    <img src="images/icon3.png">
+                    <span>공지사항</span></a>
+                </li>
+            </ul>
+        </div>
+
+		<!--textmotion-->
+		<script src="js/ScrollTrigger.js"></script>
+		<script>
+			window.counter = function($) {
+				// this refers to the html element with the data-scroll-showCallback tag
+				var span = this.querySelector('span');
+				var current = parseInt(span.textContent);
+
+				span.textContent = current + 1;
+			};
+
+			document.addEventListener('DOMContentLoaded', function($){
+				var trigger = new ScrollTrigger({
+					addHeight: true
+				});
+			});
+		</script>
+        
+	</div>
+
+
+
+<!-- footer 영역 -->
+		<div id="footerWrap">
+			<div class="footerBox">
+
+				<img src="../images/f_Logo.png" alt="로고" class="footerLogo">
+				<ul class="footer">					
+					<li class="terms">
+						<a href="/member/terms.asp">골프장 이용약관</a><span> l </span>
+						<a href="/member/memTerms.asp">인터넷회원 이용약관</a><span> l </span>
+						<a href="/member/policy.asp">개인정보처리방침</a><span> l </span>
+						<a href="/club/location.asp">오시는길</a>						
+					</li>
+					<li class="infoBox">		
+						주소 : 경기도 포천시 청군로 2856-93<br>프론트 031-538-0501,2&nbsp;&nbsp;|&nbsp;&nbsp;예약실 :  031-538-0508~9 &nbsp;&nbsp;|&nbsp;&nbsp;팩스번호 : 031-531-5463  <br>
+						<!-- 개인정보보호책임자 : 김민성&nbsp;&nbsp;|&nbsp;&nbsp; -->사업자등록번호 : 119-81-64267&nbsp;&nbsp;<!--|&nbsp;&nbsp;통신판매업 등록번호 : 제2018-서울강서-0325 호-->이메일 : sblcc2003@nate.com
+
+						<span>COPYRIGHT © SHAMBHALA & CONSTRUCTION ALL RIGHT RESERVED.</span>
+					</li>
+				</ul>
+				<p id="topArrow" style="margin: auto; width: 50px; display: block;"><a href="#top"><span></span></a></p>
+			</div>
+		</div>
+
+
+
+</body>
+</html>

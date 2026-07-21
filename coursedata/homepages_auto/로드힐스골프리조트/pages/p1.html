@@ -1,0 +1,937 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ko" lang="ko">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=euc-kr" />
+    <meta http-equiv="Cache-Control" content="no-cache" />
+    <meta http-equiv="Imagetoolbar" content="no" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<!--[if lt IE 8]><meta http-equiv="refresh" content="0; url=/ieupdate/ieupdate.html" /><![endif]-->
+	<meta name="viewport" content="width=device-width, height=device-height, minimum-scale=0.15, maximum-scale=1.0, target-densitydpi=medium-dpi, width=800" />
+	<meta name="author" content="" />
+	<meta name="description" content="" />
+	<meta name="keywords" content="" />
+	<title>로드힐스 골프&amp;리조트</title>
+
+	<link rel="shortcut icon" href="/image/common_icon_and.ico" />
+	<link rel="apple-touch-icon-precomposed" href="/image/common_icon_and.ico" />
+	<link rel="stylesheet" type="text/css" href="/css/common.css?ver=240925" />
+	<link rel="stylesheet" type="text/css" href="/css/layout.css?ver=2" />
+	<link rel="stylesheet" type="text/css" href="/css/cminfor.css" />
+
+<!-- link type="text/css" rel="stylesheet" href="/css/user.css" -->
+
+<script language="JavaScript" type="text/JavaScript">
+<!--
+	/* user */
+	var mobileKeyWords = new Array('iPhone', 'iPod', 'iPad', 'BlackBerry', 'Android', 'Windows CE', 'LG', 'MOT', 'SAMSUNG', 'SonyEricsson');
+	for (var word in mobileKeyWords) {
+		if ( navigator.userAgent.match(mobileKeyWords[word]) != null ) {
+			//location.href = "https://lordhills.co.kr/_mobile";
+			//break;
+		}
+	}
+//-->
+</script>
+
+
+<script language="javascript" type="text/javascript" src="/Library_JavaScript/common.js"></script>
+
+<script language="javascript" type="text/javascript" src="/js/common.js"></script>
+
+<script language="javascript" type="text/javascript" src="/js/jquery-1.7.1.js"></script>
+<script language='javascript' type='text/javascript' src='/Library_JavaScript/jQuery/jquery.DOMWindow.js'></script>
+
+<script language="javascript" type="text/javascript" src="/js/flash.js"></script>
+<script language="javascript" type="text/javascript" src="/js/tab.js"></script>
+<script language="javascript" type="text/javascript" src="/js/flash_active.js"></script>
+<script language="javascript" type="text/javascript" src="/js/body_size.js"></script>
+<script language="javascript" type="text/javascript" src="/js/menu.layer.js"></script>
+<!-- 2020-12-09 SEH 구글 카운트 스크립트 삽입 요청 건 -->
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-Z5NPYPJNP8"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-Z5NPYPJNP8');
+</script>
+
+
+<script language="JavaScript" src="/Library_JavaScript/class.tooltip.js"></script>
+<script language="JavaScript" type="text/JavaScript">
+//<!--
+	/* Common */
+	//주소창 숨겨서 최적사이즈 맞추기
+	if (window.addEventListener != null)
+	{
+		window.addEventListener('load', function(){
+		setTimeout(scrollTo, 0, 0, 1);
+		}, false); 
+	}
+	//window.addEventListener("load", function() { setTimeout(hideURLbar, 0); }, false); function hideURLbar(){ window.scrollTo(0,1); }
+	//window.onorientationchange = function() { alert(window.orientation); }
+	
+	/*##################################################################################################################################################################*/
+	//------------------------------------------------------------
+	// 현재세팅값으로 다시 로딩 작업 진행.
+	//------------------------------------------------------------	
+	function main_fnReload(cal, time){
+		//alert(cal+" | "+time);
+		// 기존값 가져오기	
+		var prevDate = $("#main_chang_prevDate").val();
+		var nowDate  = $("#main_chang_nowDate").val();
+		var nextDate = $("#main_chang_nextDate").val();
+		var pointdate = $("#main_toDay").val();
+
+		// 카렌더 호출
+		if (cal == "T"){
+			main_calendar_change(prevDate, nowDate, nextDate, pointdate)
+		}				
+	}
+	
+	//------------------------------------------------------------
+	// 카렌더 처리 부분
+	//------------------------------------------------------------	
+	// 달렬변경 부분 (이전달, 현재달, 다음달, 선택날짜)
+	function main_calendar_change(prevDate, nowDate, nextDate, pointdate){
+		//alert(prevDate +" | "+nowDate +" | "+nextDate +" | "+pointdate +"");
+		
+		// 변경값 세팅 부분
+		$("#main_chang_prevDate").val(prevDate);
+		$("#main_chang_nowDate").val(nowDate);
+		$("#main_chang_nextDate").val(nextDate);
+		$("#main_toDay").val(pointdate)
+		
+		// 달력 갯수 세팅 부분
+		var scnt = 1;
+		
+		// 달력 세팅 부분
+		if (scnt == 3){
+			// 달력호출
+			main_calendar_view(prevDate, 1)
+			main_calendar_view(nowDate, 2)
+			main_calendar_view(nextDate, 3)
+		}else if (scnt == 2){
+			// 달력호출
+			main_calendar_view(nowDate, 1)
+			main_calendar_view(nextDate, 2)
+		}else{
+			// 달력호출
+			main_calendar_view(nowDate, 1)
+		}
+	}
+
+	// 달력 세팅 부분
+	function main_calendar_view(sdate, cid){
+
+		//alert(sdate +" | "+cid +"");
+	
+		var actionurl = "";
+
+		if (sdate != ""){ 
+			$("#main_schDate").val(sdate);
+		}
+		$("#main_calnum").val(cid);
+		
+		//
+	
+		actionurl = "/GolfRes/mainpage/main-lot_calendar_new_ajax_view.asp";
+		
+		
+		var tt = 0;
+		if (tt == 1){
+			$("#main_listform_calender").attr("action", actionurl);
+			$("#main_listform_calender").submit();
+		}else{
+			$.ajax({
+				async: false,
+				type: "post",
+				url : actionurl,
+				data : $("#main_listform_calender").serialize(),
+				dataType : "html",
+				success: function(obj){
+					$("#main_calendar_view_ajax_"+cid+"").html(obj);	
+				},
+				error: function(xhr, option, error){
+					  alert(xhr.status+" | "+error); //오류코드 | 오류내용
+				}
+				/*error : function(success){
+					meg = "서버와 통신중 에러가 발생하였습니다."
+					alert("처리결과 : "+meg);
+				}*/
+			});
+		}
+	}
+
+	/*##################################################################################################################################################################*/
+	//------------------------------------------------------------
+	// 타임리스트 데이터 처리 부분
+	//------------------------------------------------------------
+	// 타임리스트 호출 부분
+	function main_timefrom_change(pointdate, openyn, dategbn, courseid, time, atype, bookgtype){
+		//alert(pointdate+" | "+openyn+" | "+dategbn+" | "+courseid+" | "+time+" | "+atype+" | "+bookgtype)
+		//return;
+		// 카렌더에 날자변경 세팅 부분
+		$("#main_toDay").val(pointdate)
+		//alert($("#toDay").val());
+		
+		
+		// 초기화
+		if (pointdate == ""){ pointdate = $("#main_golf_pointdate").val() }
+		if (courseid == ""){ courseid = $("#main_golf_courseid").val() }
+		if (openyn == ""){ openyn = $("#main_golf_openyn").val() }
+		if (dategbn == ""){ dategbn = $("#main_golf_dategbn").val() }
+		if (time == ""){ time = $("#main_golf_choice_time").val() }
+		if (time == ""){ time = "00" }
+		if (atype == ""){ atype = $("#main_golf_restype").val() }		
+
+		// 처리
+		$("#main_golf_pointdate").val(pointdate);
+		$("#main_golf_openyn").val(openyn);
+		$("#main_golf_dategbn").val(dategbn);
+		$("#main_golf_choice_time").val(time);
+		$("#main_golf_restype").val(atype);
+	
+		var actionurl = "" 
+		//
+		//$("#golf_settype").val("R");
+		
+			actionurl = "/GolfRes/onepage/real_reservation.asp"
+		
+
+		//
+		$("#main_golf_reservation").attr("action", actionurl);
+		$("#main_golf_reservation").submit();
+	}
+
+
+	//자동실행 - body onload의 대체
+	$(function(){
+		// 달력 처리 부분
+		// 2021.01.29 제외
+		//main_calendar_change('','','','');
+	});	
+//-->
+</script>
+
+
+<form name="main_listform_calender" id="main_listform_calender" method="post">
+	<input type="hidden" id="main_golfrestype" name="golfrestype" value="real">
+	<input type="hidden" id="main_schDate" name="schDate" value="">
+	<input type="hidden" id="main_usrmemcd" name="usrmemcd" value="10">
+	<input type="hidden" id="main_toDay" name="toDay" value="">	
+	<input type="hidden" id="main_calnum" name="calnum">
+</form>
+
+<form name="main_golf_reservation" id="main_golf_reservation" method="get">
+	<input type="hidden" id="main_golf_usrmemcd" name="usrmemcd" value="10">
+	<input type="hidden" id="main_golf_pointdate" name="pointdate" value="">
+	<input type="hidden" id="main_golf_courseid" name="courseid" value="0">
+	<input type="hidden" id="main_golf_openyn" name="openyn" value="">
+	<input type="hidden" id="main_golf_dategbn" name="dategbn" value="">
+	<input type="hidden" id="main_golf_choice_time" name="choice_time" value="">
+	<input type="hidden" id="main_golf_restype" name="settype" value="R">	
+</form>
+
+<script language="javascript" type="text/javascript" src="/js/jquery.easing.1.3.min.js"></script>
+<script language="javascript" type="text/javascript" src="/js/jquery.sliderkit.1.9.2.pack.js"></script>
+<script language="JavaScript" type="text/JavaScript">
+<!--
+$(window).load(function(){	
+	$(".contentslider-std").sliderkit({
+		auto:1,
+		tabs:1,
+		circular:1,
+		panelfx:"sliding",
+		panelfxfirst:"fading",
+		panelfxeasing:"easeInOutExpo",
+		fastchange:0,
+		keyboard:1
+	});
+	
+});		
+//-->
+</script>	
+
+</head>
+
+<script language="JavaScript" type="text/JavaScript">
+//<!--
+	//
+	var gnb_code1 = "club";
+	var lnb_code1 = "club";
+	//var gnbIdx = Number(0); 
+
+	//
+	var gnb_code2 = "course_gallery";
+	var lnb_code2 = "course_gallery";
+	//var gnb2Idx = Number(5); 
+
+	//
+	var gnb_code3 = "course_gallery";
+	var lnb_code3 = "course_gallery";
+	//var gnb2Idx = Number(-1);
+
+//-->
+</script>
+<body id="SUB" onload="body_height();body_width();" onresize="body_height();body_width();">
+	<div id="wrapping">	
+		<!-- 상단 시작 -->
+		<div id="skip_navi">
+			<h4>컨텐츠 바로가기</h4>
+			<ul>
+				<li><a href="#header_ci">홈</a></li>
+				<li><a href="#global_navi">글로벌 네비게이션</a></li>
+				<li><a href="#main_navi">메인 네비게이션</a></li>
+				<li><a href="#sub_navi">서브 네비게이션</a></li>
+				<li><a href="#content">본문</a></li>
+				<li><a href="#clause_navi">약관 네비게이션</a></li>
+				<li><a href="#address">회사정보</a></li>
+			</ul>
+		</div>
+		<div id="header">
+			<div id="header_ci">
+				<h1><a href="/"><img src="/image/layout/COMMON_header_ci.png" class="block" alt="신영종합개발" /></a></h1>
+			</div>
+			<div id="main_navi">
+				<!-- gnb -->
+				<div class="gnb" id="gnb">				
+					<ul> 
+						<li class="gnb01" id="gnb_club"> 
+							<h2><a href="/club/intro.asp" target="" >CLUB</a></h2> 
+							<dl class="dep2"> 
+								<dt class="g01_tit"><a href="/club/intro.asp" target="" >클럽소개</a></dt> 
+								<dd> 
+									<ul> 
+										<li class="g01_1" id="gnb2_club_intro"><a href="/club/intro.asp" target="" >클럽소개</a></li> 
+										<li class="g01_2" id="gnb2_club_greet"><a href="/club/greet.asp" target="" >인사말</a></li> 
+										<li class="g01_3" id="gnb2_club_bi"><a href="/club/bi.asp" target="" >BI소개</a></li> 
+										<li class="g01_4" id="gnb2_club_facilities"><a href="/club/facilities/house.asp" target="" >시설안내</a></li> 
+										<li class="g01_5" id="gnb2_club_location"><a href="/club/location.asp" target="" >오시는길</a></li> 
+										<li class="g01_6" id="gnb2_course_gallery"><a href="/course/gallery.asp" target="" >로드힐스 갤러리</a></li> 
+										<li class="g01_7" id="gnb2_course_season"><a href="/course/season.asp" target="" >로드힐스 사계</a></li> 
+									</ul> 
+								</dd> 
+							</dl> 
+						</li> 
+						<li class="gnb02" id="gnb_course"> 
+							<h2><a href="/course/grass.asp" target="" >COURSE</a></h2> 
+							<dl class="dep2"> 
+								<dt class="g02_tit"><a href="/course/grass.asp" target="" >코스소개</a></dt> 
+								<dd> 
+									<ul> 
+										<li class="g02_1" id="gnb2_course_grass"><a href="/course/grass.asp" target="" >잔디소개</a></li> 
+										<li class="g02_2" id="gnb2_course_intro"><a href="/course/intro.asp" target="" >코스소개</a></li> 
+										<li class="g02_3" id="gnb2_course_localrule"><a href="/course/localrule.asp" target="" >로컬룰</a></li> 
+										<li class="g02_4" id="gnb2_course_one"><a href="/course/one/hole01.asp" target="" >로드코스</a></li> 
+										<li class="g02_5" id="gnb2_course_three"><a href="/course/three/hole01.asp" target="" >레이크코스</a></li> 
+										<li class="g02_6" id="gnb2_course_two"><a href="/course/two/hole01.asp" target="" >힐스코스</a></li> 
+									</ul> 
+								</dd> 
+							</dl> 
+						</li> 
+						<li class="gnb03" id="gnb_use"> 
+							<h2><a href="/use/guide.asp" target="" >USE</a></h2> 
+							<dl class="dep2"> 
+								<dt class="g03_tit"><a href="/use/guide.asp" target="" >이용안내</a></dt> 
+								<dd> 
+									<ul> 
+										<li class="g03_1" id="gnb2_use_guide"><a href="/use/guide.asp" target="" >이용안내</a></li> 
+										<li class="g03_2" id="gnb2_use_charge"><a href="/use/charge.asp" target="" >이용요금</a></li> 
+										<li class="g03_3" id="gnb2_use_reservation"><a href="/use/reservation.asp" target="" >일반예약안내</a></li> 
+										<li class="g03_4" id="gnb2_use_vip"><a href="/use/vip.asp" target="" >VIP클럽안내</a></li> 
+										<li class="g03_5" id="gnb2_use_member"><a href="/use/membership.asp" target="" >로드힐스멤버십</a></li> 
+										<li class="g03_6" id="gnb2_use_penalty"><a href="/use/penalty.asp" target="" >위약안내</a></li> 
+									</ul> 
+								</dd> 
+							</dl> 
+						</li> 
+						<li class="gnb04" id="gnb_reservation"> 
+							<h2><a href="/reservation/live.asp" target="" >RESERVATION</a></h2> 
+							<dl class="dep2"> 
+								<dt class="g04_tit"><a href="/reservation/live.asp" target="" >인터넷예약</a></dt> 
+								<dd> 
+									<ul> 
+										<li class="g04_1" id="gnb2_reservation_live"><a href="/reservation/live.asp" target="" >실시간예약</a></li> 
+										<li class="g04_2" id="gnb2_reservation_vip"><a href="/GolfRes/vip_onepage/real_reservation.asp" target="" >  VIP클럽 예약</a></li> 
+										<li class="g04_3" id="gnb2_reservation_stand"><a href="/reservation/stand.asp" target="" >대기예약</a></li> 
+										<li class="g04_4" id="gnb2_reservation_confirm"><a href="/reservation/confirm.asp" target="" >예약확인/변경/취소</a></li> 
+										<li class="g04_5" id="gnb2_use_team"><a href="/use/team.asp" target="" >단체 신청 안내</a></li> 
+										<li class="g04_7" id="gnb2_reservation_join"><a href="/reservation/join.asp" target="" >조인게시판</a></li> 
+									</ul> 
+								</dd> 
+							</dl> 
+						</li> 
+						<li class="gnb05" id="gnb_lounge"> 
+							<h2><a href="/lounge/in.asp" target="" >LOUNGE</a></h2> 
+							<dl class="dep2"> 
+								<dt class="g05_tit"><a href="/lounge/in.asp" target="" >회원라운지</a></dt> 
+								<dd> 
+									<ul> 
+										<li class="g05_1" id="gnb2_lounge_in"><a href="/lounge/in.asp" target="" >내장현황</a></li> 
+										<li class="g05_2" id="gnb2_lounge_out"><a href="/lounge/out.asp" target="" >위약현황</a></li> 
+										<li class="g05_3" id="gnb2_lounge_customer"><a href="/lounge/customer.asp" target="" >고객의소리</a></li> 
+										<li class="g05_4" id="gnb2_lounge_point"><a href="/lounge/mypoint.asp" target="" >마일리지현황</a></li> 
+										<li class="g05_5" id="gnb2_lounge_event"><a href="/board/lounge_event/list.asp" target="" >포토 게시판</a></li> 
+									</ul> 
+								</dd> 
+							</dl> 
+						</li> 
+						<li class="gnb06" id="gnb_information"> 
+							<h2><a href="/information/notice.asp" target="" >INFORMATION</a></h2> 
+							<dl class="dep2"> 
+								<dt class="g06_tit"><a href="/information/notice.asp" target="" >정보마당</a></dt> 
+								<dd> 
+									<ul> 
+										<li class="g06_1" id="gnb2_information_notice"><a href="/information/notice.asp" target="" >공지사항</a></li> 
+										<li class="g06_2" id="gnb2_information_event"><a href="/information/event.asp" target="" >이벤트</a></li> 
+										<li class="g06_3" id="gnb2_information_restaurant"><a href="/use/restaurant.asp" target="" >대식당메뉴</a></li> 
+										<li class="g06_4" id="gnb2_information_data"><a href="/information/data.asp" target="" >자료실</a></li> 
+										<li class="g06_6" id="gnb2_information_honor"><a href="/information/honor.asp" target="" >명예의전당</a></li> 
+										<li class="g06_7" id="gnb2_information_weather"><a href="/information/weather2.asp" target="" >날씨정보</a></li> 
+									</ul> 
+								</dd> 
+							</dl> 
+						</li> 
+ 
+					</ul>
+
+					<!-- 
+					<ul>
+						<li class="gnb01" id="gnb_club">
+							<h2><a href="/club/intro.asp">CLUB</a></h2>
+							<dl class="dep2">
+								<dt><a href="/club/intro.asp">클럽소개</a></dt>
+								<dd>
+									<ul>
+										<li class="g01_1" id="gnb2_club_intro"><a href="/club/intro.asp">클럽소개</a></li>
+										<li class="g01_2" id="gnb2_club_greet"><a href="/club/greet.asp">인사말</a></li>
+										<li class="g01_3" id="gnb2_club_ci"><a href="/club/bi.asp">CI소개</a></li>
+										<li class="g01_4" id="gnb2_club_facilities"><a href="/club/facilities/house.asp">시설안내</a></li>
+										<li class="g01_5" id="gnb2_club_location"><a href="/club/location.asp">오시는길</a></li>
+									</ul>
+								</dd>
+							</dl>
+						</li>
+						<li class="gnb02" id="gnb_course">
+							<h2><a href="/course/grass.asp">COURSE</a></h2>
+							<dl class="dep2">
+								<dt><a href="/course/intro.asp">코스소개</a></dt>
+								<dd>
+									<ul>
+										<li class="g02_1" id="gnb2_course_grass"><a href="/course/grass.asp">잔디소개</a></li>
+										<li class="g02_2" id="gnb2_course_intro"><a href="/course/intro.asp">코스소개</a></li>
+										<li class="g02_3" id="gnb2_course_localrule"><a href="/course/localrule.asp">로컬룰&amp;에티켓</a></li>
+										<li class="g02_4" id="gnb2_course_one"><a href="/course/one/hole01.asp">로드코스</a></li>
+										<li class="g02_5" id="gnb2_course_two"><a href="/course/two/hole01.asp">힐스코스</a></li>
+										<li class="g02_6" id="gnb2_course_three"><a href="/course/three/hole01.asp">레이크코스</a></li>
+									</ul>
+								</dd>
+							</dl>
+						</li>
+						<li class="gnb03" id="gnb_use">
+							<h2><a href="/use/charge.asp">USE</a></h2>
+							<dl class="dep2">
+								<dt><a href="/use/charge.asp">이용요금</a></dt>
+								<dd>
+									<ul>
+										<li class="g03_1" id="gnb2_use_guide"><a href="/use/charge.asp">이용요금</a></li>
+										<li class="g03_2" id="gnb2_use_charge"><a href="/use/reservation.asp">예약안내</a></li>
+										<li class="g03_3" id="gnb2_use_reservation"><a href="/use/penalty.asp">위약안내</a></li>
+										<li class="g03_4" id="gnb2_use_penalty"><a href="/use/team.asp">단체팀안내</a></li>
+										<li class="g03_4" id="gnb2_use_mobile"><a href="/use/mobile.asp">스마트폰안내</a></li>
+									</ul>
+								</dd>
+							</dl>
+						</li>
+						<li class="gnb04" id="gnb_reservation">
+							<h2><a href="/reservation/live.asp">RESERVATION</a></h2>
+							<dl class="dep2">
+								<dt><a href="/reservation/live.asp">인터넷예약</a></dt>
+								<dd>
+									<ul>
+										<li class="g04_1" id="gnb2_reservation_live"><a href="/reservation/live.asp">실시간예약</a></li>
+										<li class="g04_2" id="gnb2_reservation_choice"><a href="/reservation/choice.asp">주말예약신청</a></li>
+										<li class="g04_3" id="gnb2_reservation_stand"><a href="/reservation/stand.asp">대기예약</a></li>
+										<li class="g04_4" id="gnb2_reservation_confirm"><a href="/reservation/confirm.asp">예약확인/변경/취소</a></li>
+										<li class="g04_5" id="gnb2_reservation_join"><a href="/reservation/join.asp">조인게시판</a></li>
+									</ul>
+								</dd>
+							</dl>
+						</li>
+						<li class="gnb05" id="gnb_lounge">
+							<h2><a href="/lounge/in.asp">LOUNGE</a></h2>
+							<dl class="dep2">
+								<dt><a href="/reservation/in.asp">회원라운지</a></dt>
+								<dd>
+									<ul>
+										<li class="g05_1" id="gnb2_lounge_in"><a href="/lounge/in.asp">내장현황</a></li>
+										<li class="g05_2" id="gnb2_lounge_out"><a href="/lounge/out.asp">위약현황</a></li>
+										<li class="g05_3" id="gnb2_lounge_customer"><a href="/lounge/customer.asp">고객의소리</a></li>
+										<li class="g05_5" id="gnb2_lounge_edit"><a href="/lounge/info/edit.asp">회원정보</a></li>
+									</ul>
+								</dd>
+							</dl>
+						</li>
+						<li class="gnb06" id="gnb_information">
+							<h2><a href="/information/notice.asp">INFORMATION</a></h2>
+							<dl class="dep2">
+								<dt><a href="/information/notice.asp">정보마당</a></dt>
+								<dd>
+									<ul>
+										<li class="g06_1" id="gnb2_information_notice"><a href="/information/notice.asp">공지사항</a></li>
+										<li class="g06_2" id="gnb2_information_event"><a href="/information/event.asp">이벤트</a></li>
+										<li class="g06_3" id="gnb2_information_data"><a href="/information/data.asp">자료실</a></li>
+										<li class="g06_4" id="gnb2_information_honor"><a href="/information/honor.asp">명예의전당</a></li>
+										<li class="g06_5" id="gnb2_information_weather"><a href="/information/weather.asp" target="_blank" title="새창열림">날씨정보</a></li>
+									</ul>
+								</dd>
+							</dl>
+						</li>
+						<li class="gnb07" id="gnb_gallery">
+							<h2><a href="/course/gallery.asp">GALLERY</a></h2>
+							<dl class="dep2">
+								<dt><a href="/course/gallery.asp">로드힐스 갤러리</a></dt>
+								<dd>
+									<ul>
+										<li class="g07_1" id="gnb2_gallery_course"><a href="/course/gallery.asp">로드힐스 갤러리</a></li>
+										<li class="g07_2" id="gnb2_gallery_season"><a href="/course/season.asp">로드힐스 사계</a></li>
+										<li class="g07_3" id="gnb2_gallery_magazine"><a href="/course/magazine.asp">로드힐스 매거진</a></li>
+									</ul>
+								</dd>
+							</dl>
+						</li>
+					</ul> -->
+				</div>
+				<!-- /gnb -->
+			</div>
+			<div id="reservation">
+			<!-- 메인 예약 달력 시작 -->
+			
+				<div id="main_cm_calendar_small_00">
+					<div id="main_calendar_view_ajax_0"></div>   
+				</div>
+			
+				<div id="main_cm_calendar_small_01">
+					<div id="main_calendar_view_ajax_1"></div>   
+				</div>
+			
+			<!-- 메인 예약 달력 종료 -->
+			</div>
+		</div>
+		<!-- 상단 종료 -->
+
+		<!-- 바디 시작 -->
+		<div id="wrap">
+			<div id="body">
+				<!-- 비주얼 이미지 시작 -->
+				<div id="visual_img" class="club">
+					<!-- <script language="javascript" type="text/javascript">flash('/flash/','SUB_visual_img','100%','840','depth01=1');</script> -->
+					<img class="bg_sub_img" src="/image/common/bg_sub_img.png" alt="" />
+					
+				</div>
+				<!-- 비주얼 이미지 종료 -->
+				<div class="container">
+					<!-- 글로벌 네이게이션 시작 -->
+					<div id="global_navi">
+						<ul class="clear">
+							
+							<!-- li class="home"><a href="/">&nbsp;ㆍ&nbsp;홈</a></li -->
+							
+							<li class="login"><a href="/member/login.asp">ㆍ&nbsp;로그인</a></li>
+							<li class="join"><a href="/member/join.asp">ㆍ&nbsp;회원가입</a></li>
+							
+							&nbsp;&nbsp;&nbsp;
+
+							<!-- li class="sitemap"><a href="/sitemap/sitemap.asp">ㆍ&nbsp;사이트맵&nbsp;</a></li -->
+						</ul>
+					</div>
+					<!-- 글로벌 네이게이션 종료 -->
+					<!-- 서브 네이게이션 시작 -->
+					
+					
+					<!-- 서브 메뉴 -->
+					<div class="lnb">
+						 						<ul class="lnb_menu" id="club"> 
+ 
+ 							<li id="lnb_club_intro"> 
+								<a href="/club/intro.asp" class="lnb_c01" target="" >클럽소개</a> 
+							</li> 
+							<li id="lnb_club_greet"> 
+								<a href="/club/greet.asp" class="lnb_c02" target="" >인사말</a> 
+							</li> 
+							<li id="lnb_club_bi"> 
+								<a href="/club/bi.asp" class="lnb_c03" target="" >BI소개</a> 
+							</li> 
+							<li id="lnb_club_facilities"> 
+								<a href="/club/facilities/house.asp" class="lnb_c04" target="" >시설안내</a> 
+							</li> 
+							<li id="lnb_club_location"> 
+								<a href="/club/location.asp" class="lnb_c05" target="" >오시는길</a> 
+							</li> 
+							<li id="lnb_course_gallery"> 
+								<a href="/course/gallery.asp" class="lnb_c06" >로드힐스 갤러리</a> 
+							</li> 
+							<li id="lnb_course_season"> 
+								<a href="/course/season.asp" class="lnb_c07" target="" >로드힐스 사계</a> 
+							</li> 
+ 
+						</ul> 
+ 
+
+						<!-- <ul class="lnb_menu" id="club">
+							<li id="lnb_club_intro"><a href="#" class="lnb_c01">클럽소개</a></li>
+							<li id="lnb_club_greet"><a href="#" class="lnb_c02">인사말</a></li>
+							<li id="lnb_club_ci"><a href="#" class="lnb_c03">CI소개</a></li>
+							<li id="lnb_club_facilities"><a href="#" class="lnb_c04">시설안내</a></li>
+							<li id="lnb_club_location"><a href="#" class="lnb_c05">오시는길</a></li>
+						</ul> -->
+					</div>
+					<!-- <script language="javascript" type="text/javascript">flash('/flash/','SUB_sub_navi','100%','40','depth01=1&amp;depth02=6');</script> -->
+					<!-- 서브 네이게이션 종료 -->
+					<!-- 컨텐츠 시작 -->
+					<div id="content">
+						<!-- 컨텐츠 타이틀 시작 -->
+						<h3 id="content_title"><img src="/image/club/tit_06.png?ver=5" alt="로드힐스 갤러리" /></h3>
+						<!-- 컨텐츠 타이틀 종료 -->
+						<!-- 컨텐츠 네비게이션 시작 -->
+						<div id="content_navi">
+							<a href="/" class="home">홈</a> &gt;					
+							<a href="/club/intro.asp">클럽소개</a> &gt;
+							<a href="/course/gallery.asp" class="on">로드힐스 갤러리</a>
+						</div>
+						<!-- 컨텐츠 네비게이션 종료 -->
+						<!-- 컨텐츠 바디 시작 -->
+
+		<div id="content_body" class="clear">
+			<!-- 데이타 시작 -->
+				<div class="sliderkit contentslider-std">
+					<div class="sliderkit-panels">
+						<div class="sliderkit-panel"><img src="/image/gallery/img_1.jpg" alt="사진1" /></div>
+						<div class="sliderkit-panel"><img src="/image/gallery/img_2.jpg" alt="사진2" /></div>
+						<div class="sliderkit-panel"><img src="/image/gallery/img_3.jpg" alt="사진3" /></div>
+						<div class="sliderkit-panel"><img src="/image/gallery/img_4.jpg" alt="사진4" /></div>
+						<div class="sliderkit-panel"><img src="/image/gallery/img_5.jpg" alt="사진5" /></div>
+						<div class="sliderkit-panel"><img src="/image/gallery/img_6.jpg" alt="사진6" /></div>
+						<div class="sliderkit-panel"><img src="/image/gallery/img_7.jpg" alt="사진7" /></div>
+						<div class="sliderkit-panel"><img src="/image/gallery/img_8.jpg" alt="사진8" /></div>
+						<div class="sliderkit-panel"><img src="/image/gallery/img_9.jpg" alt="사진9" /></div>
+						<div class="sliderkit-panel"><img src="/image/gallery/img_10.jpg" alt="사진10" /></div>
+						<div class="sliderkit-panel"><img src="/image/gallery/img_11.jpg" alt="사진11" /></div>
+						<div class="sliderkit-panel"><img src="/image/gallery/img_12.jpg" alt="사진12" /></div>
+						<div class="sliderkit-panel"><img src="/image/gallery/img_13.jpg" alt="사진13" /></div>
+						<div class="sliderkit-panel"><img src="/image/gallery/img_14.jpg" alt="사진14" /></div>
+						<div class="sliderkit-panel"><img src="/image/gallery/img_15.jpg" alt="사진15" /></div>
+						<div class="sliderkit-panel"><img src="/image/gallery/img_16.jpg" alt="사진16" /></div>
+						<div class="sliderkit-panel"><img src="/image/gallery/img_17.jpg" alt="사진17" /></div>
+						<div class="sliderkit-panel"><img src="/image/gallery/img_18.jpg" alt="사진18" /></div>
+						<div class="sliderkit-panel"><img src="/image/gallery/img_19.jpg" alt="사진19" /></div>
+						<div class="sliderkit-panel"><img src="/image/gallery/img_20.jpg" alt="사진20" /></div>
+						<div class="sliderkit-panel"><img src="/image/gallery/img_21.jpg" alt="사진21" /></div>
+						<div class="sliderkit-panel"><img src="/image/gallery/img_22.jpg" alt="사진22" /></div>
+						<div class="sliderkit-panel"><img src="/image/gallery/img_23.jpg" alt="사진23" /></div>
+						<div class="sliderkit-panel"><img src="/image/gallery/img_24.jpg" alt="사진24" /></div>
+						<div class="sliderkit-panel"><img src="/image/gallery/img_25.jpg" alt="사진25" /></div>
+						<div class="sliderkit-panel"><img src="/image/gallery/img_26.jpg" alt="사진26" /></div>
+						<div class="sliderkit-panel"><img src="/image/gallery/img_27.jpg" alt="사진27" /></div>
+						<div class="sliderkit-panel"><img src="/image/gallery/img_28.jpg" alt="사진28" /></div>
+						<div class="sliderkit-panel"><img src="/image/gallery/img_29.jpg" alt="사진29" /></div>
+						<div class="sliderkit-panel"><img src="/image/gallery/img_30.jpg" alt="사진30" /></div>
+						<div class="sliderkit-panel"><img src="/image/gallery/img_31.jpg" alt="사진31" /></div>
+						<div class="sliderkit-panel"><img src="/image/gallery/img_32.jpg" alt="사진32" /></div>
+						<div class="sliderkit-panel"><img src="/image/gallery/img_33.jpg" alt="사진33" /></div>
+						<div class="sliderkit-panel"><img src="/image/gallery/img_34.jpg" alt="사진34" /></div>
+						<div class="sliderkit-panel"><img src="/image/gallery/img_35.jpg" alt="사진35" /></div>
+						<div class="sliderkit-panel"><img src="/image/gallery/img_36.jpg" alt="사진36" /></div>
+						<div class="sliderkit-panel"><img src="/image/gallery/img_37.jpg" alt="사진37" /></div>
+						<div class="sliderkit-panel"><img src="/image/gallery/img_38.jpg" alt="사진38" /></div>
+						<div class="sliderkit-panel"><img src="/image/gallery/img_39.jpg" alt="사진39" /></div>
+						<div class="sliderkit-panel"><img src="/image/gallery/img_40.jpg" alt="사진40" /></div>
+						<div class="sliderkit-panel"><img src="/image/gallery/img_41.jpg" alt="사진41" /></div>
+						<div class="sliderkit-panel"><img src="/image/gallery/img_42.jpg" alt="사진42" /></div>
+						<div class="sliderkit-panel"><img src="/image/gallery/img_43.jpg" alt="사진43" /></div>
+						<div class="sliderkit-panel"><img src="/image/gallery/img_44.jpg" alt="사진44" /></div>
+						<div class="sliderkit-panel"><img src="/image/gallery/img_45.jpg" alt="사진45" /></div>
+						<div class="sliderkit-panel"><img src="/image/gallery/img_46.jpg" alt="사진46" /></div>
+						<div class="sliderkit-panel"><img src="/image/gallery/img_47.jpg" alt="사진47" /></div>
+						<div class="sliderkit-panel"><img src="/image/gallery/img_48.jpg" alt="사진48" /></div>
+						<div class="sliderkit-panel"><img src="/image/gallery/img_49.jpg" alt="사진49" /></div>
+						<div class="sliderkit-panel"><img src="/image/gallery/img_50.jpg" alt="사진50" /></div>
+						<div class="sliderkit-panel"><img src="/image/gallery/img_51.jpg" alt="사진51" /></div>
+						<div class="sliderkit-panel"><img src="/image/gallery/img_52.jpg" alt="사진52" /></div>
+						<div class="sliderkit-panel"><img src="/image/gallery/img_53.jpg" alt="사진53" /></div>
+						<div class="sliderkit-panel"><img src="/image/gallery/img_54.jpg" alt="사진54" /></div>
+						<div class="sliderkit-panel"><img src="/image/gallery/img_55.jpg" alt="사진55" /></div>
+					</div>
+					<div class="sliderkit-nav">
+						<div class="sliderkit-nav-clip">
+							<div class="sliderkit-btn sliderkit-go-btn sliderkit-go-prev">
+								<a href="#" title="Previous"><span>Previous</span></a>
+							</div>
+							<div class="sliderkit-btn sliderkit-go-btn sliderkit-go-next">
+								<a href="#" title="Next"><span>Next</span></a>
+							</div>
+							<ul class="">
+								<li><a href="#" class="stab01_1">사진1 보기</a></li>
+								<li><a href="#" class="stab01_2">사진2 보기</a></li>
+								<li><a href="#" class="stab01_3">사진3 보기</a></li>
+								<li><a href="#" class="stab01_4">사진4 보기</a></li>
+								<li><a href="#" class="stab01_5">사진5 보기</a></li>
+								<li><a href="#" class="stab01_6">사진6 보기</a></li>
+								<li><a href="#" class="stab01_7">사진7 보기</a></li>
+								<li><a href="#" class="stab01_8">사진8 보기</a></li>
+								<li><a href="#" class="stab01_9">사진9 보기</a></li>
+								<li><a href="#" class="stab01_10">사진10 보기</a></li>
+								<li><a href="#" class="stab01_11">사진11 보기</a></li>
+								<li><a href="#" class="stab01_12">사진12 보기</a></li>
+								<li><a href="#" class="stab01_13">사진13 보기</a></li>
+								<li><a href="#" class="stab01_14">사진14 보기</a></li>
+								<li><a href="#" class="stab01_15">사진15 보기</a></li>
+								<li><a href="#" class="stab01_16">사진16 보기</a></li>
+								<li><a href="#" class="stab01_17">사진17 보기</a></li>
+								<li><a href="#" class="stab01_18">사진18 보기</a></li>
+								<li><a href="#" class="stab01_19">사진19 보기</a></li>
+								<li><a href="#" class="stab01_20">사진20 보기</a></li>
+								<li><a href="#" class="stab01_21">사진21 보기</a></li>
+								<li><a href="#" class="stab01_22">사진22 보기</a></li>
+								<li><a href="#" class="stab01_23">사진23 보기</a></li>
+								<li><a href="#" class="stab01_24">사진24 보기</a></li>
+								<li><a href="#" class="stab01_25">사진25 보기</a></li>
+								<li><a href="#" class="stab01_26">사진26 보기</a></li>
+								<li><a href="#" class="stab01_27">사진27 보기</a></li>
+								<li><a href="#" class="stab01_28">사진28 보기</a></li>
+								<li><a href="#" class="stab01_29">사진29 보기</a></li>
+								<li><a href="#" class="stab01_30">사진30 보기</a></li>
+								<li><a href="#" class="stab01_31">사진31 보기</a></li>
+								<li><a href="#" class="stab01_32">사진32 보기</a></li>
+								<li><a href="#" class="stab01_33">사진33 보기</a></li>
+								<li><a href="#" class="stab01_34">사진34 보기</a></li>
+								<li><a href="#" class="stab01_35">사진35 보기</a></li>
+								<li><a href="#" class="stab01_36">사진36 보기</a></li>
+								<li><a href="#" class="stab01_37">사진37 보기</a></li>
+								<li><a href="#" class="stab01_38">사진38 보기</a></li>
+								<li><a href="#" class="stab01_39">사진39 보기</a></li>
+								<li><a href="#" class="stab01_40">사진40 보기</a></li>
+								<li><a href="#" class="stab01_41">사진41 보기</a></li>
+								<li><a href="#" class="stab01_42">사진42 보기</a></li>
+								<li><a href="#" class="stab01_43">사진43 보기</a></li>
+								<li><a href="#" class="stab01_44">사진44 보기</a></li>
+								<li><a href="#" class="stab01_45">사진45 보기</a></li>
+								<li><a href="#" class="stab01_46">사진46 보기</a></li>
+								<li><a href="#" class="stab01_47">사진47 보기</a></li>
+								<li><a href="#" class="stab01_48">사진48 보기</a></li>
+								<li><a href="#" class="stab01_49">사진49 보기</a></li>
+								<li><a href="#" class="stab01_50">사진50 보기</a></li>
+								<li><a href="#" class="stab01_51">사진51 보기</a></li>
+								<li><a href="#" class="stab01_52">사진52 보기</a></li>
+								<li><a href="#" class="stab01_53">사진53 보기</a></li>
+								<li><a href="#" class="stab01_54">사진54 보기</a></li>
+								<li><a href="#" class="stab01_55">사진55 보기</a></li>
+							</ul>
+						</div>
+					</div>
+				</div>
+			<!-- 데이타 종료 -->
+		</div>
+
+						<!-- 컨텐츠 바디 종료 -->
+					</div>
+					<!-- 컨텐츠 종료 -->
+					<!-- 퀵 네비게이션 시작 -->
+					<div id="sub_quick_navi">
+						<ul>
+							<!--
+							<li class="club"><a href="/club/intro.asp">클럽소개</a></li>
+							-->
+							
+							<li class="join"><a href="/member/join.asp">회원가입</a></li>
+							
+                            <!--<li class="cctv"><a href="/board/information_notice/view.asp?n_page=list.asp&page_num=1&mode=NULL&bbsno=33&seq=1&depth=1&search=&keyword=">로드힐스 cctv</a></li>-->
+							<li class="reservation"><a href="/reservation/live.asp">실시간예약</a></li>
+							<li class="vip"><a href="/GolfRes/vip_onepage/real_reservation.asp">VIP예약</a></li>
+                            <!-- <li class="join2"><a href="/joinRoom/list.asp">조인게시판</a></li>-->
+							<li class="reserve_chk"><a href="/GolfRes/onepage/my_golfreslist.asp">예약확인/변경/취소</a></li>
+                            <!--li class="team"><a href="/use/team.asp">연단체 신청 안내</a></li-->
+							<li class="weather"><a href="/information/weather2.asp" title="새창">날씨정보</a></li>
+							<!-- 2016-10-18 김정수 CCTV 수정 -->
+							<!--
+							<li class="guide"><a href="/use/reservation.asp">예약안내</a></li>
+							-->
+							<li class="location"><a href="/club/location.asp">오시는길</a></li>
+							<!--
+							<li class="weather"><a href="/information/weather.asp" target="_blank" title="새창">날씨정보</a></li>
+							-->
+						</ul>
+					</div>
+					<!-- 퀵 네비게이션 종료 -->
+				</div>
+			</div>
+		</div>
+
+		<div class="popup_layer" id="pop01">
+			<p><strong> 님</strong> 마일리지는 <strong>0</strong> 점 입니다.</p>
+			<p>- 30,000 마일리지 부터 사용 가능 -</p>
+			<p><a href="#bt_com" class="bt_com" onClick="document.getElementById('pop01').style.display='none'; return false;">확인</a></p>
+		</div> 
+
+		<!-- 바디 종료 -->
+
+		<!-- 푸터 시작 -->
+		<div id="footer">
+			<div id="clause_navi">
+				<ul class="clear">
+					<li class="guide"><a href="/clause/guide.asp">이용약관</a></li>
+					<li class="internet"><a href="/clause/internet.asp">인터넷서비스 이용약관</a></li>
+					<li class="info"><a href="/clause/info.asp">개인정보처리방침</a></li>
+                    <li class="video"><a href="/clause/video.asp">영상정보처리기기운영관리방침</a></li>
+					<!--
+					<li class="business"><a href="/clause/business.asp" target="_blank" title="새창">사업자정보확인</a></li>
+					-->
+				</ul>
+			</div>
+			<div id="address">
+				<address><p>상호<span>신영종합개발</span> 대표자명<span>신 영 주</span> 사업장소재지<span>강원특별자치도 춘천시 동산면 종자리로 136(강원도 춘천시 동산면 군자리 1438)</span><br/>전화번호<span>033-269-8888</span> 팩스번호 <span> 033-269-8815 </span> 사업자등록번호 <span> 109-86-07226 </span> 통신판매번호<span> 2014-강원춘천-0037 </span>
+                    </p></address>
+			</div>
+			<div id="copyright">
+				<p><img src="/image/layout/COMMON_copyright.png" class="block" alt="Copyright ⓒ LORDHILLS Golf & Resort. All rights reserved." /></p>
+			</div>
+			<div id="family_navi">
+				<div id="family_navi_close">
+					<h4><a onClick="tab('family_navi_close','family_navi_open');">제휴사 열기</a></h4>
+				</div>
+				<div id="family_navi_open">
+					<h4><a onClick="tab('family_navi_open','family_navi_close');">제휴사 닫기</a></h4>
+					<ul>
+						<li><a href="http://www.lordhills.co.kr/" target="_blank" title="새창">로드힐스</a></li>
+					</ul>
+				</div>
+			</div>
+			<!--
+			<div id="sns_navi">
+				<ul class="clear">
+					<li class="cafe"><a href="http://cafe.naver.com/" target="_blank" title="새창">카페</a></li>
+					<li class="blog"><a href="http://blog.naver.com/" target="_blank" title="새창">블로그</a></li>
+					<li class="facebook"><a href="http://www.facebook.com/" target="_blank" title="새창">페이스북</a></li>
+				</ul>
+			</div>
+			-->
+		</div>
+		<!-- 푸터 종료 -->
+	</div>
+
+<div style="display:none">
+	<div id="mainpreviewContents" style="height:26px; line-height:26px; padding:0 5px; border:2px solid #6fcde4; font-family:'돋움', dotum; font-size:11px; color:#fff; background-color:#161b1b;"></div>
+</div>
+
+<script type="text/javascript">	
+	/* 풍성 도움말 설정 부분 */
+	function mainhelperMouseOver(activedObject, previewWindow, strHelp)
+	{
+		//activedObject.style.color = "#666";
+		//activedObject.style.fontWeight = "normal";
+		//activedObject.style.backgroundColor = "#ccc";
+		//activedObject.parentNode.style.backgroundColor = "";
+		previewWindow.innerHTML = strHelp;
+	}
+
+
+	function mainhelperMouseOut(activedObject, previewWindow)
+	{
+		//activedObject.style.color = "#666";
+		//activedObject.style.fontWeight = "normal";
+		//activedObject.style.backgroundColor = "#ccc";
+		//activedObject.parentNode.style.backgroundColor = "";
+		previewWindow.innerHTML = "";
+	}
+
+	var mainhelper = new TOOLTIP;
+		mainhelper.setPreviewWindow("mainpreviewContents");
+		mainhelper.mouseoutFunc = mainhelperMouseOut;
+		mainhelper.mouseoverFunc = mainhelperMouseOver;
+</script>
+
+
+<div id="ie_chk" class="ie_chk_area dp-none">
+    <button type="button" onclick="javascript:popHide('ie_chk')" class="btn-close"><span class="blind">현재창 닫기</span></button>
+    <div class="con">
+        <p class="tit">
+            <img src="/image/common/ico_ie.png" alt="ie" />
+            본사이트는 <strong>Internet Explorer 11</strong>버전<br/>에 <strong class="color-01">최적화</strong> 되어 있습니다.
+        </p>
+        <span>
+            <p class="btxt">‘Explorer 11이하’ 에서는 사용이 원활하지 않을 수 있습니다.</p>
+            <p class="btxt">Internet Explorer 11은 2022년 6월 15일부터 사용 및 지원이 중지됩니다. Microsoft Edge 사용을 권장합니다.</p>
+            <p class="txt">Explorer를 최신 버전으로 업데이트 하시거나, <br /><strong class="color-01">Chrome, 네이버 Whale</strong> 등의 브라우저를 이용해 주시기 바랍니다.</p>
+            <a href="http://windows.microsoft.com/ko-kr/internet-explorer/download-ie" target="_blank" title="새창열림" class="btn-upgrade">지금 업그레이드</a>
+            <p class="chk-uclose"><input type="checkbox" name="ie_chk_close" id="ie_chk_close" onclick="popHide('ie_chk')" /><label for="ie_chk_close">일주일간 표시 안하기</label></p>
+        </span>			
+    </div>
+</div>
+<script type="text/javascript">
+//익스플로러 중지 안내 활성화
+var agent = navigator.userAgent.toLowerCase();
+
+function ie_setCookie(name, value, days) {
+    if (days) {
+            var date = new Date();
+            date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+            var expires = "; expires=" + date.toGMTString();
+    } else {
+           var expires = "";
+    }
+    
+    document.cookie = name + "=" + value + expires + "; path=/";
+}
+
+ 
+//일주일간 표시 안하기
+function ie_getCookie(name) {
+    var i, x, y, ARRcookies = document.cookie.split(";");
+    
+    for (i = 0; i < ARRcookies.length; i++) {     
+        x = ARRcookies[i].substr(0, ARRcookies[i].indexOf("="));
+        y = ARRcookies[i].substr(ARRcookies[i].indexOf("=") + 1);
+        
+        x = x.replace(/^\s+|\s+$/g, "");
+
+        if (x == name) {
+                return unescape(y);
+        }
+    }
+}
+
+//ie_chk 레이어팝업 닫기
+function popHide(pop_id){
+    //document.getElementById(pop_id).style.display = "none";
+    $("#"+pop_id).hide(1000);
+    ie_setCookie('ie_chk_close', 'close', 7); //7일 후 만료
+}
+
+$(window).ready(function(){ 
+    var ie_Pchk = ie_getCookie('ie_chk_close');
+    //console.log(ie_Pchk);
+    if( ie_Pchk == 'close'){
+        $('#ie_chk').hide(1000);
+    }else{
+        if((navigator.appName == 'Netscape' && agent.indexOf('trident') != -1) || (agent.indexOf("msie") != -1)){
+            $('#ie_chk').removeClass('dp-none');
+        }
+    }
+});
+</script>
+
+</body>
+</html>
+<!-- ////////////////////////////////////////////////////////////////////////////////
+	Copyright(c)2026. cminfortek.com. All rights reserved.
+	이 사이트에 게제한 모든 소스와 정보에 대한 모든 권리는 씨엠인포텍(주)에게 있습니다.
+	사전 동의없이는 어떠한 형식과 방법으로든 무단 도용을 금합니다.
+	만일 위와 같은 권고에도 불구하고 무단 도용시 법적인 제재를 받으실 수 있습니다.
+	================================================================================
+	개인정보보호책임자 : XXXX (master@cminfor.co.kr)
+	기술 책임자 : XXXX (master@cminfor.co.kr)
+	컨텐츠 책임자 : XXXX (service@cminfor.co.kr)
+//////////////////////////////////////////////////////////////////////////////// -->

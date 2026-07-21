@@ -1,0 +1,589 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+
+<head>
+<title>스프링데일CC</title>
+	<meta name="Title" content="스프링데일 골프&리조트" />
+	<meta name="Description" content="스프링데일 골프&리조트, 스프링데일R&R, SPRING DALE GOLF&RESORT" />
+	<meta content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no, target-densitydpi=medium-dpi" name="viewport" />
+	<meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+
+	<link rel="shortcut icon" href="/images/favicon.ico" />
+	<link rel="stylesheet" href="common/css/common.css">
+	<link rel="stylesheet" href="common/css/popup.css">
+	<link rel="stylesheet" href="common/css/jquery.bxslider.css" />
+	<style>
+		.popup_common{display:none; z-index:2; position:absolute; border:2px solid #211d1e;}
+		.popup_common .course_img{width:400px;}
+		.popup_close{width: 100%; display:flex; position: relative; background-color:#231f20; align-items:center;}
+		.popup_close > a{display: inline-block; width: 50%; text-align: center; color:#d6d6d6; font-size: 16px; padding:7px 4px;}
+		.popup_close > a:nth-child(1){border-right:1px solid #555;}
+		.popup_common ul.slider > li {height:auto;}
+		#popup1{top:110px/* 368px */; left:20px;}
+		#popup2{top:110px/* 110px */; left:430px}
+		#popup3{top:110px/* 110px */; left:840px}
+		#popup4{top:110px; left:20px}
+		#popup4 .course_img{width:1220px;}
+		#popup5{top:299px; left:20px}
+		#popup5 .course_img{width:1220px;}
+		/*#popup3 .bx-viewport{height: 453px !important;}*/
+
+		@media screen and (max-width:767px){
+			.popup_common{width:75%; position:absolute; display:none; border:1px solid #ddd; background-color:#000;}
+			.popup_common .course_img, #popup4 .course_img, #popup5 .course_img{width:100%;}
+
+			#popup1{left:20px; top:140px;}
+			#popup2{left:40px; top:160px;}
+			#popup3{left:60px; top:180px;}
+			#popup4{left:80px; top:120px;}
+			#popup5{left:100px; top:120px;}
+			#popup2 .bx-viewport{height:auto !important;}
+			#popup3 .bx-viewport{height:auto !important;}
+			.pop_today{color:#fff;}
+			.pop_close{padding-right:8px; color:#fff; margin:auto;}
+		}
+	</style>
+
+	<script src="ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+	<script src="ajax/libs/jqueryui/1.9.1/jquery-ui.min.js"></script>
+	<script type="text/javascript" src="common/js/_basicFunction.js"></script>
+	<script src="common/js/common.js"></script>
+	<script src="common/js/jquery.bxslider.min.js"></script>
+	<script src="common/js/slick.min.js"></script>
+	<script src="common/js/jquery.cookie.js"></script>
+	<script async src="https://www.googletagmanager.com/gtag/js?id=UA-142853749-1"></script>
+
+	<script>
+	  window.dataLayer = window.dataLayer || [];
+	  function gtag(){dataLayer.push(arguments);}
+	  gtag('js', new Date());
+
+	  gtag('config', 'UA-142853749-1');
+	</script>
+
+	<style>
+
+		@media screen and (max-width: 720px) {
+			.main_popup02{top:50px !important}
+		}
+
+		.popup03 .bx-viewport{height:453px !important}
+		@media screen and (max-width: 720px) {
+			.popup03 .bx-viewport{height:auto !important}
+		}
+	</style>
+
+</head>
+
+	<script src="common/js/scrolloverflow.min.js"></script>
+	<script src="common/js/jquery.fullpage.min.js"></script>
+	<!--<script src="common/js/jquery.bxslider.min.js"></script>-->
+	<script src="common/js/bxslider_option2.js"></script>
+	<script>
+		$(function(){
+			$('#fpWrap').fullpage({
+				scrollOverflow: true,
+				scrollOverflowReset: true,
+				navigation: true,
+				//scrollBar: true,
+				normalScrollElements: ".ovBox",
+				navigation: true,
+				//menu: '#fp-menu',
+				anchors: ['springdale', 'springdalelife', 'notice'],
+
+				afterLoad: function (anchorLink, index){
+					if (index == 1 ){
+						$('.fp_item1').addClass('on');
+						$('#fp-menu > li').eq(0).addClass('on');
+					}
+					if(index == 2 ){
+						 $('.fp_item2').addClass('on');
+						 $('#fp-menu > li').eq(1).addClass('on');
+					}
+					if(index == 3){
+						 $('.fp_item3').addClass('on');
+						 $('#fp-menu > li').eq(2).addClass('on');
+					}
+				   if(index == 4){
+						 $('.fp_item4').addClass('on');
+						 $('#fp-menu > li').eq(3).addClass('on');
+					}
+				},
+
+				onLeave: function(index, nextIndex, direction){
+				   //console.log(nextIndex);
+					$('#fp-menu > li').removeClass('on');
+					$('#fp-menu > li').eq(nextIndex-1).addClass('on');
+					if(nextIndex == 4){
+						$('#fp-menu').removeClass('on');
+						$('#container').removeClass('load');
+					}else{
+						$('#fp-menu').addClass('on');
+						$('#container').addClass('load');
+					}
+				}
+			});
+
+		//	$('#fp-menu').addClass('on');
+			$(window).on('load',function(){
+				$('#fp-menu').addClass('on');
+				$('#container').addClass('load');
+			});
+
+			$slick_slider = $('.list_pl');
+
+			$slick_slider.slick({
+				slidesToShow: 3,
+				slidesToScroll: 1,
+					 responsive: [
+					{
+					  breakpoint: 1100,
+					  settings: {
+						slidesToShow: 2,
+						slidesToScroll: 1
+					  }
+					},
+					{
+					  breakpoint: 767,
+					  settings: {
+						slidesToShow: 1,
+						slidesToScroll: 1
+					  }
+					}
+				  ]
+			 });
+		});
+	</script>
+	<script>
+		$(document).ready(function () {
+			if($.cookie("days1")==null) $("#popup1").show();
+			if($.cookie("days2")==null) $("#popup2").show();
+			if($.cookie("days3")==null) $("#popup3").show();
+			if($.cookie("days4")==null) $("#popup4").show();
+			if($.cookie("days5")==null) $("#popup5").show();
+
+			// 오늘하루보지않기
+			$("#popup1 .pop_today").on("click",function(){
+				$("#popup1").fadeOut("fast");
+				$.cookie("days1","nopop",{expires:1});
+				return false;
+			});
+			$("#popup2 .pop_today").on("click",function(){
+				$("#popup2").fadeOut("fast");
+				$.cookie("days2","nopop",{expires:1});
+				return false;
+			});
+			$("#popup3 .pop_today").on("click",function(){
+				$("#popup3").fadeOut("fast");
+				$.cookie("days3","nopop",{expires:1});
+				return false;
+			});
+
+			$("#popup4 .pop_today").on("click",function(){
+				$("#popup4").fadeOut("fast");
+				$.cookie("days4","nopop",{expires:1});
+				return false;
+			});
+
+			$("#popup5 .pop_today").on("click",function(){
+				$("#popup5").fadeOut("fast");
+				$.cookie("days5","nopop",{expires:1});
+				return false;
+			});
+
+			// 팝업창 닫기
+			$(".pop_close").on("click",function(){
+				$(this).parent().parent().fadeOut("fast");
+				return false;
+			});
+		});
+	</script>
+<body>
+	<!-- layer popup start -->
+
+	<!-- 슬라이더 기능 class="slider" 삽입 / 높이값 상단 CSS 수정 -->
+	<div id="popup1" class="popup_common">
+		<div class="course_img">
+			<ul class="slider">
+				<li><a href="/html/customer/customer_01_view.asp?b_idx=151"><img src="https://tv-image.teins.co.kr/springdale/board/news/img/event_260709.jpg" alt="예약일고지"></a></li>
+				<li><a href="/html/customer/customer_01_view.asp?b_idx=114"><img src="https://tv-image.teins.co.kr/springdale/board/news/img/event_260622.jpg" alt="예약방법안내"></a></li>
+
+
+				<!--
+
+				<li><a href="/html/customer/customer_01_view.asp?b_idx=147"><img src="https://tv-image.teins.co.kr/springdale/board/news/img/event_260430b.jpg" alt="그린배토-갱신"></a></li>
+				<li><a href="/html/customer/customer_01_view.asp?b_idx=105"><img src="images/popup/popup_240121.jpg" alt="실시간예약-변경"></a></li>
+				<li><a href="/html/customer/customer_01_view.asp?b_idx=43"><img src="images/popup/popup_210528.jpg" alt="성수기기간안내"></a></li>
+				<li><a href="/html/customer/customer_01_view.asp?b_idx=40"><img src="images/popup/popup_210421.jpg" alt="그린피인상"></a></li>
+				<li><a href="/html/customer/customer_01_view.asp?b_idx=39"><img src="images/popup/popup_210322.jpg" alt="카트비인상"></a></li>
+				<li><a href="/html/customer/customer_01_view.asp?b_idx=37"><img src="images/popup/popup_210119.jpg" alt="객실입퇴실시간"></a></li>
+				<li><a href="/html/customer/customer_01_view.asp?b_idx=34"><img src="images/main/popup_200921.jpg" alt="제주도민 그린피 인상 안내"></a></li>
+				<li><img src="images/main/popup_200205.jpg" alt="휴장안내"></li>
+				<li><a href="/html/customer/customer_01_view.asp?b_idx=129"><img src="/images/popup/event_250515.jpg" alt="여름성수기-기간"></a></li>
+				<li><a href="/html/customer/customer_01_view.asp?b_idx=95"><img src="images/popup/popup_230827_2.jpg" alt="추석-객실-성수기"></a></li>
+				<li><a href="/html/customer/customer_01_view.asp?b_idx=65"><img src="images/popup/popup_220325.jpg" alt="골프텔3차-분양"></a></li> -->
+
+			</ul>
+		</div>
+		<div class="popup_close">
+			<a href="#" class="pop_today">오늘 하루 동안 보이지 않기</a><a href="#" class="pop_close">닫기</a>
+		</div>
+	</div>
+	
+	<div id="popup2" class="popup_common">
+		<div class="course_img">
+			<ul class="slider"><!-- 슬라이더 기능 class="slider" 삽입 / 높이값 상단 CSS 수정 -->
+				<li><a href="/html/customer/customer_01_view.asp?b_idx=150"><img src="https://tv-image.teins.co.kr/springdale/board/news/img/event_260622b.jpg" alt="예약방법-변경안내"></a></li>
+				<li><a href="" style="cursor:default;"><img src="images/popup/popup_241231.jpg" alt="당일예약-프론트-문의"></a></li>
+			</ul>
+		</div>
+		<div class="popup_close">
+			<a href="#" class="pop_today">오늘 하루 동안 보이지 않기</a><a href="#" class="pop_close">닫기</a>
+		</div>
+	</div>
+
+	<div id="popup3" class="popup_common">
+		<div class="course_img">
+			<ul class="">
+				<li><a href="" style="cursor:default;"><img src="/images/popup/popup_260716.png" alt="신메뉴출시"></a></li>
+			</ul>
+		</div>
+		<div class="popup_close">
+			<a href="#" class="pop_today">오늘 하루 동안 보이지 않기</a><a href="#" class="pop_close">닫기</a>
+		</div>
+	</div>
+
+	<!--
+	<div id="popup4" class="popup_common">
+		<div class="course_img">
+			<ul class="">
+				<li><img src="images/popup/popup_250924.jpg" alt="골프친선대회"></li>
+			</ul>
+		</div>
+		<div class="popup_close">
+			<a href="#" class="pop_today">오늘 하루 동안 보이지 않기</a><a href="#" class="pop_close">닫기</a>
+		</div>
+	</div>
+	-->
+	<!--
+	<div id="popup5" class="popup_common">
+		<div class="course_img">
+			<ul class="">
+				<li><img src="images/popup/popup_250711.jpg" alt="최우수골프장선정"></li>
+			</ul>
+		</div>
+		<div class="popup_close">
+			<a href="#" class="pop_today">오늘 하루 동안 보이지 않기</a><a href="#" class="pop_close">닫기</a>
+		</div>
+	</div>
+	-->
+	<!-- // layer popup end -->
+
+
+	<div id="wrap" class="main">
+		<div id="header">
+	<h1><a href="/" class="logo">SPRING DALE Golf&Resort</a></h1>
+	<div class="gnbWrap">
+		<ul id="gnb" class="clearfix">
+			<li  >
+				<a href="/html/introduction/introduction_01.asp"><span>INTRODUCTION</span></a>
+				<ul class="depth2">
+					<li><a href="/html/introduction/introduction_01.asp">클럽소개</a></li>
+					<li><a href="/html/introduction/introduction_02.asp">CEO 인사말</a></li>
+					<li><a href="/html/introduction/introduction_03.asp">연혁</a></li>
+					<li><a href="/html/introduction/introduction_04.asp">오시는 길</a></li>
+				</ul>
+			</li>
+			<li >
+				<a href="/html/course/course_01.asp"><span>COURSE</span></a>
+				<ul class="depth2">
+					<li><a href="/html/course/course_01.asp">코스소개</a></li>
+					<li><a href="/html/course/course_02_01.asp">스프링 코스</a></li>
+					<li><a href="/html/course/course_03_01.asp">데일 코스</a></li>
+				</ul>
+			</li>
+			<li >
+				<a href="/html/facility/facility_01_01.asp"><span>FACILITY</span></a>
+				<ul class="depth2">
+					<li><a href="/html/facility/facility_01_01.asp"><span>골프장</span></a></li>
+					<li><a href="/html/facility/facility_02_01.asp"><span>골프텔</span></a></li>
+				</ul>
+			</li>
+			<li >
+				<a href="/html/guide/guide_01.asp"><span>CLUB GUIDE</span></a>
+				<ul class="depth2">
+					<li><a href="/html/guide/guide_01.asp">이용안내</a></li>
+					<li><a href="/html/guide/guide_02.asp">이용금액</a></li>
+					<li><a href="/html/guide/guide_03.asp">로컬룰</a></li>
+				</ul>
+			</li>
+			<li >
+				<a href="/html/reservation/reservation_01.asp"><span>RESERVATION</span></a>
+				<ul class="depth2">
+					<li><a href="/html/reservation/reservation_01.asp">예약안내(위약규정)</a></li>
+					<li><a href="/html/reservation/reservation_02_01.asp">골프예약</a></li>
+					<li><a href="/html/reservation/reservation_02_02.asp">객실예약</a></li>
+					<li><a href="/html/reservation/reservation_03.asp">예약확인/취소</a></li>
+					<li><a href="/html/reservation/memb_PROC.asp">포인트 확인</a></li>  
+					<li><a href="/html/reservation/reservation_04_list.asp">조인방</a></li>
+				</ul>
+			</li>
+			<li >
+				<a href="/html/member/join.asp"><span>MEMBERSHIP</span></a>
+				<ul class="depth2">
+
+					<li><a href="/html/member/join.asp">온라인회원가입</a></li>
+
+
+					<!--<li><a href="/html/member/myHistory_list.asp">나의 이용내역</a></li>-->
+					<li><a href="/html/member/member_board_list.asp">고객 게시판</a></li>
+					<li><a href="/html/member/honor_photo_list.asp">영광의 순간들</a></li>
+				</ul>
+			</li>
+			<li >
+				<a href="/html/customer/customer_01_list.asp"><span>CUSTOMER SERVICE</span></a>
+				<ul class="depth2">
+					<li><a href="/html/customer/customer_01_list.asp">클럽소식</a></li>
+					<li><a href="/html/customer/customer_02_list.asp">포토갤러리</a></li>
+					<li><a href="/html/customer/customer_03_list.asp">RCI정보</a></li>
+					<li><a href="/html/customer/customer_04.asp">자주하는 질문</a></li>
+					<li><a href="/html/customer/customer_05.asp">날씨정보</a></li>
+				</ul>
+			</li>
+		</ul>
+	</div>
+
+	<div class="gnbBtn">
+
+		<a href="/html/member/login.asp" class="gtContact">로그인</a>
+		<a href="/html/member/join.asp" class="gtContact gtContactJoin">간편가입</a>
+
+
+	</div> 
+
+	<a href="#" class="btn_all_menu">
+		<div>
+			<span class="barTop"></span>
+			<span class="barMid"></span>
+			<span class="barBot"></span>
+		</div>
+	</a>
+
+	<div class="allMenuWrap">
+		<div class="allMenuWrap_inner">
+			<div class="allMenu_inner">
+				<ul class="allMenu clearfix">
+					<li>
+						<a href="/html/introduction/introduction_01.asp">INTRODUCTION</a>
+						<p>INTRODUCTION</p>
+						<ul class="dep2">
+							<li><a href="/html/introduction/introduction_01.asp">클럽소개</a></li>
+							<li><a href="/html/introduction/introduction_02.asp">CEO 인사말</a></li>
+							<li><a href="/html/introduction/introduction_03.asp">연혁</a></li>
+							<li><a href="/html/introduction/introduction_04.asp">오시는 길</a></li>
+						</ul>
+					</li>
+					<li>
+						<a href="/html/course/course_01.asp">COURSE</a>
+						<p>COURSE</p>
+						<ul class="dep2">
+							<li><a href="/html/course/course_01.asp">코스소개</a></li>
+							<li><a href="/html/course/course_02_01.asp">스프링 코스</a></li>
+							<li><a href="/html/course/course_03_01.asp">데일 코스</a></li>
+						</ul>
+					</li>
+					<li>
+						<a href="/html/facility/facility_01_01.asp">FACILITY</a>
+						<p>FACILITY</p>
+						<ul class="dep2">
+							<li><a href="/html/facility/facility_01_01.asp"><span>골프장</span></a></li>
+							<li><a href="/html/facility/facility_02_01.asp"><span>골프텔</span></a></li>
+						</ul>
+					</li>
+					<li>
+						<a href="/html/guide/guide_01.asp">CLUB GUIDE</a>
+						<p>CLUB GUIDE</p>
+						<ul class="dep2">
+							<li><a href="/html/guide/guide_01.asp">이용안내</a></li>
+							<li><a href="/html/guide/guide_02.asp">이용금액</a></li>
+							<li><a href="/html/guide/guide_03.asp">로컬룰</a></li>
+						</ul>
+					</li>
+					<li>
+						<a href="/html/reservation/reservation_01.asp">RESERVATION</a>
+						<p>RESERVATION</p>
+						<ul class="dep2">
+							<li><a href="/html/reservation/reservation_01.asp">예약안내</a></li>
+							<li><a href="/html/reservation/reservation_02_01.asp">골프예약</a></li>
+							<li><a href="/html/reservation/reservation_02_02.asp">객실예약</a></li>
+							<li><a href="/html/reservation/reservation_03.asp">예약확인/취소</a></li>
+							<li><a href="/html/reservation/memb_PROC.asp">포인트 확인</a></li>  
+							<li><a href="/html/reservation/reservation_04_list.asp">조인방</a></li>
+						</ul>
+					</li>
+					<li>
+						<a href="/html/member/join.asp">MEMBERSHIP</a>
+						<p>MEMBERSHIP</p>
+						<ul class="dep2">
+
+							<li><a href="/html/member/join.asp">온라인회원가입</a></li>
+
+							<!--<li><a href="/html/member/myHistory_list.asp">나의 이용내역</a></li>-->
+							<li><a href="/html/member/member_board_list.asp">고객 게시판</a></li>
+							<li><a href="/html/member/honor_photo_list.asp">영광의 순간들</a></li>
+						</ul>
+					</li>
+					<li>
+						<a href="/html/customer/customer_01_list.asp">CUSTOMER SERVICE</a>
+						<p>CUSTOMER SERVICE</p>
+						<ul class="dep2">
+							<li><a href="/html/customer/customer_01_list.asp">클럽소식</a></li>
+							<!--<li><a href="/html/customer/customer_02_list.asp">포토갤러리</a></li>-->
+							<li><a href="/html/customer/customer_03_list.asp">RCI정보</a></li>
+							<li><a href="/html/customer/customer_04.asp">자주하는 질문</a></li>
+							<li><a href="/html/customer/customer_05.asp">날씨정보</a></li>
+						</ul>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</div>
+	<div class="amDim"></div>
+
+</div>
+
+				<div id="container">
+					<div class="scrollDown">
+						<p>Scroll</p>
+						<span><img src="images/main/icon_scroll.png" alt=""></span>
+					</div>
+
+					<div id="fpWrap" class="fpWrap">
+						<!-- Visual {-->
+						<div id="" class="section fp_item fp_item1" >
+							<div class="main_sec_cont fp_inner">
+								<div class="txt_box">
+									<span class="">세계 100위 골프장을 목표로 만든<br /> 절묘한 골프코스!</span>
+									<p><strong>SPRINGDALE</strong>Golf & Resort</p>
+								</div>
+							</div>
+						</div>
+						<!--// Visual }-->
+
+						<!-- Quick_menu {-->
+						<div id="" class="section fp_item fp_item2">
+							<div class="main_sec_cont fp_inner">
+								<div class="txt_box">
+									<strong>Spring Dale Life</strong>
+								</div>
+								<ul class="icon_list list_mb">
+									<li>
+										<a href="/html/course/course_01.asp">
+											<div class="txt_area1">
+												<div class="title">코스소개<span>COURSE</span></div>
+												<p>숲이 주는 건강의 선물을 골퍼들에게<br /> 나눠줌을 느끼실 수 있을 것입니다.</p>
+												<div class="more">자세히 보기</div>
+											</div>
+											<img src="images/main/life_img_01.jpg" alt="" />
+										</a>
+									</li>
+									<li>
+										<a href="/html/reservation/reservation_02_01.asp">
+											<img src="images/main/life_img_02.jpg" alt="" />
+											<div class="txt_area2">
+												<div class="title">예약하기<span>RESERVATION</span></div>
+												<p>스트링데일에서 골프예약은<br /> 쉽고 빠르게 할 수 있습니다.</p>
+												<div class="more">자세히 보기</div>
+											</div>
+										</a>
+									</li>
+									<li>
+										<a href="/html/guide/guide_01.asp">
+											<div class="txt_area1">
+												<div class="title">이용안내<span>CLUB GUIDE</span></div>
+												<p>스프링데일 이용에 관한<br /> 안내입니다.</p>
+												<div class="more">자세히 보기</div>
+											</div>
+											<img src="images/main/life_img_03.jpg" alt="" />
+										</a>
+									</li>
+								</ul>
+							</div>
+						</div>
+						<!--// Quick_menu }-->
+
+						<!-- 공지사항 {-->
+						<div id="" class="section fp_item fp_item3">
+						   <div class="main_sec_cont fp_inner">
+								<div class="txt_box">
+									<strong>NOTICE</strong>
+								</div>
+
+								<ul class="list_notice icon_list">
+									<li>
+										<div class="notice">
+											<div class="title">클럽소식 <a href="/html/customer/customer_01_list.asp"><span>더보기 →</span></a></div></a>
+											<dl>
+
+												<dd>골프예약일 고지 안내 (07/<span>2026-07-09</span></dd>
+
+												<dd>예약방법 변경안내<span>2026-06-23</span></dd>
+
+												<dd>골프예약일 고지 안내 (06/<span>2026-06-10</span></dd>
+
+												<dd>골프예약일 고지 안내 (05/<span>2026-05-11</span></dd>
+
+											</dl>
+										</div>
+									</li>
+									<li>
+										<div class="notice">
+											<div class="title">골프부킹정보 <a href="/html/reservation/reservation_02_01.asp"><span>더보기 →</span></a></div>
+											<dl>
+
+
+						<ul><!-- 날짜를 클릭하면 해당 날짜에 예약가능한 코스 및 시간을 선택할 수 있다. 예약페이지로 이동 -->
+
+											</dl>
+										</div>
+									</li>
+								</ul>
+							</div>
+						</div>
+						<!--// 공지사항 }-->
+
+						<div class="section fp-auto-height section_footer">
+	<div id="footer">
+		<div class="footer_inner">
+			<div class="footerBtn">
+				<a href="/html/member/TOS.asp">이용약관</a> <a href="/html/reservation/reservation_01.asp">위약규정</a> <a href="/html/member/PS.asp">개인정보처리방침</a> <a href="/html/member/IIPP.asp">영상정보처리정책</a>
+			</div>
+			<div class="footerCont">
+				<ul>
+					<li class="w100p"><!--SpringDale -->동국개발 대표 : 강국창</li>
+					<li>주소 : 제주특별자치도 서귀포시 남원읍 서성로 459번지</li>
+					<li>TEL. 064-800-8000 </li>
+					<li>FAX. 02-6455-4781</li>
+					<li>사업자등록번호 : 616-81-46019</li>
+					<li>통신판매업신고 : 2023-제주남원-00013</li>
+					<li>E-mail : spring800@nate.com</li>
+				</ul>
+			</div>
+			<p class="copy">Copyright © 2019 SPRINGDALE GOLF&RESORT All rights reserved.</p>
+		</div>
+	</div>
+</div>
+
+					</div>
+				</div>
+			</div>
+
+
+
+
+</body>
+
+
+</html>

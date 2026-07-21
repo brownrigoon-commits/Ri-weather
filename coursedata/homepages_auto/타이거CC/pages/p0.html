@@ -1,0 +1,815 @@
+ 
+
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=2.0,minimum-scale=1.0,target-densitydpi=medium-dpi" />
+	<meta name="title" content=" 타이거CC, TIGER CC">
+	<meta name="author" content="타이거CC">
+	<meta name="Keywords" content="타이거CC, TIGER CC">
+	<meta name="description" content="타이거CC">
+	<meta name="copyright" content="All Contents Copyright©TIGER CC">
+	<meta property="og:type" content="website">
+	<meta property="og:title" content="타이거CC, TIGER CC">
+	<meta property="og:description" content="타이거CC, TIGER CC,">
+	<meta property="og:url" content="">
+    <title>타이거CC</title>
+    <link rel="stylesheet" type="text/css" href="/css/import.css">
+    <link rel="stylesheet" type="text/css" href="/css/slick.css">
+    <link rel="stylesheet" type="text/css" href="/css/swiper.css">
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+	<script type="text/javascript" src="/js/common.js"></script>
+	<script src="/js/slick.js"></script>
+	<script src="/js/swiper.js"></script>
+	<script src="/js/globals.js"></script>
+	<script src="/js/tools.js"></script>
+	<script src="/js/jquery.preloaders.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.1/gsap.min.js"></script>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.2/css/all.min.css">
+	<link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+	<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+	<script>
+		function doLogout() {
+			var sUrl = "/Controller/MemberController.asp";
+			var params = {};
+
+			params["method"] = "doLogout";
+
+			mAjax(sUrl, params, "POST", true, function(data) {
+				if(data.resultCode == "0000") {
+					alert("로그아웃 되었습니다.");
+					location.href = "/index.asp"
+				}
+			});
+		}
+        function doDeleteMember() {
+	        conYn = confirm("회원탈퇴를 하시겠습니까?");
+	        if (conYn == true)	{
+		        var sUrl = "/controller/MemberController.asp";
+		        var params = {};
+		        params["method"] = "doDeleteMemeber";
+		        params["coDiv"] = globals.coDiv;
+            
+		        mAjax(sUrl, params, "POST", true, function(data) {
+			        if(data.resultCode == "0000") {
+				        alert("회원탈퇴 되었습니다.");
+				        location.href = "/index.asp";
+			        } else {
+				        alert(data.resultMessage);
+			        }
+		        });
+	        }
+        }
+	</script>
+	
+		<script>
+			$(document).ready(function(){
+				$("header").addClass('main');
+			});
+		</script>
+	
+	<script>
+		$(document).ready(function(){
+	  		AOS.init();
+			initMenus();
+		});
+
+		var bigMenu, midMenu;
+
+		var bigMenus = {
+			"club" : "클럽소개",
+			"reservation" : "인터넷예약",
+			"join" : "실시간조인",
+			"restaurant" : "레스토랑",
+			"course" : "코스안내",
+			"facil" : "시설안내",
+			"board" : "고객센터"
+		}
+
+		var midMenus = {
+			"club" : {
+				"/club/intro.asp" : ["클럽안내", true],
+				"/club/greeting.asp" : ["인사말", true],
+				"/club/map.asp" : ["오시는길", true]
+			},
+			"reservation" : {
+				"/reservation/reservation.asp" : ["예약하기", true],
+				"/reservation/reserCheck.asp" : ["예약확인", true],
+				"/reservation/penalty.asp" : ["위약규정", true],
+				"/reservation/placebo.asp" : ["위약확인", true],
+				"/reservation/reserGuide.asp" : ["예약안내", true],
+				"/reservation/reserUser.asp" : ["이용안내", true]
+			},
+			"restaurant" : {
+				"/restaurant/restaurant.asp" : ["레스토랑", true]
+			},
+			"course" : {
+				// "/course/aerial_photo.asp" : ["코스 항공 촬영뷰", true], 
+				"/course/course.asp" : ["코스안내", true],
+				"/course/course_gaon.asp" : ["코스공략도", true],
+				"/course/course_nury.asp" : ["코스공략도", false],
+				"/board/list.asp?type=8" : ["코스갤러리", true],
+				"/board/view.asp?type=8" : ["코스갤러리", false]
+			},
+			"board" : {
+				"/board/list.asp?type=1" : ["공지사항", true],
+				"/board/list.asp?type=2" : ["클럽뉴스", true],
+				"/board/list.asp?type=3" : ["분실물센터", true],
+				"/board/list.asp?type=4" : ["포토갤러리", true],
+				"/board/view.asp?type=1" : ["공지사항", false],
+				"/board/view.asp?type=2" : ["클럽뉴스", false],
+				"/board/view.asp?type=3" : ["분실물센터", false],
+				"/board/view.asp?type=4" : ["포토갤러리", false]
+				
+			},
+			"facil" : {
+				"/facil/facil01.asp" : ["클럽하우스", true],
+				"/facil/facil02.asp" : ["로비", true],
+				"/facil/facil03.asp" : ["락커룸", true],
+				"/facil/facil04.asp" : ["파우더룸", true],
+				"/facil/facil05.asp" : ["사우나", true],
+				"/facil/facil06.asp" : ["대식당", true],
+				"/facil/facil07.asp" : ["연회장", true],
+				"/facil/facil08.asp" : ["스타트하우스", true],
+				"/facil/facil09.asp" : ["그늘집", true],
+				"/facil/facil10.asp" : ["프로샵", true],
+				
+			}
+		}
+
+		function initMenus() {
+			var url = window.location.href;
+
+			for(var key in midMenus) {
+				for(var page in midMenus[key]) {
+					if(url.indexOf(page) > 0) {
+						$("#txtBigMenuName").html(bigMenus[key]);
+						$("#txtMidMenuName").html(midMenus[key][page][0]);
+						bigMenu = key;
+						midMenu = page;
+						break;
+					}
+				}
+
+				if(bigMenu != null && bigMenu != "") {
+					break;
+				}
+			}
+
+			$("#midMenuContainer").empty();
+
+			for(var key in midMenus[bigMenu]) {
+				if(midMenus[bigMenu][key][1]){
+					$("#midMenuContainer").append(String.format("<li><a href='{0}'>{1}</a></li>", key, midMenus[bigMenu][key][0]));
+				}
+			}
+		}
+	</script>
+	
+	<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-26YNPSFFNR"></script>
+<script>
+	window.dataLayer = window.dataLayer || [];
+	function gtag(){dataLayer.push(arguments);}
+	gtag('js', new Date());
+
+	gtag('config', 'G-26YNPSFFNR');
+</script>	
+</head>
+
+<body>
+    <div id="wrap"> 
+		<header>
+			<div class="logo"><a href="/index.asp"><img src="/images/logo.svg"></a></div>
+			<div class="top-menu">
+							
+				<a href="/board/list.asp?type=9">오늘의 타이거CC</a>
+				<a href="/join/login.asp">로그인</a>
+				<a href="/join/join01.asp">회원가입</a>
+			
+			</div>
+			<div class="menu-container">
+				<div class="menu-btn">
+					<div class="menu-btn__burger">
+					</div>
+				</div>
+			</div>
+			<div class="menu-bg-box" id="bg-menu-box1"></div>
+			<div class="menu-bg-box" id="bg-menu-box2"></div>
+			<div class="menu-bg-box" id="bg-menu-box3"></div>
+			<div class="menu-bg-box" id="bg-menu-box4"></div>
+
+			<nav>
+				<div class="nav-top">
+				
+					<a href="/board/list.asp?type=9">오늘의 타이거CC</a>
+					<a href="/join/login.asp">로그인</a>
+					<a href="/join/join01.asp">회원가입</a>
+				
+				</div>
+				<div class="nav">
+					<p class="simbol"><img src="/images/simbol.svg"></p>
+					<div class="gnb" id="menu1" onclick="onTapChange(1)"><span class="">클럽소개</span></div>
+					<ul class="lnb" id="sub_menu1">
+						<a href="/club/intro.asp">- 클럽안내 -</a>
+						<a href="/club/greeting.asp">- 인사말 -</a>
+						<a href="/club/map.asp">- 오시는 길 -</a>
+					</ul>
+					<div class="gnb" id="menu2" onclick="onTapChange(2)"><span>인터넷예약</span></div>
+					<ul class="lnb" id="sub_menu2">
+						<a href="/reservation/reservation.asp">- 예약하기 -</a>
+						<a href="/reservation/reserCheck.asp">- 예약확인/취소 -</a>
+						<a href="/reservation/penalty.asp">- 위약규정 -</a>
+						<a href="/reservation/placebo.asp">- 위약확인 -</a>
+						<a href="/reservation/reserGuide.asp">- 예약안내 -</a>
+						<a href="/reservation/reserUser.asp">- 이용안내 -</a>
+					</ul>
+					<div class="gnb" id="menu3" onclick="onTapChange(3)"><span>실시간조인</span></div>
+					<ul class="lnb" id="sub_menu3">
+						<a href="https://www.teeupnjoy.com/hp/clubid/636.do" target="_blank">- 실시간조인 -</a>
+					</ul>
+					<div class="gnb" id="menu7" onclick="onTapChange(7)"><span>레스토랑</span></div>
+					<ul class="lnb" id="sub_menu7">
+						<a href="/restaurant/restaurant.asp">- 레스토랑 -</a>
+					</ul>
+					<div class="gnb" id="menu4" onclick="onTapChange(4)"><span>코스안내</span></div>
+					<ul class="lnb" id="sub_menu4">
+						<!-- <a href="/course/aerial_photo.asp">- 코스 항공 촬영뷰 -</a> -->
+						<a href="/course/course.asp">- 코스안내 -</a>
+						<a href="/course/course_gaon.asp">- 코스공략도 -</a>
+						<a href="/board/list.asp?type=8">- 코스갤러리 -</a>
+					</ul>
+					<div class="gnb" id="menu5" onclick="onTapChange(5)"><span>시설안내</span></div>
+					<ul class="lnb" id="sub_menu5">
+						<a href="/facil/facil01.asp">- 시설안내 -</a>
+					</ul>
+					<div class="gnb" id="menu6" onclick="onTapChange(6)"><span>고객센터</span></div>
+					<ul class="lnb" id="sub_menu6">
+						<a href="/board/list.asp?type=1">- 공지사항 -</a>
+						<a href="/board/list.asp?type=2">- 클럽뉴스 -</a>
+						<a href="/board/list.asp?type=3">- 분실물센터 -</a>
+						<a href="/board/list.asp?type=4">- 포토갤러리 -</a>
+					</ul>
+				</div>
+			</nav>
+		</header>
+	
+
+<script type="text/javascript">
+	var mDate;
+	var mCos = "";
+	var mYear, mMonth;
+	var rowData;
+
+	$(document).ready(function(data) {
+		//setProtocol();
+		chkMobile();
+		init();
+		getPopupList();
+	});
+
+	function chkMobile() {
+		var mobileKeyWords = new Array('iPhone', 'iPod', 'iPad', 'BlackBerry', 'Android', 'Windows CE', 'MOT', 'SAMSUNG', 'SonyEricsson');
+		for (var word in mobileKeyWords) {
+			if ( navigator.userAgent.match(mobileKeyWords[word]) != null ) {
+				location.href = "/mobile/index.asp";
+				break;
+			}
+		}
+	}
+
+	function setProtocol() {
+		if (document.location.protocol == 'http:') {
+			document.location.href = document.location.href.replace('http:', 'https:');
+		}
+	}
+
+	function init() {
+		var date = new Date();
+		mYear = date.yyyy();
+		mMonth = date.mm();
+
+		initCalendar("#calendarBox", mYear, mMonth);
+		getMainNotice();
+	}
+
+	function initCalendar(selector, year, month) {
+		var sUrl = "/controller/ReservationController.asp";
+		var params = {};
+
+		params["method"] = "getCalendar";
+		params["coDiv"] = globals.coDiv;
+		params["selYm"] = year + month;
+
+		mAjax(sUrl, params, "POST", true, function(data) {
+			if(data.resultCode == "0000") {
+				$("#calYear").html(year);
+				$("#calMonth").html(month + "월");
+
+				var currentDay = new Date().yyyymmdd();
+				var tBody = $(selector + " #calendar-body");
+				tBody.empty();
+
+				var rows = data.rows;
+
+				if(rows.length > 0) {
+					var row = $("<tr></tr>");
+
+					var fWeek = rows[0].CL_DAYDIV - 1;
+
+					for(i=0; i<fWeek; i++) {
+						row.append($("<td></td>"));
+					}
+					for(i=0; i<rows.length; i++) {
+						var td = $("<td>" + rows[i].DAYNUM + "</td>");
+
+						if(rows[i].CL_SOLAR == currentDay) {
+							var td = $("<td><span></span>" + rows[i].DAYNUM + "</td>");
+							td.addClass('today');
+							
+							if(rows[i].BK_TEAM > 0) {
+								var td = $("<td>" + rows[i].DAYNUM + "<span>" + rows[i].BK_TEAM + "</span></td>");
+								td.data('date', rows[i].CL_SOLAR);
+								td.addClass('possible');
+								td.on('click', function() {
+									doSearch($(this).data('date'));
+								});
+							}							
+						} else if(rows[i].CL_SOLAR > currentDay) {
+							if(rows[i].BK_TEAM > 0) {
+								var td = $("<td>" + rows[i].DAYNUM + "<span>" + rows[i].BK_TEAM + "</span></td>");
+								td.data('date', rows[i].CL_SOLAR);
+								td.addClass('possible');
+								td.on('click', function() {
+									doSearch($(this).data('date'));
+								});
+							}
+						}
+
+						row.append(td);
+
+						if(rows[i].CL_DAYDIV == 7) {
+							row.appendTo(tBody);
+							row = $("<tr></tr>");
+						}
+					}
+
+					var addTd = 7 - row.children("td").length;
+
+					if(addTd != 7) {
+						for(i=0; i<addTd; i++) {
+							row.append($("<td></td>"));
+						}
+					}
+
+					row.appendTo(tBody);
+				} else {
+					tBody.append($("<tr><td colspan='7'></td></tr>"));
+					tBody.append($("<tr><td colspan='7'></td></tr>"));
+					tBody.append($("<tr><td colspan='7'></td></tr>"));
+					tBody.append($("<tr><td colspan='7'></td></tr>"));
+					tBody.append($("<tr><td colspan='7'></td></tr>"));
+					tBody.append($("<tr><td colspan='7'></td></tr>"));
+				}
+			} else {
+				alert(data.resultMessage);
+			}
+		});
+	}
+
+	function doNextMonth() {
+		if(mMonth == "12") {
+			mYear += 1;
+			mMonth = "01";
+		} else {
+			mMonth = Number(mMonth) + 1;
+			mMonth = (mMonth>9 ? '' : '0') + mMonth;
+		}
+
+		initCalendar("#calendarBox", mYear, mMonth);
+	}
+
+	function doPrevMonth() {
+		if(mMonth == "01") {
+			mYear -= 1;
+			mMonth = "12";
+		} else {
+			mMonth = Number(mMonth) - 1;
+			mMonth = (mMonth>9 ? '' : '0') + mMonth;
+		}
+
+		initCalendar("#calendarBox", mYear, mMonth);
+	}
+
+	function doSearch(date) {
+		mDate = date;
+
+		if(mDate == null || mDate == '') {
+			alert("날짜를 선택하세요.");
+			return;
+		}
+		$("#bkDay").val(mDate);
+		$("#reser").submit();
+	}
+
+	function getMainNotice() {
+		var sUrl = "/controller/BoardController.asp";
+		var params = {};
+
+		params["method"] = "getBoardList";
+
+		params["coDiv"]    = globals.coDiv;
+		params["type"]     = "1";
+		params["startCnt"] = 0;
+		params["pageCnt"]  = 3;
+
+		mAjax(sUrl, params, "POST", false, function(data) {
+			if(data.resultCode == "0000") {
+
+				var rows = data.rows;
+				var delay = 0;
+				$("#mainNotice").empty();
+
+				if (rows.length == 0) {
+
+					var notice = ""
+					notice += "<div class='notice-box' data-aos='fade-in' data-aos-delay='300' data-aos-anchor-placement='bottom-bottom' data-aos-duration='1000'>	"
+					notice += "	<h3>[ 공지사항 ]</h3>																													"
+					notice += "	<h2>등록된 공지사항이 없습니다.</h2>																	"
+					notice += "	<h4></h4>																													"
+					notice += "	<a href='#'>더보기</a>																													 "
+					notice += "</div>																																"
+					notice += "<div class='notice-box' data-aos='fade-in' data-aos-delay='600' data-aos-anchor-placement='bottom-bottom' data-aos-duration='1000'>	"
+					notice += "	<h3>[ 공지사항 ]</h3>																													"
+					notice += "	<h2>등록된 공지사항이 없습니다.</h2>																	"
+					notice += "	<h4></h4>																													"
+					notice += "	<a href='#'>더보기</a>																													 "
+					notice += "</div>																																"
+					notice += "<div class='notice-box' data-aos='fade-in' data-aos-delay='900' data-aos-anchor-placement='bottom-bottom' data-aos-duration='1000'>	"
+					notice += "	<h3>[ 공지사항 ]</h3>																													"
+					notice += "	<h2>등록된 공지사항이 없습니다.</h2>																	"
+					notice += "	<h4></h4>																													"
+					notice += "	<a href='#'>더보기</a>																													 "
+					notice += "</div>																																"
+
+					$("#mainNotice").append(notice);
+					return;
+				}
+
+			    for(i=0; i<rows.length; i++) {
+
+					var link = "/board/view.asp?type=1&idx=" + rows[i].IDX;
+					var title = rows[i].TITLE;
+					var inputDate = rows[i].INPUT_DATETIME;
+					delay = delay + 300;
+
+					var notice = ""
+					notice += "<div class='notice-box' data-aos='fade-in' data-aos-delay='" + delay + "' data-aos-anchor-placement='bottom-bottom' data-aos-duration='1000'>	"
+					notice += "	<h3>[ 공지사항 ]</h3>																													"
+					notice += "	<h2 onclick='location.href=\"{0}\"'>{1}</h2>																							"
+					notice += "	<h4>{2}</h4>																													"
+					notice += "	<a href='/board/list.asp?type=1'>더보기</a>																													 "
+					notice += "</div>																																 "
+
+				    notice = String.format(notice, link, title, inputDate);
+					$("#mainNotice").append(notice);
+
+			    }
+			} else {
+				alert(data.resultMessage);
+			}
+		});
+	}
+
+	function getPopupList() {
+		var sUrl = "/controller/BoardController.asp";
+		var params = {};
+
+		params["method"] = "getBoardList";
+
+		params["coDiv"]    = globals.coDiv;
+		params["type"]     = "5";
+		params["startCnt"] = 0;
+		params["pageCnt"]  = 10;
+
+		mAjax(sUrl, params, "POST", false, function(data) {
+			if(data.resultCode == "0000") {
+				var rows = data.rows;
+
+		  for(i=0; i<rows.length; i++) {
+			var popId = "tiger_popup_" + rows[i].IDX;
+			var loc = rows[i].CONTENT.split("|");
+			var top  = loc[0];
+			var left = loc[1];
+			var link = rows[i].LINK;
+			var file = rows[i].FILE_PATH1 + "/" + rows[i].FILE_NAME1;
+
+			if(getCookie(popId) != "Y") {
+			  var pop = "";
+			  pop += " <div id='{0}' class='main_popup' style='position: absolute; z-index:10000; top:{1}px; left:{2}px; display: none;'>	";
+			  pop += "   <a href='{3}'><img src='{4}' /></a>																																							";
+			  pop += "   <div class='popup_bottom'>																																												";
+			  pop += "     <a href='javascript:closePopup(\"{0}\", 1)'>오늘하루 그만보기</a>																									 ";
+			  pop += "     <a class='pull-right' href='javascript:closePopup(\"{0}\", 0);'>닫기</a>																				 ";
+			  pop += "   </div>																																																					  ";
+			  pop += " </div>																																																							";
+
+			  pop = String.format(pop, popId, top, left, link, file);
+
+			  $("#popContainer").append(pop);
+
+			  $("#" + popId).show('fade');
+			}
+		  }
+			} else {
+				alert(data.resultMessage);
+			}
+		});
+	}
+
+	function closePopup(id, day) {
+		$("#" + id).hide('fade');
+
+		if(day > 0) {
+			setCookie(id, "Y", day);
+		}
+	}
+</script>
+<script>
+	$(window).scroll(function() {
+		var scroll = $(window).scrollTop();
+		if (scroll > 300) {
+			$('header').addClass( 'whiteBg' );
+		}
+		else {
+			$('header').removeClass( 'whiteBg' );
+		}
+	});
+</script>
+<link rel="stylesheet" type="text/css" href="/css/main.css">
+<script type="text/javascript" src="/js/jquery.subtle-slideshow.js"></script>
+<form id="reser" method="POST" action="/reservation/reservation.asp">
+	<input type="hidden" name="bkDay" id="bkDay">
+</form>
+
+	<div id="popContainer"></div>
+
+		<section class="section01">
+			<div class="weather">
+				<ul>
+					<li>파주시<p><img id="climate_0DayLater" hidden src=""	></p></li>
+					<li><span><text id="temperature_0DayLater"></text></span>º<b><text id="climate_kor_0DayLater"></text></b></li>
+				</ul>
+			</div>
+			<script type="text/javascript" src="/js/weather.js"></script>			
+			
+			<div class="main-text-box">
+				<h2 data-aos="fade-right" data-aos-duration="1000" data-aos-easing="ease-out-cubic"><img src="/images/logo_main.svg"></h2>
+				<h3 data-aos="fade-right" data-aos-delay="300" data-aos-duration="1000" data-aos-easing="ease-out-cubic">To Bring Families Closer Together</h3>
+			</div>
+			<div class="main-calendar-wrap" data-aos-delay="800" data-aos="fade-up" data-aos-duration="1000" data-aos-easing="ease-out-cubic" id="calendarBox">
+				<div class="calendar-title">
+					<span onclick="doPrevMonth()"><img src="/images/main_arw_left.svg"></span>
+					<h3 id="calYear"></h3>
+					<h2 id="calMonth"></h2>
+					<span onclick="doNextMonth()"><img src="/images/main_arw_right.svg"></span>
+				</div>
+				<table class="main-calendar">
+					<colgroup>
+						<col width="13%">
+						<col width="13%">
+						<col width="13%">
+						<col width="13%">
+						<col width="13%">
+						<col width="13%">
+						<col width="13%">
+					</colgroup>
+
+					<thead>
+						<tr>
+							<th scope="col">일</th>
+							<th scope="col">월</th>
+							<th scope="col">화</th>
+							<th scope="col">수</th>
+							<th scope="col">목</th>
+							<th scope="col">금</th>
+							<th scope="col">토</th>
+						</tr>
+					</thead>
+
+					<tbody id="calendar-body">					
+					</tbody>
+				</table>
+			</div>
+			<div id="main_slides">
+				<div class="slide">
+					<span class="animate in" style="background-image: url(images/bg_main01.jpg)"></span>
+				</div>
+				<div class="slide">
+					<span class="animate in" style="background-image: url(images/bg_main02.jpg"></span>
+				</div>
+				<div class="slide">
+					<span class="animate in" style="background-image: url(images/bg_main03.jpg)"></span>
+				</div>
+			</div>
+			<script>
+			  $('#main_slides').slideshow({
+				randomize: false,
+				slideDuration: 6000,
+				fadeDuration: 1000,
+				animate: true,
+				pauseOnTabBlur:false,
+				enableLog: false 
+			  });
+			</script>
+			<!--<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.css" />
+			<script src="https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.js"></script>-->
+
+		</section>
+		<section class="section02">
+			<div class="main-area01">
+				<img src="/images/bg_main_section01.jpg" class="bg-img">
+				<div class="text-section02">
+				<h2 data-aos="fade-right" data-aos-duration="1000" data-aos-easing="ease-out-cubic">Tiger Country Club<br>Starts a Fun and New Challenge</h2>
+				<h3 data-aos="fade-right" data-aos-duration="1000" data-aos-easing="ease-out-cubic">국내 최고를 경험해 보세요.</h3>
+				<a data-aos="fade-right" data-aos-duration="1000" data-aos-easing="ease-out-cubic" class="motion-awr" href="/club/intro.asp"><span>클럽소개 보기</span>
+					<svg id="icon_arw">
+						<g transform="translate(-605.5 -3561)">
+							<g transform="translate(658 3561)">
+								<path class="arw-st0" d="M24.5,0C38,0,49,11,49,24.5S38,49,24.5,49S0,38,0,24.5S11,0,24.5,0z"/>
+								<path class="arw-st3" d="M24.5,1c-3.2,0-6.3,0.6-9.1,1.8C12.6,4,10,5.7,7.9,7.9c-2.2,2.2-3.9,4.7-5,7.5c-1.2,2.9-1.8,6-1.8,9.1
+									s0.6,6.3,1.8,9.1c1.2,2.8,2.9,5.3,5,7.5c2.2,2.2,4.7,3.9,7.5,5c2.9,1.2,6,1.8,9.1,1.8s6.3-0.6,9.1-1.8c2.8-1.2,5.3-2.9,7.5-5
+									c2.2-2.2,3.9-4.7,5-7.5c1.2-2.9,1.8-6,1.8-9.1s-0.6-6.3-1.8-9.1c-1.2-2.8-2.9-5.3-5-7.5c-2.2-2.2-4.7-3.9-7.5-5
+									C30.8,1.6,27.7,1,24.5,1 M24.5,0C38,0,49,11,49,24.5S38,49,24.5,49S0,38,0,24.5S11,0,24.5,0z"/>
+							</g>
+							<line class="arw-st2" x1="605.5" y1="3586.5" x2="673" y2="3586.5"/>
+							<g transform="translate(684.5 3580) rotate(90)">
+								<path class="arw-st1" d="M12.1,10.5H0.9L6.5,1L12.1,10.5z"/>
+								<path class="arw-st1" d="M6.5,2l-4.7,8h9.5L6.5,2 M6.5,0L13,11H0L6.5,0z"/>
+							</g>
+						</g>
+					</svg>
+				</a>
+			</div>
+			</div>
+			<div class="main-area02">
+				<div class="text-section03">
+					<h2 data-aos="fade-down" data-aos-duration="1000" data-aos-easing="ease-out-cubic">Your challenge</h2>
+					<h3 data-aos="fade-up" data-aos-duration="1000" data-aos-delay="300" data-aos-easing="ease-out-cubic">언제나 새로운 도전은 당신을 설레이게 합니다.<br>
+	타이거CC 는 언제나 당신을 위한 새로운 도전을 제공해 드립니다.<br>
+	더 즐거운 골프 라이프를 위하여.</h3>
+				</div>
+			</div>
+		</section>
+		<section>
+			<div class="main-area03">
+				<div class="main-box-area">
+					<ul>
+						<li>
+							<h2 data-aos="fade-down" data-aos-duration="1000" data-aos-easing="ease-out-cubic">GOLF</h2>
+							<h3 data-aos="fade-up" data-aos-duration="1000" data-aos-easing="ease-out-cubic">언제나 새로운 도전은 당신을 설레이게 합니다.<br>
+		타이거CC 는 언제나 당신을 위한 새로운 도전을 제공해 드립니다.<br>
+		더 즐거운 골프 라이프를 위하여.</h3>
+							<a href="/course/course.asp" class="btn-go">Go</a>
+						</li>
+						<li href="">
+							<h2 data-aos="fade-down" data-aos-delay="150" data-aos-duration="1000" data-aos-easing="ease-out-cubic">GAON</h2>
+							<h3 data-aos="fade-up" data-aos-delay="150" data-aos-duration="1000" data-aos-easing="ease-out-cubic">언제나 새로운 도전은 당신을 설레이게 합니다.<br>
+		타이거CC 는 언제나 당신을 위한 새로운 도전을 제공해 드립니다.<br>
+		더 즐거운 골프 라이프를 위하여.</h3>
+							<a href="/course/course_gaon.asp" class="btn-go">Go</a>
+						</li>
+						<li href="">
+							<h2 data-aos="fade-down" data-aos-delay="300" data-aos-duration="1000" data-aos-easing="ease-out-cubic">NURY</h2>
+							<h3 data-aos="fade-up" data-aos-delay="300" data-aos-duration="1000" data-aos-easing="ease-out-cubic">언제나 새로운 도전은 당신을 설레이게 합니다.<br>
+		타이거CC 는 언제나 당신을 위한 새로운 도전을 제공해 드립니다.<br>
+		더 즐거운 골프 라이프를 위하여.</h3>
+							<a href="/course/course_nury.asp" class="btn-go">Go</a>
+						</li>
+					</ul>
+				</div>
+				<div class="bg-img03"></div>
+			</div>		
+		</section>
+
+		<section>
+			<div class="main-slick">
+				<div class="swipe-con" data-aos="fade-in" data-aos-duration="1000" data-aos-easing="ease-out-cubic">
+					<div class="main-slick-title">
+						<h1 data-aos="fade-down" data-aos-duration="1000" data-aos-easing="ease-out-cubic">Your challenge</h1>
+						<p data-aos-delay="300" data-aos="fade-up" data-aos-duration="1000" data-aos-easing="ease-out-cubic">언제나 새로운 도전은 당신을 설레이게 합니다.<br>
+	타이거CC 는 언제나 당신을 위한 새로운 도전을 제공해 드립니다.<br>
+	더 즐거운 골프 라이프를 위하여.</p>
+						<h3 data-aos-delay="500" data-aos="fade-up" data-aos-duration="1000" data-aos-easing="ease-out-cubic">Introduction to the club</h3>
+					</div>
+					<div class="swiper-button-prev"></div>
+					<div class="swiper">					
+						<div class="swiper-wrapper">						  
+							<div class="swiper-slide">
+								<img src="/images/img_slide01.jpg" alt="">
+							</div>
+							<div class="swiper-slide">
+								<img src="/images/img_slide02.jpg" alt="">
+							</div>
+							<div class="swiper-slide">
+								<img src="/images/img_slide03.jpg" alt="">
+							</div>
+							<div class="swiper-slide">
+								<img src="/images/img_slide02.jpg" alt="">
+							</div>
+							<div class="swiper-slide">
+								<img src="/images/img_slide01.jpg" alt="">
+							</div>
+						</div>
+						<!-- If we need navigation buttons -->
+						<div class="swiper-pagination"></div>
+					</div>
+					<div class="swiper-button-next"></div>
+					<script>
+					  var swiper = new Swiper('.swiper', {
+						initialSlide: 0,
+						slidesPerView: 3,
+						spaceBetween: 20,
+						loop: true,
+						/*autoplay: true,*/
+						centeredSlides:false,
+						pagination: {
+						  el: ".swiper-pagination",
+						  type: "progressbar",
+						},
+						navigation: {
+						  nextEl: ".swiper-button-next",
+						  prevEl: ".swiper-button-prev",
+						},
+					  });
+					</script>
+				</div>
+			</div>
+		</section>
+
+		<section>
+			<div class="main-text-box02">
+				<h1 data-aos="fade-down" data-aos-duration="1000" data-aos-easing="ease-out-cubic">facilities</h1>
+				<p data-aos="fade-up" data-aos-delay="300" data-aos-duration="1000" data-aos-easing="ease-out-cubic">당신은 눈앞에 그 어디에도 비할 수 없는 자유 자연속에서<br>
+	최고의 명화를 감상중이십니다.</p>		
+			</div>
+			<div class="main-facil-box" data-aos="fade-in" data-aos-delay="400" data-aos-duration="1000" data-aos-easing="ease-out-cubic">
+				<a href="/facil/facil01.asp" data-aos="fade-up" data-aos-delay="400" data-aos-duration="1000" data-aos-easing="ease-out-cubic">
+					<p><img src="/images/icon-main01.svg"></p>
+					<h1>club house</h1>
+					<h3>자연속에서 더 빛을 발하는 클럽하우스 외관</h3>
+				</a>
+				<a href="/facil/facil06.asp" data-aos="fade-up" data-aos-delay="500" data-aos-duration="1000" data-aos-easing="ease-out-cubic">
+					<p><img src="/images/icon-main02.svg"></p>
+					<h1>Restaurant</h1>
+					<h3>최고의 쉐프가 최고의 요리를 선사합니다</h3>
+				</a>
+				<a href="/facil/facil07.asp" data-aos="fade-up" data-aos-delay="600" data-aos-duration="1000" data-aos-easing="ease-out-cubic">
+					<p><img src="/images/icon-main03.svg"></p>
+					<h1>PDR</h1>
+					<h3>모임하기 좋은 최적의 장소제공</h3>
+				</a>
+				<a href="/facil/facil04.asp" data-aos="fade-up" data-aos-delay="700" data-aos-duration="1000" data-aos-easing="ease-out-cubic">
+					<p><img src="/images/icon-main04.svg"></p>
+					<h1>Powder Room</h1>
+					<h3>고객을 위한 깨끗하고 위생적인 환경</h3>
+				</a>
+				<a href="/facil/facil03.asp" data-aos="fade-up" data-aos-delay="800" data-aos-duration="1000" data-aos-easing="ease-out-cubic">
+					<p><img src="/images/icon-main05.svg"></p>
+					<h1>Locker room</h1>
+					<h3>물품을 안전하게 보관할 수 있습니다.</h3>
+				</a>
+			</div>
+		</section>
+
+		<section class="main-notice">
+			<div class="main-text-box03">
+				<h3 data-aos="fade-right" data-aos-duration="1000" data-aos-easing="ease-out-cubic">Notice &amp; Event</h3> 
+				<h1 data-aos="fade-right" data-aos-delay="300" data-aos-duration="1000" data-aos-easing="ease-out-cubic">새로운 소식과<br>다양한 이벤트를 만나보실 수 있습니다.</h1>
+			</div>
+			<div class="notice-box-wrap" id="mainNotice">
+			</div>
+		</section>
+
+		<footer class="bg-gray">
+			<ul>
+				<li><a href="/guide/terms.asp">사이버이용약관</a></li>
+				<li><a href="/guide/terms02.asp">골프장이용약관</a></li>
+				<li><a href="/guide/policy.asp">개인정보처리방침</a></li>
+			</ul>
+			<address>주식회사 타이거 레저 | 대표이사 :임계자  |  경기도 파주시 법원읍 술이홀로1803  |  문의전화 031.958.8900  |  팩스 031.956.8040  |  사업자번호 209-81-55310  |  통신판매업 제2013-서울성북-00669호<br>
+				Copyright ⓒ 2013 Tiger Country Club All rights reserved
+			</address>
+			<!--<p>
+				<a href=""><i class="fa-brands fa-instagram"></i></a>
+				<a href=""><i class="fa-brands fa-facebook-f"></i></a>
+				<a href=""><i class="fa-brands fa-twitter"></i></a>
+			</p>-->
+		</footer>
+	</div>
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v4513226cdae34746b4dedf0b4dfa099e1781791509496" integrity="sha512-ZE9pZaUXND66v380QUtch/5sE9tPFh2zg45pR2PB0CVkCtOREv2AJKkSidISWkysEuQ0EH8faUU5du78bx87UQ==" data-cf-beacon='{"version":"2024.11.0","token":"de9f4891b32a4c7ba3c624fc918787fa","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a1e3f49c3dfee706',t:'MTc4NDU3MTM3MA=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

@@ -1,0 +1,592 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <meta charset="UTF-8">
+<title>솔모로CC</title>
+
+<link rel="shortcut icon" href="/Content/web/img/favicon.ico">
+
+<link type="text/css" rel="stylesheet" href="/Content/web/css/common.css">
+
+
+
+
+<link type="text/css" rel="stylesheet" href="/Content/web/css/board.css">
+<link type="text/css" rel="stylesheet" href="/Content/web/css/form.css">
+<link type="text/css" rel="stylesheet" href="/Content/web/css/member.css">
+
+
+
+<link type="text/css" rel="stylesheet" href="/Content/web/css/three-dots.css">
+
+<link type="text/css" rel="stylesheet" href="/Content/web/css/aos.css">
+
+<script src="/Content/web/js/jquery-1.12.3.min.js"></script>
+<script type="text/javascript" src="/Content/web/js/slick.min.js"></script>
+<script type="text/javascript" src="/Content/web/js/jquery.bxslider.min.js"></script>
+<script type="text/javascript" src="/Content/web/js/aos.js"></script>
+<script type="text/javascript" src="/Content/web/js/slide.js"></script>
+
+<script src="/Scripts/common.js"></script>
+<script src="/Scripts/checkForm.js"></script>
+<script src="/Scripts/jquery.vticker-min.js"></script>
+
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+
+
+        /*nav*/
+        $("#header").mouseenter(function () {
+            $(this).addClass("over")
+        });
+
+        $(window).scroll(function () {
+            var sc = $(window).scrollTop()
+            if (sc > 150) {
+                $("#header").addClass("over").mouseleave(function () {
+                    $(this).addClass("over")
+                });
+                $(".lnb li").addClass("bgColor");
+            } else {
+                $("#header").removeClass("over").mouseenter(function () {
+                    $(this).addClass("over")
+                }).mouseleave(function () {
+                    $(this).removeClass("over")
+                });
+                $(".lnb li").removeClass("bgColor");
+            }
+        });
+
+        $("#header").mouseleave(function () {
+            $(this).removeClass("over")
+        });
+
+        $(".scroll").click(function () {
+            $('html, body').animate({
+                scrollTop: 700
+            }, '2000');
+        });
+
+        /*weather*/
+        $('.weather').hover(function () {
+            $(this).addClass("dropDown")
+        });
+        $('.weather').mouseleave(function () {
+            $(this).removeClass("dropDown")
+        });
+
+
+        $(window).scroll(function () {
+            if ($(this).scrollTop() > 100) {
+                $('#topBtn').fadeIn();
+            } else {
+                $('#topBtn').fadeOut();
+            }
+        });
+
+        $("#topBtn").click(function () {
+            $('html, body').animate({
+                scrollTop: 0
+            }, 500);
+            return false;
+        });
+
+    });
+</script>
+
+    <link rel="stylesheet" href="/Content/web/css/main.css">
+    <script type="text/javascript">
+        $(document).ready(function(){
+
+            /*main-reservbar*/
+            $('.selectDate').click(function(){
+                $('div.calBox').toggleClass('show');
+            });
+            $('#btn-closed').click(function () {
+                $('div.calBox').removeClass('show');
+            });
+
+            /*main-noticeSlide*/
+            $('.cntSlide').slick({
+                autoplay: true,
+                autoplaySpeed:2500,
+                dots: true,
+                arrows: false,
+                infinite: true,
+                slidesToShow: 1,
+                pauseOnHover:true
+            });
+
+            /*main-courseSlide*/
+            $('.courseBg').slick({
+                slidesToShow: 1,
+                slidesToScroll: 1,
+                arrows: false,
+                fade: true,
+                asNavFor: '.infoSlide'
+            });
+            $('.infoSlide').slick({
+                slidesToShow: 1,
+                slidesToScroll: 1,
+                asNavFor: '.courseBg',
+                dots: false,
+                arrows: true,
+                focusOnSelect: true
+            });
+
+            /*main-snsSlide*/
+            $('.notiSlide ul').bxSlider({
+                slideWidth:1200,
+				touchEnabled : (navigator.maxTouchPoints > 0)
+            });
+            AOS.init({
+		        duration: 1200
+            });
+
+            // 예약 칼렌다
+            $.get('/Home/AjaxMainCalendar', '', function (html) {
+                $('#main-calendar').html(html);
+            });
+        });
+    </script>
+</head>
+<body>
+
+    <div id="header">
+    <div class="topNavi">
+        <div class="wrap">
+
+            <div id="top_weather_box">
+                <ul id="top_weather" class="weather"></ul>
+            </div>
+
+
+                <div class="utilInner">
+                    <a href="/Member/Login">로그인</a>
+                    <a href="/Member/Join01">회원가입</a>
+                    <a href="/Member/FindAccount">ID/PW찾기</a>
+                </div>
+
+        </div>
+    </div>
+    <div class="endline"></div>
+    <div class="nav wrap">
+        <h1 class="logo">
+            <a href="/">LOGO</a>
+        </h1>
+        <ul class="lnb">
+            <li>
+                <a href="/Club/Info" class="depth1">클럽소개</a>
+                <div id="club" class="depth2">
+                    <a href="/Club/Info">클럽소개</a>
+                    <a href="/Club/Greeting">대표이사 인사말</a>
+                    <a href="/Club/History">개요 및 연혁</a>
+                    <a href="/Club/Facility">시설안내</a>
+                    <a href="/Club/Location">오시는길</a>
+                </div>
+            </li>
+            <li>
+                <a href="/Course/Index" class="depth1">코스소개</a>
+                <div id="course" class="depth2">
+                    <a href="/Course/Index">코스소개</a>
+                    <a href="/Course/Course1">Cherry 코스</a>
+                    <a href="/Course/Course2">Persimmon 코스</a>
+                    <a href="/Course/Course3">Pine 코스</a>
+                    <a href="/Course/Course4">Maple 코스</a>
+                </div>
+            </li>
+            <li>
+                <a href="/Guide/ReservInfo" class="depth1">이용안내</a>
+                <div id="guide" class="depth2">
+                    <a href="/Guide/ReservInfo">예약방법</a>
+                    <a href="/Guide/UsageFee">골프장 이용요금</a>
+                    <a href="/Guide/Restaurant">레스토랑</a>
+                    <a href="/Guide/Snackshop">그늘집</a>
+                    <a href="/Guide/DressRule">복장규정</a>
+                    <a href="/Guide/GuestRule">내장객 협조사항</a>
+
+                </div>
+            </li>
+            <li>
+                <a href="/Reservation/ReservCalendar" class="depth1">인터넷예약</a>
+                <div id="reservation" class="depth2">
+                    <a href="/Reservation/ReservCalendar">실시간예약</a>
+                    <a href="/Reservation/ReservedList">예약확인/취소</a>
+                    <a href="/Reservation/JoinList">조인게시판</a>
+                </div>
+            </li>
+            <li>
+                <a href="/MyPage/VisitList" class="depth1">회원라운지</a>
+                <div id="mypage" class="depth2">
+                    <a href="/MyPage/VisitList">내장현황</a>
+                    <a href="/MyPage/PenaltyList">위약현황</a>
+                    <a href="/MyPage/ScoreList">스코어현황</a>
+                    
+                    <a href="/MyPage/MyInfo">회원정보</a>
+                </div>
+            </li>
+
+            <li>
+                <a href="/Board/BoardList?board_idx=1" class="depth1">정보마당</a>
+                <div id="board" class="depth2">
+                    <a href="/Board/BoardList?board_idx=1">공지사항</a>
+                    <a href="/Board/BoardList?board_idx=6">자료실</a>
+                    <a href="/Board/BoardList?board_idx=2">포토갤러리</a>
+                    <a href="/Board/HonorList">명예의전당</a>
+                    <a href="https://www.weather.go.kr/w/index.do#dong/4167025000" target="_blank">날씨정보(기상청)</a>
+                    <a href="https://weather.naver.com/today/02670250" target="_blank">날씨정보(네이버)</a>
+                </div>
+            </li>
+
+            <li style="display:none">
+                <a href="../board/board01.html" class="depth1">회원</a>
+                <div id="member" class="depth2">
+                    <a href="/Member/Login">로그인</a>
+                    <a href="/Member/Join01">회원가입</a>
+                    <a href="/Member/FindAccount">아이디/비밀번호 찾기</a>
+                </div>
+            </li>
+
+            <li style="display:none">
+                <a href="../board/board01.html" class="depth1">회원</a>
+                <div id="terms" class="depth2">
+                    <a href="/Terms/ClubUseRule">골프장 이용약관</a>
+                    <a href="/Terms/SiteUseRule">인터넷 이용약관</a>
+                    <a href="/Terms/PrivacyRule">개인정보처리방침</a>
+                </div>
+            </li>
+
+        </ul>
+    </div>
+    <div class="endline"></div>
+</div>
+
+<script>
+    $(function () {
+
+        //$.ajax({
+        //    url: '/Board/TopWeather'
+        //    , type: 'POST'
+        //    , data: ''
+        //    , cache: true
+        //    , dataType: 'html'
+        //    , async: true
+        //    , beforeSend: function () { $('#ajaxLoadingBox').hide(); }
+        //    , success: function (data) {
+        //        $("#top_weather").html(data);
+        //        $('#ajaxLoadingBox').hide();
+        //    }
+        //    , error: function (result) { }
+        //});
+
+
+
+        //$('#top_weather_box').vTicker({
+        //    showItems: 1,
+        //    height: 32,
+        //    childrenSelector: "li"
+        //});
+    });
+</script>
+    
+    <div id="section">
+        <div class="mainVisual">
+            <video class="mainVd" loop="loop" muted="muted" autoplay="autoplay">   <!--poster="~/Content/web/img/movieBg.jpg -->
+                <source src="/Content/web/img/intro_fall.mp4">  <!--<source src="~/Content/web/img/intro.mp4"> -->
+            </video>
+            <div class="reservBox">
+                <div class="calBox">
+                    <ul id="main-calendar" class="calInner"></ul>
+                    <div class="endline"></div>
+                    <!--ul class="colorIndex">
+                        <li><span class="box01"></span>오늘/선택일</li>
+                        <li><span class="box03"></span>예약불가일</li>
+                    </ul-->
+                    <div id="btn-closed" class="closedBtn">닫기</div>
+                </div>
+                <div class="reservBar">
+                    <div class="selectDate">예약날짜를 선택해주세요</div>
+                    <a href="/Reservation/ReservCalendar" class="reservBtn">빠른예약</a>
+                </div>
+            </div>
+            <div class="scrollBox">
+                <div class="scroll">
+                    <a href="#" id="click">
+                        <div class="scrollIcon"></div>
+                        <p>SCROLL DOWN</p>
+                        <span class="line"></span>
+                    </a>
+                </div>
+            </div>
+
+                <div class="quickNavi">
+                    <ul>
+                        <li>
+                            <a href="javascript:$('#noti-box').show()">
+                                <span class="quickIc01"></span>
+                                공지보기
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                <div id="noti-box" class="notiWrap" style="display:none;">
+                    <div class="cntSlide">
+
+                            <div><a href="Board/BoardView?board_idx=1&bd_main_seq=295"><img src="" alt=""></a></div>
+                            <div><a href="Board/BoardView?board_idx=1&bd_main_seq=294"><img src="" alt=""></a></div>
+                            <div><a href="Board/BoardView?board_idx=1&bd_main_seq=293"><img src="" alt=""></a></div>
+
+                    </div>
+                    <a href="javascript:$('#noti-box').hide()" class="closedBtn">닫기</a>
+                </div>
+            
+
+        </div>
+        <div class="mainContents">
+            <div class="mainNotice">
+                <div class="wrap">
+                    <h2 class="notiTit">SOLMORO NOTICE</h2>
+                    <div class="notiLink">
+                        <a href="Board/BoardList?board_idx=1"><img src="/Content/web/img/ico_more.png" alt="더보기"></a>
+                    </div>
+                </div>
+                <div class="notiSlide">
+                    <ul>
+                        <li>
+
+
+
+                                    <a href="Board/BoardView?board_idx=1&bd_main_seq=295" class="notiCnt">
+                                        <div class="imgBox">
+                                            <img src="" alt="인스타이미지">
+                                        </div>
+                                        <div class="txtBox">
+                                            <p>8월 그린피 안내</p>
+                                            <p class="date">2026.07.08</p>
+                                        </div>
+                                    </a>
+                                    <a href="Board/BoardView?board_idx=1&bd_main_seq=294" class="notiCnt">
+                                        <div class="imgBox">
+                                            <img src="" alt="인스타이미지">
+                                        </div>
+                                        <div class="txtBox">
+                                            <p>혹서기 휴장 안내</p>
+                                            <p class="date">2026.07.03</p>
+                                        </div>
+                                    </a>
+                                    <a href="Board/BoardView?board_idx=1&bd_main_seq=293" class="notiCnt">
+                                        <div class="imgBox">
+                                            <img src="" alt="인스타이미지">
+                                        </div>
+                                        <div class="txtBox">
+                                            <p>7월그린피 안내</p>
+                                            <p class="date">2026.06.19</p>
+                                        </div>
+                                    </a>
+                                    <a href="Board/BoardView?board_idx=1&bd_main_seq=292" class="notiCnt">
+                                        <div class="imgBox">
+                                            <img src="" alt="인스타이미지">
+                                        </div>
+                                        <div class="txtBox">
+                                            <p>반바지 라운드 허용안내</p>
+                                            <p class="date">2026.05.15</p>
+                                        </div>
+                                    </a>
+</li><li>                                    <a href="Board/BoardView?board_idx=1&bd_main_seq=234" class="notiCnt">
+                                        <div class="imgBox">
+                                            <img src="/_Data/_Upload/202406/셀프라운드변경팝업n.jpg" alt="인스타이미지">
+                                        </div>
+                                        <div class="txtBox">
+                                            <p>셀프라운드 변경 안내</p>
+                                            <p class="date">2024.05.31</p>
+                                        </div>
+                                    </a>
+                                    <a href="Board/BoardView?board_idx=1&bd_main_seq=220" class="notiCnt">
+                                        <div class="imgBox">
+                                            <img src="/_Data/_Upload/202310/231006_공지2.jpg" alt="인스타이미지">
+                                        </div>
+                                        <div class="txtBox">
+                                            <p>매크로 사용금지 안내</p>
+                                            <p class="date">2023.10.06</p>
+                                        </div>
+                                    </a>
+                                    <a href="Board/BoardView?board_idx=1&bd_main_seq=217" class="notiCnt">
+                                        <div class="imgBox">
+                                            <img src="" alt="인스타이미지">
+                                        </div>
+                                        <div class="txtBox">
+                                            <p>[3인 플레이 추가요금 안내 ]</p>
+                                            <p class="date">2023.08.28</p>
+                                        </div>
+                                    </a>
+                                    <a href="Board/BoardView?board_idx=1&bd_main_seq=135" class="notiCnt">
+                                        <div class="imgBox">
+                                            <img src="/_Data/_Upload/202201/220105smt.jpg" alt="인스타이미지">
+                                        </div>
+                                        <div class="txtBox">
+                                            <p>정회원 or 가족회원 키오스크 지문체크인 안내</p>
+                                            <p class="date">2022.01.05</p>
+                                        </div>
+                                    </a>
+
+                        </li>
+
+                    </ul>
+                </div>
+            </div>
+            <div class="mainCourse">
+                <div class="courseBg">
+                    <div><img src="/Content/web/img/course_back01.jpg" alt="체리"></div>
+                    <div><img src="/Content/web/img/course_back02.jpg" alt="퍼시먼"></div>
+                    <div><img src="/Content/web/img/course_back03_.jpg" alt="파인"></div>
+                    <div><img src="/Content/web/img/course_back04.jpg" alt="메이플"></div>
+                </div>
+                <div class="wrap">
+                    <div class="courseInfo">
+                        <div class="infoSlide">
+                            <div class="infoInner">
+                                <h2>CHERRY COURSE<span>체리 코스</span></h2>
+                                <p>
+                                    과감함과 전략성이 필요한 코스입니다.<br>
+                                    솔모로가 자랑하는 코스이며, 장락산을 바라보며 <br>
+                                    체리나무 코스에서 최고의 라운딩을 즐겨보세요.
+                                </p>
+                            </div>
+                            <div class="infoInner">
+                                <h2>PERSIMMON COURSE<span>퍼시먼 코스</span></h2>
+                                <p>
+                                    과감함과 전략성이 필요한 코스입니다.<br>
+                                    솔모로가 자랑하는 코스이며,<br>
+                                    감나무 코스에서 최고의 라운딩을 즐겨보세요.
+                                </p>
+                            </div>
+                            <div class="infoInner">
+                                <h2>PINE COURSE<span>파인 코스</span></h2>
+                                <p>
+                                    과감함과 전략성이 필요한 코스입니다.<br>
+                                    소나무 코스에서 최고의 라운딩을 즐겨보세요.
+                                </p>
+                            </div>
+                            <div class="infoInner">
+                                <h2>MAPLE COURSE<span>메이플 코스</span></h2>
+                                <p>
+                                    과감함과 전략성이 필요한 코스입니다.<br>
+                                    단풍나무 코스에서 최고의 라운딩을 즐겨보세요.
+                                </p>
+                            </div>
+                        </div>
+                        <div class="courseBtn">
+                            <a href="/Course/Index">코스소개</a>
+                            <a href="/Reservation/ReservCalendar" class="col">예약하기</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div id="footer">
+    <div class="footLink">
+        <div class="footInner">
+            <ul>
+                <li><a href="/Terms/ClubUseRule">골프장 이용약관</a></li>
+                <li><a href="/Terms/SiteUseRule">인터넷 이용약관</a></li>
+                <li><a href="/Terms/PrivacyRule" class="point">개인정보처리방침</a></li>
+                <li><a href="https://ftc.go.kr/www/bizCommView.do?key=232&amp;apv_perm_no=2009411000930200056&amp;pageUnit=10&amp;searchCnd=wrkr_no&amp;searchKrwd=1268106630&amp;pageIndex=1" target="_blank" title="새창열림">사업자 정보확인</a></li>
+            </ul>
+            <div class="fs">
+                <div class="drop">
+                    <a href="#familysite">FAMILY SITE <i src="image/common/family_on.png">+</i></a>
+                </div>
+                <div class="fm_list">
+                    <ul>
+                        <li><a href="http://www.hhic-holdings.com/" target="_blank" title="새창열림">한진중공업홀딩스</a></li>
+                        <li><a href="https://www.daeryunens.com" target="_blank" title="새창열림">대륜이엔에스</a></li>
+                        <li><a href="https://www.daeryunpower.com" target="_blank" title="새창열림">대륜발전</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="wrap">
+        <p class="footTxt">
+            (주)한일레저<em></em>대표 : 박정재<em></em>12661 경기도 여주시 가남읍 솔모로그린길 171번지<em></em>TEL 031.880.7000<em></em>FAX 031.883.1400<br>
+            사업자등록번호 : 126-81-06630<em></em>통신판매신고 : 2009-경기여주-0057<br>
+            ⓒ 1991-2021 Solmoro Country Club. All Right Reserved.
+        </p>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        $('#footer .fs .drop').on('click', function () {
+            $('#footer .fm_list').toggle();
+        });
+    });
+</script>
+
+
+
+    </div>
+
+    <div class="quickNavi">
+    <ul>
+        <li>
+            <a href="/Reservation/ReservCalendar">
+                <span class="quickIc02"></span>
+                인터넷예약
+            </a>
+        </li>
+        <li>
+            <a href="/Reservation/ReservedList">
+                <span class="quickIc03"></span>
+                예약확인
+            </a>
+        </li>
+        <li>
+            <a href="/Reservation/JoinList">
+                <span class="quickIc04"></span>
+                조인하기
+            </a>
+        </li>
+    </ul>
+</div>
+
+
+<!-- 탑버튼-->
+<div id="topBtn">
+    <p>TOP</p>
+</div>
+<!--// 탑버튼-->
+<!-- Top 버튼-->
+
+
+    
+    
+<script>
+    function HidePopupLayer(TYPE, ID) {
+        var vObject = null;
+
+        var vID = "";
+
+        vID = (typeof (ID) == "string" && ID != "") ? ID : "";
+
+        if (vID != "") {
+            vObject = $("#" + vID);
+
+            if (TYPE == 1) {
+                SetCookie(vID, "HidePopupLayer", 1);
+            }
+
+            vObject.hide();
+        }
+    }
+</script>
+
+</body>
+</html>

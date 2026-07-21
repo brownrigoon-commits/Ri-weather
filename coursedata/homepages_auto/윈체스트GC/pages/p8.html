@@ -1,0 +1,2614 @@
+
+
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+    <meta name="keywords" content="">
+    <meta name="description" content="">
+    <title>윈체스트 골프클럽</title>
+    <meta property="og:type" content="website"> 
+	<meta property="og:title" content="윈체스트 골프클럽">
+	<meta property="og:description" content="윈체스트 골프클럽에 오신것을 환영합니다. 실시간예약 및 안내 제공">
+	<meta property="og:image" content="https://www.winchestgc.co.kr/static/pc/images/common/ogimage.png">
+	<meta property="og:url" content="https://www.winchestgc.co.kr">
+	<!-- custom favicon 설정 -->
+    <link rel="shortcut icon" href="/static/common/images/favicon.ico">
+    <script type="text/javascript" src="/static/common/libs/jquery-1.12.4.min.js" charset="UTF-8"></script>
+    <!-- css -->
+    <link rel="stylesheet" href="/static/pc/css/cm_ui.css?ver=20260610">
+    <link rel="stylesheet" href="/static/pc/css/cm_default.css?ver=20260610">
+    <link rel="stylesheet" href="/static/pc/css/custom/cm_default.css?ver=20260610">
+    <script type="text/javascript" src="/static/pc/js/include_css.js?ver=20260610" data-ver="20260610" charset="UTF-8"></script>
+    <!-- origin css -->
+    <script type="text/javascript" src="/static/pc/js/include_origin_css.js" charset="UTF-8"></script>
+    <!-- js -->
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+	<script type="text/javascript" src="/static/common/libs/jquery.min.js" charset="UTF-8"></script>
+	<script type="text/javascript" src="/static/common/libs/jquery-ui.js" charset="UTF-8"></script>
+    <script type="text/javascript" src="/static/common/libs/librarys.min.js" charset="UTF-8"></script>    	
+    <script type="text/javascript" src="/static/pc/js/ui.custom.js?ver=20260610" charset="UTF-8"></script>
+    <script type="text/javascript" src="/static/pc/js/ui.common.js?ver=20260610" charset="UTF-8"></script>
+    <script type="text/javascript" src="/static/common/js/common.js?ver=20260610"></script>	
+    <script type="text/javascript" src="/static/pc/js/include_js.js?ver=20260610" data-ver="20260610" charset="UTF-8"></script>
+    <!-- origin js-->
+    <script type="text/javascript" src="/static/pc/js/include_origin_js.js" charset="UTF-8"></script>
+    <script>
+        
+            goSSL();
+        
+
+        //page_type
+	    //ui_custom.page_type.init();
+
+        //--basic Customizing(origin)-s
+        var mPage;
+
+        $(document).ready(function() {
+            //setProtocol();
+
+            initHeader();
+
+            initHeaderListener();
+        });
+
+        function setProtocol() {
+            if (document.location.protocol == 'http:') {
+                var sUrl = document.location.href;
+                sUrl = sUrl.replace('http:', 'https:');
+                sUrl = sUrl.replace('winchest.co.kr', 'winchestgc.co.kr');
+
+                document.location.href = sUrl;
+            }
+        }
+
+        function initHeader() {
+            mPage = "";
+            var open = "";
+
+            if ((mPage != "" || open == "Y") && "" == "") {
+                $('.loginWrap').slideToggle(400);
+            }
+        }
+
+        function initHeaderListener() {
+            $(".nav li").hover(function() {
+                $(this).children("ul").stop().delay(200).animate({
+                    height: "toggle",
+                    opacity: "toggle"
+                }, 200);
+            });
+
+            var chkId = getCookie("chkSaveId");
+            var id = getCookie("cookieId");
+
+            if (chkId != null && chkId != "") {
+                $("#chkSaveId").attr('checked', true);
+            }
+
+            if (id != null && id != "") {
+                $("#txtHeaderId").val(id);
+            }
+
+            $("#txtHeaderId").keypress(function(event) {
+                if (event.keyCode == 13) {
+                    doLogin();
+                }
+            });
+
+            $("#txtHeaderPw").keypress(function(event) {
+                if (event.keyCode == 13) {
+                    doLogin();
+                }
+            });
+        }
+
+        function doLogin() {
+            var sUrl = "/controller/MemberController.asp";
+            var params = {};
+
+            var id = $("#txtHeaderId").val();
+            var pw = $("#txtHeaderPw").val();
+
+            if (id == "") {
+                alert("아이디를 입력하세요.");
+                return;
+            }
+
+            if (pw == "") {
+                alert("비밀번호를 입력하세요.");
+                return;
+            }
+
+            params["method"] = "doLogin";
+            params["coDiv"] = globals.coDiv;
+            params["id"] = id;
+            params["pw"] = pw;
+
+            mAjax(sUrl, params, "POST", true, function(data) {
+                if (data.resultCode == "0000") {
+                    var chkSaveId = $('input:checkbox[id="chkSaveId"]').is(":checked");
+
+                    if (chkSaveId) {
+                        setCookie("cookieId", $("#txtHeaderId").val(), 365);
+                        setCookie("chkSaveId", true, 365);
+                    } else {
+                        setCookie("cookieId", "", 365);
+                        setCookie("chkSaveId", "", 365);
+                    }
+
+                    if (mPage != "") {
+                        location.href = mPage;
+                    } else {
+                        location.reload();
+                    }
+                } else {
+                    alert(data.resultMessage);
+                }
+            });
+        }
+
+        function doLogout() {
+            var sUrl = "/Controller/MemberController.asp";
+            var params = {};
+
+            params["method"] = "doLogout";
+
+            mAjax(sUrl, params, "POST", true, function(data) {
+                if (data.resultCode == "0000") {
+                    alert("로그아웃 되었습니다.");
+                    location.href = "/index.asp"
+                }
+            });
+        }
+
+        function onlyMainMenu(val) {
+            if (val == "1") {
+                $("#onlyMain").show();
+            } else(
+                $("#onlyMain").hide()
+            )
+        }
+        //--basic Customizing(origin)-e
+    </script>
+</head>
+<body>
+    <div id="wrapper">
+        <!-- SkipNav -->
+        <div id="skipNav">
+            <a href="#gnb">주요 메뉴 바로가기</a>
+            <a href="#content">컨텐트 바로가기</a>
+        </div>
+        <!-- //SkipNav -->
+        
+        
+        <!-- 
+        <div class="right_area">
+            <a href="#sec0" class="btn right_btn right_menu aside-menu-open full" aria-controls="asideMenu" aria-expanded="false"><span><i class="ico ico-menu white"></i>메뉴</span></a>
+            <a href="/board/notice" class="btn right_btn right_notice"><span><i class="ico ico-notice white"></i>공지사항</span></a>
+            <a href="/reservation/golf" class="btn right_btn right_res"><span><i class="ico ico-res white"></i>실시간예약</span></a>
+        </div>
+ 		-->
+ 		
+        <!-- header -->
+        
+
+
+
+
+
+
+
+<!-- 네이버 애널리틱스 -->
+<script type="text/javascript" src="//wcs.naver.net/wcslog.js"> </script>
+<script type="text/javascript">
+	if (!wcs_add) var wcs_add={};
+	wcs_add["wa"] = "s_ce45d0d81d3";
+	if (!_nasa) var _nasa={};
+	if(window.wcs){
+		wcs.inflow();
+		wcs_do();
+	}
+</script>
+
+		<!-- Header -->
+        <div id="header">
+            <div class="topHeader">
+                <div class="topLeft">
+                    <button class="toggle-menu">
+						<span></span>
+					</button>
+                </div>
+                <!--hamberger전체메뉴-->
+                <div id="menu" class="">
+                    <div class="main-nav">
+                        <h1> winchest menu</h1>
+                        <ul>
+                        	
+                        	
+                        	<li>
+	                        	
+									
+										
+											
+												
+											
+											
+										
+										
+										
+										
+										
+											
+												<a href="/swp/club/intro" class="big">클럽소개<span>INTRODUCE</span></a>
+												
+											
+											
+										
+										
+	                        	
+									
+										
+											
+											
+												
+											
+										
+										
+										
+										
+										
+											
+											
+												<a href="/swp/club/intro" class="small" target="">클럽소개</a>
+												
+											
+										
+										
+	                        	
+									
+										
+											
+											
+												
+											
+										
+										
+										
+										
+										
+											
+											
+												<a href="/swp/club/greetings" class="small" target="">인사말</a>
+												
+											
+										
+										
+	                        	
+									
+										
+											
+											
+												
+											
+										
+										
+										
+										
+										
+											
+											
+												<a href="/swp/club/ci" class="small" target="">CI소개</a>
+												
+											
+										
+										
+	                        	
+									
+										
+											
+											
+												
+											
+										
+										
+										
+										
+										
+											
+											
+												<a href="/swp/club/facil" class="small" target="">시설안내</a>
+												
+											
+										
+										
+	                        	
+									
+										
+											
+											
+												
+											
+										
+										
+										
+										
+										
+											
+											
+												<a href="/swp/club/map" class="small" target="">오시는길</a>
+												
+											
+										
+										
+	                        	
+									
+										
+											
+												
+											
+											
+										
+										
+										
+											</li>
+											<li>
+										
+										
+										
+											
+												<a href="/swp/course/course" class="big">코스소개<span>COURSE</span></a>
+												
+											
+											
+										
+										
+	                        	
+									
+										
+											
+											
+												
+											
+										
+										
+										
+										
+										
+											
+											
+												<a href="/swp/course/course" class="small" target="">코스소개</a>
+												
+											
+										
+										
+	                        	
+									
+										
+											
+											
+												
+											
+										
+										
+										
+										
+										
+											
+											
+												<a href="/swp/course/course01" class="small" target="">로맨틱코스</a>
+												
+											
+										
+										
+	                        	
+									
+										
+											
+											
+												
+											
+										
+										
+										
+										
+										
+											
+											
+												<a href="/swp/course/course10" class="small" target="">클래식코스</a>
+												
+											
+										
+										
+	                        	
+									
+										
+											
+											
+												
+											
+										
+										
+										
+										
+										
+											
+											
+												<a href="/board/gallery" class="small" target="">코스갤러리</a>
+												
+											
+										
+										
+	                        	
+									
+										
+											
+												
+											
+											
+										
+										
+										
+											</li>
+											<li>
+										
+										
+										
+											
+												<a href="/swp/guide/guide" class="big">이용안내<span>GUIDE</span></a>
+												
+											
+											
+										
+										
+	                        	
+									
+										
+											
+											
+												
+											
+										
+										
+										
+										
+										
+											
+											
+												<a href="/swp/guide/guide" class="small" target="">이용안내</a>
+												
+											
+										
+										
+	                        	
+									
+										
+											
+											
+												
+											
+										
+										
+										
+										
+										
+											
+											
+												<a href="/swp/guide/fee" class="small" target="">이용요금</a>
+												
+											
+										
+										
+	                        	
+									
+										
+											
+											
+												
+											
+										
+										
+										
+										
+										
+											
+											
+												<a href="/swp/guide/userGuide" class="small" target="">예약안내</a>
+												
+											
+										
+										
+	                        	
+									
+										
+											
+											
+												
+											
+										
+										
+										
+										
+										
+											
+											
+												<a href="/swp/guide/penalty" class="small" target="">위약안내</a>
+												
+											
+										
+										
+	                        	
+									
+										
+											
+												
+											
+											
+										
+										
+										
+											</li>
+											<li>
+										
+										
+										
+											
+												<a href="/reservation/golf" class="big">인터넷예약<span>RESERVATION</span></a>
+												
+											
+											
+										
+										
+	                        	
+									
+										
+											
+											
+												
+											
+										
+										
+										
+										
+										
+											
+											
+												<a href="/reservation/golf" class="small" target="">실시간예약</a>
+												
+											
+										
+										
+	                        	
+									
+										
+											
+											
+												
+											
+										
+										
+										
+										
+										
+											
+											
+												<a href="/reservation/golfHotDeal" class="small" target="">핫딜예약</a>
+												
+											
+										
+										
+	                        	
+									
+										
+											
+											
+												
+											
+										
+										
+										
+										
+										
+											
+											
+												<a href="/reservation/resWait" class="small" target="">대기예약</a>
+												
+											
+										
+										
+	                        	
+									
+										
+											
+											
+												
+											
+										
+										
+										
+										
+										
+											
+											
+												<a href="/reservation/resList" class="small" target="">예약확인/취소</a>
+												
+											
+										
+										
+	                        	
+									
+										
+											
+											
+												
+											
+										
+										
+										
+										
+										
+											
+											
+												<a href="/joinRoom/joinRoomCalendar" class="small" target="">조인게시판</a>
+												
+											
+										
+										
+	                        	
+									
+										
+											
+											
+												
+											
+										
+										
+										
+										
+										
+											
+											
+												<a href="/reservation/groupGolfRes" class="small" target="">단체조편성</a>
+												
+											
+										
+										
+	                        	
+									
+										
+											
+												
+											
+											
+										
+										
+										
+											</li>
+											<li>
+										
+										
+										
+											
+												<a href="/myContents/visitList" class="big">회원라운지<span>MEMBER LOUNGE</span></a>
+												
+											
+											
+										
+										
+	                        	
+									
+										
+											
+											
+												
+											
+										
+										
+										
+										
+										
+											
+											
+												<a href="/myContents/visitList" class="small" target="">내장현황</a>
+												
+											
+										
+										
+	                        	
+									
+										
+											
+											
+												
+											
+										
+										
+										
+										
+										
+											
+											
+												<a href="/myContents/couponList" class="small" target="">마이쿠폰</a>
+												
+											
+										
+										
+	                        	
+									
+										
+											
+											
+												
+											
+										
+										
+										
+										
+										
+											
+											
+												<a href="/myContents/punishList" class="small" target="">위약현황</a>
+												
+											
+										
+										
+	                        	
+									
+										
+											
+											
+												
+											
+										
+										
+										
+										
+										
+											
+											
+												<a href="/myContents/scoreList" class="small" target="">스코어현황</a>
+												
+											
+										
+										
+	                        	
+									
+										
+											
+											
+												
+											
+										
+										
+										
+										
+										
+											
+											
+												<a href="/board/customer" class="small" target="">고객의소리</a>
+												
+											
+										
+										
+	                        	
+									
+										
+											
+											
+												
+											
+										
+										
+										
+										
+										
+											
+											
+												<a href="/myContents/myInfo" class="small" target="">회원정보관리</a>
+												
+											
+										
+										
+	                        	
+									
+										
+											
+												
+											
+											
+										
+										
+										
+											</li>
+											<li>
+										
+										
+										
+											
+												<a href="/swp/giftcard/introduce" class="big">기프트카드<span>GIFT CARD</span></a>
+												
+											
+											
+										
+										
+	                        	
+									
+										
+											
+											
+												
+											
+										
+										
+										
+										
+										
+											
+											
+												<a href="/swp/giftcard/introduce" class="small" target="">상품권 소개</a>
+												
+											
+										
+										
+	                        	
+									
+										
+											
+											
+												
+											
+										
+										
+										
+										
+										
+											
+											
+												<a href="/swp/giftcard/consult" class="small" target="">전화상담예약</a>
+												
+											
+										
+										
+	                        	
+									
+										
+											
+											
+												
+											
+										
+										
+										
+										
+										
+											
+											
+												<a href="/swp/giftcard/use" class="small" target="">이용안내</a>
+												
+											
+										
+										
+	                        	
+									
+										
+											
+											
+												
+											
+										
+										
+										
+										
+										
+											
+											
+												<a href="/swp/giftcard/pay" class="small" target="">구입안내</a>
+												
+											
+										
+										
+	                        	
+									
+										
+											
+											
+												
+											
+										
+										
+										
+										
+										
+											
+											
+												<a href="/swp/giftcard/guide" class="small" target="">이용약관</a>
+												
+											
+										
+										
+	                        	
+									
+										
+											
+												
+											
+											
+										
+										
+										
+											</li>
+											<li>
+										
+										
+										
+											
+												<a href="/board/notice" class="big">정보마당<span>NOTICE&EVENT</span></a>
+												
+											
+											
+										
+										
+	                        	
+									
+										
+											
+											
+												
+											
+										
+										
+										
+										
+										
+											
+											
+												<a href="/board/notice" class="small" target="">공지사항</a>
+												
+											
+										
+										
+	                        	
+									
+										
+											
+											
+												
+											
+										
+										
+										
+										
+										
+											
+											
+												<a href="/board/event" class="small" target="">그린피 안내</a>
+												
+											
+										
+										
+	                        	
+									
+										
+											
+											
+												
+											
+										
+										
+										
+										
+										
+											
+											
+												<a href="/swp/club/restaurant" class="small" target="">레스토랑 메뉴</a>
+												
+											
+										
+										
+	                        	
+									
+										
+											
+											
+												
+											
+										
+										
+										
+										
+										
+											
+											
+												<a href="/board/pds" class="small" target="">자료실</a>
+												
+											
+										
+										
+	                        	
+									
+										
+											
+											
+												
+											
+										
+										
+										
+										
+										
+											
+											
+												<a href="/board/photo" class="small" target="">포토갤러리</a>
+												
+											
+										
+										
+	                        	
+									
+										
+											
+											
+												
+											
+										
+										
+										
+										
+										
+											
+											
+												<a href="/board/weather" class="small" target="">날씨정보</a>
+												
+											
+										
+										
+	                        	
+									
+										
+											
+											
+												
+											
+										
+										
+										
+										
+										
+											
+											
+												<a href="/golfContents/hioBoard" class="small" target="">명예의전당</a>
+												
+											
+										
+										
+	                        	
+										
+	                        	
+										
+	                        	
+										
+	                        	
+										
+	                        	
+                        	</li>
+							
+                        </ul>
+                    </div>
+                </div>
+                <!--//hamberger전체메뉴-->
+                <h1><a href="/"><img src="/static/pc/origin/images/logo.png" alt="logo"></a></h1>
+                <div class="topRight">
+					
+					
+					
+                    <a href="/reservation/golf" class="tBtn1"><img src="/static/pc/origin/images/icon_t1.png" alt="실시간예약"></a>
+
+                    <a href="/member/login" class="tBtn2" id="loginBtn"><img src="/static/pc/origin/images/icon_t2.png" alt="로그인"></a>
+
+					<a href="http://www.weather.go.kr/weather/forecast/timeseries.jsp?searchType=SETINFO&setinfoCode=4155033000" class="tBtn3" target="_blank"><img src="/static/pc/origin/images/icon_t3.png" alt="날씨"></a>
+					
+					
+                </div>
+                
+            </div>
+            <!--서브에서는 안보이게/메인만 보이게-->
+            <div class="bottomHeader" id="onlyMain" hidden>
+                <ul class="access-menu">
+
+               		
+					
+                       
+               		
+               			
+	               			
+								
+									
+								
+								
+							
+							
+							
+								
+									
+									<li>
+										<a href="/swp/club/intro">INTRODUCE</a>
+	                        			<ul class="access-submenu">
+								
+								
+	
+								
+							
+						
+               		
+               			
+	               			
+								
+								
+									
+								
+							
+							
+							
+								
+								
+	
+								
+									
+									
+									
+											<li><a href="/swp/club/intro" target="">클럽소개</a></li>
+										
+								
+								
+								
+							
+						
+               		
+               			
+	               			
+								
+								
+									
+								
+							
+							
+							
+								
+								
+	
+								
+									
+									
+									
+											<li><a href="/swp/club/greetings" target="">인사말</a></li>
+										
+								
+								
+								
+							
+						
+               		
+               			
+	               			
+								
+								
+									
+								
+							
+							
+							
+								
+								
+	
+								
+									
+									
+									
+											<li><a href="/swp/club/ci" target="">CI소개</a></li>
+										
+								
+								
+								
+							
+						
+               		
+               			
+	               			
+								
+								
+									
+								
+							
+							
+							
+								
+								
+	
+								
+									
+									
+									
+											<li><a href="/swp/club/facil" target="">시설안내</a></li>
+										
+								
+								
+								
+							
+						
+               		
+               			
+	               			
+								
+								
+									
+								
+							
+							
+							
+								
+								
+	
+								
+									
+									
+									
+											<li><a href="/swp/club/map" target="">오시는길</a></li>
+										
+								
+								
+								
+							
+						
+               		
+               			
+	               			
+								
+									
+								
+								
+							
+							
+							
+								
+								
+									
+										</ul>
+									</li>	
+									<li>
+										<a href="/swp/course/course">COURSE</a>
+	                        			<ul class="access-submenu">
+								
+	
+								
+							
+						
+               		
+               			
+	               			
+								
+								
+									
+								
+							
+							
+							
+								
+								
+	
+								
+									
+									
+									
+											<li><a href="/swp/course/course" target="">코스소개</a></li>
+										
+								
+								
+								
+							
+						
+               		
+               			
+	               			
+								
+								
+									
+								
+							
+							
+							
+								
+								
+	
+								
+									
+									
+									
+											<li><a href="/swp/course/course01" target="">로맨틱코스</a></li>
+										
+								
+								
+								
+							
+						
+               		
+               			
+	               			
+								
+								
+									
+								
+							
+							
+							
+								
+								
+	
+								
+									
+									
+									
+											<li><a href="/swp/course/course10" target="">클래식코스</a></li>
+										
+								
+								
+								
+							
+						
+               		
+               			
+	               			
+								
+								
+									
+								
+							
+							
+							
+								
+								
+	
+								
+									
+									
+									
+											<li><a href="/board/gallery" target="">코스갤러리</a></li>
+										
+								
+								
+								
+							
+						
+               		
+               			
+	               			
+								
+									
+								
+								
+							
+							
+							
+								
+								
+									
+										</ul>
+									</li>	
+									<li>
+										<a href="/swp/guide/guide">GUIDE</a>
+	                        			<ul class="access-submenu">
+								
+	
+								
+							
+						
+               		
+               			
+	               			
+								
+								
+									
+								
+							
+							
+							
+								
+								
+	
+								
+									
+									
+									
+											<li><a href="/swp/guide/guide" target="">이용안내</a></li>
+										
+								
+								
+								
+							
+						
+               		
+               			
+	               			
+								
+								
+									
+								
+							
+							
+							
+								
+								
+	
+								
+									
+									
+									
+											<li><a href="/swp/guide/fee" target="">이용요금</a></li>
+										
+								
+								
+								
+							
+						
+               		
+               			
+	               			
+								
+								
+									
+								
+							
+							
+							
+								
+								
+	
+								
+									
+									
+									
+											<li><a href="/swp/guide/userGuide" target="">예약안내</a></li>
+										
+								
+								
+								
+							
+						
+               		
+               			
+	               			
+								
+								
+									
+								
+							
+							
+							
+								
+								
+	
+								
+									
+									
+									
+											<li><a href="/swp/guide/penalty" target="">위약안내</a></li>
+										
+								
+								
+								
+							
+						
+               		
+               			
+	               			
+								
+									
+								
+								
+							
+							
+							
+								
+								
+									
+										</ul>
+									</li>	
+									<li>
+										<a href="/reservation/golf">RESERVATION</a>
+	                        			<ul class="access-submenu">
+								
+	
+								
+							
+						
+               		
+               			
+	               			
+								
+								
+									
+								
+							
+							
+							
+								
+								
+	
+								
+									
+									
+									
+											<li><a href="/reservation/golf" target="">실시간예약</a></li>
+										
+								
+								
+								
+							
+						
+               		
+               			
+	               			
+								
+								
+									
+								
+							
+							
+							
+								
+								
+	
+								
+									
+									
+									
+											<li><a href="/reservation/golfHotDeal" target="">핫딜예약</a></li>
+										
+								
+								
+								
+							
+						
+               		
+               			
+	               			
+								
+								
+									
+								
+							
+							
+							
+								
+								
+	
+								
+									
+									
+									
+											<li><a href="/reservation/resWait" target="">대기예약</a></li>
+										
+								
+								
+								
+							
+						
+               		
+               			
+	               			
+								
+								
+									
+								
+							
+							
+							
+								
+								
+	
+								
+									
+									
+									
+											<li><a href="/reservation/resList" target="">예약확인/취소</a></li>
+										
+								
+								
+								
+							
+						
+               		
+               			
+	               			
+								
+								
+									
+								
+							
+							
+							
+								
+								
+	
+								
+									
+									
+									
+											<li><a href="/joinRoom/joinRoomCalendar" target="">조인게시판</a></li>
+										
+								
+								
+								
+							
+						
+               		
+               			
+	               			
+								
+								
+									
+								
+							
+							
+							
+								
+								
+	
+								
+									
+									
+									
+											<li><a href="/reservation/groupGolfRes" target="">단체조편성</a></li>
+										
+								
+								
+								
+							
+						
+               		
+               			
+	               			
+								
+									
+								
+								
+							
+							
+							
+								
+								
+									
+										</ul>
+									</li>	
+									<li>
+										<a href="/myContents/visitList">MEMBER LOUNGE</a>
+	                        			<ul class="access-submenu">
+								
+	
+								
+							
+						
+               		
+               			
+	               			
+								
+								
+									
+								
+							
+							
+							
+								
+								
+	
+								
+									
+									
+									
+											<li><a href="/myContents/visitList" target="">내장현황</a></li>
+										
+								
+								
+								
+							
+						
+               		
+               			
+	               			
+								
+								
+									
+								
+							
+							
+							
+								
+								
+	
+								
+									
+									
+									
+											<li><a href="/myContents/couponList" target="">마이쿠폰</a></li>
+										
+								
+								
+								
+							
+						
+               		
+               			
+	               			
+								
+								
+									
+								
+							
+							
+							
+								
+								
+	
+								
+									
+									
+									
+											<li><a href="/myContents/punishList" target="">위약현황</a></li>
+										
+								
+								
+								
+							
+						
+               		
+               			
+	               			
+								
+								
+									
+								
+							
+							
+							
+								
+								
+	
+								
+									
+									
+									
+											<li><a href="/myContents/scoreList" target="">스코어현황</a></li>
+										
+								
+								
+								
+							
+						
+               		
+               			
+	               			
+								
+								
+									
+								
+							
+							
+							
+								
+								
+	
+								
+									
+									
+									
+											<li><a href="/board/customer" target="">고객의소리</a></li>
+										
+								
+								
+								
+							
+						
+               		
+               			
+	               			
+								
+								
+									
+								
+							
+							
+							
+								
+								
+	
+								
+									
+									
+									
+											<li><a href="/myContents/myInfo" target="">회원정보관리</a></li>
+										
+								
+								
+								
+							
+						
+               		
+               			
+	               			
+								
+									
+								
+								
+							
+							
+							
+								
+								
+									
+										</ul>
+									</li>	
+									<li>
+										<a href="/swp/giftcard/introduce">GIFT CARD</a>
+	                        			<ul class="access-submenu">
+								
+	
+								
+							
+						
+               		
+               			
+	               			
+								
+								
+									
+								
+							
+							
+							
+								
+								
+	
+								
+									
+									
+									
+											<li><a href="/swp/giftcard/introduce" target="">상품권 소개</a></li>
+										
+								
+								
+								
+							
+						
+               		
+               			
+	               			
+								
+								
+									
+								
+							
+							
+							
+								
+								
+	
+								
+									
+									
+									
+											<li><a href="/swp/giftcard/consult" target="">전화상담예약</a></li>
+										
+								
+								
+								
+							
+						
+               		
+               			
+	               			
+								
+								
+									
+								
+							
+							
+							
+								
+								
+	
+								
+									
+									
+									
+											<li><a href="/swp/giftcard/use" target="">이용안내</a></li>
+										
+								
+								
+								
+							
+						
+               		
+               			
+	               			
+								
+								
+									
+								
+							
+							
+							
+								
+								
+	
+								
+									
+									
+									
+											<li><a href="/swp/giftcard/pay" target="">구입안내</a></li>
+										
+								
+								
+								
+							
+						
+               		
+               			
+	               			
+								
+								
+									
+								
+							
+							
+							
+								
+								
+	
+								
+									
+									
+									
+											<li><a href="/swp/giftcard/guide" target="">이용약관</a></li>
+										
+								
+								
+								
+							
+						
+               		
+               			
+	               			
+								
+									
+								
+								
+							
+							
+							
+								
+								
+									
+										</ul>
+									</li>	
+									<li>
+										<a href="/board/notice">NOTICE&EVENT</a>
+	                        			<ul class="access-submenu">
+								
+	
+								
+							
+						
+               		
+               			
+	               			
+								
+								
+									
+								
+							
+							
+							
+								
+								
+	
+								
+									
+									
+									
+											<li><a href="/board/notice" target="">공지사항</a></li>
+										
+								
+								
+								
+							
+						
+               		
+               			
+	               			
+								
+								
+									
+								
+							
+							
+							
+								
+								
+	
+								
+									
+									
+									
+											<li><a href="/board/event" target="">그린피 안내</a></li>
+										
+								
+								
+								
+							
+						
+               		
+               			
+	               			
+								
+								
+									
+								
+							
+							
+							
+								
+								
+	
+								
+									
+									
+									
+											<li><a href="/swp/club/restaurant" target="">레스토랑 메뉴</a></li>
+										
+								
+								
+								
+							
+						
+               		
+               			
+	               			
+								
+								
+									
+								
+							
+							
+							
+								
+								
+	
+								
+									
+									
+									
+											<li><a href="/board/pds" target="">자료실</a></li>
+										
+								
+								
+								
+							
+						
+               		
+               			
+	               			
+								
+								
+									
+								
+							
+							
+							
+								
+								
+	
+								
+									
+									
+									
+											<li><a href="/board/photo" target="">포토갤러리</a></li>
+										
+								
+								
+								
+							
+						
+               		
+               			
+	               			
+								
+								
+									
+								
+							
+							
+							
+								
+								
+	
+								
+									
+									
+									
+											<li><a href="/board/weather" target="">날씨정보</a></li>
+										
+								
+								
+								
+							
+						
+               		
+               			
+	               			
+								
+								
+									
+								
+							
+							
+							
+								
+								
+	
+								
+									
+									
+									
+											<li><a href="/golfContents/hioBoard" target="">명예의전당</a></li>
+										
+								
+								
+								
+							
+						
+               		
+               			
+               		
+               			
+               		
+               			
+               		
+               			
+               		
+                		</ul>
+					</li>
+                	
+                    
+                </ul>
+            </div>
+            <!--//서브에서는 안보이게/메인만 보이게-->
+		</div>
+        <!--// header -->
+
+        <!-- container -->
+        
+<script>
+	include_css.head('sub');
+    include_js.head('sub');
+</script>
+		<!-- Container -->
+        <div class="container">
+            <!-- Content -->
+            <div id="content" class="content">
+                
+                
+
+
+
+
+
+
+
+<script>
+    /* var bigMenu, midMenu;
+
+    $(document).ready(function() {
+        initMenus();
+    });
+
+    function initMenus() {
+        var url = window.location.href;
+        
+
+        for(var key in globals.midMenus) {
+            
+            for(var page in globals.midMenus[key]) {
+                alert(url);
+                if(url.indexOf(page) > 0) {
+                    $("#txtBigMenuName").html(globals.bigMenus[key]);
+                    $("#txtMidMenuName").html(globals.midMenus[key][page][0]);
+                    bigMenu = key;
+                    midMenu = page;
+                    break;
+                }
+            }
+
+            if(bigMenu != null && bigMenu != "") {
+                break;
+            }
+        }
+
+        $("#menuContainer").empty();
+
+        for(var key in globals.midMenus[bigMenu]) {
+            if(globals.midMenus[bigMenu][key][1]){
+                $("#menuContainer").append(String.format("<li><a href='{0}'>{1}</a></li>", key, globals.midMenus[bigMenu][key][0]));
+            }
+        }
+    }  */
+</script>
+<div class="naviLine">
+    <div class="naviBox">
+        <div class="nav">
+            <ul>
+                <li>
+                    <a class="home" href="/">
+                        <img src="/static/pc/origin/images/home.png" alt="홈">
+                    </a>
+                </li>
+                
+                <li>
+                	
+                   		
+                   	
+                   		
+                   			<a href="/swp/course/course01"><span></span>로맨틱코스<span><img src="/static/pc/origin/images/arw.png" alt="중메뉴선택"></span></a>
+                   		
+                   	
+                   		
+                   	
+                   		
+                   	
+                    
+                    <ul class="menu">
+                    	
+                    		
+                    			<li><a href="/swp/course/course" target="">코스소개</a></li>
+                    			
+                    	
+                    			
+                    	
+                    		
+                    			<li><a href="/swp/course/course10" target="">클래식코스</a></li>
+                    			
+                    	
+                    		
+                    			<li><a href="/board/gallery" target="">코스갤러리</a></li>
+                    			
+                    	
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+                
+                <div class="content-body">
+                    <div class="titleBox">
+						<h2>COURSE</h2>
+						<h3>코스소개</h3>
+						<p class="bgTit">COURSE</p>
+					</div>	
+                    
+                    <div class="courseWrap">
+                        <div class="courseBox">
+                            <div class="holeNumBox">
+                                <div class="holeNum">6</div>
+                                <ul class="holeText">
+                                    <li class="hole1">hole</li>
+                                    <li class="hole2">MORISOT</li>
+                                </ul>
+                                <p>PAR 5</p>
+                            </div>
+                            
+                            <div class="courseInfo">
+                                <div class="cInfoLeft">
+                                    <div class="redBox">Red <strong>411</strong>
+                                    </div>
+                                    <div class="goldBox">Gold <strong>442</strong>
+                                    </div>
+                                    <ul>
+                                        <li><span class="whiteBull"></span> White <strong>472</strong> </li>
+                                        <li><span class="blueBull"></span> Blue <strong>472</strong> </li>
+                                        <li><span class="blackBull"></span> Black <strong>495</strong> </li>
+                                    </ul>
+                                </div>
+                                <div class="cInfoRight">
+                                    <a href="course01">1홀</a>
+                                    <a href="course02">2홀</a>
+                                    <a href="course03">3홀</a>
+                                    <a href="course04">4홀</a>
+                                    <a href="course05">5홀</a>
+                                    <a href="course06" class="on">6홀</a>
+                                    <a href="course07">7홀</a>
+                                    <a href="course08">8홀</a>
+                                    <a href="course09">9홀</a>
+                                    <a href="course10" class="button">▶ CLASSIC HOLE</a>
+                                </div>
+                            </div>					
+                        </div>
+                    </div>
+                    <div class="courseWrap2">
+                        <div class="cbg"></div>
+                        <div class="courseBox2">
+                            <div class="cExplanLeft">
+                                <div class="cExplanTit">
+                                    <h1>모리조</h1>
+                                    <h4>그림일기를 보듯 여성스럽고 섬세한 감각 "전략적인 정교함과 섬세함의 아트코스"</h4>
+                                    <hr class="hr_s padding15">
+                                </div>
+                                
+                                <div class="padding15"></div>
+                                
+                                <div class="cExplanText">
+                                    <h1>Course Motive</h1>
+                                    <h4>모리조는 프랑스에 대표적인 여성 인상파 화가로서 
+    그녀의 작품은 한 여인의 그림일기를 보듯 여성스럽고
+    섬세함을 나타내고 있다.
+    모리조와 함께하는 6홀은 여성스러운 
+    섬세함과 정교함을 겸비한 홀이다.</h4>
+                                </div>
+                                
+                                <div class="padding30"></div>
+                                <div class="courseSlider">
+                                    <div class="bx-wrapper">
+                                        <ul class="slider">
+                                            <li><img src="/static/pc/origin/images/course/courseR/6/01.jpg" title=""></li>
+                                            <li><img src="/static/pc/origin/images/course/courseR/6/02.jpg" title=""></li>
+                                        </ul>
+                                        <script>
+                                        $('.slider').bxSlider({
+                                            mode:'fade',
+                                            speed : 300,
+                                            pause : 3000,
+                                            auto: true,
+                                            controls: false,
+                                            pager:true,
+                                            touchEnabled:false
+                                        });
+                                        </script>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="cExplanRight">
+                                <img src="/static/pc/origin/images/course/r06.jpg">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="padding30"></div>
+                </div>
+            </div>
+            <!-- //Content -->
+        </div>
+        <!-- //Container -->
+        <!--// container-->
+
+        <!-- footer -->
+        
+
+
+
+
+
+
+
+        <!-- Footer -->
+        <div id="footer">
+            <div class="bottomLine">
+                <div class="btTopWrap">
+                    <div class="btop">
+                        <a href="javascript:ui.popup.open('terms-01');">개인정보취급방침</a>
+                        <span>|</span>
+                        <a href="javascript:ui.popup.open('terms-02');">이용약관</a>
+                        <span>|</span>
+                        <a href="javascript:ui.popup.open('terms-03');">인터넷 서비스 이용약관</a>
+                        <!--<span>|</span>
+						<a href="/member/mail_out.asp">사업자 정보확인</a>-->
+                    </div>
+                    <div class="f_sns">
+                        
+                        <a href="https://www.instagram.com/winchest_gc/" target="_blank"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="footerBox">
+                <h1></h1>
+                <div class="f_descript">
+                    윈체스트 골프 클럽 / 대표번호 : 031-678-9000 / 사업자등록번호 : 124-86-07171 / 통신판매업 신고번호 : 경기안성-0087호<br> 경기도 안성시 서운면 오촌길 97-31(구주소 : 안성시 서운면 오촌리 173-4번지) / 예약실 : 031-678-9193 / 팩스 : 031-678-9120<br> COPYRIGHTⓒ WINCHEST G.C. All RIGHTS RESERVED.
+                </div>
+            </div>
+        </div>
+        <!-- //Footer -->
+        
+        <!-- 개인정보처리방침 팝업 -->
+        <div id="terms-01" class="popup-wrap type-basic type01 footer" role="dialog">
+            <section class="popup demo1" tabindex="0">
+                <div class="popup-head">
+                    <h3 id="popupContentTitle">개인정보취급방침</h3>
+                </div>
+                <div class="popup-body">
+                    <div class="popup-cont" id="terms_in-01">
+                        
+
+                    </div>
+                </div>
+                <div class="popup-foot">
+                    <div class="btn-area flex-center">
+                        <button type="button" id="fnPopClose" class="btn demo1 secondary" onclick="ui.popup.close('terms-01')"><span>닫기</span></button>
+                    </div>
+                </div>
+                <div class="popup-close">
+                    <button type="button" class="btn-ico btn-close" title="팝업닫기" onclick="ui.popup.close('terms-01')"><span><i class="ico ico-close1 white">Close</i></span></button>
+                </div>
+            </section>
+        </div>
+        <!-- //개인정보처리방침 팝업 -->
+
+        <!-- 이용약관 팝업 -->
+        <div id="terms-02" class="popup-wrap type-basic type01 footer" role="dialog">
+            <section class="popup demo1" tabindex="0">
+                <div class="popup-head">
+                    <h3 id="popupContentTitle">이용약관</h3>
+                </div>
+                <div class="popup-body">
+                    <div class="popup-cont" id="terms_in-02">
+                        
+
+                    </div>
+                </div>
+                <div class="popup-foot">
+                    <div class="btn-area flex-center">
+                        <button type="button" id="fnPopClose" class="btn demo1 secondary" onclick="ui.popup.close('terms-02')"><span>닫기</span></button>
+                    </div>
+                </div>
+                <div class="popup-close">
+                    <button type="button" class="btn-ico btn-close" title="팝업닫기" onclick="ui.popup.close('terms-02')"><span><i class="ico ico-close1 white">Close</i></span></button>
+                </div>
+            </section>
+        </div>
+        <!-- //이용약관 팝업 -->
+
+        <!-- 이메일무단수집거부 팝업 -->
+        <div id="terms-03" class="popup-wrap type-basic type01 footer" role="dialog">
+            <section class="popup demo1" tabindex="0">
+                <div class="popup-head">
+                    <h3 id="popupContentTitle">인터넷 서비스 이용약관</h3>
+                </div>
+                <div class="popup-body">
+                    <div class="popup-cont" id="terms_in-03">
+                        
+
+                    </div>
+                </div>
+                <div class="popup-foot">
+                    <div class="btn-area flex-center">
+                        <button type="button" id="fnPopClose" class="btn demo1 secondary" onclick="ui.popup.close('terms-03')"><span>닫기</span></button>
+                    </div>
+                </div>
+                <div class="popup-close">
+                    <button type="button" class="btn-ico btn-close" title="팝업닫기" onclick="ui.popup.close('terms-03')"><span><i class="ico ico-close1 white">Close</i></span></button>
+                </div>
+            </section>
+        </div>
+        <!-- //이메일무단수집거부 팝업 -->
+        
+
+        <div class="dimmer"></div>
+        
+        <script>
+        $(function(){
+            document.getElementById("terms_in-01").innerHTML='<object type="text/html" data="/static/pc/agreeform/agreeform-03.html?ver=260303"></object>';
+            document.getElementById("terms_in-02").innerHTML='<object type="text/html" data="/static/pc/agreeform/agreeform-01.html?ver=260204"></object>';
+            document.getElementById("terms_in-03").innerHTML='<object type="text/html" data="/static/pc/agreeform/agreeform-02.html"></object>';
+            //document.getElementById("terms_in-04").innerHTML='<object type="text/html" data="/static/pc/agreeform/agreeform-05.html"></object>';
+        });
+        </script>
+        <!--// footer -->
+    
+    </div>
+    
+    <!-- top btn -->
+    <div class="sticky_area">
+        <a href="javascript:void(0);" class="btn_sticky sticky01"><span>TOP</span></a>
+    </div>
+    <!-- //top btn -->
+    
+	<!-- 로딩 div-->
+	<div id="loadingDarkDiv" style=" display:none; background-color:#f1f1f1; opacity:0.5;filter:Alpha(opacity:'30');width:100%;height:100%;top:0;left:0;position:fixed;z-index:9000;"></div>
+	<div id="loadingDiv" style=" display:none; top: 45%; left: 52%;  margin-left:-100px;z-index: 9999; border: 3px #2B97D6;position:fixed">
+		<p style="text-align: center;">
+			<img src="/static/common/images/loading_img.gif" alt="loading" />
+			<font color="#0054FF"><span id="percentage"></span></font>
+		</p>
+	</div>
+	<div id="ie_chk" class="ie_chk_area dp-none">
+		<button type="button" onclick="javascript:popHide('ie_chk')" class="btn-close"><span class="blind">현재창 닫기</span></button>
+		<div class="con">
+			<p class="tit">
+				<img src="/static/pc/images/common/ico_ie.png" alt="ie" />
+				본사이트는 <strong>Internet Explorer 11</strong>버전<br/>에 <strong class="color-01">최적화</strong> 되어 있습니다.
+			</p>
+			<span>
+				<p class="btxt">‘Explorer 11이하’ 에서는 사용이 원활하지 않을 수 있습니다.</p>
+				<p class="btxt">Internet Explorer 11은 2022년 6월 15일부터 사용 및 지원이 중지됩니다. Microsoft Edge 사용을 권장합니다.</p>
+				<p class="txt">Explorer를 최신 버전으로 업데이트 하시거나, <br /><strong class="color-01">Chrome, 네이버 Whale</strong> 등의 브라우저를 이용해 주시기 바랍니다.</p>
+				<a href="http://windows.microsoft.com/ko-kr/internet-explorer/download-ie" target="_blank" title="새창열림" class="btn-upgrade">지금 업그레이드</a>
+				<p class="chk-uclose"><input type="checkbox" name="ie_chk_close" id="ie_chk_close" onclick="popHide('ie_chk')" /><label for="ie_chk_close">일주일간 표시 안하기</label></p>
+			</span>			
+		</div>
+	</div>
+	<script type="text/javascript">
+	//익스플로러 중지 안내 활성화
+	var agent = navigator.userAgent.toLowerCase();
+	
+	//ie_chk 레이어팝업 닫기
+	function popHide(pop_id){
+		//document.getElementById(pop_id).style.display = "none";
+		$("#"+pop_id).hide(1000);
+	}	
+	
+	function ie_setCookie(name, value, days) {
+        if (days) {
+                var date = new Date();
+                date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+                var expires = "; expires=" + date.toGMTString();
+        } else {
+               var expires = "";
+        }
+        
+        document.cookie = name + "=" + value + expires + "; path=/";
+	}
+
+	 
+	//일주일간 표시 안하기
+	function ie_getCookie(name) {
+        var i, x, y, ARRcookies = document.cookie.split(";");
+        
+        for (i = 0; i < ARRcookies.length; i++) {     
+            x = ARRcookies[i].substr(0, ARRcookies[i].indexOf("="));
+            y = ARRcookies[i].substr(ARRcookies[i].indexOf("=") + 1);
+            
+            x = x.replace(/^\s+|\s+$/g, "");
+
+            if (x == name) {
+                    return unescape(y);
+            }
+        }
+	}
+	
+	//ie_chk 레이어팝업 닫기
+	function popHide(pop_id){
+		//document.getElementById(pop_id).style.display = "none";
+		$("#"+pop_id).hide(1000);
+		ie_setCookie('ie_chk_close', 'close', 7); //7일 후 만료
+	}
+
+	$(window).ready(function(){ 
+        var ie_Pchk = ie_getCookie('ie_chk_close');
+        console.log(ie_Pchk);
+        if( ie_Pchk == 'close'){
+        	$("#"+pop_id).hide(1000);
+        }else{
+            if((navigator.appName == 'Netscape' && agent.indexOf('trident') != -1) || (agent.indexOf("msie") != -1)){
+    			$('#ie_chk').removeClass('dp-none');
+            }
+    	}
+    });
+
+    //SMS 동의 팝업
+    
+    </script>
+</body>
+</html>

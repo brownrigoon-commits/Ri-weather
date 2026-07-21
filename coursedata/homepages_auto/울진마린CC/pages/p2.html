@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+    <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <meta name="format-detection" content="telephone=no">
+        <title>울진마린컨트리클럽</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+        <meta name="description" content="울진마린컨트리클럽 예약문의(054-781-0000)">
+        <script src="/js/jquery.min.js"></script>
+        <script src="/js/const.js"></script>
+        <script src="/js/utils/ajax.js"></script>
+        <script src="/js/utils/common.js"></script>
+        <script src="/js/utils/date.js"></script>
+        <script src="/js/utils/popup.js"></script>
+        <script src="/js/utils/string.js"></script>
+        <script src="/js/utils/template.js"></script>
+        <script src="/js/utils/message.js"></script>
+        <script src="/js/jquery.preloaders.js"></script>
+        <script src="/pc/js/view.js"></script>
+        <script src="/pc/js/swiper.js"></script>
+
+        <script src="/js/jquery.rwdImageMaps.min.js"></script><!-- image map -->
+        <link href="https://cdn.jsdelivr.net/gh/sun-typeface/SUIT@2/fonts/static/woff2/SUIT.css" rel="stylesheet">
+        <link rel="stylesheet" href="/css/common.css?v=20260721" type="text/css">
+        <link rel="stylesheet" href="/css/swiper.css" type="text/css">
+        <link rel="stylesheet" href="/css/layout.css?v=20260721" type="text/css">
+        <link rel="stylesheet" href="/css/contents.css?v=20260721" type="text/css">
+        <link rel="stylesheet" href="/css/contents_m.css?v=20260721" type="text/css">
+        <link rel="icon" href="/images/favicon.ico">
+    </head>
+
+    <header class="pc">
+        <div class="nav-area">
+            <div class="top-left">
+                <a href="/" class="logo-area"><img src="/images/logo.svg"></a>
+            </div>
+            <div class="top-right login-container" style="display: none">
+                <a href="/reservation/check" class="check">예약확인</a>
+                <a href="/member/login">로그인</a>
+                <a href="/member/terms">회원가입</a>
+            </div>
+            <div class="top-right logout-container" style="display: none">
+                <a href="/reservation/check" class="check">예약확인</a>
+                <a href="javascript:logout()">로그아웃</a>
+                <a href="/mypage/modify">마이페이지</a>
+            </div>
+        </div>
+        <!--메뉴-->
+        <nav>
+            <ul class="nav-menu">
+                <li class="gnb"><a href="/club/intro">클럽소개</a></li>
+                <li class="gnb"><a href="/reservation/main">실시간예약</a></li>
+                <li class="gnb"><a href="/guide/guide">이용안내</a></li>
+                <li class="gnb"><a href="/course/intro">코스소개</a></li>
+                <li class="gnb"><a href="/board/notice">커뮤니티</a></li>
+            </ul>
+        </nav>
+        <div class="lnb">
+            <div class="lnb-area">
+                <div class="lnb-box">
+                    <ul>
+                        <li><a href="/club/intro">클럽소개</a></li>
+                        <li><a href="/club/facil">부대시설</a></li>
+                        <li><a href="/club/map">오시는길</a></li>
+                    </ul>
+                    <ul>
+                        <li><a href="/reservation/main">골프예약</a></li>
+                        <li><a href="/reservation/check">예약확인/취소</a></li>
+                        <li><a href="/reservation/wait">대기예약</a></li>
+                    </ul>
+                    <ul>
+                        <li><a href="/guide/guide">예약·위약 규정안내</a></li>
+                        <li><a href="/guide/club-info">클럽 이용안내</a></li>
+                        <li><a href="/guide/room-info">객실 이용안내</a></li>
+                    </ul>
+                    <ul>
+                        <li><a href="/course/intro">코스개요</a></li>
+                        <li><a href="/course/course01">MARINE코스</a></li>
+                        <li><a href="/course/course02">HEALING코스</a></li>
+                    </ul>
+                    <ul>
+                        <li>
+                            <a href="/board/notice">공지사항</a>
+                        </li>
+                        <li>
+                            <a href="/board/event">이벤트</a>
+                        </li>
+                        <li>
+                            <a href="/board/join">조인 게시판</a>
+                        </li>
+                        <li>
+                            <a href="/board/honor">명예의전당</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <!--//메뉴-->
+    </header>
+    <header class="mobile">
+        <div class="top-left">
+            <a href="/" class="logo-area"><img src="/images/logo.svg"></a>
+        </div>
+        <div class="top-right login-container" style="display: none">
+            <a href="/reservation/check"><img src="/images/ic_top_reser.svg"></a>
+        </div>
+        <div class="top-right logout-container" style="display: none">
+            <a href="/reservation/check"><img src="/images/ic_top_reser.svg"></a>
+        </div>
+        <input type="checkbox" id="toggleNav"/>
+        <label class="toggle-btn" for="toggleNav" id="toggleTop">
+            <span></span>
+            <span></span>
+            <span></span>
+        </label>
+        <nav>
+            <div class="nav-box">
+                <div class="nav-header">
+                    <div class="logo-wrap">
+                        <a href="/"><img src="/images/logo.svg" class="logo"></a>
+                    </div>
+                    <!--로그인 전-->
+                    <div class="nav-header-text login-container" hidden>
+                        <h2>로그인하세요</h2>
+                        <p>회원이 되시면 다양한 혜택을 누릴 수 있습니다.</p>
+                        <div class="nav-login-area">
+                            <a href="/member/login" class="login">로그인</a>
+                            <a href="/member/terms" class="">회원가입</a>
+                        </div>
+                    </div>
+                    <!--로그인 후-->
+                    <div class="nav-header-text logout-container" hidden>
+                        <h2 id="login-member-container"></h2>
+                        <p>울진마린컨트리클럽에 오신 걸 환영합니다.</p>
+                        <div class="nav-login-area">
+                            <a href="javascript:logout()" class="login">로그아웃</a>
+                            <a href="/mypage/modify" class="">회원정보관리</a>
+                        </div>
+                    </div>
+                </div>
+                <ul class="menu-list">
+                    <li>
+                        <a href="javascript:void(0)"><p>클럽소개</p><b><span></span></b></a>
+                        <div class="lnb">
+                            <a href="/club/intro">클럽소개</a>
+                            <a href="/club/facil">부대시설</a>
+                            <a href="/club/map">오시는길</a>
+                        </div>
+                    </li>
+                    <li>
+                        <a href="javascript:void(0)"><p>실시간예약</p><b><span></span></b></a>
+                        <div class="lnb">
+                            <a href="/reservation/main">골프예약</a>
+                            <a href="/reservation/check">예약확인/취소</a>
+                            <a href="/reservation/wait">대기예약</a>
+                        </div>
+                    </li>
+                    <li>
+                        <a href="javascript:void(0)"><p>이용안내</p><b><span></span></b></a>
+                        <div class="lnb">
+                            <a href="/guide/guide">예약·위약 규정안내</a>
+                            <a href="/guide/club-info">클럽 이용안내</a>
+                            <a href="/guide/room-info">객실 이용안내</a>
+                        </div>
+                    </li>
+                    <li>
+                        <a href="javascript:void(0)"><p>코스소개</p><b><span></span></b></a>
+                        <div class="lnb">
+                            <a href="/course/intro">코스개요</a>
+                            <a href="/course/course01">MARINE코스</a>
+                            <a href="/course/course02">HEALING코스</a>
+                        </div>
+                    </li>
+                    <li>
+                        <a href="javascript:void(0)"><p>커뮤니티</p><b><span></span></b></a>
+                        <div class="lnb">
+                            <a href="/board/notice">공지사항</a><a href="/board/event">이벤트</a><a href="/board/join">조인 게시판</a><a href="/board/honor">명예의전당</a>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <script>
+        $(document).ready(async function () {
+            const isLoggedIn = await checkLogin();
+
+            if (isLoggedIn) {
+                const member = await ajax.get("/api/member", {}, false);
+                $("#login-member-container").html(`${member.name} 고객님`);
+                $(".logout-container").show();
+                $(".logout-container[hidden]").removeAttr("hidden");
+            } else {
+                $(".login-container").show();
+                $(".login-container[hidden]").removeAttr("hidden");
+            }
+        });
+
+        function logout() {
+            localStorage.removeItem(TOKEN_KEY);
+            location.href = "/";
+        }
+    </script>
+
+
+<body>
+
+    <div class="head-title-area bg-course">
+        <div class="head-title">
+            <h4>COURSE GUIDE</h4>
+            <h2>코스안내</h2>
+            <div class="head-nav">
+                <img src="/images/ic_home.svg"> &bull; <span>코스안내</span> &bull; <span>MARINE 코스</span>
+            </div>
+        </div>
+    </div>
+    <div class="common-tab-wrap">
+        <a href="/course/intro">코스개요</a>
+        <a href="/course/course01" class="on">MARINE 코스</a>
+        <a href="/course/course02">HEALING 코스</a>
+    </div>
+    <div class="container white">
+        <div class="inner">
+            <div class="course-inner">
+                <div class="hole-wrap">
+                    <ul>
+                        <li class="active" data-target="#hole1">
+                            <p>HOLE</p>
+                            <h1>01</h1>
+                        </li>
+                        <li data-target="#hole2">
+                            <p>HOLE</p>
+                            <h1>02</h1>
+                        </li>
+                        <li data-target="#hole3">
+                            <p>HOLE</p>
+                            <h1>03</h1>
+                        </li>
+                        <li data-target="#hole4">
+                            <p>HOLE</p>
+                            <h1>04</h1>
+                        </li>
+                        <li data-target="#hole5">
+                            <p>HOLE</p>
+                            <h1>05</h1>
+                        </li>
+                        <li data-target="#hole6">
+                            <p>HOLE</p>
+                            <h1>06</h1>
+                        </li>
+                        <li data-target="#hole7">
+                            <p>HOLE</p>
+                            <h1>07</h1>
+                        </li>
+                        <li data-target="#hole8">
+                            <p>HOLE</p>
+                            <h1>08</h1>
+                        </li>
+                        <li data-target="#hole9">
+                            <p>HOLE</p>
+                            <h1>09</h1>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="hole-panels">
+                    <div id="hole1" class="tab-panel active">
+                        <ul class="hole-info-wrap">
+                            <li class="hole">
+                                <div class="hole-info">
+                                    <p>마린 코스</p>
+                                    <h1>1 <span>hole</span></h1>
+                                    <ul class="stat">
+                                        <li><em>PAR</em> <strong>4</strong></li>
+                                        <li><em>HDCP</em> <strong>5</strong></li>
+                                        <li><em>IP</em> <strong>150m</strong></li>
+                                    </ul>
+                                </div>
+
+                                <table class="tbl-course-dec">
+                                    <thead>
+                                    <tr>
+                                        <th>BLUE</th>
+                                        <th>WHITE</th>
+                                        <th>GOLD</th>
+                                        <th>RED</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr>
+                                        <td>375m</td>
+                                        <td>342m</td>
+                                        <td>298m</td>
+                                        <td>276m</td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+
+                                <div class="hole-desc">
+                                    <h2>코스공략 TIP</h2>
+                                    <p>
+                                        1번홀 W-342M <span class="red">R</span>-276M Par4  좌측 도그렉홀 입니다. 양쪽 해저드이며 IP 방향으로 공략하시면 좋습니다. 우측 마운드까지 거리는 255M입니다.
+                                        <b class="red">R :우측 마운드180M</b>
+                                    </p>
+                                </div>
+                            </li>
+                            <li class="hole-map">
+                                <img src="/images/course/c01.jpg">
+                            </li>
+                        </ul>
+
+                        <div class="course-galley">
+                            <div class="swiper course-slide">
+                                <div class="swiper-wrapper">
+                                    <div class="swiper-slide"><img src="/images/course/marine/m1_01.jpg" alt=""></div>
+                                    <div class="swiper-slide"><img src="/images/course/marine/m1_02.jpg" alt=""></div>
+                                    <div class="swiper-slide"><img src="/images/course/marine/m1_03.jpg" alt=""></div>
+                                </div>
+                                <div class="swiper-button-prev"></div>
+                                <div class="swiper-button-next"></div>
+                                <div class="swiper-pagination"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="hole2" class="tab-panel">
+                        <ul class="hole-info-wrap">
+                            <li class="hole">
+                                <div class="hole-info">
+                                    <p>마린 코스</p>
+                                    <h1>2 <span>hole</span></h1>
+                                    <ul class="stat">
+                                        <li><em>PAR</em> <strong>5</strong></li>
+                                        <li><em>HDCP</em> <strong>1</strong></li>
+                                        <li><em>IP</em> <strong>230m</strong></li>
+                                        <li><em>서드IP</em> <strong>150m</strong></li>
+                                    </ul>
+                                </div>
+
+                                <table class="tbl-course-dec">
+                                    <thead>
+                                    <tr>
+                                        <th>BLUE</th>
+                                        <th>WHITE</th>
+                                        <th>GOLD</th>
+                                        <th>RED</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr>
+                                        <td>490m</td>
+                                        <td>478m</td>
+                                        <td>483m</td>
+                                        <td>456m</td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+
+                                <div class="hole-desc">
+                                    <h2>코스공략 TIP</h2>
+                                    <p>
+                                        2번홀 W-478M <span class="red">R</span>-456M PAR5 홀입니다. 양쪽 해저드이며 IP 방향으로 공략 하시면 좋습니다. 두번째 해저드 넘기는 거리는 190M입니다.
+                                        <b class="red">R : 두번째 해저드 초입 125M</b>
+                                    </p>
+                                </div>
+                            </li>
+                            <li class="hole-map">
+                                <img src="/images/course/c02.jpg">
+                            </li>
+                        </ul>
+
+                        <div class="course-galley">
+                            <div class="swiper course-slide">
+                                <div class="swiper-wrapper">
+                                    <div class="swiper-slide"><img src="/images/course/marine/m2_01.jpg" alt=""></div>
+                                    <div class="swiper-slide"><img src="/images/course/marine/m2_02.jpg" alt=""></div>
+                                    <div class="swiper-slide"><img src="/images/course/marine/m2_03.jpg" alt=""></div>
+                                </div>
+                                <div class="swiper-button-prev"></div>
+                                <div class="swiper-button-next"></div>
+                                <div class="swiper-pagination"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="hole3" class="tab-panel">
+                        <ul class="hole-info-wrap">
+                            <li class="hole">
+                                <div class="hole-info">
+                                    <p>마린 코스</p>
+                                    <h1>3 <span>hole</span></h1>
+                                    <ul class="stat">
+                                        <li><em>PAR</em> <strong>4</strong></li>
+                                        <li><em>HDCP</em> <strong>2</strong></li>
+                                        <li><em>IP</em> <strong>150m</strong></li>
+                                    </ul>
+                                </div>
+
+                                <table class="tbl-course-dec">
+                                    <thead>
+                                    <tr>
+                                        <th>BLUE</th>
+                                        <th>WHITE</th>
+                                        <th>GOLD</th>
+                                        <th>RED</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr>
+                                        <td>370m</td>
+                                        <td>348m</td>
+                                        <td>329m</td>
+                                        <td>290m</td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+
+                                <div class="hole-desc">
+                                    <h2>코스공략 TIP</h2>
+                                    <p>
+                                        3번홀 W-348M <span class="red">R</span>-290M PAR4홀 입니다. 좌측OB,우측 해저드이며 IP 방향으로 공략하시면 좋습니다. 벙커 넘기는 거리는 190M입니다.
+                                        <b class="red">R : 벙커 넘기는 거리 130M</b>
+                                    </p>
+                                </div>
+                            </li>
+                            <li class="hole-map">
+                                <img src="/images/course/c03.jpg">
+                            </li>
+                        </ul>
+
+                        <div class="course-galley">
+                            <div class="swiper course-slide">
+                                <div class="swiper-wrapper">
+                                    <div class="swiper-slide"><img src="/images/course/marine/m3_01.jpg" alt=""></div>
+                                    <div class="swiper-slide"><img src="/images/course/marine/m3_02.jpg" alt=""></div>
+                                </div>
+                                <div class="swiper-button-prev"></div>
+                                <div class="swiper-button-next"></div>
+                                <div class="swiper-pagination"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="hole4" class="tab-panel">
+                        <ul class="hole-info-wrap">
+                            <li class="hole">
+                                <div class="hole-info">
+                                    <p>마린 코스</p>
+                                    <h1>4 <span>hole</span></h1>
+                                    <ul class="stat">
+                                        <li><em>PAR</em> <strong>4</strong></li>
+                                        <li><em>HDCP</em> <strong>7</strong></li>
+                                        <li><em>IP</em> <strong>150m</strong></li>
+                                    </ul>
+                                </div>
+
+                                <table class="tbl-course-dec">
+                                    <thead>
+                                    <tr>
+                                        <th>BLUE</th>
+                                        <th>WHITE</th>
+                                        <th>GOLD</th>
+                                        <th>RED</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr>
+                                        <td>402m</td>
+                                        <td>370m</td>
+                                        <td>343m</td>
+                                        <td>304m</td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+
+                                <div class="hole-desc">
+                                    <h2>코스공략 TIP</h2>
+                                    <p>
+                                        3번홀 W-348M <span class="red">R</span>-304M PAR4홀입니다. 좌측OB,우측 해저드이며 IP 방향으로 공략하시면 좋습니다. 좌측 벙커 넘기는 거리는 240M 우측벙커 넘기는 거리는 210M입니다.
+                                        <b class="red">R : 좌측벙커 넘기는 거리 180M</b>
+                                    </p>
+                                </div>
+                            </li>
+                            <li class="hole-map">
+                                <img src="/images/course/c04.jpg">
+                            </li>
+                        </ul>
+                        <div class="course-galley">
+                            <div class="swiper course-slide">
+                                <div class="swiper-wrapper">
+                                    <div class="swiper-slide"><img src="/images/course/marine/m4_01.jpg" alt=""></div>
+                                    <div class="swiper-slide"><img src="/images/course/marine/m4_02.jpg" alt=""></div>
+                                    <div class="swiper-slide"><img src="/images/course/marine/m4_03.jpg" alt=""></div>
+                                </div>
+                                <div class="swiper-button-prev"></div>
+                                <div class="swiper-button-next"></div>
+                                <div class="swiper-pagination"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="hole5" class="tab-panel">
+                        <ul class="hole-info-wrap">
+                            <li class="hole">
+                                <div class="hole-info">
+                                    <p>마린 코스</p>
+                                    <h1>5 <span>hole</span></h1>
+                                    <ul class="stat">
+                                        <li><em>PAR</em> <strong>3</strong></li>
+                                        <li><em>HDCP</em> <strong>4</strong></li>
+                                    </ul>
+                                </div>
+
+                                <table class="tbl-course-dec">
+                                    <thead>
+                                    <tr>
+                                        <th>BLUE</th>
+                                        <th>WHITE</th>
+                                        <th>GOLD</th>
+                                        <th>RED</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr>
+                                        <td>165m</td>
+                                        <td>142m</td>
+                                        <td>117m</td>
+                                        <td>116m</td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+
+                                <div class="hole-desc">
+                                    <h2>코스공략 TIP</h2>
+                                    <p>
+                                        5번홀 W-142M PAR3홀입니다. 양쪽 해저드입니다.
+                                        <b class="red">레이디 티 116M</b>
+                                    </p>
+                                </div>
+                            </li>
+                            <li class="hole-map">
+                                <img src="/images/course/c05.jpg">
+                            </li>
+                        </ul>
+
+                        <div class="course-galley">
+                            <div class="swiper course-slide">
+                                <div class="swiper-wrapper">
+                                    <div class="swiper-slide"><img src="/images/course/marine/m5_01.jpg" alt=""></div>
+                                    <div class="swiper-slide"><img src="/images/course/marine/m5_02.jpg" alt=""></div>
+                                </div>
+                                <div class="swiper-button-prev"></div>
+                                <div class="swiper-button-next"></div>
+                                <div class="swiper-pagination"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="hole6" class="tab-panel">
+                        <ul class="hole-info-wrap">
+                            <li class="hole">
+                                <div class="hole-info">
+                                    <p>마린 코스</p>
+                                    <h1>6 <span>hole</span></h1>
+                                    <ul class="stat">
+                                        <li><em>PAR</em> <strong>5</strong></li>
+                                        <li><em>HDCP</em> <strong>3</strong></li>
+                                        <li><em>IP</em> <strong>230m</strong></li>
+                                        <li><em>서드IP</em> <strong>150m</strong></li>
+                                    </ul>
+                                </div>
+
+                                <table class="tbl-course-dec">
+                                    <thead>
+                                    <tr>
+                                        <th>BLUE</th>
+                                        <th>WHITE</th>
+                                        <th>GOLD</th>
+                                        <th>RED</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr>
+                                        <td>499m</td>
+                                        <td>451m</td>
+                                        <td>421m</td>
+                                        <td>381m</td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+
+                                <div class="hole-desc">
+                                    <h2>코스공략 TIP</h2>
+                                    <p>
+                                        6번홀 W-451M <span class="red">R</span>-381M PAR5홀입니다. 좌측 해저드, 우측 OB이며 IP 방향으로 공략하시면 좋습니다. 좌측벙커 초입 205M 넘기는 거리는 250M입니다.
+                                        <b class="red">R : 벙커초입 130M, 넘기는거리 180M</b>
+                                    </p>
+                                </div>
+                            </li>
+                            <li class="hole-map">
+                                <img src="/images/course/c06.jpg">
+                            </li>
+                        </ul>
+
+                        <div class="course-galley">
+                            <div class="swiper course-slide">
+                                <div class="swiper-wrapper">
+                                    <div class="swiper-slide"><img src="/images/course/marine/m6_01.jpg" alt=""></div>
+                                    <div class="swiper-slide"><img src="/images/course/marine/m6_02.jpg" alt=""></div>
+                                </div>
+                                <div class="swiper-button-prev"></div>
+                                <div class="swiper-button-next"></div>
+                                <div class="swiper-pagination"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="hole7" class="tab-panel">
+                        <ul class="hole-info-wrap">
+                            <li class="hole">
+                                <div class="hole-info">
+                                    <p>마린 코스</p>
+                                    <h1>7 <span>hole</span></h1>
+                                    <ul class="stat">
+                                        <li><em>PAR</em> <strong>4</strong></li>
+                                        <li><em>HDCP</em> <strong>6</strong></li>
+                                        <li><em>IP</em> <strong>150m</strong></li>
+                                    </ul>
+                                </div>
+
+                                <table class="tbl-course-dec">
+                                    <thead>
+                                    <tr>
+                                        <th>BLUE</th>
+                                        <th>WHITE</th>
+                                        <th>GOLD</th>
+                                        <th>RED</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr>
+                                        <td>340m</td>
+                                        <td>318m</td>
+                                        <td>285m</td>
+                                        <td>254m</td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+
+                                <div class="hole-desc">
+                                    <h2>코스공략 TIP</h2>
+                                    <p>
+                                        7번홀 W-318M <span class="red">R</span>-254M PAR4 우측 슬라이스 홀입니다. 좌측 OB,우측 해저드이며 IP 방향으로 공략하시면 좋습니다. 좌측벙커 초입 210M 넘기는 거리는 230M입니다.
+                                        <b class="red">R : 좌측 벙커초입 140M, 넘기는거리 170M</b>
+                                    </p>
+                                </div>
+                            </li>
+                            <li class="hole-map">
+                                <img src="/images/course/c07.jpg">
+                            </li>
+                        </ul>
+
+                        <div class="course-galley">
+                            <div class="swiper course-slide">
+                                <div class="swiper-wrapper">
+                                    <div class="swiper-slide"><img src="/images/course/marine/m7_01.jpg" alt=""></div>
+                                    <div class="swiper-slide"><img src="/images/course/marine/m7_02.jpg" alt=""></div>
+                                    <div class="swiper-slide"><img src="/images/course/marine/m7_03.jpg" alt=""></div>
+                                </div>
+                                <div class="swiper-button-prev"></div>
+                                <div class="swiper-button-next"></div>
+                                <div class="swiper-pagination"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="hole8" class="tab-panel">
+                        <ul class="hole-info-wrap">
+                            <li class="hole">
+                                <div class="hole-info">
+                                    <p>마린 코스</p>
+                                    <h1>8 <span>hole</span></h1>
+                                    <ul class="stat">
+                                        <li><em>PAR</em> <strong>3</strong></li>
+                                        <li><em>HDCP</em> <strong>9</strong></li>
+                                    </ul>
+                                </div>
+
+                                <table class="tbl-course-dec">
+                                    <thead>
+                                    <tr>
+                                        <th>BLUE</th>
+                                        <th>WHITE</th>
+                                        <th>GOLD</th>
+                                        <th>RED</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr>
+                                        <td>193m</td>
+                                        <td>171m</td>
+                                        <td>145m</td>
+                                        <td>122m</td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+
+                                <div class="hole-desc">
+                                    <h2>코스공략 TIP</h2>
+                                    <p>
+                                        8번홀 W-171M PAR3홀입니다.전체 해저드입니다.(슬라이스 주의)
+                                        <b class="red">레이디티 122M</b>
+                                    </p>
+                                </div>
+                            </li>
+                            <li class="hole-map">
+                                <img src="/images/course/c08.jpg">
+                            </li>
+                        </ul>
+
+                        <div class="course-galley">
+                            <div class="swiper course-slide">
+                                <div class="swiper-wrapper">
+                                    <div class="swiper-slide"><img src="/images/course/marine/m8_01.jpg" alt=""></div>
+                                    <div class="swiper-slide"><img src="/images/course/marine/m8_02.jpg" alt=""></div>
+                                    <div class="swiper-slide"><img src="/images/course/marine/m8_03.jpg" alt=""></div>
+                                </div>
+                                <div class="swiper-button-prev"></div>
+                                <div class="swiper-button-next"></div>
+                                <div class="swiper-pagination"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="hole9" class="tab-panel">
+                        <ul class="hole-info-wrap">
+                            <li class="hole">
+                                <div class="hole-info">
+                                    <p>마린 코스</p>
+                                    <h1>9 <span>hole</span></h1>
+                                    <ul class="stat">
+                                        <li><em>PAR</em> <strong>4</strong></li>
+                                        <li><em>HDCP</em> <strong>8</strong></li>
+                                        <li><em>IP</em> <strong>230m</strong></li>
+                                        <li><em>서드IP</em> <strong>100m</strong></li>
+                                    </ul>
+                                </div>
+
+                                <table class="tbl-course-dec">
+                                    <thead>
+                                    <tr>
+                                        <th>BLUE</th>
+                                        <th>WHITE</th>
+                                        <th>GOLD</th>
+                                        <th>RED</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr>
+                                        <td>391m</td>
+                                        <td>372m</td>
+                                        <td>337m</td>
+                                        <td>295m</td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+
+                                <div class="hole-desc">
+                                    <h2>코스공략 TIP</h2>
+                                    <p>
+                                        9번홀 W-372M <span class="red">R</span>-295M PAR4홀 좌측 OB,우측 해저드입니다. IP 방향으로 공략하시면 좋습니다.(슬라이스주의) 좌측벙커 초입 190M,넘기는거리는 210M입니다.
+                                        <b class="red">R : 좌측벙커 넘기는 거리 130M,우측벙커 넘기는 거리 185M</b>
+                                    </p>
+                                </div>
+                            </li>
+                            <li class="hole-map">
+                                <img src="/images/course/c09.jpg">
+                            </li>
+                        </ul>
+
+                        <div class="course-galley">
+                            <div class="swiper course-slide">
+                                <div class="swiper-wrapper">
+                                    <div class="swiper-slide"><img src="/images/course/marine/m9_01.jpg" alt=""></div>
+                                    <div class="swiper-slide"><img src="/images/course/marine/m9_02.jpg" alt=""></div>
+                                    <div class="swiper-slide"><img src="/images/course/marine/m9_03.jpg" alt=""></div>
+                                </div>
+                                <div class="swiper-button-prev"></div>
+                                <div class="swiper-button-next"></div>
+                                <div class="swiper-pagination"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        $(function () {
+            const $wrap = $('.hole-wrap');
+            const swipers = [];
+
+            $('.course-slide').each(function () {
+                const swiper = new Swiper(this, {
+                    loop: true,
+                    effect: 'fade',
+                    fadeEffect: { crossFade: true },
+                    observer: true,
+                    observeParents: true,
+                    autoplay: { delay: 3000, disableOnInteraction: false },
+                    pagination: {
+                        el: $(this).find('.swiper-pagination')[0],
+                        clickable: true,
+                    },
+                    navigation: {
+                        nextEl: $(this).find('.swiper-button-next')[0],
+                        prevEl: $(this).find('.swiper-button-prev')[0],
+                    },
+                });
+                swipers.push(swiper);
+            });
+
+            function activeTab(target, animate) {
+                const $li = $('.hole-wrap ul li[data-target="' + target + '"]');
+                if (!$li.length) return;
+
+                $li.addClass('active').siblings().removeClass('active');
+                $('.tab-panel').removeClass('active');
+                $(target).addClass('active');
+
+                const liOffset = $li.position().left;
+                const liWidth = $li.outerWidth();
+                const wrapWidth = $wrap.width();
+                const currentScroll = $wrap.scrollLeft();
+                const newScroll = currentScroll + liOffset - (wrapWidth / 2 - liWidth / 2);
+                $wrap[0].scrollTo({ left: newScroll, behavior: animate ? 'smooth' : 'auto' });
+
+                // 탭이 화면에 그려진 뒤 슬라이더 재계산
+                const $activeSwiper = $(target).find('.course-slide');
+                const idx = $('.course-slide').index($activeSwiper);
+                if (swipers[idx]) {
+                    setTimeout(() => {
+                        swipers[idx].update();
+                        swipers[idx].slideToLoop(0, 0);
+                        swipers[idx].autoplay.start();
+                    }, 50);
+                }
+            }
+
+            $('.hole-wrap ul li').on('click', function () {
+                activeTab($(this).data('target'), true);
+            });
+
+            if (location.hash) {
+                const target = location.hash;
+                history.replaceState(null, '', ' ');
+                activeTab(target, false);
+                $('html, body').scrollTop($wrap.offset().top - 150);
+            }
+        });
+    </script>
+
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v4513226cdae34746b4dedf0b4dfa099e1781791509496" integrity="sha512-ZE9pZaUXND66v380QUtch/5sE9tPFh2zg45pR2PB0CVkCtOREv2AJKkSidISWkysEuQ0EH8faUU5du78bx87UQ==" data-cf-beacon='{"version":"2024.11.0","token":"de9f4891b32a4c7ba3c624fc918787fa","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a1e3fd90ee8c780d',t:'MTc4NDU3MTczNw=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+
+    <footer>
+        <div class="f-head-area">
+            <a href="/policy/policy" class="f-red">개인정보처리방침</a>
+            <a href="/policy/legal">이용약관</a>
+        </div>
+        <div class="f-con-area">
+            <h1>대표전화 <b>054-781-0000</b></h1>
+            <address>
+                <ul>
+                    <li>
+                        <span><b>주소</b> 경상북도 울진군 매화면 매화로 115-99</span>
+                    </li>
+                    <li>
+                        <span><b>대표전화</b> 054-781-0000</span>
+                        <span><b>FAX</b> 054-783-9505</span>
+                    </li>
+                </ul>
+            </address>
+            <p>Copyright(C) 2026 ULJIN MARIN CC. ALL RIGHT RESERVED.</p>
+        </div>
+    </footer>
+
+</html>

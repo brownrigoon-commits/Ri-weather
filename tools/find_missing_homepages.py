@@ -32,15 +32,21 @@ def fetch(url, timeout=20):
     return data.decode("utf-8", errors="ignore")
 
 def ddg(query):
-    u = "https://html.duckduckgo.com/html/?q=" + urllib.parse.quote(query)
-    html = fetch(u)
     res = []
-    for m in re.finditer(r'result__a[^>]*href="([^"]+)"[^>]*>(.*?)</a>', html, re.S):
-        href, title = m.group(1), re.sub(r"<[^>]+>", "", m.group(2))
-        if "uddg=" in href:
-            q = urllib.parse.parse_qs(urllib.parse.urlparse(href).query)
-            href = q.get("uddg", [href])[0]
-        res.append((href, title.strip()))
+    for endpoint in ("https://html.duckduckgo.com/html/?q=", "https://lite.duckduckgo.com/lite/?q="):
+        try:
+            html = fetch(endpoint + urllib.parse.quote(query))
+        except Exception:
+            continue
+        for m in re.finditer(r'href="([^"]+)"[^>]*(?:class="result__a"[^>]*)?>(.*?)</a>', html, re.S):
+            href, title = m.group(1), re.sub(r"<[^>]+>", "", m.group(2))
+            if "uddg=" in href:
+                q = urllib.parse.parse_qs(urllib.parse.urlparse(href).query)
+                href = q.get("uddg", [href])[0]
+            if href.startswith("http") and "duckduckgo" not in href:
+                res.append((href, title.strip()))
+        if res:
+            break
     return res
 
 def bing(query):
@@ -89,6 +95,8 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--limit", type=int, default=0)
     ap.add_argument("--only", type=str, default="")
+    ap.add_argument("--retry-missing", action="store_true", help="못 찾은 항목 재시도")
+    ap.add_argument("--delay", type=float, default=7.0)
     args = ap.parse_args()
     found = {}
     if os.path.exists(OUTF):
@@ -99,10 +107,15 @@ def main():
         missing = [n for n in missing if any(k in n for k in keys)]
     if args.limit:
         missing = missing[:args.limit]
-    print(f"골프존 미보유 구장: {len(missing)}개 (기존 확보 {len(found)}건)")
+    print(f"골프존 미보유 구장: {len(missing)}개 (기존 확보 {sum(1 for v in found.values() if v)}건)")
+    consec_empty = 0
     for i, name in enumerate(missing):
-        if name in found:
+        if name in found and (found[name] or not args.retry_missing):
             continue
+        if consec_empty >= 8:
+            print("검색엔진 차단 감지 — 5분 대기...", flush=True)
+            time.sleep(300)
+            consec_empty = 0
         q = f"{name} 골프장 공식 홈페이지"
         url = title = via = None
         try:
@@ -118,12 +131,14 @@ def main():
                 print(f"[{i+1}/{len(missing)}] {name}: 검색 실패 {e}", flush=True)
         if url:
             found[name] = {"url": url, "title": title, "via": via}
+            consec_empty = 0
             print(f"[{i+1}/{len(missing)}] {name} → {url} ({title[:30]})", flush=True)
         else:
             found[name] = None
+            consec_empty += 1
             print(f"[{i+1}/{len(missing)}] {name}: 홈페이지 못 찾음", flush=True)
         json.dump(found, open(OUTF, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
-        time.sleep(2.5)
+        time.sleep(args.delay)
     ok = sum(1 for v in found.values() if v)
     print(f"완료: {ok}/{len(found)} 홈페이지 확보 → {OUTF}")
 

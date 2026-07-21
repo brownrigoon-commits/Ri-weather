@@ -1,0 +1,1919 @@
+
+
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+    <meta name="keywords" content="벨라스톤 CC, 골프장">
+    <meta name="description" content="벨라스톤 CC에 오신것을 환영합니다. 실시간예약 및 안내 제공">
+    <title>벨라스톤 CC</title>
+    <meta property="og:type" content="website"> 
+	<meta property="og:title" content="벨라스톤 CC">
+	<meta property="og:description" content="벨라스톤 CC에 오신것을 환영합니다. 실시간예약 및 안내 제공">
+	<meta property="og:image" content="https://bellastonecc.com/static/common/images/ogimage-stone.png">
+	
+	<!-- custom favicon 설정 -->
+    <link rel="shortcut icon" href="/static/common/images/favicon-bella45.ico">
+    <script type="text/javascript" src="/static/common/libs/jquery-3.6.0.js" charset="UTF-8"></script>
+    <!-- ui -->
+    <script type="text/javascript" src="/static/common_control/js/ui.js?ver=20260504" data-ver="20260504"></script>
+    <!-- css -->
+    <script type="text/javascript" src="/static/pc/js/include_css.js?ver=20260504" data-ver="20260504" charset="UTF-8"></script>
+    <!-- js -->
+    <script type="text/javascript" src="/static/pc/js/include_js.js?ver=20260504" data-ver="20260504" charset="UTF-8"></script>
+    
+    <script type="text/javascript" src="/static/pc/templates/setting.js?ver=20260504" data-ver="20260504" charset="UTF-8"></script>
+    <script>
+        
+
+        //page_type
+	    //ui_custom.page_type.init();
+
+        //--basic Customizing(origin)-s
+        var mPage;
+
+        $(document).ready(function() {
+            //setProtocol();
+
+            initHeader();
+
+            initHeaderListener();
+        });
+
+        function setProtocol() {
+            if (document.location.protocol == 'http:') {
+                var sUrl = document.location.href;
+                sUrl = sUrl.replace('http:', 'https:');
+                sUrl = sUrl.replace('www.mauna.co.kr', 'mauna.co.kr');
+
+                document.location.href = sUrl;
+            }
+        }
+
+        function initHeader() {
+            mPage = "";
+            var open = "";
+
+            if ((mPage != "" || open == "Y") && "" == "") {
+                $('.loginWrap').slideToggle(400);
+            }
+        }
+
+        function initHeaderListener() {
+            $(".nav li").hover(function() {
+                $(this).children("ul").stop().delay(200).animate({
+                    height: "toggle",
+                    opacity: "toggle"
+                }, 200);
+            });
+
+            var chkId = getCookie("chkSaveId");
+            var id = getCookie("cookieId");
+
+            if (chkId != null && chkId != "") {
+                $("#chkSaveId").attr('checked', true);
+            }
+
+            if (id != null && id != "") {
+                $("#txtHeaderId").val(id);
+            }
+
+            $("#txtHeaderId").keypress(function(event) {
+                if (event.keyCode == 13) {
+                    doLogin();
+                }
+            });
+
+            $("#txtHeaderPw").keypress(function(event) {
+                if (event.keyCode == 13) {
+                    doLogin();
+                }
+            });
+        }
+
+        function doLogin() {
+            var sUrl = "/controller/MemberController.asp";
+            var params = {};
+
+            var id = $("#txtHeaderId").val();
+            var pw = $("#txtHeaderPw").val();
+
+            if (id == "") {
+                alert("아이디를 입력하세요.");
+                return;
+            }
+
+            if (pw == "") {
+                alert("비밀번호를 입력하세요.");
+                return;
+            }
+
+            params["method"] = "doLogin";
+            params["coDiv"] = globals.coDiv;
+            params["id"] = id;
+            params["pw"] = pw;
+
+            mAjax(sUrl, params, "POST", true, function(data) {
+                if (data.resultCode == "0000") {
+                    var chkSaveId = $('input:checkbox[id="chkSaveId"]').is(":checked");
+
+                    if (chkSaveId) {
+                        setCookie("cookieId", $("#txtHeaderId").val(), 365);
+                        setCookie("chkSaveId", true, 365);
+                    } else {
+                        setCookie("cookieId", "", 365);
+                        setCookie("chkSaveId", "", 365);
+                    }
+
+                    if (mPage != "") {
+                        location.href = mPage;
+                    } else {
+                        location.reload();
+                    }
+                } else {
+                    alert(data.resultMessage);
+                }
+            });
+        }
+
+        function doLogout() {
+            var sUrl = "/Controller/MemberController.asp";
+            var params = {};
+
+            params["method"] = "doLogout";
+
+            mAjax(sUrl, params, "POST", true, function(data) {
+                if (data.resultCode == "0000") {
+                    alert("로그아웃 되었습니다.");
+                    location.href = "/index.asp"
+                }
+            });
+        }
+
+        function onlyMainMenu(val) {
+            if (val == "1") {
+                $("#onlyMain").show();
+            } else(
+                $("#onlyMain").hide()
+            )
+        }
+        //--basic Customizing(origin)-e
+        
+        
+		$(document).ajaxError(function(event, request, settings, thrownError) {
+			if (request.status == 555) {
+				alert('다른 환경에서 접속되었습니다');
+				location.reload(true);
+				
+			}else if(request.status == 556){
+				alert('로그아웃되었습니다.\n로그인을 다시 해주시기 바랍니다.');
+				location.reload(true);
+				
+			}
+		});
+        
+    </script>
+</head>
+<form name="mainUrlForm" id="mainUrlForm">
+	<input type="hidden" name="COM_CD"   id="COM_CD"   value="J77">
+	<input type="hidden" name="COM_NAME" id="COM_NAME" value="벨라스톤">
+	<input type="hidden" name="COM_URL"  id="COM_URL"  value="stone">
+</form>	
+<body>
+
+	
+    <div class="lds-ring"><div></div><div></div><div></div><div></div></div>
+    
+    <div id="wrapper">
+        <!-- SkipNav -->
+        <div id="skipNav">
+            <a href="#gnb">주요 메뉴 바로가기</a>
+            <a href="#content">컨텐트 바로가기</a>
+        </div>
+        <!-- //SkipNav -->
+        
+        
+        <!-- 
+        <div class="right_area">
+            <a href="#sec0" class="btn right_btn right_menu aside-menu-open full" aria-controls="asideMenu" aria-expanded="false"><span><i class="ico ico-menu white"></i>메뉴</span></a>
+            <a href="/stone/board/notice" class="btn right_btn right_notice"><span><i class="ico ico-notice white"></i>공지사항</span></a>
+            <a href="/stone/reservation/golf" class="btn right_btn right_res"><span><i class="ico ico-res white"></i>실시간예약</span></a>
+        </div>
+ 		-->
+ 		
+        <!-- header -->
+        
+
+
+
+
+
+
+        <!-- Header -->
+        <header id="header" class="ouF-sec">
+            <div class="header-inner in-sec">
+                <div class="header-anb">
+                    <div class="header-logo">
+						<a href="/stone/main" class="logo">LOGO</a>
+					</div>
+                    <nav class="gnb">
+                        <ul class="node1-list">
+                	
+                            
+                            
+                            
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                	
+	                                
+	                                    
+											
+											
+												<li class="node1-item">
+													
+													
+													
+												   
+														<a href="/stone/reservation/golf" class="node1-link">인터넷예약</a>
+												   
+												   
+													<div class="node2-menu">
+															<ul class="node2-list">
+											
+										
+	                                
+	                                
+	                                
+	                                
+	                                
+	                                    
+	                                        
+	                                    
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										
+											
+											
+												<li class="node2-item">
+													<a href="/stone/reservation/golf" class="node2-link"><span>예약하기</span></a>
+												</li>
+											
+										
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										
+											
+											
+												<li class="node2-item">
+													<a href="/stone/reservation/resList" class="node2-link"><span>예약확인 취소 </span></a>
+												</li>
+											
+										
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										
+											
+											
+												<li class="node2-item">
+													<a href="/stone/reservation/resCancelList" class="node2-link"><span>취소 현황</span></a>
+												</li>
+											
+										
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										
+											
+											
+												<li class="node2-item">
+													<a href="/stone/myContents/punishList" class="node2-link"><span>위약 현황</span></a>
+												</li>
+											
+										
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										
+											
+											
+												<li class="node2-item">
+													<a href="/stone/swp/group_apply" class="node2-link"><span>일회성단체 접수</span></a>
+												</li>
+											
+										
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+									
+										
+										
+											</ul>
+	                                        </div>
+										
+									
+									
+	                                    </li>
+	                                    
+	                                
+	                                
+	                                
+	                                
+	                                	
+	                                
+	                                    
+											
+											
+												<li class="node1-item">
+													
+													
+													
+												   
+														<a href="/stone/swp/greet" class="node1-link">클럽소개</a>
+												   
+												   
+													<div class="node2-menu">
+															<ul class="node2-list">
+											
+										
+	                                
+	                                
+	                                
+	                                
+	                                
+	                                    
+	                                        
+	                                    
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										
+											
+											
+												<li class="node2-item">
+													<a href="/stone/swp/greet" class="node2-link"><span>인사말</span></a>
+												</li>
+											
+										
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										
+											
+											
+												<li class="node2-item">
+													<a href="/stone/swp/club" class="node2-link"><span>클럽개요</span></a>
+												</li>
+											
+										
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										
+											
+											
+												<li class="node2-item">
+													<a href="/stone/swp/facil_house" class="node2-link"><span>부대시설</span></a>
+												</li>
+											
+										
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										
+											
+											
+												<li class="node2-item">
+													<a href="/stone/swp/affiliate" class="node2-link"><span>계열사</span></a>
+												</li>
+											
+										
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										
+											
+											
+												<li class="node2-item">
+													<a href="/stone/swp/location" class="node2-link"><span>찾아오시는 길</span></a>
+												</li>
+											
+										
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+									
+										
+										
+											</ul>
+	                                        </div>
+										
+									
+									
+	                                    </li>
+	                                    
+	                                
+	                                
+	                                
+	                                
+	                                	
+	                                
+	                                    
+											
+											
+												<li class="node1-item">
+													
+													
+													
+												   
+														<a href="/stone/swp/course" class="node1-link">코스안내</a>
+												   
+												   
+													<div class="node2-menu">
+															<ul class="node2-list">
+											
+										
+	                                
+	                                
+	                                
+	                                
+	                                
+	                                    
+	                                        
+	                                    
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										
+											
+											
+												<li class="node2-item">
+													<a href="/stone/swp/course" class="node2-link"><span>코스개요</span></a>
+												</li>
+											
+										
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										
+											
+											
+												<li class="node2-item">
+													<a href="/stone/swp/course_info" class="node2-link"><span>코스공략</span></a>
+												</li>
+											
+										
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										
+											
+											
+												<li class="node2-item">
+													<a href="/stone/swp/course_video" class="node2-link"><span>코스영상</span></a>
+												</li>
+											
+										
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+									
+										
+										
+											</ul>
+	                                        </div>
+										
+									
+									
+	                                    </li>
+	                                    
+	                                
+	                                
+	                                
+	                                
+	                                	
+	                                
+	                                    
+											
+											
+												<li class="node1-item">
+													
+													
+													
+												   
+														<a href="/stone/swp/use_reserv" class="node1-link">이용안내</a>
+												   
+												   
+													<div class="node2-menu">
+															<ul class="node2-list">
+											
+										
+	                                
+	                                
+	                                
+	                                
+	                                
+	                                    
+	                                        
+	                                    
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										
+											
+											
+												<li class="node2-item">
+													<a href="/stone/swp/use_reserv" class="node2-link"><span>예약안내 </span></a>
+												</li>
+											
+										
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										
+											
+											
+												<li class="node2-item">
+													<a href="/stone/swp/use_guide" class="node2-link"><span>이용안내</span></a>
+												</li>
+											
+										
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										
+											
+											
+												<li class="node2-item">
+													<a href="/stone/swp/use_clause" class="node2-link"><span>이용약관</span></a>
+												</li>
+											
+										
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										
+											
+											
+												<li class="node2-item">
+													<a href="/stone/swp/charge" class="node2-link"><span>이용요금</span></a>
+												</li>
+											
+										
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										
+											
+											
+												<li class="node2-item">
+													<a href="/stone/swp/penalty" class="node2-link"><span>위약규정</span></a>
+												</li>
+											
+										
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+									
+										
+										
+											</ul>
+	                                        </div>
+										
+									
+									
+	                                    </li>
+	                                    
+	                                
+	                                
+	                                
+	                                
+	                                	
+	                                
+	                                    
+											
+											
+												<li class="node1-item">
+													
+													
+													
+												   
+														<a href="/stone/board/event" class="node1-link">커뮤니티</a>
+												   
+												   
+													<div class="node2-menu">
+															<ul class="node2-list">
+											
+										
+	                                
+	                                
+	                                
+	                                
+	                                
+	                                    
+	                                        
+	                                    
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										
+											
+											
+												<li class="node2-item">
+													<a href="/stone/board/event" class="node2-link"><span>이벤트</span></a>
+												</li>
+											
+										
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										
+											
+											
+												<li class="node2-item">
+													<a href="/stone/board/notice" class="node2-link"><span>공지사항</span></a>
+												</li>
+											
+										
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										
+											
+											
+												<li class="node2-item">
+													<a href="/stone/board/gallery" class="node2-link"><span>포토갤러리</span></a>
+												</li>
+											
+										
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										
+											
+											
+												<li class="node2-item">
+													<a href="/stone/joinRoom/joinRoomList" class="node2-link"><span>조인게시판</span></a>
+												</li>
+											
+										
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										
+											
+											
+												<li class="node2-item">
+													<a href="/stone/golfContents/hioBoard" class="node2-link"><span>명예의전당</span></a>
+												</li>
+											
+										
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										
+											
+											
+												<li class="node2-item">
+													<a href="/stone/board/lost" class="node2-link"><span>분실물센터</span></a>
+												</li>
+											
+										
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										
+											
+											
+												<li class="node2-item">
+													<a href="/stone/board/promotion" class="node2-link"><span>홍보자료</span></a>
+												</li>
+											
+										
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+									
+										
+										
+										
+									
+									
+	                                    </li>
+	                                    
+	                                
+	                                
+	                                
+	                                
+	                                	
+	                                
+	                                    
+											
+
+											
+											
+										
+	                                
+	                                
+	                                
+	                                
+	                                
+	                                    
+	                                        
+	                                    
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+										
+											
+											
+											
+										
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+									
+										
+										
+											</ul>
+	                                        </div>
+										
+									
+									
+	                                    </li>
+	                                    
+	                                
+	                                
+	                                
+	                                
+	                                
+	                                
+	                                
+	                                    
+	                                        
+	                                    
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            
+                            	
+                            
+                            	
+                            
+	                                
+	                                
+	                                
+	                                
+	                                
+	                                
+	                                
+	                                    
+	                                    
+	                                        
+	                                    
+	                                
+	                                
+                            
+                            <li class="node1-item" data-node1="METC1">
+								<a href="javascript:void(0);" class="node1-link">나의 BELLA</a>	
+								<div class="node2-menu">
+									<ul class="node2-list">
+										<li class="node2-item">
+											
+												
+												
+													<a href="/stone/member/login" class="node2-link" data-node2="METC1-1"><span>로그인</span></a>
+												
+											
+										</li>
+										
+											
+											
+												<li class="node2-item">
+													<a href="/stone/member/joinStep1" class="node2-link" data-node2="METC1-2"><span>회원가입</span></a>
+												</li>
+												<li class="node2-item">
+													<a href="/stone/member/findIdPw" class="node2-link" data-node2="METC1-3"><span>아이디/비번찾기</span></a>
+												</li>
+											
+										
+										<li class="node2-item">
+											<a href="/stone/board/weather" class="node2-link" data-node2="METC1-5"><span>날씨안내</span></a>
+										</li>
+									</ul>
+								</div>
+							</li>
+                        </ul>
+                    </nav>
+                </div>
+
+				<div class="header-utilMenu">
+					<a href="https://www.ausommet.co.kr/membership" target="_blank" class="btn btn-condo"><span>콘도 회원권</span></a>
+                    <ul>
+                   	
+						
+						
+                            <li><a href="/stone/member/login"><span>로그인</span></a></li>
+                       		<li><a href="/stone/member/joinStep1"><span>회원가입</span></a></li>
+							<li><a href="/stone/member/findIdPw"><span>ID/PW 찾기</span></a></li>
+						
+					
+                    </ul>
+                </div>
+            </div>
+        </header>
+        <!-- //Header -->
+        <div class="header_bg">
+			<div class="bg_inner"></div>
+		</div>
+        <!--// header -->
+
+        <!-- container -->
+        
+
+
+
+
+
+
+
+<!-- Container -->
+<div class="container">
+    <!-- Content -->
+    <div id="content" class="content course3">
+        
+        
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+		
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+		
+		
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+		 
+	
+ 
+
+
+
+
+	
+		
+		<div class="content-header">
+			<div class="tit-wrap">
+				<span class="tit_l">코스영상</span>
+				<em class="tit_s">벨라스톤 컨트리클럽을 찾아주셔서 감사합니다.</em>
+			</div>
+			<div class="tap_area">	
+				<ul class="tap-std">
+					
+					
+						 
+							
+							
+							
+							
+							
+								<li class=""><a href="/stone/swp/course"><span>코스개요</span></a></li>
+							 
+						
+					
+						 
+							
+							
+							
+							
+							
+								<li class=""><a href="/stone/swp/course_info"><span>코스공략</span></a></li>
+							 
+						
+					
+						 
+							
+							
+							
+							
+							
+								<li class="on"><a href="/stone/swp/course_video"><span>코스영상</span></a></li>
+							 
+						
+					
+				</ul>
+			</div>
+			<span class="bg sub-03 bgLoad-01"></span>
+		</div>
+		
+	
+	
+	
+	
+
+        
+        <div class="content-body">
+            <div class="con">
+                <div class="video_wrap">
+                    <video muted loop playsinline autoplay>
+                        <source src="/static/pc/images/sub/course/bella.mp4">
+                    </video>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- //Content -->
+</div>
+<!-- //Container -->
+        <!--// container-->
+
+        <!-- footer -->
+        
+
+
+
+
+
+
+
+<!-- Footer -->
+<footer id="footer" class="out-sec">
+    <div class="footer-inner in-sec">
+        
+        <div class="logo_inner">
+            <a href="/" class="logo">LOGO</a>
+            <!-- Family Site -->
+            <div class="drop up family_site">
+                <button type="button" aria-controls="family_site" aria-haspopup="listbox" aria-expanded="false" class="btn drop-toggle"><span>Family Site <i class="ico ico_family"></i></span></button>
+                <div id="family_site" class="drop-menu">
+                    <ul class="drop-list" role="listbox">
+                        <li class="drop-item" role="option"><a href="/stone/main">벨라스톤CC</a></li>
+                        <li class="drop-item" role="option"><a href="https://www.bella45.com/masters/main">벨라45 MASTERS CLUB</a></li>
+                        <li class="drop-item" role="option"><a href="https://www.bella45.com/owners/main">벨라45 OWNERS CLUB</a></li>
+                    </ul>
+                </div>
+            </div>
+            <!-- //Family Site -->
+        </div>
+        <div class="company_info">
+            <div class="cc_info">
+                <p>벨라스톤 C.C</p>
+                <p>강원도 횡성군 서원면 옥계9길 124</p>
+            </div>
+            <dl>
+                <dt>TEL :&nbsp;</dt>
+                <dd>033-340-9000</dd>
+            </dl>
+            <dl>
+                <dt>FAX :&nbsp;</dt>
+                <dd>033-340-9029</dd>
+            </dl>
+            <dl>
+                <dt>E-mail :&nbsp;</dt>
+                <dd>bellastone@hanmail.net</dd>
+            </dl>
+        </div>
+        <div class="terms_info">
+            <!-- terms -->
+            <div class="terms">
+                <ul>
+                    <li><a href="javascript:ui.popup.open('terms-01');" class="terms_info"><span>개인정보처리방침</span></a></li>
+                    <li><a href="javascript:ui.popup.open('terms-02');"><span>이용약관</span></a></li>
+                    <li><a href="javascript:ui.popup.open('terms-03');"><span>이메일무단수집거부</span></a></li>
+                    <li><a href="javascript:ui.popup.open('terms-04');"><span>영상정보처리기기 운영 관리방침</span></a></li>
+                </ul>
+                <p class="copyright">Copyright @ bellastone country club. All Right Reserved.</p>
+            </div>
+            <!-- //terms -->
+        </div>
+		<!-- top btn -->
+		<div class="sticky_area">
+		    <a href="javascript:void(0);" class="btn_sticky sticky01"><span>TOP</span></a>
+		</div>
+		<!-- //top btn -->
+		
+    </div>
+</footer>   
+<!-- //Footer -->
+        
+<!-- 개인정보처리방침 팝업 -->
+<div id="terms-01" class="popup-wrap type-basic type01 footer" role="dialog">
+    <section class="popup demo1" tabindex="0">
+        <div class="popup-head">
+            <h3 id="popupContentTitle1">개인정보취급방침</h3>
+        </div>
+        <div class="popup-body">
+            <div class="popup-cont" id="terms_in-01">
+                
+
+            </div>
+        </div>
+        <div class="popup-foot">
+            <div class="btn-area flex-center">
+                <button type="button" id="fnPopClose" class="btn demo1 secondary" onclick="ui.popup.close('terms-01')"><span>닫기</span></button>
+            </div>
+        </div>
+        <div class="popup-close">
+            <button type="button" class="btn-ico btn-close" title="팝업닫기" onclick="ui.popup.close('terms-01')"><span><i class="ico ico-close1 white">Close</i></span></button>
+        </div>
+    </section>
+</div>
+<!-- //개인정보처리방침 팝업 -->
+
+<!-- 이용약관 팝업 -->
+<div id="terms-02" class="popup-wrap type-basic type01 footer" role="dialog">
+    <section class="popup demo1" tabindex="0">
+        <div class="popup-head">
+            <h3 id="popupContentTitle2">이용약관</h3>
+        </div>
+        <div class="popup-body">
+            <div class="popup-cont" id="terms_in-02">
+                
+
+            </div>
+        </div>
+        <div class="popup-foot">
+            <div class="btn-area flex-center">
+                <button type="button" id="fnPopClose" class="btn demo1 secondary" onclick="ui.popup.close('terms-02')"><span>닫기</span></button>
+            </div>
+        </div>
+        <div class="popup-close">
+            <button type="button" class="btn-ico btn-close" title="팝업닫기" onclick="ui.popup.close('terms-02')"><span><i class="ico ico-close1 white">Close</i></span></button>
+        </div>
+    </section>
+</div>
+<!-- //이용약관 팝업 -->
+
+<!-- 이메일무단수집거부 팝업 -->
+<div id="terms-03" class="popup-wrap type-basic type01 footer" role="dialog">
+    <section class="popup demo1" tabindex="0">
+        <div class="popup-head">
+            <h3 id="popupContentTitle3">이메일무단수집거부</h3>
+        </div>
+        <div class="popup-body">
+            <div class="popup-cont" id="terms_in-03">
+                
+
+            </div>
+        </div>
+        <div class="popup-foot">
+            <div class="btn-area flex-center">
+                <button type="button" id="fnPopClose" class="btn demo1 secondary" onclick="ui.popup.close('terms-03')"><span>닫기</span></button>
+            </div>
+        </div>
+        <div class="popup-close">
+            <button type="button" class="btn-ico btn-close" title="팝업닫기" onclick="ui.popup.close('terms-03')"><span><i class="ico ico-close1 white">Close</i></span></button>
+        </div>
+    </section>
+</div>
+<!-- //이메일무단수집거부 팝업 -->
+
+<!-- 영상정보처리기기 운영 관리방침 팝업 -->
+<div id="terms-04" class="popup-wrap type-basic type01 footer" role="dialog">
+    <section class="popup demo1" tabindex="0">
+        <div class="popup-head">
+            <h3 id="popupContentTitle4">영상정보처리기기 운영 관리방침</h3>
+        </div>
+        <div class="popup-body">
+            <div class="popup-cont" id="terms_in-04">
+                
+
+            </div>
+        </div>
+        <div class="popup-foot">
+            <div class="btn-area flex-center">
+                <button type="button" id="fnPopClose" class="btn demo1 secondary" onclick="ui.popup.close('terms-04')"><span>닫기</span></button>
+            </div>
+        </div>
+        <div class="popup-close">
+            <button type="button" class="btn-ico btn-close" title="팝업닫기" onclick="ui.popup.close('terms-04')"><span><i class="ico ico-close1 white">Close</i></span></button>
+        </div>
+    </section>
+</div>
+<!-- //영상정보처리기기 운영 관리방침 팝업 -->
+
+
+<div class="dimmer"></div>
+
+<script>
+$(function(){
+	$('#terms_in-01').load('/static/pc/agreeform/agreeform-01.html', function() {});
+    $('#terms_in-02').load('/static/pc/agreeform/agreeform-02.html?ver=250915', function() {});
+    $('#terms_in-03').load('/static/pc/agreeform/agreeform-05.html', function() {});
+    $('#terms_in-04').load('/static/pc/agreeform/agreeform-08.html', function() {});
+});
+</script>
+        <!--// footer -->
+    
+    </div>
+	<div id="ie_chk" class="ie_chk_area dp-none">
+		<button type="button" onclick="javascript:popHide('ie_chk')" class="btn-close"><span class="blind">현재창 닫기</span></button>
+		<div class="con">
+			<p class="tit">
+				<img src="/static/pc/images/common/ico_ie.png" alt="ie" />
+				본사이트는 <strong>Internet Explorer 11</strong>버전<br>에 <strong class="color-01">최적화</strong> 되어 있습니다.
+			</p>
+			<span>
+				<p class="btxt">‘Explorer 11이하’ 에서는 사용이 원활하지 않을 수 있습니다.</p>
+				<p class="btxt">Internet Explorer 11은 2022년 6월 15일부터 사용 및 지원이 중지됩니다. Microsoft Edge 사용을 권장합니다.</p>
+				<p class="txt">Explorer를 최신 버전으로 업데이트 하시거나, <br /><strong class="color-01">Chrome, 네이버 Whale</strong> 등의 브라우저를 이용해 주시기 바랍니다.</p>
+				<a href="http://windows.microsoft.com/ko-kr/internet-explorer/download-ie" target="_blank" title="새창열림" class="btn-upgrade">지금 업그레이드</a>
+				<p class="chk-uclose"><input type="checkbox" name="ie_chk_close" id="ie_chk_close" onclick="popHide('ie_chk')" /><label for="ie_chk_close">일주일간 표시 안하기</label></p>
+			</span>			
+		</div>
+	</div>
+	<script type="text/javascript">
+	//익스플로러 중지 안내 활성화
+	var agent = navigator.userAgent.toLowerCase();
+	
+	function ie_setCookie(name, value, days) {
+        if (days) {
+                var date = new Date();
+                date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+                var expires = "; expires=" + date.toGMTString();
+        } else {
+               var expires = "";
+        }
+        
+        document.cookie = name + "=" + value + expires + "; path=/";
+	}
+
+	 
+	//일주일간 표시 안하기
+	function ie_getCookie(name) {
+        var i, x, y, ARRcookies = document.cookie.split(";");
+        
+        for (i = 0; i < ARRcookies.length; i++) {     
+            x = ARRcookies[i].substr(0, ARRcookies[i].indexOf("="));
+            y = ARRcookies[i].substr(ARRcookies[i].indexOf("=") + 1);
+            
+            x = x.replace(/^\s+|\s+$/g, "");
+
+            if (x == name) {
+                    return unescape(y);
+            }
+        }
+	}
+	
+	//ie_chk 레이어팝업 닫기
+	function popHide(pop_id){
+		//document.getElementById(pop_id).style.display = "none";
+		$("#"+pop_id).hide(1000);
+		ie_setCookie('ie_chk_close', 'close', 7); //7일 후 만료
+	}
+
+	$(window).ready(function(){ 
+        var ie_Pchk = ie_getCookie('ie_chk_close');
+        //console.log(ie_Pchk);
+        if( ie_Pchk == 'close'){
+        	$("#"+pop_id).hide(1000);
+        }else{
+            if((navigator.appName == 'Netscape' && agent.indexOf('trident') != -1) || (agent.indexOf("msie") != -1)){
+    			$('#ie_chk').removeClass('dp-none');
+            }
+    	}
+    });
+    </script>
+    
+    <!-- 네이버 애널리틱스 스크립트 -->
+    <script type="text/javascript" src="//wcs.naver.net/wcslog.js"></script>
+	<script type="text/javascript">
+	if(!wcs_add) var wcs_add = {};
+	wcs_add["wa"] = "feb4e445b2b980";
+	if(window.wcs) {
+	  wcs_do();
+	}
+	</script>
+	<!-- 네이버 애널리틱스 스크립트 -->
+</body>
+</html>
