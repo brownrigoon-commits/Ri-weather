@@ -4,7 +4,7 @@
  * ========================================================= */
 "use strict";
 
-const APP_VER = "v65"; // 배포 버전 (홈 화면 배지에 표시)
+const APP_VER = "v66"; // 배포 버전 (홈 화면 배지에 표시)
 const STORAGE_KEY = "riweather.courses.v1";
 const GEM_KEY = "riweather.gemini"; // 정밀 인식(비전 AI) 개인 키 저장소
 // 기본 제공 키 (무료 한도 공유) — 개인 키를 설정하면 그 키가 우선됩니다
@@ -2002,7 +2002,7 @@ function prefetchFood(course) { fetchFoodData(course).catch(() => {}); }
 
 /* ---------- 카카오 로컬/이미지 API (맛집 목록·사진) ---------- */
 const KAKAO_KEY_LS = "riweather.kakaokey";
-const EMBED_KAKAO_B64 = "";   // 공용 키 (발급 후 base64로 채움)
+const EMBED_KAKAO_B64 = "OTg0N2VjNWU5YTRkMTEyN2M1NzY1MDY1YjNlNzFmZjI=";   // Ri-Weather 공용 키
 const getKakaoKey = () => localStorage.getItem(KAKAO_KEY_LS) ||
   (EMBED_KAKAO_B64 ? atob(EMBED_KAKAO_B64) : "");
 
