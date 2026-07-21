@@ -14,7 +14,8 @@ import os, sys, glob
 from collections import deque
 from PIL import Image, ImageChops, ImageFilter
 sys.stdout.reconfigure(encoding="utf-8")
-TARGET = 620
+TARGET_H = 610        # 세로 고정 (서서울 평균 607px 기준) — 항상 이 높이로 맞춤
+MAX_W = 400           # 가로 상한 (서서울 최대 403px 기준) — 넘으면 가로에 맞추고 세로가 자동으로 줄어듦
 THRESH = 16
 SCALE = 4
 PAD = 8
@@ -77,9 +78,10 @@ def crop_map(path, outpath, x0_ratio=0.42):
             scale = 255.0 / max(1, bg[ch])
             lut += [min(255, int(v * scale + 0.5)) for v in range(256)]
         out = out.point(lut)
-    if max(out.size) > TARGET:
-        r = TARGET / max(out.size)
-        out = out.resize((int(out.width * r), int(out.height * r)), Image.LANCZOS)
+    r = TARGET_H / out.height          # 세로 620 고정
+    if out.width * r > MAX_W:          # 가로가 넘치면 가로 상한에 맞춤
+        r = MAX_W / out.width
+    out = out.resize((max(1, int(out.width * r)), max(1, int(out.height * r))), Image.LANCZOS)
     out.save(outpath, quality=90)
     return out.size
 
