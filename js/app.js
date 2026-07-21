@@ -4,7 +4,7 @@
  * ========================================================= */
 "use strict";
 
-const APP_VER = "v50"; // 배포 버전 (홈 화면 배지에 표시)
+const APP_VER = "v51"; // 배포 버전 (홈 화면 배지에 표시)
 const STORAGE_KEY = "riweather.courses.v1";
 const GEM_KEY = "riweather.gemini"; // 정밀 인식(비전 AI) 개인 키 저장소
 // 기본 제공 키 (무료 한도 공유) — 개인 키를 설정하면 그 키가 우선됩니다
@@ -1642,6 +1642,8 @@ function renderImgCourse(course, db) {
     if (h.dist) {
       const row = (g, a) => `<b>${g}그린</b> 백 ${a[0]} · 레귤러 ${a[1]} · 프론트 ${a[2]} · 레이디 ${a[3]}m`;
       infoHtml += `<b>📏 티별 거리</b><br>${row("L", h.dist.L)}<br>${row("R", h.dist.R)}<br><br>`;
+    } else if (h.tees) {
+      infoHtml += `<b>📏 티별 거리</b><br>${h.tees.map((t) => `${t.name} ${t.m}`).join(" · ")}m<br><br>`;
     } else if (h.len) {
       infoHtml += `<b>📏 전장</b> ${h.len}m${h.hdcp ? " · 핸디캡 " + h.hdcp : ""}<br><br>`;
     }
@@ -1850,6 +1852,7 @@ async function aiCaddie() {
         `당신은 투어 경력의 친절한 한국인 캐디입니다. 첨부 이미지는 ${aiHoleCtx.courseName} ${hh.cname}코스 ${hh.no}번홀(파${hh.par})의 공식 홀맵입니다. ` +
         `홀맵에는 홀 모양, 벙커·해저드 위치, 그린까지 거리선(50/100/150M)이 표시되어 있습니다. ` +
         (hh.dist ? `티별 거리(m): L그린 백${hh.dist.L[0]}/레귤러${hh.dist.L[1]}/프론트${hh.dist.L[2]}/레이디${hh.dist.L[3]}, R그린 백${hh.dist.R[0]}/레귤러${hh.dist.R[1]}/프론트${hh.dist.R[2]}/레이디${hh.dist.R[3]}. ` :
+         hh.tees ? `티별 거리: ${hh.tees.map((t) => t.name + " " + t.m + "m").join(", ")}. ` :
          hh.len ? `전장 ${hh.len}m${hh.hdcp ? ", 핸디캡 " + hh.hdcp : ""}. ` : "") +
         (hh.tip ? `골프장 공식 공략 TIP: "${hh.tip}" ` : "") +
         `플레이어: 구질 ${prof2.shape || "스트레이트"}, 드라이버 평균 ${prof2.dist || 200}m. ` +
