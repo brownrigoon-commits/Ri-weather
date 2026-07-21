@@ -1,41 +1,47 @@
-# Ri-Weather 작업 이어하기 가이드 (2026-07-21 백업)
+# Ri-Weather 작업 이어하기 가이드 (2026-07-21 퇴근 백업)
 
-회사 PC에서: `git clone https://github.com/brownrigoon-commits/Ri-weather.git` 후 이 문서대로.
-로컬 서버: `python -m http.server 8734` → http://localhost:8734
+집/회사 어디서든: `git pull` 후 이 문서대로. 로컬 서버: `python -m http.server 8734`
 
-## 현재 상태 (v50 배포됨)
+## 현재 상태 (v57 배포됨)
 
-- **코스공략 서비스 중**: 서서울CC(레이크/마운틴 18홀), 몽베르CC(망무봉 OUT/IN 18홀)
-- 확정 포맷: 공식 홀맵 이미지(흰배경, 여백 최대크롭, 70% 표시) → 티별 거리 텍스트 → 공식 공략 TIP 원문 → AI 캐디(구질 맞춤, Gemini)
-- 원칙: **틀릴 수 있는 정보는 표시하지 않음** (공식 자료만, 출처 표기)
+**등록 완료 8항목 198홀 (전부 홀 완전체 검증됨):**
+서서울(18) · 몽베르(18) · 더스타휴(18) · 샴발라(18) · 신라CC(27) · 파주CC(18) · 클럽72 하늘(18) · 클럽72 바다(63)
 
-## 데이터 위치
+**절대 원칙 (사장님 확정):**
+1. 홀이 하나라도 빠지면 등록 금지 (공식 홀 수 = 등록 홀 수 검증 필수. 사이트가 OUT만 보여주면 `_2` 같은 숨은 IN 페이지 확인 — 클럽72에서 실제 발생)
+2. 미등록 구장은 앱이 자동으로 "홀별 공략 준비 중" 배너 표시 (index.html #course-prep-note)
+3. 홀맵 이미지 표준: 지도만(글자·사진 제거), 흰배경, 세로 600px 고정·가로≤680 (`tools/crop_map_only.py`)
+4. 사용량 절약: 단계별 확인 왕복 금지 — 스크립트 일괄 실행 + 자동 검증 + 최종 요약만
 
-| 경로 | 내용 |
+## 파이프라인 도구
+
+| 도구 | 역할 |
 |---|---|
-| `coursedata/golfzon/` | 골프존 전체 DB 498코스 (홀정보 JSON + 야디지맵 9,054장) |
-| `coursedata/homepages/` | 수동 수집·가공 (서서울, 몽베르, 더스타휴) + `parsed.json` |
-| `coursedata/homepages_auto/` | 자동 수집 218클럽 — 페이지·meta는 깃에 있음, **이미지는 `python tools/refetch_images.py`로 복원** |
-| `coursedata/homepages_missing.json` | 골프존 미보유 423구장 홈페이지 검색 결과 (진행 중) |
-| `coursedata/workfiles/` | 세션 작업 데이터 (서서울 tips/dists JSON 등) |
-| `js/holeimgdb.js` | 앱에 표시되는 홀맵 DB (조립 산출물) |
-| `tools/session_scripts/` | 세션에서 쓴 모든 스크립트 사본 |
+| `tools/crop_map_only.py` | 홀맵 표준 크롭 (keep="largest" 카드형 / keep="all" 지도+범례형) |
+| `tools/build_holeimgdb.py` | homepages/*/parsed.json → js/holeimgdb.js 조립 |
+| `tools/release_courses.py "메시지"` | 조립+무결성검사(홀수·이미지존재)+버전업+push 원클릭 배포 |
+| `tools/collect_v2_selenium.py` | 수집기 v2 (크롬 렌더링, SPA/프레임 대응, 이어하기 지원) |
+| `tools/session_scripts/onetheclub_build.py` | 원더클럽 계열(신라·파주·클럽72) 등록 — 유사 구조 사이트 참고용 |
+| `tools/session_scripts/shambhala_build.py` | HTML 파싱형 등록 예시 (TIP·거리가 HTML에 있으면 OCR 불필요) |
+| `tools/session_scripts/starhue_ocr.py` | 이미지 카드형 등록 예시 (Gemini OCR + 공식표 교차검증) |
 
-## 남은 작업 (재개 순서)
+## 진행 중 (회사 PC — 끄지 말 것!)
 
-1. **누락 구장 홈페이지 재검색**: 1차는 검색엔진 차단으로 실패(2/423).
-   `python tools/find_missing_homepages.py --retry-missing --delay 8`
-   (연속 실패 8회 → 5분 대기 로직 내장. 몇 시간 소요, 로컬 실행)
-2. **찾은 홈페이지 수집**: `python tools/collect_course_homepages.py --seeds coursedata/homepages_missing.json`
-3. **구장 등록 파이프라인** (클럽별):
-   - 이미지 표준화: `python tools/standardize_holemaps.py <img폴더> <출력폴더>`
-   - 파/TIP/거리 추출: `tools/session_scripts/extract_tips.py, extract_dists.py` 참고 (Gemini OCR, 검증 필수)
-   - `coursedata/homepages/<구장>/parsed.json` 작성 → `tools/session_scripts/build_holeimg_all.py`로 `js/holeimgdb.js` 조립
-   - 이미지는 `holeimg/<구장>/`에 두고 APP_VER·sw.js 캐시 버전 올려 배포
-4. 우선순위 구장: 자유로(jayurocc.com, ClickIt JS 구조), 노스팜, 서원힐스, 샴발라(30장 수집됨), 더스타휴(18장 수집됨), 라싸, 신라(원더클럽), 포천힐마루(pocheon.hillmaru.com), 푸른솔포천(purunsol.co.kr)
+- **수집기 v2가 미확보 545개 구장을 순회 중** (밤새 돌면 완료 예상)
+- 진행 저장: `coursedata/workfiles/collect_v2_progress.json` — 중단돼도 `python tools/collect_v2_selenium.py` 재실행하면 이어서 함
+- 끝나면 `python tools/session_scripts/survey_registrable.py` 재실행 → A등급(등록 후보) 갱신됨
+
+## 다음 작업 (집에서 가능)
+
+1. **A등급 구장 등록** — `coursedata/workfiles/registrable_survey.json`의 A등급 76개(수집 완료 후 갱신).
+   등록 스크립트는 사이트에서 직접 받아오므로 회사 PC 자료 없이도 집에서 작업 가능.
+   같은 솔루션 묶음부터: 에콜리안 4곳(거창·광산·영광·정선), 마이다스 2곳, 테디밸리 2곳
+   ⚠️ 반드시 공식 홀 수 확인 → 전 홀 확보된 구장만 등록 (원칙 1)
+2. 클럽72 검색 이름: 골프DB에 옛 이름 "스카이72"로 등록돼 있음 — "클럽72" 검색되게 하려면 golfdb.js 이름/별칭 수정 필요
+3. 우선순위 잔여: 자유로(ClickIt JS 구조), 노스팜, 서원힐스, 라싸, 포천힐마루, 푸른솔포천
 
 ## 참고
 
-- Gemini API 키는 앱에 내장된 것 사용 (무료 한도, 429 시 재시도)
-- 골프존 API: `https://lobby.golfzon.com/v1/dotcom/...` (coursedata/README.md 참고)
-- 배포: git push → GitHub Pages 자동 (버전 배지 = APP_VER, sw.js 캐시명 동기화 필수)
+- Gemini API 키: extract_tips.py 등에 내장된 것 사용 (무료 한도, 429 시 재시도)
+- 배포: `release_courses.py`가 알아서 함 (APP_VER·sw.js 캐시 동기화 포함). 수동 시 둘 다 올려야 캐시 갱신됨
+- 회사 PC Python: `C:\Python314\python.exe` (selenium·pillow 설치됨)
