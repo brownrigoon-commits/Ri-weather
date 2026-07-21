@@ -4,7 +4,7 @@
  * ========================================================= */
 "use strict";
 
-const APP_VER = "v61"; // 배포 버전 (홈 화면 배지에 표시)
+const APP_VER = "v62"; // 배포 버전 (홈 화면 배지에 표시)
 const STORAGE_KEY = "riweather.courses.v1";
 const GEM_KEY = "riweather.gemini"; // 정밀 인식(비전 AI) 개인 키 저장소
 // 기본 제공 키 (무료 한도 공유) — 개인 키를 설정하면 그 키가 우선됩니다
@@ -2007,7 +2007,7 @@ async function openFoodView() {
   const course = currentCourse;
   if (viewStack[viewStack.length - 1] !== "food") pushView("food");
   $("#food-title").textContent = "주변맛집";
-  $("#food-desc").textContent = `${course.name} 주변 5km 이내 식당`;
+  $("#food-desc").textContent = `${course.name} 주변 식당`;
   const listEl = $("#food-list");
   listEl.innerHTML = '<p class="loading-line">주변 식당을 찾는 중...</p>';
   $("#food-note").hidden = true;
@@ -2031,6 +2031,15 @@ async function openFoodView() {
   $("#food-note").hidden = true;
 
   const region = (course.addr || "").split(" ").slice(0, 2).join(" ");
+  // 전체 맛집은 카카오/네이버가 최신·완전 — 항상 상단에 크게 노출 (OSM은 시골 커버리지가 부족)
+  const portalHtml =
+    `<div class="food-portal">` +
+    `<div class="food-portal-title">🍽 ${course.name} 주변 맛집 전체 보기</div>` +
+    `<div class="food-portal-sub">아래 지도앱에서 영업중·평점·사진까지 최신 정보로 확인하세요</div>` +
+    `<div class="food-portal-btns">` +
+    `<a class="fp-btn kakao" target="_blank" rel="noopener" href="https://map.kakao.com/link/search/${encodeURIComponent(course.name + " 맛집")}">카카오맵</a>` +
+    `<a class="fp-btn naver" target="_blank" rel="noopener" href="https://map.naver.com/p/search/${encodeURIComponent(course.name + " 맛집")}">네이버지도</a>` +
+    `</div></div>`;
   const now = Date.now();
   const items = (data.elements || [])
     .map((e) => {
@@ -2052,19 +2061,18 @@ async function openFoodView() {
     .sort((a, b) => a.dist - b.dist)
     .slice(0, 25);
 
-  listEl.innerHTML = "";
+  listEl.innerHTML = portalHtml;
   if (!items.length) {
-    $("#food-note").innerHTML = "주변 5km 안에 등록된 식당 데이터가 없습니다.<br>아래 버튼으로 카카오맵에서 바로 찾아보세요.";
-    $("#food-note").hidden = false;
-    const a = document.createElement("a");
-    a.className = "video-btn";
-    a.style.margin = "0 4px";
-    a.target = "_blank"; a.rel = "noopener";
-    a.textContent = "🗺 카카오맵에서 주변 맛집 검색";
-    a.href = "https://map.kakao.com/link/search/" + encodeURIComponent(region + " 맛집");
-    listEl.appendChild(a);
+    const p = document.createElement("p");
+    p.className = "food-osm-empty";
+    p.textContent = "지도(OpenStreetMap)에 등록된 식당이 아직 없어, 위 지도앱에서 확인해 주세요.";
+    listEl.appendChild(p);
     return;
   }
+  const sub = document.createElement("p");
+  sub.className = "food-osm-sub";
+  sub.textContent = "▼ 지도에 등록된 가까운 식당 (참고용 · 방문 전 영업 확인)";
+  listEl.appendChild(sub);
 
   items.forEach((it) => {
     const [cuiKo, emoji] = cuisineInfo(it.tags.cuisine);
