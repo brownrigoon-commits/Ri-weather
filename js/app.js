@@ -4,7 +4,7 @@
  * ========================================================= */
 "use strict";
 
-const APP_VER = "v62"; // 배포 버전 (홈 화면 배지에 표시)
+const APP_VER = "v63"; // 배포 버전 (홈 화면 배지에 표시)
 const STORAGE_KEY = "riweather.courses.v1";
 const GEM_KEY = "riweather.gemini"; // 정밀 인식(비전 AI) 개인 키 저장소
 // 기본 제공 키 (무료 한도 공유) — 개인 키를 설정하면 그 키가 우선됩니다
@@ -562,6 +562,9 @@ function showOnly(name) {
   window.scrollTo(0, 0);
   if (name !== "detail") stopPlay();
   if (name === "home") renderHome();
+  // 홈이 아니면 플로팅 뒤로가기 버튼 표시
+  const fb = document.getElementById("float-back-btn");
+  if (fb) fb.hidden = name === "home";
 }
 function pushView(name) {
   viewStack.push(name);
@@ -580,6 +583,7 @@ function goBack() {
   if (viewStack.length > 1) history.back();
 }
 document.querySelectorAll(".btn-back-any").forEach((b) => b.addEventListener("click", goBack));
+document.getElementById("float-back-btn")?.addEventListener("click", goBack);
 
 /* 왼쪽 끝 → 오른쪽 스와이프 = 뒤로가기
    (Safari가 자체적으로 뒤로가기를 처리한 직후에는 중복 실행 방지 → 한 번에 한 화면씩) */
