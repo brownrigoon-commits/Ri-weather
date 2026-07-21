@@ -16,8 +16,8 @@ if os.path.exists(cf):
     courses = json.load(open(cf, encoding="utf-8"))
     by_name = {c["name"]: c for c in courses}
     mapping = [
-        ("스카이72 골프장 하늘코스", "club72_sky", ["하늘 OUT", "하늘 IN"]),
-        ("스카이72 골프장 바다코스 (제5활주로 건설 예정지)", "club72_bada",
+        ("클럽72 하늘코스", "club72_sky", ["하늘 OUT", "하늘 IN"]),
+        ("클럽72 바다코스", "club72_bada",
          ["오션 OUT", "오션 IN", "레이크 OUT", "레이크 IN", "클래식 OUT", "클래식 IN", "듄스"]),
     ]
     for dbname, folder, names in mapping:

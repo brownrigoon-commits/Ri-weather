@@ -1,6 +1,6 @@
 /* Ri-Weather 공식 홀맵 이미지 DB — 각 골프장 공식 홈페이지 원문 (출처 표기) */
 const HOLEIMG_DB = {
-  "스카이72 골프장 바다코스 (제5활주로 건설 예정지)": {
+  "클럽72 바다코스": {
     source: "클럽72(옛 스카이72) 공식 홈페이지",
     sourceUrl: "https://www.onetheclub.com/club72/course",
     courses: [
@@ -83,7 +83,7 @@ const HOLEIMG_DB = {
       ]},
     ],
   },
-  "스카이72 골프장 하늘코스": {
+  "클럽72 하늘코스": {
     source: "클럽72(옛 스카이72) 공식 홈페이지",
     sourceUrl: "https://www.onetheclub.com/club72/course",
     courses: [
