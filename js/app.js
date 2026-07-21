@@ -4,7 +4,7 @@
  * ========================================================= */
 "use strict";
 
-const APP_VER = "v67"; // 배포 버전 (홈 화면 배지에 표시)
+const APP_VER = "v68"; // 배포 버전 (홈 화면 배지에 표시)
 const STORAGE_KEY = "riweather.courses.v1";
 const GEM_KEY = "riweather.gemini"; // 정밀 인식(비전 AI) 개인 키 저장소
 // 기본 제공 키 (무료 한도 공유) — 개인 키를 설정하면 그 키가 우선됩니다
@@ -2180,7 +2180,7 @@ function renderFoodList(list, region, fromKakao) {
       <div class="fi-detail">
         <div class="fi-photos" hidden></div>
         <div class="fi-addr">${it.addr ? "📍 " + it.addr + " " : ""}<span class="fi-addr-dist">· 골프장에서 ${km}</span></div>
-        ${tel ? `<a class="fi-phone" href="tel:${tel}">📞 ${it.phone} <span>— 눌러서 영업 확인</span></a>` : ""}
+        ${tel ? `<a class="fi-phone" href="tel:${tel}">📞 ${it.phone} <span>영업확인</span></a>` : ""}
         <div class="fi-links">
           <a class="kakaonavi" href="kakaomap://route?ep=${it.lat},${it.lon}&by=CAR">🚗 카카오내비</a>
           <a class="tmapnavi" href="tmap://route?goalname=${encodeURIComponent(it.name)}&goaly=${it.lat}&goalx=${it.lon}">🚗 T맵</a>
