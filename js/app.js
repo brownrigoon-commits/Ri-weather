@@ -4,7 +4,7 @@
  * ========================================================= */
 "use strict";
 
-const APP_VER = "v68"; // 배포 버전 (홈 화면 배지에 표시)
+const APP_VER = "v69"; // 배포 버전 (홈 화면 배지에 표시)
 const STORAGE_KEY = "riweather.courses.v1";
 const GEM_KEY = "riweather.gemini"; // 정밀 인식(비전 AI) 개인 키 저장소
 // 기본 제공 키 (무료 한도 공유) — 개인 키를 설정하면 그 키가 우선됩니다
@@ -2044,12 +2044,69 @@ const foodImgCache = new Map();
 async function fetchFoodImages(name, region) {
   const q = (region ? region + " " : "") + name;
   if (foodImgCache.has(q)) return foodImgCache.get(q);
-  const j = await kakaoApi("https://dapi.kakao.com/v2/search/image?sort=accuracy&size=8&query=" +
+  const j = await kakaoApi("https://dapi.kakao.com/v2/search/image?sort=accuracy&size=12&query=" +
     encodeURIComponent(q));
-  const imgs = (j.documents || []).map((d) => d.thumbnail_url).filter(Boolean);
+  const imgs = (j.documents || [])
+    .filter((d) => d.thumbnail_url)
+    .map((d) => ({ t: d.thumbnail_url, u: d.image_url || d.thumbnail_url }));
   foodImgCache.set(q, imgs);
   return imgs;
 }
+
+/* ---------- 사진 크게 보기 (라이트박스) ---------- */
+let lbList = [], lbIdx = 0;
+function lbShow(i) {
+  if (!lbList.length) return;
+  lbIdx = (i + lbList.length) % lbList.length;
+  const im = lbList[lbIdx];
+  const el = $("#lb-img");
+  el.onerror = () => { el.onerror = null; el.src = im.t; };   // 원본 실패 시 썸네일
+  el.src = im.u || im.t;
+  $("#lb-count").textContent = `${lbIdx + 1} / ${lbList.length}`;
+  const multi = lbList.length > 1;
+  $("#lb-prev").hidden = !multi;
+  $("#lb-next").hidden = !multi;
+}
+function openLightbox(list, i) {
+  lbList = list;
+  $("#img-lightbox").hidden = false;
+  document.body.style.overflow = "hidden";
+  lbShow(i);
+}
+function closeLightbox() {
+  $("#img-lightbox").hidden = true;
+  document.body.style.overflow = "";
+  $("#lb-img").src = "";
+}
+(function initLightbox() {
+  const box = $("#img-lightbox");
+  if (!box) return;
+  $("#lb-close").addEventListener("click", closeLightbox);
+  $("#lb-prev").addEventListener("click", (e) => { e.stopPropagation(); lbShow(lbIdx - 1); });
+  $("#lb-next").addEventListener("click", (e) => { e.stopPropagation(); lbShow(lbIdx + 1); });
+  box.addEventListener("click", (e) => { if (e.target === box || e.target.id === "lb-img" || e.target.className === "lb-stage") closeLightbox(); });
+  document.addEventListener("keydown", (e) => {
+    if (box.hidden) return;
+    if (e.key === "Escape") closeLightbox();
+    if (e.key === "ArrowLeft") lbShow(lbIdx - 1);
+    if (e.key === "ArrowRight") lbShow(lbIdx + 1);
+  });
+  // 좌우 스와이프로 사진 넘기기
+  let sx = null, sy = null;
+  box.addEventListener("touchstart", (e) => {
+    sx = e.touches[0].clientX; sy = e.touches[0].clientY;
+  }, { passive: true });
+  box.addEventListener("touchend", (e) => {
+    if (sx == null) return;
+    const dx = e.changedTouches[0].clientX - sx;
+    const dy = e.changedTouches[0].clientY - sy;
+    if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy)) {
+      e.stopPropagation();
+      lbShow(dx < 0 ? lbIdx + 1 : lbIdx - 1);
+    }
+    sx = sy = null;
+  });
+})();
 
 const catEmoji = (cat) => {
   const s = cat || "";
@@ -2196,9 +2253,16 @@ function renderFoodList(list, region, fromKakao) {
       photos.innerHTML = '<div class="fi-photo-loading">사진 불러오는 중...</div>';
       try {
         const imgs = await fetchFoodImages(it.name, region);
-        photos.innerHTML = imgs.length
-          ? imgs.map((u) => `<img src="${u}" alt="${it.name}" loading="lazy">`).join("")
-          : '<div class="fi-photo-loading">등록된 사진이 없습니다</div>';
+        if (!imgs.length) {
+          photos.innerHTML = '<div class="fi-photo-loading">등록된 사진이 없습니다</div>';
+          return;
+        }
+        photos.innerHTML = imgs
+          .map((im, k) => `<img src="${im.t}" data-k="${k}" alt="${it.name}" loading="lazy">`)
+          .join("");
+        photos.querySelectorAll("img").forEach((el) => {
+          el.addEventListener("click", () => openLightbox(imgs, +el.dataset.k));
+        });
       } catch {
         photos.innerHTML = '<div class="fi-photo-loading">사진을 불러오지 못했습니다</div>';
       }
