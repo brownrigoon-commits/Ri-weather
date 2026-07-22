@@ -4,8 +4,8 @@
  * ========================================================= */
 "use strict";
 
-const APP_VER = "v90"; // 배포 버전 (홈 화면 배지에 표시)
-const APP_NOTE = "홈 화면 앱 약관 재출현 수정"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
+const APP_VER = "v91"; // 배포 버전 (홈 화면 배지에 표시)
+const APP_NOTE = "개인정보 보호책임자를 이성민으로 지정"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
 const STORAGE_KEY = "riweather.courses.v1";
 const GEM_KEY = "riweather.gemini"; // 정밀 인식(비전 AI) 개인 키 저장소
 // 기본 제공 키 (무료 한도 공유) — 개인 키를 설정하면 그 키가 우선됩니다

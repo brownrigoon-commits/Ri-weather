@@ -10,6 +10,7 @@ const COMPANY = {
   service: "Ri-Weather(골프장 날씨)",
   name: "주식회사 리플래시",
   ceo: "이보미",
+  dpo: "이성민",    // 개인정보 보호책임자 (사장님 지정 2026-07-22)
   email: "brown.rigoon@gmail.com",
   bizno: "",        // 사업자등록번호 (확인 후 입력)
   addr: "",         // 주소 (확인 후 입력)
@@ -20,7 +21,8 @@ const _contact = () => {
   const rows = [
     ["서비스명", COMPANY.service],
     ["운영", COMPANY.name],
-    ["대표자 / 개인정보 보호책임자", COMPANY.ceo],
+    ["대표자", COMPANY.ceo],
+    ["개인정보 보호책임자", COMPANY.dpo],
     COMPANY.bizno ? ["사업자등록번호", COMPANY.bizno] : null,
     COMPANY.addr ? ["주소", COMPANY.addr] : null,
     COMPANY.tel ? ["전화", COMPANY.tel] : null,
@@ -217,7 +219,11 @@ ${_contact()}
 </ul>
 
 <h4>9. 개인정보 보호책임자</h4>
-<p>「개인정보 보호법」 제31조제2항에 따라 회사의 대표자가 개인정보 보호책임자가 됩니다.</p>
+<p>회사는 「개인정보 보호법」 제31조에 따라 개인정보 처리에 관한 업무를 총괄하는 개인정보 보호책임자를 아래와 같이 지정합니다.</p>
+<ul>
+  <li>개인정보 보호책임자: ${COMPANY.dpo}</li>
+  <li>문의: ${COMPANY.email}</li>
+</ul>
 ${_contact()}
 
 <h4>10. 처리방침의 변경</h4>
