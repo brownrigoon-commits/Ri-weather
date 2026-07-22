@@ -4,7 +4,7 @@
  * ========================================================= */
 "use strict";
 
-const APP_VER = "v83"; // 배포 버전 (홈 화면 배지에 표시)
+const APP_VER = "v84"; // 배포 버전 (홈 화면 배지에 표시)
 const APP_NOTE = "캐시 강제 초기화 주소"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
 const STORAGE_KEY = "riweather.courses.v1";
 const GEM_KEY = "riweather.gemini"; // 정밀 인식(비전 AI) 개인 키 저장소
