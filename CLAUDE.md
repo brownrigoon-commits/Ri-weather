@@ -20,12 +20,27 @@ python tools/sync.py "무엇을 했는지 한 줄"
 커밋 → 상대 작업 받기 → 충돌 자동 해결 → 보내기를 한 번에 처리합니다.
 **오래 쥐고 있지 말 것.** 자주 저장할수록 충돌이 작아집니다.
 
-### 3. 앱 배포는 이것만 사용
+### 3. 앱 배포는 이것만 사용 — 그리고 반드시 확인까지
 ```
 python tools/release_courses.py "배포 메시지"
+python tools/verify_deploy.py --wait
 ```
-내부에서 자동으로 최신화 → 버전 +1 → 푸시(경쟁 시 재시도)를 합니다.
 `APP_VER`나 `sw.js` 캐시 버전을 **직접 손으로 고치지 마세요.**
+
+> ⛔ **`verify_deploy.py` 를 통과하기 전에는 절대 "배포 완료"라고 보고하지 마세요.**
+> 2026-07-22 실제 사고: 새로 만든 `js/legal.js` 가 배포 목록에서 빠져 서버에 404 페이지가 서빙됐고,
+> 앱의 약관 버튼이 전부 죽었습니다. 로컬 테스트는 전부 통과해서 며칠 헤맬 뻔했습니다.
+> 같은 날 `.nojekyll` 누락으로 GitHub Pages 빌드가 조용히 실패해 5번의 배포가 사용자에게 도달하지 않았습니다.
+> **로컬에서 되는 것과 사용자에게 도달하는 것은 완전히 다른 문제입니다.**
+
+### 3-1. 화면 동작 검증은 실제 터치 지점으로
+`버튼.click()` 으로 테스트하면 **다른 요소가 버튼을 덮고 있어도 통과**합니다. 반드시 이렇게 확인하세요:
+```js
+const r = el.getBoundingClientRect();
+const hit = document.elementFromPoint(r.left + r.width/2, r.top + r.height/2);
+const 진짜눌림 = (hit === el || el.contains(hit));
+```
+화면 밖으로 밀려나지 않았는지(`r.bottom <= innerHeight`)도 함께 봐야 합니다.
 
 ### 4. 상대가 뭘 하는지 확인
 ```
