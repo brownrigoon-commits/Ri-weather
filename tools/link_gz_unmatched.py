@@ -49,15 +49,41 @@ for it in items:
     if not g:
         failed.append((club, f"지오코딩 실패: {addr[:24]}")); continue
     lat, lon = g
+    # 좌표만으로는 인접 골프장끼리 오연결되므로 '이름 유사도'도 함께 요구
+    def nm(s):
+        return re.sub(r"(CC|GC|C\.C|G\.C|컨트리클럽|골프클럽|골프장|골프앤리조트|골프&리조트|골프리조트|리조트|컨트리|클럽|\s|·|&|\(.*?\))", "", s or "", flags=re.I).lower()
+    ck = nm(club)
+    def similar(x):
+        xk = nm(x["n"])
+        if not ck or not xk:
+            return False
+        if ck == xk or ck in xk or xk in ck:
+            return True
+        return len(ck) >= 2 and len(xk) >= 2 and ck[:2] == xk[:2]   # 앞 두 글자 일치
+
     near = [(km(lat, lon, x["lat"], x["lon"]), i, x) for i, x in kr]
     near = [n for n in near if n[0] <= 3.0]
     near.sort()
+    named = [n for n in near if similar(n[2])]
+    if near and not named:
+        skipped.append((club, ["이름 불일치: " + n[2]["n"] for n in near[:2]]))
+        continue
+    near = named
     if len(near) == 1:
         d, i, x = near[0]
         alias.append((club, x["n"], round(d, 2)))
         if WRITE:
             DB[i]["a"] = (DB[i].get("a", "") + " " + club).strip()
     elif not near:
+        # app.js의 EXTRA_CLUBS(런타임 추가 구장)와 중복되지 않는지 확인
+        try:
+            appjs = open(os.path.join(ROOT, "js", "app.js"), encoding="utf-8").read()
+            extra = re.findall(r'\{\s*n:\s*"([^"]+)"', appjs)
+        except Exception:
+            extra = []
+        if any(nm(club) and (nm(club) in nm(e) or nm(e) in nm(club)) for e in extra):
+            skipped.append((club, ["앱 내장 목록(EXTRA_CLUBS)에 이미 있음"]))
+            continue
         added.append((club, lat, lon))
         if WRITE:
             DB.append({"n": club, "lat": round(lat, 5), "lon": round(lon, 5), "c": "KR"})
