@@ -4,7 +4,7 @@
  * ========================================================= */
 "use strict";
 
-const APP_VER = "v75"; // 배포 버전 (홈 화면 배지에 표시)
+const APP_VER = "v76"; // 배포 버전 (홈 화면 배지에 표시)
 const STORAGE_KEY = "riweather.courses.v1";
 const GEM_KEY = "riweather.gemini"; // 정밀 인식(비전 AI) 개인 키 저장소
 // 기본 제공 키 (무료 한도 공유) — 개인 키를 설정하면 그 키가 우선됩니다
@@ -1531,10 +1531,24 @@ async function openCourseView() {
         .sort((a, b) => (parseInt(a.ref) || 99) - (parseInt(b.ref) || 99));
 
   if (!courseHoles.length) {
+    // 공식 자료가 없는 구장 — 추정 정보는 만들지 않고 위성 전경만 보여준다
     $("#course-status").textContent = "위성 전경";
+    $("#hole-list-card").hidden = true;
+    $("#hole-detail-card").hidden = true;
     $("#course-note").innerHTML =
-      "이 골프장은 아직 홀별 상세 데이터가 지도에 등록되지 않았습니다.<br>위성 지도로 코스 전경을 확인하실 수 있어요.";
+      "이 골프장은 <b>홀별 공략을 준비 중</b>입니다.<br>공식 홀 자료가 확보되는 대로 추가됩니다. 아래는 위성 전경입니다.";
     $("#course-note").hidden = false;
+    // 코스 전체가 보이도록 지도 맞춤 (OSM 코스 도형이 있으면 그 범위로)
+    setTimeout(() => {
+      courseMap.invalidateSize();
+      const layers = courseLayers.filter((l) => l.getBounds);
+      let fitted = false;
+      if (layers.length) {
+        const b = layers.reduce((acc, l) => acc ? acc.extend(l.getBounds()) : L.latLngBounds(l.getBounds()), null);
+        if (b && b.isValid()) { courseMap.fitBounds(b.pad(0.12)); fitted = true; }
+      }
+      if (!fitted) courseMap.setView([course.lat, course.lon], 15);
+    }, 120);
     return;
   }
 
@@ -1557,10 +1571,7 @@ async function openCourseView() {
   });
   courseMap.fitBounds(allBounds.pad(0.08));
   $("#course-status").textContent = courseHoles.length + "개 홀 등록됨";
-  if (builtin) {
-    $("#course-note").innerHTML = "※ 홀 배치는 위성사진 분석으로 제작했습니다. 홀 번호·파가 실제와 다르면 알려주세요.";
-    $("#course-note").hidden = false;
-  }
+  // (위성 추정 홀 배치는 폐지 — HOLES_DB는 비어 있고, 여기는 OSM 공개 홀 데이터만 사용)
 
   const grid = $("#hole-grid");
   grid.innerHTML = "";
