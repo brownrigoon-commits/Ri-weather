@@ -4,7 +4,7 @@
  * ========================================================= */
 "use strict";
 
-const APP_VER = "v73"; // 배포 버전 (홈 화면 배지에 표시)
+const APP_VER = "v74"; // 배포 버전 (홈 화면 배지에 표시)
 const STORAGE_KEY = "riweather.courses.v1";
 const GEM_KEY = "riweather.gemini"; // 정밀 인식(비전 AI) 개인 키 저장소
 // 기본 제공 키 (무료 한도 공유) — 개인 키를 설정하면 그 키가 우선됩니다
@@ -3440,15 +3440,159 @@ function renderScores() {
   });
 }
 
-/* ---------- 홈 화면 설치 안내 ---------- */
+/* ---------- 홈 화면에 추가 (기기 자동 감지) ----------
+   · 안드로이드/PC 크롬 계열 : 버튼 한 번으로 바로 설치
+   · 아이폰 사파리          : 공유 → 홈 화면에 추가 단계 안내
+   · 아이폰 크롬 등         : 사파리로 열도록 안내 + 주소 복사
+   · 카톡·인스타 등 인앱     : 기본 브라우저로 열도록 안내 + 주소 복사
+   설치가 끝나면 버튼은 사라진다.                                   */
 (function () {
-  const dismissed = localStorage.getItem("riweather.ig.dismissed");
-  const standalone = matchMedia("(display-mode: standalone)").matches || navigator.standalone;
-  if (!dismissed && !standalone) $("#install-guide").hidden = false;
-  $("#ig-close").addEventListener("click", () => {
-    $("#install-guide").hidden = true;
-    localStorage.setItem("riweather.ig.dismissed", "1");
+  const KEY = "riweather.install.snooze";     // 닫기 누른 시각(7일 뒤 다시 노출)
+  const SNOOZE_DAYS = 7;
+  const cta = $("#install-cta");
+  const sheet = $("#guide-sheet");
+  if (!cta || !sheet) return;
+
+  const ua = navigator.userAgent || "";
+  const installed = () =>
+    matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
+  const isIOS =
+    /iPad|iPhone|iPod/.test(ua) ||
+    (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  const isIPad =
+    /iPad/.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  const isAndroid = /Android/i.test(ua);
+  const inApp =
+    /KAKAOTALK|NAVER\(|Instagram|FBAN|FBAV|FB_IAB|Line\/|DaumApps|kakaostory|everytimeApp|TikTok|Snapchat|MicroMessenger/i.test(ua);
+  const iosOtherBrowser = isIOS && /CriOS|FxiOS|EdgiOS|OPiOS|Whale|SamsungBrowser/i.test(ua);
+
+  const snoozed = () => {
+    const t = Number(localStorage.getItem(KEY) || 0);
+    return t && Date.now() - t < SNOOZE_DAYS * 864e5;
+  };
+
+  /* ---- 안내 시트 ---- */
+  const ICO = (t) => `<span class="gs-ico">${t}</span>`;
+  function openSheet(title, desc, steps, withCopy) {
+    $("#guide-title").textContent = title;
+    $("#guide-desc").innerHTML = desc;
+    $("#guide-steps").innerHTML = steps
+      .map((s, i) => `<li><span class="gs-num">${i + 1}</span><span>${s}</span></li>`)
+      .join("");
+    $("#guide-copy").hidden = !withCopy;
+    sheet.hidden = false;
+  }
+  const closeSheet = () => { sheet.hidden = true; };
+  $("#guide-close").addEventListener("click", closeSheet);
+  sheet.addEventListener("click", (e) => { if (e.target === sheet) closeSheet(); });
+  $("#guide-copy").addEventListener("click", async () => {
+    const url = location.href.split("?")[0];
+    try {
+      await navigator.clipboard.writeText(url);
+    } catch (_) {
+      const ta = document.createElement("textarea");
+      ta.value = url; document.body.appendChild(ta); ta.select();
+      document.execCommand("copy"); ta.remove();
+    }
+    $("#guide-copy").textContent = "✅ 복사됐어요 — 브라우저에 붙여넣으세요";
+    setTimeout(() => { $("#guide-copy").textContent = "🔗 주소 복사하기"; }, 2500);
   });
+
+  /* ---- 기기별 동작 ---- */
+  function handleClick() {
+    if (inApp) {
+      openSheet(
+        "브라우저로 열어주세요",
+        "지금은 카카오톡 같은 앱 <b>안에서</b> 보고 있어서 홈 화면 추가가 되지 않습니다.",
+        [
+          `화면 오른쪽 아래 ${ICO("⋯")} 또는 ${ICO("⋮")} 버튼을 누르세요`,
+          "<b>‘다른 브라우저로 열기’</b>(사파리·크롬)를 선택하세요",
+          "열린 화면에서 <b>홈 화면에 추가</b>를 다시 누르면 됩니다",
+        ],
+        true
+      );
+      return;
+    }
+    if (iosOtherBrowser) {
+      openSheet(
+        "사파리로 열어야 추가돼요",
+        "아이폰은 <b>사파리(Safari)</b>에서만 홈 화면 추가가 가능합니다.",
+        [
+          "아래 <b>주소 복사하기</b>를 누르세요",
+          "<b>사파리</b>를 열고 주소창에 붙여넣어 이동하세요",
+          "사파리에서 <b>홈 화면에 추가</b>를 다시 누르면 됩니다",
+        ],
+        true
+      );
+      return;
+    }
+    if (isIOS) {
+      openSheet(
+        "아이폰 홈 화면에 추가",
+        "3초면 끝납니다. 앱처럼 아이콘으로 바로 열려요.",
+        [
+          isIPad
+            ? `화면 <b>오른쪽 위</b>의 공유 버튼 ${ICO("⬆︎")} 을 누르세요`
+            : `화면 <b>아래쪽 가운데</b> 공유 버튼 ${ICO("⬆︎")} 을 누르세요`,
+          "목록을 위로 넘겨 <b>‘홈 화면에 추가’</b>를 누르세요",
+          "오른쪽 위 <b>‘추가’</b>를 누르면 끝!",
+        ],
+        false
+      );
+      return;
+    }
+    const prompt = window.__installPrompt;
+    if (prompt) {
+      prompt.prompt();
+      prompt.userChoice.then((r) => {
+        window.__installPrompt = null;
+        if (r && r.outcome === "accepted") cta.hidden = true;
+      });
+      return;
+    }
+    openSheet(
+      "홈 화면에 추가",
+      "브라우저 메뉴에서 한 번만 눌러주면 됩니다.",
+      [
+        `브라우저 <b>메뉴</b> ${ICO("⋮")} 를 누르세요`,
+        "<b>‘홈 화면에 추가’</b> 또는 <b>‘앱 설치’</b>를 누르세요",
+        "<b>‘추가’</b>를 누르면 끝!",
+      ],
+      false
+    );
+  }
+
+  /* ---- 노출 여부 판단 ---- */
+  function refresh() {
+    if (installed()) { cta.hidden = true; return; }
+    if (snoozed()) { cta.hidden = true; return; }
+    if (inApp) {
+      $("#install-title").textContent = "홈 화면에 추가";
+      $("#install-sub").textContent = "브라우저로 열면 앱처럼 쓸 수 있어요";
+    } else if (isIOS) {
+      $("#install-title").textContent = "홈 화면에 추가";
+      $("#install-sub").textContent = "아이폰에서 3초면 끝나요";
+    } else if (isAndroid) {
+      $("#install-title").textContent = "홈 화면에 추가";
+      $("#install-sub").textContent = "앱처럼 바로 열려요";
+    } else if (!window.__installPrompt) {
+      cta.hidden = true; return;               // PC는 설치 가능할 때만 노출
+    }
+    cta.hidden = false;
+  }
+
+  $("#btn-install").addEventListener("click", handleClick);
+  $("#install-dismiss").addEventListener("click", () => {
+    cta.hidden = true;
+    localStorage.setItem(KEY, String(Date.now()));
+  });
+  window.addEventListener("riweather:installable", refresh);
+  window.addEventListener("appinstalled", () => {
+    cta.hidden = true; closeSheet();
+    localStorage.removeItem(KEY);
+  });
+  matchMedia("(display-mode: standalone)").addEventListener?.("change", refresh);
+  refresh();
 })();
 
 /* ---------- 시작 ---------- */

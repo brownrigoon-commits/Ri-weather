@@ -20,6 +20,13 @@
         location.href = "kakaotalk://web/openExternal?url=" + encodeURIComponent(location.href);
       }
     })();
+    // '홈 화면에 추가' 설치 신호는 앱 스크립트 로드 전에 올 수 있어 미리 잡아둔다
+    window.__installPrompt = null;
+    window.addEventListener("beforeinstallprompt", function (e) {
+      e.preventDefault();
+      window.__installPrompt = e;
+      window.dispatchEvent(new Event("riweather:installable"));
+    });
   </script>
 </head>
 <body>
@@ -44,13 +51,17 @@
 
     <section id="course-list" class="course-list"></section>
 
-    <div id="install-guide" class="install-guide" hidden>
-      <button class="ig-close" id="ig-close">✕</button>
-      <div class="ig-title">📲 홈 화면에 설치하고 앱처럼 쓰세요</div>
-      <div class="ig-steps">
-        <div><b>아이폰</b> Safari 공유버튼(⬆️) → "홈 화면에 추가"</div>
-        <div><b>안드로이드</b> Chrome 메뉴(⋮) → "홈 화면에 추가"</div>
-      </div>
+    <!-- 홈 화면 추가 (기기 자동 감지 · 설치되면 사라짐) -->
+    <div id="install-cta" class="install-cta" hidden>
+      <button id="btn-install" class="install-btn">
+        <span class="ic-ico">📲</span>
+        <span class="ic-txt">
+          <b id="install-title">홈 화면에 추가</b>
+          <small id="install-sub">앱처럼 바로 열려요</small>
+        </span>
+        <span class="ic-go">›</span>
+      </button>
+      <button id="install-dismiss" class="ic-x" aria-label="닫기">✕</button>
     </div>
 
     <div id="empty-state" class="empty-state" hidden>
@@ -386,6 +397,18 @@
     <svg viewBox="0 0 24 24" width="22" height="22"><path fill="currentColor" d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 1 0-3-3c0 .24.04.47.09.7L8.04 9.81A2.99 2.99 0 0 0 3 12a3 3 0 0 0 5.04 2.19l7.12 4.16c-.05.21-.08.43-.08.65a2.92 2.92 0 1 0 2.92-2.92z"/></svg>
   </button>
   <div id="app-share-toast" class="app-share-toast" hidden>링크가 복사되었습니다 — 카톡 등에 붙여넣어 공유하세요!</div>
+
+  <!-- 홈 화면 추가 안내 시트 (아이폰 / 인앱 브라우저용) -->
+  <div id="guide-sheet" class="sheet-back" hidden>
+    <div class="sheet">
+      <div class="sheet-bar"></div>
+      <div class="sheet-title" id="guide-title">홈 화면에 추가하기</div>
+      <div class="sheet-desc" id="guide-desc"></div>
+      <ol class="guide-steps" id="guide-steps"></ol>
+      <button class="guide-copy" id="guide-copy" hidden>🔗 주소 복사하기</button>
+      <button class="guide-close" id="guide-close">닫기</button>
+    </div>
+  </div>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="js/golfdb.js"></script>

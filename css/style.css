@@ -501,24 +501,78 @@ body {
 .grade-good { color: #6ee7b7; } .grade-normal { color: #7fd4ff; }
 .grade-bad { color: #fbbf24; } .grade-worst { color: #ff8383; }
 
-/* ===== 홈 화면 설치 안내 ===== */
-.install-guide {
-  position: relative;
-  margin-top: 16px;
-  background: linear-gradient(135deg, rgba(52,211,153,0.16), rgba(63,154,224,0.14));
-  border: 1px solid rgba(52,211,153,0.35);
+/* ===== 홈 화면 추가 버튼 ===== */
+.install-cta { position: relative; margin-top: 16px; }
+.install-btn {
+  width: 100%; display: flex; align-items: center; gap: 12px;
+  padding: 14px 40px 14px 16px;
+  background: linear-gradient(135deg, rgba(52,211,153,0.22), rgba(63,154,224,0.18));
+  border: 1px solid rgba(52,211,153,0.45);
   border-radius: var(--radius);
-  padding: 14px 16px;
+  color: var(--text); font-family: inherit; text-align: left;
+  cursor: pointer; transition: transform 0.08s ease;
 }
-.ig-title { font-size: 14px; font-weight: 700; margin-bottom: 8px; }
-.ig-steps { display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--text-dim); line-height: 1.5; }
-.ig-steps b {
-  display: inline-block; min-width: 64px; color: var(--accent); font-weight: 700;
-}
-.ig-close {
-  position: absolute; top: 10px; right: 10px;
-  background: rgba(0,0,0,0.25); border: none; color: var(--text-dim);
+.install-btn:active { transform: scale(0.985); }
+.ic-ico { font-size: 26px; flex: none; }
+.ic-txt { flex: 1; min-width: 0; }
+.ic-txt b { display: block; font-size: 15px; font-weight: 700; }
+.ic-txt small { display: block; font-size: 12px; color: var(--text-dim); margin-top: 2px; }
+.ic-go { font-size: 24px; color: var(--accent); flex: none; line-height: 1; }
+.ic-x {
+  position: absolute; top: 8px; right: 8px;
+  background: rgba(0,0,0,0.3); border: none; color: var(--text-dim);
   width: 24px; height: 24px; border-radius: 50%; font-size: 12px; cursor: pointer;
+}
+
+/* 안내 시트 (아이폰·인앱 브라우저) */
+.sheet-back {
+  position: fixed; inset: 0; z-index: 3000;
+  background: rgba(0,0,0,0.55);
+  display: flex; align-items: flex-end; justify-content: center;
+  animation: sheetFade 0.18s ease;
+}
+@keyframes sheetFade { from { opacity: 0; } to { opacity: 1; } }
+.sheet {
+  width: 100%; max-width: 480px;
+  background: #2c3744;
+  border-radius: 20px 20px 0 0;
+  padding: 10px 20px calc(22px + env(safe-area-inset-bottom));
+  animation: sheetUp 0.22s cubic-bezier(0.2, 0.8, 0.3, 1);
+}
+@keyframes sheetUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+.sheet-bar {
+  width: 38px; height: 4px; border-radius: 2px;
+  background: rgba(255,255,255,0.25); margin: 0 auto 16px;
+}
+.sheet-title { font-size: 18px; font-weight: 700; margin-bottom: 6px; }
+.sheet-desc { font-size: 13px; color: var(--text-dim); line-height: 1.55; margin-bottom: 16px; }
+.guide-steps { list-style: none; display: flex; flex-direction: column; gap: 14px; margin-bottom: 18px; }
+.guide-steps li {
+  display: flex; align-items: flex-start; gap: 12px;
+  font-size: 14px; line-height: 1.5;
+}
+.guide-steps .gs-num {
+  flex: none; width: 24px; height: 24px; border-radius: 50%;
+  background: var(--accent); color: #14342a;
+  font-size: 13px; font-weight: 800;
+  display: flex; align-items: center; justify-content: center;
+}
+.guide-steps .gs-ico {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 26px; height: 26px; padding: 0 5px; margin: 0 3px;
+  background: rgba(255,255,255,0.14); border-radius: 7px;
+  vertical-align: -7px; font-size: 15px;
+}
+.guide-copy, .guide-close {
+  width: 100%; padding: 13px; border-radius: 12px;
+  font-family: inherit; font-size: 15px; font-weight: 700; cursor: pointer;
+}
+.guide-copy {
+  background: var(--accent); color: #14342a; border: none; margin-bottom: 8px;
+}
+.guide-close {
+  background: rgba(255,255,255,0.1); color: var(--text);
+  border: 1px solid var(--line);
 }
 
 /* ===== 허브 ===== */
