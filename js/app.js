@@ -4,7 +4,7 @@
  * ========================================================= */
 "use strict";
 
-const APP_VER = "v81"; // 배포 버전 (홈 화면 배지에 표시)
+const APP_VER = "v82"; // 배포 버전 (홈 화면 배지에 표시)
 const STORAGE_KEY = "riweather.courses.v1";
 const GEM_KEY = "riweather.gemini"; // 정밀 인식(비전 AI) 개인 키 저장소
 // 기본 제공 키 (무료 한도 공유) — 개인 키를 설정하면 그 키가 우선됩니다
@@ -3904,9 +3904,19 @@ $("#doc-sheet").addEventListener("click", (e) => {
 
 /* ---------- 시작 ---------- */
 document.querySelector(".beta-badge").textContent = "Ri-Weather BETA " + APP_VER;
+{ const cv = document.getElementById("consent-ver"); if (cv) cv.textContent = APP_VER; }
 renderHome();
 
-/* PWA 서비스 워커 (HTTPS 또는 localhost에서만 동작) */
+/* PWA 서비스 워커 — 새 버전이 올라오면 자동으로 최신 화면으로 교체 */
 if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("sw.js").catch(() => {});
+  let reloading = false;
+  navigator.serviceWorker.addEventListener("controllerchange", () => {
+    if (reloading) return;              // 새로고침 무한반복 방지
+    reloading = true;
+    location.reload();
+  });
+  navigator.serviceWorker.register("sw.js").then((reg) => {
+    reg.update().catch(() => {});       // 실행할 때마다 새 버전 확인
+    setInterval(() => reg.update().catch(() => {}), 60 * 60 * 1000);
+  }).catch(() => {});
 }
