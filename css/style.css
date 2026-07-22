@@ -714,11 +714,10 @@ body {
   padding: 56px 12px;
 }
 #lb-img {
-  /* 사진 크기 제각각(작은 썸네일 폴백 포함) → 항상 같은 크기 틀에 자동 맞춤.
-     양옆 화살표가 보이도록 화면보다 한 뼘 작게 고정 */
-  width: min(76vw, 480px);
-  height: min(76vw, 480px);
-  object-fit: cover; border-radius: 12px;
+  /* 어르신도 잘 보이게: 화면 가로에 꽉 차게, 비율은 자동 맞춤 */
+  width: 100vw; max-width: 560px;
+  height: auto; max-height: 74vh;
+  object-fit: contain; border-radius: 0;
   background: rgba(255,255,255,0.05);
 }
 .lb-close {
@@ -731,18 +730,19 @@ body {
 }
 .lb-close:active { opacity: 1; }
 .lb-nav {
-  position: absolute; top: 50%; transform: translateY(-50%);
-  z-index: 2; width: 44px; height: 64px; border-radius: 12px;
-  border: none; background: rgba(255,255,255,0.10);
+  position: absolute; top: auto; bottom: calc(16px + env(safe-area-inset-bottom));
+  transform: none;
+  z-index: 2; width: 74px; height: 54px; border-radius: 14px;
+  border: none; background: rgba(255,255,255,0.14);
   color: rgba(255,255,255,0.8); font-size: 32px; line-height: 1;
   cursor: pointer; opacity: 0.6;
   -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
 }
 .lb-nav:active { opacity: 1; }
-.lb-prev { left: 8px; }
-.lb-next { right: 8px; }
+.lb-prev { left: max(20px, calc(50% - 150px)); }
+.lb-next { right: max(20px, calc(50% - 150px)); }
 .lb-count {
-  position: absolute; bottom: calc(20px + env(safe-area-inset-bottom));
+  position: absolute; bottom: calc(32px + env(safe-area-inset-bottom));
   left: 50%; transform: translateX(-50%);
   color: rgba(255,255,255,0.75); font-size: 13px; font-weight: 600;
   background: rgba(0,0,0,0.35); padding: 5px 12px; border-radius: 999px;

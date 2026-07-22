@@ -4,8 +4,8 @@
  * ========================================================= */
 "use strict";
 
-const APP_VER = "v94"; // 배포 버전 (홈 화면 배지에 표시)
-const APP_NOTE = "맛집 사진 자동수집 폐기"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
+const APP_VER = "v95"; // 배포 버전 (홈 화면 배지에 표시)
+const APP_NOTE = "맛집 신뢰 수정"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
 const STORAGE_KEY = "riweather.courses.v1";
 const GEM_KEY = "riweather.gemini"; // 정밀 인식(비전 AI) 개인 키 저장소
 // 기본 제공 키 (무료 한도 공유) — 개인 키를 설정하면 그 키가 우선됩니다
@@ -2342,6 +2342,9 @@ function closeLightbox() {
     if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy)) {
       e.stopPropagation();
       lbShow(dx < 0 ? lbIdx + 1 : lbIdx - 1);
+    } else if (dy < -70 && Math.abs(dy) > Math.abs(dx)) {
+      e.stopPropagation();
+      closeLightbox();                    // 위로 강하게 쓸어올리면 닫기
     }
     sx = sy = null;
   });
