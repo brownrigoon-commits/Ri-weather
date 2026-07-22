@@ -6,9 +6,11 @@
 4) git add/commit/push (GitHub Pages 자동 배포)
 사용: python tools/release_courses.py "커밋 메시지"
 """
-import json, os, re, subprocess, sys
+import json, os, re, subprocess, sys, time
 sys.stdout.reconfigure(encoding="utf-8")
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.join(ROOT, "tools"))
+from sync import rebase_with_autofix, write_status   # 동시 배포 안전장치
 
 # ── 1. club72 → 스카이72 두 항목 분리 ──────────────────────────
 cf = os.path.join(ROOT, "coursedata", "workfiles", "club72_courses.json")
@@ -47,27 +49,53 @@ missing = [p for p in imgs if not os.path.exists(os.path.join(ROOT, p))]
 assert not missing, f"이미지 파일 없음: {missing[:5]}"
 print(f"무결성 OK: 총 {holes}홀, 이미지 {len(imgs)}개 전부 존재")
 
-# ── 3. 버전 올리기 ────────────────────────────────────────────
+# ── 3. 커밋 → 최신화 → 버전 → 푸시 (양쪽 PC 동시 배포 안전) ──────
 app = os.path.join(ROOT, "js", "app.js")
 sw = os.path.join(ROOT, "sw.js")
-a = open(app, encoding="utf-8").read()
-m = re.search(r'APP_VER = "v(\d+)"', a)
-old, new = int(m.group(1)), int(m.group(1)) + 1
-open(app, "w", encoding="utf-8", newline="\n").write(a.replace(f'APP_VER = "v{old}"', f'APP_VER = "v{new}"'))
-s = open(sw, encoding="utf-8").read()
-open(sw, "w", encoding="utf-8", newline="\n").write(s.replace(f"riweather-v{old}", f"riweather-v{new}"))
-print(f"버전: v{old} → v{new}")
+msg = sys.argv[1] if len(sys.argv) > 1 else "구장 등록 배포"
 
-# ── 4. 커밋 + 푸시 ────────────────────────────────────────────
-msg = sys.argv[1] if len(sys.argv) > 1 else f"구장 등록 배포 (v{new})"
-def git(*args):
-    r = subprocess.run(["git", "-C", ROOT] + list(args), capture_output=True, text=True, encoding="utf-8")
-    if r.returncode != 0:
+def git(*args, check=True):
+    r = subprocess.run(["git", "-C", ROOT] + list(args), capture_output=True,
+                       text=True, encoding="utf-8", errors="replace")
+    if check and r.returncode != 0:
         print("git 실패:", " ".join(args), r.stderr[:300]); sys.exit(1)
-    return r.stdout
-git("add", "holeimg", "coursedata/homepages", "coursedata/workfiles",
-    "tools", "js/holeimgdb.js", "js/golfdb.js", "js/holesdb.js",
-    "js/app.js", "sw.js", "index.html", "css/style.css")
-git("commit", "-m", msg + f" (v{new})\n\nCo-Authored-By: Claude Fable 5 <noreply@anthropic.com>")
-git("push")
-print(f"배포 완료: v{new} → GitHub Pages 반영까지 1~2분")
+    return r
+
+def stage():
+    git("add", "holeimg", "coursedata/homepages", "coursedata/workfiles",
+        "tools", "js/holeimgdb.js", "js/golfdb.js", "js/holesdb.js",
+        "js/app.js", "sw.js", "index.html", "css/style.css", ".sync", check=False)
+
+def bump():
+    """항상 '현재 파일에 적힌 버전 +1' — 최신화 직후 호출해야 유일한 버전이 됨"""
+    a = open(app, encoding="utf-8").read()
+    cur = int(re.search(r'APP_VER = "v(\d+)"', a).group(1))
+    nxt = cur + 1
+    open(app, "w", encoding="utf-8", newline="\n").write(
+        a.replace(f'APP_VER = "v{cur}"', f'APP_VER = "v{nxt}"'))
+    s = open(sw, encoding="utf-8").read()
+    open(sw, "w", encoding="utf-8", newline="\n").write(
+        s.replace(f"riweather-v{cur}", f"riweather-v{nxt}"))
+    return cur, nxt
+
+write_status()
+stage()
+git("commit", "-m", f"{msg}\n\nCo-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>", check=False)
+
+for attempt in range(1, 4):
+    ok, stuck = rebase_with_autofix()          # 상대 PC 작업 먼저 받기(충돌 자동해결)
+    if not ok:
+        print("✖ 자동 해결 못 한 충돌:", ", ".join(stuck)); sys.exit(1)
+    old, new = bump()                          # 받은 최신 버전 기준으로 +1
+    stage()
+    git("commit", "--amend", "-m",
+        f"{msg} (v{new})\n\nCo-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>")
+    p = git("push", "origin", "main", check=False)
+    if p.returncode == 0:
+        print(f"버전: v{old} → v{new}")
+        print(f"배포 완료: v{new} → GitHub Pages 반영까지 1~2분")
+        break
+    print(f"· 상대 PC가 방금 배포함 → 다시 합치는 중 ({attempt}/3)")
+    time.sleep(2)
+else:
+    print("✖ 배포 실패 — 잠시 후 다시 실행해 주세요"); sys.exit(1)

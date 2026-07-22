@@ -35,7 +35,7 @@ for d in sorted(glob.glob(os.path.join(BASE, "*"))):
             if 1 <= v <= 18:
                 nums.add(v)
     txt_hits = 0
-    for p in glob.glob(os.path.join(d, "pages", "*.html"))[:20]:
+    for p in (glob.glob(os.path.join(d, "pages", "*.html")) + glob.glob(os.path.join(d, "pages_v2", "*.html")))[:30]:
         try:
             h = open(p, encoding="utf-8", errors="ignore").read()
             if HOLE_TXT.search(h):
