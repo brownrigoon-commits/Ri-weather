@@ -950,10 +950,10 @@ body {
 .consent-actions {
   flex: none;
   max-width: 480px; width: 100%; margin: 0 auto;
-  padding: 12px 20px calc(20px + env(safe-area-inset-bottom));
-  background: rgba(30, 39, 49, 0.92);
+  /* 인앱 브라우저(카카오 등) 하단 툴바가 웹 화면 위를 덮으므로 여유를 크게 둔다 */
+  padding: 12px 20px calc(28px + env(safe-area-inset-bottom));
+  background: #1e2731;          /* backdrop-filter 는 일부 인앱 브라우저에서 터치를 막아 사용하지 않음 */
   border-top: 1px solid var(--line);
-  backdrop-filter: blur(8px);
 }
 .consent-actions-sub {
   display: flex; align-items: center; justify-content: center; gap: 8px;
@@ -1039,7 +1039,21 @@ body {
   background: var(--accent); color: #14342a;
   font-family: inherit; font-size: 16px; font-weight: 800; cursor: pointer;
 }
-.consent-start:disabled { background: rgba(255,255,255,0.14); color: var(--text-faint); cursor: default; }
+.consent-start:disabled,
+.consent-start.is-off { background: rgba(255,255,255,0.22); color: rgba(255,255,255,0.65); }
+/* 필수 항목을 빠뜨리고 시작하기를 눌렀을 때 해당 줄을 짚어준다 */
+@keyframes cNeed {
+  0%, 100% { background: transparent; }
+  20%, 60% { background: rgba(255,107,107,0.22); }
+}
+.consent-list li.c-need {
+  animation: cNeed 1.2s ease;
+  border-radius: 10px;
+}
+/* 인앱 브라우저에서 터치가 먹지 않는 경우를 막기 위한 보강 */
+.consent-back button, .sheet button, .consent-back label, .consent-back input {
+  pointer-events: auto; touch-action: manipulation;
+}
 .consent-later {
   background: none; border: none; color: var(--text-faint);
   font-family: inherit; font-size: 12px; cursor: pointer;

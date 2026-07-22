@@ -4,8 +4,8 @@
  * ========================================================= */
 "use strict";
 
-const APP_VER = "v84"; // 배포 버전 (홈 화면 배지에 표시)
-const APP_NOTE = "캐시 강제 초기화 주소"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
+const APP_VER = "v85"; // 배포 버전 (홈 화면 배지에 표시)
+const APP_NOTE = "배포 실패 수정"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
 const STORAGE_KEY = "riweather.courses.v1";
 const GEM_KEY = "riweather.gemini"; // 정밀 인식(비전 AI) 개인 키 저장소
 // 기본 제공 키 (무료 한도 공유) — 개인 키를 설정하면 그 키가 우선됩니다
@@ -3648,10 +3648,21 @@ function openDoc(key) {
   $("#doc-body").scrollTop = 0;
   $("#doc-sheet").hidden = false;
 }
+/* 인앱 브라우저(카카오·네이버 등)에서 이벤트 위임이 불안정한 경우가 있어
+   위임과 직접 등록을 함께 걸어 둔다. 중복 실행은 플래그로 막는다. */
+function bindDocButtons(root) {
+  (root || document).querySelectorAll(".c-view[data-doc]").forEach((b) => {
+    if (b.dataset.bound) return;
+    b.dataset.bound = "1";
+    b.addEventListener("click", (e) => { e.preventDefault(); e.stopPropagation(); openDoc(b.dataset.doc); });
+  });
+}
 document.addEventListener("click", (e) => {
-  const b = e.target.closest(".c-view[data-doc]");
-  if (b) { e.preventDefault(); openDoc(b.dataset.doc); }
+  const t = e.target;
+  const b = (t.closest ? t.closest(".c-view[data-doc]") : null);
+  if (b && !b.dataset.bound) { e.preventDefault(); openDoc(b.dataset.doc); }
 });
+bindDocButtons();
 $("#doc-close").addEventListener("click", () => { $("#doc-sheet").hidden = true; });
 $("#doc-sheet").addEventListener("click", (e) => {
   if (e.target === $("#doc-sheet")) $("#doc-sheet").hidden = true;
@@ -3685,7 +3696,10 @@ $("#doc-sheet").addEventListener("click", (e) => {
 
   function sync() {
     const b = boxes();
-    $("#c-start").disabled = !(b.age.checked && b.tos.checked);
+    // disabled 를 쓰지 않는다 — 눌러도 반응이 없으면 고장으로 오해하기 때문.
+    // 대신 흐리게 보여주고, 누르면 빠진 항목을 짚어준다.
+    const ready = b.age.checked && b.tos.checked;
+    $("#c-start").classList.toggle("is-off", !ready);
     $("#profile-input").hidden = !b.profile.checked;
     b.all.checked = b.age.checked && b.tos.checked && b.loc.checked && b.profile.checked && b.mkt.checked;
   }
@@ -3713,6 +3727,21 @@ $("#doc-sheet").addEventListener("click", (e) => {
 
   $("#c-start").addEventListener("click", () => {
     const b = boxes();
+    // 필수 항목이 빠졌으면 어디를 눌러야 하는지 알려준다
+    if (!b.age.checked || !b.tos.checked) {
+      [b.age, b.tos].forEach((x) => {
+        if (x.checked) return;
+        const li = x.closest("li");
+        if (!li) return;
+        li.classList.remove("c-need");
+        void li.offsetWidth;              // 애니메이션 재시작
+        li.classList.add("c-need");
+        setTimeout(() => li.classList.remove("c-need"), 1600);
+      });
+      const first = !b.age.checked ? b.age : b.tos;
+      first.closest("li").scrollIntoView({ block: "center", behavior: "smooth" });
+      return;
+    }
     CONSENT.save({
       v: LEGAL_VERSION,
       at: new Date().toISOString(),
