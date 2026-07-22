@@ -68,8 +68,14 @@
         box.textContent += msg + "\n──── (눌러서 닫기)\n";
       }
       window.addEventListener("error", function (e) {
-        if (e.target && e.target.tagName === "SCRIPT")
-          return show("[파일 없음] " + (e.target.src || "?"));
+        var t = e.target;
+        if (t && t !== window && t.tagName) {
+          // 리소스 로드 실패: 앱을 깨뜨리는 스크립트·CSS 만 알리고,
+          // 사진(IMG)·영상 등 콘텐츠 실패는 흔한 일이므로 조용히 넘긴다.
+          if (t.tagName === "SCRIPT") return show("[파일 없음] " + (t.src || "?"));
+          if (t.tagName === "LINK") return show("[파일 없음] " + (t.href || "?"));
+          return;
+        }
         show("[오류] " + (e.message || "") + "\n@ " +
              (e.filename || "").split("/").pop() + ":" + e.lineno);
       }, true);   // 파일 로드 실패는 버블링되지 않으므로 capture 로 받는다
@@ -326,6 +332,7 @@
       <!-- 약관에서 연령대·성별을 입력하지 않은 이용자만 여기서 입력 (입력된 항목은 자동 숨김) -->
       <div class="pi-row pfc-row" id="pfc-age-row" hidden><span class="pi-label">연령대</span><div class="pi-chips" id="pfc-age"></div></div>
       <div class="pi-row pfc-row" id="pfc-gender-row" hidden><span class="pi-label">성별</span><div class="pi-chips" id="pfc-gender"></div></div>
+      <div class="pi-row pfc-row" id="pfc-avg-row" hidden><span class="pi-label">평균타수</span><div class="pi-chips" id="pfc-avg"></div></div>
     </section>
     <section class="card" id="hole-list-card" hidden>
       <div class="card-title"><span class="ic">⛳</span> 홀 선택</div>
@@ -536,6 +543,7 @@
           <div class="pi-row"><span class="pi-label">연령대</span><div class="pi-chips" id="pi-age"></div></div>
           <div class="pi-row"><span class="pi-label">성별</span><div class="pi-chips" id="pi-gender"></div></div>
           <div class="pi-row"><span class="pi-label">구력</span><div class="pi-chips" id="pi-years"></div></div>
+          <div class="pi-row"><span class="pi-label">평균타수</span><div class="pi-chips" id="pi-avg"></div></div>
         </li>
         <li>
           <label><input type="checkbox" id="c-mkt"><span><b class="opt">선택</b> 새 기능·소식 안내 받기</span></label>

@@ -4,8 +4,8 @@
  * ========================================================= */
 "use strict";
 
-const APP_VER = "v91"; // 배포 버전 (홈 화면 배지에 표시)
-const APP_NOTE = "개인정보 보호책임자를 이성민으로 지정"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
+const APP_VER = "v92"; // 배포 버전 (홈 화면 배지에 표시)
+const APP_NOTE = "맛집 사진 오류 수정"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
 const STORAGE_KEY = "riweather.courses.v1";
 const GEM_KEY = "riweather.gemini"; // 정밀 인식(비전 AI) 개인 키 저장소
 // 기본 제공 키 (무료 한도 공유) — 개인 키를 설정하면 그 키가 우선됩니다
@@ -1920,6 +1920,7 @@ function playerTraits() {
   if (c.age) bits.push(c.age);
   if (c.gender && c.gender !== "선택 안 함") bits.push(c.gender);
   if (p.years) bits.push("구력 " + p.years);
+  if (p.avg) bits.push("평균 " + p.avg + " 타수");
   return bits.length ? ", " + bits.join(" ") : "";
 }
 function playerTraitGuide() {
@@ -1942,6 +1943,23 @@ function playerTraitGuide() {
     g += "중급자입니다. 코스 매니지먼트 관점에서 공략 지점과 클럽 선택 근거를 함께 제시하세요. ";
   else if (y === "10년 이상")
     g += "구력이 오래된 상급자입니다. 핀 위치별 공략, 탄도·스핀, 그린 공략각 등 세밀한 조언까지 제시해도 좋습니다. ";
+  // 평균 타수 = 가장 정확한 실력 지표. 캐디+레슨프로처럼 호칭과 조언 톤을 여기에 맞춘다.
+  const a = (loadProfile().avg) || "";
+  if (a.startsWith("70"))
+    g += "평균 70대 타수의 싱글 골퍼입니다. 반드시 '싱글 골퍼님'이라고 부르세요. " +
+         "실수 확률이 낮으니 핀을 직접 노리는 과감한 공략, 버디 찬스를 만드는 적극적인 옵션까지 제시하세요. ";
+  else if (a.startsWith("80"))
+    g += "평균 80대 타수의 중상급 골퍼입니다. '80대 골퍼님'이라고 부르세요. " +
+         "파온을 우선하되 확실한 상황에서만 공격하는 균형 잡힌 공략을 제시하세요. ";
+  else if (a.startsWith("90"))
+    g += "평균 90대 타수의 골퍼입니다. '90대 골퍼님'이라고 부르세요. " +
+         "힘이 들어가면 뒷땅·토핑이 나기 쉬우니 '힘을 빼고 부드럽게 천천히 스윙하세요' 같은 " +
+         "스윙 리듬 조언을 곁들이고, 보기 온 전략과 큰 트러블 회피를 우선하세요. ";
+  else if (a.startsWith("100") || a.startsWith("110"))
+    g += "평균 " + a + " 타수의 골퍼입니다. 따뜻하게 격려하는 말투로, " +
+         "더블보기를 막는 것을 목표로 가장 넓고 안전한 지점만 권하고 한 클럽 짧게 잡아 편하게 치도록 권하세요. ";
+  if (a)
+    g += "캐디를 넘어 레슨 프로처럼, 이 수준의 골퍼가 이 홀에서 흔히 하는 실수와 그걸 막는 팁을 한 줄 곁들이세요. ";
   return g;
 }
 
@@ -2174,6 +2192,15 @@ function refreshProfileCard() {
     drawChips($("#pfc-age"), AI_PROFILE.AGES, () => (CONSENT.get() || {}).age || null, (v) => saveField("age", v));
   if (!genRow.hidden)
     drawChips($("#pfc-gender"), AI_PROFILE.GENDERS, () => (CONSENT.get() || {}).gender || null, (v) => saveField("gender", v));
+  // 평균타수 — AI 캐디가 실력에 맞는 공략 톤을 잡는 핵심 정보 (플레이 정보라 프로필에 저장)
+  const avgRow = $("#pfc-avg-row");
+  if (avgRow) {
+    avgRow.hidden = !!p.avg;
+    if (!avgRow.hidden)
+      drawChips($("#pfc-avg"), ["70대 (싱글)", "80대", "90대", "100대", "110 이상"],
+        () => loadProfile().avg || null,
+        (v) => saveProfile(Object.assign(loadProfile(), { avg: v })));
+  }
 }
 
 /* =========================================================
@@ -2275,7 +2302,15 @@ function lbShow(i) {
   lbIdx = (i + lbList.length) % lbList.length;
   const im = lbList[lbIdx];
   const el = $("#lb-img");
-  el.onerror = () => { el.onerror = null; el.src = im.t; };   // 원본 실패 시 썸네일
+  el.onerror = () => {
+    el.onerror = () => {                       // 썸네일까지 실패 → 이 사진을 빼고 다음으로
+      el.onerror = null;
+      lbList.splice(lbIdx, 1);
+      if (!lbList.length) { closeLightbox(); return; }
+      lbShow(lbIdx);
+    };
+    el.src = im.t;                             // 원본 실패 시 썸네일
+  };
   el.src = im.u || im.t;
   $("#lb-count").textContent = `${lbIdx + 1} / ${lbList.length}`;
   const multi = lbList.length > 1;
@@ -2472,12 +2507,22 @@ function renderFoodList(list, region, fromKakao) {
           photos.innerHTML = '<div class="fi-photo-loading">등록된 사진이 없습니다</div>';
           return;
         }
-        photos.innerHTML = imgs
-          .map((im, k) => `<img src="${im.t}" data-k="${k}" alt="${it.name}" loading="lazy">`)
-          .join("");
-        photos.querySelectorAll("img").forEach((el) => {
-          el.addEventListener("click", () => openLightbox(imgs, +el.dataset.k));
-        });
+        // 죽은 이미지 링크가 흔하므로: 로드 실패한 사진은 목록에서 빼고 다시 그린다
+        const good = imgs.slice();
+        const draw = () => {
+          if (!good.length) {
+            photos.innerHTML = '<div class="fi-photo-loading">등록된 사진이 없습니다</div>';
+            return;
+          }
+          photos.innerHTML = good
+            .map((im, k) => `<img src="${im.t}" data-k="${k}" alt="${it.name}" loading="lazy">`)
+            .join("");
+          photos.querySelectorAll("img").forEach((el) => {
+            el.addEventListener("click", () => openLightbox(good, +el.dataset.k));
+            el.addEventListener("error", () => { good.splice(+el.dataset.k, 1); draw(); });
+          });
+        };
+        draw();
       } catch {
         photos.innerHTML = '<div class="fi-photo-loading">사진을 불러오지 못했습니다</div>';
       }
@@ -3717,7 +3762,8 @@ $("#doc-sheet").addEventListener("click", (e) => {
   const AGES = ["10대", "20대", "30대", "40대", "50대", "60대 이상"];
   const GENDERS = ["남성", "여성", "선택 안 함"];
   const YEARS = ["1년 미만 (입문)", "1~3년", "3~5년", "5~10년", "10년 이상"];
-  let pickedAge = null, pickedGender = null, pickedYears = null;
+  const AVGS = ["70대 (싱글)", "80대", "90대", "100대", "110 이상"];
+  let pickedAge = null, pickedGender = null, pickedYears = null, pickedAvg = null;
 
   const chips = (host, items, get, set) => {
     host.innerHTML = "";
@@ -3756,9 +3802,11 @@ $("#doc-sheet").addEventListener("click", (e) => {
     b.loc.checked = !!c.loc; b.profile.checked = !!c.profile; b.mkt.checked = !!c.mkt;
     pickedAge = c.age || null; pickedGender = c.gender || null;
     pickedYears = (typeof loadProfile === "function" && loadProfile().years) || null;
+    pickedAvg = (typeof loadProfile === "function" && loadProfile().avg) || null;
     chips($("#pi-age"), AGES, () => pickedAge, (v) => { pickedAge = v; });
     chips($("#pi-gender"), GENDERS, () => pickedGender, (v) => { pickedGender = v; });
     chips($("#pi-years"), YEARS, () => pickedYears, (v) => { pickedYears = v; });
+    chips($("#pi-avg"), AVGS, () => pickedAvg, (v) => { pickedAvg = v; });
     // 홈 화면 앱은 브라우저와 저장 공간이 분리(iOS 정책) — 왜 다시 묻는지 설명해 오해를 막는다
     const sn = $("#consent-standalone-note");
     if (sn) {
@@ -3820,10 +3868,15 @@ $("#doc-sheet").addEventListener("click", (e) => {
       gender: b.profile.checked ? pickedGender : null,
       mkt: b.mkt.checked,
     });
-    // 구력은 동의 항목이 아닌 플레이 정보 — 프로필에 저장해 코스 공략·AI 캐디가 사용
-    if (b.profile.checked && pickedYears && typeof saveProfile === "function") {
-      saveProfile(Object.assign(loadProfile(), { years: pickedYears }));
-      const sel = $("#pf-years"); if (sel) sel.value = pickedYears;
+    // 구력·평균타수는 동의 항목이 아닌 플레이 정보 — 프로필에 저장해 코스 공략·AI 캐디가 사용
+    if (b.profile.checked && typeof saveProfile === "function") {
+      const patch = {};
+      if (pickedYears) patch.years = pickedYears;
+      if (pickedAvg) patch.avg = pickedAvg;
+      if (Object.keys(patch).length) {
+        saveProfile(Object.assign(loadProfile(), patch));
+        const sel = $("#pf-years"); if (sel && patch.years) sel.value = patch.years;
+      }
     }
     view.hidden = true;
     CONSENT_NAG.clear();                       // 동의 완료 → 더 이상 안내하지 않음
