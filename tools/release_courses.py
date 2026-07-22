@@ -67,12 +67,18 @@ def stage():
         "js/app.js", "sw.js", "index.html", "css/style.css", ".sync", check=False)
 
 def bump():
-    """항상 '현재 파일에 적힌 버전 +1' — 최신화 직후 호출해야 유일한 버전이 됨"""
+    """항상 '현재 파일에 적힌 버전 +1' — 최신화 직후 호출해야 유일한 버전이 됨.
+    배포 메시지를 앱의 '업데이트 알림' 문구(APP_NOTE)로도 넣어준다."""
     a = open(app, encoding="utf-8").read()
     cur = int(re.search(r'APP_VER = "v(\d+)"', a).group(1))
     nxt = cur + 1
-    open(app, "w", encoding="utf-8", newline="\n").write(
-        a.replace(f'APP_VER = "v{cur}"', f'APP_VER = "v{nxt}"'))
+    a = a.replace(f'APP_VER = "v{cur}"', f'APP_VER = "v{nxt}"')
+    # 메시지 앞부분만 사용자에게 보여준다(괄호·버전표기 제거, 40자 이내)
+    note = re.split(r"[—\-(]", msg)[0].strip()
+    note = re.sub(r'["\\\n]', "", note)[:40].strip()
+    if note:
+        a = re.sub(r'APP_NOTE = "[^"]*"', f'APP_NOTE = "{note}"', a)
+    open(app, "w", encoding="utf-8", newline="\n").write(a)
     s = open(sw, encoding="utf-8").read()
     open(sw, "w", encoding="utf-8", newline="\n").write(
         s.replace(f"riweather-v{cur}", f"riweather-v{nxt}"))

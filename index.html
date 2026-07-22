@@ -14,6 +14,26 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
   <link rel="stylesheet" href="css/style.css">
   <script>
+    // 주소 끝에 ?reset 을 붙여 열면 캐시·서비스워커·저장값을 모두 지우고 최신으로 다시 연다.
+    // (폰에 옛 버전이 남아 화면이 갱신되지 않을 때의 탈출구)
+    (function () {
+      if (!/[?&]reset\b/.test(location.search)) return;
+      var done = function () { location.replace(location.pathname + "?fresh=" + Date.now()); };
+      var jobs = [];
+      try {
+        if ("serviceWorker" in navigator) {
+          jobs.push(navigator.serviceWorker.getRegistrations()
+            .then(function (rs) { return Promise.all(rs.map(function (r) { return r.unregister(); })); }));
+        }
+        if (window.caches) {
+          jobs.push(caches.keys()
+            .then(function (ks) { return Promise.all(ks.map(function (k) { return caches.delete(k); })); }));
+        }
+        try { localStorage.clear(); } catch (e) {}
+      } catch (e) {}
+      Promise.all(jobs).then(done, done);
+      setTimeout(done, 2500);   // 혹시 지연되어도 반드시 넘어가도록
+    })();
     // 카카오톡 인앱 브라우저로 열리면 기기의 기본 브라우저(Safari/Chrome)로 자동 전환
     (function () {
       if (/KAKAOTALK/i.test(navigator.userAgent)) {
@@ -415,6 +435,15 @@
     <svg viewBox="0 0 24 24" width="22" height="22"><path fill="currentColor" d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 1 0-3-3c0 .24.04.47.09.7L8.04 9.81A2.99 2.99 0 0 0 3 12a3 3 0 0 0 5.04 2.19l7.12 4.16c-.05.21-.08.43-.08.65a2.92 2.92 0 1 0 2.92-2.92z"/></svg>
   </button>
   <div id="app-share-toast" class="app-share-toast" hidden>링크가 복사되었습니다 — 카톡 등에 붙여넣어 공유하세요!</div>
+
+  <!-- 새 버전으로 갱신되었을 때 잠깐 보여주는 알림 -->
+  <div id="update-toast" class="update-toast" hidden>
+    <span class="ut-ico">✨</span>
+    <span class="ut-body">
+      <b>업데이트되었습니다 <span id="ut-ver"></span></b>
+      <small id="ut-note"></small>
+    </span>
+  </div>
 
   <!-- ================= 최초 진입 동의 화면 ================= -->
   <div id="consent-view" class="consent-back" hidden>

@@ -550,7 +550,7 @@ body {
   animation: sheetUp 0.22s cubic-bezier(0.2, 0.8, 0.3, 1);
 }
 @media (prefers-reduced-motion: reduce) {
-  .sheet, .sheet-back { animation: none; }
+  .sheet, .sheet-back, .update-toast { animation: none; }
 }
 @keyframes sheetUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
 .sheet-bar {
@@ -1070,6 +1070,30 @@ body {
 }
 .doc-body th { background: rgba(255,255,255,0.07); color: var(--text); font-weight: 600; }
 .doc-body .doc-em { color: var(--accent); font-weight: 600; }
+
+/* 업데이트 알림 (상단에서 잠깐 내려왔다 사라짐) */
+.update-toast {
+  position: fixed; z-index: 5000;
+  top: calc(24px + env(safe-area-inset-top)); left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 32px); max-width: 420px;
+  display: flex; align-items: center; gap: 12px;
+  padding: 13px 16px; border-radius: 14px;
+  background: rgba(20, 52, 42, 0.96);
+  border: 1px solid var(--accent);
+  box-shadow: 0 10px 28px rgba(0,0,0,0.45);
+  animation: utDrop 0.32s cubic-bezier(0.2, 0.9, 0.3, 1);
+}
+.update-toast.hide { animation: utUp 0.28s ease forwards; }
+@keyframes utDrop { from { opacity: 0; transform: translate(-50%, -18px); } to { opacity: 1; transform: translate(-50%, 0); } }
+@keyframes utUp { from { opacity: 1; transform: translate(-50%, 0); } to { opacity: 0; transform: translate(-50%, -18px); } }
+.ut-ico { font-size: 22px; flex: none; }
+.ut-body { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.ut-body b { font-size: 14px; font-weight: 700; color: var(--accent); }
+.ut-body small {
+  font-size: 12px; color: var(--text-dim); line-height: 1.4;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
 
 /* 홈 하단 약관 링크 */
 .home-foot {
