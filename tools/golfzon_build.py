@@ -30,6 +30,11 @@ def load_golfdb():
     for g in db:
         if g.get("c") == "KR":
             out.setdefault(norm(g["n"]), g["n"])
+    # tools/gz_link_kakao.py 가 카카오 주소·POI로 검증해 둔 골프존명 → 앱DB명 매핑
+    p = os.path.join(ROOT, "coursedata", "gz_alias.json")
+    if os.path.exists(p):
+        for gzname, dbname in json.load(open(p, encoding="utf-8")).items():
+            out[norm(gzname)] = dbname
     return out
 
 def registered_names():

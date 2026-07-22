@@ -17,10 +17,18 @@ def js_str(s):
     s = s.replace("\n", " ")
     return '"' + s.strip() + '"'
 
+# 같은 골프장이 앱 검색DB에 두 항목으로 들어가 있는 경우, 어느 쪽으로 찾아와도
+# 같은 홀 데이터를 보여주도록 키를 복제한다 (코스명은 데이터 안에 그대로 표시됨).
+MIRROR = {"샤인빌파크CC-PALM코스": ["샤인빌파크CC-RIVER코스"]}
+
 entries = []
 for f in sorted(glob.glob(os.path.join(HP, "*", "parsed.json"))):
     d = json.load(open(f, encoding="utf-8"))
     entries.append(d)
+    for extra in MIRROR.get(d["course"], []):
+        m = dict(d)
+        m["course"] = extra
+        entries.append(m)
     total = sum(len(c["holes"]) for c in d["courses"])
     print(f'{d["course"]}: {total}홀 ({", ".join(c["name"] for c in d["courses"])})')
 
