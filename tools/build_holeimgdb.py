@@ -35,7 +35,13 @@ with open(OUT, "w", encoding="utf-8", newline="\n") as w:
         for c in d["courses"]:
             w.write(f'      {{ name: {js_str(c["name"])}, holes: [\n')
             for h in c["holes"]:
-                parts = [f'no: {h["no"]}', f'par: {h.get("par") or 4}', f'img: {js_str(h["img"])}']
+                parts = [f'no: {h["no"]}', f'par: {h.get("par") or 4}']
+                if h.get("img"):
+                    parts.append(f'img: {js_str(h["img"])}')
+                if h.get("video"):
+                    parts.append(f'video: {js_str(h["video"])}')
+                if h.get("elev"):
+                    parts.append(f'elev: {h["elev"]}')
                 if h.get("tip"):
                     parts.append(f'tip: {js_str(h["tip"])}')
                 if h.get("dist"):

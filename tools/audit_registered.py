@@ -19,6 +19,15 @@ def audit(path):
     name = d["course"]
     issues, warns = [], []
     total = 0
+    # 코스 간 이미지 중복 = 파일 덮어쓰기 사고 (다른 코스에 같은 홀맵 표시)
+    seen_img = {}
+    for c in d["courses"]:
+        for h in c["holes"]:
+            key = h.get("img")
+            if key in seen_img and seen_img[key] != c["name"]:
+                issues.append(f"이미지 중복: {seen_img[key]}↔{c['name']} 가 같은 파일 사용 ({os.path.basename(key)})")
+                break
+            seen_img[key] = c["name"]
     for c in d["courses"]:
         hs = c["holes"]
         total += len(hs)

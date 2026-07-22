@@ -4,7 +4,7 @@
  * ========================================================= */
 "use strict";
 
-const APP_VER = "v70"; // 배포 버전 (홈 화면 배지에 표시)
+const APP_VER = "v71"; // 배포 버전 (홈 화면 배지에 표시)
 const STORAGE_KEY = "riweather.courses.v1";
 const GEM_KEY = "riweather.gemini"; // 정밀 인식(비전 AI) 개인 키 저장소
 // 기본 제공 키 (무료 한도 공유) — 개인 키를 설정하면 그 키가 우선됩니다
@@ -1640,9 +1640,25 @@ function renderImgCourse(course, db) {
     grid.querySelectorAll(".hole-btn").forEach((b, j) => b.classList.toggle("active", j === i));
     $("#hole-detail-title").textContent = `${h.cname} ${h.no}번홀 공략`;
     const img = $("#hole-img");
-    img.src = h.img;
-    img.hidden = false;
-    $("#hole-img-src").textContent = "홀맵 출처: " + db.source;
+    if (h.img) {
+      img.src = h.img;
+      img.hidden = false;
+    } else {
+      img.removeAttribute("src");
+      img.hidden = true;
+    }
+    // 홀 3D 영상 (탭할 때만 로드 — 데이터 절약)
+    const vp = $("#hole-video-player");
+    if (h.video) {
+      vp.src = h.video;
+      vp.load();
+      vp.hidden = false;
+    } else {
+      vp.pause?.();
+      vp.removeAttribute("src");
+      vp.hidden = true;
+    }
+    $("#hole-img-src").textContent = (h.video && !h.img ? "홀 영상·코스 데이터 출처: " : "홀맵 출처: ") + db.source;
     $("#hole-img-src").hidden = false;
     if (h.green) {
       $("#hole-green-img").src = h.green;
@@ -1655,7 +1671,10 @@ function renderImgCourse(course, db) {
       const row = (g, a) => `<b>${g}그린</b> 백 ${a[0]} · 레귤러 ${a[1]} · 프론트 ${a[2]} · 레이디 ${a[3]}m`;
       infoHtml += `<b>📏 티별 거리</b><br>${row("L", h.dist.L)}<br>${row("R", h.dist.R)}<br><br>`;
     } else if (h.tees) {
-      infoHtml += `<b>📏 티별 거리</b><br>${h.tees.map((t) => `${t.name} ${t.m}`).join(" · ")}m<br><br>`;
+      const elev = h.elev
+        ? ` <span class="hole-elev">· 티→그린 ${h.elev > 0 ? "오르막 +" : "내리막 "}${h.elev}m</span>`
+        : "";
+      infoHtml += `<b>📏 티별 거리</b><br>${h.tees.map((t) => `${t.name} ${t.m}`).join(" · ")}m${elev}<br><br>`;
     } else if (h.len) {
       infoHtml += `<b>📏 전장</b> ${h.len}m${h.hdcp ? " · 핸디캡 " + h.hdcp : ""}<br><br>`;
     }
@@ -1859,10 +1878,16 @@ async function aiCaddie() {
     const hh = aiHoleCtx.imgHole;
     const prof2 = loadProfile();
     try {
-      const data = await imgToB64($("#hole-img"));
-      const prompt =
+      const hasImg = !!hh.img;
+      const data = hasImg ? await imgToB64($("#hole-img")) : null;
+      const elevTxt = hh.elev
+        ? `티에서 그린까지 ${hh.elev > 0 ? "오르막 " + hh.elev : "내리막 " + Math.abs(hh.elev)}m. ` : "";
+      const prompt = hasImg ?
         `당신은 투어 경력의 친절한 한국인 캐디입니다. 첨부 이미지는 ${aiHoleCtx.courseName} ${hh.cname}코스 ${hh.no}번홀(파${hh.par})의 공식 홀맵입니다. ` +
-        `홀맵에는 홀 모양, 벙커·해저드 위치, 그린까지 거리선(50/100/150M)이 표시되어 있습니다. ` +
+        `홀맵에는 홀 모양, 벙커·해저드 위치, 그린까지 거리선(50/100/150M)이 표시되어 있습니다. ` + elevTxt :
+        `당신은 투어 경력의 친절한 한국인 캐디입니다. ${aiHoleCtx.courseName} ${hh.cname}코스 ${hh.no}번홀(파${hh.par})을 안내합니다. ` +
+        `홀맵 그림은 없고 아래 수치 정보만 있습니다. 사진이 있는 것처럼 지형·벙커 위치를 지어내지 말고, 주어진 파·거리·고도차와 플레이어 구질만으로 조언하세요. ` + elevTxt;
+      const promptTail =
         (hh.dist ? `티별 거리(m): L그린 백${hh.dist.L[0]}/레귤러${hh.dist.L[1]}/프론트${hh.dist.L[2]}/레이디${hh.dist.L[3]}, R그린 백${hh.dist.R[0]}/레귤러${hh.dist.R[1]}/프론트${hh.dist.R[2]}/레이디${hh.dist.R[3]}. ` :
          hh.tees ? `티별 거리: ${hh.tees.map((t) => t.name + " " + t.m + "m").join(", ")}. ` :
          hh.len ? `전장 ${hh.len}m${hh.hdcp ? ", 핸디캡 " + hh.hdcp : ""}. ` : "") +
@@ -1870,10 +1895,11 @@ async function aiCaddie() {
         `플레이어: 구질 ${prof2.shape || "스트레이트"}, 드라이버 평균 ${prof2.dist || 200}m. ` +
         `가장 중요한 것은 구질 맞춤입니다 — 이 플레이어의 구질(${prof2.shape || "스트레이트"})이 이 홀에서 유리한지 불리한지 판단하고, ` +
         `구질을 감안한 구체적인 조준점(예: 슬라이스면 좌측 OO를 보고)과 위험 구역 회피법을 반드시 포함하세요. ` +
-        `홀맵에 실제로 표시된 정보만 근거로 ①티샷(구질 맞춤 조준점·클럽) ②세컨샷 ③그린 주변 순서로 4~6문장, 친근한 존댓말로 조언하세요. ` +
-        `홀맵에서 확인할 수 없는 정보(그린 경사, 잔디 상태 등)는 절대 지어내지 마세요.`;
-      const text = await geminiGenerate(
-        [{ text: prompt }, { inline_data: { mime_type: "image/jpeg", data } }], 0.4);
+        `주어진 정보만 근거로 ①티샷(구질 맞춤 조준점·클럽) ②세컨샷 ③그린 주변 순서로 4~6문장, 친근한 존댓말로 조언하세요. ` +
+        `확인할 수 없는 정보(그린 경사, 잔디 상태 등)는 절대 지어내지 마세요.`;
+      const parts = [{ text: prompt + promptTail }];
+      if (hasImg) parts.push({ inline_data: { mime_type: "image/jpeg", data } });
+      const text = await geminiGenerate(parts, 0.4);
       out.textContent = text.trim();
       out.hidden = false;
     } catch (e) {

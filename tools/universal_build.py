@@ -28,10 +28,21 @@ UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/126 Sa
 AUTO = os.path.join(ROOT, "coursedata", "homepages_auto")
 
 # ── 공통 ──────────────────────────────────────────────────────
+import ssl
+_NOSSL = ssl.create_default_context()
+_NOSSL.check_hostname = False
+_NOSSL.verify_mode = ssl.CERT_NONE
+
 def fetch(url, binary=False, timeout=25):
     req = urllib.request.Request(url, headers={"User-Agent": UA, "Accept-Language": "ko"})
-    with urllib.request.urlopen(req, timeout=timeout) as r:
-        data = r.read()
+    try:
+        with urllib.request.urlopen(req, timeout=timeout) as r:
+            data = r.read()
+    except Exception as e:
+        if "SSL" not in str(e) and "CERTIFICATE" not in str(e).upper():
+            raise
+        with urllib.request.urlopen(req, timeout=timeout, context=_NOSSL) as r:   # 인증서 만료 사이트 대응
+            data = r.read()
     if binary:
         return data
     for enc in ("utf-8", "euc-kr", "cp949"):
@@ -258,6 +269,91 @@ def candidate_pages(club, seed):
 
 BAD_NAME = re.compile(r"^\d+$|^(코스|course)\d*$", re.I)
 
+PERHOLE_URL = re.compile(r"/(?:hole|h)0*(\d{1,2})(?:[_-]?\w*)?\.(?:asp|php|html?|jsp|do)", re.I)
+
+def parse_one_hole(html, url, no):
+    """홀 1개짜리 페이지에서 파/거리/공략/이미지 추출"""
+    txt = strip_tags(html)
+    pm = re.search(r"(?:PAR|Par|파)\s*[:\s]?\s*([3-6])\b", txt)
+    if not pm:
+        return None
+    tees = []
+    for c, v in re.findall(r'class="(\w+)"[^>]*>\s*</?\w*>?\s*([\d,]{2,5})', html):
+        if c.lower() in TEE_COLOR_KO:
+            n = int(v.replace(",", ""))
+            if 60 <= n <= 700:
+                tees.append({"name": TEE_COLOR_KO[c.lower()], "m": n})
+    nums = [int(x) for x in re.findall(r"\b(\d{2,3})\s*(?:m|M|미터)\b", txt) if 60 <= int(x) <= 700]
+    # 이미지: 홀 번호가 들어간 것 우선
+    img = None
+    srcs = re.findall(r'<img[^>]+src="([^"]+\.(?:jpg|jpeg|png))"', html, re.I)
+    for s in srcs:
+        if hole_no_of(s, "loose") == no:
+            img = s; break
+    if not img:
+        for s in srcs:
+            if HOLE_KEY.search(urllib.parse.urlparse(s).path) and not re.search(r"(logo|btn|icon|bg_|banner)", s, re.I):
+                img = s; break
+    tip = ""
+    for s2 in KO_SENT.findall(txt):
+        s2 = s2.strip()
+        if len(s2) > len(tip) and not re.search(r"(예약|회원|고객센터|주소|전화|이용약관|개인정보|저작권|Copyright)", s2):
+            tip = s2
+    return {"no": no, "par": int(pm.group(1)), "hdcp": None, "tees": tees,
+            "len": (tees[0]["m"] if tees else (max(nums) if nums else 0)),
+            "tip": tip if len(tip) >= 20 else "",
+            "img": urllib.parse.urljoin(url, img) if img else None}
+
+def collect_per_hole(seed, pages):
+    """홀마다 개별 페이지인 사이트 → 코스별로 묶어 홀 목록 구성
+    반환: [(코스명, [holes...])]"""
+    groups = {}
+    for u in pages:
+        m = PERHOLE_URL.search(urllib.parse.urlparse(u).path)
+        if not m:
+            continue
+        no = int(m.group(1))
+        if not (1 <= no <= 27):
+            continue
+        key = re.sub(PERHOLE_URL.pattern, "", urllib.parse.urlparse(u).path, flags=re.I)  # 디렉터리 = 코스
+        groups.setdefault(key, {})[no] = u
+    out = []
+    for key, m in groups.items():
+        # 수집된 URL이 1개뿐이어도 홀 번호만 바꿔 나머지를 탐색 (사이트 대부분이 규칙적)
+        sample_no, sample_url = sorted(m.items())[0]
+        start = 10 if sample_no >= 10 else 1
+        for n in range(start, start + 18):
+            if n in m:
+                continue
+            for pat in (f"{n:02d}", str(n)):
+                cand = re.sub(r"(hole|h)0*\d{1,2}", lambda mm: mm.group(1) + pat, sample_url, flags=re.I, count=1)
+                if cand != sample_url and cand not in m.values():
+                    m[n] = cand
+                    break
+        holes = []
+        miss = 0
+        for no in sorted(m):
+            try:
+                h = parse_one_hole(fetch(m[no]), m[no], no)
+            except Exception:
+                h = None
+            if h:
+                holes.append(h)
+                miss = 0
+            else:
+                miss += 1
+                if miss >= 3 and len(holes) >= 6:   # 연속 실패 = 홀 끝
+                    break
+                if miss >= 5:
+                    break
+            time.sleep(0.25)
+        if len(holes) >= 6:
+            seg = [s for s in key.strip("/").split("/") if s and not re.match(r"^(course|pagesite|html?|kr|ko)$", s, re.I)]
+            cname = seg[-1].upper() if seg else "OUT"
+            cname = {"ONE": "OUT", "TWO": "IN", "1": "OUT", "2": "IN"}.get(cname, cname)
+            out.append((cname, holes))
+    return out
+
 def course_name_of(url, html, idx, holes=None):
     """코스명: 활성 탭 → URL 슬러그 → 홀 번호 기반(OUT/IN) 순"""
     for pat in (r'<li class="on"><a[^>]*>([^<]{2,15})</a>',
@@ -311,7 +407,22 @@ def build(club, dbname, slug, write=False, verbose=True):
 
     found = []          # (코스명, 파서, holes)
     sigs = set()
-    for i, url in enumerate(candidate_pages(club, seed)):
+    pages = candidate_pages(club, seed)
+
+    # 홀마다 개별 페이지인 사이트 먼저 시도
+    try:
+        for cname, holes in collect_per_hole(seed, pages):
+            holes = [sanitize_distance(h) for h in holes if 3 <= h["par"] <= 6]
+            holes.sort(key=lambda h: h["no"])
+            sig = tuple((h["no"], h["par"]) for h in holes)
+            if sig in sigs:
+                continue
+            sigs.add(sig)
+            found.append((cname, "perhole", holes))
+    except Exception:
+        pass
+
+    for i, url in enumerate(pages):
         try:
             html = fetch(url)
         except Exception:
@@ -408,10 +519,16 @@ def build(club, dbname, slug, write=False, verbose=True):
     # ── 실제 등록 ──
     imgdir = os.path.join(ROOT, "holeimg", slug)
     os.makedirs(imgdir, exist_ok=True)
+    # 코스명이 겹치면 A/B/C로 구분 (이미지 파일명 충돌 방지 위해 등록 전에 확정)
+    names = [c[0] for c in found]
+    if len(set(names)) < len(names):
+        found = [(chr(ord("A") + i), p, h) for i, (n, p, h) in enumerate(found)]
+
     courses = []
-    for cname, _, hs in found:
+    for ci, (cname, _, hs) in enumerate(found):
         out_holes = []
-        cslug = re.sub(r"[^0-9A-Za-z가-힣]", "", cname).lower() or "c"
+        base_slug = re.sub(r"[^0-9A-Za-z가-힣]", "", cname).lower() or "c"
+        cslug = f"{ci+1}{base_slug}"          # 코스 인덱스 접두 → 코스 간 파일 충돌 원천 차단
         for h in hs:
             raw = os.path.join(imgdir, f"_raw{cslug}{h['no']}")
             try:
