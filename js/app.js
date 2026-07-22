@@ -4,8 +4,8 @@
  * ========================================================= */
 "use strict";
 
-const APP_VER = "v93"; // 배포 버전 (홈 화면 배지에 표시)
-const APP_NOTE = "맛집 사진 개선"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
+const APP_VER = "v94"; // 배포 버전 (홈 화면 배지에 표시)
+const APP_NOTE = "맛집 사진 자동수집 폐기"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
 const STORAGE_KEY = "riweather.courses.v1";
 const GEM_KEY = "riweather.gemini"; // 정밀 인식(비전 AI) 개인 키 저장소
 // 기본 제공 키 (무료 한도 공유) — 개인 키를 설정하면 그 키가 우선됩니다
@@ -2281,81 +2281,8 @@ async function fetchKakaoFood(course) {
   return out;
 }
 
-/* 식당 사진 (카카오 이미지 검색)
-   문제: 이미지 검색엔 게임 화면·식물 같은 무관한 사진이 섞여 나온다.
-   대책: ① '맛집' 키워드 + 블로그·카페 출처 + 최소 크기로 1차 거름
-        ② AI(제미나이)가 사진 내용을 직접 보고 식당 관련만 남김 (실패 시 1차 결과 유지)
-   검사 결과는 7일 저장해 같은 식당 재방문 시 즉시 표시. */
-const foodImgCache = new Map();
-const FOODIMG_LS = "riweather.foodimg.";
-async function fetchFoodImages(name, region) {
-  const q = (region ? region + " " : "") + name + " 맛집";
-  if (foodImgCache.has(q)) return foodImgCache.get(q);
-  try {
-    const c = JSON.parse(localStorage.getItem(FOODIMG_LS + q) || "null");
-    if (c && Date.now() - c.t < 7 * 864e5) { foodImgCache.set(q, c.d); return c.d; }
-  } catch (_) {}
-  const j = await kakaoApi("https://dapi.kakao.com/v2/search/image?sort=accuracy&size=15&query=" +
-    encodeURIComponent(q));
-  let imgs = (j.documents || [])
-    .filter((d) => d.thumbnail_url)
-    .filter((d) => d.collection === "blog" || d.collection === "cafe")   // 후기 글 사진 위주
-    .filter((d) => (d.width || 0) >= 280 && (d.height || 0) >= 220)      // 저화질 컷 제외
-    .map((d) => ({ t: d.thumbnail_url, u: d.image_url || d.thumbnail_url }));
-  imgs = (await aiPickFoodImages(imgs)).slice(0, 10);
-  foodImgCache.set(q, imgs);
-  try { localStorage.setItem(FOODIMG_LS + q, JSON.stringify({ t: Date.now(), d: imgs })); } catch (_) {}
-  return imgs;
-}
-
-/* AI가 사진 내용을 보고 식당과 무관한 사진(게임·식물·셀카 등)을 걸러낸다.
-   카카오 썸네일은 CORS 가 막혀 있어 이미지 프록시(weserv)로 축소본을 받아 검사. */
-async function aiPickFoodImages(imgs) {
-  if (imgs.length < 2) return imgs;
-  try {
-    const datas = [];
-    await Promise.all(imgs.map(async (im, i) => {
-      try {
-        const px = "https://images.weserv.nl/?w=180&url=" +
-          encodeURIComponent(im.t.replace(/^https?:\/\//, ""));
-        const b = await fetch(px).then((r) => { if (!r.ok) throw 0; return r.blob(); });
-        datas[i] = await new Promise((res, rej) => {
-          const fr = new FileReader();
-          fr.onload = () => res(String(fr.result).split(",")[1]);
-          fr.onerror = rej;
-          fr.readAsDataURL(b);
-        });
-      } catch (_) { datas[i] = null; }
-    }));
-    const avail = datas.map((d, i) => (d ? i : -1)).filter((i) => i >= 0);
-    if (avail.length < 2) return imgs;             // 프록시 불통 → 그대로 노출
-    const parts = [{
-      text: "다음은 어느 식당을 검색해 나온 사진들입니다. 음식·메뉴판·식당 내부·외관·간판 등 " +
-            "식당과 직접 관련된 사진의 번호만 0부터 시작하는 JSON 배열로만 답하세요. " +
-            "게임 화면, 셀카, 풍경, 식물, 광고 등 무관한 사진은 제외합니다. 예: [0,2,5]",
-    }];
-    avail.forEach((i) => parts.push({ inline_data: { mime_type: "image/jpeg", data: datas[i] } }));
-    const key = getGemKey();
-    for (const model of ["gemini-flash-lite-latest", "gemini-flash-latest"]) {
-      try {
-        const r = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=` +
-          encodeURIComponent(key),
-          { method: "POST", headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ contents: [{ parts }] }) });
-        if (!r.ok) continue;
-        const jj = await r.json();
-        const txt = jj.candidates?.[0]?.content?.parts?.[0]?.text || "";
-        const m = txt.match(/\[[\d,\s]*\]/);
-        if (!m) continue;
-        const keep = JSON.parse(m[0]);
-        const picked = keep.filter((n) => n >= 0 && n < avail.length).map((n) => imgs[avail[n]]);
-        return picked.length ? picked : imgs;      // 전부 걸러지면 오판 가능성 → 원본 유지
-      } catch (_) {}
-    }
-    return imgs;
-  } catch (_) { return imgs; }
-}
+/* 식당 사진 자동 수집은 폐기 — 이미지 검색으로는 '그 식당' 사진임을 보장할 수 없다.
+   (다른 식당 음식·전경이 섞여 나와 신뢰 하락. 카카오맵 페이지 연결로 대체) */
 
 /* ---------- 사진 크게 보기 (라이트박스) ---------- */
 let lbList = [], lbIdx = 0;
@@ -2528,7 +2455,7 @@ function renderFoodList(list, region, fromKakao) {
   const sub = document.createElement("p");
   sub.className = "food-osm-sub";
   sub.textContent = fromKakao
-    ? "가까운 순 · 이름을 누르면 사진이 열립니다"
+    ? "가까운 순 · 이름을 누르면 사진·전화·길안내가 열립니다"
     : "가까운 순 (지도 등록 기준) · 이름을 누르면 상세가 열립니다";
   listEl.appendChild(sub);
 
@@ -2555,39 +2482,17 @@ function renderFoodList(list, region, fromKakao) {
           <a class="tmapnavi" href="tmap://route?goalname=${encodeURIComponent(it.name)}&goaly=${it.lat}&goalx=${it.lon}">🚗 T맵</a>
         </div>
       </div>`;
+    /* 사진 자동 수집(이미지 검색)은 다른 식당 사진이 섞이는 것을 기술적으로 막을 수 없어
+       폐기했다(신뢰 원칙: 틀릴 수 있으면 보여주지 않는다).
+       대신 카카오맵의 '그 식당' 페이지로 연결 — 등록된 실제 사진·메뉴가 100% 정확하다. */
     const photos = div.querySelector(".fi-photos");
-    let loaded = false;
-    div.querySelector(".fi-row").addEventListener("click", async () => {
+    div.querySelector(".fi-row").addEventListener("click", () => {
       div.classList.toggle("open");
-      if (!div.classList.contains("open") || loaded || !getKakaoKey()) return;
-      loaded = true;
+      if (!div.classList.contains("open") || !photos.hidden) return;
       photos.hidden = false;
-      photos.innerHTML = '<div class="fi-photo-loading">사진 불러오는 중...</div>';
-      try {
-        const imgs = await fetchFoodImages(it.name, region);
-        if (!imgs.length) {
-          photos.innerHTML = '<div class="fi-photo-loading">등록된 사진이 없습니다</div>';
-          return;
-        }
-        // 죽은 이미지 링크가 흔하므로: 로드 실패한 사진은 목록에서 빼고 다시 그린다
-        const good = imgs.slice();
-        const draw = () => {
-          if (!good.length) {
-            photos.innerHTML = '<div class="fi-photo-loading">등록된 사진이 없습니다</div>';
-            return;
-          }
-          photos.innerHTML = good
-            .map((im, k) => `<img src="${im.t}" data-k="${k}" alt="${it.name}" loading="lazy">`)
-            .join("");
-          photos.querySelectorAll("img").forEach((el) => {
-            el.addEventListener("click", () => openLightbox(good, +el.dataset.k));
-            el.addEventListener("error", () => { good.splice(+el.dataset.k, 1); draw(); });
-          });
-        };
-        draw();
-      } catch {
-        photos.innerHTML = '<div class="fi-photo-loading">사진을 불러오지 못했습니다</div>';
-      }
+      photos.innerHTML = it.url
+        ? `<a class="fi-place-btn" href="${it.url}" target="_blank" rel="noopener">📷 실제 매장 사진·메뉴 보기 <small>카카오맵 등록 사진</small></a>`
+        : "";
     });
     listEl.appendChild(div);
   });
