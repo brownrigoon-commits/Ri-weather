@@ -4,7 +4,7 @@
  * ========================================================= */
 "use strict";
 
-const APP_VER = "v71"; // 배포 버전 (홈 화면 배지에 표시)
+const APP_VER = "v72"; // 배포 버전 (홈 화면 배지에 표시)
 const STORAGE_KEY = "riweather.courses.v1";
 const GEM_KEY = "riweather.gemini"; // 정밀 인식(비전 AI) 개인 키 저장소
 // 기본 제공 키 (무료 한도 공유) — 개인 키를 설정하면 그 키가 우선됩니다
@@ -1647,18 +1647,17 @@ function renderImgCourse(course, db) {
       img.removeAttribute("src");
       img.hidden = true;
     }
-    // 홀 3D 영상 (탭할 때만 로드 — 데이터 절약)
-    const vp = $("#hole-video-player");
+    // 홀 3D 영상 — AI 캐디 아래에 배치, 탭할 때만 로드(데이터 절약)
+    const vp = $("#hole-video-player"), vw = $("#hole-video-wrap");
+    vp.pause?.();
     if (h.video) {
       vp.src = h.video;
-      vp.load();
-      vp.hidden = false;
+      vw.hidden = false;
     } else {
-      vp.pause?.();
       vp.removeAttribute("src");
-      vp.hidden = true;
+      vw.hidden = true;
     }
-    $("#hole-img-src").textContent = (h.video && !h.img ? "홀 영상·코스 데이터 출처: " : "홀맵 출처: ") + db.source;
+    $("#hole-img-src").textContent = "홀맵 출처: " + db.source;
     $("#hole-img-src").hidden = false;
     if (h.green) {
       $("#hole-green-img").src = h.green;

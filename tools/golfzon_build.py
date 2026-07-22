@@ -8,10 +8,13 @@
 이미 등록된 구장(수작업·홈페이지 파싱)은 건드리지 않는다.
 사용: python tools/golfzon_build.py [--limit N] [--write]
 """
-import argparse, glob, json, os, re, sys
+import argparse, glob, json, os, re, shutil, sys
 sys.stdout.reconfigure(encoding="utf-8")
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.join(ROOT, "tools"))
+from crop_map_only import crop_map
 GZ = os.path.join(ROOT, "coursedata", "golfzon")
+YARDAGE = os.path.join(GZ, "yardage")
 VIDEO_BASE = "https://mediathumbnail.golfzon.com/media/cc/hole3d/"
 
 TEE_LABEL = [("champTee", "챔피언"), ("backTee", "백"), ("regularTee", "레귤러"),
@@ -78,7 +81,7 @@ def build_club(f):
             for t in tees:
                 if t["m"] not in seen:
                     seen.add(t["m"]); uniq.append(t)
-            e = {"no": no, "par": par}
+            e = {"no": no, "par": par, "_map": os.path.basename(h.get("mapUrl") or "")}
             if uniq:
                 e["tees"] = uniq
                 e["len"] = uniq[0]["m"]
@@ -136,8 +139,31 @@ def main():
         ascii_part = re.sub(r"[^0-9a-z]", "", norm(club))[:14]
         uniq = format(abs(hash(k)) % 0xFFFFFF, "x")
         slug = "gz" + (ascii_part + "_" if ascii_part else "") + uniq
+
+        # 홀맵 이미지: 야디지맵을 서서울 규격으로 표준화해 배치
+        imgdir = os.path.join(ROOT, "holeimg", slug)
+        if a.write:
+            os.makedirs(imgdir, exist_ok=True)
+        missing_img = 0
+        for ci, c in enumerate(courses):
+            cslug = f"{ci+1}{re.sub(r'[^0-9A-Za-z가-힣]', '', c['name']).lower() or 'c'}"
+            for h in c["holes"]:
+                src = os.path.join(YARDAGE, h.pop("_map", "") or "")
+                if not os.path.exists(src):
+                    missing_img += 1
+                    continue
+                rel = f"holeimg/{slug}/{cslug}{h['no']}.jpg"
+                if a.write:
+                    try:
+                        crop_map(src, os.path.join(ROOT, rel), 0, keep="all")
+                    except Exception:
+                        shutil.copy2(src, os.path.join(ROOT, rel))
+                h["img"] = rel
+        if missing_img:
+            print(f"    ⚠ {dbname}: 홀맵 {missing_img}개 없음")
+
         data = {"course": dbname,
-                "source": "골프존 코스 데이터 (파·거리·고도차) · 홀 영상 제공: 골프존",
+                "source": "골프존 코스 데이터 (홀맵·파·거리·고도차·홀 영상)",
                 "sourceUrl": url or "https://www.golfzon.com/course/main",
                 "courses": courses}
         if a.write:
