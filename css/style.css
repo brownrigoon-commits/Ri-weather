@@ -1118,3 +1118,29 @@ body {
 .dist-denied { font-size: 13px; color: var(--text-dim); line-height: 1.5; margin-bottom: 8px; }
 .dist-denied small { display: block; font-size: 12px; color: var(--text-faint); margin-top: 4px; }
 .dist-denied b { color: var(--text-dim); }
+
+/* ===== 인앱 브라우저(카카오·네이버 등) 안전 보강 ===== */
+
+/* 오버레이 높이 — 인앱 툴바를 감안한 실제 보이는 영역 */
+.consent-back, .sheet-back { height: 100dvh; }
+
+/* 숨김 상태를 셀렉터에도 명시 — 전역 [hidden] 규칙이 어긋나도 오버레이가 새지 않음 */
+.consent-back[hidden], .sheet-back[hidden] { display: none; }
+
+/* 하단 툴바 방어 — 인앱 웹뷰는 safe-area 값을 0으로 주는 경우가 잦다 */
+.consent-actions { padding-bottom: max(34px, calc(env(safe-area-inset-bottom) + 28px)); }
+
+/* 눌렀다는 느낌 주기 — 전역에서 탭 하이라이트를 껐기 때문에 직접 준다.
+   피드백이 없으면 연타 → 더블탭 확대로 오인식되어 실제로 안 눌리는 악순환이 생긴다. */
+.consent-start:active, .consent-later:active, .c-view:active,
+.guide-copy:active, .guide-close:active, .install-btn:active {
+  opacity: 0.72; transform: scale(0.98);
+}
+.consent-list label:active { background: rgba(255,255,255,0.06); border-radius: 10px; }
+
+/* 필수 항목을 빠뜨렸을 때 버튼 바로 위에 알려준다 (스크롤 위쪽 안내는 안 보일 수 있음) */
+.consent-warn {
+  margin-bottom: 10px; padding: 10px 12px; border-radius: 10px;
+  background: rgba(255,107,107,0.18); border: 1px solid rgba(255,107,107,0.5);
+  color: #ffd9d9; font-size: 13px; line-height: 1.5; text-align: center;
+}

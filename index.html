@@ -34,6 +34,42 @@
       Promise.all(jobs).then(done, done);
       setTimeout(done, 2500);   // 혹시 지연되어도 반드시 넘어가도록
     })();
+    // ── 오류 표시기 ──────────────────────────────────────────────
+    // 인앱 브라우저에서는 개발자도구를 볼 수 없어 오류가 '그냥 안 눌림'으로만 보인다.
+    // (2026-07-22 js/legal.js 누락 사고 때 이게 없어 원인 파악이 늦었음)
+    // 평소엔 아무것도 하지 않고, 오류가 났을 때만 화면 위에 빨간 띠로 알려준다.
+    (function () {
+      var box = null;
+      function show(msg) {
+        if (!box) {
+          box = document.createElement("div");
+          box.setAttribute("role", "alert");
+          box.style.cssText =
+            "position:fixed;left:0;right:0;top:0;z-index:99999;background:#c0392b;color:#fff;" +
+            "font:12px/1.5 -apple-system,sans-serif;padding:10px 12px;white-space:pre-wrap;" +
+            "word-break:break-all;max-height:45vh;overflow:auto";
+          box.addEventListener("click", function () { box.remove(); box = null; });
+          (document.body || document.documentElement).appendChild(box);
+        }
+        box.textContent += msg + "\n──── (눌러서 닫기)\n";
+      }
+      window.addEventListener("error", function (e) {
+        if (e.target && e.target.tagName === "SCRIPT")
+          return show("[파일 없음] " + (e.target.src || "?"));
+        show("[오류] " + (e.message || "") + "\n@ " +
+             (e.filename || "").split("/").pop() + ":" + e.lineno);
+      }, true);   // 파일 로드 실패는 버블링되지 않으므로 capture 로 받는다
+      window.addEventListener("unhandledrejection", function (e) {
+        show("[처리안됨] " + ((e.reason && (e.reason.message || e.reason)) || "?"));
+      });
+      // 주소 뒤에 ?diag 를 붙이면 버전·기기 정보를 화면에 표시 (문의 대응용)
+      if (/[?&]diag\b/.test(location.search)) {
+        document.addEventListener("DOMContentLoaded", function () {
+          show("VER=" + (window.APP_VER || "?") + "\nUA=" + navigator.userAgent +
+               "\n설치앱=" + (navigator.standalone === true) + "\n높이=" + window.innerHeight);
+        });
+      }
+    })();
     // 카카오톡 인앱 브라우저로 열리면 기기의 기본 브라우저(Safari/Chrome)로 자동 전환
     (function () {
       if (/KAKAOTALK/i.test(navigator.userAgent)) {

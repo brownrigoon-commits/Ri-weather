@@ -4,8 +4,8 @@
  * ========================================================= */
 "use strict";
 
-const APP_VER = "v88"; // 배포 버전 (홈 화면 배지에 표시)
-const APP_NOTE = "약관 파일 누락 수정"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
+const APP_VER = "v89"; // 배포 버전 (홈 화면 배지에 표시)
+const APP_NOTE = "오류 표시기 추가"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
 const STORAGE_KEY = "riweather.courses.v1";
 const GEM_KEY = "riweather.gemini"; // 정밀 인식(비전 AI) 개인 키 저장소
 // 기본 제공 키 (무료 한도 공유) — 개인 키를 설정하면 그 키가 우선됩니다
@@ -3727,8 +3727,20 @@ $("#doc-sheet").addEventListener("click", (e) => {
 
   $("#c-start").addEventListener("click", () => {
     const b = boxes();
-    // 필수 항목이 빠졌으면 어디를 눌러야 하는지 알려준다
+    // 필수 항목이 빠졌으면 버튼 바로 위에 알려준다.
+    // (화면 위쪽 항목을 강조해도 스크롤 밖이면 안 보이므로 여기에 띄운다)
     if (!b.age.checked || !b.tos.checked) {
+      const miss = [];
+      if (!b.age.checked) miss.push("만 14세 이상 확인");
+      if (!b.tos.checked) miss.push("서비스 이용약관 동의");
+      let warn = $("#c-warn");
+      if (!warn) {
+        warn = document.createElement("div");
+        warn.id = "c-warn";
+        warn.className = "consent-warn";
+        $("#c-start").parentNode.insertBefore(warn, $("#c-start"));
+      }
+      warn.textContent = `필수 항목을 체크해 주세요 — ${miss.join(", ")}`;
       [b.age, b.tos].forEach((x) => {
         if (x.checked) return;
         const li = x.closest("li");
@@ -3739,9 +3751,10 @@ $("#doc-sheet").addEventListener("click", (e) => {
         setTimeout(() => li.classList.remove("c-need"), 1600);
       });
       const first = !b.age.checked ? b.age : b.tos;
-      first.closest("li").scrollIntoView({ block: "center", behavior: "smooth" });
+      try { first.closest("li").scrollIntoView({ block: "center", behavior: "smooth" }); } catch (_) {}
       return;
     }
+    { const w = $("#c-warn"); if (w) w.remove(); }
     CONSENT.save({
       v: LEGAL_VERSION,
       at: new Date().toISOString(),
