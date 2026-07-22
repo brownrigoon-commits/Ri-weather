@@ -4,7 +4,7 @@
  * ========================================================= */
 "use strict";
 
-const APP_VER = "v78"; // 배포 버전 (홈 화면 배지에 표시)
+const APP_VER = "v79"; // 배포 버전 (홈 화면 배지에 표시)
 const STORAGE_KEY = "riweather.courses.v1";
 const GEM_KEY = "riweather.gemini"; // 정밀 인식(비전 AI) 개인 키 저장소
 // 기본 제공 키 (무료 한도 공유) — 개인 키를 설정하면 그 키가 우선됩니다
@@ -570,6 +570,7 @@ function pushView(name) {
   viewStack.push(name);
   showOnly(name);
   history.pushState({ depth: viewStack.length }, "");
+  if (typeof CONSENT_NAG !== "undefined") CONSENT_NAG.bump();   // 약관 미동의 시 주기적 안내
 }
 let lastPopAt = 0;
 window.addEventListener("popstate", () => {
@@ -3524,6 +3525,31 @@ const CONSENT = {
   },
 };
 
+/* 약관 미동의 상태 관리 — '나중에'를 눌러도 사용은 가능하되 주기적으로 다시 안내 */
+const CONSENT_NAG = {
+  KEY: "riweather.consent.nag",
+  EVERY: 5,                       // 화면 이동 5번마다 안내
+  read() {
+    try { return JSON.parse(localStorage.getItem(this.KEY) || "{}"); } catch (_) { return {}; }
+  },
+  write(s) { localStorage.setItem(this.KEY, JSON.stringify(s)); },
+  postponed() { return !!this.read().later; },
+  postpone() { const s = this.read(); s.later = true; s.n = 0; this.write(s); },
+  clear() { localStorage.removeItem(this.KEY); },
+  bump() {
+    if (CONSENT.done() || !this.postponed()) return;
+    const s = this.read();
+    s.n = (s.n || 0) + 1;
+    this.write(s);
+    if (s.n >= this.EVERY) { s.n = 0; this.write(s); this.show(); }
+  },
+  show() {
+    if (CONSENT.done()) return;
+    const sheet = $("#nag-sheet");
+    if (sheet && sheet.hidden && $("#consent-view").hidden) sheet.hidden = false;
+  },
+};
+
 /* 약관 전문 보기 (앱 어디서나 .c-view[data-doc] 클릭) */
 function openDoc(key) {
   const d = LEGAL_DOCS[key];
@@ -3610,12 +3636,27 @@ $("#doc-sheet").addEventListener("click", (e) => {
       mkt: b.mkt.checked,
     });
     view.hidden = true;
+    CONSENT_NAG.clear();                       // 동의 완료 → 더 이상 안내하지 않음
     if (typeof currentCourse !== "undefined" && currentCourse) updateDistCard(currentCourse);
+  });
+
+  // 나중에 하기 — 사용은 계속하되 화면 이동 5번마다 다시 안내
+  $("#c-later").addEventListener("click", () => {
+    view.hidden = true;
+    CONSENT_NAG.postpone();
+  });
+
+  // 미동의 안내 팝업
+  $("#nag-go").addEventListener("click", () => { $("#nag-sheet").hidden = true; open(); });
+  $("#nag-later").addEventListener("click", () => { $("#nag-sheet").hidden = true; });
+  $("#nag-sheet").addEventListener("click", (e) => {
+    if (e.target === $("#nag-sheet")) $("#nag-sheet").hidden = true;
   });
 
   $("#consent-settings").addEventListener("click", () => open());
 
-  if (!CONSENT.done()) open();
+  // 첫 방문이면 동의 화면, '나중에'를 눌렀던 이용자는 사용 중 안내로만
+  if (!CONSENT.done() && !CONSENT_NAG.postponed()) open();
 })();
 
 /* ---------- 홈 화면에 추가 (기기 자동 감지) ----------
