@@ -96,3 +96,17 @@ if FIX and bad:
         shutil.rmtree(d, ignore_errors=True)
         shutil.rmtree(os.path.join(ROOT, "holeimg", slug), ignore_errors=True)
         print("  삭제:", name, slug)
+
+# 같은 구장명이 두 번 등록되면 holeimgdb.js 에서 한쪽이 조용히 덮어써진다 (홀 누락 위험)
+import collections as _c
+_names = _c.Counter()
+for _f in glob.glob(os.path.join(ROOT, "coursedata", "homepages", "*", "parsed.json")):
+    try:
+        _names[json.load(open(_f, encoding="utf-8"))["course"]] += 1
+    except Exception:
+        pass
+_dup = [n for n, k in _names.items() if k > 1]
+if _dup:
+    print("\n[경고] 중복 구장명 — 홀 수가 많은 쪽만 남기세요:", ", ".join(_dup))
+else:
+    print("중복 구장명 없음")
