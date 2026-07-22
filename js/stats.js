@@ -11,9 +11,12 @@
  */
 "use strict";
 
+/* 백엔드(Apps Script) 주소 — 사장님이 배포하면 여기에 넣는다 (docs/백엔드_설치안내.md)
+   비어 있으면 통계 전송·사진 표시 모두 조용히 꺼진 안전 상태. */
+window.RIW_BACKEND = "";
+
 const STATS = (() => {
-  // 사장님이 Apps Script를 배포하면 여기에 웹앱 URL을 넣는다 (docs/관리자통계_설치안내.md 참고)
-  const STATS_URL = "";
+  const STATS_URL = window.RIW_BACKEND;
 
   const CID_KEY = "riweather.cid";
   const QUEUE_KEY = "riweather.statq";

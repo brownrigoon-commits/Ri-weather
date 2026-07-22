@@ -4,8 +4,8 @@
  * ========================================================= */
 "use strict";
 
-const APP_VER = "v95"; // 배포 버전 (홈 화면 배지에 표시)
-const APP_NOTE = "맛집 신뢰 수정"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
+const APP_VER = "v96"; // 배포 버전 (홈 화면 배지에 표시)
+const APP_NOTE = "맛집 실제사진 인앱 표시 준비"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
 const STORAGE_KEY = "riweather.courses.v1";
 const GEM_KEY = "riweather.gemini"; // 정밀 인식(비전 AI) 개인 키 저장소
 // 기본 제공 키 (무료 한도 공유) — 개인 키를 설정하면 그 키가 우선됩니다
@@ -2485,17 +2485,51 @@ function renderFoodList(list, region, fromKakao) {
           <a class="tmapnavi" href="tmap://route?goalname=${encodeURIComponent(it.name)}&goaly=${it.lat}&goalx=${it.lon}">🚗 T맵</a>
         </div>
       </div>`;
-    /* 사진 자동 수집(이미지 검색)은 다른 식당 사진이 섞이는 것을 기술적으로 막을 수 없어
-       폐기했다(신뢰 원칙: 틀릴 수 있으면 보여주지 않는다).
-       대신 카카오맵의 '그 식당' 페이지로 연결 — 등록된 실제 사진·메뉴가 100% 정확하다. */
+    /* 사진 원칙: '그 가게' 사진임이 보장될 때만 앱 안에 표시한다.
+       ① 백엔드가 연결돼 있으면 — 카카오 플레이스(가게 ID 기반) 등록 사진을 가져와 표시.
+          이미지 검색이 아니라 가게 ID 조회라 다른 가게 사진이 섞일 수 없다.
+       ② 백엔드가 없거나 실패하면 — 카카오맵 페이지 버튼으로 대체 (추측 사진 금지). */
     const photos = div.querySelector(".fi-photos");
-    div.querySelector(".fi-row").addEventListener("click", () => {
-      div.classList.toggle("open");
-      if (!div.classList.contains("open") || !photos.hidden) return;
-      photos.hidden = false;
+    const placeBtn = () => {
       photos.innerHTML = it.url
         ? `<a class="fi-place-btn" href="${it.url}" target="_blank" rel="noopener">📷 실제 매장 사진·메뉴 보기 <small>카카오맵 등록 사진</small></a>`
         : "";
+    };
+    let loaded = false;
+    div.querySelector(".fi-row").addEventListener("click", async () => {
+      div.classList.toggle("open");
+      if (!div.classList.contains("open") || loaded) return;
+      loaded = true;
+      photos.hidden = false;
+      const pid = ((it.url || "").match(/\/(\d+)\/?$/) || [])[1];
+      if (!window.RIW_BACKEND || !pid) { placeBtn(); return; }
+      photos.innerHTML = '<div class="fi-photo-loading">사진 불러오는 중...</div>';
+      try {
+        const LS = "riweather.placeph." + pid;
+        let list = null;
+        try {
+          const c = JSON.parse(localStorage.getItem(LS) || "null");
+          if (c && Date.now() - c.t < 7 * 864e5) list = c.d;
+        } catch (_) {}
+        if (!list) {
+          const r = await fetch(window.RIW_BACKEND + "?fn=placephotos&id=" + pid);
+          list = ((await r.json()).photos || []).slice(0, 10);
+          try { localStorage.setItem(LS, JSON.stringify({ t: Date.now(), d: list })); } catch (_) {}
+        }
+        if (!list.length) { placeBtn(); return; }
+        // 카카오 썸네일 서버는 정해진 규격(C176x176.q50)만 허용한다 — 다른 크기는 거부됨
+        const imgs = list.map((u) => ({
+          t: "https://img1.kakaocdn.net/cthumb/local/C176x176.q50/?fname=" + encodeURIComponent(u),
+          u: u,
+        }));
+        photos.innerHTML = imgs
+          .map((im, k) => `<img src="${im.t}" data-k="${k}" alt="${it.name}" loading="lazy">`)
+          .join("");
+        photos.querySelectorAll("img").forEach((el) => {
+          el.addEventListener("click", () => openLightbox(imgs, +el.dataset.k));
+          el.addEventListener("error", () => { el.remove(); if (!photos.querySelector("img")) placeBtn(); });
+        });
+      } catch (_) { placeBtn(); }
     });
     listEl.appendChild(div);
   });
