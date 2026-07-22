@@ -4,7 +4,7 @@
  * ========================================================= */
 "use strict";
 
-const APP_VER = "v79"; // 배포 버전 (홈 화면 배지에 표시)
+const APP_VER = "v80"; // 배포 버전 (홈 화면 배지에 표시)
 const STORAGE_KEY = "riweather.courses.v1";
 const GEM_KEY = "riweather.gemini"; // 정밀 인식(비전 AI) 개인 키 저장소
 // 기본 제공 키 (무료 한도 공유) — 개인 키를 설정하면 그 키가 우선됩니다
@@ -1908,7 +1908,88 @@ async function holeSatelliteDataUrl(h) {
   return cv.toDataURL("image/jpeg", 0.85);
 }
 
+/* 동의받은 연령대·성별을 AI 캐디 공략에 실제로 반영한다 */
+function playerTraits() {
+  const c = CONSENT.get() || {};
+  const p = loadProfile();
+  const bits = [];
+  if (c.age) bits.push(c.age);
+  if (c.gender && c.gender !== "선택 안 함") bits.push(c.gender);
+  if (p.years) bits.push("구력 " + p.years);
+  return bits.length ? ", " + bits.join(" ") : "";
+}
+function playerTraitGuide() {
+  const c = CONSENT.get() || {};
+  const y = (loadProfile().years) || "";
+  let g = "";
+  if (c.gender === "여성")
+    g += "이 플레이어는 여성이므로 레드티(레이디티) 기준 거리로 계산해 조언하고, 남성 기준 비거리를 전제하지 마세요. ";
+  if (c.age === "60대 이상")
+    g += "연령대를 고려해 오르막·장타가 필요한 상황에서는 무리한 공략보다 안전한 레이업과 체력 안배를 우선 권하세요. ";
+  else if (c.age === "50대")
+    g += "무리한 장타보다 정확도를 살린 공략을 우선 제시하세요. ";
+  // 구력 = 실력 수준. 조언의 난이도와 공격성을 여기에 맞춘다.
+  if (y.startsWith("1년 미만"))
+    g += "골프를 시작한 지 얼마 안 된 입문자입니다. 어려운 용어를 쓰지 말고 쉬운 말로 설명하며, " +
+         "OB·해저드 같은 벌타를 피하는 것을 최우선으로 하는 가장 안전한 공략만 권하세요. 핀 공략은 권하지 마세요. ";
+  else if (y === "1~3년")
+    g += "초급자입니다. 페어웨이를 지키는 안전한 공략 위주로, 실수했을 때의 대처까지 한 줄 덧붙이세요. ";
+  else if (y === "3~5년" || y === "5~10년")
+    g += "중급자입니다. 코스 매니지먼트 관점에서 공략 지점과 클럽 선택 근거를 함께 제시하세요. ";
+  else if (y === "10년 이상")
+    g += "구력이 오래된 상급자입니다. 핀 위치별 공략, 탄도·스핀, 그린 공략각 등 세밀한 조언까지 제시해도 좋습니다. ";
+  return g;
+}
+
+/* AI 캐디 실행 전 — 맞춤 공략에 필요한 연령대·성별을 한 번만 물어본다.
+   알려주지 않아도 공략은 그대로 제공(선택 항목 강제 금지).                */
+const AI_PROFILE = {
+  ASKED: "riweather.aiprofile.asked",
+  AGES: ["10대", "20대", "30대", "40대", "50대", "60대 이상"],
+  GENDERS: ["남성", "여성", "선택 안 함"],
+  need() {
+    const c = CONSENT.get() || {};
+    return !c.age && !c.gender && !localStorage.getItem(this.ASKED);
+  },
+  ask(then) {
+    localStorage.setItem(this.ASKED, "1");
+    let a = null, g = null;
+    const draw = (host, items, get, set) => {
+      host.innerHTML = "";
+      items.forEach((t) => {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.className = "pi-chip" + (get() === t ? " on" : "");
+        b.textContent = t;
+        b.addEventListener("click", () => { set(get() === t ? null : t); draw(host, items, get, set); });
+        host.appendChild(b);
+      });
+    };
+    draw($("#ai-age"), this.AGES, () => a, (v) => { a = v; });
+    draw($("#ai-gender"), this.GENDERS, () => g, (v) => { g = v; });
+    const sheet = $("#ai-profile-sheet");
+    sheet.hidden = false;
+    const close = () => { sheet.hidden = true; };
+    $("#ai-profile-ok").onclick = () => {
+      const c = CONSENT.get() || { v: LEGAL_VERSION, at: new Date().toISOString(), age14: true, tos: true };
+      if (a) c.age = a;
+      if (g) c.gender = g;
+      if (a || g) { c.profile = true; c.profileAt = new Date().toISOString(); }
+      CONSENT.save(c);
+      close(); then();
+    };
+    $("#ai-profile-skip").onclick = () => { close(); then(); };
+    sheet.onclick = (e) => { if (e.target === sheet) { close(); then(); } };
+  },
+};
+
 async function aiCaddie() {
+  if (!aiHoleCtx) return;
+  if (AI_PROFILE.need()) { AI_PROFILE.ask(() => runAiCaddie()); return; }
+  return runAiCaddie();
+}
+
+async function runAiCaddie() {
   if (!aiHoleCtx) return;
   const btn = $("#ai-strategy-btn"), out = $("#ai-strategy");
   btn.disabled = true; btn.textContent = "🤖 AI 캐디가 홀을 분석 중... (3~8초)";
@@ -1948,7 +2029,8 @@ async function aiCaddie() {
          hh.tees ? `티별 거리: ${hh.tees.map((t) => t.name + " " + t.m + "m").join(", ")}. ` :
          hh.len ? `전장 ${hh.len}m${hh.hdcp ? ", 핸디캡 " + hh.hdcp : ""}. ` : "") +
         (hh.tip ? `골프장 공식 공략 TIP: "${hh.tip}" ` : "") +
-        `플레이어: 구질 ${prof2.shape || "스트레이트"}, 드라이버 평균 ${prof2.dist || 200}m. ` +
+        `플레이어: 구질 ${prof2.shape || "스트레이트"}, 드라이버 평균 ${prof2.dist || 200}m${playerTraits()}. ` +
+        playerTraitGuide() +
         `가장 중요한 것은 구질 맞춤입니다 — 이 플레이어의 구질(${prof2.shape || "스트레이트"})이 이 홀에서 유리한지 불리한지 판단하고, ` +
         `구질을 감안한 구체적인 조준점(예: 슬라이스면 좌측 OO를 보고)과 위험 구역 회피법을 반드시 포함하세요. ` +
         `주어진 정보만 근거로 ①티샷(구질 맞춤 조준점·클럽) ②세컨샷 ③그린 주변 순서로 4~6문장, 친근한 존댓말로 조언하세요. ` +
@@ -1969,7 +2051,7 @@ async function aiCaddie() {
 
   const { h, bunkers, waters, courseName } = aiHoleCtx;
   const prof = loadProfile();
-  const facts = `${courseName} ${h.ref}번홀, 파${h.par}, 길이 약 ${h.len}m, 홀 주변 벙커 ${bunkers.length}개·워터해저드 ${waters.length}곳. 플레이어: 구질 ${prof.shape || "스트레이트"}, 드라이버 평균 ${prof.dist || 200}m.`;
+  const facts = `${courseName} ${h.ref}번홀, 파${h.par}, 길이 약 ${h.len}m, 홀 주변 벙커 ${bunkers.length}개·워터해저드 ${waters.length}곳. 플레이어: 구질 ${prof.shape || "스트레이트"}, 드라이버 평균 ${prof.dist || 200}m${playerTraits()}. ${playerTraitGuide()}`;
   const basePrompt =
     `당신은 투어 경력의 친절한 한국인 캐디입니다. ${facts}\n` +
     `첨부된 위성사진이 이 홀입니다 (흰 점선=홀 진행선, 노란 점=티잉구역, 빨간 점=그린).\n` +
@@ -2031,17 +2113,23 @@ $("#ai-strategy-btn").addEventListener("click", aiCaddie);
   });
 })();
 
-/* 내 플레이 정보 (구질·비거리) 초기화·저장 */
+/* 내 플레이 정보 (구질·비거리·구력) 초기화·저장 */
 (function initProfile() {
   const p = loadProfile();
   if (p.shape) $("#pf-shape").value = p.shape;
   if (p.dist) $("#pf-dist").value = p.dist;
+  if (p.years) $("#pf-years").value = p.years;
   const save = () => {
-    saveProfile({ shape: $("#pf-shape").value, dist: parseInt($("#pf-dist").value) || null });
+    saveProfile({
+      shape: $("#pf-shape").value,
+      dist: parseInt($("#pf-dist").value) || null,
+      years: $("#pf-years").value || null,
+    });
     if (lastHoleSelect) lastHoleSelect(); // 열려 있는 홀 공략 즉시 재계산
   };
   $("#pf-shape").addEventListener("change", save);
   $("#pf-dist").addEventListener("change", save);
+  $("#pf-years").addEventListener("change", save);
 })();
 
 /* =========================================================
