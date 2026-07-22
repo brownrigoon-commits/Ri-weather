@@ -62,9 +62,11 @@ def git(*args, check=True):
     return r
 
 def stage():
+    # 폴더 통째로 담는다 — 파일을 하나씩 나열하면 새로 만든 파일이 누락되어
+    # 앱이 깨진 채 배포된다(실제로 js/legal.js 누락 사고 발생).
     git("add", "holeimg", "coursedata/homepages", "coursedata/workfiles",
-        "tools", "js/holeimgdb.js", "js/golfdb.js", "js/holesdb.js",
-        "js/app.js", "sw.js", "index.html", "css/style.css", ".sync", check=False)
+        "tools", "js", "css", "icons", "sw.js", "index.html",
+        "manifest.webmanifest", ".nojekyll", ".gitignore", ".sync", check=False)
 
 def bump():
     """항상 '현재 파일에 적힌 버전 +1' — 최신화 직후 호출해야 유일한 버전이 됨.
@@ -99,7 +101,18 @@ for attempt in range(1, 4):
     p = git("push", "origin", "main", check=False)
     if p.returncode == 0:
         print(f"버전: v{old} → v{new}")
-        print(f"배포 완료: v{new} → GitHub Pages 반영까지 1~2분")
+        # 앱이 실제로 불러오는 파일이 저장소에 다 있는지 확인 (누락 배포 방지)
+        need = re.findall(r'src="(js/[^"]+\.js)"', open(
+            os.path.join(ROOT, "index.html"), encoding="utf-8").read())
+        need += ["css/style.css", "sw.js", "index.html"]
+        tracked = set(git("ls-files").stdout.split())
+        missing = [f for f in need if f.split("?")[0] not in tracked]
+        if missing:
+            print("✖ 저장소에 없는 파일이 있습니다 — 앱이 깨집니다:", ", ".join(missing))
+            print("  git add 로 추가한 뒤 다시 배포하세요.")
+            sys.exit(1)
+        print(f"필수 파일 {len(need)}개 모두 저장소에 있음")
+        print(f"배포 요청 완료: v{new} → 1~2분 뒤 tools/verify_deploy.py 로 확인하세요")
         break
     print(f"· 상대 PC가 방금 배포함 → 다시 합치는 중 ({attempt}/3)")
     time.sleep(2)
