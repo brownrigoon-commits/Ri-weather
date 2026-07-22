@@ -6,12 +6,24 @@
   - 배포된 APP_VER 가 로컬과 같은지
 사용: python tools/verify_deploy.py [--wait]
 """
-import json, os, re, subprocess, sys, time, urllib.request
+import json, os, re, shutil, subprocess, sys, time, urllib.request
 
 sys.stdout.reconfigure(encoding="utf-8")
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BASE = "https://brownrigoon-commits.github.io/Ri-weather"
-GH = r"C:\Program Files\GitHub CLI\gh.exe"
+
+
+def find_gh():
+    """gh CLI 위치. 집 PC에는 설치돼 있지 않을 수 있다."""
+    for p in (r"C:\Program Files\GitHub CLI\gh.exe",
+              r"C:\Program Files (x86)\GitHub CLI\gh.exe",
+              os.path.expandvars(r"%LOCALAPPDATA%\GitHubCLI\gh.exe")):
+        if os.path.exists(p):
+            return p
+    return shutil.which("gh")
+
+
+GH = find_gh()
 
 
 def local_version():
@@ -34,6 +46,8 @@ def fetch(path):
 
 
 def build_status():
+    if not GH:
+        return "no-gh", "gh CLI 없음 — 빌드상태 확인 생략(HTTP 검사로 판정)"
     try:
         out = subprocess.run([GH, "api", "repos/brownrigoon-commits/Ri-weather/pages/builds/latest"],
                              capture_output=True, text=True, encoding="utf-8", timeout=30).stdout
@@ -46,9 +60,16 @@ def build_status():
 def check():
     want = local_version()
     st, err = build_status()
-    problems = []
-    if st != "built":
+    problems, warnings = [], []
+    if st == "no-gh":
+        # gh 가 없어도 '버전이 갱신됐는지' 검사가 빌드 실패를 잡아낸다(빌드 실패 시 옛 버전이 계속 서빙됨)
+        warnings.append(err)
+    elif st != "built":
         problems.append(f"Pages 빌드 상태: {st} {err}")
+
+    # .nojekyll 이 없으면 Pages 빌드가 조용히 실패한다 (7/22 사고 원인)
+    if not os.path.exists(os.path.join(ROOT, ".nojekyll")):
+        problems.append(".nojekyll 이 없습니다 — Pages 빌드가 실패합니다")
 
     for f in needed_files():
         try:
@@ -72,15 +93,17 @@ def check():
         problems.append(f"app.js 확인 실패: {str(e)[:40]}")
         live = "?"
 
-    return problems, want, live
+    return problems, want, live, warnings
 
 
 def main():
     wait = "--wait" in sys.argv
     tries = 20 if wait else 1
     for i in range(tries):
-        problems, want, live = check()
+        problems, want, live, warnings = check()
         if not problems:
+            for w in warnings:
+                print("  ※", w)
             print(f"✅ 배포 확인 완료 — 사용자가 받는 버전 {live}, 필수 파일 모두 정상")
             return 0
         if i < tries - 1:

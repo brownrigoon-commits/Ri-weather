@@ -4,8 +4,8 @@
  * ========================================================= */
 "use strict";
 
-const APP_VER = "v89"; // 배포 버전 (홈 화면 배지에 표시)
-const APP_NOTE = "오류 표시기 추가"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
+const APP_VER = "v90"; // 배포 버전 (홈 화면 배지에 표시)
+const APP_NOTE = "홈 화면 앱 약관 재출현 수정"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
 const STORAGE_KEY = "riweather.courses.v1";
 const GEM_KEY = "riweather.gemini"; // 정밀 인식(비전 AI) 개인 키 저장소
 // 기본 제공 키 (무료 한도 공유) — 개인 키를 설정하면 그 키가 우선됩니다
@@ -636,6 +636,7 @@ $("#btn-back").addEventListener("click", goBack);
 /* ---------- 허브 (4개 메뉴) ---------- */
 function openHub(course) {
   currentCourse = course;
+  if (typeof STATS !== "undefined") STATS.hit("course", course.name);   // 좌표는 절대 보내지 않음
   $("#hub-name").textContent = course.name;
   $("#hub-title-mini").textContent = course.name;
   $("#hub-addr").textContent = course.addr || "";
@@ -666,6 +667,7 @@ function openHub(course) {
 document.querySelectorAll(".hub-item").forEach((btn) => {
   btn.addEventListener("click", () => {
     const m = btn.dataset.menu;
+    if (typeof STATS !== "undefined") STATS.hit("feature", m);
     if (m === "weather") openDetail(currentCourse);
     else if (m === "course") openCourseView();
     else if (m === "food") openFoodView();
@@ -1490,6 +1492,7 @@ function clearCourseLayers() {
 async function openCourseView() {
   const course = currentCourse;
   pushView("course");
+  refreshProfileCard();   // 연령·성별·구력 중 미입력 항목만 노출
   $("#course-title").textContent = course.name;
   $("#course-status").textContent = "코스 데이터 불러오는 중...";
   $("#hole-list-card").hidden = true;
@@ -1986,6 +1989,7 @@ const AI_PROFILE = {
 
 async function aiCaddie() {
   if (!aiHoleCtx) return;
+  if (typeof STATS !== "undefined") STATS.hit("feature", "ai");
   if (AI_PROFILE.need()) { AI_PROFILE.ask(() => runAiCaddie()); return; }
   return runAiCaddie();
 }
@@ -2132,6 +2136,45 @@ $("#ai-strategy-btn").addEventListener("click", aiCaddie);
   $("#pf-dist").addEventListener("change", save);
   $("#pf-years").addEventListener("change", save);
 })();
+
+/* 코스 공략의 연령대·성별 입력 — 약관에서 이미 입력한 항목은 보이지 않는다.
+   (약관에서 안 넣고 들어온 이용자도 여기서 넣을 수 있게 — 사장님 요청)     */
+function refreshProfileCard() {
+  const c = CONSENT.get() || {};
+  const p = loadProfile();
+  // 이미 입력된 항목은 숨김
+  const yearsRow = $("#pf-years-row");
+  if (yearsRow) yearsRow.hidden = !!p.years;
+  const ageRow = $("#pfc-age-row"), genRow = $("#pfc-gender-row");
+  if (!ageRow || !genRow) return;
+  ageRow.hidden = !!c.age;
+  genRow.hidden = !!c.gender;
+  const drawChips = (host, items, get, set) => {
+    host.innerHTML = "";
+    items.forEach((t) => {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "pi-chip" + (get() === t ? " on" : "");
+      b.textContent = t;
+      b.addEventListener("click", () => {
+        set(get() === t ? null : t);
+        drawChips(host, items, get, set);
+        if (lastHoleSelect) lastHoleSelect();   // 공략 문구 즉시 반영
+      });
+      host.appendChild(b);
+    });
+  };
+  const saveField = (k, v) => {
+    const cc = CONSENT.get() || { v: LEGAL_VERSION, at: new Date().toISOString(), age14: true, tos: true };
+    cc[k] = v;
+    if (v) { cc.profile = true; cc.profileAt = new Date().toISOString(); }
+    CONSENT.save(cc);
+  };
+  if (!ageRow.hidden)
+    drawChips($("#pfc-age"), AI_PROFILE.AGES, () => (CONSENT.get() || {}).age || null, (v) => saveField("age", v));
+  if (!genRow.hidden)
+    drawChips($("#pfc-gender"), AI_PROFILE.GENDERS, () => (CONSENT.get() || {}).gender || null, (v) => saveField("gender", v));
+}
 
 /* =========================================================
  * 주변맛집 — OSM 식당 + 카카오/네이버 연결
@@ -3596,7 +3639,8 @@ const CONSENT = {
     try { return JSON.parse(localStorage.getItem(this.KEY) || "null"); } catch (_) { return null; }
   },
   save(d) {
-    localStorage.setItem(this.KEY, JSON.stringify(d));
+    // 저장이 실패하면(사파리 시크릿 모드 등) 매번 약관이 다시 나온다 — 조용히 넘기지 않고 방어
+    try { localStorage.setItem(this.KEY, JSON.stringify(d)); } catch (e) { console.warn("동의 저장 실패", e); }
   },
   done() {
     const c = this.get();
@@ -3672,7 +3716,8 @@ $("#doc-sheet").addEventListener("click", (e) => {
   const view = $("#consent-view");
   const AGES = ["10대", "20대", "30대", "40대", "50대", "60대 이상"];
   const GENDERS = ["남성", "여성", "선택 안 함"];
-  let pickedAge = null, pickedGender = null;
+  const YEARS = ["1년 미만 (입문)", "1~3년", "3~5년", "5~10년", "10년 이상"];
+  let pickedAge = null, pickedGender = null, pickedYears = null;
 
   const chips = (host, items, get, set) => {
     host.innerHTML = "";
@@ -3710,8 +3755,17 @@ $("#doc-sheet").addEventListener("click", (e) => {
     b.age.checked = !!c.age14; b.tos.checked = !!c.tos;
     b.loc.checked = !!c.loc; b.profile.checked = !!c.profile; b.mkt.checked = !!c.mkt;
     pickedAge = c.age || null; pickedGender = c.gender || null;
+    pickedYears = (typeof loadProfile === "function" && loadProfile().years) || null;
     chips($("#pi-age"), AGES, () => pickedAge, (v) => { pickedAge = v; });
     chips($("#pi-gender"), GENDERS, () => pickedGender, (v) => { pickedGender = v; });
+    chips($("#pi-years"), YEARS, () => pickedYears, (v) => { pickedYears = v; });
+    // 홈 화면 앱은 브라우저와 저장 공간이 분리(iOS 정책) — 왜 다시 묻는지 설명해 오해를 막는다
+    const sn = $("#consent-standalone-note");
+    if (sn) {
+      const standalone = (window.matchMedia && matchMedia("(display-mode: standalone)").matches) ||
+                         window.navigator.standalone === true;
+      sn.hidden = !(standalone && !CONSENT.get());
+    }
     sync();
     view.hidden = false;
     view.scrollTop = 0;
@@ -3766,6 +3820,11 @@ $("#doc-sheet").addEventListener("click", (e) => {
       gender: b.profile.checked ? pickedGender : null,
       mkt: b.mkt.checked,
     });
+    // 구력은 동의 항목이 아닌 플레이 정보 — 프로필에 저장해 코스 공략·AI 캐디가 사용
+    if (b.profile.checked && pickedYears && typeof saveProfile === "function") {
+      saveProfile(Object.assign(loadProfile(), { years: pickedYears }));
+      const sel = $("#pf-years"); if (sel) sel.value = pickedYears;
+    }
     view.hidden = true;
     CONSENT_NAG.clear();                       // 동의 완료 → 더 이상 안내하지 않음
     if (typeof currentCourse !== "undefined" && currentCourse) updateDistCard(currentCourse);
