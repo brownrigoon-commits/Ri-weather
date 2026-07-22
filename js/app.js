@@ -4,7 +4,7 @@
  * ========================================================= */
 "use strict";
 
-const APP_VER = "v77"; // 배포 버전 (홈 화면 배지에 표시)
+const APP_VER = "v78"; // 배포 버전 (홈 화면 배지에 표시)
 const STORAGE_KEY = "riweather.courses.v1";
 const GEM_KEY = "riweather.gemini"; // 정밀 인식(비전 AI) 개인 키 저장소
 // 기본 제공 키 (무료 한도 공유) — 개인 키를 설정하면 그 키가 우선됩니다
@@ -734,24 +734,53 @@ function updateDistCard(course) {
         if (currentCourse === course) renderDist(course, el);
       },
       () => {
-        el.innerHTML = '<button class="dist-btn">📍 위치 권한이 꺼져 있어요 — 다시 시도</button>';
+        el.innerHTML =
+          '<div class="dist-denied">📍 위치를 가져오지 못했습니다.' +
+          '<small>휴대폰 설정에서 브라우저의 위치 권한을 <b>허용</b>으로 바꾼 뒤 다시 시도해 주세요.</small></div>' +
+          '<button class="dist-btn">다시 시도</button>';
         el.querySelector(".dist-btn").addEventListener("click", ask);
       },
       { timeout: 9000, maximumAge: 300000 }
     );
   };
   if (!("geolocation" in navigator)) { el.innerHTML = ""; return; }
+
+  // 위치 이용에 동의했으면 버튼 없이 바로 표시
+  if (CONSENT.allowsLocation()) { ask(); return; }
+
+  const showButton = () => {
+    el.innerHTML = '<button class="dist-btn">📍 내 위치에서 거리·이동시간 보기</button>';
+    el.querySelector(".dist-btn").addEventListener("click", () => {
+      requestLocationConsent(() => { if (currentCourse === course) ask(); });
+    });
+  };
   if (navigator.permissions?.query) {
     navigator.permissions.query({ name: "geolocation" })
       .then((p) => {
-        if (p.state === "granted") ask();
-        else {
-          el.innerHTML = '<button class="dist-btn">📍 내 위치에서 거리·이동시간 보기</button>';
-          el.querySelector(".dist-btn").addEventListener("click", ask);
-        }
+        // 이미 브라우저에서 위치를 허용한 이용자는 동의한 것으로 보고 그대로 이용
+        if (p.state === "granted") { CONSENT.setLocation(true); ask(); }
+        else showButton();
       })
-      .catch(ask);
-  } else { ask(); }
+      .catch(showButton);
+  } else { showButton(); }
+}
+
+/* 위치 이용 동의를 받은 뒤 실행 */
+function requestLocationConsent(after) {
+  openDoc("loc");
+  const body = $("#doc-body");
+  const wrap = document.createElement("div");
+  wrap.style.marginTop = "14px";
+  const ok = document.createElement("button");
+  ok.className = "consent-start";
+  ok.textContent = "동의하고 거리 보기";
+  ok.addEventListener("click", () => {
+    CONSENT.setLocation(true);
+    $("#doc-sheet").hidden = true;
+    after();
+  });
+  wrap.appendChild(ok);
+  body.appendChild(wrap);
 }
 
 async function renderDist(course, el) {
@@ -3467,6 +3496,127 @@ function renderScores() {
     el.appendChild(div);
   });
 }
+
+/* ---------- 이용 동의 ----------
+   개인정보보호법: 선택 항목 미동의해도 전체 기능 이용 가능해야 함(제16조제3항).
+   위치정보: 기기 내에서만 계산하고 서버로 보내지 않음.                    */
+const CONSENT = {
+  KEY: "riweather.consent",
+  get() {
+    try { return JSON.parse(localStorage.getItem(this.KEY) || "null"); } catch (_) { return null; }
+  },
+  save(d) {
+    localStorage.setItem(this.KEY, JSON.stringify(d));
+  },
+  done() {
+    const c = this.get();
+    return !!(c && c.v === LEGAL_VERSION && c.tos && c.age14);
+  },
+  allowsLocation() {
+    const c = this.get();
+    return !!(c && c.loc);
+  },
+  setLocation(on) {
+    const c = this.get() || { v: LEGAL_VERSION, at: new Date().toISOString(), age14: true, tos: true };
+    c.loc = !!on;
+    c.locAt = new Date().toISOString();
+    this.save(c);
+  },
+};
+
+/* 약관 전문 보기 (앱 어디서나 .c-view[data-doc] 클릭) */
+function openDoc(key) {
+  const d = LEGAL_DOCS[key];
+  if (!d) return;
+  $("#doc-title").textContent = d.title;
+  $("#doc-body").innerHTML = d.body;
+  $("#doc-body").scrollTop = 0;
+  $("#doc-sheet").hidden = false;
+}
+document.addEventListener("click", (e) => {
+  const b = e.target.closest(".c-view[data-doc]");
+  if (b) { e.preventDefault(); openDoc(b.dataset.doc); }
+});
+$("#doc-close").addEventListener("click", () => { $("#doc-sheet").hidden = true; });
+$("#doc-sheet").addEventListener("click", (e) => {
+  if (e.target === $("#doc-sheet")) $("#doc-sheet").hidden = true;
+});
+
+(function () {
+  const view = $("#consent-view");
+  const AGES = ["10대", "20대", "30대", "40대", "50대", "60대 이상"];
+  const GENDERS = ["남성", "여성", "선택 안 함"];
+  let pickedAge = null, pickedGender = null;
+
+  const chips = (host, items, get, set) => {
+    host.innerHTML = "";
+    items.forEach((t) => {
+      const b = document.createElement("button");
+      b.className = "pi-chip" + (get() === t ? " on" : "");
+      b.type = "button";
+      b.textContent = t;
+      b.addEventListener("click", () => {
+        set(get() === t ? null : t);
+        chips(host, items, get, set);
+      });
+      host.appendChild(b);
+    });
+  };
+
+  const boxes = () => ({
+    all: $("#c-all"), age: $("#c-age"), tos: $("#c-tos"),
+    loc: $("#c-loc"), profile: $("#c-profile"), mkt: $("#c-mkt"),
+  });
+
+  function sync() {
+    const b = boxes();
+    $("#c-start").disabled = !(b.age.checked && b.tos.checked);
+    $("#profile-input").hidden = !b.profile.checked;
+    b.all.checked = b.age.checked && b.tos.checked && b.loc.checked && b.profile.checked && b.mkt.checked;
+  }
+
+  function open(prefill) {
+    const b = boxes();
+    const c = prefill || CONSENT.get() || {};
+    b.age.checked = !!c.age14; b.tos.checked = !!c.tos;
+    b.loc.checked = !!c.loc; b.profile.checked = !!c.profile; b.mkt.checked = !!c.mkt;
+    pickedAge = c.age || null; pickedGender = c.gender || null;
+    chips($("#pi-age"), AGES, () => pickedAge, (v) => { pickedAge = v; });
+    chips($("#pi-gender"), GENDERS, () => pickedGender, (v) => { pickedGender = v; });
+    sync();
+    view.hidden = false;
+    view.scrollTop = 0;
+  }
+
+  $("#c-all").addEventListener("change", (e) => {
+    const on = e.target.checked;
+    ["#c-age", "#c-tos", "#c-loc", "#c-profile", "#c-mkt"].forEach((s) => { $(s).checked = on; });
+    sync();
+  });
+  ["#c-age", "#c-tos", "#c-loc", "#c-profile", "#c-mkt"].forEach((s) =>
+    $(s).addEventListener("change", sync));
+
+  $("#c-start").addEventListener("click", () => {
+    const b = boxes();
+    CONSENT.save({
+      v: LEGAL_VERSION,
+      at: new Date().toISOString(),
+      age14: b.age.checked,
+      tos: b.tos.checked,
+      loc: b.loc.checked,
+      profile: b.profile.checked,
+      age: b.profile.checked ? pickedAge : null,
+      gender: b.profile.checked ? pickedGender : null,
+      mkt: b.mkt.checked,
+    });
+    view.hidden = true;
+    if (typeof currentCourse !== "undefined" && currentCourse) updateDistCard(currentCourse);
+  });
+
+  $("#consent-settings").addEventListener("click", () => open());
+
+  if (!CONSENT.done()) open();
+})();
 
 /* ---------- 홈 화면에 추가 (기기 자동 감지) ----------
    · 안드로이드/PC 크롬 계열 : 버튼 한 번으로 바로 설치

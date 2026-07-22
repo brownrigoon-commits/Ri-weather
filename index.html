@@ -79,6 +79,12 @@
         <div class="howto-tip">골프장을 선택하면 시간별 날씨와 모레까지의<br>비구름 이동 지도를 볼 수 있어요.</div>
       </div>
     </div>
+
+    <div class="home-foot">
+      <button class="c-view" data-doc="tos">이용약관</button><span>·</span>
+      <button class="c-view" data-doc="privacy">개인정보 처리방침</button><span>·</span>
+      <button id="consent-settings" class="c-view">동의 설정</button>
+    </div>
   </main>
 
   <!-- ================= 상세 화면 ================= -->
@@ -398,6 +404,65 @@
   </button>
   <div id="app-share-toast" class="app-share-toast" hidden>링크가 복사되었습니다 — 카톡 등에 붙여넣어 공유하세요!</div>
 
+  <!-- ================= 최초 진입 동의 화면 ================= -->
+  <div id="consent-view" class="consent-back" hidden>
+    <div class="consent-box">
+      <div class="consent-head">
+        <div class="consent-logo">⛳️</div>
+        <h2>골프장 날씨</h2>
+        <p>서비스 이용 전 아래 내용을 확인해 주세요.</p>
+      </div>
+
+      <label class="consent-all">
+        <input type="checkbox" id="c-all">
+        <span><b>전체 동의하기</b><small>선택 항목까지 모두 포함합니다</small></span>
+      </label>
+
+      <ul class="consent-list">
+        <li>
+          <label><input type="checkbox" id="c-age"><span><b class="req">필수</b> 만 14세 이상입니다</span></label>
+        </li>
+        <li>
+          <label><input type="checkbox" id="c-tos"><span><b class="req">필수</b> 서비스 이용약관 동의</span></label>
+          <button class="c-view" data-doc="tos">보기</button>
+        </li>
+        <li>
+          <label><input type="checkbox" id="c-loc"><span><b class="opt">선택</b> 위치정보 이용 동의</span></label>
+          <button class="c-view" data-doc="loc">보기</button>
+        </li>
+        <li class="c-sub" id="c-loc-why">동의하시면 <b>내 위치에서 골프장까지 거리·이동시간</b>이 자동으로 표시됩니다. 위치는 <b>휴대폰 안에서만</b> 계산되고 서버로 전송되지 않습니다.</li>
+        <li>
+          <label><input type="checkbox" id="c-profile"><span><b class="opt">선택</b> 연령대·성별 제공</span></label>
+          <button class="c-view" data-doc="profile">보기</button>
+        </li>
+        <li id="profile-input" class="profile-input" hidden>
+          <div class="pi-row"><span class="pi-label">연령대</span><div class="pi-chips" id="pi-age"></div></div>
+          <div class="pi-row"><span class="pi-label">성별</span><div class="pi-chips" id="pi-gender"></div></div>
+        </li>
+        <li>
+          <label><input type="checkbox" id="c-mkt"><span><b class="opt">선택</b> 새 기능·소식 안내 받기</span></label>
+        </li>
+      </ul>
+
+      <p class="consent-note">선택 항목에 동의하지 않아도 <b>모든 기능을 그대로</b> 이용하실 수 있습니다.</p>
+
+      <button id="c-start" class="consent-start" disabled>시작하기</button>
+      <div class="consent-links">
+        <button class="c-view" data-doc="privacy">개인정보 처리방침</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 약관 전문 시트 -->
+  <div id="doc-sheet" class="sheet-back" hidden>
+    <div class="sheet doc-sheet">
+      <div class="sheet-bar"></div>
+      <div class="sheet-title" id="doc-title"></div>
+      <div class="doc-body" id="doc-body"></div>
+      <button class="guide-close" id="doc-close">닫기</button>
+    </div>
+  </div>
+
   <!-- 홈 화면 추가 안내 시트 (아이폰 / 인앱 브라우저용) -->
   <div id="guide-sheet" class="sheet-back" hidden>
     <div class="sheet">
@@ -411,6 +476,7 @@
   </div>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="js/legal.js"></script>
   <script src="js/golfdb.js"></script>
   <script src="js/holesdb.js"></script>
   <script src="js/holeimgdb.js"></script>
