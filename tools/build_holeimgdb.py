@@ -40,6 +40,8 @@ with open(OUT, "w", encoding="utf-8", newline="\n") as w:
                     parts.append(f'img: {js_str(h["img"])}')
                 if h.get("video"):
                     parts.append(f'video: {js_str(h["video"])}')
+                if h.get("frames"):
+                    parts.append("frames: [" + ", ".join(js_str(x) for x in h["frames"]) + "]")
                 if h.get("elev"):
                     parts.append(f'elev: {h["elev"]}')
                 if h.get("tip"):

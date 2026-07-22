@@ -4,7 +4,7 @@
  * ========================================================= */
 "use strict";
 
-const APP_VER = "v74"; // 배포 버전 (홈 화면 배지에 표시)
+const APP_VER = "v75"; // 배포 버전 (홈 화면 배지에 표시)
 const STORAGE_KEY = "riweather.courses.v1";
 const GEM_KEY = "riweather.gemini"; // 정밀 인식(비전 AI) 개인 키 저장소
 // 기본 제공 키 (무료 한도 공유) — 개인 키를 설정하면 그 키가 우선됩니다
@@ -1879,11 +1879,27 @@ async function aiCaddie() {
     try {
       const hasImg = !!hh.img;
       const data = hasImg ? await imgToB64($("#hole-img")) : null;
+      // 홀 3D 영상에서 뽑아둔 실제 코스 장면 (티→중간→그린)
+      const frameData = [];
+      for (const src of (hh.frames || [])) {
+        try {
+          const b = await fetch(src).then((r) => r.blob());
+          frameData.push(await new Promise((res, rej) => {
+            const fr = new FileReader();
+            fr.onload = () => res(String(fr.result).split(",")[1]);
+            fr.onerror = rej;
+            fr.readAsDataURL(b);
+          }));
+        } catch { /* 프레임 없으면 건너뜀 */ }
+      }
       const elevTxt = hh.elev
         ? `티에서 그린까지 ${hh.elev > 0 ? "오르막 " + hh.elev : "내리막 " + Math.abs(hh.elev)}m. ` : "";
+      const frameTxt = frameData.length
+        ? `이어지는 ${frameData.length}장은 이 홀의 실제 3D 코스 영상에서 뽑은 장면입니다(티잉구역 → 페어웨이 중간 → 그린 접근 순서). 페어웨이 폭·굴곡, 나무·러프 경계, 해저드, 그린 주변 지형을 이 장면들에서 직접 확인하고 조언에 반영하세요. `
+        : "";
       const prompt = hasImg ?
-        `당신은 투어 경력의 친절한 한국인 캐디입니다. 첨부 이미지는 ${aiHoleCtx.courseName} ${hh.cname}코스 ${hh.no}번홀(파${hh.par})의 공식 홀맵입니다. ` +
-        `홀맵에는 홀 모양, 벙커·해저드 위치, 그린까지 거리선(50/100/150M)이 표시되어 있습니다. ` + elevTxt :
+        `당신은 투어 경력의 친절한 한국인 캐디입니다. 첨부 이미지 1번은 ${aiHoleCtx.courseName} ${hh.cname}코스 ${hh.no}번홀(파${hh.par})의 공식 홀맵입니다. ` +
+        `홀맵에는 홀 모양, 벙커·해저드 위치, 그린까지 거리선(50/100/150M)이 표시되어 있습니다. ` + frameTxt + elevTxt :
         `당신은 투어 경력의 친절한 한국인 캐디입니다. ${aiHoleCtx.courseName} ${hh.cname}코스 ${hh.no}번홀(파${hh.par})을 안내합니다. ` +
         `홀맵 그림은 없고 아래 수치 정보만 있습니다. 사진이 있는 것처럼 지형·벙커 위치를 지어내지 말고, 주어진 파·거리·고도차와 플레이어 구질만으로 조언하세요. ` + elevTxt;
       const promptTail =
@@ -1898,6 +1914,7 @@ async function aiCaddie() {
         `확인할 수 없는 정보(그린 경사, 잔디 상태 등)는 절대 지어내지 마세요.`;
       const parts = [{ text: prompt + promptTail }];
       if (hasImg) parts.push({ inline_data: { mime_type: "image/jpeg", data } });
+      frameData.forEach((d2) => parts.push({ inline_data: { mime_type: "image/jpeg", data: d2 } }));
       const text = await geminiGenerate(parts, 0.4);
       out.textContent = text.trim();
       out.hidden = false;

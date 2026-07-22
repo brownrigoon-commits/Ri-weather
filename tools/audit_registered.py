@@ -45,7 +45,9 @@ def audit(path):
             if not (0 <= p5 / per9 <= 4):
                 warns.append(f"{c['name']} 파5 {p5}개")
             s = sum(pars) / per9
-            if not (33 <= s <= 39):
+            if p3 / per9 >= 6:
+                pass          # 파3 전용 코스(예: 클럽72 듄스) — 정상
+            elif not (33 <= s <= 39):
                 issues.append(f"{c['name']} 9홀 파 합계 {s:.0f} (33~39 벗어남)")
         tips = [h.get("tip", "") for h in hs if h.get("tip")]
         if tips and len(set(tips)) == 1 and len(tips) > 2:
