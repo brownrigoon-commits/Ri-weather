@@ -4,8 +4,8 @@
  * ========================================================= */
 "use strict";
 
-const APP_VER = "v104"; // 배포 버전 (홈 화면 배지에 표시)
-const APP_NOTE = "레이더 확대+내 골프장 점"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
+const APP_VER = "v105"; // 배포 버전 (홈 화면 배지에 표시)
+const APP_NOTE = "레이더 프레임 시각 표시"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
 const STORAGE_KEY = "riweather.courses.v1";
 const GEM_KEY = "riweather.gemini"; // 정밀 인식(비전 AI) 개인 키 저장소
 // 기본 제공 키 (무료 한도 공유) — 개인 키를 설정하면 그 키가 우선됩니다
@@ -1261,6 +1261,13 @@ function positionKmaView() {
   dot.hidden = false;
   const zb = $("#kma-zoom-btn");
   if (zb) zb.textContent = kmaZoomed ? "전국 보기" : "🔍 내 골프장 확대";
+  // 시각 띠: 영상 상단 제목부(0,0~340,26)만 확대해 항상 보이게 — 프레임별 시각이 그대로 읽힌다
+  const tb = document.querySelector(".kma-timebar"), ti = $("#kma-time-img");
+  if (tb && ti) {
+    const st = W / 340;
+    tb.style.height = Math.round(26 * st) + "px";
+    ti.style.width = Math.round(500 * st) + "px";
+  }
 }
 
 (function initKmaZoomBtn() {
@@ -1291,6 +1298,8 @@ function loadKmaRadar() {
     const probe = new Image();
     probe.onload = () => {
       img.src = probe.src;
+      const tImg = $("#kma-time-img");
+      if (tImg) tImg.src = probe.src;
       kmaRadarLoadedTm = cands[0];
       positionKmaView();
       $("#radar-updated").textContent = "기상청 " + tm.slice(8, 10) + ":" + tm.slice(10, 12) + " 발표";
@@ -2351,9 +2360,12 @@ async function fetchKakaoFood(course) {
   const ck = course.lat.toFixed(3) + "," + course.lon.toFixed(3);
   if (kakaoFoodCache.has(ck)) return kakaoFoodCache.get(ck);
   const out = [];
-  for (let page = 1; page <= 3; page++) {
-    const j = await kakaoApi("https://dapi.kakao.com/v2/local/search/category.json" +
-      `?category_group_code=FD6&x=${course.lon}&y=${course.lat}&radius=5000&sort=distance&page=${page}&size=15`);
+  // 3페이지를 병렬로 — 목록 표시가 그만큼 빨라진다
+  const pages = await Promise.all([1, 2, 3].map((page) =>
+    kakaoApi("https://dapi.kakao.com/v2/local/search/category.json" +
+      `?category_group_code=FD6&x=${course.lon}&y=${course.lat}&radius=5000&sort=distance&page=${page}&size=15`)
+      .catch(() => ({}))));
+  pages.forEach((j) => {
     (j.documents || []).forEach((d) => out.push({
       name: d.place_name,
       cat: (d.category_name || "").split(">").pop().trim(),
@@ -2363,8 +2375,7 @@ async function fetchKakaoFood(course) {
       dist: parseInt(d.distance) || 0,
       url: d.place_url || "",
     }));
-    if (j.meta && j.meta.is_end) break;
-  }
+  });
   out.sort((a, b) => a.dist - b.dist);
   kakaoFoodCache.set(ck, out);
   return out;
@@ -2476,21 +2487,18 @@ async function openFoodView() {
       const list = await fetchKakaoFood(course);
       if (currentCourse !== course || viewStack[viewStack.length - 1] !== "food") return;
       if (list.length) {
-        // 평점을 받아 처음부터 추천순으로 보여준다 (중간에 순서가 바뀌면 이상하므로)
-        $("#food-list").innerHTML =
-          '<p class="food-loading">⭐ 평점 좋은 추천 맛집을 고르는 중입니다...</p>';
-        let ok = false;
-        try {
-          ok = await Promise.race([
-            attachFoodRatings(list),
-            new Promise((res) => setTimeout(() => res(false), 15000)),   // 너무 오래 걸리면 거리순으로
-          ]);
-        } catch (_) {}
-        if (currentCourse !== course || viewStack[viewStack.length - 1] !== "food") return;
-        FOOD_VIEW.sort = ok ? "reco" : "dist";
+        // 즉시 가까운 순으로 보여주고(사진도 위에서부터 바로 로딩),
+        // 평점이 도착하면 예고했던 대로 한 번만 추천순으로 정렬한다.
+        FOOD_VIEW.sort = "dist";
         FOOD_VIEW.cat = "전체";
-        renderFoodList(list, region, true);
-        prefetchFoodPhotos(list);          // 추천 상위 식당 사진을 미리 받아 두면 눌렀을 때 즉시 뜬다
+        renderFoodList(list, region, true, true);      // pendingReco 배너 표시
+        prefetchFoodPhotos(list);
+        attachFoodRatings(list).then((ok) => {
+          if (currentCourse !== course || viewStack[viewStack.length - 1] !== "food") return;
+          if (!ok) { const b = $("#food-reco-banner"); if (b) b.remove(); return; }
+          FOOD_VIEW.sort = "reco";
+          renderFoodList(list, region, true);
+        });
         return;
       }
     } catch (e) {
@@ -2632,7 +2640,7 @@ async function prefetchFoodPhotos(list) {
   }
 }
 
-function renderFoodList(list, region, fromKakao) {
+function renderFoodList(list, region, fromKakao, pendingReco) {
   const listEl = $("#food-list");
   listEl.innerHTML = "";
   if (!list.length) {
@@ -2643,6 +2651,13 @@ function renderFoodList(list, region, fromKakao) {
     return;
   }
 
+  if (pendingReco) {
+    const bn = document.createElement("p");
+    bn.id = "food-reco-banner";
+    bn.className = "food-reco-banner";
+    bn.innerHTML = "⭐ 카카오 평점 확인 중 — 잠시 후 <b>추천 맛집 순</b>으로 정렬됩니다";
+    listEl.appendChild(bn);
+  }
   const hasRatings = list.some((it) => (it.rating || 0) > 0);
   if (FOOD_VIEW.sort === "reco" && !hasRatings) FOOD_VIEW.sort = "dist";
 
