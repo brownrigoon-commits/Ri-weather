@@ -4,8 +4,8 @@
  * ========================================================= */
 "use strict";
 
-const APP_VER = "v103"; // 배포 버전 (홈 화면 배지에 표시)
-const APP_NOTE = "레이더 개편"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
+const APP_VER = "v104"; // 배포 버전 (홈 화면 배지에 표시)
+const APP_NOTE = "레이더 확대+내 골프장 점"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
 const STORAGE_KEY = "riweather.courses.v1";
 const GEM_KEY = "riweather.gemini"; // 정밀 인식(비전 AI) 개인 키 저장소
 // 기본 제공 키 (무료 한도 공유) — 개인 키를 설정하면 그 키가 우선됩니다
@@ -1232,6 +1232,42 @@ function isKRCourse() {
   return !currentCourse || (currentCourse.c || "KR") === "KR";
 }
 
+/* 기상청 레이더 이미지(500x520) 위경도→픽셀 변환.
+   제주·울릉도·독도·백령도 4점 아핀 보정 — 서울·부산·영종 육안 검증 잔차 ±2px */
+function kmaPx(lon, lat) {
+  return {
+    x: 42.8633 * lon - 1.9545 * lat - 5118.17,
+    y: -1.2920 * lon - 55.1689 * lat + 2395.94,
+  };
+}
+let kmaZoomed = true;   // 기본: 내 골프장 중심 확대
+function positionKmaView() {
+  const wrap = $("#kma-viewport"), img = $("#kma-radar-img"), dot = $("#kma-dot");
+  if (!wrap || !img || !currentCourse) return;
+  const W = wrap.clientWidth || 320;
+  const H = Math.round(W * 0.92);
+  wrap.style.height = H + "px";
+  const Z = kmaZoomed ? 2.4 : 1;                 // 확대율
+  const s = (W / 500) * Z;                       // 표시 스케일
+  const p = kmaPx(currentCourse.lon, currentCourse.lat);
+  let ox = p.x * s - W / 2, oy = p.y * s - H / 2;
+  ox = Math.max(0, Math.min(500 * s - W, ox));
+  oy = Math.max(0, Math.min(520 * s - H, oy));
+  img.style.width = (500 * s) + "px";
+  img.style.maxWidth = "none";
+  img.style.transform = `translate(${-ox}px, ${-oy}px)`;
+  dot.style.left = (p.x * s - ox) + "px";
+  dot.style.top = (p.y * s - oy) + "px";
+  dot.hidden = false;
+  const zb = $("#kma-zoom-btn");
+  if (zb) zb.textContent = kmaZoomed ? "전국 보기" : "🔍 내 골프장 확대";
+}
+
+(function initKmaZoomBtn() {
+  const b = document.getElementById("kma-zoom-btn");
+  if (b) b.addEventListener("click", () => { kmaZoomed = !kmaZoomed; positionKmaView(); });
+})();
+
 /* 기상청 공식 '레이더 실황+2시간 예측' 애니메이션 (10분 단위 발표, 생성 지연 대비 폴백) */
 let kmaRadarLoadedTm = null;
 function loadKmaRadar() {
@@ -1256,6 +1292,7 @@ function loadKmaRadar() {
     probe.onload = () => {
       img.src = probe.src;
       kmaRadarLoadedTm = cands[0];
+      positionKmaView();
       $("#radar-updated").textContent = "기상청 " + tm.slice(8, 10) + ":" + tm.slice(10, 12) + " 발표";
     };
     probe.onerror = tryNext;
@@ -1282,7 +1319,7 @@ function setMode(m) {
   if (kmaWrap) kmaWrap.hidden = !useKma;
   if (mapWrap) mapWrap.style.display = useKma ? "none" : "";
   if (controls) controls.style.display = useKma ? "none" : "";
-  if (useKma) { loadKmaRadar(); stopPlay(); return; }
+  if (useKma) { loadKmaRadar(); stopPlay(); positionKmaView(); return; }
 
   // 반대 모드 레이어 숨김
   if (m === "fc") {
@@ -2516,6 +2553,7 @@ async function openFoodView() {
 /* 맛집 목록 렌더링 — 클릭하면 사진·전화·내비 (가까운 순) */
 /* 맛집 목록 상태 — 기본은 '추천순'(카카오 평점·리뷰수 기반, 가게 ID라 정확).
    평점을 아직 못 받았거나 백엔드가 없으면 거리순으로 자연스럽게 동작한다. */
+const FOOD_UI_V2 = true;   // 전면 펼침 카드. 예전 접이식으로 되돌리려면 false
 const FOOD_VIEW = { sort: "reco", cat: "전체" };
 const FOOD_CATS = [
   ["전체", null],
@@ -2654,6 +2692,85 @@ function renderFoodList(list, region, fromKakao) {
     p.className = "food-osm-empty";
     p.textContent = "이 종류의 식당이 주변에 없습니다.";
     listEl.appendChild(p);
+    return;
+  }
+
+  /* 사진 로더 (공용) — 캐시 → 백엔드, 실패 시 카카오맵 링크 */
+  async function loadFoodPhotos(it, photos, compactFallback) {
+    const pid = ((it.url || "").match(/\/(\d+)\/?$/) || [])[1];
+    const placeBtn = () => {
+      photos.innerHTML = it.url
+        ? (compactFallback
+            ? `<a class="fi-place-mini" href="${it.url}" target="_blank" rel="noopener">📷 카카오맵에서 사진·메뉴 보기</a>`
+            : `<a class="fi-place-btn" href="${it.url}" target="_blank" rel="noopener">📷 실제 매장 사진·메뉴 보기 <small>카카오맵 등록 사진</small></a>`)
+        : "";
+    };
+    photos.hidden = false;
+    if (!window.RIW_BACKEND || !pid) { placeBtn(); return; }
+    try {
+      const LS = "riweather.placeph5." + pid;
+      let list = null;
+      try {
+        const c = JSON.parse(localStorage.getItem(LS) || "null");
+        if (c && Date.now() - c.t < 7 * 864e5) list = c.d;
+      } catch (_) {}
+      if (!list) {
+        const r = await fetch(window.RIW_BACKEND + "?fn=placephotos&id=" + pid);
+        list = genuinePhotos((await r.json()).photos).slice(0, 10);
+        try { localStorage.setItem(LS, JSON.stringify({ t: Date.now(), d: list })); } catch (_) {}
+      }
+      list = genuinePhotos(list);
+      if (!list.length) { placeBtn(); return; }
+      const imgs = list.map((u) => ({ t: foodThumb(u), u: u }));
+      photos.innerHTML = imgs
+        .map((im, k) => `<img src="${im.t}" data-k="${k}" alt="${it.name}" loading="lazy">`)
+        .join("");
+      photos.querySelectorAll("img").forEach((el) => {
+        el.addEventListener("click", () => openLightbox(imgs, +el.dataset.k));
+        el.addEventListener("error", () => { el.remove(); if (!photos.querySelector("img")) placeBtn(); });
+      });
+    } catch (_) { placeBtn(); }
+  }
+
+  /* ── 새 카드(전면 펼침) — FOOD_UI_V2. 기존 접이식은 아래 else에 보존 ── */
+  if (typeof FOOD_UI_V2 !== "undefined" && FOOD_UI_V2) {
+    const io = ("IntersectionObserver" in window)
+      ? new IntersectionObserver((ents) => {
+          ents.forEach((en) => {
+            if (!en.isIntersecting) return;
+            io.unobserve(en.target);
+            loadFoodPhotos(en.target._it, en.target.querySelector(".fi-photos"), true);
+          });
+        }, { rootMargin: "300px" })
+      : null;
+    shown.forEach((it) => {
+      const km = it.dist < 950 ? it.dist + "m" : (it.dist / 1000).toFixed(1) + "km";
+      const tel = (it.phone || "").replace(/[^0-9+]/g, "");
+      const div = document.createElement("div");
+      div.className = "food-item v2";
+      div.innerHTML = `
+        <div class="fi-row">
+          <span class="fi-emoji">${catEmoji(it.cat)}</span>
+          <div style="flex:1;min-width:0">
+            <div class="fi-name">${it.name}</div>
+            <div class="fi-sub">${it.cat || "식당"}${it.rating > 0
+              ? ` <span class="fi-star">⭐ ${it.rating.toFixed(1)} <em>(${it.reviews})</em></span>` : ""}</div>
+          </div>
+          <span class="fi-dist">${km}</span>
+        </div>
+        <div class="fi-photos" hidden></div>
+        <div class="fi-meta">📍 ${it.addr || ""}</div>
+        <div class="fi-actions">
+          ${tel ? `<a class="fa-btn fa-tel" href="tel:${tel}">📞 전화</a>` : ""}
+          <a class="fa-btn fa-kakao" href="kakaomap://route?ep=${it.lat},${it.lon}&by=CAR">카카오내비</a>
+          <a class="fa-btn fa-tmap" href="tmap://route?goalname=${encodeURIComponent(it.name)}&goaly=${it.lat}&goalx=${it.lon}">T맵</a>
+          <a class="fa-btn fa-naver" href="https://m.search.naver.com/search.naver?query=${encodeURIComponent((region ? region + " " : "") + it.name)}" target="_blank" rel="noopener"><b>N</b>리뷰</a>
+        </div>`;
+      div._it = it;
+      if (io) io.observe(div);                       // 숨김 요소는 관찰이 안 되므로 카드를 관찰
+      else loadFoodPhotos(it, div.querySelector(".fi-photos"), true);
+      listEl.appendChild(div);
+    });
     return;
   }
 
