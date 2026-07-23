@@ -9,6 +9,7 @@
  * ============================================================ */
 
 var ADMIN_PW = "golf2026!";   // 관리자 통계 조회 비밀번호 — 설치 때 꼭 바꾸세요
+var SHEET_ID = "1XQ6pbcO9pMnxvpL3K-WiMCgqd5WVIupHgi9uS-vmxcM";   // '골프라이프 통계' 시트
 
 /* ---------- 공통 ---------- */
 function json_(obj) {
@@ -17,7 +18,7 @@ function json_(obj) {
 }
 
 function sheet_() {
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var ss = SHEET_ID ? SpreadsheetApp.openById(SHEET_ID) : SpreadsheetApp.getActiveSpreadsheet();
   var sh = ss.getSheetByName("log");
   if (!sh) {
     sh = ss.insertSheet("log");
@@ -72,27 +73,43 @@ function placePhotos_(id) {
   id = String(id || "").replace(/\D/g, "");
   if (!id) return json_({ photos: [] });
   var cache = CacheService.getScriptCache();
-  var hit = cache.get("ph" + id);
+  var hit = cache.get("p2" + id);
   if (hit) return json_(JSON.parse(hit));
-  var out = { photos: [] };
+  var out = { photos: [], rating: 0, reviews: 0 };
+  var dbg = { code: 0, len: 0 };
   try {
+    // 카카오는 브라우저처럼 보이는 요청만 허용 — Referer·UA 필수
     var r = UrlFetchApp.fetch("https://place-api.map.kakao.com/places/panel3/" + id, {
-      headers: { pf: "web", Accept: "application/json" },
+      headers: {
+        pf: "web",
+        Accept: "application/json",
+        Referer: "https://place.map.kakao.com/" + id,
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36",
+      },
       muteHttpExceptions: true,
     });
-    if (r.getResponseCode() === 200) {
-      var txt = r.getContentText();
-      // JSON 전체에서 사진 URL만 수집 (리뷰 사진·대표 사진)
-      var m = txt.match(/https?:\\?\/\\?\/[^"]*(?:kakaomapPhoto|postfiles\.pstatic|mblogthumb)[^"]*/g) || [];
+    dbg.code = r.getResponseCode();
+    var txt = r.getContentText();
+    dbg.len = txt.length;
+    if (dbg.code === 200) {
+      // 사진: JSON 전체에서 사진 URL만 수집 (리뷰 사진·대표 사진)
+      var m = txt.match(/https?:[^"\\]*(?:kakaomapPhoto|postfiles\.pstatic|mblogthumb|daumcdn\.net\/local)[^"\\]*/g) || [];
       var seen = {};
       m.forEach(function (u) {
-        u = u.replace(/\\\//g, "/").replace(/\\u0026/g, "&");
         if (!seen[u]) { seen[u] = 1; out.photos.push(u); }
       });
       out.photos = out.photos.slice(0, 10);
+      // 평점·리뷰수: 추천순 정렬용
+      try {
+        var j = JSON.parse(txt);
+        var sc = (j.kakaomap_review || {}).score_set || {};
+        out.rating = sc.average_score || 0;
+        out.reviews = sc.review_count || 0;
+      } catch (e2) {}
     }
-  } catch (err) { /* 실패 시 빈 목록 — 앱은 카카오맵 버튼으로 대체 표시 */ }
-  cache.put("ph" + id, JSON.stringify(out), 21600);   // 6시간 캐시
+  } catch (err) { dbg.err = String(err).slice(0, 80); }
+  out.dbg = dbg;
+  cache.put("p2" + id, JSON.stringify(out), 21600);   // 6시간 캐시
   return json_(out);
 }
 

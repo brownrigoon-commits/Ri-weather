@@ -11,9 +11,9 @@
  */
 "use strict";
 
-/* 백엔드(Apps Script) 주소 — 사장님이 배포하면 여기에 넣는다 (docs/백엔드_설치안내.md)
-   비어 있으면 통계 전송·사진 표시 모두 조용히 꺼진 안전 상태. */
-window.RIW_BACKEND = "";
+/* 백엔드(Apps Script) 주소 — '골프라이프 백엔드' 프로젝트 (2026-07-23 설치 완료)
+   통계 수집 + 맛집 실제 사진(카카오 플레이스)이 이 주소 하나로 동작한다. */
+window.RIW_BACKEND = "https://script.google.com/macros/s/AKfycbzVkab8qBwUdukg_O9FtYjwHvTygc9Riyh3tEOD0z-bALNZxbO9ksRNPLM9y1mOWv9q4A/exec";
 
 const STATS = (() => {
   const STATS_URL = window.RIW_BACKEND;
