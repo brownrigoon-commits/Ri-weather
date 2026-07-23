@@ -84,31 +84,38 @@ function placePhotos_(id) {
   id = String(id || "").replace(/\D/g, "");
   if (!id) return json_({ photos: [] });
   var cache = CacheService.getScriptCache();
-  var hit = cache.get("p4" + id);
+  var hit = cache.get("p5" + id);
   if (hit) return json_(JSON.parse(hit));
   var out = { photos: [], rating: 0, reviews: 0 };
   var dbg = { code: 0 };
   try {
-    // 1순위: 사진 탭 (카카오가 그 가게 사진첩으로 게시한 것 — 앱과 동일)
-    var r = UrlFetchApp.fetch(
-      "https://place-api.map.kakao.com/places/tab/photos/" + id + "?page=1",
-      { headers: kakaoHeaders_(id), muteHttpExceptions: true });
-    dbg.code = r.getResponseCode();
-    if (dbg.code === 200) {
-      var j = JSON.parse(r.getContentText());
-      (j.photos || []).forEach(function (p) {
-        if (p && p.url && p.media_type !== "VOD" && out.photos.length < 10)
-          out.photos.push(p.url);
-      });
-    }
-    // 2순위(사진 탭이 비면): 리뷰에 첨부된 사진
+    // 카카오맵 '사진 탭'을 분류별로 병렬 조회 — 음식 → 메뉴판 → 실내 → 실외 → 기타 순으로 채운다
+    var base = "https://place-api.map.kakao.com/places/tab/photos/" + id;
+    var tags = ["FOOD", "MENU", "INDOOR", "OUTDOOR", ""];
+    var reqs = tags.map(function (t) {
+      return { url: base + "?page=1" + (t ? "&tag=" + t : ""),
+               headers: kakaoHeaders_(id), muteHttpExceptions: true };
+    });
+    var rs = UrlFetchApp.fetchAll(reqs);
+    var seen = {};
+    rs.forEach(function (r, i) {
+      if (r.getResponseCode() !== 200) return;
+      dbg.code = 200;
+      try {
+        (JSON.parse(r.getContentText()).photos || []).forEach(function (p) {
+          if (p && p.url && p.media_type !== "VOD" && !seen[p.url] && out.photos.length < 10) {
+            seen[p.url] = 1;
+            out.photos.push(p.url);
+          }
+        });
+      } catch (e2) {}
+    });
+    // 사진 탭이 완전히 비면: 리뷰에 첨부된 사진으로 대체
     if (!out.photos.length) {
       var r2 = UrlFetchApp.fetch("https://place-api.map.kakao.com/places/panel3/" + id,
         { headers: kakaoHeaders_(id), muteHttpExceptions: true });
       if (r2.getResponseCode() === 200) {
-        var t2 = r2.getContentText();
-        var m = t2.match(/https?:[^"\\]*kakaomapPhoto\/review[^"\\]*/g) || [];
-        var seen = {};
+        var m = r2.getContentText().match(/https?:[^"\\]*kakaomapPhoto\/review[^"\\]*/g) || [];
         m.forEach(function (u) {
           if (!seen[u] && out.photos.length < 10) { seen[u] = 1; out.photos.push(u); }
         });
@@ -116,7 +123,7 @@ function placePhotos_(id) {
     }
   } catch (err) { dbg.err = String(err).slice(0, 80); }
   out.dbg = dbg;
-  cache.put("p4" + id, JSON.stringify(out), 21600);   // 6시간 캐시
+  cache.put("p5" + id, JSON.stringify(out), 21600);   // 6시간 캐시
   return json_(out);
 }
 
