@@ -4,8 +4,8 @@
  * ========================================================= */
 "use strict";
 
-const APP_VER = "v100"; // 배포 버전 (홈 화면 배지에 표시)
-const APP_NOTE = "백엔드 v5 연동"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
+const APP_VER = "v101"; // 배포 버전 (홈 화면 배지에 표시)
+const APP_NOTE = "맛집 사진 소스 교체"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
 const STORAGE_KEY = "riweather.courses.v1";
 const GEM_KEY = "riweather.gemini"; // 정밀 인식(비전 AI) 개인 키 저장소
 // 기본 제공 키 (무료 한도 공유) — 개인 키를 설정하면 그 키가 우선됩니다
@@ -2514,9 +2514,9 @@ const foodThumb = (u) =>
   "https://img1.kakaocdn.net/cthumb/local/C176x176.q50/?fname=" + encodeURIComponent(u);
 const foodPid = (it) => (((it.url || "").match(/\/(\d+)\/?$/) || [])[1]);
 
-/* '그 가게 리뷰에 첨부된 카카오맵 사진'만 통과 — 블로그 글 썸네일(무관한 장식 이미지)이
-   섞여 나온 사고의 재발을 앱 단에서도 원천 차단하는 이중 안전장치 */
-const genuinePhotos = (arr) => (arr || []).filter((u) => /kakaomapPhoto\/review/.test(u));
+/* 서버가 주는 사진 = 카카오맵 '사진 탭'(가게 ID 기반 공식 사진첩) — 카카오 앱과 동일 소스.
+   여기서는 형식 검증만 한다 (http 이미지 URL). */
+const genuinePhotos = (arr) => (arr || []).filter((u) => typeof u === "string" && /^https?:\/\//.test(u));
 
 /* 추천 상위 식당의 사진을 미리 받아 로컬에 저장 — 눌렀을 때 기다림 없이 뜨게 */
 async function prefetchFoodPhotos(list) {
@@ -2525,7 +2525,7 @@ async function prefetchFoodPhotos(list) {
   for (const it of top) {
     const pid = foodPid(it);
     if (!pid) continue;
-    const LS = "riweather.placeph3." + pid;
+    const LS = "riweather.placeph4." + pid;
     let cached = null;
     try {
       const c = JSON.parse(localStorage.getItem(LS) || "null");
@@ -2651,7 +2651,7 @@ function renderFoodList(list, region, fromKakao) {
       if (!window.RIW_BACKEND || !pid) { placeBtn(); return; }
       photos.innerHTML = '<div class="fi-photo-loading">사진 불러오는 중...</div>';
       try {
-        const LS = "riweather.placeph3." + pid;
+        const LS = "riweather.placeph4." + pid;
         let list = null;
         try {
           const c = JSON.parse(localStorage.getItem(LS) || "null");

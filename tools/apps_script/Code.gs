@@ -69,50 +69,54 @@ function doGet(e) {
   return json_({ ok: true, service: "golflife-backend" });
 }
 
-/* 카카오 플레이스 사진 — 가게 ID 기반이라 다른 가게 사진이 섞일 수 없음 */
+/* 카카오 플레이스 사진 — 카카오맵 '사진 탭'(가게 ID 기반 공식 사진첩) 그대로.
+   카카오맵 앱에서 보이는 바로 그 사진들이라 다른 가게 사진이 섞일 수 없다. */
+function kakaoHeaders_(id) {
+  return {
+    pf: "web",
+    Accept: "application/json",
+    Referer: "https://place.map.kakao.com/" + id,
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36",
+  };
+}
+
 function placePhotos_(id) {
   id = String(id || "").replace(/\D/g, "");
   if (!id) return json_({ photos: [] });
   var cache = CacheService.getScriptCache();
-  var hit = cache.get("p3" + id);
+  var hit = cache.get("p4" + id);
   if (hit) return json_(JSON.parse(hit));
   var out = { photos: [], rating: 0, reviews: 0 };
-  var dbg = { code: 0, len: 0 };
+  var dbg = { code: 0 };
   try {
-    // 카카오는 브라우저처럼 보이는 요청만 허용 — Referer·UA 필수
-    var r = UrlFetchApp.fetch("https://place-api.map.kakao.com/places/panel3/" + id, {
-      headers: {
-        pf: "web",
-        Accept: "application/json",
-        Referer: "https://place.map.kakao.com/" + id,
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36",
-      },
-      muteHttpExceptions: true,
-    });
+    // 1순위: 사진 탭 (카카오가 그 가게 사진첩으로 게시한 것 — 앱과 동일)
+    var r = UrlFetchApp.fetch(
+      "https://place-api.map.kakao.com/places/tab/photos/" + id + "?page=1",
+      { headers: kakaoHeaders_(id), muteHttpExceptions: true });
     dbg.code = r.getResponseCode();
-    var txt = r.getContentText();
-    dbg.len = txt.length;
     if (dbg.code === 200) {
-      // 사진: '그 가게 리뷰에 첨부된 카카오맵 등록 사진'만 채택.
-      // 블로그 글 썸네일(postfiles·mblogthumb)은 가게와 무관한 장식 이미지가 섞여 절대 쓰지 않는다.
-      // profile 은 리뷰 작성자 프로필이므로 제외하고 review 사진만.
-      var m = txt.match(/https?:[^"\\]*kakaomapPhoto\/review[^"\\]*/g) || [];
-      var seen = {};
-      m.forEach(function (u) {
-        if (!seen[u]) { seen[u] = 1; out.photos.push(u); }
+      var j = JSON.parse(r.getContentText());
+      (j.photos || []).forEach(function (p) {
+        if (p && p.url && p.media_type !== "VOD" && out.photos.length < 10)
+          out.photos.push(p.url);
       });
-      out.photos = out.photos.slice(0, 10);
-      // 평점·리뷰수: 추천순 정렬용
-      try {
-        var j = JSON.parse(txt);
-        var sc = (j.kakaomap_review || {}).score_set || {};
-        out.rating = sc.average_score || 0;
-        out.reviews = sc.review_count || 0;
-      } catch (e2) {}
+    }
+    // 2순위(사진 탭이 비면): 리뷰에 첨부된 사진
+    if (!out.photos.length) {
+      var r2 = UrlFetchApp.fetch("https://place-api.map.kakao.com/places/panel3/" + id,
+        { headers: kakaoHeaders_(id), muteHttpExceptions: true });
+      if (r2.getResponseCode() === 200) {
+        var t2 = r2.getContentText();
+        var m = t2.match(/https?:[^"\\]*kakaomapPhoto\/review[^"\\]*/g) || [];
+        var seen = {};
+        m.forEach(function (u) {
+          if (!seen[u] && out.photos.length < 10) { seen[u] = 1; out.photos.push(u); }
+        });
+      }
     }
   } catch (err) { dbg.err = String(err).slice(0, 80); }
   out.dbg = dbg;
-  cache.put("p3" + id, JSON.stringify(out), 21600);   // 6시간 캐시
+  cache.put("p4" + id, JSON.stringify(out), 21600);   // 6시간 캐시
   return json_(out);
 }
 
