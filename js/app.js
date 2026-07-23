@@ -4,8 +4,8 @@
  * ========================================================= */
 "use strict";
 
-const APP_VER = "v98"; // 배포 버전 (홈 화면 배지에 표시)
-const APP_NOTE = "맛집 추천순 개편"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
+const APP_VER = "v99"; // 배포 버전 (홈 화면 배지에 표시)
+const APP_NOTE = "맛집 개선 3종"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
 const STORAGE_KEY = "riweather.courses.v1";
 const GEM_KEY = "riweather.gemini"; // 정밀 인식(비전 AI) 개인 키 저장소
 // 기본 제공 키 (무료 한도 공유) — 개인 키를 설정하면 그 키가 우선됩니다
@@ -2387,13 +2387,21 @@ async function openFoodView() {
       const list = await fetchKakaoFood(course);
       if (currentCourse !== course || viewStack[viewStack.length - 1] !== "food") return;
       if (list.length) {
-        renderFoodList(list, region, true);                 // 우선 거리순으로 즉시 표시
-        attachFoodRatings(list).then((ok) => {              // 평점 도착하면 추천순으로 갱신
-          if (!ok) return;
-          if (currentCourse !== course || viewStack[viewStack.length - 1] !== "food") return;
-          FOOD_VIEW.sort = "reco";
-          renderFoodList(list, region, true);
-        });
+        // 평점을 받아 처음부터 추천순으로 보여준다 (중간에 순서가 바뀌면 이상하므로)
+        $("#food-list").innerHTML =
+          '<p class="food-loading">⭐ 평점 좋은 추천 맛집을 고르는 중입니다...</p>';
+        let ok = false;
+        try {
+          ok = await Promise.race([
+            attachFoodRatings(list),
+            new Promise((res) => setTimeout(() => res(false), 15000)),   // 너무 오래 걸리면 거리순으로
+          ]);
+        } catch (_) {}
+        if (currentCourse !== course || viewStack[viewStack.length - 1] !== "food") return;
+        FOOD_VIEW.sort = ok ? "reco" : "dist";
+        FOOD_VIEW.cat = "전체";
+        renderFoodList(list, region, true);
+        prefetchFoodPhotos(list);          // 추천 상위 식당 사진을 미리 받아 두면 눌렀을 때 즉시 뜬다
         return;
       }
     } catch (e) {
@@ -2500,6 +2508,38 @@ function recoScore(it) {
   const r = it.rating || 0, c = it.reviews || 0;
   if (!c) return 0;
   return (r * c + 3.3 * 8) / (c + 8);
+}
+
+const foodThumb = (u) =>
+  "https://img1.kakaocdn.net/cthumb/local/C176x176.q50/?fname=" + encodeURIComponent(u);
+const foodPid = (it) => (((it.url || "").match(/\/(\d+)\/?$/) || [])[1]);
+
+/* '그 가게 리뷰에 첨부된 카카오맵 사진'만 통과 — 블로그 글 썸네일(무관한 장식 이미지)이
+   섞여 나온 사고의 재발을 앱 단에서도 원천 차단하는 이중 안전장치 */
+const genuinePhotos = (arr) => (arr || []).filter((u) => /kakaomapPhoto\/review/.test(u));
+
+/* 추천 상위 식당의 사진을 미리 받아 로컬에 저장 — 눌렀을 때 기다림 없이 뜨게 */
+async function prefetchFoodPhotos(list) {
+  if (!window.RIW_BACKEND) return;
+  const top = list.slice().sort((a, b) => recoScore(b) - recoScore(a)).slice(0, 8);
+  for (const it of top) {
+    const pid = foodPid(it);
+    if (!pid) continue;
+    const LS = "riweather.placeph2." + pid;
+    let cached = null;
+    try {
+      const c = JSON.parse(localStorage.getItem(LS) || "null");
+      if (c && Date.now() - c.t < 7 * 864e5) cached = c.d;
+    } catch (_) {}
+    if (!cached) {
+      try {
+        const r = await fetch(window.RIW_BACKEND + "?fn=placephotos&id=" + pid);
+        cached = genuinePhotos((await r.json()).photos).slice(0, 10);
+        try { localStorage.setItem(LS, JSON.stringify({ t: Date.now(), d: cached })); } catch (_) {}
+      } catch (_) { continue; }
+    }
+    genuinePhotos(cached).slice(0, 4).forEach((u) => { const im = new Image(); im.src = foodThumb(u); });
+  }
 }
 
 function renderFoodList(list, region, fromKakao) {
@@ -2611,7 +2651,7 @@ function renderFoodList(list, region, fromKakao) {
       if (!window.RIW_BACKEND || !pid) { placeBtn(); return; }
       photos.innerHTML = '<div class="fi-photo-loading">사진 불러오는 중...</div>';
       try {
-        const LS = "riweather.placeph." + pid;
+        const LS = "riweather.placeph2." + pid;
         let list = null;
         try {
           const c = JSON.parse(localStorage.getItem(LS) || "null");
@@ -2619,15 +2659,13 @@ function renderFoodList(list, region, fromKakao) {
         } catch (_) {}
         if (!list) {
           const r = await fetch(window.RIW_BACKEND + "?fn=placephotos&id=" + pid);
-          list = ((await r.json()).photos || []).slice(0, 10);
+          list = genuinePhotos((await r.json()).photos).slice(0, 10);
           try { localStorage.setItem(LS, JSON.stringify({ t: Date.now(), d: list })); } catch (_) {}
         }
+        list = genuinePhotos(list);          // 캐시에 남은 옛 데이터도 한 번 더 거른다
         if (!list.length) { placeBtn(); return; }
         // 카카오 썸네일 서버는 정해진 규격(C176x176.q50)만 허용한다 — 다른 크기는 거부됨
-        const imgs = list.map((u) => ({
-          t: "https://img1.kakaocdn.net/cthumb/local/C176x176.q50/?fname=" + encodeURIComponent(u),
-          u: u,
-        }));
+        const imgs = list.map((u) => ({ t: foodThumb(u), u: u }));
         photos.innerHTML = imgs
           .map((im, k) => `<img src="${im.t}" data-k="${k}" alt="${it.name}" loading="lazy">`)
           .join("");

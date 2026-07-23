@@ -74,7 +74,7 @@ function placePhotos_(id) {
   id = String(id || "").replace(/\D/g, "");
   if (!id) return json_({ photos: [] });
   var cache = CacheService.getScriptCache();
-  var hit = cache.get("p2" + id);
+  var hit = cache.get("p3" + id);
   if (hit) return json_(JSON.parse(hit));
   var out = { photos: [], rating: 0, reviews: 0 };
   var dbg = { code: 0, len: 0 };
@@ -93,8 +93,10 @@ function placePhotos_(id) {
     var txt = r.getContentText();
     dbg.len = txt.length;
     if (dbg.code === 200) {
-      // 사진: JSON 전체에서 사진 URL만 수집 (리뷰 사진·대표 사진)
-      var m = txt.match(/https?:[^"\\]*(?:kakaomapPhoto|postfiles\.pstatic|mblogthumb|daumcdn\.net\/local)[^"\\]*/g) || [];
+      // 사진: '그 가게 리뷰에 첨부된 카카오맵 등록 사진'만 채택.
+      // 블로그 글 썸네일(postfiles·mblogthumb)은 가게와 무관한 장식 이미지가 섞여 절대 쓰지 않는다.
+      // profile 은 리뷰 작성자 프로필이므로 제외하고 review 사진만.
+      var m = txt.match(/https?:[^"\\]*kakaomapPhoto\/review[^"\\]*/g) || [];
       var seen = {};
       m.forEach(function (u) {
         if (!seen[u]) { seen[u] = 1; out.photos.push(u); }
@@ -110,7 +112,7 @@ function placePhotos_(id) {
     }
   } catch (err) { dbg.err = String(err).slice(0, 80); }
   out.dbg = dbg;
-  cache.put("p2" + id, JSON.stringify(out), 21600);   // 6시간 캐시
+  cache.put("p3" + id, JSON.stringify(out), 21600);   // 6시간 캐시
   return json_(out);
 }
 
