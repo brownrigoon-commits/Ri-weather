@@ -4,8 +4,8 @@
  * ========================================================= */
 "use strict";
 
-const APP_VER = "v99"; // 배포 버전 (홈 화면 배지에 표시)
-const APP_NOTE = "맛집 개선 3종"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
+const APP_VER = "v100"; // 배포 버전 (홈 화면 배지에 표시)
+const APP_NOTE = "백엔드 v5 연동"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
 const STORAGE_KEY = "riweather.courses.v1";
 const GEM_KEY = "riweather.gemini"; // 정밀 인식(비전 AI) 개인 키 저장소
 // 기본 제공 키 (무료 한도 공유) — 개인 키를 설정하면 그 키가 우선됩니다
@@ -2525,7 +2525,7 @@ async function prefetchFoodPhotos(list) {
   for (const it of top) {
     const pid = foodPid(it);
     if (!pid) continue;
-    const LS = "riweather.placeph2." + pid;
+    const LS = "riweather.placeph3." + pid;
     let cached = null;
     try {
       const c = JSON.parse(localStorage.getItem(LS) || "null");
@@ -2651,7 +2651,7 @@ function renderFoodList(list, region, fromKakao) {
       if (!window.RIW_BACKEND || !pid) { placeBtn(); return; }
       photos.innerHTML = '<div class="fi-photo-loading">사진 불러오는 중...</div>';
       try {
-        const LS = "riweather.placeph2." + pid;
+        const LS = "riweather.placeph3." + pid;
         let list = null;
         try {
           const c = JSON.parse(localStorage.getItem(LS) || "null");
