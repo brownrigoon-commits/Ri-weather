@@ -4,8 +4,8 @@
  * ========================================================= */
 "use strict";
 
-const APP_VER = "v102"; // 배포 버전 (홈 화면 배지에 표시)
-const APP_NOTE = "맛집 사진 순서"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
+const APP_VER = "v103"; // 배포 버전 (홈 화면 배지에 표시)
+const APP_NOTE = "레이더 개편"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
 const STORAGE_KEY = "riweather.courses.v1";
 const GEM_KEY = "riweather.gemini"; // 정밀 인식(비전 AI) 개인 키 저장소
 // 기본 제공 키 (무료 한도 공유) — 개인 키를 설정하면 그 키가 우선됩니다
@@ -1227,10 +1227,62 @@ document.querySelectorAll(".mode-btn").forEach((btn) => {
   });
 });
 
+/* 한국 구장 여부 — 기상청 레이더는 한반도 전용이라 해외 구장은 기존 위성 레이더 유지 */
+function isKRCourse() {
+  return !currentCourse || (currentCourse.c || "KR") === "KR";
+}
+
+/* 기상청 공식 '레이더 실황+2시간 예측' 애니메이션 (10분 단위 발표, 생성 지연 대비 폴백) */
+let kmaRadarLoadedTm = null;
+function loadKmaRadar() {
+  const img = $("#kma-radar-img");
+  if (!img) return;
+  const cands = [];
+  for (let back = 1; back <= 6; back++) {
+    const t = new Date(Date.now() + 9 * 3600e3 - back * 600e3);   // KST 기준 10분 전부터
+    const p = (n) => String(n).padStart(2, "0");
+    cands.push("" + t.getUTCFullYear() + p(t.getUTCMonth() + 1) + p(t.getUTCDate()) +
+               p(t.getUTCHours()) + p(Math.floor(t.getUTCMinutes() / 10) * 10));
+  }
+  if (kmaRadarLoadedTm === cands[0] && img.src) return;   // 이미 최신
+  let i = 0;
+  const tryNext = () => {
+    if (i >= cands.length) {
+      $("#radar-updated").textContent = "기상청 연결 실패 — 잠시 후 다시 열어주세요";
+      return;
+    }
+    const tm = cands[i++];
+    const probe = new Image();
+    probe.onload = () => {
+      img.src = probe.src;
+      kmaRadarLoadedTm = cands[0];
+      $("#radar-updated").textContent = "기상청 " + tm.slice(8, 10) + ":" + tm.slice(10, 12) + " 발표";
+    };
+    probe.onerror = tryNext;
+    probe.src = "https://www.weather.go.kr/w/repositary/image/rdr/img/qpr_" + tm + ".gif";
+  };
+  tryNext();
+}
+
 function setMode(m) {
   mapMode = m;
   document.querySelectorAll(".mode-btn").forEach((b) =>
     b.classList.toggle("active", b.dataset.mode === m));
+
+  // 한국: 실황 탭이 '기상청 레이더·예측'으로 동작 (해외는 위성 레이더 유지)
+  const kr = isKRCourse();
+  const rvBtn = $("#rv-mode-btn");
+  if (rvBtn) rvBtn.innerHTML = kr
+    ? "레이더·예측 <small>기상청 2시간</small>"
+    : "실황 레이더 <small>2시간</small>";
+  const kmaWrap = $("#kma-radar-wrap");
+  const mapWrap = document.querySelector(".radar-card .map-wrap");
+  const controls = document.querySelector(".radar-card .radar-controls");
+  const useKma = kr && m === "rv";
+  if (kmaWrap) kmaWrap.hidden = !useKma;
+  if (mapWrap) mapWrap.style.display = useKma ? "none" : "";
+  if (controls) controls.style.display = useKma ? "none" : "";
+  if (useKma) { loadKmaRadar(); stopPlay(); return; }
 
   // 반대 모드 레이어 숨김
   if (m === "fc") {
