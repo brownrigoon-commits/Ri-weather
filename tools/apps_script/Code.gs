@@ -61,6 +61,7 @@ function doPost(e) {
 function doGet(e) {
   var p = (e && e.parameter) || {};
   if (p.fn === "placephotos") return placePhotos_(p.id);
+  if (p.fn === "placemeta") return placeMeta_(p.ids);
   if (p.fn === "summary") {
     if (p.pw !== ADMIN_PW) return json_({ err: "비밀번호가 틀립니다" });
     return summary_();
@@ -110,6 +111,47 @@ function placePhotos_(id) {
   } catch (err) { dbg.err = String(err).slice(0, 80); }
   out.dbg = dbg;
   cache.put("p2" + id, JSON.stringify(out), 21600);   // 6시간 캐시
+  return json_(out);
+}
+
+/* 여러 가게의 평점·리뷰수 일괄 조회 — 맛집 '추천순' 정렬용 (가게 ID 기반 = 정확) */
+function placeMeta_(ids) {
+  ids = String(ids || "").split(",").map(function (x) { return x.replace(/\D/g, ""); })
+    .filter(Boolean).slice(0, 60);
+  var cache = CacheService.getScriptCache();
+  var out = {}, need = [];
+  ids.forEach(function (id) {
+    var hit = cache.get("m2" + id);
+    if (hit) out[id] = JSON.parse(hit);
+    else need.push(id);
+  });
+  if (need.length) {
+    var reqs = need.map(function (id) {
+      return {
+        url: "https://place-api.map.kakao.com/places/panel3/" + id,
+        headers: {
+          pf: "web", Accept: "application/json",
+          Referer: "https://place.map.kakao.com/" + id,
+          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36",
+        },
+        muteHttpExceptions: true,
+      };
+    });
+    try {
+      var rs = UrlFetchApp.fetchAll(reqs);
+      rs.forEach(function (r, i) {
+        var v = { r: 0, c: 0 };
+        try {
+          if (r.getResponseCode() === 200) {
+            var sc = (JSON.parse(r.getContentText()).kakaomap_review || {}).score_set || {};
+            v = { r: sc.average_score || 0, c: sc.review_count || 0 };
+          }
+        } catch (e2) {}
+        out[need[i]] = v;
+        cache.put("m2" + need[i], JSON.stringify(v), 21600);
+      });
+    } catch (err) { /* 실패한 것은 생략 — 앱은 평점 없이 거리순 유지 */ }
+  }
   return json_(out);
 }
 

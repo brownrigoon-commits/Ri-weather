@@ -4,8 +4,8 @@
  * ========================================================= */
 "use strict";
 
-const APP_VER = "v97"; // 배포 버전 (홈 화면 배지에 표시)
-const APP_NOTE = "백엔드 연결"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
+const APP_VER = "v98"; // 배포 버전 (홈 화면 배지에 표시)
+const APP_NOTE = "맛집 추천순 개편"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
 const STORAGE_KEY = "riweather.courses.v1";
 const GEM_KEY = "riweather.gemini"; // 정밀 인식(비전 AI) 개인 키 저장소
 // 기본 제공 키 (무료 한도 공유) — 개인 키를 설정하면 그 키가 우선됩니다
@@ -2386,7 +2386,16 @@ async function openFoodView() {
     try {
       const list = await fetchKakaoFood(course);
       if (currentCourse !== course || viewStack[viewStack.length - 1] !== "food") return;
-      if (list.length) { renderFoodList(list, region, true); return; }
+      if (list.length) {
+        renderFoodList(list, region, true);                 // 우선 거리순으로 즉시 표시
+        attachFoodRatings(list).then((ok) => {              // 평점 도착하면 추천순으로 갱신
+          if (!ok) return;
+          if (currentCourse !== course || viewStack[viewStack.length - 1] !== "food") return;
+          FOOD_VIEW.sort = "reco";
+          renderFoodList(list, region, true);
+        });
+        return;
+      }
     } catch (e) {
       if (String(e.message).indexOf("kakao") === 0) console.warn("kakao food:", e.message);
     }
@@ -2445,6 +2454,54 @@ async function openFoodView() {
 }
 
 /* 맛집 목록 렌더링 — 클릭하면 사진·전화·내비 (가까운 순) */
+/* 맛집 목록 상태 — 기본은 '추천순'(카카오 평점·리뷰수 기반, 가게 ID라 정확).
+   평점을 아직 못 받았거나 백엔드가 없으면 거리순으로 자연스럽게 동작한다. */
+const FOOD_VIEW = { sort: "reco", cat: "전체" };
+const FOOD_CATS = [
+  ["전체", null],
+  ["한식", /한식|백반|국밥|찌개|한정식|해장|두부|칼국수|국수|분식/],
+  ["고기", /고기|삼겹|갈비|곱창|족발|보쌈|오리|닭|치킨/],
+  ["회·해물", /횟집|회|해물|조개|장어|물회|매운탕|일식|초밥|스시/],
+  ["중식·양식", /중식|중국|짜장|짬뽕|양식|파스타|스테이크|피자|돈까스/],
+  ["카페", /카페|커피|디저트|베이커리|빵/],
+];
+
+/* 백엔드에서 가게별 평점·리뷰수 일괄 조회 후 목록에 붙인다 (24시간 로컬 캐시) */
+async function attachFoodRatings(list) {
+  if (!window.RIW_BACKEND) return false;
+  const ids = list.map((it) => (((it.url || "").match(/\/(\d+)\/?$/) || [])[1])).filter(Boolean);
+  if (!ids.length) return false;
+  const LS = "riweather.foodmeta." + ids.slice(0, 5).join("_");
+  let meta = null;
+  try {
+    const c = JSON.parse(localStorage.getItem(LS) || "null");
+    if (c && Date.now() - c.t < 864e5) meta = c.d;
+  } catch (_) {}
+  if (!meta) {
+    try {
+      const r = await fetch(window.RIW_BACKEND + "?fn=placemeta&ids=" + ids.join(","));
+      meta = await r.json();
+      try { localStorage.setItem(LS, JSON.stringify({ t: Date.now(), d: meta })); } catch (_) {}
+    } catch (_) { return false; }
+  }
+  let any = false;
+  list.forEach((it) => {
+    const id = (((it.url || "").match(/\/(\d+)\/?$/) || [])[1]);
+    const m = id && meta[id];
+    it.rating = m ? m.r : 0;
+    it.reviews = m ? m.c : 0;
+    if (it.rating > 0) any = true;
+  });
+  return any;
+}
+
+/* 추천 점수 — 리뷰가 적은 5점짜리보다 리뷰 많은 4점짜리가 위로 오도록 보정 */
+function recoScore(it) {
+  const r = it.rating || 0, c = it.reviews || 0;
+  if (!c) return 0;
+  return (r * c + 3.3 * 8) / (c + 8);
+}
+
 function renderFoodList(list, region, fromKakao) {
   const listEl = $("#food-list");
   listEl.innerHTML = "";
@@ -2455,14 +2512,60 @@ function renderFoodList(list, region, fromKakao) {
     listEl.appendChild(p);
     return;
   }
+
+  const hasRatings = list.some((it) => (it.rating || 0) > 0);
+  if (FOOD_VIEW.sort === "reco" && !hasRatings) FOOD_VIEW.sort = "dist";
+
+  // 정렬·종류 선택 칩
+  if (fromKakao) {
+    const bar = document.createElement("div");
+    bar.className = "food-filter";
+    const sorts = hasRatings ? [["reco", "⭐ 추천순"], ["dist", "📍 거리순"]] : [["dist", "📍 거리순"]];
+    bar.innerHTML =
+      `<div class="ff-row">` +
+      sorts.map(([k, t]) =>
+        `<button class="ff-chip${FOOD_VIEW.sort === k ? " on" : ""}" data-sort="${k}">${t}</button>`).join("") +
+      `</div><div class="ff-row">` +
+      FOOD_CATS.map(([name]) =>
+        `<button class="ff-chip sm${FOOD_VIEW.cat === name ? " on" : ""}" data-cat="${name}">${name}</button>`).join("") +
+      `</div>`;
+    bar.addEventListener("click", (e) => {
+      const b = e.target.closest(".ff-chip");
+      if (!b) return;
+      if (b.dataset.sort) FOOD_VIEW.sort = b.dataset.sort;
+      if (b.dataset.cat) FOOD_VIEW.cat = b.dataset.cat;
+      renderFoodList(list, region, fromKakao);
+    });
+    listEl.appendChild(bar);
+  }
+
+  // 필터·정렬 적용
+  let shown = list.slice();
+  const catRe = (FOOD_CATS.find(([n]) => n === FOOD_VIEW.cat) || [])[1];
+  if (catRe) shown = shown.filter((it) => catRe.test(it.cat || ""));
+  if (FOOD_VIEW.sort === "reco" && hasRatings)
+    shown.sort((a, b) => (recoScore(b) - recoScore(a)) || (a.dist - b.dist));
+  else
+    shown.sort((a, b) => a.dist - b.dist);
+
   const sub = document.createElement("p");
   sub.className = "food-osm-sub";
-  sub.textContent = fromKakao
-    ? "가까운 순 · 이름을 누르면 사진·전화·길안내가 열립니다"
-    : "가까운 순 (지도 등록 기준) · 이름을 누르면 상세가 열립니다";
+  sub.textContent = !fromKakao
+    ? "가까운 순 (지도 등록 기준) · 이름을 누르면 상세가 열립니다"
+    : (FOOD_VIEW.sort === "reco"
+        ? "카카오맵 평점·리뷰 기준 추천순 · 이름을 누르면 사진·전화·길안내"
+        : "가까운 순 · 이름을 누르면 사진·전화·길안내가 열립니다");
   listEl.appendChild(sub);
 
-  list.forEach((it) => {
+  if (!shown.length) {
+    const p = document.createElement("p");
+    p.className = "food-osm-empty";
+    p.textContent = "이 종류의 식당이 주변에 없습니다.";
+    listEl.appendChild(p);
+    return;
+  }
+
+  shown.forEach((it) => {
     const km = it.dist < 950 ? it.dist + "m" : (it.dist / 1000).toFixed(1) + "km";
     const tel = (it.phone || "").replace(/[^0-9+]/g, "");
     const div = document.createElement("div");
@@ -2472,7 +2575,8 @@ function renderFoodList(list, region, fromKakao) {
         <span class="fi-emoji">${catEmoji(it.cat)}</span>
         <div style="flex:1;min-width:0">
           <div class="fi-name">${it.name}</div>
-          <div class="fi-sub">${it.cat || "식당"}</div>
+          <div class="fi-sub">${it.cat || "식당"}${it.rating > 0
+            ? ` <span class="fi-star">⭐ ${it.rating.toFixed(1)} <em>(${it.reviews})</em></span>` : ""}</div>
         </div>
         <span class="fi-dist">${km}</span>
       </div>
@@ -2484,6 +2588,8 @@ function renderFoodList(list, region, fromKakao) {
           <a class="kakaonavi" href="kakaomap://route?ep=${it.lat},${it.lon}&by=CAR">🚗 카카오내비</a>
           <a class="tmapnavi" href="tmap://route?goalname=${encodeURIComponent(it.name)}&goaly=${it.lat}&goalx=${it.lon}">🚗 T맵</a>
         </div>
+        <a class="fi-naver" href="https://m.search.naver.com/search.naver?query=${encodeURIComponent((region ? region + " " : "") + it.name)}"
+           target="_blank" rel="noopener"><b>N</b> 네이버 평점·리뷰로 검증하기</a>
       </div>`;
     /* 사진 원칙: '그 가게' 사진임이 보장될 때만 앱 안에 표시한다.
        ① 백엔드가 연결돼 있으면 — 카카오 플레이스(가게 ID 기반) 등록 사진을 가져와 표시.
