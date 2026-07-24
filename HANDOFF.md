@@ -174,6 +174,19 @@ tools/export_status_excel.py    골프장DB.xlsx 현황 분류표 생성
 **로고 논의 중** — 이름 '골프라이프' 확정 분위기. naming.html(로컬 시안 페이지)에 마지막 후보
 ('P 문법의 G' 4안) 있음. 미확정.
 
+## 7/24 회사 PC — 멈춤·오류 전수 감사 반영 (v107~v108, 전부 실서버 검증됨)
+
+- **무한 로딩 제거**: `fetchT(url, opts, ms)` 도입(app.js 2350대). 날씨·검색·레이더·카카오·백엔드·사진·경로·AI·타일·프레임 **16곳 전부 시간제한**. 새 fetch 는 반드시 fetchT 사용.
+- **회색 화면(스크롤해야 복구) 원인 3종 수정**:
+  ① 평점 늦게 도착 시 스크롤 중 목록 재정렬 → 상단(scrollY≤200)일 때만 즉시 재정렬, 스크롤 중엔 배너를 '⭐ 추천순으로 보기' 버튼으로 전환(.food-reco-banner 는 sticky)
+  ② body 의 background-attachment:fixed → body::before 고정 레이어로 분리 (iOS 타일 미갱신 버그)
+  ③ .float-btn 의 backdrop-filter 제거(스냅샷 미갱신) — 배경 불투명도로 대체
+- **지도 라이브러리 내장**: unpkg CDN → js/vendor/leaflet.js + css/leaflet.css (SW CORE 포함).
+  설치형 PWA 오프라인에서 L 미정의 → 빨간 배너 연쇄가 원인이었음. openDetail/openCourseView 에 typeof L 가드.
+- **오류 표시기**: 빈 이벤트 억제 조건에서 lineno 제외(빈 ErrorEvent 는 lineno=0 이라 v107 조건이 뚫렸음).
+- **맛집 평점**: 백엔드 null 응답 검증(캐시 오염 방지) + Number() 강제(문자열 "4.5" → toFixed 크래시 방지) + .then 체인 .catch.
+- 사용자 폰이 구버전이면: 홈 배지 APP_VER 확인 → `?reset` 안내.
+
 ## 다음 작업
 
 0. **관리자 모드 + 통계 백엔드** ← 사장님이 요청한 다음 순서
