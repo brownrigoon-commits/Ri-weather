@@ -4,8 +4,8 @@
  * ========================================================= */
 "use strict";
 
-const APP_VER = "v106"; // 배포 버전 (홈 화면 배지에 표시)
-const APP_NOTE = "오류 표시기 개선"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
+const APP_VER = "v107"; // 배포 버전 (홈 화면 배지에 표시)
+const APP_NOTE = "무한 로딩 수정"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
 const STORAGE_KEY = "riweather.courses.v1";
 const GEM_KEY = "riweather.gemini"; // 정밀 인식(비전 AI) 개인 키 저장소
 // 기본 제공 키 (무료 한도 공유) — 개인 키를 설정하면 그 키가 우선됩니다
@@ -808,8 +808,9 @@ async function renderDist(course, el) {
 
   el.innerHTML = '<span class="dist-loading">🚗 이동 시간 계산 중...</span>';
   try {
-    const r = await fetch(
-      `https://router.project-osrm.org/route/v1/driving/${userPos[1]},${userPos[0]};${course.lon},${course.lat}?overview=false`);
+    const r = await fetchT(
+      `https://router.project-osrm.org/route/v1/driving/${userPos[1]},${userPos[0]};${course.lon},${course.lat}?overview=false`,
+      null, 7000);   // 7초 안에 못 받으면 직선거리 기반 추정치로 넘어간다
     const j = await r.json();
     if (j.routes && j.routes[0]) {
       const km = (j.routes[0].distance / 1000).toFixed(j.routes[0].distance < 99500 ? 1 : 0);
@@ -2346,10 +2347,19 @@ const EMBED_KAKAO_B64 = "OTg0N2VjNWU5YTRkMTEyN2M1NzY1MDY1YjNlNzFmZjI=";   // Ri-
 const getKakaoKey = () => localStorage.getItem(KAKAO_KEY_LS) ||
   (EMBED_KAKAO_B64 ? atob(EMBED_KAKAO_B64) : "");
 
+/* 시간 제한이 있는 fetch — 연결이 물려도 화면이 영원히 기다리지 않게 한다.
+   (2026-07-24 '무한 로딩' 신고 후 도입. 새 네트워크 요청은 반드시 이걸 쓸 것) */
+function fetchT(url, opts, ms) {
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), ms || 8000);
+  return fetch(url, Object.assign({}, opts, { signal: ctrl.signal }))
+    .finally(() => clearTimeout(timer));
+}
+
 async function kakaoApi(url) {
   const key = getKakaoKey();
   if (!key) throw new Error("no-kakao-key");
-  const r = await fetch(url, { headers: { Authorization: "KakaoAK " + key } });
+  const r = await fetchT(url, { headers: { Authorization: "KakaoAK " + key } }, 8000);
   if (!r.ok) throw new Error("kakao " + r.status);
   return r.json();
 }
@@ -2585,7 +2595,9 @@ async function attachFoodRatings(list) {
   } catch (_) {}
   if (!meta) {
     try {
-      const r = await fetch(window.RIW_BACKEND + "?fn=placemeta&ids=" + ids.join(","));
+      // 백엔드(Apps Script)는 콜드스타트 시 오래 걸릴 수 있다 → 12초 상한.
+      // 실패해도 목록은 이미 떠 있고 거리순으로 동작하므로 조용히 포기한다.
+      const r = await fetchT(window.RIW_BACKEND + "?fn=placemeta&ids=" + ids.join(","), null, 12000);
       meta = await r.json();
       try { localStorage.setItem(LS, JSON.stringify({ t: Date.now(), d: meta })); } catch (_) {}
     } catch (_) { return false; }
@@ -2631,7 +2643,7 @@ async function prefetchFoodPhotos(list) {
     } catch (_) {}
     if (!cached) {
       try {
-        const r = await fetch(window.RIW_BACKEND + "?fn=placephotos&id=" + pid);
+        const r = await fetchT(window.RIW_BACKEND + "?fn=placephotos&id=" + pid, null, 10000);
         cached = genuinePhotos((await r.json()).photos).slice(0, 10);
         try { localStorage.setItem(LS, JSON.stringify({ t: Date.now(), d: cached })); } catch (_) {}
       } catch (_) { continue; }
@@ -2730,7 +2742,7 @@ function renderFoodList(list, region, fromKakao, pendingReco) {
         if (c && Date.now() - c.t < 7 * 864e5) list = c.d;
       } catch (_) {}
       if (!list) {
-        const r = await fetch(window.RIW_BACKEND + "?fn=placephotos&id=" + pid);
+        const r = await fetchT(window.RIW_BACKEND + "?fn=placephotos&id=" + pid, null, 10000);
         list = genuinePhotos((await r.json()).photos).slice(0, 10);
         try { localStorage.setItem(LS, JSON.stringify({ t: Date.now(), d: list })); } catch (_) {}
       }
@@ -2842,7 +2854,7 @@ function renderFoodList(list, region, fromKakao, pendingReco) {
           if (c && Date.now() - c.t < 7 * 864e5) list = c.d;
         } catch (_) {}
         if (!list) {
-          const r = await fetch(window.RIW_BACKEND + "?fn=placephotos&id=" + pid);
+          const r = await fetchT(window.RIW_BACKEND + "?fn=placephotos&id=" + pid, null, 10000);
           list = genuinePhotos((await r.json()).photos).slice(0, 10);
           try { localStorage.setItem(LS, JSON.stringify({ t: Date.now(), d: list })); } catch (_) {}
         }
