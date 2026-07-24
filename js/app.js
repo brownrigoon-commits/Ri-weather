@@ -4,8 +4,8 @@
  * ========================================================= */
 "use strict";
 
-const APP_VER = "v108"; // 배포 버전 (홈 화면 배지에 표시)
-const APP_NOTE = "전수 감사 반영"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
+const APP_VER = "v109"; // 배포 버전 (홈 화면 배지에 표시)
+const APP_NOTE = "기록 지키기"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
 const STORAGE_KEY = "riweather.courses.v1";
 const GEM_KEY = "riweather.gemini"; // 정밀 인식(비전 AI) 개인 키 저장소
 // 기본 제공 키 (무료 한도 공유) — 개인 키를 설정하면 그 키가 우선됩니다
@@ -67,6 +67,7 @@ function loadCourses() {
 }
 function saveCourses(list) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+  if (typeof BACKUP !== "undefined") BACKUP.touch();   // 기록이 바뀌면 자동 백업
 }
 
 /* ---------- API ---------- */
@@ -1512,7 +1513,10 @@ const PROFILE_KEY = "riweather.profile";
 function loadProfile() {
   try { return JSON.parse(localStorage.getItem(PROFILE_KEY)) || {}; } catch { return {}; }
 }
-function saveProfile(p) { localStorage.setItem(PROFILE_KEY, JSON.stringify(p)); }
+function saveProfile(p) {
+  localStorage.setItem(PROFILE_KEY, JSON.stringify(p));
+  if (typeof BACKUP !== "undefined") BACKUP.touch();
+}
 
 let courseMap = null, courseLayers = [], holeLayers = [], courseHoles = [], courseHazards = [];
 const courseCache = new Map();
@@ -2921,7 +2925,10 @@ function renderFoodList(list, region, fromKakao, pendingReco) {
 const SCORE_KEY = "riweather.scores.v1";
 const GOAL_KEY = "riweather.goalhandi.v1";
 const loadScores = () => { try { return JSON.parse(localStorage.getItem(SCORE_KEY)) || []; } catch { return []; } };
-const saveScores = (l) => localStorage.setItem(SCORE_KEY, JSON.stringify(l));
+const saveScores = (l) => {
+  localStorage.setItem(SCORE_KEY, JSON.stringify(l));
+  if (typeof BACKUP !== "undefined") BACKUP.touch();
+};
 
 let editingId = null;       // 수정 중인 기록 id
 let selectedYear = "전체";
@@ -4440,6 +4447,147 @@ $("#doc-sheet").addEventListener("click", (e) => {
   matchMedia("(display-mode: standalone)").addEventListener?.("change", refresh);
   refresh();
 })();
+
+/* ---------- 기록 지키기 (백업·복구) ----------
+   즐겨찾기·스코어는 폰 안에만 저장되는데, 아이폰은 앱을 지우면 이 저장소를
+   함께 지운다. '복구 코드' 하나로 서버(구글 시트)에 백업해 두고,
+   재설치·기기변경 후 코드 입력으로 되살린다. 사진은 용량 문제로 제외. */
+const BACKUP = (() => {
+  const KEY = "riweather.backup";
+  const st = () => { try { return JSON.parse(localStorage.getItem(KEY) || "{}"); } catch (_) { return {}; } };
+  const put = (s) => localStorage.setItem(KEY, JSON.stringify(s));
+
+  function newCode() {
+    const a = new Uint32Array(3);
+    crypto.getRandomValues(a);
+    return [...a].map((n) => String(n % 10000).padStart(4, "0")).join("");   // 12자리
+  }
+  const fmt = (c) => (c || "").replace(/(\d{4})(?=\d)/g, "$1-");
+
+  function collect() {
+    const scores = loadScores().map((r) => { const c = { ...r }; delete c.photo; return c; });
+    return {
+      v: 1, t: Date.now(),
+      courses: loadCourses(),
+      scores,
+      profile: loadProfile(),
+      defaultTee: localStorage.getItem("riweather.defaultTee") || null,
+    };
+  }
+  const hash = (s) => { let h = 5381; for (let i = 0; i < s.length; i++) h = (h * 33 + s.charCodeAt(i)) >>> 0; return h + ":" + s.length; };
+
+  let timer = null;
+  async function send(force) {
+    const s = st();
+    if (!s.on || !s.code || !window.RIW_BACKEND) return false;
+    const data = collect();
+    const body = JSON.stringify({ fn: "backup", code: s.code, data });
+    const h = hash(body);
+    if (!force && s.hash === h) return true;             // 달라진 게 없으면 보내지 않음
+    try {
+      // Apps Script 는 preflight 를 못 받으므로 text/plain 단순 요청으로
+      const r = await fetchT(window.RIW_BACKEND, { method: "POST", headers: { "Content-Type": "text/plain" }, body }, 15000);
+      const j = await r.json();
+      if (j && j.ok) { s.hash = h; s.last = Date.now(); put(s); refreshUI(); return true; }
+    } catch (_) {}
+    return false;
+  }
+  function touch() {
+    const s = st();
+    if (!s.on) { maybeNudge(); return; }
+    clearTimeout(timer);
+    timer = setTimeout(() => send(false), 4000);         // 연속 저장은 4초 묶음
+  }
+
+  /* 처음 기록이 생겼을 때 딱 한 번 권유 */
+  function maybeNudge() {
+    const s = st();
+    if (s.on || s.nudged) return;
+    if (!loadCourses().length && !loadScores().length) return;
+    s.nudged = true; put(s);
+    open();
+  }
+
+  function enable() {
+    const s = st();
+    if (!s.code) s.code = newCode();
+    s.on = true; put(s);
+    refreshUI();
+    send(true);
+  }
+
+  async function restore(codeRaw) {
+    const code = String(codeRaw || "").replace(/[^0-9]/g, "");
+    const msg = $("#bk-restore-msg");
+    if (code.length < 10) { msg.textContent = "코드 12자리를 입력해 주세요."; return; }
+    msg.textContent = "서버에서 기록을 찾는 중...";
+    let j = null;
+    try {
+      const r = await fetchT(window.RIW_BACKEND + "?fn=restore&code=" + code, null, 15000);
+      j = await r.json();
+    } catch (_) {}
+    if (!j || !j.ok || !j.data) {
+      msg.textContent = "기록을 찾지 못했습니다. 코드를 다시 확인해 주세요.";
+      return;
+    }
+    const d = j.data;
+    // 합치기 — 지금 폰에 있는 기록은 지우지 않고, 없는 것만 추가한다
+    const cur = loadCourses();
+    (d.courses || []).forEach((c) => { if (!cur.some((x) => x.name === c.name)) cur.push(c); });
+    saveCourses(cur);
+    const sc = loadScores();
+    (d.scores || []).forEach((r2) => { if (!sc.some((x) => x.id === r2.id)) sc.push(r2); });
+    sc.sort((a, b) => (b.date || "").localeCompare(a.date || ""));
+    saveScores(sc);
+    if (d.profile && !Object.keys(loadProfile()).length) saveProfile(d.profile);
+    if (d.defaultTee && !localStorage.getItem("riweather.defaultTee"))
+      localStorage.setItem("riweather.defaultTee", d.defaultTee);
+    // 복구한 기기에서도 같은 코드로 계속 백업하게 이어받는다
+    const s = st(); s.code = code; s.on = true; s.hash = null; put(s);
+    renderHome();
+    refreshUI();
+    msg.textContent = `✅ 복구 완료 — 즐겨찾기 ${cur.length}곳 · 스코어 ${sc.length}건`;
+  }
+
+  function refreshUI() {
+    const s = st();
+    const codeEl = $("#bk-code"), stateEl = $("#bk-state");
+    if (!codeEl) return;
+    if (s.on && s.code) {
+      codeEl.textContent = fmt(s.code);
+      stateEl.textContent = s.last
+        ? "자동 백업 켜짐 · 마지막 백업 " + new Date(s.last).toLocaleString("ko-KR", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })
+        : "자동 백업 켜짐 · 첫 백업 대기 중";
+      $("#bk-enable").hidden = true;
+      $("#bk-code-wrap").hidden = false;
+    } else {
+      stateEl.textContent = "백업이 꺼져 있습니다 — 앱을 지우면 기록이 사라집니다";
+      $("#bk-enable").hidden = false;
+      $("#bk-code-wrap").hidden = true;
+    }
+  }
+
+  function open() { refreshUI(); $("#backup-sheet").hidden = false; }
+
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "hidden" && st().on) send(false);
+  });
+
+  return { touch, open, enable, restore, send };
+})();
+
+$("#backup-open")?.addEventListener("click", () => BACKUP.open());
+$("#backup-open-empty")?.addEventListener("click", () => BACKUP.open());
+$("#bk-enable")?.addEventListener("click", () => BACKUP.enable());
+$("#bk-close")?.addEventListener("click", () => { $("#backup-sheet").hidden = true; });
+$("#backup-sheet")?.addEventListener("click", (e) => { if (e.target === $("#backup-sheet")) $("#backup-sheet").hidden = true; });
+$("#bk-copy")?.addEventListener("click", async () => {
+  const t = $("#bk-code").textContent;
+  try { await navigator.clipboard.writeText(t); } catch (_) {}
+  $("#bk-copy").textContent = "✅ 복사됨";
+  setTimeout(() => { $("#bk-copy").textContent = "복사"; }, 2000);
+});
+$("#bk-restore-btn")?.addEventListener("click", () => BACKUP.restore($("#bk-restore-input").value));
 
 /* ---------- 시작 ---------- */
 document.querySelector(".beta-badge").textContent = "Ri-Weather BETA " + APP_VER;

@@ -27,10 +27,64 @@ function sheet_() {
   return sh;
 }
 
+/* ---------- 기록 백업 (즐겨찾기·스코어 지키기) ----------
+ * 앱을 지웠다 다시 깔거나 폰을 바꿔도 '복구 코드'만 있으면 기록이 돌아온다.
+ * 코드는 앱이 만든 임의 12자리 숫자 — 이름·연락처 등 개인 식별 정보는 없다. */
+function backupSheet_() {
+  var ss = SHEET_ID ? SpreadsheetApp.openById(SHEET_ID) : SpreadsheetApp.getActiveSpreadsheet();
+  var sh = ss.getSheetByName("backup");
+  if (!sh) {
+    sh = ss.insertSheet("backup");
+    sh.appendRow(["코드", "갱신시각", "크기", "데이터"]);
+  }
+  return sh;
+}
+
+function backupSave_(code, data) {
+  code = String(code || "").replace(/[^0-9]/g, "");
+  if (code.length < 10 || code.length > 16) return json_({ ok: false, err: "코드 형식" });
+  var payload = JSON.stringify(data || {});
+  if (payload.length < 2 || payload.length > 45000)      // 시트 셀 한도(5만자) 안전선
+    return json_({ ok: false, err: "데이터 크기" });
+  var lock = LockService.getScriptLock();
+  lock.waitLock(10000);
+  try {
+    var sh = backupSheet_();
+    var codes = sh.getRange(1, 1, Math.max(sh.getLastRow(), 1), 1).getValues();
+    for (var i = 1; i < codes.length; i++) {
+      if (String(codes[i][0]) === code) {                // 기존 코드 → 덮어쓰기
+        sh.getRange(i + 1, 2, 1, 3).setValues([[new Date(), payload.length, payload]]);
+        return json_({ ok: true, updated: true });
+      }
+    }
+    sh.appendRow([code, new Date(), payload.length, payload]);
+    return json_({ ok: true, created: true });
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+function backupLoad_(code) {
+  code = String(code || "").replace(/[^0-9]/g, "");
+  if (!code) return json_({ ok: false });
+  var sh = backupSheet_();
+  var last = sh.getLastRow();
+  if (last < 2) return json_({ ok: false, err: "없음" });
+  var rows = sh.getRange(2, 1, last - 1, 4).getValues();
+  for (var i = 0; i < rows.length; i++) {
+    if (String(rows[i][0]) === code) {
+      try { return json_({ ok: true, updated: rows[i][1], data: JSON.parse(rows[i][3]) }); }
+      catch (e) { return json_({ ok: false, err: "손상" }); }
+    }
+  }
+  return json_({ ok: false, err: "없음" });
+}
+
 /* ---------- 통계 수집 (앱 → 서버) ---------- */
 function doPost(e) {
   try {
     var body = JSON.parse(e.postData.contents || "{}");
+    if (body.fn === "backup") return backupSave_(body.code, body.data);
     var rows = body.rows || [];
     if (!rows.length || rows.length > 100) return json_({ ok: false });
     var sh = sheet_();
@@ -62,6 +116,7 @@ function doGet(e) {
   var p = (e && e.parameter) || {};
   if (p.fn === "placephotos") return placePhotos_(p.id);
   if (p.fn === "placemeta") return placeMeta_(p.ids);
+  if (p.fn === "restore") return backupLoad_(p.code);
   if (p.fn === "summary") {
     if (p.pw !== ADMIN_PW) return json_({ err: "비밀번호가 틀립니다" });
     return summary_();
