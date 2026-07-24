@@ -53,8 +53,9 @@
     // (2026-07-22 js/legal.js 누락 사고 때 이게 없어 원인 파악이 늦었음)
     // 평소엔 아무것도 하지 않고, 오류가 났을 때만 화면 위에 빨간 띠로 알려준다.
     (function () {
-      var box = null;
+      var box = null, lastMsg = "", lastEl = null, repeat = 1, lines = 0;
       function show(msg) {
+        if (lines >= 8) return;                       // 화면을 빨간 벽으로 덮지 않도록 상한
         if (!box) {
           box = document.createElement("div");
           box.setAttribute("role", "alert");
@@ -62,10 +63,21 @@
             "position:fixed;left:0;right:0;top:0;z-index:99999;background:#c0392b;color:#fff;" +
             "font:12px/1.5 -apple-system,sans-serif;padding:10px 12px;white-space:pre-wrap;" +
             "word-break:break-all;max-height:45vh;overflow:auto";
-          box.addEventListener("click", function () { box.remove(); box = null; });
+          box.addEventListener("click", function () { box.remove(); box = null; lastEl = null; lines = 0; });
           (document.body || document.documentElement).appendChild(box);
         }
-        box.textContent += msg + "\n──── (눌러서 닫기)\n";
+        if (msg === lastMsg && lastEl) {              // 같은 오류 반복 → 한 줄에 횟수만 표시
+          repeat++;
+          lastEl.textContent = msg + "  (×" + repeat + ")";
+          return;
+        }
+        lastMsg = msg; repeat = 1; lines++;
+        lastEl = document.createElement("div");
+        lastEl.textContent = msg;
+        box.appendChild(lastEl);
+        var tail = document.createElement("div");
+        tail.textContent = "──── (눌러서 닫기)";
+        box.appendChild(tail);
       }
       window.addEventListener("error", function (e) {
         var t = e.target;
@@ -76,11 +88,16 @@
           if (t.tagName === "LINK") return show("[파일 없음] " + (t.href || "?"));
           return;
         }
+        // 메시지·파일명·줄번호가 전부 없는 '빈 이벤트'는 진단 가치가 없다.
+        // iOS 가 이런 이벤트를 반복 발생시켜 화면을 덮은 사고(2026-07-24)가 있어 표시하지 않는다.
+        if (!e.message && !e.filename && e.lineno == null) return;
         show("[오류] " + (e.message || "") + "\n@ " +
              (e.filename || "").split("/").pop() + ":" + e.lineno);
       }, true);   // 파일 로드 실패는 버블링되지 않으므로 capture 로 받는다
       window.addEventListener("unhandledrejection", function (e) {
-        show("[처리안됨] " + ((e.reason && (e.reason.message || e.reason)) || "?"));
+        var r = e.reason;
+        if (r == null || r === "") return;            // 내용 없는 거부는 표시하지 않음
+        show("[처리안됨] " + (r.message || r));
       });
       // 주소 뒤에 ?diag 를 붙이면 버전·기기 정보를 화면에 표시 (문의 대응용)
       if (/[?&]diag\b/.test(location.search)) {
