@@ -4,8 +4,8 @@
  * ========================================================= */
 "use strict";
 
-const APP_VER = "v107"; // 배포 버전 (홈 화면 배지에 표시)
-const APP_NOTE = "무한 로딩 수정"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
+const APP_VER = "v108"; // 배포 버전 (홈 화면 배지에 표시)
+const APP_NOTE = "전수 감사 반영"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
 const STORAGE_KEY = "riweather.courses.v1";
 const GEM_KEY = "riweather.gemini"; // 정밀 인식(비전 AI) 개인 키 저장소
 // 기본 제공 키 (무료 한도 공유) — 개인 키를 설정하면 그 키가 우선됩니다
@@ -75,7 +75,7 @@ async function fetchJSON(url, { retries = 2, delay = 1200 } = {}) {
   for (let attempt = 0; ; attempt++) {
     let res;
     try {
-      res = await fetch(url);
+      res = await fetchT(url, null, 10000);   // 연결이 물려도 10초 뒤 재시도·실패 처리로 넘어감
     } catch (e) {
       if (attempt >= retries) throw e;
       await new Promise((r) => setTimeout(r, delay * (attempt + 1)));
@@ -165,7 +165,7 @@ async function searchPlaces(q) {
     q, format: "jsonv2", "accept-language": "ko",
     countrycodes: "kr,jp,cn", limit: "8",
   });
-  const res = await fetch(url);
+  const res = await fetchT(url, null, 6000);
   if (!res.ok) throw new Error("search HTTP " + res.status);
   return res.json();
 }
@@ -199,7 +199,7 @@ async function reverseGeocode(lat, lon) {
   url.search = new URLSearchParams({
     lat, lon, format: "jsonv2", "accept-language": "ko", zoom: "10",
   });
-  const res = await fetch(url);
+  const res = await fetchT(url, null, 6000);
   if (!res.ok) throw new Error("reverse HTTP " + res.status);
   const j = await res.json();
   const a = j.address || {};
@@ -696,8 +696,13 @@ async function openDetail(course) {
   $("#precip-scroll").innerHTML = "";
 
   updateDistCard(course);      // 내 위치 → 골프장 거리/이동시간
-  resetMapState(course);
-  initRadar();                 // 실황 레이더 프레임 로드 (백그라운드)
+  // 지도 라이브러리가 로드되지 않아도(구버전 캐시 등) 날씨는 계속 보이게 한다
+  if (typeof L !== "undefined") {
+    resetMapState(course);
+    initRadar();               // 실황 레이더 프레임 로드 (백그라운드)
+  } else {
+    $("#radar-updated").textContent = "지도를 불러오지 못했습니다 — 앱을 껐다 다시 열어주세요";
+  }
   const airP = fetchAir(course.lat, course.lon).catch(() => null);
 
   let data;
@@ -1055,13 +1060,21 @@ function resetMapState(course) {
 }
 
 /* ---------- 실황 레이더 (RainViewer) ---------- */
+let rvLoading = false;
 async function initRadar() {
+  if (rvLoading || rvFrames.length) return;   // 중복 호출 방지 (재시도는 탭 다시 누르기)
+  rvLoading = true;
   let json;
   try {
-    const res = await fetch("https://api.rainviewer.com/public/weather-maps.json");
+    const res = await fetchT("https://api.rainviewer.com/public/weather-maps.json", null, 10000);
     json = await res.json();
   } catch {
+    rvLoading = false;
+    if (mapMode === "rv")
+      $("#radar-updated").textContent = "실황 레이더를 불러오지 못했습니다 — 실황 탭을 다시 눌러주세요";
     return;
+  } finally {
+    rvLoading = false;
   }
   const host = json.host;
   const all = [
@@ -1315,6 +1328,7 @@ function setMode(m) {
   mapMode = m;
   document.querySelectorAll(".mode-btn").forEach((b) =>
     b.classList.toggle("active", b.dataset.mode === m));
+  if (m === "rv" && !isKRCourse()) initRadar();   // 이전에 실패했어도 탭 누르면 재시도
 
   // 한국: 실황 탭이 '기상청 레이더·예측'으로 동작 (해외는 위성 레이더 유지)
   const kr = isKRCourse();
@@ -1597,9 +1611,14 @@ async function openCourseView() {
   $("#hole-list-card").hidden = true;
   $("#hole-detail-card").hidden = true;
   $("#course-note").hidden = true;
-  ensureCourseMap(course.lat, course.lon);
-  clearCourseLayers();
-  setTimeout(() => courseMap.invalidateSize(), 60);
+  // 지도 라이브러리가 없어도(구버전 캐시 등) 홀맵·공략은 계속 보이게 한다
+  if (typeof L !== "undefined") {
+    ensureCourseMap(course.lat, course.lon);
+    clearCourseLayers();
+    setTimeout(() => courseMap.invalidateSize(), 60);
+  } else {
+    $("#course-status").textContent = "코스 지도를 불러오지 못했습니다";
+  }
 
   // 공식 홀맵 이미지가 있는 구장: 홈페이지 홀맵 그대로 표시 + AI 캐디
   const imgdb = (typeof HOLEIMG_DB !== "undefined" && HOLEIMG_DB[course.name]) || null;
@@ -1906,7 +1925,7 @@ async function renderHoleCanvas(h, cacheKey) {
     const jobs = [];
     for (let tx = tx0; tx <= tx1; tx++) {
       for (let ty = ty0; ty <= ty1; ty++) {
-        jobs.push(fetch(`https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/${z}/${ty}/${tx}`)
+        jobs.push(fetchT(`https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/${z}/${ty}/${tx}`, null, 8000)
           .then((r) => r.blob()).then(createImageBitmap)
           .then((b) => octx.drawImage(b, (tx - tx0) * 256, (ty - ty0) * 256)).catch(() => {}));
       }
@@ -1989,7 +2008,7 @@ async function holeSatelliteDataUrl(h) {
   const jobs = [];
   for (let tx = tx0; tx <= tx1; tx++) {
     for (let ty = ty0; ty <= ty1; ty++) {
-      jobs.push(fetch(`https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/${z}/${ty}/${tx}`)
+      jobs.push(fetchT(`https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/${z}/${ty}/${tx}`, null, 8000)
         .then((r) => r.blob()).then(createImageBitmap)
         .then((bmp) => ctx.drawImage(bmp, (tx - tx0) * 256, (ty - ty0) * 256)));
     }
@@ -2127,7 +2146,7 @@ async function runAiCaddie() {
       const frameData = [];
       for (const src of (hh.frames || [])) {
         try {
-          const b = await fetch(src).then((r) => r.blob());
+          const b = await fetchT(src, null, 5000).then((r) => r.blob());
           frameData.push(await new Promise((res, rej) => {
             const fr = new FileReader();
             fr.onload = () => res(String(fr.result).split(",")[1]);
@@ -2505,9 +2524,28 @@ async function openFoodView() {
         prefetchFoodPhotos(list);
         attachFoodRatings(list).then((ok) => {
           if (currentCourse !== course || viewStack[viewStack.length - 1] !== "food") return;
-          if (!ok) { const b = $("#food-reco-banner"); if (b) b.remove(); return; }
-          FOOD_VIEW.sort = "reco";
-          renderFoodList(list, region, true);
+          const banner = $("#food-reco-banner");
+          if (!ok) { if (banner) banner.remove(); return; }
+          if (window.scrollY <= 200) {
+            // 아직 위쪽을 보는 중 → 바로 추천순으로 재정렬해도 어색하지 않다
+            FOOD_VIEW.sort = "reco";
+            renderFoodList(list, region, true);
+            return;
+          }
+          // 스크롤해서 목록을 보는 중 — 화면을 갈아엎으면 보던 곳을 잃는다(회색 화면 사고 원인).
+          // 재정렬 대신 배너를 버튼으로 바꿔 사용자가 원할 때 전환하게 한다.
+          if (banner) {
+            banner.innerHTML = '<button class="ff-chip">⭐ 평점 도착 — 추천 맛집 순으로 보기</button>';
+            banner.querySelector("button").addEventListener("click", () => {
+              FOOD_VIEW.sort = "reco";
+              renderFoodList(list, region, true);
+              window.scrollTo(0, 0);
+            });
+          }
+        }).catch(() => {
+          // 평점 처리 중 어떤 오류가 나도 목록은 거리순으로 계속 보이게 한다
+          if (currentCourse !== course || viewStack[viewStack.length - 1] !== "food") return;
+          const b = $("#food-reco-banner"); if (b) b.remove();
         });
         return;
       }
@@ -2591,7 +2629,7 @@ async function attachFoodRatings(list) {
   let meta = null;
   try {
     const c = JSON.parse(localStorage.getItem(LS) || "null");
-    if (c && Date.now() - c.t < 864e5) meta = c.d;
+    if (c && Date.now() - c.t < 864e5 && c.d && typeof c.d === "object") meta = c.d;
   } catch (_) {}
   if (!meta) {
     try {
@@ -2599,15 +2637,17 @@ async function attachFoodRatings(list) {
       // 실패해도 목록은 이미 떠 있고 거리순으로 동작하므로 조용히 포기한다.
       const r = await fetchT(window.RIW_BACKEND + "?fn=placemeta&ids=" + ids.join(","), null, 12000);
       meta = await r.json();
+      if (!meta || typeof meta !== "object") return false;   // 'null' 응답을 캐시에 남기지 않는다
       try { localStorage.setItem(LS, JSON.stringify({ t: Date.now(), d: meta })); } catch (_) {}
     } catch (_) { return false; }
   }
+  if (!meta || typeof meta !== "object") return false;   // 백엔드가 null·이상값을 줘도 안전
   let any = false;
   list.forEach((it) => {
     const id = (((it.url || "").match(/\/(\d+)\/?$/) || [])[1]);
-    const m = id && meta[id];
-    it.rating = m ? m.r : 0;
-    it.reviews = m ? m.c : 0;
+    const m = (id && meta[id]) || null;
+    it.rating = Number(m && m.r) || 0;    // 문자열 "4.5"가 와도 숫자로 (toFixed 오류 방지)
+    it.reviews = Number(m && m.c) || 0;
     if (it.rating > 0) any = true;
   });
   return any;
@@ -3167,9 +3207,9 @@ async function geminiRecognize(dataUrl) {
   let lastErr = null;
   for (const model of models) {
     try {
-      const r = await fetch(
+      const r = await fetchT(
         `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=` + encodeURIComponent(key),
-        { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+        { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }, 20000);
       if (!r.ok) { lastErr = new Error("HTTP " + r.status); continue; }
       const j = await r.json();
       const txt = j.candidates?.[0]?.content?.parts?.[0]?.text || "";
@@ -3264,9 +3304,9 @@ async function geminiGenerate(parts, temperature = 0.3) {
   let lastErr = null;
   for (const model of models) {
     try {
-      const r = await fetch(
+      const r = await fetchT(
         `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=` + encodeURIComponent(key),
-        { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+        { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }, 20000);
       if (!r.ok) { lastErr = new Error("HTTP " + r.status); continue; }
       const j = await r.json();
       const t = j.candidates?.[0]?.content?.parts?.[0]?.text;
