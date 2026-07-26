@@ -940,22 +940,53 @@
     idx = i;
     const sc = SCREENS[idx];
     scrEl().innerHTML = (idx > 0 ? `<button class="cf-back" data-back>← 이전</button>` : "") + sc.render();
-    const stage = $$("#cf-stage"), step = $$("#cf-step"), bar = $$("#cf-stitch");
+    const stage = $$("#cf-stage"), step = $$("#cf-step");
     // 진행 표시는 단계 이름("가봉")이 아니라 지금 무슨 일이 일어나는지를 말한다.
     // 화면의 eyebrow 를 열쇠로 문구를 찾고, 없으면 단계 이름으로 폴백.
     const eye = (scrEl().querySelector(".q-eyebrow") || {}).textContent || "";
     stage.textContent = NARRATION[eye.trim()] || sc.stage;
-    if (sc.stage === "가봉") { step.textContent = `${sc.q} / 8`; bar.style.width = (sc.q / 8 * 100) + "%"; }
-    else if (sc.stage === "본봉") { step.textContent = `${sc.q} / 6`; bar.style.width = (sc.q / 6 * 100) + "%"; }
-    else if (sc.stage === "판정") { step.textContent = "완료"; bar.style.width = "100%"; }
-    else if (sc.stage === "가봉 완료") { step.textContent = "8 / 8 완료"; bar.style.width = "100%"; }
-    // 클럽별 모듈은 3문항 — 결과 화면(q 없음)은 100%
+    let t = 0;
+    if (sc.stage === "가봉") { step.textContent = `${sc.q} / 8`; t = sc.q / 8; }
+    else if (sc.stage === "본봉") { step.textContent = `${sc.q} / 6`; t = sc.q / 6; }
+    else if (sc.stage === "판정") { step.textContent = "홀인!"; t = 1; }
+    else if (sc.stage === "가봉 완료") { step.textContent = "8 / 8 완료"; t = 1; }
+    // 클럽별 모듈은 3문항 — 결과 화면(q 없음)은 완료
     else if (["아이언", "웨지", "퍼터"].includes(sc.stage)) {
-      step.textContent = sc.q ? `${sc.q} / 3` : "완료";
-      bar.style.width = (sc.q ? sc.q / 3 * 100 : 100) + "%";
+      step.textContent = sc.q ? `${sc.q} / 3` : "홀인!";
+      t = sc.q ? sc.q / 3 : 1;
     }
-    else { step.textContent = ""; bar.style.width = "0%"; }
+    else { step.textContent = ""; t = 0; }
+    flyBall(t);
     window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  /* 공을 궤적 위 t(0~1) 지점으로 보낸다.
+     경로 위 실제 좌표를 써야 포물선을 자연스럽게 따라간다. */
+  let lastT = 0;
+  function flyBall(t) {
+    const arc = $$("#cf-arc"), ball = $$("#cf-ball"),
+          golfer = $$("#cf-golfer"), flag = document.querySelector(".cf-flag");
+    if (!arc || !ball) return;
+    t = Math.max(0, Math.min(1, t));
+    let len = 0;
+    try { len = arc.getTotalLength(); } catch (_) { return; }
+
+    // 지나온 만큼만 실선으로 드러낸다
+    arc.style.strokeDasharray = len + " " + len;
+    arc.style.strokeDashoffset = len * (1 - t);
+
+    const p = arc.getPointAtLength(len * t);
+    ball.setAttribute("cx", p.x);
+    ball.setAttribute("cy", p.y);
+
+    // 처음 공을 칠 때 스윙, 홀에 들어가면 깃발이 반긴다
+    if (t > 0 && lastT === 0 && golfer) {
+      golfer.classList.remove("swing"); void golfer.getBBox();
+      golfer.classList.add("swing");
+    }
+    ball.classList.toggle("holed", t >= 1);
+    if (flag) flag.classList.toggle("cheer", t >= 1);
+    lastT = t;
   }
   function canPassScore() { return S.scoreConfirm === "ok" || (S.scoreConfirm === "diff" && S.scoreGrp); }
   function advance() {

@@ -4,8 +4,8 @@
  * ========================================================= */
 "use strict";
 
-const APP_VER = "v115"; // 배포 버전 (홈 화면 배지에 표시)
-const APP_NOTE = "클럽 피팅 진행 표시를 이야기로"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
+const APP_VER = "v116"; // 배포 버전 (홈 화면 배지에 표시)
+const APP_NOTE = "대기 화면 원형 %+단계 안내, 맛집은 찾기·평가·사진까지 끝내고 추천순"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
 const STORAGE_KEY = "riweather.courses.v1";
 const GEM_KEY = "riweather.gemini"; // 정밀 인식(비전 AI) 개인 키 저장소
 // 기본 제공 키 (무료 한도 공유) — 개인 키를 설정하면 그 키가 우선됩니다
@@ -2542,57 +2542,46 @@ async function openFoodView() {
   $("#food-title").textContent = "주변맛집";
   $("#food-desc").textContent = `${course.name} 주변 식당`;
   const listEl = $("#food-list");
-  // 맛집은 위에서부터 순차로 채워지므로 전체 대기화면 대신 자리표시(스켈레톤)를 둔다
-  // — 빈 화면보다 "곧 여기 채워진다"가 체감 대기를 줄인다
-  listEl.innerHTML = Array.from({ length: 4 }, () =>
-    '<div class="food-card"><div class="skel" style="height:15px;width:52%"></div>' +
-    '<div class="skel" style="height:12px;width:74%;margin-top:9px"></div>' +
-    '<div class="skel" style="height:12px;width:36%;margin-top:7px"></div></div>').join("");
+  listEl.innerHTML = "";
   $("#food-note").hidden = true;
 
   const region = (course.addr || "").split(" ").slice(0, 2).join(" ");
-  // 1순위: 카카오맵 등록 맛집 (가까운 순 · 사진/전화 제공)
+  const alive = () => currentCourse === course && viewStack[viewStack.length - 1] === "food";
+
+  // 1순위: 카카오맵 등록 맛집 (평점·사진 제공)
+  //
+  // 예전에는 거리순으로 먼저 보여준 뒤 평점이 도착하면 추천순으로 다시 정렬했는데,
+  // 목록이 눈앞에서 뒤바뀌는 게 거슬린다는 지적이 있었다(2026-07-27).
+  // 이제는 찾기 → 평가 → 사진까지 다 끝내고 **한 번에** 추천순으로 보여준다.
+  // 그동안 무엇을 하고 있는지는 대기 화면이 단계별로 말해준다.
   if (getKakaoKey()) {
+    const w = WAIT.open("food", { msgs: [`${course.name} 근방 맛집을 찾고 있어요`] });
     try {
+      w.say(`${course.name} 근방 맛집을 찾고 있어요`, 12);
       const list = await fetchKakaoFood(course);
-      if (currentCourse !== course || viewStack[viewStack.length - 1] !== "food") return;
+      if (!alive()) { w.close(); return; }
+
       if (list.length) {
-        // 즉시 가까운 순으로 보여주고(사진도 위에서부터 바로 로딩),
-        // 평점이 도착하면 예고했던 대로 한 번만 추천순으로 정렬한다.
-        FOOD_VIEW.sort = "dist";
+        w.say(`맛집 ${list.length}곳을 찾았어요<br>맛을 평가하고 있어요`, 42);
+        try { await attachFoodRatings(list); } catch (_) { /* 평점 없어도 목록은 보여준다 */ }
+        if (!alive()) { w.close(); return; }
+
+        w.say("맛집 사진을 모으고 있어요", 68);
+        try { await prefetchFoodPhotos(list); } catch (_) { /* 사진은 없으면 없는 대로 */ }
+        if (!alive()) { w.close(); return; }
+
+        w.say("추천순으로 정리하고 있어요", 92);
+        FOOD_VIEW.sort = "reco";
         FOOD_VIEW.cat = "전체";
-        renderFoodList(list, region, true, true);      // pendingReco 배너 표시
-        prefetchFoodPhotos(list);
-        attachFoodRatings(list).then((ok) => {
-          if (currentCourse !== course || viewStack[viewStack.length - 1] !== "food") return;
-          const banner = $("#food-reco-banner");
-          if (!ok) { if (banner) banner.remove(); return; }
-          if (window.scrollY <= 200) {
-            // 아직 위쪽을 보는 중 → 바로 추천순으로 재정렬해도 어색하지 않다
-            FOOD_VIEW.sort = "reco";
-            renderFoodList(list, region, true);
-            return;
-          }
-          // 스크롤해서 목록을 보는 중 — 화면을 갈아엎으면 보던 곳을 잃는다(회색 화면 사고 원인).
-          // 재정렬 대신 배너를 버튼으로 바꿔 사용자가 원할 때 전환하게 한다.
-          if (banner) {
-            banner.innerHTML = '<button class="ff-chip">⭐ 평점 도착 — 추천 맛집 순으로 보기</button>';
-            banner.querySelector("button").addEventListener("click", () => {
-              FOOD_VIEW.sort = "reco";
-              renderFoodList(list, region, true);
-              window.scrollTo(0, 0);
-            });
-          }
-        }).catch(() => {
-          // 평점 처리 중 어떤 오류가 나도 목록은 거리순으로 계속 보이게 한다
-          if (currentCourse !== course || viewStack[viewStack.length - 1] !== "food") return;
-          const b = $("#food-reco-banner"); if (b) b.remove();
-        });
+        renderFoodList(list, region, true);
+        staggerIn(listEl);
+        w.close();
         return;
       }
     } catch (e) {
       if (String(e.message).indexOf("kakao") === 0) console.warn("kakao food:", e.message);
     }
+    w.close();
   }
 
   let data;
@@ -2712,10 +2701,14 @@ const genuinePhotos = (arr) => (arr || []).filter((u) => typeof u === "string" &
 /* 추천 상위 식당의 사진을 미리 받아 로컬에 저장 — 눌렀을 때 기다림 없이 뜨게 */
 async function prefetchFoodPhotos(list) {
   if (!window.RIW_BACKEND) return;
-  const top = list.slice().sort((a, b) => recoScore(b) - recoScore(a)).slice(0, 8);
-  for (const it of top) {
+  // 이제 이 함수가 끝나야 목록이 보이므로, 순차로 돌면 사용자를 하염없이 기다리게 한다.
+  // → 병렬로 받되 전체 8초 예산을 넘기면 받은 만큼만 쓰고 넘어간다.
+  // 45곳 사진을 전부 미리 받으면 대기가 너무 길어진다.
+  // 첫 화면들에서 실제로 보이는 12곳까지만 미리 받고, 나머지는 스크롤할 때 채운다.
+  const top = list.slice().sort((a, b) => recoScore(b) - recoScore(a)).slice(0, 12);
+  const one = async (it) => {
     const pid = foodPid(it);
-    if (!pid) continue;
+    if (!pid) return;
     const LS = "riweather.placeph5." + pid;
     let cached = null;
     try {
@@ -2724,16 +2717,24 @@ async function prefetchFoodPhotos(list) {
     } catch (_) {}
     if (!cached) {
       try {
-        const r = await fetchT(window.RIW_BACKEND + "?fn=placephotos&id=" + pid, null, 10000);
+        const r = await fetchT(window.RIW_BACKEND + "?fn=placephotos&id=" + pid, null, 7000);
         cached = genuinePhotos((await r.json()).photos).slice(0, 10);
         try { localStorage.setItem(LS, JSON.stringify({ t: Date.now(), d: cached })); } catch (_) {}
-      } catch (_) { continue; }
+      } catch (_) { return; }
     }
-    genuinePhotos(cached).slice(0, 4).forEach((u) => { const im = new Image(); im.src = foodThumb(u); });
-  }
+    // 썸네일을 미리 받아둬야 목록이 뜰 때 사진이 이미 그려져 있다
+    await Promise.all(genuinePhotos(cached).slice(0, 3).map((u) => new Promise((res) => {
+      const im = new Image();
+      im.onload = im.onerror = res;
+      im.src = foodThumb(u);
+      setTimeout(res, 3500);          // 느린 이미지 하나가 전체를 잡지 않게
+    })));
+  };
+  const budget = new Promise((res) => setTimeout(res, 9000));
+  await Promise.race([Promise.allSettled(top.map(one)), budget]);
 }
 
-function renderFoodList(list, region, fromKakao, pendingReco) {
+function renderFoodList(list, region, fromKakao) {
   const listEl = $("#food-list");
   listEl.innerHTML = "";
   if (!list.length) {
@@ -2744,13 +2745,6 @@ function renderFoodList(list, region, fromKakao, pendingReco) {
     return;
   }
 
-  if (pendingReco) {
-    const bn = document.createElement("p");
-    bn.id = "food-reco-banner";
-    bn.className = "food-reco-banner";
-    bn.innerHTML = "⭐ 카카오 평점 확인 중 — 잠시 후 <b>추천 맛집 순</b>으로 정렬됩니다";
-    listEl.appendChild(bn);
-  }
   const hasRatings = list.some((it) => (it.rating || 0) > 0);
   if (FOOD_VIEW.sort === "reco" && !hasRatings) FOOD_VIEW.sort = "dist";
 

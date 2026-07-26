@@ -87,17 +87,27 @@ const WAIT = (() => {
 
   const HOLD = 1900;      // 문구 하나가 머무는 시간
   let box = null, timer = null, openedAt = 0, closing = null;
+  let shown = 0;          // 화면에 표시 중인 퍼센트 (뒤로 가지 않게 유지)
+  let driven = false;     // true = 호출한 쪽이 say() 로 직접 진행을 몰고 있음
 
+  /* 진행률은 원 안의 숫자로 — 막대보다 "얼마나 남았는지"가 한눈에 읽힌다 (토스 방식) */
+  const R = 44, CIRC = 2 * Math.PI * R;
   function build(script) {
     const el = document.createElement("div");
     el.className = "rw-wait";
     el.setAttribute("role", "status");
     el.setAttribute("aria-live", "polite");
     el.innerHTML =
-      '<div class="rw-wait-dots"><i></i><i></i><i></i></div>' +
+      '<div class="rw-ring">' +
+        '<svg viewBox="0 0 100 100" aria-hidden="true">' +
+          '<circle class="rw-ring-bg" cx="50" cy="50" r="' + R + '"></circle>' +
+          '<circle class="rw-ring-fg" cx="50" cy="50" r="' + R + '"' +
+            ' stroke-dasharray="' + CIRC + '" stroke-dashoffset="' + CIRC + '"></circle>' +
+        '</svg>' +
+        '<span class="rw-ring-pct">0<i>%</i></span>' +
+      '</div>' +
       '<div class="rw-wait-msg"><span></span></div>' +
-      '<div class="rw-wait-sub"></div>' +
-      '<div class="rw-wait-bar"><i></i></div>';
+      '<div class="rw-wait-sub"></div>';
     el.querySelector(".rw-wait-sub").textContent = script.sub || "";
     return el;
   }
@@ -111,23 +121,37 @@ const WAIT = (() => {
     openedAt = Date.now();
 
     const msgEl = box.querySelector(".rw-wait-msg");
-    const barEl = box.querySelector(".rw-wait-bar i");
+    const ringEl = box.querySelector(".rw-ring-fg");
+    const pctEl = box.querySelector(".rw-ring-pct");
     const list = (opts && opts.msgs) || script.msgs;
     let i = 0;
 
-    const paint = () => {
-      // 새 span 으로 갈아끼워야 등장 애니메이션이 다시 재생된다
-      msgEl.innerHTML = "<span>" + list[i] + "</span>";
-      // 진행바는 마지막 문구에서 92%까지만 — 100%는 실제로 끝났을 때
-      barEl.style.width = Math.min(92, ((i + 1) / list.length) * 92) + "%";
+    const setPct = (p) => {
+      shown = Math.max(shown, Math.min(100, Math.round(p)));   // 진행률은 되돌아가지 않는다
+      if (ringEl) ringEl.style.strokeDashoffset = CIRC * (1 - shown / 100);
+      if (pctEl) pctEl.innerHTML = shown + "<i>%</i>";
     };
-    paint();
+    const say = (text, p) => {
+      // 새 span 으로 갈아끼워야 등장 애니메이션이 다시 재생된다
+      if (text) msgEl.innerHTML = "<span>" + text + "</span>";
+      if (typeof p === "number") setPct(p);
+    };
+    shown = 0;
+    // 처음부터 큰 숫자를 보여주면 거짓말이 된다. 문구가 하나뿐인 경우(직접 제어)도 낮게 시작.
+    say(list[0], list.length > 1 ? 92 / list.length : 6);
+
+    // 호출한 쪽이 실제 진행을 알려주지 않으면(=say 미사용) 시간에 따라 알아서 넘긴다
     timer = setInterval(() => {
-      if (i < list.length - 1) { i++; paint(); }
-      else clearInterval(timer);      // 마지막 문구는 끝날 때까지 유지
+      if (driven) return;                       // 수동 제어 중이면 자동 전환 중단
+      if (i < list.length - 1) { i++; say(list[i], (i + 1) / list.length * 92); }
+      else clearInterval(timer);                // 마지막 문구는 끝날 때까지 유지
     }, HOLD);
 
-    return { close: () => close() };
+    return {
+      close: () => close(),
+      /* 실제 진행에 맞춰 문구·퍼센트를 직접 넘긴다 (맛집처럼 단계가 분명한 작업용) */
+      say: (text, p) => { driven = true; say(text, p); },
+    };
   }
 
   /* 너무 빨리 끝나면 화면이 번쩍이기만 한다 → 최소 550ms 는 보여준다 */
@@ -135,14 +159,18 @@ const WAIT = (() => {
     if (!box) return;
     if (timer) { clearInterval(timer); timer = null; }
     const el = box;
-    box = null;
+    box = null; driven = false;
     if (closing) { clearTimeout(closing); closing = null; }
 
     const finish = () => {
-      const bar = el.querySelector(".rw-wait-bar i");
-      if (bar) bar.style.width = "100%";
-      el.classList.add("is-closing");
-      setTimeout(() => { el.remove(); document.body.style.overflow = ""; }, 220);
+      // 끝났을 때만 100% — 그전에 100%를 보여주면 거짓말이 된다
+      const ring = el.querySelector(".rw-ring-fg"), pct = el.querySelector(".rw-ring-pct");
+      if (ring) ring.style.strokeDashoffset = 0;
+      if (pct) pct.innerHTML = '100<i>%</i>';
+      setTimeout(() => {
+        el.classList.add("is-closing");
+        setTimeout(() => { el.remove(); document.body.style.overflow = ""; }, 220);
+      }, 260);                                   // 100% 를 잠깐 보여주고 닫는다
     };
     const left = 550 - (Date.now() - openedAt);
     if (now || left <= 0) finish();

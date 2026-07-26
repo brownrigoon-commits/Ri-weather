@@ -1423,11 +1423,11 @@ h1, h2, h3, .cc-name, .hero-name, .card-title, .sheet-title { letter-spacing: -0
 .consent-start { min-height: 54px; font-size: 16px; }
 
 /* ── 눌림 반응 — 토스의 살짝 들어가는 감각 ──────────────────────── */
-button, .course-card, .hub-item, .chip, .food-card, .search-results li {
+button, .course-card, .hub-item, .chip, .food-item, .search-results li {
   transition: transform 0.12s var(--ease), background-color 0.12s var(--ease),
               box-shadow 0.12s var(--ease);
 }
-button:active, .hub-item:active, .food-card:active, .chip:active {
+button:active, .hub-item:active, .chip:active {
   transform: scale(0.97);
 }
 .course-card:active { transform: scale(0.985); box-shadow: var(--shadow-2); }
@@ -1469,18 +1469,23 @@ button:active, .hub-item:active, .food-card:active, .chip:active {
 @keyframes waitFade { from { opacity: 0; } to { opacity: 1; } }
 .rw-wait.is-closing { animation: waitFade 0.22s var(--ease) reverse both; }
 
-/* 진행 표시 — 빙글빙글보다 차오르는 쪽이 기다림이 짧게 느껴진다 */
-.rw-wait-dots { display: flex; gap: 8px; margin-bottom: 26px; }
-.rw-wait-dots i {
-  width: 9px; height: 9px; border-radius: 50%; background: var(--brand);
-  animation: dotPulse 1.1s var(--ease) infinite;
+/* 진행 표시 — 원 안의 퍼센트.
+   막대는 '어디까지 왔나'를 곁눈으로 봐야 하지만, 원 안의 숫자는 바로 읽힌다. */
+.rw-ring { position: relative; width: 132px; height: 132px; margin-bottom: 30px; }
+.rw-ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.rw-ring circle { fill: none; stroke-width: 7; stroke-linecap: round; }
+.rw-ring-bg { stroke: var(--surface-press); }
+.rw-ring-fg {
+  stroke: var(--brand);
+  transition: stroke-dashoffset 0.6s var(--ease);
 }
-.rw-wait-dots i:nth-child(2) { animation-delay: 0.14s; }
-.rw-wait-dots i:nth-child(3) { animation-delay: 0.28s; }
-@keyframes dotPulse {
-  0%, 60%, 100% { opacity: 0.22; transform: scale(0.8); }
-  30%           { opacity: 1;    transform: scale(1); }
+.rw-ring-pct {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 30px; font-weight: 800; letter-spacing: -0.04em;
+  color: var(--text); font-variant-numeric: tabular-nums;
 }
+.rw-ring-pct i { font-style: normal; font-size: 16px; color: var(--text-faint); margin-left: 1px; }
 
 /* 문구 — 한 줄씩 바뀌며 읽는 동안 기다림이 지워진다 */
 .rw-wait-msg {
@@ -1497,14 +1502,6 @@ button:active, .hub-item:active, .food-card:active, .chip:active {
   margin-top: 12px; font-size: 14px; color: var(--text-faint);
   font-weight: 500; line-height: 1.6;
 }
-.rw-wait-bar {
-  margin-top: 30px; width: min(240px, 62vw); height: 4px;
-  border-radius: 999px; background: var(--surface-press); overflow: hidden;
-}
-.rw-wait-bar i {
-  display: block; height: 100%; width: 0%; border-radius: 999px;
-  background: var(--brand); transition: width 0.5s var(--ease);
-}
 
 /* 스켈레톤 — 내용이 들어올 자리를 미리 보여준다 */
 .skel {
@@ -1518,6 +1515,7 @@ button:active, .hub-item:active, .food-card:active, .chip:active {
 @media (prefers-reduced-motion: reduce) {
   .view.is-entering, .view.is-entering-back, .stagger > *,
   .rw-wait, .rw-wait-msg span { animation: none !important; }
+  .rw-ring-fg { transition: none; }
   .skel { animation: none; }
   button:active, .hub-item:active, .course-card:active { transform: none; }
 }
@@ -1848,7 +1846,7 @@ button:active, .hub-item:active, .food-card:active, .chip:active {
 .consent-start.is-off { background: var(--surface-press); color: var(--text-faint); }
 
 /* ── 맛집 카드 ──────────────────────────────────────────────────── */
-.food-card { background: var(--surface); box-shadow: var(--shadow-1); border: none; }
+.food-item { background: var(--surface); box-shadow: var(--shadow-1); border: none; }
 .fi-name { font-size: 16px; font-weight: 700; letter-spacing: -0.03em; }
 
 /* ── 스코어 ─────────────────────────────────────────────────────── */
@@ -1932,3 +1930,50 @@ body, .view, .cf-screen, .card, .sheet { word-break: keep-all; overflow-wrap: br
 
 /* 클럽 피팅 하단 고지 — 질문 화면에서는 존재감을 더 낮춘다 */
 .cf-foot { font-size: 11.5px; line-height: 1.6; opacity: 0.85; padding: 0 8px; }
+
+/* ── 클럽 피팅 진행 = 티샷 한 번 ──────────────────────────────────
+   문항을 넘길수록 공이 그린 쪽으로 날아가고, 마지막에 홀에 떨어진다. */
+.cf-shot { width: 100%; margin-bottom: 6px; }
+.cf-shot svg { width: 100%; height: auto; display: block; overflow: visible; }
+.cf-ground { stroke: var(--line); stroke-width: 2; stroke-linecap: round; }
+.cf-green  { fill: var(--primary-weak); }
+.cf-hole   { fill: #2b3b2f; }
+.cf-pole   { stroke: var(--text-faint); stroke-width: 1.6; }
+.cf-flag   { fill: var(--flag); }
+/* 앞으로 갈 길 — 옅은 점선 */
+.cf-arc-plan {
+  fill: none; stroke: var(--line); stroke-width: 2;
+  stroke-linecap: round; stroke-dasharray: 2 7;
+}
+/* 지나온 길 — 진한 실선이 공을 따라 그려진다 */
+.cf-arc {
+  fill: none; stroke: var(--brand); stroke-width: 2.4; stroke-linecap: round;
+  transition: stroke-dashoffset 0.55s var(--ease);
+}
+.cf-golfer { stroke: var(--text-dim); stroke-width: 2; stroke-linecap: round; fill: none; }
+.cf-golfer circle { fill: var(--text-dim); stroke: none; }
+.cf-club { stroke: var(--text-faint); stroke-width: 1.6; }
+.cf-golfer { transform-origin: 16px 60px; transition: transform 0.3s var(--ease); }
+.cf-golfer.swing { animation: cfSwing 0.5s var(--ease); }
+@keyframes cfSwing {
+  0%   { transform: rotate(0deg); }
+  35%  { transform: rotate(-13deg); }
+  70%  { transform: rotate(9deg); }
+  100% { transform: rotate(0deg); }
+}
+.cf-ball {
+  fill: #fff; stroke: var(--text-faint); stroke-width: 1.4;
+  transition: cx 0.55s var(--ease), cy 0.55s var(--ease), r 0.3s var(--ease);
+}
+/* 홀인 — 공이 컵에 떨어지고 깃발이 한 번 흔들린다 */
+.cf-ball.holed { r: 2.4; fill: var(--brand); stroke: none; }
+.cf-flag.cheer { animation: cfCheer 0.9s var(--ease) 2; transform-origin: 288px 36px; }
+@keyframes cfCheer {
+  0%, 100% { transform: scaleX(1); }
+  50%      { transform: scaleX(0.72); }
+}
+.cf-stitch-label { margin-bottom: 0; }
+@media (prefers-reduced-motion: reduce) {
+  .cf-arc, .cf-ball { transition: none; }
+  .cf-golfer.swing, .cf-flag.cheer { animation: none; }
+}
