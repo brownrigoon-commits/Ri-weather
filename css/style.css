@@ -2018,14 +2018,14 @@ body, .view, .cf-screen, .card, .sheet { word-break: keep-all; overflow-wrap: br
 .wx-scene > * { position: absolute; }
 
 /* ── 하늘 바탕 ───────────────────────────────────────────────────── */
-.wx-sky { inset: 0; background: linear-gradient(155deg, #5b6b7c 0%, #8494a4 100%); }
-.wx-clear  .wx-sky { background: linear-gradient(155deg, #2f8fd6 0%, #74c4f0 100%); }
-.wx-partly .wx-sky { background: linear-gradient(155deg, #4394cc 0%, #8dbfe0 100%); }
-.wx-cloud  .wx-sky { background: linear-gradient(155deg, #64748a 0%, #93a3b4 100%); }
-.wx-rain   .wx-sky { background: linear-gradient(155deg, #3f4d5e 0%, #61717f 100%); }
-.wx-storm  .wx-sky { background: linear-gradient(155deg, #262c38 0%, #444d61 100%); }
-.wx-snow   .wx-sky { background: linear-gradient(155deg, #6b7f95 0%, #a4b7c8 100%); }
-.wx-fog    .wx-sky { background: linear-gradient(155deg, #6e7a86 0%, #a0aab3 100%); }
+.wx-sky { inset: 0; background: linear-gradient(170deg, #6b7c8d 0%, #46545f 100%); }
+.wx-clear  .wx-sky { background: linear-gradient(170deg, #2c7fd0 0%, #63b3e8 55%, #8fcdf2 100%); }
+.wx-partly .wx-sky { background: linear-gradient(170deg, #3d87c4 0%, #77aed6 100%); }
+.wx-cloud  .wx-sky { background: linear-gradient(170deg, #71828f 0%, #4f5d68 100%); }
+.wx-rain   .wx-sky { background: linear-gradient(170deg, #58697a 0%, #2f3b46 100%); }
+.wx-storm  .wx-sky { background: linear-gradient(170deg, #3d4654 0%, #1e242c 100%); }
+.wx-snow   .wx-sky { background: linear-gradient(170deg, #7b8fa3 0%, #556674 100%); }
+.wx-fog    .wx-sky { background: linear-gradient(170deg, #8b959e 0%, #5d666e 100%); }
 /* 밤 — 같은 날씨라도 하늘색이 완전히 달라진다 */
 .is-night.wx-clear  .wx-sky { background: linear-gradient(155deg, #0e1a30 0%, #26385c 100%); }
 .is-night.wx-partly .wx-sky { background: linear-gradient(155deg, #13203a 0%, #33456b 100%); }
@@ -2061,42 +2061,56 @@ body, .view, .cf-screen, .card, .sheet { word-break: keep-all; overflow-wrap: br
 @keyframes wxTwinkle { 0%,100% { opacity: 0.75; } 50% { opacity: 1; } }
 
 /* ── 구름 — 천천히 흘러간다 ─────────────────────────────────────── */
-.wx-cloud {
+/* ⚠️ 클래스명 주의: wx-cloud 는 '흐림'이라는 날씨 상태(카드·장면에 붙음)이고,
+   구름 덩어리 하나하나는 wx-puff 다. 둘을 같은 이름으로 쓰면 카드 전체가
+   구름이 되어 통째로 블러 처리된다(2026-07-27 실제 사고). */
+.wx-puff {
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.30);
-  filter: blur(9px);
+  background: rgba(255, 255, 255, 0.22);
+  filter: blur(14px);
   animation: wxDrift linear infinite;
 }
-.is-night .wx-cloud { background: rgba(255, 255, 255, 0.16); }
-.wx-cloud.c1 { width: 130px; height: 44px; top: 8px;  left: -40%; animation-duration: 34s; }
-.wx-cloud.c2 { width: 96px;  height: 34px; top: 40px; left: -30%; animation-duration: 46s; animation-delay: -12s; opacity: 0.8; }
-.wx-cloud.c3 { width: 160px; height: 52px; top: 62px; left: -50%; animation-duration: 58s; animation-delay: -30s; opacity: 0.6; }
+.is-night .wx-puff { background: rgba(255, 255, 255, 0.12); }
+/* 카드 높이(약 100px)를 넘지 않게 — 크면 화면 전체가 뿌옇게 뭉친다 */
+.wx-puff.c1 { width: 120px; height: 30px; top: 10px; left: -35%; animation-duration: 38s; }
+.wx-puff.c2 { width: 88px;  height: 24px; top: 44px; left: -28%; animation-duration: 52s; animation-delay: -16s; opacity: 0.75; }
+.wx-puff.c3 { width: 150px; height: 34px; top: 70px; left: -45%; animation-duration: 66s; animation-delay: -34s; opacity: 0.5; }
 @keyframes wxDrift { from { transform: translateX(0); } to { transform: translateX(320px); } }
-/* 흐린 날은 구름이 더 두껍게 */
-.wx-cloud .wx-cloud, .wx-storm .wx-cloud { background: rgba(255, 255, 255, 0.38); }
+/* 흐린 날·뇌우는 구름이 더 두껍게 */
+.wx-cloud .wx-puff, .wx-storm .wx-puff { background: rgba(255, 255, 255, 0.34); }
 
-/* ── 비 — 빗줄기가 비스듬히 흐른다 ──────────────────────────────── */
-.wx-drops { inset: -30% -20%; transform: rotate(14deg); }
+/* ── 비 ──────────────────────────────────────────────────────────
+   아이폰 날씨 앱의 비는 "굵은 점선"이 아니라 얇고 촘촘한 빗줄기다.
+   앞서 만든 것은 타일 한 장이 그대로 반복돼 격자무늬로 보였다(2026-07-27 지적).
+   → 층마다 타일 주기를 서로소로 잡아 반복이 눈에 안 띄게 하고,
+     빗줄기는 가늘게·부드럽게(끝이 흐려지게) 만든다. 뒤쪽 층일수록 흐리고 느리다. */
+.wx-drops { inset: -25% -15%; transform: rotate(13deg); }
 .wx-drops i {
   position: absolute; inset: 0;
   background-repeat: repeat;
   animation: wxFall linear infinite;
+  will-change: background-position;
 }
-/* 방울 하나를 타일로 그려 반복 — 요소를 늘리지 않고 비를 만든다 */
+/* 앞쪽 — 또렷하고 빠르다 */
 .wx-drops i:nth-child(1) {
-  background-image: radial-gradient(1px 7px at 50% 50%, rgba(255,255,255,0.55) 0 100%, transparent 100%);
-  background-size: 17px 26px;
-  animation-duration: 0.62s;
+  background-image: radial-gradient(0.6px 9px at 50% 50%,
+    rgba(255, 255, 255, 0.42) 0%, rgba(255, 255, 255, 0.10) 65%, transparent 100%);
+  background-size: 11px 37px;
+  animation-duration: 0.52s;
 }
+/* 뒤쪽 — 흐리고 느려서 깊이가 생긴다 */
 .wx-drops i:nth-child(2) {
-  background-image: radial-gradient(1px 5px at 50% 50%, rgba(255,255,255,0.35) 0 100%, transparent 100%);
-  background-size: 23px 34px;
-  animation-duration: 0.92s;
-  animation-delay: -0.3s;
+  background-image: radial-gradient(0.5px 13px at 50% 50%,
+    rgba(255, 255, 255, 0.20) 0%, rgba(255, 255, 255, 0.05) 70%, transparent 100%);
+  background-size: 17px 43px;
+  animation-duration: 0.95s;
+  animation-delay: -0.4s;
+  filter: blur(0.4px);
 }
 @keyframes wxFall { from { background-position: 0 0; } to { background-position: 0 100%; } }
-/* 소나기·뇌우는 더 굵고 빠르게 */
-.wx-storm .wx-drops i:nth-child(1) { animation-duration: 0.48s; }
+/* 소나기·뇌우는 더 촘촘하고 빠르게 */
+.wx-storm .wx-drops i:nth-child(1) { animation-duration: 0.38s; background-size: 9px 33px; }
+.wx-storm .wx-drops i:nth-child(2) { animation-duration: 0.7s; }
 
 /* ── 눈 — 동그란 눈이 천천히 흩날린다 ───────────────────────────── */
 .wx-flakes { inset: -20%; }
@@ -2105,17 +2119,20 @@ body, .view, .cf-screen, .card, .sheet { word-break: keep-all; overflow-wrap: br
   animation: wxFall linear infinite, wxSway ease-in-out infinite;
 }
 .wx-flakes i:nth-child(1) {
-  background-image: radial-gradient(2px 2px at 50% 50%, rgba(255,255,255,0.9) 0 100%, transparent 100%);
-  background-size: 30px 42px;
-  animation-duration: 6.5s, 3.4s;
+  background-image: radial-gradient(1.7px 1.7px at 50% 50%,
+    rgba(255, 255, 255, 0.85) 0%, rgba(255, 255, 255, 0.5) 60%, transparent 100%);
+  background-size: 29px 41px;
+  animation-duration: 7s, 3.4s;
 }
 .wx-flakes i:nth-child(2) {
-  background-image: radial-gradient(1.4px 1.4px at 50% 50%, rgba(255,255,255,0.6) 0 100%, transparent 100%);
-  background-size: 22px 30px;
-  animation-duration: 9s, 4.6s;
+  background-image: radial-gradient(1.1px 1.1px at 50% 50%,
+    rgba(255, 255, 255, 0.5) 0%, transparent 100%);
+  background-size: 19px 31px;
+  animation-duration: 10.5s, 4.6s;
   animation-delay: -2s, -1s;
+  filter: blur(0.3px);
 }
-@keyframes wxSway { 0%,100% { transform: translateX(-6px); } 50% { transform: translateX(6px); } }
+@keyframes wxSway { 0%, 100% { transform: translateX(-7px); } 50% { transform: translateX(7px); } }
 
 /* ── 번개 — 아주 가끔 한 번 번쩍 ────────────────────────────────── */
 .wx-bolt {
@@ -2139,7 +2156,7 @@ body, .view, .cf-screen, .card, .sheet { word-break: keep-all; overflow-wrap: br
 @keyframes wxHaze { 0%,100% { transform: translateX(-40%); } 50% { transform: translateX(40%); } }
 
 @media (prefers-reduced-motion: reduce) {
-  .wx-sun, .wx-stars, .wx-cloud, .wx-drops i, .wx-flakes i, .wx-bolt, .wx-haze {
+  .wx-sun, .wx-stars, .wx-puff, .wx-drops i, .wx-flakes i, .wx-bolt, .wx-haze {
     animation: none !important;
   }
 }
@@ -2169,8 +2186,8 @@ body, .view, .cf-screen, .card, .sheet { word-break: keep-all; overflow-wrap: br
 .course-card .wx-sun,
 .course-card .wx-moon { display: none; }
 .course-card .wx-stars { opacity: 0.7; }
-.course-card .wx-cloud.c1 { top: 4px; }
-.course-card .wx-cloud.c3 { display: none; }
+.course-card .wx-puff.c1 { top: 4px; }
+.course-card .wx-puff.c3 { display: none; }
 /* 삭제 버튼이 하늘에 묻히지 않게 */
 .course-card.has-scene .cc-del {
   background: rgba(0, 0, 0, 0.28); color: #fff;
@@ -2204,3 +2221,13 @@ body, .view, .cf-screen, .card, .sheet { word-break: keep-all; overflow-wrap: br
   color: var(--danger) !important; font-weight: 600;
   white-space: pre-line; line-height: 1.5;
 }
+
+/* 글자가 하늘 위에서도 또렷하게 — 아래쪽을 살짝 어둡게 깔아준다 (iOS 도 같은 처리) */
+.course-card.has-scene .wx-scene::after,
+#detail-view.has-sky > .wx-scene::after {
+  content: ""; position: absolute; inset: 0;
+  background: linear-gradient(180deg, rgba(0,0,0,0.06) 0%, rgba(0,0,0,0.22) 100%);
+  pointer-events: none;
+}
+.course-card.has-scene .cc-name,
+#detail-view.has-sky .hero-name { text-shadow: 0 1px 3px rgba(0,0,0,0.22); }
