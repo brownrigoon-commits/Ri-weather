@@ -1,11 +1,11 @@
 ﻿/* =========================================================
- * Ri-Weather — 골프장 날씨 베타
+ * 골프라이프 (Golf Life) — 골프 날씨·코스공략·맛집·스코어·클럽 피팅
  * 데이터: Open-Meteo(예보/대기질), RainViewer(레이더), Nominatim(검색)
  * ========================================================= */
 "use strict";
 
-const APP_VER = "v111"; // 배포 버전 (홈 화면 배지에 표시)
-const APP_NOTE = "토스뱅크 벤치마킹 전면 개편"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
+const APP_VER = "v112"; // 배포 버전 (홈 화면 배지에 표시)
+const APP_NOTE = "골프라이프 리브랜딩"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
 const STORAGE_KEY = "riweather.courses.v1";
 const GEM_KEY = "riweather.gemini"; // 정밀 인식(비전 AI) 개인 키 저장소
 // 기본 제공 키 (무료 한도 공유) — 개인 키를 설정하면 그 키가 우선됩니다
@@ -2260,8 +2260,8 @@ $("#ai-strategy-btn").addEventListener("click", aiCaddie);
   let toastTimer = null;
   btn.addEventListener("click", async () => {
     const data = {
-      title: "Ri-Weather 골프장 날씨",
-      text: "골프장 날씨·홀별 코스공략·AI캐디까지 한 번에 — Ri-Weather",
+      title: "골프라이프",
+      text: "골프장 날씨·홀별 코스공략·AI캐디까지 한 번에 — 골프라이프",
       url: APP_URL,
     };
     try {
@@ -2396,7 +2396,7 @@ function prefetchFood(course) { fetchFoodData(course).catch(() => {}); }
 
 /* ---------- 카카오 로컬/이미지 API (맛집 목록·사진) ---------- */
 const KAKAO_KEY_LS = "riweather.kakaokey";
-const EMBED_KAKAO_B64 = "OTg0N2VjNWU5YTRkMTEyN2M1NzY1MDY1YjNlNzFmZjI=";   // Ri-Weather 공용 키
+const EMBED_KAKAO_B64 = "OTg0N2VjNWU5YTRkMTEyN2M1NzY1MDY1YjNlNzFmZjI=";   // 골프라이프 공용 키
 const getKakaoKey = () => localStorage.getItem(KAKAO_KEY_LS) ||
   (EMBED_KAKAO_B64 ? atob(EMBED_KAKAO_B64) : "");
 
@@ -3912,7 +3912,7 @@ async function shareScoreCard(r) {
   x.font = "700 190px -apple-system, sans-serif";
   x.fillText(String(r.score), W / 2, 400);
   x.font = "400 34px -apple-system, sans-serif";
-  x.fillStyle = "#3182f6";
+  x.fillStyle = "#0b9e36";
   x.fillText("타", W / 2 + 130, 395);
 
   // 홀별 표 (라벨 | 1~9홀 | 합계 — 겹침 없는 고정 칼럼)
@@ -3935,12 +3935,12 @@ async function shareScoreCard(r) {
       x.textAlign = "center";
       x.font = "600 22px -apple-system, sans-serif";
       nine.forEach((v, i) => {
-        x.fillStyle = v > 0 ? "#f04452" : v < 0 ? "#3182f6" : "#191f28";
+        x.fillStyle = v > 0 ? "#f5232b" : v < 0 ? "#0b9e36" : "#191f28";
         x.fillText(v == null ? "·" : v > 0 ? "+" + v : String(v), cellsX0 + cell * i + cell / 2, y + 34);
       });
       const parT = pars.length === 9 ? pars.reduce((s, v) => s + v, 0) : 36;
       const t = parT + nine.reduce((s, v) => s + (v || 0), 0);
-      x.fillStyle = "#3182f6";
+      x.fillStyle = "#0b9e36";
       x.font = "800 26px -apple-system, sans-serif";
       x.fillText(String(t), W - 92, y + 35);
       y += 62;
@@ -3975,9 +3975,9 @@ async function shareScoreCard(r) {
   }
 
   // 워터마크
-  x.fillStyle = "#3182f6";
+  x.fillStyle = "#0b9e36";
   x.font = "700 26px -apple-system, sans-serif";
-  x.fillText("⛳ Ri-Weather", W / 2, H - 50);
+  x.fillText("⛳ 골프라이프", W / 2, H - 50);
 
   return new Promise((resolve) => {
     cv.toBlob(async (blob) => {
@@ -4628,7 +4628,7 @@ $("#bk-copy")?.addEventListener("click", async () => {
 $("#bk-restore-btn")?.addEventListener("click", () => BACKUP.restore($("#bk-restore-input").value));
 
 /* ---------- 시작 ---------- */
-document.querySelector(".beta-badge").textContent = "Ri-Weather BETA " + APP_VER;
+document.querySelector(".beta-badge").textContent = "BETA " + APP_VER;
 { const cv = document.getElementById("consent-ver"); if (cv) cv.textContent = APP_VER; }
 
 /* 버전이 올라갔으면 무엇이 바뀌었는지 잠깐 알려준다 */
