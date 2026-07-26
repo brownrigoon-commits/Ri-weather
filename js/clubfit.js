@@ -53,15 +53,93 @@
     s60x: { label: "60g대 · X", w: 65, fx: "X" },
   };
 
+  /* ───────── 아이언 ─────────
+     아이언 샤프트는 드라이버와 달리 무게 대역이 소재(스틸/그라파이트)로 갈린다.
+     무게는 제조사 공표 표준값 기준. 개체·번수별 오차가 있어 "약"으로 표기한다. */
+  const IRON_SHAFTS = [
+    { b: "니폰", m: "N.S.PRO 모더스3 투어 105", sp: "S", w: 106, fx: "S", mat: "스틸", k: "중", feel: "부드럽다" },
+    { b: "니폰", m: "N.S.PRO 모더스3 투어 120", sp: "S", w: 114, fx: "S", mat: "스틸", k: "중저", feel: "단단하다" },
+    { b: "니폰", m: "N.S.PRO 950GH neo", sp: "S", w: 98, fx: "S", mat: "스틸", k: "중고", feel: "가볍다" },
+    { b: "니폰", m: "N.S.PRO 850GH neo", sp: "R", w: 89, fx: "R", mat: "스틸", k: "고", feel: "가볍다" },
+    { b: "트루템퍼", m: "다이나믹골드 EX 투어이슈", sp: "S200", w: 128, fx: "S", mat: "스틸", k: "낮음", feel: "묵직하다" },
+    { b: "트루템퍼", m: "다이나믹골드 105", sp: "R300", w: 105, fx: "R", mat: "스틸", k: "중", feel: "묵직하다" },
+    { b: "KBS", m: "투어 라이트", sp: "R", w: 95, fx: "R", mat: "스틸", k: "중고", feel: "가볍다" },
+    { b: "KBS", m: "$-테이퍼 라이트", sp: "S", w: 110, fx: "S", mat: "스틸", k: "중저", feel: "단단하다" },
+    { b: "UST마미야", m: "리코일 다트 75", sp: "S", w: 77, fx: "S", mat: "그라파이트", k: "중", feel: "부드럽다" },
+    { b: "UST마미야", m: "리코일 660", sp: "R", w: 66, fx: "R", mat: "그라파이트", k: "고", feel: "가볍다" },
+    { b: "후지쿠라", m: "MC 아이언", sp: "S", w: 88, fx: "S", mat: "그라파이트", k: "중", feel: "부드럽다" },
+    { b: "던롭", m: "젝시오 순정 MP1300I", sp: "R", w: 60, fx: "R", mat: "그라파이트", k: "고", feel: "가볍다", stock: true },
+  ];
+  /* 헤드 형상은 관용성(forg)과 난이도가 반비례한다 — 평균 타수로 갈린다 */
+  const IRON_HEADS = [
+    { br: "타이틀리스트", m: "T100", type: "투어 캐비티", forg: 2, off: "적음", fit: ["80"] },
+    { br: "타이틀리스트", m: "T150", type: "캐비티", forg: 3, off: "적음", fit: ["80"] },
+    { br: "타이틀리스트", m: "T200", type: "중공", forg: 4, off: "보통", fit: ["80", "90"] },
+    { br: "타이틀리스트", m: "T350", type: "중공 맥스", forg: 5, off: "많음", fit: ["90", "100"] },
+    { br: "핑", m: "i230", type: "캐비티", forg: 3, off: "적음", fit: ["80"] },
+    { br: "핑", m: "G430", type: "맥스 캐비티", forg: 5, off: "많음", fit: ["90", "100"] },
+    { br: "테일러메이드", m: "P790", type: "중공", forg: 4, off: "보통", fit: ["80", "90"] },
+    { br: "테일러메이드", m: "Qi 아이언", type: "맥스 캐비티", forg: 5, off: "많음", fit: ["90", "100"] },
+    { br: "캘러웨이", m: "에이팩스 프로", type: "캐비티", forg: 3, off: "적음", fit: ["80"] },
+    { br: "캘러웨이", m: "패러다임 Ai스모크", type: "맥스 캐비티", forg: 5, off: "많음", fit: ["90", "100"] },
+    { br: "미즈노", m: "JPX 923 포지드", type: "캐비티", forg: 3, off: "적음", fit: ["80", "90"] },
+    { br: "던롭", m: "젝시오 13 아이언", type: "경량 맥스", forg: 5, off: "많음", fit: ["90", "100"], light: true },
+  ];
+  /* 웨지 — 바운스는 스윙 타입(디거/스위퍼)과 잔디 상태로 정해진다. 이건 규칙으로 계산 가능한 영역 */
+  const WEDGES = [
+    { br: "타이틀리스트", m: "보키 SM10" },
+    { br: "클리브랜드", m: "RTX 6 집코어" },
+    { br: "핑", m: "글라이드 4.0" },
+    { br: "테일러메이드", m: "밀드그라인드 4" },
+    { br: "캘러웨이", m: "죠스 로우" },
+    { br: "미즈노", m: "T24" },
+  ];
+  /* 퍼터 — 스트로크 궤도와 헤드 밸런스의 궁합은 피팅의 기본 원칙 */
+  const PUTTERS = [
+    { br: "스카티카메론", m: "뉴포트 2", shape: "블레이드", bal: "토우행", arc: "arc" },
+    { br: "스카티카메론", m: "팬텀 11", shape: "말렛", bal: "페이스밸런스", arc: "straight" },
+    { br: "오디세이", m: "화이트핫 OG #1", shape: "블레이드", bal: "토우행", arc: "arc" },
+    { br: "오디세이", m: "아이원 세븐", shape: "말렛", bal: "페이스밸런스", arc: "straight" },
+    { br: "테일러메이드", m: "스파이더 텐", shape: "말렛", bal: "페이스밸런스", arc: "straight" },
+    { br: "핑", m: "앤서 2", shape: "블레이드", bal: "토우행", arc: "arc" },
+    { br: "핑", m: "틴 팬", shape: "미드말렛", bal: "약토우행", arc: "slight" },
+    { br: "오디세이", m: "트라이핫 5K 트리플와이드", shape: "미드말렛", bal: "약토우행", arc: "slight" },
+  ];
+
   /* ───────── 상태 ───────── */
   const S = {
     auto: { age: null, sex: null, avg: null, fade: null },   // 실데이터에서 채움
     career: null, scoreConfirm: null, scoreGrp: "90", carry7: 150, carryD: 220,
     shapeD: null, endur: null, brand: null, curShaft: null, complaint: null,
     heightV: 172, traj: null, shapeI: null, tempo: null, budget: null,
-    didFine: false,
+    didFine: false, shaftBrand: null,
+    // 클럽별 모듈 (드라이버 뒤에 이어서, 각 3문항)
+    ironMiss: null, ironFeel: null, ironMat: null,
+    wedgeTurf: null, wedgeMiss: null, pwLoft: 45,   // 45° = 요즘 아이언 피칭 표준
+    puttStroke: null, puttMiss: null, puttLook: null,
   };
   let idx = 0;
+
+  /* ───────── 선호 브랜드 우선 추천 ─────────
+     사장님 지시: 1순위는 선호 브랜드 안에서, 그다음 다른 브랜드의 최적안을 함께 권한다.
+     브랜드 안에 마땅한 게 없으면 억지로 채우지 않고 전체 1순위를 내보낸다(신뢰 우선). */
+  function pickByBrand(sorted, brand, key, ok) {
+    const bk = key || "b";
+    const want = brand && brand !== "any" ? brand : null;
+    // ⚠️ 브랜드 선호가 필수 조건을 덮어쓰면 안 된다.
+    //    (아이언에서 "스틸 107g가 목표"인데 선호 브랜드에 그라파이트 88g밖에 없다고
+    //     그걸 1순위로 내보내면, 맞지도 않는 클럽을 자신 있게 권하는 꼴이 된다.)
+    //    브랜드 후보는 ①별도 조건(ok)을 통과하고 ②전체 1위의 70% 이상 점수일 때만 인정한다.
+    const best = sorted[0];
+    const bar = best && typeof best.p === "number" ? best.p * 0.7 : -Infinity;
+    const fits = (x) => (!ok || ok(x)) && (typeof x.p !== "number" || x.p >= bar);
+    const inBrand = want ? sorted.filter((x) => x[bk] === want && fits(x)) : [];
+    const main = inBrand[0] || best;
+    if (!main) return { main: null, alt: null, matched: false };
+    const alt = sorted.find((x) => x[bk] !== main[bk] && fits(x))
+             || sorted.find((x) => x[bk] !== main[bk]) || null;
+    return { main, alt, matched: !!inBrand[0], wanted: want };
+  }
 
   /* ───────── 0단 자동 — 동의 화면 + 스코어 기록에서 (다시 묻지 않는다) ───────── */
   function computeAuto() {
@@ -221,21 +299,21 @@
       </div>`
     },
     { stage: "본봉", q: 1, render: () => `
-      <div class="q-eyebrow">본봉 1/5 · 키</div>
+      <div class="q-eyebrow">본봉 1/6 · 키</div>
       <div class="q-title">키가 어떻게 되세요?</div>
       <div class="q-sub">아이언 라이각·길이 코멘트에만 씁니다.</div>
       <div class="q-body">${slider("heightV", 150, 195, 1, "cm")}</div>
       ${nextBtn()}<button class="skip" data-skip>건너뛰기</button>`
     },
     { stage: "본봉", q: 2, render: () => `
-      <div class="q-eyebrow">본봉 2/5 · 탄도</div>
+      <div class="q-eyebrow">본봉 2/6 · 탄도</div>
       <div class="q-title">평소 드라이버 탄도는?</div>
       <div class="q-body">${chipList([
         { v: "low", t: "낮아요", s: "라인드라이브성" }, { v: "mid", t: "중간" }, { v: "high", t: "높아요", s: "떠서 밀리는 느낌" }], "traj")}</div>
       <button class="skip" data-skip>건너뛰기</button>`
     },
     { stage: "본봉", q: 3, render: () => `
-      <div class="q-eyebrow">본봉 3/5 · 아이언 구질</div>
+      <div class="q-eyebrow">본봉 3/6 · 아이언 구질</div>
       <div class="q-title">아이언은 주로 어느 쪽?</div>
       <div class="q-sub">드라이버와 따로 봅니다 — 다른 유저가 많거든요.</div>
       <div class="q-body">${chipList([
@@ -243,14 +321,14 @@
       <button class="skip" data-skip>건너뛰기</button>`
     },
     { stage: "본봉", q: 4, render: () => `
-      <div class="q-eyebrow">본봉 4/5 · 템포</div>
+      <div class="q-eyebrow">본봉 4/6 · 템포</div>
       <div class="q-title">스윙 템포는?</div>
       <div class="q-body">${chipList([
         { v: "smooth", t: "부드러움", s: "천천히 올려서 툭" }, { v: "normal", t: "보통" }, { v: "fast", t: "빠름", s: "전환이 급하고 때리는 편" }], "tempo")}</div>
       <button class="skip" data-skip>건너뛰기</button>`
     },
     { stage: "본봉", q: 5, render: () => `
-      <div class="q-eyebrow">본봉 5/5 · 예산</div>
+      <div class="q-eyebrow">본봉 5/6 · 예산</div>
       <div class="q-title">샤프트 예산은?</div>
       <div class="q-body">${chipList([
         { v: "stock", t: "순정이면 충분", s: "추가 지출 없이" },
@@ -258,7 +336,108 @@
         { v: "any", t: "상관없어요" }], "budget")}</div>
       <button class="skip" data-skip>건너뛰기</button>`
     },
+    /* 샤프트 브랜드는 클럽 브랜드와 별개다(후지쿠라·그라파이트디자인 등).
+       선호가 있으면 그 안에서 1순위를 먼저 보여준다. */
+    { stage: "본봉", q: 6, render: () => `
+      <div class="q-eyebrow">본봉 6/6 · 샤프트 브랜드</div>
+      <div class="q-title">선호하는<br>샤프트 브랜드가 있나요?</div>
+      <div class="q-sub">클럽 브랜드와는 별개예요. 있으면 그 안에서 먼저 찾아드립니다.</div>
+      <div class="q-body">${chipList([
+        { v: "후지쿠라", t: "후지쿠라" }, { v: "그라파이트디자인", t: "그라파이트디자인" },
+        { v: "미쓰비시", t: "미쓰비시" }, { v: "프로젝트X", t: "프로젝트X" },
+        { v: "UST마미야", t: "UST마미야" }, { v: "any", t: "상관없어요" }], "shaftBrand", { row: true })}</div>
+      <button class="skip" data-skip>건너뛰기</button>`
+    },
     { stage: "판정", key: "result", render: renderResult },
+
+    /* ── 내 백 허브 → 클럽별 모듈 (각 3문항) ──
+       드라이버에서 이미 받은 답(체력·평균타수·키·브랜드)은 다시 묻지 않는다. */
+    { stage: "내 백", key: "bag", render: renderBag },
+
+    { stage: "아이언", key: "iron1", q: 1, render: () => `
+      <div class="q-eyebrow">아이언 1/3 · 미스 경향</div>
+      <div class="q-title">아이언이 빗맞을 때<br>주로 어떻게 되나요?</div>
+      <div class="q-body">${chipList([
+        { v: "thin", t: "얇게 맞아요", s: "공이 안 뜨고 낮게 날아감" },
+        { v: "fat", t: "뒤땅을 쳐요", s: "잔디를 먼저 파고듦" },
+        { v: "dir", t: "방향이 흔들려요", s: "좌우로 갈림" },
+        { v: "none", t: "특별한 경향은 없어요" }], "ironMiss")}</div>`
+    },
+    { stage: "아이언", key: "iron2", q: 2, render: () => `
+      <div class="q-eyebrow">아이언 2/3 · 소재</div>
+      <div class="q-title">샤프트 소재,<br>정해두신 게 있나요?</div>
+      <div class="q-sub">모르시면 골라드립니다 — 체력과 스피드로 판단해요.</div>
+      <div class="q-body">${chipList([
+        { v: "unsure", t: "골라주세요", s: "체력·스피드 기준으로 판단" },
+        { v: "스틸", t: "스틸", s: "방향·거리가 일정한 대신 무거움" },
+        { v: "그라파이트", t: "그라파이트", s: "가벼워 후반까지 편함" }], "ironMat")}</div>`
+    },
+    { stage: "아이언", key: "iron3", q: 3, render: () => `
+      <div class="q-eyebrow">아이언 3/3 · 타감</div>
+      <div class="q-title">어떤 타감을<br>좋아하세요?</div>
+      <div class="q-body">${chipList([
+        { v: "soft", t: "부드러운 쪽", s: "손에 닿는 느낌이 포근한" },
+        { v: "solid", t: "단단한 쪽", s: "묵직하고 또렷한 타격감" },
+        { v: "light", t: "가벼운 쪽", s: "휘두르기 편한" },
+        { v: "any", t: "상관없어요" }], "ironFeel")}</div>`
+    },
+    { stage: "아이언", key: "ironResult", render: renderIron },
+
+    { stage: "웨지", key: "wedge1", q: 1, render: () => `
+      <div class="q-eyebrow">웨지 1/3 · 피칭 로프트</div>
+      <div class="q-title">피칭웨지 로프트가<br>몇 도인가요?</div>
+      <div class="q-sub">클럽 헤드에 적혀 있어요. 모르시면 45°로 계산합니다 — 요즘 아이언의 표준값입니다.</div>
+      <div class="q-body">${slider("pwLoft", 41, 48, 1, "°")}
+        <div class="inline-note">피칭과 로브(58°) 사이 간격을 몇 개로 나눌지가 여기서 정해집니다.
+        <b>한 클럽당 4~6°</b>가 거리 공백이 안 생기는 간격이에요.</div>
+      </div>${nextBtn(false)}`
+    },
+    { stage: "웨지", key: "wedge2", q: 2, render: () => `
+      <div class="q-eyebrow">웨지 2/3 · 스윙 타입</div>
+      <div class="q-title">어프로치할 때<br>잔디를 어떻게 치나요?</div>
+      <div class="q-sub">바운스(솔의 각도)를 정하는 가장 중요한 정보입니다.</div>
+      <div class="q-body">${chipList([
+        { v: "dig", t: "깊게 파고들어요", s: "디봇이 크게 파임 — 디거" },
+        { v: "sweep", t: "얕게 쓸어 쳐요", s: "디봇이 거의 안 생김 — 스위퍼" },
+        { v: "mid", t: "중간이에요" }], "wedgeTurf")}</div>`
+    },
+    { stage: "웨지", key: "wedge3", q: 3, render: () => `
+      <div class="q-eyebrow">웨지 3/3 · 미스 경향</div>
+      <div class="q-title">짧은 어프로치에서<br>실수는 어느 쪽인가요?</div>
+      <div class="q-body">${chipList([
+        { v: "fat", t: "뒤땅이 나요", s: "공 앞 잔디를 먼저 침" },
+        { v: "thin", t: "토핑이 나요", s: "공 윗부분을 때림" },
+        { v: "none", t: "괜찮은 편이에요" }], "wedgeMiss")}</div>`
+    },
+    { stage: "웨지", key: "wedgeResult", render: renderWedge },
+
+    { stage: "퍼터", key: "putt1", q: 1, render: () => `
+      <div class="q-eyebrow">퍼터 1/3 · 스트로크</div>
+      <div class="q-title">퍼팅할 때 헤드가<br>어떻게 움직이나요?</div>
+      <div class="q-sub">퍼터 헤드 밸런스를 정하는 기준입니다.</div>
+      <div class="q-body">${chipList([
+        { v: "straight", t: "곧게 왔다갔다", s: "직선에 가까운 궤도" },
+        { v: "slight", t: "살짝 안쪽으로", s: "약간의 아크" },
+        { v: "arc", t: "많이 둥글게", s: "아크가 큰 궤도" }], "puttStroke")}</div>`
+    },
+    { stage: "퍼터", key: "putt2", q: 2, render: () => `
+      <div class="q-eyebrow">퍼터 2/3 · 고민</div>
+      <div class="q-title">퍼팅에서 더 아쉬운 쪽은?</div>
+      <div class="q-body">${chipList([
+        { v: "dist", t: "거리감", s: "짧거나 길게 지나감" },
+        { v: "dir", t: "방향", s: "홀 옆으로 빗나감" },
+        { v: "none", t: "딱히 없어요" }], "puttMiss")}</div>`
+    },
+    { stage: "퍼터", key: "putt3", q: 3, render: () => `
+      <div class="q-eyebrow">퍼터 3/3 · 생김새</div>
+      <div class="q-title">어떤 모양이<br>눈에 편하세요?</div>
+      <div class="q-sub">퍼터는 감각의 비중이 큽니다. 눈에 편한 게 실제로 잘 들어가요.</div>
+      <div class="q-body">${chipList([
+        { v: "blade", t: "블레이드", s: "얇고 클래식한 모양" },
+        { v: "mallet", t: "말렛", s: "크고 묵직한 모양" },
+        { v: "any", t: "상관없어요" }], "puttLook")}</div>`
+    },
+    { stage: "퍼터", key: "puttResult", render: renderPutt },
   ];
 
   /* ───────── 룰 엔진 (기준 구현 그대로) ───────── */
@@ -330,9 +509,12 @@
       if (h.light && S.carry7 >= 160) p -= 12;
       return { ...h, p, why };
     }).sort((a, b) => b.p - a.p);
-    const brandHeads = (S.brand && S.brand !== "any") ? heads.filter((h) => h.br === S.brand) : heads;
-    const mainHead = brandHeads[0] || heads[0];
-    const altHead = heads.find((h) => h.br !== mainHead.br);
+    // 선호 브랜드 1순위 + 다른 브랜드 최적안 (샤프트·헤드 동일 방식)
+    const headPick = pickByBrand(heads, S.brand, "br");
+    const mainHead = headPick.main, altHead = headPick.alt;
+    // 드라이버도 같은 원칙 — 무게 밴드를 크게 벗어난 샤프트는 선호 브랜드라도 1순위로 올리지 않는다
+    const shaftPick = pickByBrand(shafts, S.shaftBrand, "b",
+      (s) => s.w >= wLo - 6 && s.w <= wHi + 6);
 
     // 유지 판정 (최우선 분기)
     const keep = cur.w !== null
@@ -341,7 +523,7 @@
       && (S.complaint === "none" || S.complaint === "feel");
 
     // 점프 경고
-    const top = shafts[0];
+    const top = shaftPick.main;
     if (!keep && cur.w && top && Math.abs(top.w - cur.w) > 10)
       notes.push({ t: "warn", h: "무게 점프 주의", b: `현재 ${cur.w}g대 → 추천 ${top.w}g. <b>한 번에 10g 이상 이동은 위험</b> — 중간 체급을 경유하거나 시타 필수.` });
 
@@ -359,9 +541,158 @@
     if (S.shapeI && S.shapeI !== S.shapeD) tips.push(`드라이버(${label(S.shapeD)})와 아이언(${label(S.shapeI)}) 구질이 다릅니다 — 아이언 샤프트는 별도 진단 권장. 다음 업데이트에서.`);
     if (S.budget === "stock") tips.push(`예산 순정 — 순정 라인 내에서만 골랐습니다.`);
 
-    return { wLo, wHi, fxT, notes, tips, shafts: shafts.slice(0, 2), mainHead, altHead, keep, cur, grip,
+    return { wLo, wHi, fxT, notes, tips, shafts: shafts.slice(0, 2),
+      shaftPick, headPick, mainHead, altHead, keep, cur, grip,
       mph: Math.round(S.carry7 * 0.63) };
   }
+
+  /* ═══════════════════════════════════════════════════════════════
+     클럽별 모듈 — 아이언 · 웨지 · 퍼터
+     드라이버 판정이 끝나면 "내 백 채우기" 허브에서 하나씩 이어간다.
+     한 번에 다 묻지 않는 이유: 설문이 길면 끝까지 오지 않는다.
+     각 모듈은 3문항 이하 + 드라이버에서 이미 안 것(체력·타수·키)은 재사용.
+     ═══════════════════════════════════════════════════════════════ */
+
+  /* ── 아이언 ──────────────────────────────────────────────────── */
+  function ironEngine() {
+    const notes = [], band = speedBand(S.carry7);
+    // 아이언 샤프트 무게는 드라이버 대역에 소재별 오프셋을 얹어 잡는다
+    // (드라이버 카본 55g대 ≈ 아이언 스틸 105g대가 통상 궁합)
+    const drvMid = (band.w[0] + band.w[1]) / 2;
+    const steelTarget = Math.round(drvMid + 48);
+    const graphTarget = Math.round(drvMid + 22);
+    let fxT = [...band.fx];
+    const tired = S.endur === "fadeLate" || S.endur === "weak" ||
+                  (S.auto.fade !== null && S.auto.fade >= 3);
+
+    // 소재 결정 — 본인 선택 우선, 미선택이면 체력·스피드로 판단
+    let mat = S.ironMat;
+    if (!mat || mat === "unsure") {
+      mat = (tired || S.carry7 < 140 || S.auto.age === "60대 이상") ? "그라파이트" : "스틸";
+      notes.push({ h: "소재는 이렇게 정했어요",
+        b: mat === "그라파이트"
+          ? "후반 체력·스윙 스피드를 보면 <b>가벼운 그라파이트</b>가 18홀 내내 스윙을 지켜줍니다."
+          : "지금 스피드라면 <b>스틸</b>이 방향 안정과 거리 일관성에서 유리합니다." });
+    }
+    const target = mat === "스틸" ? steelTarget : graphTarget;
+    if (tired) { fxT = shiftUp(fxT); }
+
+    const pool = S.budget === "stock"
+      ? IRON_SHAFTS.filter((s) => s.stock || s.w <= 100)
+      : IRON_SHAFTS;
+    const shafts = pool.map((s) => {
+      let p = 0; const why = [];
+      if (s.mat !== mat) p -= 30;
+      const gap = Math.abs(s.w - target);
+      if (gap <= 6) { p += 40; why.push(`약 ${s.w}g — 목표 무게(약 ${target}g)에 가장 근접`); }
+      else p += Math.max(0, 40 - gap * 2.2);
+      const fi = FLEX.indexOf(s.fx), tI = fxT.map((f) => FLEX.indexOf(f));
+      if (tI.includes(fi)) { p += 30; why.push(`플렉스 ${s.fx} — 목표 강도 일치`); }
+      else if (tI.some((t) => Math.abs(t - fi) === 1)) p += 12;
+      if (S.ironMiss === "thin" && s.k === "고") { p += 10; why.push("높은 킥 — 얇게 맞는 미스에서 탄도 확보"); }
+      if (S.ironMiss === "fat" && (s.k === "낮음" || s.k === "중저")) { p += 10; why.push("낮은 킥 — 뒤땅 경향에서 헤드가 덜 처짐"); }
+      if (S.ironFeel === "soft" && s.feel === "부드럽다") { p += 12; why.push("부드러운 타감 선호에 맞음"); }
+      if (S.ironFeel === "solid" && (s.feel === "단단하다" || s.feel === "묵직하다")) { p += 12; why.push("단단한 타감 선호에 맞음"); }
+      if (S.ironFeel === "light" && s.feel === "가볍다") { p += 12; why.push("가벼운 쪽 선호에 맞음"); }
+      return { ...s, p, why };
+    }).sort((a, b) => b.p - a.p);
+
+    const heads = IRON_HEADS.map((h) => {
+      let p = h.forg * 7; const why = [];
+      if (h.fit.includes(S.scoreGrp || "90")) { p += 22; why.push(`평균 ${S.auto.avg || S.scoreGrp + "대"}타 구간에 맞는 난이도`); }
+      if (S.ironMiss === "thin" && h.forg >= 4) { p += 14; why.push(`관용성 ${h.forg}/5 — 얇게 맞아도 거리 손실이 적음`); }
+      if (S.ironMiss === "dir" && h.off === "많음") { p += 12; why.push("오프셋 많음 — 페이스가 늦게 열려 방향 안정"); }
+      if (S.shapeI === "slice" && h.off === "많음") { p += 12; why.push("오프셋 많음 — 슬라이스 완화"); }
+      if (S.shapeI === "hook" && h.off === "적음") { p += 10; why.push("오프셋 적음 — 훅 억제"); }
+      if (h.light && (tired || S.carry7 < 140)) { p += 10; why.push("경량 설계 — 후반까지 스윙 유지"); }
+      return { ...h, p, why };
+    }).sort((a, b) => b.p - a.p);
+
+    if (mat === "스틸" && S.ironMat === "그라파이트")
+      notes.push({ h: "선택하신 소재를 따랐어요", b: "그라파이트로 골랐습니다. 다만 스틸보다 <b>거리 편차가 커질 수</b> 있어 시타에서 꼭 확인해 보세요." });
+
+    return {
+      mat, target, fxT,
+      // 소재가 다르거나 목표 무게에서 12g 넘게 벗어난 샤프트는 브랜드 선호와 무관하게 제외
+      shaftPick: pickByBrand(shafts, S.shaftBrand, "b",
+        (s) => s.mat === mat && Math.abs(s.w - target) <= 12),
+      headPick: pickByBrand(heads, S.brand, "br"),
+      notes,
+      lie: S.heightV >= 185 ? "1~2° 업라이트 검토"
+         : S.heightV <= 162 ? "플랫 / 길이 -0.25\" 검토" : "표준 라이각 범위",
+    };
+  }
+
+  /* ── 웨지 ────────────────────────────────────────────────────
+     로프트 갭은 계산으로 딱 떨어지는 영역이라 추측이 들어가지 않는다.
+     바운스는 스윙 타입(디거/스위퍼)이 정하는 정석 규칙을 따른다. */
+  function wedgeEngine() {
+    const pw = S.pwLoft || 45;            // 모르면 최근 아이언 표준값 45°
+    const lw = 58;                        // 로브웨지는 58° 기준
+    const span = lw - pw;
+    // 갭이 12° 이상이면 3개, 아니면 2개로 나눈다 (한 클럽당 4~6°가 정석)
+    const cnt = span >= 12 ? 3 : 2;
+    const step = Math.round((span / cnt) * 2) / 2;
+    const lofts = [];
+    for (let i = 1; i <= cnt; i++) lofts.push(Math.round(pw + step * i));
+    lofts[lofts.length - 1] = lw;
+
+    // 바운스 — 디거는 높게, 스위퍼는 낮게. 잔디가 무르면 한 단계 더 높게
+    let base = S.wedgeTurf === "dig" ? 12 : S.wedgeTurf === "sweep" ? 8 : 10;
+    const soft = S.wedgeMiss === "fat";
+    if (soft) base += 2;
+    const grind = S.wedgeTurf === "dig" ? "넓은 솔(와이드) — 파고들어도 튕겨 나옴"
+                : S.wedgeTurf === "sweep" ? "좁은 솔(내로우) — 얕게 쓸어 치기 좋음"
+                : "중간 솔 — 두루 무난";
+
+    const specs = lofts.map((lo, i) => {
+      // 갭웨지 쪽은 풀스윙이 많아 바운스를 조금 낮추고, 로브는 높인다
+      const b = Math.max(4, Math.min(14, base + (i === lofts.length - 1 ? 2 : i === 0 ? -2 : 0)));
+      return { loft: lo, bounce: b,
+        use: i === 0 ? "풀스윙 갭 메우기" : i === lofts.length - 1 ? "그린 주변 띄우기·벙커" : "어프로치 주력" };
+    });
+
+    return {
+      pw, cnt, specs, grind,
+      pick: pickByBrand(WEDGES.map((w) => ({ ...w, p: w.br === S.brand ? 10 : 0 }))
+                        .sort((a, b) => b.p - a.p), S.brand, "br"),
+      note: `피칭(${pw}°)과 로브(58°) 사이 ${span}°를 ${cnt}개로 나눴습니다. ` +
+            `한 클럽당 ${step}° — 거리 공백이 생기지 않는 간격입니다.`,
+    };
+  }
+
+  /* ── 퍼터 ────────────────────────────────────────────────────
+     스트로크 궤도와 헤드 밸런스의 궁합, 키에 따른 길이 —
+     둘 다 피팅에서 근거가 분명한 영역이라 규칙으로 계산한다. */
+  function putterEngine() {
+    const arc = S.puttStroke || "slight";
+    const scored = PUTTERS.map((p) => {
+      let s = 0; const why = [];
+      if (p.arc === arc) { s += 40; why.push(`${arc === "straight" ? "직선" : arc === "arc" ? "아크가 큰" : "약간 아크"} 스트로크에 맞는 ${p.bal}`); }
+      else if ((arc === "slight" && p.arc !== "straight") || (p.arc === "slight")) s += 18;
+      if (S.puttMiss === "dir" && p.shape !== "블레이드") { s += 16; why.push("말렛 계열 — 관성이 커서 방향이 덜 틀어짐"); }
+      if (S.puttMiss === "dist" && p.shape === "블레이드") { s += 10; why.push("블레이드 — 거리감을 손끝으로 읽기 좋음"); }
+      if (S.puttLook === "blade" && p.shape === "블레이드") { s += 14; why.push("선호하시는 생김새"); }
+      if (S.puttLook === "mallet" && p.shape !== "블레이드") { s += 14; why.push("선호하시는 생김새"); }
+      return { ...p, p: s, why };
+    }).sort((a, b) => b.p - a.p);
+
+    // 길이 — 키 기준 표준 (셋업 자세에 따라 ±0.5인치 조정 여지)
+    const h = S.heightV || 172;
+    const len = h >= 183 ? 35 : h >= 168 ? 34 : h >= 158 ? 33.5 : 33;
+
+    return {
+      arc, len,
+      pick: pickByBrand(scored, S.brand, "br"),
+      lie: "라이각은 셋업에서 퍼터 솔이 지면과 평행해지는지로 확인하세요.",
+      note: arc === "straight"
+        ? "직선에 가까운 스트로크에는 <b>페이스밸런스</b> 퍼터가 맞습니다. 헤드가 스스로 열리고 닫히지 않아 스트로크를 방해하지 않습니다."
+        : arc === "arc"
+        ? "아크가 큰 스트로크에는 <b>토우행</b> 퍼터가 맞습니다. 헤드가 자연스럽게 열렸다 닫히며 궤도를 따라옵니다."
+        : "약간의 아크에는 <b>약토우행 미드말렛</b>이 무난합니다. 관용성과 궤도 궁합을 함께 가져갑니다.",
+    };
+  }
+
   function label(v) { return { slice: "슬라이스", fade: "페이드", straight: "스트레이트", draw: "드로", hook: "훅" }[v] || "-"; }
 
   /* ───────── 내 백 저장 → AI 캐디 입력값 ───────── */
@@ -384,87 +715,245 @@
   window.loadMyBag = function () {
     try { return JSON.parse(localStorage.getItem(BAG_KEY) || "null"); } catch (_) { return null; }
   };
+  /* 클럽별 결과를 같은 백에 덧붙인다 — 드라이버만 하고 그만둬도 저장이 남는다 */
+  function saveBagPart(what, r) {
+    const bag = window.loadMyBag() || { ts: Date.now() };
+    if (what === "iron") {
+      bag.iron = {
+        mat: r.mat, weight: r.target,
+        shaft: `${r.shaftPick.main.m} ${r.shaftPick.main.sp}`,
+        head: `${r.headPick.main.br} ${r.headPick.main.m}`,
+      };
+    } else if (what === "wedge") {
+      bag.wedge = {
+        lofts: r.specs.map((s) => s.loft),
+        bounces: r.specs.map((s) => s.bounce),
+        model: `${r.pick.main.br} ${r.pick.main.m}`,
+      };
+    } else if (what === "putter") {
+      bag.putter = {
+        model: `${r.pick.main.br} ${r.pick.main.m}`,
+        shape: r.pick.main.shape, len: r.len,
+      };
+    }
+    bag.ts = Date.now();
+    try { localStorage.setItem(BAG_KEY, JSON.stringify(bag)); } catch (_) {}
+    return bag;
+  }
 
-  /* ───────── 결과 렌더 ───────── */
+  /* 추천 카드 한 장 — 선호 브랜드 1순위와 다른 브랜드 대안을 같은 모양으로 그린다 */
+  function resCard(kind, name, spec, whys, alt) {
+    return `<div class="res-card${alt ? " pick-alt" : ""}"><span class="kind">${kind}</span>
+      <div class="r-name">${name}</div>
+      <div class="r-spec">${spec}</div>
+      <ul>${(whys || []).slice(0, 3).map((w) => `<li>${w}</li>`).join("")}</ul>
+    </div>`;
+  }
+  /* 다른 브랜드 제안 문구 — 밀어붙이지 않고 권하는 말투 */
+  function altLead(what) {
+    return `<div class="alt-lead">이 ${what}도 골퍼님께 잘 맞을 것 같아요</div>`;
+  }
+  function brandLine(pick) {
+    if (!pick.wanted) return "브랜드 상관없이 1순위";
+    return pick.matched ? `${pick.wanted} 안에서 1순위`
+      : `${pick.wanted}에는 맞는 게 없어 전체 1순위로 골랐어요`;
+  }
+
+  function shaftSpec(s) {
+    return `${s.b} · ${s.w}g · ${s.fx} · 토크 ${s.tq}° · 킥 ${s.k}${s.velo ? " · 벨로코어" : ""}`;
+  }
+
+  /* ───────── 결과 렌더 (드라이버) ───────── */
   function renderResult() {
     const r = engine();
     const brandTxt = (S.brand && S.brand !== "any") ? S.brand : "전체 브랜드";
     const verdict = r.keep
-      ? `<div class="verdict"><span class="v-stamp keep">유 지</span>
-          <div class="v-label">FITTING VERDICT</div>
+      ? `<div class="verdict"><span class="v-stamp keep">그대로 유지</span>
+          <div class="v-label">피팅 판정</div>
           <div class="v-main">지금 클럽, 그대로 쓰세요</div>
           <div class="v-sub">현재 ${r.cur.label}(${r.cur.w}g·${r.cur.fx})가 계산 밴드(${r.wLo}~${r.wHi}g · ${r.fxT.join("/")}) 안입니다.<br><b>바꿔도 2타 못 법니다.</b> 그 예산은 레슨이나 그린피가 낫습니다.</div>
         </div>`
       : `<div class="verdict"><span class="v-stamp">교체 검토</span>
-          <div class="v-label">FITTING VERDICT</div>
+          <div class="v-label">피팅 판정</div>
           <div class="v-main">맞춰볼 여지가 있습니다</div>
           <div class="v-sub">캐리 ${S.carry7}m → 약 ${r.mph}mph 추정 → 기준 <b>${r.wLo}~${r.wHi}g · ${r.fxT.join("/")}</b></div>
         </div>`;
     const noteHtml = r.notes.map((n) => `<div class="warn-card"><b>${n.h}</b> — ${n.b}</div>`).join("");
-    const shaftHtml = r.shafts.map((s, i) => `
-      <div class="res-card"><span class="kind">SHAFT ${i + 1}</span>
-        <div class="r-name">${s.m} ${s.sp}</div>
-        <div class="r-spec">${s.b} · ${s.w}g · ${s.fx} · 토크 ${s.tq}° · 킥 ${s.k}${s.velo ? " · 벨로코어" : ""}</div>
-        <ul>${s.why.slice(0, 3).map((w) => `<li>${w}</li>`).join("")}</ul>
-      </div>`).join("");
-    const headHtml = `
-      <div class="res-card"><span class="kind">HEAD</span>
-        <div class="r-name">${r.mainHead.br} ${r.mainHead.m}</div>
-        <div class="r-spec">관용성 ${r.mainHead.forg}/5 · 스핀 ${r.mainHead.spin} · ${r.mainHead.draw ? "드로 바이어스" : "뉴트럴"}</div>
-        <ul>${r.mainHead.why.slice(0, 3).map((w) => `<li>${w}</li>`).join("") || "<li>선호 브랜드 내 최적</li>"}</ul>
-      </div>
-      ${r.altHead ? `<button class="alt-toggle" data-alt>다른 브랜드 1개만 참고로 보기 ▾</button>
-      <div id="cf-altbox" style="display:none">
-        <div class="res-card"><span class="kind">ALT</span>
-          <div class="r-name">${r.altHead.br} ${r.altHead.m}</div>
-          <div class="r-spec">관용성 ${r.altHead.forg}/5 · 스핀 ${r.altHead.spin} · ${r.altHead.draw ? "드로 바이어스" : "뉴트럴"}</div>
-          <ul>${r.altHead.why.slice(0, 2).map((w) => `<li>${w}</li>`).join("") || "<li>타 브랜드 중 최고점</li>"}</ul>
-        </div>
-      </div>` : ""}`;
+
+    const sp = r.shaftPick, hp = r.headPick;
+    const shaftHtml =
+      resCard("샤프트 1순위", `${sp.main.m} ${sp.main.sp}`, shaftSpec(sp.main), sp.main.why) +
+      (sp.alt ? altLead("샤프트") + resCard(`${sp.alt.b}`, `${sp.alt.m} ${sp.alt.sp}`,
+        shaftSpec(sp.alt), sp.alt.why, true) : "");
+    const headSpec = (h) => `관용성 ${h.forg}/5 · 스핀 ${h.spin} · ${h.draw ? "드로 바이어스" : "뉴트럴"}`;
+    const headHtml =
+      resCard("헤드 1순위", `${hp.main.br} ${hp.main.m}`, headSpec(hp.main),
+        hp.main.why.length ? hp.main.why : ["선호 브랜드 안에서 최적"]) +
+      (hp.alt ? altLead("헤드") + resCard(`${hp.alt.br}`, `${hp.alt.br} ${hp.alt.m}`,
+        headSpec(hp.alt), hp.alt.why.length ? hp.alt.why : ["다른 브랜드 중 최고점"], true) : "");
+
     return `
-      <div class="q-eyebrow">판정 · ${brandTxt} 우선 ${S.didFine ? "· 본봉 반영" : "· 가봉만 반영"}</div>
+      <div class="q-eyebrow">드라이버 판정 · ${brandTxt} 우선${S.didFine ? " · 본봉 반영" : ""}</div>
       ${verdict}${noteHtml}
-      <div class="section-h">샤프트 <span class="cnt">${S.budget === "stock" ? "순정 풀" : SHAFTS.length + "장 풀"}에서 압축</span></div>
+      <div class="section-h">샤프트 <span class="cnt">${brandLine(sp)}</span></div>
       ${shaftHtml}
-      <div class="section-h">헤드 <span class="cnt">${brandTxt} 안에서 1순위</span></div>
+      <div class="section-h">헤드 <span class="cnt">${brandLine(hp)}</span></div>
       ${headHtml}
       <div class="section-h">그립</div>
-      <div class="res-card"><span class="kind">GRIP</span>
-        <div class="r-name">${r.grip.m}</div>
-        <div class="r-spec">${r.grip.spec}</div>
-        <ul><li>${r.grip.why}</li></ul>
-      </div>
+      ${resCard("그립", r.grip.m, r.grip.spec, [r.grip.why])}
       ${r.tips.length ? `<div class="section-h">추가 코멘트</div>${r.tips.map((t) => `<div class="tip-line">· ${t}</div>`).join("")}` : ""}
       <div class="btn-row" style="margin-top:16px">
-        <button class="cf-btn accent" data-savebag>💾 내 백에 저장 — AI 캐디가 씁니다</button>
+        <button class="cf-btn accent" data-savebag>내 백에 저장 — AI 캐디가 씁니다</button>
       </div>
       <div id="cf-bag-saved" class="inline-note" style="display:none"><b>저장 완료</b> — 이제 홀별 공략에서 이 클럽 기준으로 조언합니다.</div>
+      <div class="btn-row"><button class="cf-btn" data-jump="bag">다음 클럽도 맞춰보기 →</button></div>
       <div class="restart-row">
         <button class="cf-btn ghost" data-restart>처음부터 다시</button>
-        ${S.didFine ? "" : '<button class="cf-btn" data-gofine>본봉 5문항 추가</button>'}
+        ${S.didFine ? "" : '<button class="cf-btn ghost" data-gofine>본봉 5문항 추가</button>'}
       </div>
       <div class="cf-foot">※ 스펙 수치는 초기 데이터 — 시타 없이 구매하지 마세요. 추천은 판매와 무관합니다.</div>`;
   }
 
+  /* ───────── 내 백 허브 ───────── */
+  function bagRow(icon, name, desc, done, jump) {
+    return `<button class="chip" data-jump="${jump}" style="display:flex;align-items:center;gap:12px">
+      <span style="font-size:22px">${icon}</span>
+      <span style="flex:1">${name}
+        <small>${done ? "맞춤 완료 — 다시 보기" : desc}</small></span>
+      <span style="color:var(--${done ? "green" : "text-faint"});font-weight:700">${done ? "완료" : "›"}</span>
+    </button>`;
+  }
+  function renderBag() {
+    const b = window.loadMyBag() || {};
+    return `
+      <div class="q-eyebrow">내 백</div>
+      <div class="q-title">어떤 클럽을<br>맞춰볼까요?</div>
+      <div class="q-sub">한 번에 다 하지 않아도 됩니다. 하나씩 채워도 AI 캐디가 그만큼 더 정확해져요.</div>
+      <div class="q-body"><div class="chips">
+        ${bagRow("🏌️", "드라이버", "샤프트 · 헤드 · 그립", !!b.driver, "result")}
+        ${bagRow("⛳", "아이언", "3문항 — 소재 · 무게 · 헤드", !!b.iron, "iron1")}
+        ${bagRow("🌊", "웨지", "3문항 — 로프트 갭 · 바운스", !!b.wedge, "wedge1")}
+        ${bagRow("🎯", "퍼터", "3문항 — 스트로크 · 헤드 · 길이", !!b.putter, "putt1")}
+      </div></div>
+      <div class="btn-row"><button class="cf-btn ghost" data-jump="result">드라이버 결과로</button></div>`;
+  }
+
+  /* ───────── 아이언 결과 ───────── */
+  function renderIron() {
+    const r = ironEngine();
+    const sp = r.shaftPick, hp = r.headPick;
+    const sSpec = (s) => `${s.b} · ${s.mat} · 약 ${s.w}g · ${s.fx} · 킥 ${s.k}`;
+    const hSpec = (h) => `${h.type} · 관용성 ${h.forg}/5 · 오프셋 ${h.off}`;
+    return `
+      <div class="q-eyebrow">아이언 판정</div>
+      <div class="verdict">
+        <div class="v-label">목표 스펙</div>
+        <div class="v-main">${r.mat} · 약 ${r.target}g · ${r.fxT.join("/")}</div>
+        <div class="v-sub">7번 캐리 ${S.carry7}m와 후반 체력까지 반영한 대역입니다.</div>
+      </div>
+      ${r.notes.map((n) => `<div class="warn-card"><b>${n.h}</b> — ${n.b}</div>`).join("")}
+      <div class="section-h">샤프트 <span class="cnt">${brandLine(sp)}</span></div>
+      ${resCard("샤프트 1순위", `${sp.main.m} ${sp.main.sp}`, sSpec(sp.main), sp.main.why)}
+      ${sp.alt ? altLead("샤프트") + resCard(sp.alt.b, `${sp.alt.m} ${sp.alt.sp}`, sSpec(sp.alt), sp.alt.why, true) : ""}
+      <div class="section-h">헤드 <span class="cnt">${brandLine(hp)}</span></div>
+      ${resCard("헤드 1순위", `${hp.main.br} ${hp.main.m}`, hSpec(hp.main), hp.main.why)}
+      ${hp.alt ? altLead("아이언") + resCard(hp.alt.br, `${hp.alt.br} ${hp.alt.m}`, hSpec(hp.alt), hp.alt.why, true) : ""}
+      <div class="section-h">라이각</div>
+      <div class="tip-line">· 키 ${S.heightV}cm — ${r.lie}. 임팩트 테이프로 실제 접지를 확인하는 게 가장 정확합니다.</div>
+      <div class="btn-row"><button class="cf-btn accent" data-savebag="iron">내 백에 저장</button></div>
+      <div id="cf-bag-saved" class="inline-note" style="display:none"><b>저장 완료</b></div>
+      <div class="btn-row"><button class="cf-btn ghost" data-jump="bag">← 내 백으로</button></div>
+      <div class="cf-foot">※ 무게는 제조사 표준값 기준이며 번수·개체 차이가 있습니다. 시타로 확인하세요.</div>`;
+  }
+
+  /* ───────── 웨지 결과 ───────── */
+  function renderWedge() {
+    const r = wedgeEngine();
+    const p = r.pick;
+    const rows = r.specs.map((s) =>
+      resCard(`${s.loft}°`, `로프트 ${s.loft}° · 바운스 ${s.bounce}°`, s.use,
+        [`${p.main.br} ${p.main.m} 기준 구성`])).join("");
+    return `
+      <div class="q-eyebrow">웨지 판정</div>
+      <div class="verdict">
+        <div class="v-label">구성</div>
+        <div class="v-main">${r.cnt}개 구성 · ${r.specs.map((s) => s.loft + "°").join(" / ")}</div>
+        <div class="v-sub">${r.note}</div>
+      </div>
+      <div class="warn-card"><b>솔 그라인드</b> — ${r.grind}</div>
+      <div class="section-h">추천 구성</div>
+      ${rows}
+      <div class="section-h">모델 <span class="cnt">${brandLine(p)}</span></div>
+      ${resCard("웨지 1순위", `${p.main.br} ${p.main.m}`, "위 로프트·바운스로 주문 가능",
+        ["선호 브랜드 안에서 로프트 선택폭이 넓은 라인"])}
+      ${p.alt ? altLead("웨지") + resCard(p.alt.br, `${p.alt.br} ${p.alt.m}`,
+        "같은 로프트·바운스 구성 가능", ["다른 브랜드 중 대안"], true) : ""}
+      <div class="btn-row"><button class="cf-btn accent" data-savebag="wedge">내 백에 저장</button></div>
+      <div id="cf-bag-saved" class="inline-note" style="display:none"><b>저장 완료</b></div>
+      <div class="btn-row"><button class="cf-btn ghost" data-jump="bag">← 내 백으로</button></div>
+      <div class="cf-foot">※ 로프트 갭은 계산값입니다. 실제 거리는 시타로 채워 확인하세요.</div>`;
+  }
+
+  /* ───────── 퍼터 결과 ───────── */
+  function renderPutt() {
+    const r = putterEngine();
+    const p = r.pick;
+    const pSpec = (x) => `${x.shape} · ${x.bal}`;
+    return `
+      <div class="q-eyebrow">퍼터 판정</div>
+      <div class="verdict">
+        <div class="v-label">목표 스펙</div>
+        <div class="v-main">${p.main.shape} · ${p.main.bal} · ${r.len}인치</div>
+        <div class="v-sub">${r.note}</div>
+      </div>
+      <div class="section-h">모델 <span class="cnt">${brandLine(p)}</span></div>
+      ${resCard("퍼터 1순위", `${p.main.br} ${p.main.m}`, pSpec(p.main), p.main.why)}
+      ${p.alt ? altLead("퍼터") + resCard(p.alt.br, `${p.alt.br} ${p.alt.m}`, pSpec(p.alt), p.alt.why, true) : ""}
+      <div class="section-h">길이 · 라이각</div>
+      <div class="tip-line">· 키 ${S.heightV}cm 기준 <b>${r.len}인치</b>. 눈이 공 바로 위에 오면 맞는 길이입니다.</div>
+      <div class="tip-line">· ${r.lie}</div>
+      <div class="btn-row"><button class="cf-btn accent" data-savebag="putter">내 백에 저장</button></div>
+      <div id="cf-bag-saved" class="inline-note" style="display:none"><b>저장 완료</b></div>
+      <div class="btn-row"><button class="cf-btn ghost" data-jump="bag">← 내 백으로</button></div>
+      <div class="cf-foot">※ 퍼터는 감각의 비중이 큽니다. 이 결과는 출발점으로만 쓰세요.</div>`;
+  }
+
   /* ───────── 네비게이션 ───────── */
   function scrEl() { return $$("#cf-screen"); }
+  /* 판정 화면은 계산이 순식간이라 그냥 뜨면 "정말 분석한 게 맞나" 싶어진다.
+     실제로 룰 엔진이 도는 동안 무엇을 보고 있는지 말해주는 편이 결과를 신뢰하게 만든다. */
+  const RESULT_KEYS = ["result", "ironResult", "wedgeResult", "puttResult"];
   function go(i) {
-    idx = Math.max(0, Math.min(i, SCREENS.length - 1));
+    const target = Math.max(0, Math.min(i, SCREENS.length - 1));
+    if (RESULT_KEYS.includes(SCREENS[target].key) && typeof WAIT !== "undefined") {
+      const w = WAIT.open("clubfit");
+      setTimeout(() => { paint(target); w.close(); }, 2400);
+      return;
+    }
+    paint(target);
+  }
+  function paint(i) {
+    idx = i;
     const sc = SCREENS[idx];
     scrEl().innerHTML = (idx > 0 ? `<button class="cf-back" data-back>← 이전</button>` : "") + sc.render();
     const stage = $$("#cf-stage"), step = $$("#cf-step"), bar = $$("#cf-stitch");
     stage.textContent = sc.stage;
-    if (sc.stage === "가봉") { step.textContent = `${sc.q} / 8 시침`; bar.style.width = (sc.q / 8 * 100) + "%"; }
-    else if (sc.stage === "본봉") { step.textContent = `${sc.q} / 5 본박음`; bar.style.width = (sc.q / 5 * 100) + "%"; }
-    else if (sc.stage === "판정") { step.textContent = "완성"; bar.style.width = "100%"; }
-    else if (sc.stage === "가봉 완료") { step.textContent = "8 / 8 시침 완료"; bar.style.width = "100%"; }
+    if (sc.stage === "가봉") { step.textContent = `${sc.q} / 8`; bar.style.width = (sc.q / 8 * 100) + "%"; }
+    else if (sc.stage === "본봉") { step.textContent = `${sc.q} / 6`; bar.style.width = (sc.q / 6 * 100) + "%"; }
+    else if (sc.stage === "판정") { step.textContent = "완료"; bar.style.width = "100%"; }
+    else if (sc.stage === "가봉 완료") { step.textContent = "8 / 8 완료"; bar.style.width = "100%"; }
+    // 클럽별 모듈은 3문항 — 결과 화면(q 없음)은 100%
+    else if (["아이언", "웨지", "퍼터"].includes(sc.stage)) {
+      step.textContent = sc.q ? `${sc.q} / 3` : "완료";
+      bar.style.width = (sc.q ? sc.q / 3 * 100 : 100) + "%";
+    }
     else { step.textContent = ""; bar.style.width = "0%"; }
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
   function canPassScore() { return S.scoreConfirm === "ok" || (S.scoreConfirm === "diff" && S.scoreGrp); }
   function advance() {
     const sc = SCREENS[idx];
-    if (sc.stage === "본봉" && sc.q === 5) S.didFine = true;
+    if (sc.stage === "본봉" && sc.q === 6) S.didFine = true;
     go(idx + 1);
   }
 
@@ -485,10 +974,15 @@
       if (t.closest("[data-gofine]")) { S.didFine = true; return go(SCREENS.findIndex((s) => s.stage === "본봉" && s.q === 1)); }
       if (t.closest("[data-jump]")) return go(SCREENS.findIndex((s) => s.key === t.closest("[data-jump]").dataset.jump));
       if (t.closest("[data-alt]")) { const b = $$("#cf-altbox"); if (b) b.style.display = b.style.display === "none" ? "block" : "none"; return; }
-      if (t.closest("[data-savebag]")) {
-        saveBag(engine());
+      const sb = t.closest("[data-savebag]");
+      if (sb) {
+        const what = sb.dataset.savebag || "driver";
+        if (what === "iron") saveBagPart("iron", ironEngine());
+        else if (what === "wedge") saveBagPart("wedge", wedgeEngine());
+        else if (what === "putter") saveBagPart("putter", putterEngine());
+        else saveBag(engine());
         const ok = $$("#cf-bag-saved"); if (ok) ok.style.display = "block";
-        if (typeof STATS !== "undefined") STATS.hit("feature", "clubfit_save");
+        if (typeof STATS !== "undefined") STATS.hit("feature", "clubfit_save_" + what);
         return;
       }
       const chip = t.closest(".chip");
@@ -539,16 +1033,40 @@
     go(0);
   };
 
-  // 검수용: 콘솔에서 엔진 직접 실행 (window.__cfTest(입력) → 판정 요약)
-  window.__cfTest = function (inp) {
+  /* 검수용: 콘솔에서 엔진 직접 실행 (window.__cfTest(입력) → 판정 요약)
+     화면이 실제로 쓰는 필드(shaftPick/headPick)를 그대로 보고해야
+     "테스트는 통과인데 화면은 다른" 사고가 안 난다. */
+  window.__cfTest = function (inp, which) {
     const bak = JSON.stringify(S);
     Object.assign(S, inp);
     if (inp.auto) Object.assign(S.auto, inp.auto);
-    const r = engine();
-    const out = { keep: r.keep, band: `${r.wLo}~${r.wHi}g ${r.fxT.join("/")}`,
-      shaft1: r.shafts[0] ? `${r.shafts[0].m} ${r.shafts[0].sp}` : null,
-      head: `${r.mainHead.br} ${r.mainHead.m}`,
-      notes: r.notes.map((n) => n.h) };
+    let out;
+    if (which === "iron") {
+      const r = ironEngine();
+      out = { mat: r.mat, target: r.target, fx: r.fxT.join("/"),
+        shaft1: `${r.shaftPick.main.m} ${r.shaftPick.main.sp}`,
+        shaftAlt: r.shaftPick.alt ? `${r.shaftPick.alt.b} ${r.shaftPick.alt.m}` : null,
+        head: `${r.headPick.main.br} ${r.headPick.main.m}`,
+        headAlt: r.headPick.alt ? `${r.headPick.alt.br} ${r.headPick.alt.m}` : null };
+    } else if (which === "wedge") {
+      const r = wedgeEngine();
+      out = { cnt: r.cnt, lofts: r.specs.map((s) => s.loft), bounces: r.specs.map((s) => s.bounce),
+        model: `${r.pick.main.br} ${r.pick.main.m}` };
+    } else if (which === "putter") {
+      const r = putterEngine();
+      out = { shape: r.pick.main.shape, bal: r.pick.main.bal, len: r.len,
+        model: `${r.pick.main.br} ${r.pick.main.m}`,
+        alt: r.pick.alt ? `${r.pick.alt.br} ${r.pick.alt.m}` : null };
+    } else {
+      const r = engine();
+      out = { keep: r.keep, band: `${r.wLo}~${r.wHi}g ${r.fxT.join("/")}`,
+        shaft1: `${r.shaftPick.main.m} ${r.shaftPick.main.sp}`,
+        shaftBrand1: r.shaftPick.main.b,
+        shaftAlt: r.shaftPick.alt ? `${r.shaftPick.alt.b} ${r.shaftPick.alt.m}` : null,
+        head: `${r.headPick.main.br} ${r.headPick.main.m}`,
+        headAlt: r.headPick.alt ? `${r.headPick.alt.br} ${r.headPick.alt.m}` : null,
+        notes: r.notes.map((n) => n.h) };
+    }
     Object.assign(S, JSON.parse(bak));
     return out;
   };

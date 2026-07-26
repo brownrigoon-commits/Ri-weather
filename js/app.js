@@ -4,8 +4,8 @@
  * ========================================================= */
 "use strict";
 
-const APP_VER = "v110"; // 배포 버전 (홈 화면 배지에 표시)
-const APP_NOTE = "클럽 피팅 메뉴 추가"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
+const APP_VER = "v111"; // 배포 버전 (홈 화면 배지에 표시)
+const APP_NOTE = "토스뱅크 벤치마킹 전면 개편"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
 const STORAGE_KEY = "riweather.courses.v1";
 const GEM_KEY = "riweather.gemini"; // 정밀 인식(비전 AI) 개인 키 저장소
 // 기본 제공 키 (무료 한도 공유) — 개인 키를 설정하면 그 키가 우선됩니다
@@ -399,7 +399,7 @@ function renderHome() {
           <div class="cc-sub">${c.addr || ""}</div>
         </div>
         <div style="display:flex;align-items:flex-start">
-          <div class="cc-temp">--°</div>
+          <div class="cc-temp"><span class="skel" style="display:inline-block;width:44px;height:26px"></span></div>
           <button class="cc-del" aria-label="삭제">✕</button>
         </div>
       </div>
@@ -425,9 +425,11 @@ function renderHome() {
       card.querySelector(".cc-minmax").textContent =
         `최고:${Math.round(d.daily.temperature_2m_max[0])}° 최저:${Math.round(d.daily.temperature_2m_min[0])}°`;
     }).catch(() => {
+      card.querySelector(".cc-temp").textContent = "--°";
       card.querySelector(".cc-desc").textContent = "날씨를 불러오지 못했습니다";
     });
   });
+  staggerIn(courseListEl);   // 카드가 위에서부터 차례로 떠오르게
 }
 
 /* ---------- 검색 ---------- */
@@ -560,7 +562,7 @@ const VIEWS = {
 };
 let viewStack = ["home"];
 
-function showOnly(name) {
+function showOnly(name, back) {
   for (const k in VIEWS) VIEWS[k].hidden = k !== name;
   window.scrollTo(0, 0);
   if (name !== "detail") stopPlay();
@@ -568,6 +570,14 @@ function showOnly(name) {
   // 홈이 아니면 플로팅 뒤로가기 버튼 표시
   const fb = document.getElementById("float-back-btn");
   if (fb) fb.hidden = name === "home";
+  // 화면이 아래에서 떠오르는 전환 (뒤로가기는 반대 방향)
+  // — 애니메이션 클래스는 매번 새로 붙여야 다시 재생된다
+  const el = VIEWS[name];
+  if (el) {
+    el.classList.remove("is-entering", "is-entering-back");
+    void el.offsetWidth;
+    el.classList.add(back ? "is-entering-back" : "is-entering");
+  }
 }
 function pushView(name) {
   viewStack.push(name);
@@ -580,7 +590,7 @@ window.addEventListener("popstate", () => {
   lastPopAt = Date.now();
   if (viewStack.length > 1) {
     viewStack.pop();
-    showOnly(viewStack[viewStack.length - 1]);
+    showOnly(viewStack[viewStack.length - 1], true);
   }
 });
 function goBack() {
@@ -2048,6 +2058,7 @@ function playerTraits() {
   const bag = (typeof loadMyBag === "function") ? loadMyBag() : null;
   if (bag && bag.driver)
     bits.push("드라이버 " + (bag.driver.keep ? bag.driver.shaft : bag.driver.head + " + " + bag.driver.shaft));
+  if (bag && bag.iron) bits.push("아이언 " + bag.iron.head);
   if (bag && bag.carryD) bits.push("드라이버 캐리 " + bag.carryD + "m");
   return bits.length ? ", " + bits.join(" ") : "";
 }
@@ -2093,6 +2104,10 @@ function playerTraitGuide() {
   if (bag && bag.carryD)
     g += `이 골퍼의 드라이버 캐리는 약 ${bag.carryD}m, 7번 아이언 캐리는 약 ${bag.carry7}m입니다. ` +
          "홀 거리와 이 수치를 비교해 티샷·세컨드 클럽을 구체적으로 지정하세요(예: 드라이버 대신 우드, 한 클럽 길게). ";
+  // 웨지 구성을 알면 그린 주변 조언에서 실제로 가진 클럽만 지정할 수 있다
+  if (bag && bag.wedge && bag.wedge.lofts && bag.wedge.lofts.length)
+    g += `이 골퍼의 웨지는 ${bag.wedge.lofts.join("°, ")}° 구성입니다. ` +
+         "그린 주변 조언에서는 이 중에서만 클럽을 지정하고, 갖고 있지 않은 로프트는 언급하지 마세요. ";
   return g;
 }
 
@@ -2145,8 +2160,12 @@ async function aiCaddie() {
   return runAiCaddie();
 }
 
+/* 3~8초 걸리는 호출 — 대기 화면으로 말을 걸어 기다림을 지운다 */
 async function runAiCaddie() {
   if (!aiHoleCtx) return;
+  return WAIT.run("caddie", () => runAiCaddieInner());
+}
+async function runAiCaddieInner() {
   const btn = $("#ai-strategy-btn"), out = $("#ai-strategy");
   btn.disabled = true; btn.textContent = "🤖 AI 캐디가 홀을 분석 중... (3~8초)";
 
@@ -2521,7 +2540,12 @@ async function openFoodView() {
   $("#food-title").textContent = "주변맛집";
   $("#food-desc").textContent = `${course.name} 주변 식당`;
   const listEl = $("#food-list");
-  listEl.innerHTML = '<p class="loading-line">주변 식당을 찾는 중...</p>';
+  // 맛집은 위에서부터 순차로 채워지므로 전체 대기화면 대신 자리표시(스켈레톤)를 둔다
+  // — 빈 화면보다 "곧 여기 채워진다"가 체감 대기를 줄인다
+  listEl.innerHTML = Array.from({ length: 4 }, () =>
+    '<div class="food-card"><div class="skel" style="height:15px;width:52%"></div>' +
+    '<div class="skel" style="height:12px;width:74%;margin-top:9px"></div>' +
+    '<div class="skel" style="height:12px;width:36%;margin-top:7px"></div></div>').join("");
   $("#food-note").hidden = true;
 
   const region = (course.addr || "").split(" ").slice(0, 2).join(" ");
@@ -3095,8 +3119,8 @@ function refreshAiKeyBtn() {
   const btn = $("#ai-key-btn");
   const personal = !!localStorage.getItem(GEM_KEY);
   btn.textContent = personal ? "🔑 정밀 인식 ON (내 키)" : "🔑 정밀 인식 ON";
-  btn.style.color = "#34d399";
-  btn.style.borderColor = "#34d399";
+  btn.style.color = "var(--primary)";
+  btn.style.borderColor = "var(--primary)";
 }
 $("#ai-key-btn").addEventListener("click", () => {
   const cur = localStorage.getItem(GEM_KEY) || "";
@@ -3741,6 +3765,10 @@ $("#sf-photo").addEventListener("change", async (e) => {
 
 $("#score-form").addEventListener("submit", async (e) => {
   e.preventDefault();
+  // 날씨 조회까지 겸하는 저장이라 몇 초 걸린다 — 그동안 라운딩을 격려하는 화면을 띄운다
+  return WAIT.run("score", () => saveScoreRecord());
+});
+async function saveScoreRecord() {
   const btn = $("#sf-save-btn");
   btn.disabled = true; btn.textContent = "저장 중...";
   const rec = {
@@ -3802,7 +3830,7 @@ $("#score-form").addEventListener("submit", async (e) => {
   resetScoreForm(); // 첨부 사진·입력값 정리
   $("#score-form").hidden = true;
   renderScores();
-});
+}
 
 /* ---------- 통계: 평균·핸디·목표 ---------- */
 function calcStats(records) {
@@ -3864,15 +3892,14 @@ async function shareScoreCard(r) {
   cv.width = W; cv.height = H;
   const x = cv.getContext("2d");
 
-  // 배경
-  const bg = x.createLinearGradient(0, 0, 0, H);
-  bg.addColorStop(0, "#4a5a6c"); bg.addColorStop(1, "#2c3744");
-  x.fillStyle = bg; x.fillRect(0, 0, W, H);
+  // 배경 — 앱과 같은 토스 무드(흰 카드 + 진한 글씨)
+  x.fillStyle = "#ffffff"; x.fillRect(0, 0, W, H);
+  x.fillStyle = "#f2f4f6"; x.fillRect(0, 0, W, 8);      // 상단 얇은 띠
 
-  x.textAlign = "center"; x.fillStyle = "#fff";
+  x.textAlign = "center"; x.fillStyle = "#191f28";
   x.font = "700 44px -apple-system, 'Malgun Gothic', sans-serif";
   x.fillText(r.course, W / 2, 110);
-  x.fillStyle = "rgba(255,255,255,0.65)";
+  x.fillStyle = "#8b95a1";
   x.font = "400 26px -apple-system, sans-serif";
   const sub = r.date + (r.teeTime ? " · " + r.teeTime + " 티업" : "") + (r.tee ? " · " + r.tee + "티" : "");
   x.fillText(sub, W / 2, 155);
@@ -3881,11 +3908,11 @@ async function shareScoreCard(r) {
   }
 
   // 대형 스코어
-  x.fillStyle = "#fff";
-  x.font = "200 190px -apple-system, sans-serif";
+  x.fillStyle = "#191f28";
+  x.font = "700 190px -apple-system, sans-serif";
   x.fillText(String(r.score), W / 2, 400);
   x.font = "400 34px -apple-system, sans-serif";
-  x.fillStyle = "#34d399";
+  x.fillStyle = "#3182f6";
   x.fillText("타", W / 2 + 130, 395);
 
   // 홀별 표 (라벨 | 1~9홀 | 합계 — 겹침 없는 고정 칼럼)
@@ -3899,21 +3926,21 @@ async function shareScoreCard(r) {
     ];
     rows.forEach(([nine, pars, label]) => {
       if (nine.every((v) => v == null)) return; // 9홀 라운드의 빈 후반 생략
-      x.fillStyle = "rgba(0,0,0,0.25)";
+      x.fillStyle = "#f7f8fa";
       x.fillRect(50, y, W - 100, 54);
       x.font = "600 18px -apple-system, sans-serif";
-      x.fillStyle = "rgba(255,255,255,0.6)";
+      x.fillStyle = "#8b95a1";
       x.textAlign = "left";
       x.fillText(label, 60, y + 33, 100); // 폭 초과 시 자동 압축 (망무봉 OUT 등)
       x.textAlign = "center";
       x.font = "600 22px -apple-system, sans-serif";
       nine.forEach((v, i) => {
-        x.fillStyle = v > 0 ? "#ff9c9c" : v < 0 ? "#7fd4ff" : "#fff";
+        x.fillStyle = v > 0 ? "#f04452" : v < 0 ? "#3182f6" : "#191f28";
         x.fillText(v == null ? "·" : v > 0 ? "+" + v : String(v), cellsX0 + cell * i + cell / 2, y + 34);
       });
       const parT = pars.length === 9 ? pars.reduce((s, v) => s + v, 0) : 36;
       const t = parT + nine.reduce((s, v) => s + (v || 0), 0);
-      x.fillStyle = "#34d399";
+      x.fillStyle = "#3182f6";
       x.font = "800 26px -apple-system, sans-serif";
       x.fillText(String(t), W - 92, y + 35);
       y += 62;
@@ -3923,19 +3950,19 @@ async function shareScoreCard(r) {
 
   // 그날 날씨
   if (r.wx) {
-    x.fillStyle = "rgba(255,255,255,0.75)";
+    x.fillStyle = "#4e5968";
     x.font = "400 26px -apple-system, sans-serif";
     x.fillText(`${wmoDesc(r.wx.code)} · ${r.wx.tmin}~${r.wx.tmax}° · 비 ${r.wx.rain}mm · 바람 ${r.wx.wind}m/s`, W / 2, y + 30);
     y += 70;
   }
   if (r.friends) {
-    x.fillStyle = "rgba(255,255,255,0.55)";
+    x.fillStyle = "#8b95a1";
     x.font = "400 24px -apple-system, sans-serif";
     x.fillText("함께한 사람 · " + r.friends, W / 2, y + 30, W - 100);
     y += 52;
   }
   if (r.memo) {
-    x.fillStyle = "rgba(255,255,255,0.75)";
+    x.fillStyle = "#4e5968";
     x.font = "italic 400 25px -apple-system, sans-serif";
     const memo = `“ ${r.memo} ”`;
     const MAXC = 26;
@@ -3948,7 +3975,7 @@ async function shareScoreCard(r) {
   }
 
   // 워터마크
-  x.fillStyle = "#34d399";
+  x.fillStyle = "#3182f6";
   x.font = "700 26px -apple-system, sans-serif";
   x.fillText("⛳ Ri-Weather", W / 2, H - 50);
 

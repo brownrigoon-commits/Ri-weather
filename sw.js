@@ -1,5 +1,5 @@
 ﻿/* Ri-Weather 서비스 워커 — 앱 뼈대는 캐시, 날씨 데이터는 항상 네트워크 */
-const CACHE = "riweather-v110";
+const CACHE = "riweather-v111";
 const CORE = [
   "./",
   "./index.html",
@@ -10,6 +10,7 @@ const CORE = [
   "./js/legal.js",
   "./js/stats.js",
   "./js/clubfit.js",
+  "./js/loading.js",
   "./js/golfdb.js",
   "./js/holesdb.js",
   "./js/holeimgdb.js",
