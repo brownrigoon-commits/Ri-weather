@@ -123,19 +123,22 @@
   /* ───────── 선호 브랜드 우선 추천 ─────────
      사장님 지시: 1순위는 선호 브랜드 안에서, 그다음 다른 브랜드의 최적안을 함께 권한다.
      브랜드 안에 마땅한 게 없으면 억지로 채우지 않고 전체 1순위를 내보낸다(신뢰 우선). */
+  /* 사장님 원칙: 선호 브랜드가 있으면 **무조건 그 브랜드 안에서** 1순위를 뽑는다.
+     점수가 조금 낮아도 그게 "그 브랜드에서 가장 잘 맞는 것"이므로 1순위가 맞다.
+     (예전엔 전체 1위의 70% 미만이면 탈락시켜서, 핑을 골라도 타이틀리스트가 나왔다.)
+
+     단 하나의 예외 — `ok` 로 넘기는 **하드 조건**은 못 넘는다.
+     아이언에서 목표가 '스틸 107g' 인데 선호 브랜드에 그라파이트 88g 뿐이라면
+     그건 취향 문제가 아니라 맞지 않는 물건이다. 이럴 때만 전체 1순위로 넘기고
+     "선호 브랜드에는 맞는 게 없어 전체 1순위로 골랐다"고 화면에 밝힌다. */
   function pickByBrand(sorted, brand, key, ok) {
     const bk = key || "b";
     const want = brand && brand !== "any" ? brand : null;
-    // ⚠️ 브랜드 선호가 필수 조건을 덮어쓰면 안 된다.
-    //    (아이언에서 "스틸 107g가 목표"인데 선호 브랜드에 그라파이트 88g밖에 없다고
-    //     그걸 1순위로 내보내면, 맞지도 않는 클럽을 자신 있게 권하는 꼴이 된다.)
-    //    브랜드 후보는 ①별도 조건(ok)을 통과하고 ②전체 1위의 70% 이상 점수일 때만 인정한다.
-    const best = sorted[0];
-    const bar = best && typeof best.p === "number" ? best.p * 0.7 : -Infinity;
-    const fits = (x) => (!ok || ok(x)) && (typeof x.p !== "number" || x.p >= bar);
+    const fits = (x) => !ok || ok(x);
     const inBrand = want ? sorted.filter((x) => x[bk] === want && fits(x)) : [];
-    const main = inBrand[0] || best;
+    const main = inBrand[0] || sorted.find(fits) || sorted[0];
     if (!main) return { main: null, alt: null, matched: false };
+    // 다른 브랜드 대안 — 조건을 만족하는 것 중 최고점
     const alt = sorted.find((x) => x[bk] !== main[bk] && fits(x))
              || sorted.find((x) => x[bk] !== main[bk]) || null;
     return { main, alt, matched: !!inBrand[0], wanted: want };
@@ -184,7 +187,7 @@
     "아이언": "아이언 맞추는 중", "웨지": "웨지 맞추는 중", "퍼터": "퍼터 맞추는 중",
   };
 
-  const NARRATION = {"이미 알고 있는 것": "클럽을 찾고 있어요", "구력": "샵에 들어와 자리를 잡았어요", "평균 타수 확인": "어떤 골퍼인지 듣고 있어요", "평균 타수": "어떤 골퍼인지 듣고 있어요", "7번 아이언": "7번 아이언 거리를 재고 있어요", "드라이버": "드라이버 비거리를 재고 있어요", "드라이버 구질": "공이 어디로 휘는지 보고 있어요", "체력": "18홀 체력을 가늠하고 있어요", "브랜드": "선호하시는 브랜드를 적어뒀어요", "현재 클럽": "지금 쓰시는 클럽을 살펴봐요", "여기까지의 결과": "1차 피팅이 끝났어요", "키": "길이와 라이각을 맞추는 중이에요", "탄도": "탄도를 어떻게 낼지 보고 있어요", "아이언 구질": "아이언 구질도 함께 봅니다", "템포": "스윙 템포를 재고 있어요", "예산": "예산에 맞는 것만 남깁니다", "샤프트 브랜드": "샤프트를 고르는 중이에요", "아이언 · 미스 경향": "아이언을 맞추는 중이에요", "아이언 · 소재": "아이언 소재를 고르고 있어요", "아이언 · 타감": "타감을 맞추는 중이에요", "웨지 · 피칭 로프트": "웨지 간격을 계산하고 있어요", "웨지 · 스윙 타입": "바운스를 정하는 중이에요", "웨지 · 미스 경향": "솔 모양을 다듬고 있어요", "퍼터 · 스트로크": "퍼터 궤도를 보고 있어요", "퍼터 · 고민": "헤드 밸런스를 맞춰요", "퍼터 · 생김새": "마지막으로 눈에 맞춰요"};
+  const NARRATION = {"이미 알고 있는 것": "클럽을 찾고 있어요", "구력": "샵에 들어와 자리를 잡았어요", "평균 타수 확인": "어떤 골퍼인지 듣고 있어요", "평균 타수": "어떤 골퍼인지 듣고 있어요", "7번 아이언": "7번 아이언 거리를 재고 있어요", "드라이버": "드라이버 비거리를 재고 있어요", "드라이버 구질": "공이 어디로 휘는지 보고 있어요", "체력": "18홀 체력을 가늠하고 있어요", "브랜드": "선호하시는 브랜드를 적어뒀어요", "현재 클럽": "지금 쓰시는 클럽을 살펴봐요", "여기까지의 결과": "1차 피팅이 끝났어요", "키": "길이와 라이각을 맞추는 중이에요", "탄도": "탄도를 어떻게 낼지 보고 있어요", "아이언 구질": "아이언 구질도 함께 봅니다", "템포": "스윙 템포를 재고 있어요", "예산": "예산에 맞는 것만 남깁니다",  "아이언 · 미스 경향": "아이언을 맞추는 중이에요", "아이언 · 소재": "아이언 소재를 고르고 있어요", "아이언 · 타감": "타감을 맞추는 중이에요", "웨지 · 피칭 로프트": "웨지 간격을 계산하고 있어요", "웨지 · 스윙 타입": "바운스를 정하는 중이에요", "웨지 · 미스 경향": "솔 모양을 다듬고 있어요", "퍼터 · 스트로크": "퍼터 궤도를 보고 있어요", "퍼터 · 고민": "헤드 밸런스를 맞춰요", "퍼터 · 생김새": "마지막으로 눈에 맞춰요"};
 
   /* ───────── 화면 구성 ───────── */
   function chipList(items, key, { row = false, auto = true } = {}) {
@@ -278,14 +281,31 @@
         { v: "fadeLate", t: "후반엔 무너져요", s: "13번 홀 넘어가면 스윙이 처짐" },
         { v: "weak", t: "18홀도 벅차요" }], "endur")}</div>`
     },
+    /* 헤드 브랜드와 샤프트 브랜드를 한 화면에서 함께 받는다.
+       ⚠️ 샤프트 브랜드를 선택 단계(정밀 피팅)에 두었더니 대부분 질문 자체를 못 받고
+          지나가 "선호 브랜드 우선 추천"이 작동하지 않았다(2026-07-27 지적).
+          둘 다 기본 문항으로 올려서 항상 반영되게 한다. */
     { stage: "가봉", q: 7, render: () => `
       <div class="q-eyebrow">브랜드</div>
-      <div class="q-title">선호 브랜드가 있나요?</div>
-      <div class="q-sub">추천은 이 브랜드 안에서 먼저 찾습니다.</div>
-      <div class="q-body">${chipList([
-        { v: "타이틀리스트", t: "타이틀리스트" }, { v: "테일러메이드", t: "테일러메이드" },
-        { v: "캘러웨이", t: "캘러웨이" }, { v: "핑", t: "핑" },
-        { v: "던롭", t: "젝시오·혼마 계열" }, { v: "any", t: "상관없어요" }], "brand", { row: true })}</div>`
+      <div class="q-title">선호하는 브랜드가<br>있으신가요?</div>
+      <div class="q-sub">있으면 그 브랜드 안에서 가장 잘 맞는 것을 <b>1순위</b>로 골라드립니다.</div>
+      <div class="q-body">
+        <div class="q-eyebrow" style="margin-bottom:8px">클럽(헤드) 브랜드</div>
+        ${chipList([
+          { v: "타이틀리스트", t: "타이틀리스트" }, { v: "테일러메이드", t: "테일러메이드" },
+          { v: "캘러웨이", t: "캘러웨이" }, { v: "핑", t: "핑" },
+          { v: "던롭", t: "젝시오·혼마 계열" }, { v: "any", t: "상관없어요" }],
+          "brand", { row: true, auto: false })}
+        <div class="sub-q">
+          <div class="q-eyebrow" style="margin-bottom:8px">샤프트 브랜드</div>
+          <div class="q-sub" style="margin-bottom:12px">클럽 브랜드와는 별개입니다.</div>
+          ${chipList([
+            { v: "후지쿠라", t: "후지쿠라" }, { v: "그라파이트디자인", t: "그라파이트디자인" },
+            { v: "미쓰비시", t: "미쓰비시" }, { v: "프로젝트X", t: "프로젝트X" },
+            { v: "UST마미야", t: "UST마미야" }, { v: "any", t: "상관없어요" }],
+            "shaftBrand", { row: true, auto: false })}
+        </div>
+      </div>${nextBtn(!(S.brand && S.shaftBrand))}`
     },
     { stage: "가봉", q: 8, render: () => `
       <div class="q-eyebrow">현재 클럽</div>
@@ -303,7 +323,7 @@
     { stage: "가봉 완료", render: () => `
       <div class="q-eyebrow">여기까지의 결과</div>
       <div class="q-title">여기까지로도<br>추천이 가능합니다</div>
-      <div class="q-sub">6문항을 더 하면 킥포인트·라이각·예산까지 잡아드립니다. 30초쯤 걸려요.</div>
+      <div class="q-sub">5문항을 더 하면 킥포인트·라이각·예산까지 잡아드립니다. 30초쯤 걸려요.</div>
       <div class="q-body"></div>
       <div class="btn-row">
         <button class="cf-btn ghost" data-jump="result">바로 결과 보기</button>
@@ -346,18 +366,6 @@
         { v: "stock", t: "순정이면 충분", s: "추가 지출 없이" },
         { v: "mid", t: "애프터마켓까지", s: "30~40만 원대" },
         { v: "any", t: "상관없어요" }], "budget")}</div>
-      <button class="skip" data-skip>건너뛰기</button>`
-    },
-    /* 샤프트 브랜드는 클럽 브랜드와 별개다(후지쿠라·그라파이트디자인 등).
-       선호가 있으면 그 안에서 1순위를 먼저 보여준다. */
-    { stage: "본봉", q: 6, render: () => `
-      <div class="q-eyebrow">샤프트 브랜드</div>
-      <div class="q-title">선호하는<br>샤프트 브랜드가 있나요?</div>
-      <div class="q-sub">클럽 브랜드와는 별개예요. 있으면 그 안에서 먼저 찾아드립니다.</div>
-      <div class="q-body">${chipList([
-        { v: "후지쿠라", t: "후지쿠라" }, { v: "그라파이트디자인", t: "그라파이트디자인" },
-        { v: "미쓰비시", t: "미쓰비시" }, { v: "프로젝트X", t: "프로젝트X" },
-        { v: "UST마미야", t: "UST마미야" }, { v: "any", t: "상관없어요" }], "shaftBrand", { row: true })}</div>
       <button class="skip" data-skip>건너뛰기</button>`
     },
     { stage: "판정", key: "result", render: renderResult },
@@ -821,7 +829,7 @@
       <div class="btn-row"><button class="cf-btn" data-jump="bag">다음 클럽도 맞춰보기 →</button></div>
       <div class="restart-row">
         <button class="cf-btn ghost" data-restart>처음부터 다시</button>
-        ${S.didFine ? "" : '<button class="cf-btn ghost" data-gofine>정밀 피팅 6문항 더 하기</button>'}
+        ${S.didFine ? "" : '<button class="cf-btn ghost" data-gofine>정밀 피팅 5문항 더 하기</button>'}
       </div>
       <div class="cf-foot">※ 스펙 수치는 초기 데이터 — 시타 없이 구매하지 마세요. 추천은 판매와 무관합니다.</div>`;
   }
@@ -957,7 +965,7 @@
     stage.textContent = NARRATION[eye.trim()] || STAGE_LABEL[sc.stage] || "피팅 중";
     let t = 0;
     if (sc.stage === "가봉") { step.textContent = `${sc.q} / 8`; t = sc.q / 8; }
-    else if (sc.stage === "본봉") { step.textContent = `${sc.q} / 6`; t = sc.q / 6; }
+    else if (sc.stage === "본봉") { step.textContent = `${sc.q} / 5`; t = sc.q / 5; }
     else if (sc.stage === "판정") { step.textContent = "홀인!"; t = 1; }
     else if (sc.stage === "가봉 완료") { step.textContent = "8 / 8 완료"; t = 1; }
     // 클럽별 모듈은 3문항 — 결과 화면(q 없음)은 완료
@@ -1001,7 +1009,7 @@
   function canPassScore() { return S.scoreConfirm === "ok" || (S.scoreConfirm === "diff" && S.scoreGrp); }
   function advance() {
     const sc = SCREENS[idx];
-    if (sc.stage === "본봉" && sc.q === 6) S.didFine = true;
+    if (sc.stage === "본봉" && sc.q === 5) S.didFine = true;
     go(idx + 1);
   }
 
@@ -1051,6 +1059,11 @@
         }
         if (key === "curShaft" || key === "complaint") {
           const nb = el.querySelector("[data-next]"); if (nb) nb.disabled = !(S.curShaft && S.complaint);
+          return;
+        }
+        // 브랜드 화면은 클럽·샤프트 두 가지를 다 골라야 넘어간다
+        if (key === "brand" || key === "shaftBrand") {
+          const nb = el.querySelector("[data-next]"); if (nb) nb.disabled = !(S.brand && S.shaftBrand);
           return;
         }
         if (box.dataset.auto === "1") setTimeout(advance, 220);

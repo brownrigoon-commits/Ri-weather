@@ -89,6 +89,35 @@
     } catch (e) { add("엔진 예외", JSON.stringify(inp), e.message); }
   }
 
+  /* ── 1-2. 선호 브랜드 우선 추천 — 36조합 ─────────────────────────
+     "선호 브랜드가 있으면 무조건 그 안에서 1순위" 가 사장님 확정 원칙이다.
+     점수 가드 때문에 핑을 골라도 타이틀리스트가 나오던 버그가 있었다(2026-07-27). */
+  const CLUB_B = ["타이틀리스트", "테일러메이드", "캘러웨이", "핑", "던롭", "any"];
+  const SHAFT_B = ["후지쿠라", "그라파이트디자인", "미쓰비시", "프로젝트X", "UST마미야", "any"];
+  const bb = { career: "5y", scoreConfirm: "ok", scoreGrp: "80", heightV: 175, tempo: "normal",
+    budget: "any", carry7: 165, carryD: 250, shapeD: "fade", endur: "strong",
+    curShaft: "unknown", complaint: "dist", auto: { age: null, sex: null, avg: null, fade: null } };
+  CLUB_B.forEach(b => SHAFT_B.forEach(sb => {
+    try {
+      const r = __cfTest({ ...bb, brand: b, shaftBrand: sb });
+      if (b !== "any" && r.head.split(" ")[0] !== b)
+        add("헤드가 선호 브랜드를 무시함", "선호=" + b, "나온것=" + r.head);
+      if (sb !== "any" && r.shaftBrand1 !== sb)
+        add("샤프트가 선호 브랜드를 무시함", "선호=" + sb, "나온것=" + r.shaftBrand1);
+      if (!r.shaftAlt) add("다른 브랜드 대안이 없음", "샤프트 " + b + "/" + sb, "");
+      if (!r.headAlt) add("다른 브랜드 대안이 없음", "헤드 " + b + "/" + sb, "");
+    } catch (e) { add("브랜드 조합 예외", b + "/" + sb, e.message); }
+  }));
+
+  /* ── 1-3. 브랜드 질문이 기본 문항에 있는지 ───────────────────────
+     선택 단계에 두었더니 대부분 질문을 못 받고 지나가 기능이 죽어 있었다. */
+  try {
+    const src = await (await fetch("/js/clubfit.js?x=" + Date.now())).text();
+    const seg = src.slice(src.indexOf('stage: "가봉", q: 7'), src.indexOf('stage: "가봉", q: 8'));
+    if (!/\"brand\"|'brand'|"brand"/.test(seg)) add("클럽 브랜드 질문이 기본 문항에 없음", "가봉 7", "");
+    if (!/shaftBrand/.test(seg)) add("샤프트 브랜드 질문이 기본 문항에 없음", "가봉 7", "");
+  } catch (e) { add("문항 확인 실패", "clubfit.js", e.message); }
+
   /* ── 2. 모든 화면 렌더 (오류·깨진 문자열) ───────────────────── */
   const views = ["home","hub","detail","course","food","score","clubfit"];
   for (const v of views) {
@@ -201,6 +230,33 @@
     });
     host.remove();
   } catch (e) { add("하늘 카드 검사 예외", "wxScene", e.message); }
+
+  /* ── 3-5. 비·눈이 실제로 그려지는지 ──────────────────────────── */
+  try {
+    const host = document.createElement("div");
+    host.style.cssText = "position:fixed;left:-9999px;top:0;width:340px";
+    document.body.appendChild(host);
+    for (const [code, label] of [[63, "비"], [95, "뇌우"], [73, "눈"]]) {
+      const w = document.createElement("article");
+      w.className = "course-card has-scene " + wmoClass(code);
+      w.style.cssText = "position:relative;height:105px";
+      w.innerHTML = wxScene(code, 1);
+      host.appendChild(w);
+      WXFX.scan(w);
+      WXFX._frame(0.05);
+      const cv = w.querySelector("canvas.wx-fx");
+      if (!cv) { add("하늘 효과 캔버스가 없음", label, ""); continue; }
+      if (!cv.width) { add("하늘 효과 캔버스 크기가 0", label, ""); continue; }
+      const d = cv.getContext("2d").getImageData(0, 0, cv.width, cv.height).data;
+      let lit = 0;
+      for (let i = 3; i < d.length; i += 4) if (d[i] > 6) lit++;
+      const pct = lit / (cv.width * cv.height) * 100;
+      if (pct < 0.15) add("하늘 효과가 거의 안 그려짐", label, pct.toFixed(2) + "%");
+      w.remove();
+    }
+    host.remove();
+    WXFX.sweep();
+  } catch (e) { add("하늘 효과 검사 예외", "WXFX", e.message); }
 
   /* ── 4. 브랜드 잔재 점검 ─────────────────────────────────────── */
   const html = document.body.innerText;

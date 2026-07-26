@@ -4,8 +4,8 @@
  * ========================================================= */
 "use strict";
 
-const APP_VER = "v121"; // 배포 버전 (홈 화면 배지에 표시)
-const APP_NOTE = "하늘 카드 수정"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
+const APP_VER = "v122"; // 배포 버전 (홈 화면 배지에 표시)
+const APP_NOTE = "비·눈을 캔버스 입자로 재작성"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
 const STORAGE_KEY = "riweather.courses.v1";
 const GEM_KEY = "riweather.gemini"; // 정밀 인식(비전 AI) 개인 키 저장소
 // 기본 제공 키 (무료 한도 공유) — 개인 키를 설정하면 그 키가 우선됩니다
@@ -59,8 +59,9 @@ function wxScene(code, isDay) {
     const n = (k === "wx-partly") ? 2 : 3;
     for (let i = 1; i <= n; i++) bits.push(`<span class="wx-puff c${i}"></span>`);
   }
-  if (k === "wx-rain" || k === "wx-storm") bits.push('<span class="wx-drops"><i></i><i></i></span>');
-  if (k === "wx-snow") bits.push('<span class="wx-flakes"><i></i><i></i></span>');
+  if (k === "wx-rain") bits.push('<span data-fx="rain"></span>');
+  if (k === "wx-storm") bits.push('<span data-fx="storm"></span>');
+  if (k === "wx-snow") bits.push('<span data-fx="snow"></span>');
   if (k === "wx-storm") bits.push('<span class="wx-bolt"></span>');
   if (k === "wx-fog") bits.push('<span class="wx-haze"></span>');
   return `<div class="wx-scene ${k}${night ? " is-night" : ""}" aria-hidden="true">${bits.join("")}</div>`;
@@ -450,6 +451,7 @@ function renderHome() {
       const cur = d.current;
       // iOS 날씨 앱처럼 카드 자체가 그날 하늘이 된다
       card.insertAdjacentHTML("afterbegin", wxScene(cur.weather_code, cur.is_day));
+      if (typeof WXFX !== "undefined") WXFX.scan(card);
       card.classList.add("has-scene", wmoClass(cur.weather_code));
       if (cur.is_day === 0) card.classList.add("is-night");
       card.querySelector(".cc-temp").textContent = Math.round(cur.temperature_2m) + "°";
@@ -889,6 +891,7 @@ function renderDetail(d, air) {
   dv.querySelectorAll(".wx-scene").forEach((n) => n.remove());
   dv.className = "view " + wmoClass(cur.weather_code) + (cur.is_day === 0 ? " is-night" : "") + " has-sky";
   dv.insertAdjacentHTML("afterbegin", wxScene(cur.weather_code, cur.is_day));
+  if (typeof WXFX !== "undefined") WXFX.scan(dv);
 
   $("#hero-temp").textContent = Math.round(cur.temperature_2m) + "°";
   $("#hero-desc").textContent = wmoDesc(cur.weather_code);

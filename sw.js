@@ -1,5 +1,5 @@
 ﻿/* 골프라이프 서비스 워커 — 앱 뼈대는 캐시, 날씨 데이터는 항상 네트워크 */
-const CACHE = "riweather-v121";
+const CACHE = "riweather-v122";
 const CORE = [
   "./",
   "./index.html",
@@ -11,6 +11,7 @@ const CORE = [
   "./js/stats.js",
   "./js/clubfit.js",
   "./js/loading.js",
+  "./js/weatherfx.js",
   "./assets/golfer.png",
   "./js/golfdb.js",
   "./js/holesdb.js",
