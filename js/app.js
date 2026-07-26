@@ -4,8 +4,8 @@
  * ========================================================= */
 "use strict";
 
-const APP_VER = "v112"; // 배포 버전 (홈 화면 배지에 표시)
-const APP_NOTE = "골프라이프 리브랜딩"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
+const APP_VER = "v113"; // 배포 버전 (홈 화면 배지에 표시)
+const APP_NOTE = "토스 무드 마감"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
 const STORAGE_KEY = "riweather.courses.v1";
 const GEM_KEY = "riweather.gemini"; // 정밀 인식(비전 AI) 개인 키 저장소
 // 기본 제공 키 (무료 한도 공유) — 개인 키를 설정하면 그 키가 우선됩니다
@@ -1024,8 +1024,10 @@ function ensureMap(lat, lon) {
     scrollWheelZoom: false,
     maxZoom: 15, minZoom: 5, // 확대해서 녹색점(내 위치) 확인 가능
   }).setView([lat, lon], 7);
-  // 라벨 없는 다크 지도 (영문 지명 제거)
-  L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png", {
+  // 라벨 없는 밝은 지도 (영문 지명 제거)
+  // — 앱이 라이트 테마로 바뀌면서 다크 지도만 검은 덩어리로 남아 겉돌았다.
+  //   강수 오버레이(초록·노랑·빨강)는 밝은 바탕에서도 그대로 읽힌다.
+  L.tileLayer("https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png", {
     attribution: "&copy; OSM &copy; CARTO",
     subdomains: "abcd", maxZoom: 15, minZoom: 5,
   }).addTo(map);

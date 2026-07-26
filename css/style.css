@@ -1810,11 +1810,18 @@ button:active, .hub-item:active, .food-card:active, .chip:active {
 .sec-title small { display: block; font-size: 13px; font-weight: 500; color: var(--text-faint); margin-top: 3px; }
 
 /* ── 버튼 위계 — 채운 것 하나, 나머지는 조용하게 ────────────────── */
-.retry-btn, .guide-close {
+/* 채운 버튼은 화면당 하나만 — 나머지는 물러난다.
+   (.guide-close 는 '닫기·나중에·그냥 받기' 같은 보조 동작이라 채우면 안 된다) */
+.retry-btn, .guide-copy {
   background: var(--primary); color: #fff; border: none;
   min-height: 52px; font-size: 16px; font-weight: 700;
 }
-.retry-btn:active, .guide-close:active { background: var(--primary-press); }
+.retry-btn:active, .guide-copy:active { background: var(--primary-press); }
+.guide-close {
+  background: var(--surface-press); color: var(--text-dim); border: none;
+  min-height: 52px; font-size: 16px; font-weight: 600;
+}
+.guide-close:active { background: var(--line); }
 .install-btn { background: var(--surface); box-shadow: var(--shadow-1); border: none; padding: 16px; }
 .ic-txt b { font-size: 15px; font-weight: 700; }
 .ic-txt small { font-size: 12.5px; color: var(--text-faint); }
@@ -1880,7 +1887,7 @@ button:active, .hub-item:active, .food-card:active, .chip:active {
 .hole-num-dot { background: var(--flag); color: #fff; }
 
 /* 2) 지금 이 순간 — 레이더의 현재 시각, 실시간 표시 */
-.radar-now-label { color: var(--flag-ink); font-weight: 700; }
+.radar-now-label { color: var(--text-faint); font-weight: 600; }
 .badge.now { background: var(--flag); color: #fff; }
 
 /* 3) 오버파 — 목표(파)를 넘긴 타수 */
@@ -1888,3 +1895,32 @@ button:active, .hub-item:active, .food-card:active, .chip:active {
 
 /* 저장(즐겨찾기) 별은 눈에 띄어야 하므로 채워진 상태를 빨강으로 */
 .hdr-btn.star.saved { color: var(--flag); }
+
+/* ── 데이터 색 — 브랜드색과 구분한다 ──────────────────────────────
+   포인트색(그린)은 브랜드이고, 날씨 수치는 '읽는 색'이다.
+   비를 초록으로 칠하면 예쁘긴 해도 한눈에 안 읽힌다. 비는 파랑이 맞다.
+   그래서 강수 관련 표시에만 쓰는 별도 색을 둔다. */
+:root { --rain: #3d8bfd; --rain-weak: #eaf2ff; }
+
+.course-card.wx-rain { border-left-color: var(--rain); }
+.course-card.wx-snow { border-left-color: #7fb2f0; }
+.p-bar i { background: linear-gradient(180deg, var(--rain), #8fbdfd); }
+.p-mm.has-rain { color: var(--rain); }
+.p-pop.high { color: var(--rain); font-weight: 600; }
+.hour-item .h-pop { color: var(--rain); }
+.grade-normal { color: var(--rain); }
+.precip-chip { background: var(--rain-weak); color: #1f5fb8; }
+
+/* 같은 시트 안의 두 번째 동작 — 테두리만 (채운 버튼은 하나로 유지) */
+.btn-outline {
+  background: transparent !important;
+  color: var(--primary-ink) !important;
+  box-shadow: inset 0 0 0 1.5px var(--brand);
+}
+.btn-outline:active { background: var(--primary-weak) !important; }
+
+/* 밝은 지도 위 도시 라벨 — 흰 테두리로 강수 오버레이 위에서도 읽히게 */
+.city-label span {
+  color: var(--text);
+  text-shadow: 0 0 3px #fff, 0 0 5px #fff, 0 1px 2px rgba(255,255,255,0.9);
+}
