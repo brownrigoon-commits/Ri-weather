@@ -4,8 +4,8 @@
  * ========================================================= */
 "use strict";
 
-const APP_VER = "v116"; // 배포 버전 (홈 화면 배지에 표시)
-const APP_NOTE = "대기 화면 원형 %+단계 안내, 맛집은 찾기·평가·사진까지 끝내고 추천순"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
+const APP_VER = "v117"; // 배포 버전 (홈 화면 배지에 표시)
+const APP_NOTE = "iOS 날씨 앱 방식 하늘 카드"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
 const STORAGE_KEY = "riweather.courses.v1";
 const GEM_KEY = "riweather.gemini"; // 정밀 인식(비전 AI) 개인 키 저장소
 // 기본 제공 키 (무료 한도 공유) — 개인 키를 설정하면 그 키가 우선됩니다
@@ -29,12 +29,42 @@ const WMO = {
 };
 const wmoDesc = (c) => (WMO[c] || ["-", "🌡️"])[0];
 const wmoIcon = (c) => (WMO[c] || ["-", "🌡️"])[1];
+/* 날씨 코드 → 하늘 종류.
+   iOS 날씨 앱처럼 카드 배경을 그리기 위해 상태를 조금 더 잘게 나눈다. */
 const wmoClass = (c) => {
-  if (c === 0 || c === 1) return "wx-clear";
-  if (c >= 71 && c <= 86) return "wx-snow";
+  if (c === 0) return "wx-clear";
+  if (c === 1 || c === 2) return "wx-partly";
+  if (c === 3) return "wx-cloud";
+  if (c === 45 || c === 48) return "wx-fog";
+  if (c >= 95) return "wx-storm";
+  // ⚠️ 눈 코드는 71·73·75·77·85·86 뿐이다.
+  //    71~86 을 통째로 눈으로 보면 소나기(80·81·82)까지 눈이 되어버린다(기존 버그).
+  if ((c >= 71 && c <= 77) || c === 85 || c === 86) return "wx-snow";
   if (c >= 51) return "wx-rain";
-  return "";
+  return "wx-cloud";
 };
+
+/* 하늘 장면 — 조건에 맞는 배경과 움직임을 카드 안에 깔아준다.
+   비가 오면 빗줄기가 흐르고, 흐리면 구름이 천천히 지나간다(사장님 지시 2026-07-27).
+   요소는 CSS 애니메이션만 쓰므로 목록에 여러 장이 있어도 부담이 적다. */
+function wxScene(code, isDay) {
+  const k = wmoClass(code);
+  const night = isDay === 0 || isDay === false;
+  const bits = ['<span class="wx-sky"></span>'];
+  if (k === "wx-clear" || k === "wx-partly") {
+    bits.push(night ? '<span class="wx-moon"></span><span class="wx-stars"></span>'
+                    : '<span class="wx-sun"></span>');
+  }
+  if (k !== "wx-clear") {
+    const n = (k === "wx-partly") ? 2 : 3;
+    for (let i = 1; i <= n; i++) bits.push(`<span class="wx-cloud c${i}"></span>`);
+  }
+  if (k === "wx-rain" || k === "wx-storm") bits.push('<span class="wx-drops"><i></i><i></i></span>');
+  if (k === "wx-snow") bits.push('<span class="wx-flakes"><i></i><i></i></span>');
+  if (k === "wx-storm") bits.push('<span class="wx-bolt"></span>');
+  if (k === "wx-fog") bits.push('<span class="wx-haze"></span>');
+  return `<div class="wx-scene ${k}${night ? " is-night" : ""}" aria-hidden="true">${bits.join("")}</div>`;
+}
 
 const DIR_KO = ["북", "북북동", "북동", "동북동", "동", "동남동", "남동", "남남동",
                 "남", "남남서", "남서", "서남서", "서", "서북서", "북서", "북북서"];
@@ -96,7 +126,7 @@ async function fetchForecast(lat, lon) {
   const url = new URL("https://api.open-meteo.com/v1/forecast");
   url.search = new URLSearchParams({
     latitude: lat, longitude: lon,
-    current: "temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m,wind_direction_10m,wind_gusts_10m",
+    current: "temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m,wind_direction_10m,wind_gusts_10m,is_day",
     hourly: "temperature_2m,precipitation_probability,precipitation,weather_code,relative_humidity_2m,dew_point_2m,wind_speed_10m,wind_direction_10m,wind_gusts_10m,visibility",
     daily: "temperature_2m_max,temperature_2m_min,precipitation_sum,weather_code",
     wind_speed_unit: "ms",
@@ -418,8 +448,10 @@ function renderHome() {
 
     fetchForecast(c.lat, c.lon).then((d) => {
       const cur = d.current;
-      const wxCls = wmoClass(cur.weather_code);
-      if (wxCls) card.classList.add(wxCls);
+      // iOS 날씨 앱처럼 카드 자체가 그날 하늘이 된다
+      card.insertAdjacentHTML("afterbegin", wxScene(cur.weather_code, cur.is_day));
+      card.classList.add("has-scene", wmoClass(cur.weather_code));
+      if (cur.is_day === 0) card.classList.add("is-night");
       card.querySelector(".cc-temp").textContent = Math.round(cur.temperature_2m) + "°";
       card.querySelector(".cc-desc").textContent = wmoIcon(cur.weather_code) + " " + wmoDesc(cur.weather_code);
       card.querySelector(".cc-minmax").textContent =
@@ -852,7 +884,12 @@ let fc = { times: [], precip: [], startIdx: 0 };
 function renderDetail(d, air) {
   const cur = d.current;
 
-  /* 히어로 */
+  /* 히어로 — 화면 위쪽이 통째로 지금 하늘이 된다 (iOS 날씨 앱 방식) */
+  const dv = $("#detail-view");
+  dv.querySelectorAll(".wx-scene").forEach((n) => n.remove());
+  dv.className = "view " + wmoClass(cur.weather_code) + (cur.is_day === 0 ? " is-night" : "") + " has-sky";
+  dv.insertAdjacentHTML("afterbegin", wxScene(cur.weather_code, cur.is_day));
+
   $("#hero-temp").textContent = Math.round(cur.temperature_2m) + "°";
   $("#hero-desc").textContent = wmoDesc(cur.weather_code);
   $("#hero-minmax").textContent =
