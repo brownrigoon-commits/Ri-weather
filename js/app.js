@@ -4,8 +4,8 @@
  * ========================================================= */
 "use strict";
 
-const APP_VER = "v119"; // 배포 버전 (홈 화면 배지에 표시)
-const APP_NOTE = "재단 용어 제거 마무리"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
+const APP_VER = "v120"; // 배포 버전 (홈 화면 배지에 표시)
+const APP_NOTE = "백업 실패를 숨기지 않도록 수정"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
 const STORAGE_KEY = "riweather.courses.v1";
 const GEM_KEY = "riweather.gemini"; // 정밀 인식(비전 AI) 개인 키 저장소
 // 기본 제공 키 (무료 한도 공유) — 개인 키를 설정하면 그 키가 우선됩니다
@@ -4559,8 +4559,13 @@ const BACKUP = (() => {
       // Apps Script 는 preflight 를 못 받으므로 text/plain 단순 요청으로
       const r = await fetchT(window.RIW_BACKEND, { method: "POST", headers: { "Content-Type": "text/plain" }, body }, 15000);
       const j = await r.json();
-      if (j && j.ok) { s.hash = h; s.last = Date.now(); put(s); refreshUI(); return true; }
-    } catch (_) {}
+      if (j && j.ok) { s.hash = h; s.last = Date.now(); s.err = null; put(s); refreshUI(); return true; }
+      // 서버가 응답은 했는데 저장은 안 된 경우 — 백엔드가 옛 버전이면 여기로 온다
+      s.err = (j && j.err) ? String(j.err) : "서버가 백업을 저장하지 못했습니다";
+    } catch (_) {
+      s.err = "서버에 연결하지 못했습니다";
+    }
+    put(s); refreshUI();
     return false;
   }
   function touch() {
@@ -4579,12 +4584,19 @@ const BACKUP = (() => {
     open();
   }
 
-  function enable() {
+  async function enable() {
     const s = st();
     if (!s.code) s.code = newCode();
     s.on = true; put(s);
     refreshUI();
-    send(true);
+    const btn = $("#bk-enable");
+    if (btn) { btn.disabled = true; btn.textContent = "백업 확인 중..."; }
+    // ⚠️ 첫 백업이 실제로 저장됐는지 확인하고 나서 '켜짐'이라고 말한다.
+    //    (2026-07-27: 백엔드에 백업 기능이 배포되지 않았는데도 '켜짐 · 첫 백업 대기 중'만
+    //     계속 떠서, 사용자는 백업된 줄 알고 앱을 지웠다가 기록을 잃었다.)
+    const ok = await send(true);
+    if (btn) { btn.disabled = false; btn.textContent = "백업 켜기"; }
+    if (!ok) { const t = st(); t.on = false; put(t); refreshUI(); }
   }
 
   async function restore(codeRaw) {
@@ -4597,8 +4609,17 @@ const BACKUP = (() => {
       const r = await fetchT(window.RIW_BACKEND + "?fn=restore&code=" + code, null, 15000);
       j = await r.json();
     } catch (_) {}
-    if (!j || !j.ok || !j.data) {
-      msg.textContent = "기록을 찾지 못했습니다. 코드를 다시 확인해 주세요.";
+    if (!j) {
+      msg.textContent = "서버에 연결하지 못했습니다. 잠시 후 다시 시도해 주세요.";
+      return;
+    }
+    // 백엔드가 restore 를 모르면 기본 응답(service)만 돌아온다 → 코드 탓으로 돌리면 안 된다
+    if (j.service && !("data" in j) && !("err" in j)) {
+      msg.textContent = "서버에 복구 기능이 아직 준비되지 않았습니다. 코드 문제가 아니니 관리자에게 알려주세요.";
+      return;
+    }
+    if (!j.ok || !j.data) {
+      msg.textContent = "이 코드로 저장된 기록이 없습니다. 코드를 다시 확인해 주세요.";
       return;
     }
     const d = j.data;
@@ -4624,15 +4645,23 @@ const BACKUP = (() => {
     const s = st();
     const codeEl = $("#bk-code"), stateEl = $("#bk-state");
     if (!codeEl) return;
-    if (s.on && s.code) {
+    if (s.on && s.code && s.last) {
       codeEl.textContent = fmt(s.code);
-      stateEl.textContent = s.last
-        ? "자동 백업 켜짐 · 마지막 백업 " + new Date(s.last).toLocaleString("ko-KR", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })
-        : "자동 백업 켜짐 · 첫 백업 대기 중";
+      stateEl.textContent = "자동 백업 켜짐 · 마지막 백업 " +
+        new Date(s.last).toLocaleString("ko-KR", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
+      stateEl.classList.remove("bk-bad");
       $("#bk-enable").hidden = true;
       $("#bk-code-wrap").hidden = false;
+    } else if (s.err) {
+      // 실패를 감추지 않는다 — 백업된 줄 알고 앱을 지우는 것이 가장 큰 사고다
+      stateEl.textContent = "⚠️ 백업 실패 — " + s.err +
+        "\n아직 아무것도 저장되지 않았습니다. 지금 앱을 지우면 기록이 사라집니다.";
+      stateEl.classList.add("bk-bad");
+      $("#bk-enable").hidden = false;
+      $("#bk-code-wrap").hidden = true;
     } else {
       stateEl.textContent = "백업이 꺼져 있습니다 — 앱을 지우면 기록이 사라집니다";
+      stateEl.classList.remove("bk-bad");
       $("#bk-enable").hidden = false;
       $("#bk-code-wrap").hidden = true;
     }
