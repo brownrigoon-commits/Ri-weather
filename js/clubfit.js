@@ -174,6 +174,10 @@
     S.scoreGrp = avg === null ? null : (avg < 90 ? "80" : avg < 100 ? "90" : "100");
   }
 
+  /* 진행 표시 문구 — '가봉/본봉' 같은 재단 용어 대신
+     클럽이 내게 맞춰지는 과정을 이야기로 들려준다 (사장님 지시 2026-07-27) */
+  const NARRATION = {"이미 알고 있는 것": "클럽을 찾고 있어요", "구력": "샵에 들어와 자리를 잡았어요", "평균 타수 확인": "어떤 골퍼인지 듣고 있어요", "평균 타수": "어떤 골퍼인지 듣고 있어요", "7번 아이언": "7번 아이언 거리를 재고 있어요", "드라이버": "드라이버 비거리를 재고 있어요", "드라이버 구질": "공이 어디로 휘는지 보고 있어요", "체력": "18홀 체력을 가늠하고 있어요", "브랜드": "선호하시는 브랜드를 적어뒀어요", "현재 클럽": "지금 쓰시는 클럽을 살펴봐요", "여기까지의 결과": "여기까지도 맞출 수 있어요", "키": "길이와 라이각을 맞추는 중이에요", "탄도": "탄도를 어떻게 낼지 보고 있어요", "아이언 구질": "아이언 구질도 함께 봅니다", "템포": "스윙 템포를 재고 있어요", "예산": "예산에 맞는 것만 남깁니다", "샤프트 브랜드": "샤프트를 고르는 중이에요", "아이언 · 미스 경향": "아이언을 맞추는 중이에요", "아이언 · 소재": "아이언 소재를 고르고 있어요", "아이언 · 타감": "타감을 맞추는 중이에요", "웨지 · 피칭 로프트": "웨지 간격을 계산하고 있어요", "웨지 · 스윙 타입": "바운스를 정하는 중이에요", "웨지 · 미스 경향": "솔 모양을 다듬고 있어요", "퍼터 · 스트로크": "퍼터 궤도를 보고 있어요", "퍼터 · 고민": "헤드 밸런스를 맞춰요", "퍼터 · 생김새": "마지막으로 눈에 맞춰요"};
+
   /* ───────── 화면 구성 ───────── */
   function chipList(items, key, { row = false, auto = true } = {}) {
     return `<div class="chips${row ? " row" : ""}" data-key="${key}" data-auto="${auto ? 1 : 0}">` +
@@ -192,7 +196,7 @@
 
   const SCREENS = [
     { stage: "자동 파악", render: () => `
-      <div class="q-eyebrow">0단 · 묻지 않는 정보</div>
+      <div class="q-eyebrow">이미 알고 있는 것</div>
       <div class="q-title">이미 알고 있어요</div>
       <div class="q-sub">동의 화면과 스코어 기록에서 가져왔습니다. 다시 묻지 않습니다.</div>
       <div class="q-body">
@@ -211,13 +215,13 @@
       <div class="btn-row"><button class="cf-btn" data-next>가봉 시작 — 8문항</button></div>`
     },
     { stage: "가봉", q: 1, render: () => `
-      <div class="q-eyebrow">가봉 1/8 · 구력</div>
+      <div class="q-eyebrow">구력</div>
       <div class="q-title">골프, 얼마나 치셨어요?</div>
       <div class="q-body">${chipList([
         { v: "lt3", t: "3년 미만" }, { v: "y3_10", t: "3~10년" }, { v: "gt10", t: "10년 이상" }], "career")}</div>`
     },
     { stage: "가봉", q: 2, render: () => S.auto.avg !== null ? `
-      <div class="q-eyebrow">가봉 2/8 · 평균 타수 확인</div>
+      <div class="q-eyebrow">평균 타수 확인</div>
       <div class="q-title">기록 기준 평균 ${S.auto.avg}타 —<br>맞나요?</div>
       <div class="q-sub">묻는 게 아니라 확인만 합니다.</div>
       <div class="q-body">
@@ -227,26 +231,26 @@
           ${chipList([{ v: "80", t: "80대 이하" }, { v: "90", t: "90대" }, { v: "100", t: "100타 이상" }], "scoreGrp", { row: true, auto: false })}
         </div>
       </div>${nextBtn(!canPassScore())}` : `
-      <div class="q-eyebrow">가봉 2/8 · 평균 타수</div>
+      <div class="q-eyebrow">평균 타수</div>
       <div class="q-title">평균 타수대는?</div>
       <div class="q-sub">스코어 기록이 쌓이면 다음부터는 묻지 않습니다.</div>
       <div class="q-body">${chipList([
         { v: "80", t: "80대 이하" }, { v: "90", t: "90대" }, { v: "100", t: "100타 이상" }], "scoreGrp")}</div>`
     },
     { stage: "가봉", q: 3, render: () => `
-      <div class="q-eyebrow">가봉 3/8 · 7번 아이언</div>
+      <div class="q-eyebrow">7번 아이언</div>
       <div class="q-title">7번 아이언 캐리는?</div>
       <div class="q-sub">런 빼고, 떨어지는 지점까지. 헤드스피드를 가장 정확히 알려주는 숫자입니다.</div>
       <div class="q-body">${slider("carry7", 110, 185, 5, "m")}</div>${nextBtn()}`
     },
     { stage: "가봉", q: 4, render: () => `
-      <div class="q-eyebrow">가봉 4/8 · 드라이버</div>
+      <div class="q-eyebrow">드라이버</div>
       <div class="q-title">드라이버 캐리는?</div>
       <div class="q-sub">잘 맞은 공 말고, 평소 10번 중 6~7번 나오는 거리로.</div>
       <div class="q-body">${slider("carryD", 170, 265, 5, "m")}<div id="cf-rationote"></div></div>${nextBtn()}`
     },
     { stage: "가봉", q: 5, render: () => `
-      <div class="q-eyebrow">가봉 5/8 · 드라이버 구질</div>
+      <div class="q-eyebrow">드라이버 구질</div>
       <div class="q-title">드라이버는 주로<br>어느 쪽으로 미스가 나나요?</div>
       <div class="q-body">${chipList([
         { v: "slice", t: "슬라이스", s: "오른쪽으로 크게 휨" },
@@ -256,7 +260,7 @@
         { v: "hook", t: "훅", s: "왼쪽으로 크게 휨" }], "shapeD")}</div>`
     },
     { stage: "가봉", q: 6, render: () => `
-      <div class="q-eyebrow">가봉 6/8 · 체력</div>
+      <div class="q-eyebrow">체력</div>
       <div class="q-title">하루 36홀, 가능하세요?</div>
       <div class="q-sub">${S.auto.fade !== null && S.auto.fade >= 3
         ? `스코어 기록의 후반 +${S.auto.fade}타 패턴과 함께 봅니다.`
@@ -267,7 +271,7 @@
         { v: "weak", t: "18홀도 벅차요" }], "endur")}</div>`
     },
     { stage: "가봉", q: 7, render: () => `
-      <div class="q-eyebrow">가봉 7/8 · 브랜드</div>
+      <div class="q-eyebrow">브랜드</div>
       <div class="q-title">선호 브랜드가 있나요?</div>
       <div class="q-sub">추천은 이 브랜드 안에서 먼저 찾습니다.</div>
       <div class="q-body">${chipList([
@@ -276,7 +280,7 @@
         { v: "던롭", t: "젝시오·혼마 계열" }, { v: "any", t: "상관없어요" }], "brand", { row: true })}</div>`
     },
     { stage: "가봉", q: 8, render: () => `
-      <div class="q-eyebrow">가봉 8/8 · 현재 클럽</div>
+      <div class="q-eyebrow">현재 클럽</div>
       <div class="q-title">지금 드라이버 샤프트는?</div>
       <div class="q-body">
         ${chipList(Object.entries(CUR_SHAFT).map(([v, o]) => ({ v, t: o.label })), "curShaft", { row: true, auto: false })}
@@ -289,7 +293,7 @@
       </div>${nextBtn(!(S.curShaft && S.complaint))}`
     },
     { stage: "가봉 완료", render: () => `
-      <div class="q-eyebrow">가봉 끝</div>
+      <div class="q-eyebrow">여기까지의 결과</div>
       <div class="q-title">여기까지로도<br>추천이 가능합니다</div>
       <div class="q-sub">본봉(정밀 피팅) 5문항을 더 하면 킥포인트·라이각·예산까지 잡아드립니다. 30초쯤 걸려요.</div>
       <div class="q-body"></div>
@@ -299,21 +303,21 @@
       </div>`
     },
     { stage: "본봉", q: 1, render: () => `
-      <div class="q-eyebrow">본봉 1/6 · 키</div>
+      <div class="q-eyebrow">키</div>
       <div class="q-title">키가 어떻게 되세요?</div>
       <div class="q-sub">아이언 라이각·길이 코멘트에만 씁니다.</div>
       <div class="q-body">${slider("heightV", 150, 195, 1, "cm")}</div>
       ${nextBtn()}<button class="skip" data-skip>건너뛰기</button>`
     },
     { stage: "본봉", q: 2, render: () => `
-      <div class="q-eyebrow">본봉 2/6 · 탄도</div>
+      <div class="q-eyebrow">탄도</div>
       <div class="q-title">평소 드라이버 탄도는?</div>
       <div class="q-body">${chipList([
         { v: "low", t: "낮아요", s: "라인드라이브성" }, { v: "mid", t: "중간" }, { v: "high", t: "높아요", s: "떠서 밀리는 느낌" }], "traj")}</div>
       <button class="skip" data-skip>건너뛰기</button>`
     },
     { stage: "본봉", q: 3, render: () => `
-      <div class="q-eyebrow">본봉 3/6 · 아이언 구질</div>
+      <div class="q-eyebrow">아이언 구질</div>
       <div class="q-title">아이언은 주로 어느 쪽?</div>
       <div class="q-sub">드라이버와 따로 봅니다 — 다른 유저가 많거든요.</div>
       <div class="q-body">${chipList([
@@ -321,14 +325,14 @@
       <button class="skip" data-skip>건너뛰기</button>`
     },
     { stage: "본봉", q: 4, render: () => `
-      <div class="q-eyebrow">본봉 4/6 · 템포</div>
+      <div class="q-eyebrow">템포</div>
       <div class="q-title">스윙 템포는?</div>
       <div class="q-body">${chipList([
         { v: "smooth", t: "부드러움", s: "천천히 올려서 툭" }, { v: "normal", t: "보통" }, { v: "fast", t: "빠름", s: "전환이 급하고 때리는 편" }], "tempo")}</div>
       <button class="skip" data-skip>건너뛰기</button>`
     },
     { stage: "본봉", q: 5, render: () => `
-      <div class="q-eyebrow">본봉 5/6 · 예산</div>
+      <div class="q-eyebrow">예산</div>
       <div class="q-title">샤프트 예산은?</div>
       <div class="q-body">${chipList([
         { v: "stock", t: "순정이면 충분", s: "추가 지출 없이" },
@@ -339,7 +343,7 @@
     /* 샤프트 브랜드는 클럽 브랜드와 별개다(후지쿠라·그라파이트디자인 등).
        선호가 있으면 그 안에서 1순위를 먼저 보여준다. */
     { stage: "본봉", q: 6, render: () => `
-      <div class="q-eyebrow">본봉 6/6 · 샤프트 브랜드</div>
+      <div class="q-eyebrow">샤프트 브랜드</div>
       <div class="q-title">선호하는<br>샤프트 브랜드가 있나요?</div>
       <div class="q-sub">클럽 브랜드와는 별개예요. 있으면 그 안에서 먼저 찾아드립니다.</div>
       <div class="q-body">${chipList([
@@ -355,7 +359,7 @@
     { stage: "내 백", key: "bag", render: renderBag },
 
     { stage: "아이언", key: "iron1", q: 1, render: () => `
-      <div class="q-eyebrow">아이언 1/3 · 미스 경향</div>
+      <div class="q-eyebrow">아이언 · 미스 경향</div>
       <div class="q-title">아이언이 빗맞을 때<br>주로 어떻게 되나요?</div>
       <div class="q-body">${chipList([
         { v: "thin", t: "얇게 맞아요", s: "공이 안 뜨고 낮게 날아감" },
@@ -364,7 +368,7 @@
         { v: "none", t: "특별한 경향은 없어요" }], "ironMiss")}</div>`
     },
     { stage: "아이언", key: "iron2", q: 2, render: () => `
-      <div class="q-eyebrow">아이언 2/3 · 소재</div>
+      <div class="q-eyebrow">아이언 · 소재</div>
       <div class="q-title">샤프트 소재,<br>정해두신 게 있나요?</div>
       <div class="q-sub">모르시면 골라드립니다 — 체력과 스피드로 판단해요.</div>
       <div class="q-body">${chipList([
@@ -373,7 +377,7 @@
         { v: "그라파이트", t: "그라파이트", s: "가벼워 후반까지 편함" }], "ironMat")}</div>`
     },
     { stage: "아이언", key: "iron3", q: 3, render: () => `
-      <div class="q-eyebrow">아이언 3/3 · 타감</div>
+      <div class="q-eyebrow">아이언 · 타감</div>
       <div class="q-title">어떤 타감을<br>좋아하세요?</div>
       <div class="q-body">${chipList([
         { v: "soft", t: "부드러운 쪽", s: "손에 닿는 느낌이 포근한" },
@@ -384,7 +388,7 @@
     { stage: "아이언", key: "ironResult", render: renderIron },
 
     { stage: "웨지", key: "wedge1", q: 1, render: () => `
-      <div class="q-eyebrow">웨지 1/3 · 피칭 로프트</div>
+      <div class="q-eyebrow">웨지 · 피칭 로프트</div>
       <div class="q-title">피칭웨지 로프트가<br>몇 도인가요?</div>
       <div class="q-sub">클럽 헤드에 적혀 있어요. 모르시면 45°로 계산합니다 — 요즘 아이언의 표준값입니다.</div>
       <div class="q-body">${slider("pwLoft", 41, 48, 1, "°")}
@@ -393,7 +397,7 @@
       </div>${nextBtn(false)}`
     },
     { stage: "웨지", key: "wedge2", q: 2, render: () => `
-      <div class="q-eyebrow">웨지 2/3 · 스윙 타입</div>
+      <div class="q-eyebrow">웨지 · 스윙 타입</div>
       <div class="q-title">어프로치할 때<br>잔디를 어떻게 치나요?</div>
       <div class="q-sub">바운스(솔의 각도)를 정하는 가장 중요한 정보입니다.</div>
       <div class="q-body">${chipList([
@@ -402,7 +406,7 @@
         { v: "mid", t: "중간이에요" }], "wedgeTurf")}</div>`
     },
     { stage: "웨지", key: "wedge3", q: 3, render: () => `
-      <div class="q-eyebrow">웨지 3/3 · 미스 경향</div>
+      <div class="q-eyebrow">웨지 · 미스 경향</div>
       <div class="q-title">짧은 어프로치에서<br>실수는 어느 쪽인가요?</div>
       <div class="q-body">${chipList([
         { v: "fat", t: "뒤땅이 나요", s: "공 앞 잔디를 먼저 침" },
@@ -412,7 +416,7 @@
     { stage: "웨지", key: "wedgeResult", render: renderWedge },
 
     { stage: "퍼터", key: "putt1", q: 1, render: () => `
-      <div class="q-eyebrow">퍼터 1/3 · 스트로크</div>
+      <div class="q-eyebrow">퍼터 · 스트로크</div>
       <div class="q-title">퍼팅할 때 헤드가<br>어떻게 움직이나요?</div>
       <div class="q-sub">퍼터 헤드 밸런스를 정하는 기준입니다.</div>
       <div class="q-body">${chipList([
@@ -421,7 +425,7 @@
         { v: "arc", t: "많이 둥글게", s: "아크가 큰 궤도" }], "puttStroke")}</div>`
     },
     { stage: "퍼터", key: "putt2", q: 2, render: () => `
-      <div class="q-eyebrow">퍼터 2/3 · 고민</div>
+      <div class="q-eyebrow">퍼터 · 고민</div>
       <div class="q-title">퍼팅에서 더 아쉬운 쪽은?</div>
       <div class="q-body">${chipList([
         { v: "dist", t: "거리감", s: "짧거나 길게 지나감" },
@@ -429,7 +433,7 @@
         { v: "none", t: "딱히 없어요" }], "puttMiss")}</div>`
     },
     { stage: "퍼터", key: "putt3", q: 3, render: () => `
-      <div class="q-eyebrow">퍼터 3/3 · 생김새</div>
+      <div class="q-eyebrow">퍼터 · 생김새</div>
       <div class="q-title">어떤 모양이<br>눈에 편하세요?</div>
       <div class="q-sub">퍼터는 감각의 비중이 큽니다. 눈에 편한 게 실제로 잘 들어가요.</div>
       <div class="q-body">${chipList([
@@ -937,7 +941,10 @@
     const sc = SCREENS[idx];
     scrEl().innerHTML = (idx > 0 ? `<button class="cf-back" data-back>← 이전</button>` : "") + sc.render();
     const stage = $$("#cf-stage"), step = $$("#cf-step"), bar = $$("#cf-stitch");
-    stage.textContent = sc.stage;
+    // 진행 표시는 단계 이름("가봉")이 아니라 지금 무슨 일이 일어나는지를 말한다.
+    // 화면의 eyebrow 를 열쇠로 문구를 찾고, 없으면 단계 이름으로 폴백.
+    const eye = (scrEl().querySelector(".q-eyebrow") || {}).textContent || "";
+    stage.textContent = NARRATION[eye.trim()] || sc.stage;
     if (sc.stage === "가봉") { step.textContent = `${sc.q} / 8`; bar.style.width = (sc.q / 8 * 100) + "%"; }
     else if (sc.stage === "본봉") { step.textContent = `${sc.q} / 6`; bar.style.width = (sc.q / 6 * 100) + "%"; }
     else if (sc.stage === "판정") { step.textContent = "완료"; bar.style.width = "100%"; }
