@@ -556,6 +556,7 @@ let currentCourse = null;
 const VIEWS = {
   home: homeView, hub: $("#hub-view"), detail: detailView,
   course: $("#course-view"), food: $("#food-view"), score: $("#score-view"),
+  clubfit: $("#clubfit-view"),
 };
 let viewStack = ["home"];
 
@@ -673,6 +674,7 @@ document.querySelectorAll(".hub-item").forEach((btn) => {
     else if (m === "course") openCourseView();
     else if (m === "food") openFoodView();
     else if (m === "score") openScoreView();
+    else if (m === "clubfit") openClubfitView();
   });
 });
 
@@ -2043,6 +2045,10 @@ function playerTraits() {
   if (c.gender && c.gender !== "선택 안 함") bits.push(c.gender);
   if (p.years) bits.push("구력 " + p.years);
   if (p.avg) bits.push("평균 " + p.avg + " 타수");
+  const bag = (typeof loadMyBag === "function") ? loadMyBag() : null;
+  if (bag && bag.driver)
+    bits.push("드라이버 " + (bag.driver.keep ? bag.driver.shaft : bag.driver.head + " + " + bag.driver.shaft));
+  if (bag && bag.carryD) bits.push("드라이버 캐리 " + bag.carryD + "m");
   return bits.length ? ", " + bits.join(" ") : "";
 }
 function playerTraitGuide() {
@@ -2082,6 +2088,11 @@ function playerTraitGuide() {
          "더블보기를 막는 것을 목표로 가장 넓고 안전한 지점만 권하고 한 클럽 짧게 잡아 편하게 치도록 권하세요. ";
   if (a)
     g += "캐디를 넘어 레슨 프로처럼, 이 수준의 골퍼가 이 홀에서 흔히 하는 실수와 그걸 막는 팁을 한 줄 곁들이세요. ";
+  // 클럽 피팅 결과(내 백) — 장비 기준의 구체적 클럽 선택 조언
+  const bag = (typeof loadMyBag === "function") ? loadMyBag() : null;
+  if (bag && bag.carryD)
+    g += `이 골퍼의 드라이버 캐리는 약 ${bag.carryD}m, 7번 아이언 캐리는 약 ${bag.carry7}m입니다. ` +
+         "홀 거리와 이 수치를 비교해 티샷·세컨드 클럽을 구체적으로 지정하세요(예: 드라이버 대신 우드, 한 클럽 길게). ";
   return g;
 }
 
