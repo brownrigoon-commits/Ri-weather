@@ -176,7 +176,15 @@
 
   /* 진행 표시 문구 — '가봉/본봉' 같은 재단 용어 대신
      클럽이 내게 맞춰지는 과정을 이야기로 들려준다 (사장님 지시 2026-07-27) */
-  const NARRATION = {"이미 알고 있는 것": "클럽을 찾고 있어요", "구력": "샵에 들어와 자리를 잡았어요", "평균 타수 확인": "어떤 골퍼인지 듣고 있어요", "평균 타수": "어떤 골퍼인지 듣고 있어요", "7번 아이언": "7번 아이언 거리를 재고 있어요", "드라이버": "드라이버 비거리를 재고 있어요", "드라이버 구질": "공이 어디로 휘는지 보고 있어요", "체력": "18홀 체력을 가늠하고 있어요", "브랜드": "선호하시는 브랜드를 적어뒀어요", "현재 클럽": "지금 쓰시는 클럽을 살펴봐요", "여기까지의 결과": "여기까지도 맞출 수 있어요", "키": "길이와 라이각을 맞추는 중이에요", "탄도": "탄도를 어떻게 낼지 보고 있어요", "아이언 구질": "아이언 구질도 함께 봅니다", "템포": "스윙 템포를 재고 있어요", "예산": "예산에 맞는 것만 남깁니다", "샤프트 브랜드": "샤프트를 고르는 중이에요", "아이언 · 미스 경향": "아이언을 맞추는 중이에요", "아이언 · 소재": "아이언 소재를 고르고 있어요", "아이언 · 타감": "타감을 맞추는 중이에요", "웨지 · 피칭 로프트": "웨지 간격을 계산하고 있어요", "웨지 · 스윙 타입": "바운스를 정하는 중이에요", "웨지 · 미스 경향": "솔 모양을 다듬고 있어요", "퍼터 · 스트로크": "퍼터 궤도를 보고 있어요", "퍼터 · 고민": "헤드 밸런스를 맞춰요", "퍼터 · 생김새": "마지막으로 눈에 맞춰요"};
+  /* 내부 단계 이름 → 화면에 내보낼 말.
+     'stage' 는 코드가 흐름을 구분하려고 쓰는 이름일 뿐이라 그대로 보여주면 안 된다. */
+  const STAGE_LABEL = {
+    "가봉": "피팅 중", "본봉": "정밀 피팅 중", "가봉 완료": "1차 피팅 완료",
+    "판정": "결과", "내 백": "내 백", "자동 파악": "준비 중",
+    "아이언": "아이언 맞추는 중", "웨지": "웨지 맞추는 중", "퍼터": "퍼터 맞추는 중",
+  };
+
+  const NARRATION = {"이미 알고 있는 것": "클럽을 찾고 있어요", "구력": "샵에 들어와 자리를 잡았어요", "평균 타수 확인": "어떤 골퍼인지 듣고 있어요", "평균 타수": "어떤 골퍼인지 듣고 있어요", "7번 아이언": "7번 아이언 거리를 재고 있어요", "드라이버": "드라이버 비거리를 재고 있어요", "드라이버 구질": "공이 어디로 휘는지 보고 있어요", "체력": "18홀 체력을 가늠하고 있어요", "브랜드": "선호하시는 브랜드를 적어뒀어요", "현재 클럽": "지금 쓰시는 클럽을 살펴봐요", "여기까지의 결과": "1차 피팅이 끝났어요", "키": "길이와 라이각을 맞추는 중이에요", "탄도": "탄도를 어떻게 낼지 보고 있어요", "아이언 구질": "아이언 구질도 함께 봅니다", "템포": "스윙 템포를 재고 있어요", "예산": "예산에 맞는 것만 남깁니다", "샤프트 브랜드": "샤프트를 고르는 중이에요", "아이언 · 미스 경향": "아이언을 맞추는 중이에요", "아이언 · 소재": "아이언 소재를 고르고 있어요", "아이언 · 타감": "타감을 맞추는 중이에요", "웨지 · 피칭 로프트": "웨지 간격을 계산하고 있어요", "웨지 · 스윙 타입": "바운스를 정하는 중이에요", "웨지 · 미스 경향": "솔 모양을 다듬고 있어요", "퍼터 · 스트로크": "퍼터 궤도를 보고 있어요", "퍼터 · 고민": "헤드 밸런스를 맞춰요", "퍼터 · 생김새": "마지막으로 눈에 맞춰요"};
 
   /* ───────── 화면 구성 ───────── */
   function chipList(items, key, { row = false, auto = true } = {}) {
@@ -212,7 +220,7 @@
             : "홀별 기록 부족 — 설문으로 봅니다"}</div>
           <div class="k-src">스코어 기록 자동 분석 — 체력 신호</div></div>
       </div>
-      <div class="btn-row"><button class="cf-btn" data-next>가봉 시작 — 8문항</button></div>`
+      <div class="btn-row"><button class="cf-btn" data-next>피팅 시작 — 8문항</button></div>`
     },
     { stage: "가봉", q: 1, render: () => `
       <div class="q-eyebrow">구력</div>
@@ -295,11 +303,11 @@
     { stage: "가봉 완료", render: () => `
       <div class="q-eyebrow">여기까지의 결과</div>
       <div class="q-title">여기까지로도<br>추천이 가능합니다</div>
-      <div class="q-sub">본봉(정밀 피팅) 5문항을 더 하면 킥포인트·라이각·예산까지 잡아드립니다. 30초쯤 걸려요.</div>
+      <div class="q-sub">6문항을 더 하면 킥포인트·라이각·예산까지 잡아드립니다. 30초쯤 걸려요.</div>
       <div class="q-body"></div>
       <div class="btn-row">
         <button class="cf-btn ghost" data-jump="result">바로 결과 보기</button>
-        <button class="cf-btn accent" data-next>본봉 계속</button>
+        <button class="cf-btn accent" data-next>정밀 피팅 계속</button>
       </div>`
     },
     { stage: "본봉", q: 1, render: () => `
@@ -797,7 +805,7 @@
         headSpec(hp.alt), hp.alt.why.length ? hp.alt.why : ["다른 브랜드 중 최고점"], true) : "");
 
     return `
-      <div class="q-eyebrow">드라이버 판정 · ${brandTxt} 우선${S.didFine ? " · 본봉 반영" : ""}</div>
+      <div class="q-eyebrow">드라이버 판정 · ${brandTxt} 우선${S.didFine ? " · 정밀 피팅 반영" : ""}</div>
       ${verdict}${noteHtml}
       <div class="section-h">샤프트 <span class="cnt">${brandLine(sp)}</span></div>
       ${shaftHtml}
@@ -813,7 +821,7 @@
       <div class="btn-row"><button class="cf-btn" data-jump="bag">다음 클럽도 맞춰보기 →</button></div>
       <div class="restart-row">
         <button class="cf-btn ghost" data-restart>처음부터 다시</button>
-        ${S.didFine ? "" : '<button class="cf-btn ghost" data-gofine>본봉 5문항 추가</button>'}
+        ${S.didFine ? "" : '<button class="cf-btn ghost" data-gofine>정밀 피팅 6문항 더 하기</button>'}
       </div>
       <div class="cf-foot">※ 스펙 수치는 초기 데이터 — 시타 없이 구매하지 마세요. 추천은 판매와 무관합니다.</div>`;
   }
@@ -944,7 +952,9 @@
     // 진행 표시는 단계 이름("가봉")이 아니라 지금 무슨 일이 일어나는지를 말한다.
     // 화면의 eyebrow 를 열쇠로 문구를 찾고, 없으면 단계 이름으로 폴백.
     const eye = (scrEl().querySelector(".q-eyebrow") || {}).textContent || "";
-    stage.textContent = NARRATION[eye.trim()] || sc.stage;
+    // stage 값("가봉"·"본봉")은 코드 안에서만 쓰는 이름이다.
+    // 문구를 못 찾았을 때 그대로 노출되면 골퍼가 모르는 재단 용어가 화면에 뜬다 → 반드시 번역해서 내보낸다.
+    stage.textContent = NARRATION[eye.trim()] || STAGE_LABEL[sc.stage] || "피팅 중";
     let t = 0;
     if (sc.stage === "가봉") { step.textContent = `${sc.q} / 8`; t = sc.q / 8; }
     else if (sc.stage === "본봉") { step.textContent = `${sc.q} / 6`; t = sc.q / 6; }
