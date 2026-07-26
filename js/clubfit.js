@@ -114,9 +114,9 @@
     heightV: 172, traj: null, shapeI: null, tempo: null, budget: null,
     didFine: false, shaftBrand: null,
     // 클럽별 모듈 (드라이버 뒤에 이어서, 각 3문항)
-    ironMiss: null, ironFeel: null, ironMat: null,
-    wedgeTurf: null, wedgeMiss: null, pwLoft: 45,   // 45° = 요즘 아이언 피칭 표준
-    puttStroke: null, puttMiss: null, puttLook: null,
+    ironMiss: null, ironFeel: null, ironMat: null, ironShaftBrand: null,
+    wedgeTurf: null, wedgeMiss: null, pwLoft: 45, wedgeBrand: null,   // 45° = 요즘 아이언 피칭 표준
+    puttStroke: null, puttMiss: null, puttLook: null, putterBrand: null,
   };
   let idx = 0;
 
@@ -187,7 +187,10 @@
     "아이언": "아이언 맞추는 중", "웨지": "웨지 맞추는 중", "퍼터": "퍼터 맞추는 중",
   };
 
-  const NARRATION = {"이미 알고 있는 것": "클럽을 찾고 있어요", "구력": "샵에 들어와 자리를 잡았어요", "평균 타수 확인": "어떤 골퍼인지 듣고 있어요", "평균 타수": "어떤 골퍼인지 듣고 있어요", "7번 아이언": "7번 아이언 거리를 재고 있어요", "드라이버": "드라이버 비거리를 재고 있어요", "드라이버 구질": "공이 어디로 휘는지 보고 있어요", "체력": "18홀 체력을 가늠하고 있어요", "브랜드": "선호하시는 브랜드를 적어뒀어요", "현재 클럽": "지금 쓰시는 클럽을 살펴봐요", "여기까지의 결과": "1차 피팅이 끝났어요", "키": "길이와 라이각을 맞추는 중이에요", "탄도": "탄도를 어떻게 낼지 보고 있어요", "아이언 구질": "아이언 구질도 함께 봅니다", "템포": "스윙 템포를 재고 있어요", "예산": "예산에 맞는 것만 남깁니다",  "아이언 · 미스 경향": "아이언을 맞추는 중이에요", "아이언 · 소재": "아이언 소재를 고르고 있어요", "아이언 · 타감": "타감을 맞추는 중이에요", "웨지 · 피칭 로프트": "웨지 간격을 계산하고 있어요", "웨지 · 스윙 타입": "바운스를 정하는 중이에요", "웨지 · 미스 경향": "솔 모양을 다듬고 있어요", "퍼터 · 스트로크": "퍼터 궤도를 보고 있어요", "퍼터 · 고민": "헤드 밸런스를 맞춰요", "퍼터 · 생김새": "마지막으로 눈에 맞춰요"};
+  const NARRATION = {"이미 알고 있는 것": "클럽을 찾고 있어요", "구력": "샵에 들어와 자리를 잡았어요", "평균 타수 확인": "어떤 골퍼인지 듣고 있어요", "평균 타수": "어떤 골퍼인지 듣고 있어요", "7번 아이언": "7번 아이언 거리를 재고 있어요", "드라이버": "드라이버 비거리를 재고 있어요", "드라이버 구질": "공이 어디로 휘는지 보고 있어요", "체력": "18홀 체력을 가늠하고 있어요", "브랜드": "선호하시는 브랜드를 적어뒀어요", "현재 클럽": "지금 쓰시는 클럽을 살펴봐요", "여기까지의 결과": "1차 피팅이 끝났어요", "키": "길이와 라이각을 맞추는 중이에요", "탄도": "탄도를 어떻게 낼지 보고 있어요", "아이언 구질": "아이언 구질도 함께 봅니다", "템포": "스윙 템포를 재고 있어요", "예산": "예산에 맞는 것만 남깁니다",  "아이언 · 미스 경향": "아이언을 맞추는 중이에요", "아이언 · 소재": "아이언 소재를 고르고 있어요", "아이언 · 타감": "타감을 맞추는 중이에요", "웨지 · 피칭 로프트": "웨지 간격을 계산하고 있어요", "웨지 · 스윙 타입": "바운스를 정하는 중이에요", "웨지 · 미스 경향": "솔 모양을 다듬고 있어요", "퍼터 · 스트로크": "퍼터 궤도를 보고 있어요", "퍼터 · 고민": "헤드 밸런스를 맞춰요", "퍼터 · 생김새": "눈에 맞는 모양을 봐요",
+    "아이언 · 브랜드": "아이언 샤프트를 고르는 중이에요",
+    "웨지 · 브랜드": "웨지를 고르는 중이에요",
+    "퍼터 · 브랜드": "퍼터를 고르는 중이에요"};
 
   /* ───────── 화면 구성 ───────── */
   function chipList(items, key, { row = false, auto = true } = {}) {
@@ -401,6 +404,16 @@
         { v: "light", t: "가벼운 쪽", s: "휘두르기 편한" },
         { v: "any", t: "상관없어요" }], "ironFeel")}</div>`
     },
+    { stage: "아이언", key: "iron4", q: 4, render: () => `
+      <div class="q-eyebrow">아이언 · 브랜드</div>
+      <div class="q-title">아이언 샤프트 브랜드,<br>선호하는 곳이 있나요?</div>
+      <div class="q-sub">아이언 샤프트는 드라이버와 만드는 회사가 다릅니다.</div>
+      <div class="q-body">${chipList([
+        { v: "니폰", t: "니폰 (N.S.PRO)" }, { v: "트루템퍼", t: "트루템퍼 (다이나믹골드)" },
+        { v: "KBS", t: "KBS" }, { v: "UST마미야", t: "UST마미야" },
+        { v: "후지쿠라", t: "후지쿠라" }, { v: "any", t: "상관없어요" }],
+        "ironShaftBrand", { row: true })}</div>`
+    },
     { stage: "아이언", key: "ironResult", render: renderIron },
 
     { stage: "웨지", key: "wedge1", q: 1, render: () => `
@@ -429,6 +442,15 @@
         { v: "thin", t: "토핑이 나요", s: "공 윗부분을 때림" },
         { v: "none", t: "괜찮은 편이에요" }], "wedgeMiss")}</div>`
     },
+    { stage: "웨지", key: "wedge4", q: 4, render: () => `
+      <div class="q-eyebrow">웨지 · 브랜드</div>
+      <div class="q-title">웨지 브랜드,<br>선호하는 곳이 있나요?</div>
+      <div class="q-body">${chipList([
+        { v: "타이틀리스트", t: "타이틀리스트 (보키)" }, { v: "클리브랜드", t: "클리브랜드" },
+        { v: "핑", t: "핑" }, { v: "테일러메이드", t: "테일러메이드" },
+        { v: "캘러웨이", t: "캘러웨이" }, { v: "미즈노", t: "미즈노" },
+        { v: "any", t: "상관없어요" }], "wedgeBrand", { row: true })}</div>`
+    },
     { stage: "웨지", key: "wedgeResult", render: renderWedge },
 
     { stage: "퍼터", key: "putt1", q: 1, render: () => `
@@ -456,6 +478,14 @@
         { v: "blade", t: "블레이드", s: "얇고 클래식한 모양" },
         { v: "mallet", t: "말렛", s: "크고 묵직한 모양" },
         { v: "any", t: "상관없어요" }], "puttLook")}</div>`
+    },
+    { stage: "퍼터", key: "putt4", q: 4, render: () => `
+      <div class="q-eyebrow">퍼터 · 브랜드</div>
+      <div class="q-title">퍼터 브랜드,<br>선호하는 곳이 있나요?</div>
+      <div class="q-body">${chipList([
+        { v: "스카티카메론", t: "스카티카메론" }, { v: "오디세이", t: "오디세이" },
+        { v: "테일러메이드", t: "테일러메이드 (스파이더)" }, { v: "핑", t: "핑" },
+        { v: "any", t: "상관없어요" }], "putterBrand", { row: true })}</div>`
     },
     { stage: "퍼터", key: "puttResult", render: renderPutt },
   ];
@@ -634,7 +664,8 @@
     return {
       mat, target, fxT,
       // 소재가 다르거나 목표 무게에서 12g 넘게 벗어난 샤프트는 브랜드 선호와 무관하게 제외
-      shaftPick: pickByBrand(shafts, S.shaftBrand, "b",
+      // 아이언 샤프트 브랜드는 드라이버와 계열이 달라 따로 받는다(니폰·트루템퍼·KBS…)
+      shaftPick: pickByBrand(shafts, S.ironShaftBrand, "b",
         (s) => s.mat === mat && Math.abs(s.w - target) <= 12),
       headPick: pickByBrand(heads, S.brand, "br"),
       notes,
@@ -674,8 +705,8 @@
 
     return {
       pw, cnt, specs, grind,
-      pick: pickByBrand(WEDGES.map((w) => ({ ...w, p: w.br === S.brand ? 10 : 0 }))
-                        .sort((a, b) => b.p - a.p), S.brand, "br"),
+      pick: pickByBrand(WEDGES.map((w) => ({ ...w, p: w.br === S.wedgeBrand ? 10 : 0 }))
+                        .sort((a, b) => b.p - a.p), S.wedgeBrand, "br"),
       note: `피칭(${pw}°)과 로브(58°) 사이 ${span}°를 ${cnt}개로 나눴습니다. ` +
             `한 클럽당 ${step}° — 거리 공백이 생기지 않는 간격입니다.`,
     };
@@ -703,7 +734,7 @@
 
     return {
       arc, len,
-      pick: pickByBrand(scored, S.brand, "br"),
+      pick: pickByBrand(scored, S.putterBrand, "br"),
       lie: "라이각은 셋업에서 퍼터 솔이 지면과 평행해지는지로 확인하세요.",
       note: arc === "straight"
         ? "직선에 가까운 스트로크에는 <b>페이스밸런스</b> 퍼터가 맞습니다. 헤드가 스스로 열리고 닫히지 않아 스트로크를 방해하지 않습니다."
@@ -851,9 +882,9 @@
       <div class="q-sub">한 번에 다 하지 않아도 됩니다. 하나씩 채워도 AI 캐디가 그만큼 더 정확해져요.</div>
       <div class="q-body"><div class="chips">
         ${bagRow("🏌️", "드라이버", "샤프트 · 헤드 · 그립", !!b.driver, "result")}
-        ${bagRow("⛳", "아이언", "3문항 — 소재 · 무게 · 헤드", !!b.iron, "iron1")}
-        ${bagRow("🌊", "웨지", "3문항 — 로프트 갭 · 바운스", !!b.wedge, "wedge1")}
-        ${bagRow("🎯", "퍼터", "3문항 — 스트로크 · 헤드 · 길이", !!b.putter, "putt1")}
+        ${bagRow("⛳", "아이언", "4문항 — 소재 · 무게 · 헤드 · 브랜드", !!b.iron, "iron1")}
+        ${bagRow("🌊", "웨지", "4문항 — 로프트 갭 · 바운스 · 브랜드", !!b.wedge, "wedge1")}
+        ${bagRow("🎯", "퍼터", "4문항 — 스트로크 · 헤드 · 길이 · 브랜드", !!b.putter, "putt1")}
       </div></div>
       <div class="btn-row"><button class="cf-btn ghost" data-jump="result">드라이버 결과로</button></div>`;
   }
@@ -970,8 +1001,8 @@
     else if (sc.stage === "가봉 완료") { step.textContent = "8 / 8 완료"; t = 1; }
     // 클럽별 모듈은 3문항 — 결과 화면(q 없음)은 완료
     else if (["아이언", "웨지", "퍼터"].includes(sc.stage)) {
-      step.textContent = sc.q ? `${sc.q} / 3` : "홀인!";
-      t = sc.q ? sc.q / 3 : 1;
+      step.textContent = sc.q ? `${sc.q} / 4` : "홀인!";
+      t = sc.q ? sc.q / 4 : 1;
     }
     else { step.textContent = ""; t = 0; }
     flyBall(t);
@@ -1023,7 +1054,7 @@
       if (t.closest("[data-next]")) return advance();
       if (t.closest("[data-skip]")) { if (SCREENS[idx].stage === "본봉" && SCREENS[idx].q === 1) S.heightV = null; return advance(); }
       if (t.closest("[data-restart]")) {
-        Object.assign(S, { career: null, scoreConfirm: null, carry7: 150, carryD: 220, shapeD: null, endur: null, brand: null, curShaft: null, complaint: null, heightV: 172, traj: null, shapeI: null, tempo: null, budget: null, didFine: false });
+        Object.assign(S, { ironShaftBrand: null, wedgeBrand: null, putterBrand: null, career: null, scoreConfirm: null, carry7: 150, carryD: 220, shapeD: null, endur: null, brand: null, curShaft: null, complaint: null, heightV: 172, traj: null, shapeI: null, tempo: null, budget: null, didFine: false });
         computeAuto();
         return go(0);
       }
