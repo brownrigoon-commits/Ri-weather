@@ -16,6 +16,8 @@
     "js/app.js": ["APP_VER", "renderHome", "wmoClass", "wxScene", "BACKUP", "loadScores", "loadCourses"],
     "js/clubfit.js": ["openClubfitView", "loadMyBag", "__cfTest"],
     "js/loading.js": ["WAIT", "staggerIn"],
+    "js/weatherfx.js": ["WXFX"],
+    "js/stay.js": ["openStayView", "fetchKakaoStay", "stayKind", "bookingLinks"],
     "js/legal.js": ["CONSENT"],
     "js/stats.js": ["STATS"],
   };
@@ -119,7 +121,7 @@
   } catch (e) { add("문항 확인 실패", "clubfit.js", e.message); }
 
   /* ── 2. 모든 화면 렌더 (오류·깨진 문자열) ───────────────────── */
-  const views = ["home","hub","detail","course","food","score","clubfit"];
+  const views = ["home","hub","detail","course","food","stay","score","clubfit"];
   for (const v of views) {
     try {
       const el = document.querySelector("#" + v + "-view");
@@ -257,6 +259,18 @@
     host.remove();
     WXFX.sweep();
   } catch (e) { add("하늘 효과 검사 예외", "WXFX", e.message); }
+
+  /* ── 3-6. 숙박 — 예약 링크가 제대로 만들어지는지 ────────────── */
+  try {
+    const ls = bookingLinks("웰리힐리파크");
+    if (ls.length < 3) add("예약 링크 개수 부족", "stay", ls.length);
+    ls.forEach(([t, u]) => {
+      if (!/^https:\/\//.test(u)) add("예약 링크 형식 오류", t, u);
+      if (!/%/.test(u)) add("예약 링크에 검색어가 안 들어감", t, u);
+    });
+    ["호텔 신라", "OO리조트", "행복펜션", "굿모텔", "게스트하우스 봄", "글램핑장"]
+      .forEach((c) => { if (!stayKind(c)) add("숙소 종류 분류 실패", c, ""); });
+  } catch (e) { add("숙박 검사 예외", "stay", e.message); }
 
   /* ── 4. 브랜드 잔재 점검 ─────────────────────────────────────── */
   const html = document.body.innerText;

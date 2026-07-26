@@ -4,8 +4,8 @@
  * ========================================================= */
 "use strict";
 
-const APP_VER = "v123"; // 배포 버전 (홈 화면 배지에 표시)
-const APP_NOTE = "아이언·웨지·퍼터도 드라이버와 같은 방식"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
+const APP_VER = "v124"; // 배포 버전 (홈 화면 배지에 표시)
+const APP_NOTE = "숙박 메뉴 추가"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
 const STORAGE_KEY = "riweather.courses.v1";
 const GEM_KEY = "riweather.gemini"; // 정밀 인식(비전 AI) 개인 키 저장소
 // 기본 제공 키 (무료 한도 공유) — 개인 키를 설정하면 그 키가 우선됩니다
@@ -592,6 +592,7 @@ let currentCourse = null;
 const VIEWS = {
   home: homeView, hub: $("#hub-view"), detail: detailView,
   course: $("#course-view"), food: $("#food-view"), score: $("#score-view"),
+  stay: $("#stay-view"),
   clubfit: $("#clubfit-view"),
 };
 let viewStack = ["home"];
@@ -718,6 +719,7 @@ document.querySelectorAll(".hub-item").forEach((btn) => {
     else if (m === "course") openCourseView();
     else if (m === "food") openFoodView();
     else if (m === "score") openScoreView();
+    else if (m === "stay") openStayView();
     else if (m === "clubfit") openClubfitView();
   });
 });
