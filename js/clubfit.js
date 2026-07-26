@@ -981,7 +981,7 @@
 
     // 처음 공을 칠 때 스윙, 홀에 들어가면 깃발이 반긴다
     if (t > 0 && lastT === 0 && golfer) {
-      golfer.classList.remove("swing"); void golfer.getBBox();
+      golfer.classList.remove("swing"); void golfer.getBoundingClientRect();
       golfer.classList.add("swing");
     }
     ball.classList.toggle("holed", t >= 1);

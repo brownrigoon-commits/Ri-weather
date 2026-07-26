@@ -1950,21 +1950,26 @@ body, .view, .cf-screen, .card, .sheet { word-break: keep-all; overflow-wrap: br
   fill: none; stroke: var(--brand); stroke-width: 2.4; stroke-linecap: round;
   transition: stroke-dashoffset 0.55s var(--ease);
 }
-/* 골퍼 — 실루엣 픽토그램. 선 굵기로 몸을 만들어 작게 줄여도 사람으로 읽힌다. */
-.cf-golfer {
-  fill: none; stroke: var(--text);
-  stroke-linecap: round; stroke-linejoin: round;
+/* 골퍼 — 사장님이 주신 실루엣 이미지.
+   그림을 그대로 넣으면 색을 못 바꾸므로 마스크로 써서 글자색을 입힌다
+   (다크 모드나 브랜드색 변경에도 그대로 따라온다). */
+.cf-golfer .cf-fig {
+  width: 100%; height: 100%;
+  background-color: var(--text);
+  -webkit-mask: url("../assets/golfer.png") no-repeat bottom center;
+  mask: url("../assets/golfer.png") no-repeat bottom center;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  transform-origin: 50% 100%;
 }
-.cf-golfer .cf-solid { fill: var(--text); stroke: none; }
-.cf-golfer .cf-club { stroke: var(--text-dim); }
-/* 임팩트 직후의 반동 — 한 번만, 아주 짧게 */
-.cf-fig { transform-origin: 30px 76px; }
-.cf-golfer.swing .cf-fig { animation: cfSwing 0.62s var(--ease); }
+/* 첫 티샷에서 살짝 반동 */
+.cf-golfer.swing .cf-fig { animation: cfSwing 0.6s var(--ease); }
 @keyframes cfSwing {
-  0%   { transform: rotate(-7deg) translateY(1px); }
+  0%   { transform: rotate(-6deg) translateY(1px); }
   45%  { transform: rotate(2deg); }
   100% { transform: rotate(0deg); }
 }
+
 .cf-ball {
   fill: #fff; stroke: var(--text-faint); stroke-width: 1.4;
   transition: cx 0.55s var(--ease), cy 0.55s var(--ease), r 0.3s var(--ease);
@@ -2170,3 +2175,26 @@ body, .view, .cf-screen, .card, .sheet { word-break: keep-all; overflow-wrap: br
 .course-card.has-scene .cc-del {
   background: rgba(0, 0, 0, 0.28); color: #fff;
 }
+
+/* ── 플로팅 버튼 (뒤로가기 · 공유) ────────────────────────────────
+   라이트 테마로 바꾸면서 '어두운 배경 + 어두운 아이콘'이 되어 거의 안 보였다.
+   흰 원 + 진한 아이콘으로 바꾸고, 불투명도를 낮추지 않는다. */
+.float-btn {
+  background: var(--surface);
+  border: none;
+  color: var(--text);
+  box-shadow: 0 2px 8px rgba(25, 31, 40, 0.10), 0 8px 24px rgba(25, 31, 40, 0.10);
+  opacity: 1;
+  font-size: 22px;
+  line-height: 1;
+}
+.float-btn:hover { opacity: 1; }
+.float-btn:active {
+  transform: scale(0.92);
+  background: var(--surface-press);
+  opacity: 1;
+}
+.float-btn svg { width: 20px; height: 20px; fill: currentColor; }
+/* 공유는 주된 행동이라 브랜드색으로 한 번 더 눈에 띄게 */
+.app-share-btn { background: var(--primary); color: #fff; }
+.app-share-btn:active { background: var(--primary-press); }

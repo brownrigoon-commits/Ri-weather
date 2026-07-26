@@ -105,6 +105,14 @@ for attempt in range(1, 4):
         need = re.findall(r'src="(js/[^"]+\.js)"', open(
             os.path.join(ROOT, "index.html"), encoding="utf-8").read())
         need += ["css/style.css", "sw.js", "index.html"]
+        # CSS 가 불러오는 파일(마스크·배경 이미지 등)도 확인한다.
+        # js/legal.js 누락 때처럼, 참조는 있는데 저장소에 없으면 조용히 깨진다.
+        css = open(os.path.join(ROOT, "css", "style.css"), encoding="utf-8").read()
+        for u in re.findall(r"""url\(\s*['"]?([^'")]+)['"]?\s*\)""", css):
+            u = u.split("?")[0]
+            if u.startswith(("http", "data:")):
+                continue
+            need.append(os.path.normpath(os.path.join("css", u)).replace("\\", "/"))
         tracked = set(git("ls-files").stdout.split())
         missing = [f for f in need if f.split("?")[0] not in tracked]
         if missing:
