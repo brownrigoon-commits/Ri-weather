@@ -30,7 +30,11 @@ const CANVAS_W = 260, CANVAS_H = 300;
    CSS 아이콘 상자도 52x60 → 62x72 로 함께 키웠다. */
 const FIT = {
   golfer: { file: 'golfer.png', h: 0.689 },   // 드라이버
-  iron:   { file: 'iron.jpg',   w: 0.833 },   // 클럽이 옆으로 길어 가로 기준 — 헤드까지 전부 담긴다
+  // 아이언은 클럽이 옆으로 길어 가로 기준으로 맞춘다 — 헤드까지 전부 담긴다.
+  // 0.833 → 0.958 (+15%, 사장님 지시). 캔버스 가로의 96% 라 아직 여유가 있어
+  // 캔버스를 넓히지 않았다. 더 키워야 하면 CANVAS_W 를 늘리고 나머지 세 개의
+  // h 값도 같은 비율로 낮춰야 서로의 크기 관계가 유지된다.
+  iron:   { file: 'iron.jpg',   w: 0.958 },
   wedge:  { file: 'wedge.jpg',  h: 1.00 },
   putter: { file: 'putter.jpg', h: 0.566 },
 };
