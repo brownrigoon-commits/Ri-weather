@@ -70,12 +70,33 @@ if errorlevel 1 (
 )
 
 rem --- 1) 상대 PC 작업 받기 -------------------------------------------
+rem  ⚠ --autostash 는 사장님이 편집 중인 파일이 있을 때 위험합니다.
+rem    보관해 둔 작업을 되돌리다 충돌하면 그 파일에 "<<<<<<< Updated upstream" 표시가
+rem    그대로 박히고, 그때는 rebase 가 이미 끝나 있어 --abort 도 소용이 없습니다.
+rem    (ristock/engine/publish.py 의 _원격과합치기 주석에 적힌 실제 사고입니다.
+rem     이 배치는 매일 16:40·07:10 에 사장님 모르게 도는데, 그 시각에 골프앱
+rem     index.html 을 열어 두고 계실 수 있습니다.)
+rem    그래서 ristock\data 밖에 저장 안 한 파일이 있으면 **받기를 통째로 건너뜁니다.**
+rem    데이터 생성에는 아무 지장이 없습니다 — 아래 [2/5] 가 원격의 ristock\data 만
+rem    따로 받아 오고, 데이터는 어차피 매번 전량 다시 만듭니다.
 call :say ""
 call :say "[1/5] 상대 PC 작업 받는 중..."
-git pull --rebase --autostash >> "%LOG%" 2>&1
-if errorlevel 1 (
-  call :say "  주의: 받기에 실패했습니다. 되돌림을 시도합니다."
-  git rebase --abort >> "%LOG%" 2>&1
+set "DIRTY="
+"%PY%" -c "import subprocess,sys;o=subprocess.run(['git','status','--porcelain','--untracked-files=no'],capture_output=True,text=True,encoding='utf-8',errors='replace').stdout;b=[x for x in [l[3:].strip().strip(chr(34)).replace(chr(92),'/') for l in o.splitlines() if len(l)>3] if not x.startswith('ristock/data/')];print(chr(10).join(b));sys.exit(1 if b else 0)" > "%TEMP%\ristock_dirty.txt" 2>nul
+if errorlevel 1 set "DIRTY=1"
+if defined DIRTY (
+  call :say "  건너뜀: 저장하지 않은 파일이 있어 받기를 하지 않았습니다."
+  call :say "          (지금 합치면 아래 파일에 충돌 표시가 박힐 수 있습니다)"
+  type "%TEMP%\ristock_dirty.txt"
+  type "%TEMP%\ristock_dirty.txt" >> "%LOG%"
+  call :say "          데이터 갱신은 그대로 진행합니다."
+  call :say "          편집을 마치신 뒤 python tools\sync.py 로 함께 정리해 주세요."
+) else (
+  git pull --rebase --autostash >> "%LOG%" 2>&1
+  if errorlevel 1 (
+    call :say "  주의: 받기에 실패했습니다. 되돌림을 시도합니다."
+    git rebase --abort >> "%LOG%" 2>&1
+  )
 )
 
 rem --- 1-1) 충돌 표시가 파일에 박힌 채로 계속 가면 안 됩니다 -------------

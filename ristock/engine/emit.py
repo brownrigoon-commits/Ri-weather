@@ -28,6 +28,12 @@ from .config import (ARCHIVE_DIRNAME, DATA_VERSION, MANIFEST_FILE, MARKET_FILE,
 CHANGES_FILE = 'changes.json'
 STRATEGIES_FILE = 'strategies.json'
 
+# `ristock/data/*.json` 은 GitHub Pages 로 **누구나 열 수 있는 주소**에 서빙됩니다.
+# 앱 화면을 거치지 않고 파일만 곧바로 열면 화면 하단 고지가 따라가지 않으므로
+# 데이터 자체에도 한 줄 심어 둡니다 (설계서 5장 — 앱·데이터 양쪽에 고지).
+고지문 = ('본 자료는 공개 데이터를 기계적으로 집계한 스크리닝 참고자료일 뿐이며, '
+        '투자 권유가 아닙니다. 투자 판단과 그 결과는 이용자 본인에게 있습니다.')
+
 
 # =========================
 # 파일 입출력
@@ -186,6 +192,7 @@ def build_stocks_payload(df, market, 기준일, 생성시각, 원본=''):
         '기준일': 기준일,
         '생성시각': 생성시각,
         '원본': 원본,
+        '고지': 고지문,
         '가중치': dict(WEIGHTS),
         '종목': [stock_record(r) for r in ordered_rows(df)],
     }
@@ -224,6 +231,7 @@ def build_manifest(시장, 기준일, 생성시각, 주체, 성공, 메모='',
         '데이터버전': DATA_VERSION,
         '생성시각': 생성시각,
         '기준일': 기준일,
+        '고지': 고지문,
         '시장': 시장,
         '실행': {'주체': 주체, '성공': bool(성공), '메모': 메모},
     }

@@ -30,8 +30,8 @@
 |---|---|
 | 점수·전략 계산이 예전과 **한 글자도 같은가** (정답지 재현) | 16/16 통과 |
 | 파이썬 엔진 단위 검사 | 254개 통과 |
-| 화면 로딩·버튼이 실제로 눌리는가 (헤드리스 크로미움) | 101개 통과 |
-| 폰 크기(375×812) 전체 동선 | 268개 통과 |
+| 화면 로딩·버튼이 실제로 눌리는가 (헤드리스 크로미움) | 128개 통과 |
+| 폰 크기(375×812) 전체 동선 | 297개 통과 |
 
 **점수 체계와 전략 8종의 선정 결과는 예전 프로그램과 완전히 같습니다.** 이게 이 작업의 1번 조건이었습니다.
 
@@ -96,8 +96,8 @@ powershell -ExecutionPolicy Bypass -File tools\ristock_스케줄등록.ps1 -상�
   python -m pytest ristock/engine/tests -q          → 254 passed
   node ristock/engine/tests/test_js_golden.mjs      → 정답지 16/16
   python3 -m http.server 8791                       (저장소 최상단에서 띄운 채로)
-  node ristock/tests/verify_pwa.mjs                 → 101/101
-  node ristock/tests/verify_phone_e2e.mjs           → 268/268
+  node ristock/tests/verify_pwa.mjs                 → 128/128
+  node ristock/tests/verify_phone_e2e.mjs           → 297/297
   ```
 - `ristock/data/` 는 **자동 생성물입니다.** 손으로 고치지 마세요. 충돌 나면 재생성이 답입니다.
 - 전략 계산은 **JS 가 정본**(`ristock/js/strategy.js`), 파이썬은 같은 규칙의 복제본입니다.

@@ -141,8 +141,15 @@ python tools/sync.py --status
 | `.github/workflows/ristock-daily.yml` | 깃허브 서버 자동 실행 (하루 2회) |
 
 **Ri_Stock 은 `release_courses.py` 를 쓰지 않습니다.** 골프앱 배포 도구와 별개입니다.
-Ri_Stock 화면 파일(`ristock/js/*` 등)을 고쳤으면 `ristock/sw.js` 의 캐시 버전을 올려야
-사장님 폰이 새 파일을 받습니다.
+`APP_VER` 도 없습니다 — `ristock/sw.js` 는 골프앱과 달리 **네트워크 우선**이라
+(`fetch(..., {cache:'no-cache'})`) 화면 파일을 고치면 폰이 다음 실행에 바로 새 파일을 받습니다.
+`CACHE = "ristock-v1"` 은 **옛 캐시를 통째로 버리고 싶을 때만** 올리면 됩니다.
+
+Ri_Stock 을 고쳤으면 배포 확인은 이것으로 합니다(골프앱의 `verify_deploy.py` 가 아닙니다).
+```
+python tools/ristock_출고점검.py                 # 올리기 전 — 로컬 산출물
+python tools/ristock_출고점검.py --skip-local --url --wait   # 올린 뒤 — 공개 주소 도달
+```
 
 ## 📁 앱 구조
 

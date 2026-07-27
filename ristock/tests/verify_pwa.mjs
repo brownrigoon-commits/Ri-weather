@@ -672,6 +672,45 @@ const 엿새전 = (() => { const d = new Date(); d.setDate(d.getDate() - 6); ret
   await pg.close(); await c.close();
 }
 
+/* (다) **엔진이 실제로 뱉는 모양** — 최상단 기준일 = 시장별 중 가장 오래된 값
+   위 (가)는 최상단에 '오늘'을 넣어 만든 손수 만든 manifest 라, 엔진 산출물과 다릅니다.
+   `emit.대표기준일()` 은 최상단을 **min(시장별 기준일)** 로 씁니다. 그래서 "최상단보다
+   오래됐는가"로 물으면 정의상 참이 될 수 없고, 한국이 6일 멈춰도 배너가 영영 안 붙었습니다
+   (2026-07-27 엔드투엔드에서 실제 재현). 비교 상대는 '가장 최근에 갱신된 시장'이어야 합니다. */
+{
+  const { c, pg } = await 시장신선도화면('엔진산출모양', (m) => ({
+    ...m, 기준일: 엿새전,                       // ← 엔진과 같이 min(한국,미국)
+    시장: { 한국: { ...m.시장.한국, 기준일: 엿새전 }, 미국: { ...m.시장.미국, 기준일: 오늘ymd } }
+  }));
+  await pg.locator('#tabbar button').nth(2).click();
+  await pg.waitForSelector('#view-stocks .stock-row');
+  const 글한국 = await pg.locator('#view-stocks').innerText();
+  확인('시장별신선도(엔진 모양): 최상단=가장 오래된 값이어도 한국에 안내가 뜬다',
+    글한국.includes('한국 데이터는 6일 전 기준입니다'),
+    글한국.split('\n').find((l) => l.includes('기준입니다')) || '없음');
+  await pg.locator('#view-stocks .seg button[data-market="미국"]').click();
+  await pg.waitForTimeout(300);
+  const 글미국 = await pg.locator('#view-stocks').innerText();
+  확인('시장별신선도(엔진 모양): 갱신된 미국에는 안 뜬다',
+    !글미국.includes('기준입니다'),
+    글미국.split('\n').find((l) => l.includes('기준입니다')) || '없음');
+  await pg.close(); await c.close();
+}
+
+/* (라) 양쪽이 똑같이 낡은 날 — 전체 배너 하나면 충분하고, 시장별 배너는 겹쳐 뜨지 않는다 */
+{
+  const { c, pg } = await 시장신선도화면('양쪽같이낡음', (m) => ({
+    ...m, 기준일: 엿새전,
+    시장: { 한국: { ...m.시장.한국, 기준일: 엿새전 }, 미국: { ...m.시장.미국, 기준일: 엿새전 } }
+  }));
+  await pg.locator('#tabbar button').nth(2).click();
+  await pg.waitForSelector('#view-stocks .stock-row');
+  const 글 = await pg.locator('#view-stocks').innerText();
+  확인('시장별신선도: 양쪽이 같이 낡으면 시장별 배너는 안 뜸(전체 배너만)',
+    !글.includes('기준입니다'), 글.split('\n').find((l) => l.includes('기준입니다')) || '없음');
+  await pg.close(); await c.close();
+}
+
 /* ─────────────────────────── 마무리 ─────────────────────────── */
 console.log('\n=== 콘솔/네트워크 ===');
 console.log('콘솔 오류: ' + 콘솔오류.length + (콘솔오류.length ? '\n  ' + 콘솔오류.join('\n  ') : ''));

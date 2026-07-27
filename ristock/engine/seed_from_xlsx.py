@@ -56,6 +56,12 @@ from openpyxl import load_workbook
 # =========================
 MARKET_NAME = {'kr': '한국', 'us': '미국'}
 
+# ⚠ `engine/emit.고지문` 과 **글자 그대로 같아야** 합니다.
+#   (이 파일은 `python seed_from_xlsx.py` 로 직접 실행되므로 패키지 import 를 쓰지 않습니다.
+#    두 생산자가 같은 JSON 을 만드는데 고지 문구만 달라지면 그것도 사고입니다)
+고지문 = ('본 자료는 공개 데이터를 기계적으로 집계한 스크리닝 참고자료일 뿐이며, '
+        '투자 권유가 아닙니다. 투자 판단과 그 결과는 이용자 본인에게 있습니다.')
+
 # 13개 점수 항목 — 엑셀 `점수_XXX` 열 순서와 동일해야 합니다.
 SCORE_ITEMS = ['모멘텀', '차트', 'ROE', '매출성장', '순익성장', '시총', '재무',
                '52주', '저변동', '밸류', '배당', '뉴스', '수급']
@@ -315,6 +321,7 @@ def build_snapshot(xlsx_path, market, base_date, generated_at=None, closes='auto
         '기준일': base_date,
         '생성시각': generated_at,
         '원본': os.path.basename(xlsx_path),
+        '고지': 고지문,                      # 공개 주소로 파일만 열어도 보이도록 (emit 과 같은 문장)
         '가중치': weights,
         '종목': stocks,
     }
@@ -534,6 +541,7 @@ def build_manifest(kr_path, us_path, runner='pc', memo=''):
         '데이터버전': 1,
         '생성시각': 생성시각,
         '기준일': 기준일,
+        '고지': 고지문,
         '시장': 시장,
         '실행': {'주체': runner, '성공': True, '메모': memo},
     }

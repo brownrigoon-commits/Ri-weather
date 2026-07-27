@@ -341,7 +341,9 @@ jobs:
           # 같은 제목의 **열린** 이슈 번호 (없으면 빈 값)
           open_issue_number() {
             local raw
-            raw="$(gh issue list --repo "$REPO" --state open --limit 100 \
+            # limit 을 넉넉히 둡니다 — 열린 이슈가 목록 밖으로 밀리면 "없다"고 판단해
+            # 같은 알림을 하나 더 열게 됩니다.
+            raw="$(gh issue list --repo "$REPO" --state open --limit 200 \
                      --json number,title 2>/dev/null)"
             [ -n "$raw" ] || { echo ""; return; }
             printf '%s' "$raw" \
@@ -426,7 +428,12 @@ jobs:
                 gh issue edit "$NUM" --repo "$REPO" --add-label "$ALERT_LABEL" >/dev/null 2>&1 || true
                 echo "새 알림 이슈 #${NUM} 을 열었습니다 (${MK})."
               else
+                # 알림을 못 보냈습니다(Issues 탭이 꺼져 있거나 권한이 없음).
+                # 여기서 조용히 넘어가면 한국이 몇 달 멈춰도 초록 체크만 남고 아무도 모릅니다.
+                # 알릴 방법이 없을 때는 **job 을 빨갛게 끝내는 것**이 유일하게 남은 알림입니다.
                 echo "::warning::${MK} 실패 알림 이슈를 열지 못했습니다(저장소 Issues 가 꺼져 있을 수 있습니다)."
+                echo "::warning::알릴 방법이 없어 이번 실행을 실패로 끝냅니다 — 메일로라도 알려 드리기 위해서입니다."
+                ESC=1
                 continue
               fi
             else

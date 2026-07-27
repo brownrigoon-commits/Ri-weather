@@ -189,8 +189,15 @@ def 로컬점검(markets, 최소=최소종목수):
         else:
             통과(f'{시장}: 종목 {len(종목)} / 평가 {len(평가)}')
 
-        if str(d.get('기준일') or '') != 기준일:
-            실패(f"{시장}: {파일} 기준일({d.get('기준일')}) 이 manifest({기준일}) 와 다릅니다")
+        # ⚠ 최상단 `기준일` 과 비교하면 안 됩니다.
+        #   최상단은 **가장 오래된 시장**의 날짜라서, 한국만 실패한 날에는
+        #   오늘 갱신된 미국 파일이 매번 "기준일이 다르다"고 걸려 버립니다.
+        #   그러면 멀쩡히 수집된 미국 데이터가 영영 올라가지 못합니다
+        #   (게이트 실패 → 커밋 스텝 건너뜀). 시장 칸의 기준일과 맞춰 봅니다.
+        기대 = str((시장칸.get(시장) or {}).get('기준일') or '') or 기준일
+        if str(d.get('기준일') or '') != 기대:
+            실패(f"{시장}: {파일} 기준일({d.get('기준일')}) 이 "
+               f"manifest.시장.{시장}.기준일({기대}) 과 다릅니다")
         빈티커 = sum(1 for s in 종목 if not s.get('티커'))
         if 빈티커:
             실패(f'{시장}: 티커가 빈 종목이 {빈티커}개 있습니다')
@@ -213,8 +220,27 @@ def 받기(base, 경로, timeout=20):
         return r.status, r.read(2_000_000).decode('utf-8', errors='replace')
 
 
-def 공개점검(base, 기대기준일):
-    """공개 주소가 실제로 오늘 데이터를 내주는지. 하나라도 어긋나면 False."""
+def 기대값읽기():
+    """방금 만든 로컬 manifest 에서 '공개 주소에서 이것과 같아야 한다'는 값을 뽑습니다."""
+    try:
+        with open(os.path.join(DATA_DIR, 'manifest.json'), encoding='utf-8') as f:
+            m = json.load(f)
+    except Exception:
+        return {}
+    return {'기준일': str(m.get('기준일') or ''),
+            '생성시각': str(m.get('생성시각') or '')}
+
+
+def 공개점검(base, 기대):
+    """공개 주소가 실제로 **방금 올린** 데이터를 내주는지. 하나라도 어긋나면 False.
+
+    ⚠ `기준일` 만 비교하면 안 됩니다. 최상단 기준일은 가장 오래된 시장의 날짜라
+       한국이 며칠 멈춘 동안에는 **값이 아예 바뀌지 않습니다.** 그러면 GitHub Pages
+       빌드가 조용히 실패해도 "어제 것과 같으니 통과"가 되어 버립니다
+       (CLAUDE.md 2026-07-22 `.nojekyll` 사고와 똑같은 결말).
+       그래서 회차마다 반드시 달라지는 `생성시각` 을 함께 봅니다.
+    """
+    기대 = 기대 or {}
     자산 = 참조자산() + ['data/manifest.json', 'data/strategies.json',
                         'data/market.json', 'data/stocks_KR.json', 'data/stocks_US.json']
     나쁨 = []
@@ -237,11 +263,14 @@ def 공개점검(base, 기대기준일):
             except Exception as e:
                 나쁨.append(f'{경로} → JSON 아님 ({str(e)[:50]})')
                 continue
-            if 경로.endswith('manifest.json') and 기대기준일:
-                올라간것 = str(doc.get('기준일') or '')
-                if 올라간것 != 기대기준일:
-                    나쁨.append(f'manifest 기준일 {올라간것 or "(없음)"} '
-                                f'≠ 방금 만든 {기대기준일} (아직 반영 전이거나 빌드 실패)')
+            if 경로.endswith('manifest.json'):
+                for 키 in ('기준일', '생성시각'):
+                    if not 기대.get(키):
+                        continue
+                    올라간것 = str(doc.get(키) or '')
+                    if 올라간것 != 기대[키]:
+                        나쁨.append(f'manifest {키} {올라간것 or "(없음)"} '
+                                    f'≠ 방금 만든 {기대[키]} (아직 반영 전이거나 빌드 실패)')
     if 나쁨:
         for x in 나쁨:
             print(f'  ✗ {x}')
@@ -250,11 +279,11 @@ def 공개점검(base, 기대기준일):
     return True
 
 
-def 공개점검_대기(base, 기대기준일, wait, 간격=20, 최대=12):
+def 공개점검_대기(base, 기대, wait, 간격=20, 최대=15):
     print(f'\n■ ② 공개 주소 확인 — {base}')
     회수 = 최대 if wait else 1
     for i in range(회수):
-        if 공개점검(base, 기대기준일):
+        if 공개점검(base, 기대):
             return True
         if i < 회수 - 1:
             print(f'  · 아직입니다 — {간격}초 뒤 다시 확인 ({i + 1}/{회수 - 1})')
@@ -278,7 +307,7 @@ def main(argv=None):
     ap.add_argument('--url', action='store_true', help='공개 주소까지 확인')
     ap.add_argument('--base', default=BASE_URL, help='확인할 주소 (기본 GitHub Pages)')
     ap.add_argument('--wait', action='store_true',
-                    help='공개 주소에 반영될 때까지 최대 4분 기다림')
+                    help='공개 주소에 반영될 때까지 최대 5분 기다림')
     ap.add_argument('--skip-local', action='store_true', help='로컬 점검 건너뛰기')
     args = ap.parse_args(argv)
 
@@ -288,13 +317,7 @@ def main(argv=None):
         로컬점검(시장들, args.min_stocks)
 
     if args.url:
-        기준일 = ''
-        try:
-            with open(os.path.join(DATA_DIR, 'manifest.json'), encoding='utf-8') as f:
-                기준일 = str(json.load(f).get('기준일') or '')
-        except Exception:
-            pass
-        공개점검_대기(args.base.rstrip('/'), 기준일, args.wait)
+        공개점검_대기(args.base.rstrip('/'), 기대값읽기(), args.wait)
 
     print()
     if 문제:
