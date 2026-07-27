@@ -16,33 +16,33 @@
   /* ───────── 데이터 (기준 구현 원본 그대로) ───────── */
   const FLEX = ["R", "SR", "S", "X"];
   const SHAFTS = [
-    { b: "후지쿠라", m: "벤투스 TR 블랙", sp: "5X", w: 58, fx: "X", tq: 3.2, k: "낮음", velo: true },
-    { b: "후지쿠라", m: "벤투스 TR 블랙", sp: "6S", w: 67, fx: "S", tq: 3.0, k: "낮음", velo: true },
-    { b: "후지쿠라", m: "벤투스 블루", sp: "5S", w: 56, fx: "S", tq: 3.6, k: "중", velo: true },
-    { b: "후지쿠라", m: "벤투스 블루", sp: "6S", w: 64, fx: "S", tq: 3.1, k: "중", velo: true },
-    { b: "후지쿠라", m: "벤투스 블랙", sp: "6X", w: 67, fx: "X", tq: 3.0, k: "낮음", velo: true },
-    { b: "후지쿠라", m: "스피더 NX 그린", sp: "50S", w: 54, fx: "S", tq: 4.3, k: "중고", velo: true },
-    { b: "후지쿠라", m: "스피더 NX 블루", sp: "40R", w: 46, fx: "R", tq: 5.4, k: "고", velo: true },
-    { b: "후지쿠라", m: "스피더 NX 블랙", sp: "60X", w: 65, fx: "X", tq: 3.0, k: "낮음", velo: true },
-    { b: "그라파이트디자인", m: "투어AD DI", sp: "6S", w: 64, fx: "S", tq: 3.3, k: "중" },
-    { b: "그라파이트디자인", m: "투어AD UB", sp: "5S", w: 57, fx: "S", tq: 3.9, k: "중" },
-    { b: "그라파이트디자인", m: "투어AD VF", sp: "6X", w: 66, fx: "X", tq: 3.1, k: "중저" },
-    { b: "미쓰비시", m: "텐세이 프로 블루 1K", sp: "50S", w: 56, fx: "S", tq: 4.0, k: "중" },
-    { b: "미쓰비시", m: "디아마나 PD", sp: "60S", w: 63, fx: "S", tq: 3.2, k: "중저" },
-    { b: "프로젝트X", m: "HZRDUS 스모크 블랙", sp: "60 6.0", w: 62, fx: "S", tq: 3.4, k: "낮음" },
-    { b: "던롭", m: "젝시오 순정 MP1300", sp: "R", w: 40, fx: "R", tq: 6.5, k: "고", stock: true },
-    { b: "타이틀리스트", m: "순정 TSP322", sp: "55S", w: 55, fx: "S", tq: 4.6, k: "중", stock: true },
-    { b: "UST마미야", m: "아타스 킹", sp: "5SR", w: 56, fx: "SR", tq: 4.2, k: "중고" },
+    { b: "후지쿠라", m: "벤투스 TR 블랙", st: "cur", pr: 3, sp: "5X", w: 58, fx: "X", tq: 3.2, k: "낮음", velo: true },
+    { b: "후지쿠라", m: "벤투스 TR 블랙", st: "cur", pr: 3, sp: "6S", w: 67, fx: "S", tq: 3.0, k: "낮음", velo: true },
+    { b: "후지쿠라", m: "벤투스 블루", st: "cur", pr: 3, sp: "5S", w: 56, fx: "S", tq: 3.6, k: "중", velo: true },
+    { b: "후지쿠라", m: "벤투스 블루", st: "cur", pr: 3, sp: "6S", w: 64, fx: "S", tq: 3.1, k: "중", velo: true },
+    { b: "후지쿠라", m: "벤투스 블랙", st: "old", pr: 3, sp: "6X", w: 67, fx: "X", tq: 3.0, k: "낮음", velo: true },
+    { b: "후지쿠라", m: "스피더 NX 그린", st: "cur", pr: 3, sp: "50S", w: 54, fx: "S", tq: 4.3, k: "중고", velo: true },
+    { b: "후지쿠라", m: "스피더 NX 블루", st: "old", pr: 2, sp: "40R", w: 46, fx: "R", tq: 5.4, k: "고", velo: true },
+    { b: "후지쿠라", m: "스피더 NX 블랙", st: "cur", pr: 3, sp: "60X", w: 65, fx: "X", tq: 3.0, k: "낮음", velo: true },
+    { b: "그라파이트디자인", m: "투어AD DI", st: "cur", pr: 3, sp: "6S", w: 64, fx: "S", tq: 3.3, k: "중" },
+    { b: "그라파이트디자인", m: "투어AD UB", st: "old", pr: 3, sp: "5S", w: 57, fx: "S", tq: 3.9, k: "중" },
+    { b: "그라파이트디자인", m: "투어AD VF", st: "cur", pr: 3, sp: "6X", w: 66, fx: "X", tq: 3.1, k: "중저" },
+    { b: "미쓰비시", m: "텐세이 프로 블루 1K", st: "cur", pr: 3, sp: "50S", w: 56, fx: "S", tq: 4.0, k: "중" },
+    { b: "미쓰비시", m: "디아마나 PD", st: "cur", pr: 3, sp: "60S", w: 63, fx: "S", tq: 3.2, k: "중저" },
+    { b: "프로젝트X", m: "HZRDUS 스모크 블랙", st: "old", pr: 2, sp: "60 6.0", w: 62, fx: "S", tq: 3.4, k: "낮음" },
+    { b: "던롭", m: "젝시오 순정 MP1300", st: "old", pr: 1, sp: "R", w: 40, fx: "R", tq: 6.5, k: "고", stock: true },
+    { b: "타이틀리스트", m: "순정 TSP322", st: "cur", pr: 1, sp: "55S", w: 55, fx: "S", tq: 4.6, k: "중", stock: true },
+    { b: "UST마미야", m: "아타스 킹", st: "old", pr: 2, sp: "5SR", w: 56, fx: "SR", tq: 4.2, k: "중고" },
   ];
   const HEADS = [
-    { br: "타이틀리스트", m: "GT2", forg: 4, draw: false, spin: "중", light: false, fit: ["80", "90"] },
-    { br: "타이틀리스트", m: "GT3", forg: 3, draw: false, spin: "중저", light: false, fit: ["80"] },
-    { br: "타이틀리스트", m: "GT4", forg: 2, draw: false, spin: "저", light: false, fit: ["80"] },
-    { br: "핑", m: "G430 MAX 10K", forg: 5, draw: false, spin: "중", light: false, fit: ["90", "100"] },
-    { br: "핑", m: "G430 SFT", forg: 4, draw: true, spin: "중", light: false, fit: ["90", "100"] },
-    { br: "테일러메이드", m: "Qi10 MAX", forg: 5, draw: false, spin: "중", light: false, fit: ["90", "100"] },
-    { br: "캘러웨이", m: "Ai스모크 MAX D", forg: 4, draw: true, spin: "중", light: false, fit: ["90", "100"] },
-    { br: "던롭", m: "젝시오 13", forg: 5, draw: true, spin: "중고", light: true, fit: ["90", "100"] },
+    { br: "타이틀리스트", m: "GT2", st: "cur", pr: 3, forg: 4, draw: false, spin: "중", light: false, fit: ["80", "90"] },
+    { br: "타이틀리스트", m: "GT3", st: "cur", pr: 3, forg: 3, draw: false, spin: "중저", light: false, fit: ["80"] },
+    { br: "타이틀리스트", m: "GT4", st: "cur", pr: 3, forg: 2, draw: false, spin: "저", light: false, fit: ["80"] },
+    { br: "핑", m: "G430 MAX 10K", st: "cur", pr: 3, forg: 5, draw: false, spin: "중", light: false, fit: ["90", "100"] },
+    { br: "핑", m: "G430 SFT", st: "old", pr: 2, forg: 4, draw: true, spin: "중", light: false, fit: ["90", "100"] },
+    { br: "테일러메이드", m: "Qi10 MAX", st: "old", pr: 2, forg: 5, draw: false, spin: "중", light: false, fit: ["90", "100"] },
+    { br: "캘러웨이", m: "Ai스모크 MAX D", st: "old", pr: 2, forg: 4, draw: true, spin: "중", light: false, fit: ["90", "100"] },
+    { br: "던롭", m: "젝시오 13", st: "old", pr: 3, forg: 5, draw: true, spin: "중고", light: true, fit: ["90", "100"] },
   ];
   const CUR_SHAFT = {
     unknown: { label: "몰라요", w: null, fx: null },
@@ -57,53 +57,53 @@
      아이언 샤프트는 드라이버와 달리 무게 대역이 소재(스틸/그라파이트)로 갈린다.
      무게는 제조사 공표 표준값 기준. 개체·번수별 오차가 있어 "약"으로 표기한다. */
   const IRON_SHAFTS = [
-    { b: "니폰", m: "N.S.PRO 모더스3 투어 105", sp: "S", w: 106, fx: "S", mat: "스틸", k: "중", feel: "부드럽다" },
-    { b: "니폰", m: "N.S.PRO 모더스3 투어 120", sp: "S", w: 114, fx: "S", mat: "스틸", k: "중저", feel: "단단하다" },
-    { b: "니폰", m: "N.S.PRO 950GH neo", sp: "S", w: 98, fx: "S", mat: "스틸", k: "중고", feel: "가볍다" },
-    { b: "니폰", m: "N.S.PRO 850GH neo", sp: "R", w: 89, fx: "R", mat: "스틸", k: "고", feel: "가볍다" },
-    { b: "트루템퍼", m: "다이나믹골드 EX 투어이슈", sp: "S200", w: 128, fx: "S", mat: "스틸", k: "낮음", feel: "묵직하다" },
-    { b: "트루템퍼", m: "다이나믹골드 105", sp: "R300", w: 105, fx: "R", mat: "스틸", k: "중", feel: "묵직하다" },
-    { b: "KBS", m: "투어 라이트", sp: "R", w: 95, fx: "R", mat: "스틸", k: "중고", feel: "가볍다" },
-    { b: "KBS", m: "$-테이퍼 라이트", sp: "S", w: 110, fx: "S", mat: "스틸", k: "중저", feel: "단단하다" },
-    { b: "UST마미야", m: "리코일 다트 75", sp: "S", w: 77, fx: "S", mat: "그라파이트", k: "중", feel: "부드럽다" },
-    { b: "UST마미야", m: "리코일 660", sp: "R", w: 66, fx: "R", mat: "그라파이트", k: "고", feel: "가볍다" },
-    { b: "후지쿠라", m: "MC 아이언", sp: "S", w: 88, fx: "S", mat: "그라파이트", k: "중", feel: "부드럽다" },
-    { b: "던롭", m: "젝시오 순정 MP1300I", sp: "R", w: 60, fx: "R", mat: "그라파이트", k: "고", feel: "가볍다", stock: true },
+    { b: "니폰", m: "N.S.PRO 모더스3 투어 105", st: "cur", pr: 2, sp: "S", w: 106, fx: "S", mat: "스틸", k: "중", feel: "부드럽다" },
+    { b: "니폰", m: "N.S.PRO 모더스3 투어 120", st: "cur", pr: 2, sp: "S", w: 114, fx: "S", mat: "스틸", k: "중저", feel: "단단하다" },
+    { b: "니폰", m: "N.S.PRO 950GH neo", st: "cur", pr: 2, sp: "S", w: 98, fx: "S", mat: "스틸", k: "중고", feel: "가볍다" },
+    { b: "니폰", m: "N.S.PRO 850GH neo", st: "cur", pr: 2, sp: "R", w: 89, fx: "R", mat: "스틸", k: "고", feel: "가볍다" },
+    { b: "트루템퍼", m: "다이나믹골드 EX 투어이슈", st: "cur", pr: 2, sp: "S200", w: 128, fx: "S", mat: "스틸", k: "낮음", feel: "묵직하다" },
+    { b: "트루템퍼", m: "다이나믹골드 105", st: "cur", pr: 2, sp: "R300", w: 105, fx: "R", mat: "스틸", k: "중", feel: "묵직하다" },
+    { b: "KBS", m: "투어 라이트", st: "cur", pr: 2, sp: "R", w: 95, fx: "R", mat: "스틸", k: "중고", feel: "가볍다" },
+    { b: "KBS", m: "$-테이퍼 라이트", st: "cur", pr: 2, sp: "S", w: 110, fx: "S", mat: "스틸", k: "중저", feel: "단단하다" },
+    { b: "UST마미야", m: "리코일 다트 75", st: "cur", pr: 3, sp: "S", w: 77, fx: "S", mat: "그라파이트", k: "중", feel: "부드럽다" },
+    { b: "UST마미야", m: "리코일 660", st: "old", pr: 2, sp: "R", w: 66, fx: "R", mat: "그라파이트", k: "고", feel: "가볍다" },
+    { b: "후지쿠라", m: "MC 아이언", st: "cur", pr: 3, sp: "S", w: 88, fx: "S", mat: "그라파이트", k: "중", feel: "부드럽다" },
+    { b: "던롭", m: "젝시오 순정 MP1300I", st: "old", pr: 1, sp: "R", w: 60, fx: "R", mat: "그라파이트", k: "고", feel: "가볍다", stock: true },
   ];
   /* 헤드 형상은 관용성(forg)과 난이도가 반비례한다 — 평균 타수로 갈린다 */
   const IRON_HEADS = [
-    { br: "타이틀리스트", m: "T100", type: "투어 캐비티", forg: 2, off: "적음", fit: ["80"] },
-    { br: "타이틀리스트", m: "T150", type: "캐비티", forg: 3, off: "적음", fit: ["80"] },
-    { br: "타이틀리스트", m: "T200", type: "중공", forg: 4, off: "보통", fit: ["80", "90"] },
-    { br: "타이틀리스트", m: "T350", type: "중공 맥스", forg: 5, off: "많음", fit: ["90", "100"] },
-    { br: "핑", m: "i230", type: "캐비티", forg: 3, off: "적음", fit: ["80"] },
-    { br: "핑", m: "G430", type: "맥스 캐비티", forg: 5, off: "많음", fit: ["90", "100"] },
-    { br: "테일러메이드", m: "P790", type: "중공", forg: 4, off: "보통", fit: ["80", "90"] },
-    { br: "테일러메이드", m: "Qi 아이언", type: "맥스 캐비티", forg: 5, off: "많음", fit: ["90", "100"] },
-    { br: "캘러웨이", m: "에이팩스 프로", type: "캐비티", forg: 3, off: "적음", fit: ["80"] },
-    { br: "캘러웨이", m: "패러다임 Ai스모크", type: "맥스 캐비티", forg: 5, off: "많음", fit: ["90", "100"] },
-    { br: "미즈노", m: "JPX 923 포지드", type: "캐비티", forg: 3, off: "적음", fit: ["80", "90"] },
-    { br: "던롭", m: "젝시오 13 아이언", type: "경량 맥스", forg: 5, off: "많음", fit: ["90", "100"], light: true },
+    { br: "타이틀리스트", m: "T100", st: "cur", pr: 3, type: "투어 캐비티", forg: 2, off: "적음", fit: ["80"] },
+    { br: "타이틀리스트", m: "T150", st: "cur", pr: 3, type: "캐비티", forg: 3, off: "적음", fit: ["80"] },
+    { br: "타이틀리스트", m: "T200", st: "cur", pr: 3, type: "중공", forg: 4, off: "보통", fit: ["80", "90"] },
+    { br: "타이틀리스트", m: "T350", st: "cur", pr: 3, type: "중공 맥스", forg: 5, off: "많음", fit: ["90", "100"] },
+    { br: "핑", m: "i230", st: "old", pr: 2, type: "캐비티", forg: 3, off: "적음", fit: ["80"] },
+    { br: "핑", m: "G430", st: "old", pr: 2, type: "맥스 캐비티", forg: 5, off: "많음", fit: ["90", "100"] },
+    { br: "테일러메이드", m: "P790", st: "cur", pr: 3, type: "중공", forg: 4, off: "보통", fit: ["80", "90"] },
+    { br: "테일러메이드", m: "Qi 아이언", st: "cur", pr: 2, type: "맥스 캐비티", forg: 5, off: "많음", fit: ["90", "100"] },
+    { br: "캘러웨이", m: "에이팩스 프로", st: "cur", pr: 3, type: "캐비티", forg: 3, off: "적음", fit: ["80"] },
+    { br: "캘러웨이", m: "패러다임 Ai스모크", st: "old", pr: 2, type: "맥스 캐비티", forg: 5, off: "많음", fit: ["90", "100"] },
+    { br: "미즈노", m: "JPX 923 포지드", st: "old", pr: 2, type: "캐비티", forg: 3, off: "적음", fit: ["80", "90"] },
+    { br: "던롭", m: "젝시오 13 아이언", st: "old", pr: 3, type: "경량 맥스", forg: 5, off: "많음", fit: ["90", "100"], light: true },
   ];
   /* 웨지 — 바운스는 스윙 타입(디거/스위퍼)과 잔디 상태로 정해진다. 이건 규칙으로 계산 가능한 영역 */
   const WEDGES = [
-    { br: "타이틀리스트", m: "보키 SM10" },
-    { br: "클리브랜드", m: "RTX 6 집코어" },
-    { br: "핑", m: "글라이드 4.0" },
-    { br: "테일러메이드", m: "밀드그라인드 4" },
-    { br: "캘러웨이", m: "죠스 로우" },
-    { br: "미즈노", m: "T24" },
+    { br: "타이틀리스트", m: "보키 SM10", st: "cur", pr: 2 },
+    { br: "클리브랜드", m: "RTX 6 집코어", st: "old", pr: 2 },
+    { br: "핑", m: "글라이드 4.0", st: "cur", pr: 2 },
+    { br: "테일러메이드", m: "밀드그라인드 4", st: "cur", pr: 2 },
+    { br: "캘러웨이", m: "죠스 로우", st: "cur", pr: 2 },
+    { br: "미즈노", m: "T24", st: "cur", pr: 2 },
   ];
   /* 퍼터 — 스트로크 궤도와 헤드 밸런스의 궁합은 피팅의 기본 원칙 */
   const PUTTERS = [
-    { br: "스카티카메론", m: "뉴포트 2", shape: "블레이드", bal: "토우행", arc: "arc" },
-    { br: "스카티카메론", m: "팬텀 11", shape: "말렛", bal: "페이스밸런스", arc: "straight" },
-    { br: "오디세이", m: "화이트핫 OG #1", shape: "블레이드", bal: "토우행", arc: "arc" },
-    { br: "오디세이", m: "아이원 세븐", shape: "말렛", bal: "페이스밸런스", arc: "straight" },
-    { br: "테일러메이드", m: "스파이더 텐", shape: "말렛", bal: "페이스밸런스", arc: "straight" },
-    { br: "핑", m: "앤서 2", shape: "블레이드", bal: "토우행", arc: "arc" },
-    { br: "핑", m: "틴 팬", shape: "미드말렛", bal: "약토우행", arc: "slight" },
-    { br: "오디세이", m: "트라이핫 5K 트리플와이드", shape: "미드말렛", bal: "약토우행", arc: "slight" },
+    { br: "스카티카메론", m: "뉴포트 2", st: "cur", pr: 3, shape: "블레이드", bal: "토우행", arc: "arc" },
+    { br: "스카티카메론", m: "팬텀 11", st: "cur", pr: 3, shape: "말렛", bal: "페이스밸런스", arc: "straight" },
+    { br: "오디세이", m: "화이트핫 OG #1", st: "cur", pr: 2, shape: "블레이드", bal: "토우행", arc: "arc" },
+    { br: "오디세이", m: "아이원 세븐", st: "cur", pr: 3, shape: "말렛", bal: "페이스밸런스", arc: "straight" },
+    { br: "테일러메이드", m: "스파이더 텐", st: "cur", pr: 3, shape: "말렛", bal: "페이스밸런스", arc: "straight" },
+    { br: "핑", m: "앤서 2", st: "cur", pr: 2, shape: "블레이드", bal: "토우행", arc: "arc" },
+    { br: "핑", m: "틴 팬", st: "old", pr: 2, shape: "미드말렛", bal: "약토우행", arc: "slight" },
+    { br: "오디세이", m: "트라이핫 5K 트리플와이드", st: "old", pr: 2, shape: "미드말렛", bal: "약토우행", arc: "slight" },
   ];
 
   /* ───────── 그립 ─────────
@@ -230,6 +230,37 @@
   }
 
   /* ───────── 0단 자동 — 동의 화면 + 스코어 기록에서 (다시 묻지 않는다) ───────── */
+
+  /* ───────── 현행 / 단종 2단 추천 ─────────
+     사장님 확정(2026-07-27):
+       · 1차 — **지금 살 수 있는 최신 모델** 중에서 고른다. 새로 사는 사람 기준.
+       · 2차 — **단종까지 포함**해 더 잘 맞는 게 있으면 함께 알려준다.
+              한국은 중고 시장이 커서 이게 실제로 값어치 있는 정보다.
+     st: "cur" 현행 · "old" 단종/구세대 · 없음 = 아직 확인 못 함(현행으로 취급하지 않는다)
+     pr: 1 순정·저가 · 2 중가 · 3 고가 */
+  const PRICE_LABEL = { 1: "순정·보급", 2: "중가", 3: "고가" };
+  function inBudget(x, budget) {
+    if (!budget || budget === "any") return true;
+    if (x.pr === undefined) return true;              // 모르는 건 거르지 않는다
+    return budget === "stock" ? x.pr <= 1 : x.pr <= 2;
+  }
+  function pickTiers(sorted, brand, key, ok, budget) {
+    const pool = sorted.filter((x) => inBudget(x, budget));
+    const use = pool.length ? pool : sorted;
+    const cur = use.filter((x) => x.st === "cur");
+    const now = pickByBrand(cur.length ? cur : use, brand, key, ok);
+    /* 2차 — 단종 중 가장 잘 맞는 것.
+       "단종이 현행보다 점수가 높을 때만" 으로 잡았더니 45조합 중 0번 떴다.
+       실제 값어치는 거기 있지 않다 — **성능이 비슷한데 값이 내려가는 것**이 핵심이다.
+       그래서 현행 1순위의 85% 이상이면 내민다. 더 높으면 그렇다고 따로 말한다. */
+    const olds = use.filter((x) => x.st === "old" && x !== now.main);
+    const bestOld = olds.length ? pickByBrand(olds, brand, key, ok).main : null;
+    const keep = bestOld && (bestOld.p || 0) >= (now.main ? (now.main.p || 0) * 0.85 : 0);
+    return { ...now, older: keep ? bestOld : null,
+             olderBetter: !!(keep && now.main && (bestOld.p || 0) > (now.main.p || 0)),
+             narrowed: pool.length < sorted.length };
+  }
+
   function computeAuto() {
     const c = (typeof CONSENT !== "undefined" && CONSENT.get()) || {};
     S.auto.age = c.age || null;
@@ -1285,10 +1316,10 @@
       return { ...h, p, why };
     }).sort((a, b) => b.p - a.p);
 
-    const headPick = pickByBrand(heads, S.brand, "br");
+    const headPick = pickTiers(heads, S.brand, "br", null, null);
     const mainHead = headPick.main, altHead = headPick.alt;
-    const shaftPick = pickByBrand(shafts, S.shaftBrand, "b",
-      (s) => s.w >= wLo - 6 && s.w <= wHi + 6);
+    const shaftPick = pickTiers(shafts, S.shaftBrand, "b",
+      (s) => s.w >= wLo - 6 && s.w <= wHi + 6, S.budget);
 
     // 유지 판정 — 무게·강도가 밴드 안이고 로프트도 맞으면 바꿀 이유가 없다
     const curL = S.curLoft && S.curLoft !== "unknown" ? Number(S.curLoft) : null;
@@ -1464,9 +1495,9 @@
       lie: lieDir, lieWhy, lieConfident, lenAdj,
       keepish: keepish && !!S.ironCurModel,
       grip: gripEngine(),
-      shaftPick: pickByBrand(shafts, S.ironShaftBrand, "b",
-        (s) => s.mat === mat && Math.abs(s.w - target) <= 12),
-      headPick: pickByBrand(heads, S.ironBrand, "br"),
+      shaftPick: pickTiers(shafts, S.ironShaftBrand, "b",
+        (s) => s.mat === mat && Math.abs(s.w - target) <= 12, S.ironBudget),
+      headPick: pickTiers(heads, S.ironBrand, "br", null, null),
     };
   }
 
@@ -1520,8 +1551,8 @@
 
     return {
       pw, cnt, specs, grind, why, shaft,
-      pick: pickByBrand(WEDGES.map((w) => ({ ...w, p: w.br === S.wedgeBrand ? 10 : 0 }))
-                        .sort((a, b) => b.p - a.p), S.wedgeBrand, "br"),
+      pick: pickTiers(WEDGES.map((w) => ({ ...w, p: w.br === S.wedgeBrand ? 10 : 0 }))
+                      .sort((a, b) => b.p - a.p), S.wedgeBrand, "br", null, null),
       grip: gripEngine(),
       note: `피칭(${pw}°)과 로브(58°) 사이 ${span}°를 ${cnt}개로 나눴습니다. ` +
             `한 클럽당 ${step}° — 거리 공백이 생기지 않는 간격입니다.`,
@@ -1600,7 +1631,7 @@
     return {
       arc, len, lenWhy, notes, tips, hw, loft, face, curLen,
       grip: pg,
-      pick: pickByBrand(scored, S.putterBrand, "br"),
+      pick: pickTiers(scored, S.putterBrand, "br", null, null),
       lie: "라이각은 셋업에서 퍼터 솔이 지면과 평행해지는지로 확인하세요. 토우나 힐이 들리면 그만큼 시작 방향이 틀어집니다.",
       note: arc === "straight"
         ? "직선에 가까운 스트로크에는 <b>페이스밸런스</b> 퍼터가 맞습니다. 헤드가 스스로 열리고 닫히지 않아 스트로크를 방해하지 않습니다."
@@ -1659,16 +1690,37 @@
   }
 
   /* 추천 카드 한 장 — 선호 브랜드 1순위와 다른 브랜드 대안을 같은 모양으로 그린다 */
-  function resCard(kind, name, spec, whys, alt) {
+  /* 가격대·단종 표시 — 고르는 사람 입장에선 스펙만큼 중요한 정보다 */
+  function tagsOf(x) {
+    if (!x) return "";
+    const t = [];
+    if (x.pr !== undefined) t.push(`<span class="r-tag">${PRICE_LABEL[x.pr]}</span>`);
+    if (x.st === "old") t.push(`<span class="r-tag old">단종 · 중고로 구함</span>`);
+    return t.length ? `<div class="r-tags">${t.join("")}</div>` : "";
+  }
+  function resCard(kind, name, spec, whys, alt, x) {
     return `<div class="res-card${alt ? " pick-alt" : ""}"><span class="kind">${kind}</span>
       <div class="r-name">${name}</div>
-      <div class="r-spec">${spec}</div>
+      <div class="r-spec">${spec}</div>${tagsOf(x)}
       <ul>${(whys || []).slice(0, 3).map((w) => `<li>${w}</li>`).join("")}</ul>
     </div>`;
   }
   /* 다른 브랜드 제안 문구 — 밀어붙이지 않고 권하는 말투 */
   function altLead(what) {
     return `<div class="alt-lead">이 ${what}도 골퍼님께 잘 맞을 것 같아요</div>`;
+  }
+  /* 2차 제안 — 단종까지 포함하면 더 잘 맞는 게 있을 때만 내민다.
+     한국은 중고 시장이 커서, 지난 모델이 값도 싸고 더 맞는 경우가 실제로 많다. */
+  function olderCard(what, x, specTxt, better) {
+    if (!x) return "";
+    return `<div class="alt-lead">${better
+        ? `단종까지 보면 — <b>더 잘 맞는</b> ${what}가 있습니다`
+        : `단종까지 보면 — 성능은 비슷하고 <b>값은 내려가는</b> ${what}입니다`}</div>` +
+      resCard("중고로 찾을 만한 것", `${x.b || x.br || ""} ${x.m}`.trim(),
+        specTxt, (x.why && x.why.length ? x.why : ["지금 조건에 더 가깝습니다"]), true, x) +
+      `<div class="inline-note">지난 모델이라 <b>새 제품은 구하기 어렵습니다.</b>
+        중고로 보실 때는 샤프트 스펙(무게·플렉스)이 표기와 같은지 꼭 확인하세요 —
+        같은 이름이라도 다른 스펙이 끼워져 있는 매물이 흔합니다.</div>`;
   }
   function brandLine(pick) {
     if (!pick.wanted) return "브랜드 상관없이 1순위";
@@ -1963,15 +2015,17 @@
 
     const sp = r.shaftPick, hp = r.headPick;
     const shaftHtml =
-      resCard("샤프트 1순위", `${sp.main.m} ${sp.main.sp}`, shaftSpec(sp.main), sp.main.why) +
+      resCard("샤프트 1순위", `${sp.main.m} ${sp.main.sp}`, shaftSpec(sp.main), sp.main.why, false, sp.main) +
       (sp.alt ? altLead("샤프트") + resCard(`${sp.alt.b}`, `${sp.alt.m} ${sp.alt.sp}`,
-        shaftSpec(sp.alt), sp.alt.why, true) : "");
+        shaftSpec(sp.alt), sp.alt.why, true, sp.alt) : "") +
+      olderCard("샤프트", sp.older, sp.older ? shaftSpec(sp.older) : "", sp.olderBetter);
     const headSpec = (h) => `관용성 ${h.forg}/5 · 스핀 ${h.spin} · ${h.draw ? "드로 바이어스" : "뉴트럴"}`;
     const headHtml =
       resCard("헤드 1순위", `${hp.main.br} ${hp.main.m}`, headSpec(hp.main),
-        hp.main.why.length ? hp.main.why : ["선호 브랜드 안에서 최적"]) +
+        hp.main.why.length ? hp.main.why : ["선호 브랜드 안에서 최적"], false, hp.main) +
       (hp.alt ? altLead("헤드") + resCard(`${hp.alt.br}`, `${hp.alt.br} ${hp.alt.m}`,
-        headSpec(hp.alt), hp.alt.why.length ? hp.alt.why : ["다른 브랜드 중 최고점"], true) : "");
+        headSpec(hp.alt), hp.alt.why.length ? hp.alt.why : ["다른 브랜드 중 최고점"], true, hp.alt) : "") +
+      olderCard("헤드", hp.older, hp.older ? headSpec(hp.older) : "", hp.olderBetter);
 
     return `
       <div class="q-eyebrow">드라이버 판정 · ${brandTxt} 우선</div>
@@ -2008,14 +2062,16 @@
       ${ex.read}
       <div class="section-h">샤프트 <span class="cnt">${brandLine(sp)}</span></div>
       ${resCard("샤프트 1순위", `${sp.main.m} ${sp.main.sp}`,
-        `${sp.main.b} · ${sp.main.mat} · 약 ${sp.main.w}g · ${sp.main.fx} · 킥 ${sp.main.k} · ${sp.main.feel}`, sp.main.why)}
+        `${sp.main.b} · ${sp.main.mat} · 약 ${sp.main.w}g · ${sp.main.fx} · 킥 ${sp.main.k} · ${sp.main.feel}`, sp.main.why, false, sp.main)}
       ${sp.alt ? altLead("샤프트") + resCard(sp.alt.b, `${sp.alt.m} ${sp.alt.sp}`,
-        `${sp.alt.mat} · 약 ${sp.alt.w}g · ${sp.alt.fx}`, sp.alt.why, true) : ""}
+        `${sp.alt.mat} · 약 ${sp.alt.w}g · ${sp.alt.fx}`, sp.alt.why, true, sp.alt) : ""}
+      ${olderCard("샤프트", sp.older, sp.older ? `${sp.older.mat} · 약 ${sp.older.w}g · ${sp.older.fx}` : "", sp.olderBetter)}
       <div class="section-h">헤드 <span class="cnt">${brandLine(hp)}</span></div>
       ${resCard("헤드 1순위", `${hp.main.br} ${hp.main.m}`, headSpec(hp.main),
-        hp.main.why.length ? hp.main.why : ["선호 브랜드 안에서 최적"])}
+        hp.main.why.length ? hp.main.why : ["선호 브랜드 안에서 최적"], false, hp.main)}
       ${hp.alt ? altLead("헤드") + resCard(hp.alt.br, `${hp.alt.br} ${hp.alt.m}`,
-        headSpec(hp.alt), hp.alt.why, true) : ""}
+        headSpec(hp.alt), hp.alt.why, true, hp.alt) : ""}
+      ${olderCard("헤드", hp.older, hp.older ? headSpec(hp.older) : "", hp.olderBetter)}
       <div class="section-h">라이각 · 길이 <span class="cnt">${r.lieConfident ? "볼자국 근거 있음" : "정적 기준만"}</span></div>
       ${resCard("라이각", r.lie, `길이 ${r.lenAdj}`, r.lieWhy)}
       <div class="warn-card"><b>라이각은 여기서 확정하지 않습니다</b> —
@@ -2052,8 +2108,9 @@
       <div class="section-h">샤프트</div>
       ${resCard("샤프트", r.shaft.t, "", [r.shaft.b])}
       <div class="section-h">모델 <span class="cnt">${brandLine(p)}</span></div>
-      ${resCard("웨지 1순위", `${p.main.br} ${p.main.m}`, "", ["선호·조건에 맞는 라인업"])}
-      ${p.alt ? altLead("웨지") + resCard(p.alt.br, `${p.alt.br} ${p.alt.m}`, "", [], true) : ""}
+      ${resCard("웨지 1순위", `${p.main.br} ${p.main.m}`, "", ["선호·조건에 맞는 라인업"], false, p.main)}
+      ${p.alt ? altLead("웨지") + resCard(p.alt.br, `${p.alt.br} ${p.alt.m}`, "", [], true, p.alt) : ""}
+      ${olderCard("웨지", p.older, "", p.olderBetter)}
       ${gripHtml(r.grip)}
       ${ex.rest}
       ${saveRow("wedge")}
@@ -2075,8 +2132,9 @@
       ${noteHtml(r.notes)}
       ${ex.read}
       <div class="section-h">모델 <span class="cnt">${brandLine(p)}</span></div>
-      ${resCard("퍼터 1순위", `${p.main.br} ${p.main.m}`, pSpec(p.main), p.main.why)}
-      ${p.alt ? altLead("퍼터") + resCard(p.alt.br, `${p.alt.br} ${p.alt.m}`, pSpec(p.alt), p.alt.why, true) : ""}
+      ${resCard("퍼터 1순위", `${p.main.br} ${p.main.m}`, pSpec(p.main), p.main.why, false, p.main)}
+      ${p.alt ? altLead("퍼터") + resCard(p.alt.br, `${p.alt.br} ${p.alt.m}`, pSpec(p.alt), p.alt.why, true, p.alt) : ""}
+      ${olderCard("퍼터", p.older, p.older ? pSpec(p.older) : "", p.olderBetter)}
       <div class="section-h">길이</div>
       ${resCard("길이", `${r.len}″`, r.curLen ? `지금 ${r.curLen}″` : "", r.lenWhy)}
       <div class="section-h">헤드 무게 <span class="cnt">그린 빠르기 기준</span></div>
@@ -2355,6 +2413,9 @@
         head: `${r.headPick.main.br} ${r.headPick.main.m}`,
         headAlt: r.headPick.alt ? `${r.headPick.alt.br} ${r.headPick.alt.m}` : null,
         grip: r.grip.model + " / " + r.grip.size,
+        priceShaft: r.shaftPick.main.pr, priceHead: r.headPick.main.pr,
+        olderShaft: r.shaftPick.older ? r.shaftPick.older.m : null,
+        olderHead: r.headPick.older ? r.headPick.older.m : null,
         notes: r.notes.map((n) => n.h) };
     }
     Object.assign(S, JSON.parse(bak));
