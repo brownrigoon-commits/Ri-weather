@@ -1,0 +1,254 @@
+# =====================================================================
+#  Ri_Stock 일일 자동 갱신
+#
+#  사장님이 아무것도 누르지 않아도 매일 데이터가 갱신되게 하는 자동 실행입니다.
+#  결과물은 `ristock/data/*.json` 이며, 커밋되는 순간 GitHub Pages 앱에 그대로 반영됩니다.
+#      https://brownrigoon-commits.github.io/Ri-weather/ristock/
+#
+#  ⚠ 아주 중요 — cron(예약 실행)은 **기본 브랜치(main)에 있는 워크플로만** 동작합니다.
+#     지금처럼 작업 브랜치에 있는 동안에는 예약이 절대 돌지 않습니다.
+#     **main 에 병합되는 순간부터 자동으로 시작**됩니다.
+#     그전까지는 Actions 탭에서 "Run workflow"(수동 실행)로만 돌릴 수 있습니다.
+#
+#  ⚠ 두 번째 안전장치 — PC 예약 실행(`tools/ristock_실행.bat`)이 같은 일을 합니다.
+#     GitHub 서버가 막히는 날에도 집 PC가 데이터를 채워 줍니다. 둘은 서로 보완재입니다.
+# =====================================================================
+name: Ri_Stock 일일 자동 갱신
+
+on:
+  schedule:
+    # ---------------------------------------------------------------
+    #  cron 은 **UTC** 기준입니다. 한국시간(KST) = UTC + 9시간.
+    #
+    #   30 7 * * 1-5  → 07:30 UTC + 9h = **16:30 KST 월~금**
+    #                   (한국 장 마감 15:30 직후 — 그날 한국 데이터를 담습니다)
+    #
+    #   0 22 * * 1-5  → 22:00 UTC + 9h = 07:00, 날짜가 하루 넘어가므로
+    #                   **07:00 KST 화~토**
+    #                   (미국 장 마감 16:00 ET = 05:00~06:00 KST 직후 —
+    #                    금요일 22:00 UTC 는 토요일 아침 KST 로, 미국 금요일 마감을 담습니다.
+    #                    월요일 아침 KST 는 없지만 미국이 주말에 쉬므로 갱신할 것이 없습니다.)
+    # ---------------------------------------------------------------
+    - cron: '30 7 * * 1-5'
+    - cron: '0 22 * * 1-5'
+
+  # 손으로 즉시 돌리기: Actions 탭 → 이 워크플로 → Run workflow
+  workflow_dispatch:
+    inputs:
+      market:
+        description: '수집할 시장 (all=미국+한국)'
+        type: choice
+        options: [all, us, kr]
+        default: all
+      top:
+        description: '시가총액 상위 몇 종목까지 (기본 300)'
+        type: string
+        default: '300'
+      no_news:
+        description: '뉴스 분석 건너뛰기 (빠른 점검용 — 점수의 뉴스·수급 항목이 비게 됩니다)'
+        type: boolean
+        default: false
+
+# 데이터를 커밋해야 하므로 쓰기 권한이 필요합니다.
+permissions:
+  contents: write
+
+# 16:30 실행이 늦어져 07:00 실행과 겹쳐도 순서대로 하나씩 돌립니다.
+# (cancel-in-progress: false → 돌고 있는 수집을 중간에 죽이지 않습니다. 중간에 죽으면 데이터가 반쪽이 됩니다.)
+concurrency:
+  group: ristock-daily
+  cancel-in-progress: false
+
+jobs:
+  # job id 는 영문만 허용됩니다(한글이면 워크플로 자체가 인식되지 않습니다).
+  # 화면에 보이는 이름은 아래 name 입니다.
+  ristock:
+    name: 데이터 수집·배포
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    env:
+      # 날짜(기준일)를 한국 시간으로 찍기 위한 설정.
+      # 이게 없으면 22:00 UTC 실행이 '어제 날짜'로 저장돼 앱이 하루 늦은 데이터로 보입니다.
+      TZ: Asia/Seoul
+      PYTHONUNBUFFERED: '1'
+      PYTHONUTF8: '1'
+
+      # ---- yfinance 429(요청 과다) 대응 --------------------------------
+      # GitHub 러너 IP는 전 세계가 공유해서 야후가 자주 429를 돌려줍니다.
+      # 아래 값이 엔진에 전달됩니다. 엔진에 --retry/--backoff 인자가 생기면
+      # RISTOCK_EXTRA_ARGS 에 "--retry 4 --backoff 3" 처럼 적어 그대로 넘기면 됩니다.
+      RISTOCK_RETRY: '4'
+      RISTOCK_BACKOFF: '3'
+      RISTOCK_EXTRA_ARGS: ''
+      # ---- 네이버 금융 차단 가능성 -------------------------------------
+      # 한국 재무·수급은 네이버 금융에서 가져옵니다. 해외(GitHub) IP는 차단될 수 있어
+      # 한국 수집만 실패할 수 있습니다. 그때는 이 워크플로가 **기존 한국 데이터를 그대로 두고**
+      # manifest.실행.메모 에 사유만 남깁니다(빈 데이터로 덮어쓰지 않습니다).
+      # 한국 데이터는 PC 예약 실행(tools/ristock_실행.bat)이 보완합니다.
+
+    steps:
+      - name: 저장소 받기
+        uses: actions/checkout@v4
+        with:
+          # 푸시가 거부됐을 때 원격 위로 다시 얹으려면(rebase) 전체 이력이 필요합니다.
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: 파이썬 3.11 준비
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+          cache-dependency-path: ristock/engine/requirements.txt
+
+      - name: 수집 패키지 설치
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r ristock/engine/requirements.txt
+
+      - name: 실행 조건 정리
+        # ※ 셸 변수 이름은 반드시 영문으로 씁니다. bash 는 한글 변수 이름을 받지 못하고,
+        #   에러도 없이 빈 값이 되어 조용히 잘못 도는 사고가 납니다. (안내 문구만 한글)
+        run: |
+          set -euo pipefail
+          MARKET_IN="${{ inputs.market || 'all' }}"
+          TOP_IN="${{ inputs.top || '300' }}"
+          NONEWS_IN="${{ inputs.no_news || 'false' }}"
+
+          echo "MARKET=$MARKET_IN" >> "$GITHUB_ENV"
+          echo "TOP=$TOP_IN"       >> "$GITHUB_ENV"
+          if [ "$NONEWS_IN" = "true" ]; then
+            echo "NO_NEWS_FLAG=--no-news" >> "$GITHUB_ENV"
+          else
+            echo "NO_NEWS_FLAG=" >> "$GITHUB_ENV"
+          fi
+          # 어떤 시장을 돌릴지 미리 정해 둡니다(아래 스텝의 if 조건에서 사용).
+          case "$MARKET_IN" in
+            all) echo "DO_US=1" >> "$GITHUB_ENV"; echo "DO_KR=1" >> "$GITHUB_ENV" ;;
+            us)  echo "DO_US=1" >> "$GITHUB_ENV"; echo "DO_KR=0" >> "$GITHUB_ENV" ;;
+            kr)  echo "DO_US=0" >> "$GITHUB_ENV"; echo "DO_KR=1" >> "$GITHUB_ENV" ;;
+            *)   echo "::error::알 수 없는 시장 값: $MARKET_IN"; exit 1 ;;
+          esac
+          # 엑셀은 저장소에 커밋하지 않고 Actions 첨부파일로만 내려받게 합니다(저장소 비대화 방지).
+          echo "XLSX_DIR=$RUNNER_TEMP/ristock_xlsx" >> "$GITHUB_ENV"
+          echo "실행 조건 — 시장:$MARKET_IN / 상위:${TOP_IN}종목 / 뉴스끄기:$NONEWS_IN"
+
+      # 엔진이 데이터를 새로 쓰기 **전에** 원격 상태로 맞춥니다.
+      # (집·회사 PC가 방금 올린 데이터가 있으면 그것을 기준으로 시작합니다)
+      - name: 원격 데이터와 맞추기
+        run: python -m ristock.engine.publish --sync --branch "${{ github.ref_name }}"
+
+      # ------------------------------------------------------------------
+      #  미국·한국을 따로 돌립니다. 한쪽이 죽어도 다른 쪽은 살아남아야 하기 때문입니다.
+      #  (continue-on-error: true → 실패해도 다음 스텝으로 진행. 최종 판정은 맨 아래 게이트에서)
+      #
+      #  ※ --no-news 는 '10개국 시장요약'만이 아니라 '종목별 뉴스·수급 점수'까지 끕니다.
+      #    그래서 시장별로 뉴스를 나눠 켤 수 없고, 두 스텝 모두 뉴스를 수집합니다.
+      # ------------------------------------------------------------------
+      - name: 미국 수집
+        id: us
+        if: env.DO_US == '1'
+        continue-on-error: true
+        run: |
+          python -m ristock.engine.pipeline \
+            --market us --top "$TOP" $NO_NEWS_FLAG \
+            --archive --runner github-actions \
+            --excel-dir "$XLSX_DIR" $RISTOCK_EXTRA_ARGS
+
+      - name: 한국 수집
+        id: kr
+        if: env.DO_KR == '1'
+        continue-on-error: true
+        run: |
+          python -m ristock.engine.pipeline \
+            --market kr --top "$TOP" $NO_NEWS_FLAG \
+            --archive --runner github-actions \
+            --excel-dir "$XLSX_DIR" $RISTOCK_EXTRA_ARGS
+
+      # 한 시장이라도 성공했을 때만 커밋합니다.
+      # 전부 실패했는데 커밋하면 '오늘 갱신된 척하는 어제 데이터'가 되어 가장 위험합니다.
+      - name: 바뀐 데이터만 커밋·푸시
+        if: steps.us.outcome == 'success' || steps.kr.outcome == 'success'
+        run: |
+          python -m ristock.engine.publish --push \
+            --branch "${{ github.ref_name }}" \
+            --runner github-actions \
+            --author "github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>"
+
+      - name: 엑셀 분석표 첨부 (14일 보관)
+        if: always()
+        continue-on-error: true
+        uses: actions/upload-artifact@v4
+        with:
+          # 첨부파일 이름은 영문으로 (다운로드 시 이름이 깨지지 않게)
+          name: ristock-xlsx-${{ github.run_number }}
+          path: ${{ env.XLSX_DIR }}/*.xlsx
+          if-no-files-found: ignore
+          retention-days: 14
+
+      # ------------------------------------------------------------------
+      #  마지막 게이트 — 여기서만 성공/실패를 판정합니다.
+      #  요청한 시장이 **전부** 실패하면 job 을 실패로 끝냅니다(메일 알림이 옵니다).
+      # ------------------------------------------------------------------
+      - name: 결과 판정 및 요약
+        if: always()
+        # ※ 셸 변수 이름은 영문만 (bash 는 한글 변수 이름을 조용히 빈 값으로 만듭니다)
+        run: |
+          US_R="${{ steps.us.outcome }}"      # success / failure / skipped
+          KR_R="${{ steps.kr.outcome }}"
+          [ -n "$US_R" ] || US_R="skipped"
+          [ -n "$KR_R" ] || KR_R="skipped"
+
+          mark() { case "$1" in
+              success) echo "✅ 성공" ;;
+              failure) echo "❌ 실패" ;;
+              *)       echo "⏭ 건너뜀" ;;
+            esac; }
+
+          {
+            echo "## Ri_Stock 일일 자동 갱신"
+            echo ""
+            echo "| 항목 | 결과 |"
+            echo "|---|---|"
+            echo "| 실행 시각(KST) | $(date '+%Y-%m-%d %H:%M') |"
+            echo "| 대상 시장 | ${MARKET:-all} (상위 ${TOP:-300}종목) |"
+            echo "| 미국 수집 | $(mark "$US_R") |"
+            echo "| 한국 수집 | $(mark "$KR_R") |"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          if [ -f ristock/data/manifest.json ]; then
+            {
+              echo ""
+              echo "### manifest.json"
+              echo '```json'
+              cat ristock/data/manifest.json
+              echo '```'
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+          OK_CNT=0
+          if [ "$US_R" = "success" ]; then OK_CNT=$((OK_CNT+1)); fi
+          if [ "$KR_R" = "success" ]; then OK_CNT=$((OK_CNT+1)); fi
+
+          if [ "$OK_CNT" -eq 0 ]; then
+            {
+              echo ""
+              echo "### ❌ 이번 갱신은 실패했습니다"
+              echo ""
+              echo "- 데이터는 **덮어쓰지 않았습니다.** 앱에는 이전 데이터가 그대로 보입니다."
+              echo "- 자주 있는 원인"
+              echo "  1. 야후 파이낸스 429(요청 과다) — 다음 예약 시간에 대개 저절로 풀립니다."
+              echo "  2. 네이버 금융이 해외 IP를 막음 — 집 PC 예약 실행이 한국 데이터를 채웁니다."
+              echo "- 급하면 집 PC에서 \`tools/ristock_실행.bat\` 을 더블클릭하세요."
+            } >> "$GITHUB_STEP_SUMMARY"
+            echo "::error::미국·한국 수집이 모두 실패했습니다. 데이터는 이전 상태를 유지합니다."
+            exit 1
+          fi
+
+          if [ "$US_R" = "failure" ] || [ "$KR_R" = "failure" ]; then
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            echo "> ⚠ 한쪽 시장만 갱신됐습니다. 실패한 시장은 **이전 데이터를 그대로 유지**합니다." >> "$GITHUB_STEP_SUMMARY"
+            echo "::warning::일부 시장 수집 실패 — 해당 시장은 이전 데이터를 유지합니다."
+          fi
+          echo "완료: 성공한 시장 ${OK_CNT}개"
