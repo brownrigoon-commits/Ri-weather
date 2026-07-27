@@ -24,7 +24,7 @@ flowchart LR
 
 | 항목 | 선택 | 이유 |
 |---|---|---|
-| 언어 | Python 3.10+ | 사용자 PC에 `C:\Python314` 설치됨. 컨테이너는 3.11 |
+| 언어 | Python 3.10+ | 집 PC 실측 3.11.2 (`C:\Program Files\Python311`). 컨테이너도 3.11 |
 | MCP | 공식 `mcp` SDK의 FastMCP, **stdio 전송** | 로컬 Claude Desktop/Code 연결 표준 |
 | 엑셀 | `openpyxl` (read_only 모드) | xlsx 읽기 전용. pandas 등 무거운 의존성 배제 |
 | 의존성 | `mcp`, `openpyxl` 2개만 | 비개발자 PC 설치 실패 지점 최소화. `.env` 파서·HTTP는 표준 라이브러리로 자작 |

@@ -24,12 +24,22 @@
 ## 1. 설치 (Windows, 한 번만)
 
 명령 프롬프트(cmd)를 열고 아래를 순서대로 실행하세요.
-`C:\work\mcp-ezadmin` 부분은 이 폴더를 내려받은 실제 위치로 바꿔 주세요.
 
+**먼저 이 PC의 Python 위치를 확인합니다** (PC마다 다릅니다):
 ```bat
-C:\Python314\python.exe --version
-C:\Python314\python.exe -m pip install -r C:\work\mcp-ezadmin\requirements.txt
+where python
 ```
+
+확인된 경로로 설치합니다. 아래는 실제 설치한 PC의 예시입니다
+(경로에 공백이 있으므로 **큰따옴표 필수**):
+```bat
+"C:\Program Files\Python311\python.exe" -m pip install -r C:\work\Ri-weather\mcp-ezadmin\requirements.txt
+```
+
+> 코드를 아직 안 받으셨다면 먼저:
+> ```bat
+> mkdir C:\work 2>nul & cd /d C:\work & git clone --depth 1 -b claude/mcp-inventory-order-server-fwzy33 https://github.com/brownrigoon-commits/Ri-weather.git
+> ```
 
 그다음 `.env.example` 파일을 복사해서 이름을 **`.env`** 로 바꿉니다.
 처음에는 안을 고칠 필요가 없습니다(엑셀 모드·개인정보 마스킹이 기본값).
@@ -43,9 +53,9 @@ C:\Python314\python.exe -m pip install -r C:\work\mcp-ezadmin\requirements.txt
 여러 개를 넣어도 최신 파일이 자동으로 우선합니다.
 
 ```
-mcp-ezadmin\data\orders\      ← 주문 목록 엑셀 (송장·배송상태 포함)
-mcp-ezadmin\data\inventory\   ← 재고 엑셀
-mcp-ezadmin\data\returns\     ← 반품·교환 엑셀 (없어도 동작합니다)
+C:\work\Ri-weather\mcp-ezadmin\data\orders\      ← 주문 목록 엑셀 (송장·배송상태 포함)
+C:\work\Ri-weather\mcp-ezadmin\data\inventory\   ← 재고 엑셀
+C:\work\Ri-weather\mcp-ezadmin\data\returns\     ← 반품·교환 엑셀 (없어도 동작합니다)
 ```
 
 - 브랜드별로 이지어드민 계정이 나뉘어 있으면 `data\orders\루미네\` 처럼 하위 폴더로 나눠 넣어도 됩니다
@@ -60,7 +70,7 @@ mcp-ezadmin\data\returns\     ← 반품·교환 엑셀 (없어도 동작합니�
 직접 점검하고 싶을 때만 아래를 씁니다.
 
 ```bat
-C:\Python314\python.exe C:\work\mcp-ezadmin\scripts\selftest.py
+"C:\Program Files\Python311\python.exe" C:\work\Ri-weather\mcp-ezadmin\scripts\selftest.py
 ```
 
 ## 4. 테스트 방법
@@ -68,47 +78,64 @@ C:\Python314\python.exe C:\work\mcp-ezadmin\scripts\selftest.py
 실데이터 없이도 가짜 샘플 데이터로 전체 동작을 확인할 수 있습니다.
 
 ```bat
-cd C:\work\mcp-ezadmin
-C:\Python314\python.exe scripts\make_sample_data.py    :: 가상 샘플 엑셀 생성
-C:\Python314\python.exe scripts\selftest.py            :: 조회 로직 78개 검증
-C:\Python314\python.exe scripts\mcp_smoke_test.py      :: MCP 연결 왕복 확인
+cd /d C:\work\Ri-weather\mcp-ezadmin
+"C:\Program Files\Python311\python.exe" scripts\make_sample_data.py    :: 가상 샘플 엑셀 생성
+"C:\Program Files\Python311\python.exe" scripts\selftest.py            :: 조회 로직 78개 검증
 ```
 
 기대 결과:
 
 - `selftest.py` → 마지막 줄에 `총 78개 검증 · 통과 78 · 실패 0`
-- `mcp_smoke_test.py` → `MCP 스모크 테스트: 통과 9 · 실패 0`
+
+> `scripts\mcp_smoke_test.py` 도 있지만 **Windows에서 멈추는 경우가 있어 건너뛰셔도 됩니다.**
+> `selftest.py` 가 통과하고 앱에 `running` 배지가 뜨면 정상입니다.
 
 하나라도 FAIL이 나오면 그 줄에 이유가 함께 표시됩니다.
 샘플 데이터는 전부 가상 인물·가상 브랜드이며 `data/` 폴더에만 생깁니다.
 
 ## 5. Claude Desktop 연결
 
-**설정 파일**: `%APPDATA%\Claude\claude_desktop_config.json`
-(탐색기 주소창에 `%APPDATA%\Claude` 입력. 파일이 없으면 Claude Desktop 설정 →
-개발자(Developer) → Edit Config)
+**설정 파일은 앱 안에서 여는 것이 가장 확실합니다.** 버전(일반 설치/Microsoft Store)에 따라
+저장 위치가 다르기 때문입니다.
+
+> 앱 → `Ctrl + ,` (설정) → 왼쪽 **데스크톱 앱 › 개발자** → **로컬 MCP 서버** → **구성 편집**
+
+열린 `claude_desktop_config.json` 을 메모장으로 편집합니다
+(탐색기가 열리면 파일 **우클릭 → 연결 프로그램 → 메모장**).
+
+경로를 못 찾겠으면 이 한 줄로 바로 열 수 있습니다:
+```bat
+for /f "delims=" %f in ('dir /s /b "%LOCALAPPDATA%\claude_desktop_config.json" 2^>nul') do notepad "%f"
+```
 
 ```json
 {
   "mcpServers": {
     "ezadmin": {
-      "command": "C:\\Python314\\python.exe",
-      "args": ["C:\\work\\mcp-ezadmin\\server.py"]
+      "command": "C:\\Program Files\\Python311\\python.exe",
+      "args": ["C:\\work\\Ri-weather\\mcp-ezadmin\\server.py"]
     }
   }
 }
 ```
 
-⚠️ 역슬래시는 반드시 **두 번**(`\\`). 저장 후 Claude Desktop을 트레이 아이콘에서
-**완전히 종료(Quit)** 하고 다시 실행해야 적용됩니다.
+⚠️ 역슬래시는 반드시 **두 번**(`\\`). Python·프로젝트 경로는 그 PC에서 확인한 실제 값으로.
 
-**연결 확인**: 새 대화에서 "이지어드민 연결 상태 확인해줘" → 데이터 파일과 기준 시각이 표로 나오면 성공.
-
-**Claude Code 연결**:
+저장 후 **완전히 종료**해야 반영됩니다 (창 X 버튼만으로는 부족):
 ```bat
-claude mcp add ezadmin -- C:\Python314\python.exe C:\work\mcp-ezadmin\server.py
+taskkill /f /im claude.exe
 ```
+그다음 시작 메뉴에서 Claude 다시 실행.
 
+**연결 확인 2가지**
+1. 설정 → 개발자 → **`ezadmin` running** 배지가 보이면 성공
+2. **홈 탭의 새 일반 채팅**에서 "이지어드민 연결 상태 확인해줘"
+
+> ⚠️ **Claude Code 세션이나 브라우저 claude.ai 에서는 동작하지 않습니다.**
+> Code 세션은 클라우드(Linux)에서 돌고, 브라우저는 PC 프로그램에 접근할 수 없습니다.
+> 반드시 **설치형 앱의 일반 채팅**에서 쓰세요.
+
+실제 설치 기록과 막혔던 지점은 [design/10-setup-log-windows.md](design/10-setup-log-windows.md),
 자세한 점검 순서는 [design/09-claude-desktop-setup.md](design/09-claude-desktop-setup.md) 참고.
 
 ## 6. 브랜드 등록
@@ -161,7 +188,8 @@ claude mcp add ezadmin -- C:\Python314\python.exe C:\work\mcp-ezadmin\server.py
 | 머리글을 못 찾음 | 엑셀 위쪽에 조회조건 행이 10줄 넘게 붙어 있는지 (10줄까지만 탐색) |
 | 상태가 "기타"로 나옴 | "연결 상태 확인" 결과의 `기타상태값` 을 보고 `config.json` 의 `status_keywords` 에 추가 |
 | 파일이 열려 있음 오류 | 엑셀에서 해당 파일을 닫고 다시 질문 |
-| 그 외 | `%APPDATA%\Claude\logs\mcp-server-ezadmin.log` 끝부분을 Claude에게 붙여넣고 물어보기 |
+| 앱에 `running` 이 안 뜸 | 설정 → 개발자 → **로그 보기** 클릭 후 내용을 Claude에게 붙여넣기 |
+| 그 외 | 설치 기록 문서 [design/10-setup-log-windows.md](design/10-setup-log-windows.md) 의 '막혔던 지점' 표 참고 |
 
 ---
 

@@ -17,7 +17,7 @@
 | 우선 업무 | 주문·배송·반품/교환 조회가 최다 사용. 재고는 부차 |
 | 브랜드 구분 | 두 방식 병행: ① 상품명·상품코드에 브랜드 식별자 포함 ② 브랜드별 판매처(몰)·이지어드민 계정 분리 |
 | 개인정보 | **기본 마스킹**(홍길동→홍*동). 추후 업무상 원본이 필요할 수 있어 설정으로 전환 가능하되 기본값은 항상 마스킹 |
-| 사용 환경 | Windows PC, Python `C:\Python314`. Claude Desktop과 Claude Code **둘 다** 연결 |
+| 사용 환경 | Windows PC. Python 경로는 PC마다 다름(`where python` 으로 확인 — 집 PC는 `C:\Program Files\Python311`). Claude Desktop 일반 채팅에서 사용 |
 | 제약 | 쓰기·수정·삭제 기능 절대 금지. 접속 정보는 `.env` 분리. README에 실행·테스트 방법. 프로젝트 규칙은 CLAUDE.md |
 
 ## 기능 (확정)
