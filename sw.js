@@ -13,7 +13,6 @@ const CORE = [
   "./js/clubfit.js",
   "./js/loading.js",
   "./js/weatherfx.js",
-  "./assets/golfer.png",
   "./js/golfdb.js",
   "./js/holesdb.js",
   "./js/holeimgdb.js",
@@ -22,8 +21,24 @@ const CORE = [
   "./icons/icon-512.png",
 ];
 
+/* 그림 파일은 "있으면 캐시" — 한 장이 없다고 앱 전체가 죽으면 안 된다.
+   CORE 는 addAll 이라 하나라도 404 면 서비스워커 설치가 통째로 실패한다
+   (js/legal.js 누락 사고와 같은 구멍). 코드는 그대로 엄격하게 두고,
+   교체될 수 있는 이미지만 개별 캐시로 뺀다. */
+const OPTIONAL = [
+  "./assets/golfer.png",
+  "./assets/iron.png",
+  "./assets/wedge.png",
+  "./assets/putter.png",
+];
+
 self.addEventListener("install", (e) => {
-  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(CORE)).then(() => self.skipWaiting()));
+  e.waitUntil(
+    caches.open(CACHE)
+      .then((c) => c.addAll(CORE)
+        .then(() => Promise.all(OPTIONAL.map((u) => c.add(u).catch(() => null)))))
+      .then(() => self.skipWaiting())
+  );
 });
 
 self.addEventListener("activate", (e) => {
