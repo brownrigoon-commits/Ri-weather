@@ -102,12 +102,24 @@ taskkill /f /im claude.exe
 | 브라우저 claude.ai 에서 MCP가 안 보임 | 웹은 로컬 프로그램에 접근 불가 | **설치형 앱**의 일반 채팅에서 사용 |
 | Claude Code 세션에서 MCP가 안 보임 | Code 세션은 클라우드(Linux)에서 실행됨 | **홈 탭의 일반 채팅** 사용 |
 
-## 알려진 미해결 사항
+## 해결된 문제 — 도구 호출 무한 대기 (2026-07-27 밤 수정 완료)
 
-- `scripts/mcp_smoke_test.py` 가 Windows에서 응답 없이 멈추는 현상 (집 PC에서 확인).
-  원인 미확인. **서버 자체 문제는 아니다** — 같은 PC에서 selftest 78/78 통과했고
-  Claude Desktop 연결도 정상 동작했다. 급하지 않으므로 우선순위 낮음.
-  Windows에서는 `selftest.py` 통과 + 앱의 `running` 배지로 확인하면 충분하다.
+같은 날 밤 집 PC에서 원인을 찾아 고쳤다. 커밋 `0eb381d0`.
+
+- **증상**: `mcp_smoke_test.py` 가 멈추고, Claude 앱에서도 `initialize`·도구 목록은
+  정상인데 **실제 도구 호출만 응답이 오지 않고 타임아웃**
+- **원인**: `ezmcp/sources/excel_source.py` 의 `_read_xlsx()` 안에 있던 openpyxl 지연 임포트.
+  openpyxl 은 numpy 가 설치돼 있으면 numpy 를 함께 임포트하는데
+  (`openpyxl/compat/numbers.py`), 이 임포트가 서버 기동 때가 아니라
+  **도구 호출 처리 중(이벤트 루프 스레드)** 에 처음 일어나면
+  numpy C 확장(`_multiarray_umath`) 로딩이 끝나지 않고 멈춘다.
+  스레드 스택 덤프로 위치를 확인했다.
+- **조치**: 임포트를 모듈 최상단으로 이동. 되돌리지 말 것(코드에 경고 주석 있음).
+  기동 시 0.6초가 늘어날 뿐이다.
+- **왜 개발 컨테이너에서는 안 잡혔나**: 컨테이너에 numpy 가 없어서 openpyxl 이
+  numpy 를 끌어오지 않았다. 사장님 PC에는 numpy 가 깔려 있어 재현됐다.
+  → **PC마다 설치된 패키지가 달라 생기는 문제는 실제 PC에서만 드러난다.**
+- 검증: selftest 78/78, mcp_smoke_test 9/9 PASS (집 PC)
 
 ## 다음 작업 (실데이터 전환)
 

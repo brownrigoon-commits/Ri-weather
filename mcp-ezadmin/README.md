@@ -81,14 +81,13 @@ C:\work\Ri-weather\mcp-ezadmin\data\returns\     ← 반품·교환 엑셀 (없�
 cd /d C:\work\Ri-weather\mcp-ezadmin
 "C:\Program Files\Python311\python.exe" scripts\make_sample_data.py    :: 가상 샘플 엑셀 생성
 "C:\Program Files\Python311\python.exe" scripts\selftest.py            :: 조회 로직 78개 검증
+"C:\Program Files\Python311\python.exe" scripts\mcp_smoke_test.py      :: MCP 연결 왕복 확인
 ```
 
 기대 결과:
 
 - `selftest.py` → 마지막 줄에 `총 78개 검증 · 통과 78 · 실패 0`
-
-> `scripts\mcp_smoke_test.py` 도 있지만 **Windows에서 멈추는 경우가 있어 건너뛰셔도 됩니다.**
-> `selftest.py` 가 통과하고 앱에 `running` 배지가 뜨면 정상입니다.
+- `mcp_smoke_test.py` → `MCP 스모크 테스트: 통과 9 · 실패 0`
 
 하나라도 FAIL이 나오면 그 줄에 이유가 함께 표시됩니다.
 샘플 데이터는 전부 가상 인물·가상 브랜드이며 `data/` 폴더에만 생깁니다.
@@ -189,6 +188,7 @@ taskkill /f /im claude.exe
 | 상태가 "기타"로 나옴 | "연결 상태 확인" 결과의 `기타상태값` 을 보고 `config.json` 의 `status_keywords` 에 추가 |
 | 파일이 열려 있음 오류 | 엑셀에서 해당 파일을 닫고 다시 질문 |
 | 앱에 `running` 이 안 뜸 | 설정 → 개발자 → **로그 보기** 클릭 후 내용을 Claude에게 붙여넣기 |
+| 연결은 됐는데 답이 안 옴 (타임아웃) | 해결된 문제입니다 → `git pull` 로 최신 코드를 받고 앱 재시작. 원인은 [design/10](design/10-setup-log-windows.md) 참고 |
 | 그 외 | 설치 기록 문서 [design/10-setup-log-windows.md](design/10-setup-log-windows.md) 의 '막혔던 지점' 표 참고 |
 
 ---
