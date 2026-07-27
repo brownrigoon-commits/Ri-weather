@@ -29,7 +29,7 @@
 | 검사 | 결과 |
 |---|---|
 | 점수·전략 계산이 예전과 **한 글자도 같은가** (정답지 재현) | 16/16 통과 |
-| 파이썬 엔진 단위 검사 | 254개 통과 |
+| 파이썬 엔진 단위 검사 | 277개 통과 |
 | 화면 로딩·버튼이 실제로 눌리는가 (헤드리스 크로미움) | 128개 통과 |
 | 폰 크기(375×812) 전체 동선 | 297개 통과 |
 
@@ -93,13 +93,22 @@ powershell -ExecutionPolicy Bypass -File tools\ristock_스케줄등록.ps1 -상�
   필드 이름 하나만 어긋나도 화면이 빕니다.
 - **점수·전략 결과를 바꾸면 안 됩니다.** 고치기 전후로 아래 4개를 반드시 돌리세요.
   ```
-  python -m pytest ristock/engine/tests -q          → 254 passed
+  python -m pytest ristock/engine/tests -q          → 277 passed
   node ristock/engine/tests/test_js_golden.mjs      → 정답지 16/16
   python3 -m http.server 8791                       (저장소 최상단에서 띄운 채로)
   node ristock/tests/verify_pwa.mjs                 → 128/128
   node ristock/tests/verify_phone_e2e.mjs           → 297/297
   ```
 - `ristock/data/` 는 **자동 생성물입니다.** 손으로 고치지 마세요. 충돌 나면 재생성이 답입니다.
+- **`ristock/data/archive/` 는 이제 커밋하지 않습니다**(2026-07-27, `.gitignore`).
+  회차마다 0.6MB 씩 커밋되어 연 40MB 씩 저장소가 무거워지고 있었습니다
+  (git 이력은 지워도 남습니다 → 집·회사 두 PC 의 clone·pull 이 그만큼 느려집니다).
+  archive 는 내 PC 확인용 로컬 사본으로만 남고, '어제 대비 변화'는
+  `ristock/data/picks_baseline.json`(전략이 뽑은 티커 목록만, 약 20KB)로 계산합니다(설계서 2.6).
+  ⚠ 이 방식으로 바꾼 **첫날 하루는** 기준선이 없어 `changes.json` 이 나오지 않습니다.
+  그날 아침·저녁 **두 회차 모두** '어제 대비 변화' 카드가 안 뜹니다
+  (기준선은 날짜가 바뀌어야 비교 기준으로 올라가기 때문입니다 — 설계서 2.6).
+  **다음 날 첫 회차부터** 정상으로 뜹니다.
 - 전략 계산은 **JS 가 정본**(`ristock/js/strategy.js`), 파이썬은 같은 규칙의 복제본입니다.
   한쪽만 고치면 두 결과가 갈라집니다.
 - 남은 일 후보: ① 실제 수집 1회 성공 확인 ② 아이폰 실기기 확인

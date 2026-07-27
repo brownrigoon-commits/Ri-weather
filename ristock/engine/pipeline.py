@@ -8,7 +8,10 @@
 
 산출물은 `--out`(기본 `ristock/data`) 아래에 만듭니다.
   manifest.json · market.json · stocks_KR.json · stocks_US.json · changes.json
-  (+ `--archive` 지정 시 archive/YYYYMMDD/ 에 같은 이름으로 보관)
+  + picks_baseline.json (어제 대비 변화를 계산하는 기준선 — 설계서 2.6, 약 10~30KB)
+  (+ `--archive` 지정 시 archive/YYYYMMDD/ 에 같은 이름으로 보관.
+     archive/ 는 **저장소에 올리지 않습니다**(.gitignore) — 내 PC 에서 되짚어 볼 때만 씁니다.
+     변화 계산은 archive 를 읽지 않으므로 없어도 아무 문제가 없습니다)
 
 **부분 실패 처리** — 시장 하나가 실패해도 다른 시장은 정상 산출합니다.
 실패한 시장의 `stocks_XX.json` 은 **덮어쓰지 않고 그대로 두고**, manifest 에 사유만 남깁니다.
@@ -27,9 +30,8 @@ import traceback
 
 from . import emit, news
 from .analyze import evaluate_stocks, news_supply_stage
-from .config import (ARCHIVE_DIRNAME, DATA_DIR, EXCEL_DIRNAME, EXCEL_PREFIX,
-                     MANIFEST_FILE, MARKET_FILE, MARKET_LABEL, STOCKS_FILE,
-                     TOP_N)
+from .config import (DATA_DIR, EXCEL_DIRNAME, EXCEL_PREFIX, MANIFEST_FILE,
+                     MARKET_FILE, MARKET_LABEL, STOCKS_FILE, TOP_N)
 
 if hasattr(sys.stdout, 'reconfigure'):
     sys.stdout.reconfigure(encoding='utf-8', errors='replace')
@@ -132,50 +134,66 @@ RUNNERS = {'us': ('미국', run_us), 'kr': ('한국', run_kr)}
 
 
 # =========================
-# 전일 대비 변화 (설계서 2.5 · changes.json)
+# 전일 대비 변화 (설계서 2.5 · changes.json / 2.6 · picks_baseline.json)
 # =========================
-def 직전자료읽기(out_dir, 기준일):
-    """**덮어쓰기 전에** 직전 회차 산출물을 미리 읽어 둡니다.
+# 예전에는 어제 **스냅샷 전체**(0.6MB)를 비교 대상으로 삼아 `archive/YYYYMMDD/` 에 남기고
+# 매 회차 통째로 커밋했습니다. git 이력은 지워도 남기 때문에 그것만으로 연 40MB 씩
+# 저장소가 무거워졌고, 집·회사 두 PC 의 clone·pull 이 함께 느려졌습니다.
+# 변화 계산에 정말 필요한 것은 **전략이 뽑은 티커 목록**(≈10KB)뿐이라,
+# 지금은 `picks_baseline.json` 하나만 보고 계산합니다(설계서 2.6).
+def 갱신된시장(out_dir, 기준일):
+    """`stocks_XX.json` 의 기준일이 오늘인 시장 = **오늘 자료가 들어온 시장**.
 
-    비교 대상은 두 곳에서 찾습니다.
-      1) 지금 `<out>` 에 있는 stocks_XX.json — 아직 오늘 것으로 덮이기 전이므로 곧 '어제'입니다
-      2) 하루에 두 번 도는 날처럼 1)이 이미 오늘 것이면 `archive/` 의 가장 최근 이전 날짜
+    이번 회차에서 성공한 시장만이 아니라, 같은 날 **앞선 회차**가 이미 채워 둔 시장도
+    포함합니다(CI 는 `--market us` 와 `--market kr` 을 따로 돕니다).
+    그래야 나중 회차의 changes.json 에서 아침에 계산해 둔 다른 시장의 변화가
+    통째로 사라지지 않습니다.
 
-    반환: {'요약': market.json(직전), '시장': {시장: 스냅샷}}
+    수집이 실패해 어제 파일이 그대로 남은 시장은 기준일이 오늘이 아니므로 저절로 빠집니다.
+    (그런 시장을 넣으면 자기 자신과 비교해 "변화 없음"이 나오는데, 그것은
+     "오늘 갱신됐는데 변화가 없다"와 전혀 다른 이야기입니다)
     """
-    자료 = {'요약': emit.load_json(os.path.join(out_dir, MARKET_FILE)), '시장': {}}
-
-    for 시장, 파일 in STOCKS_FILE.items():
+    시장 = []
+    for 이름, 파일 in STOCKS_FILE.items():
         snap = emit.load_json(os.path.join(out_dir, 파일))
-        if isinstance(snap, dict) and (snap.get('기준일') or '') < 기준일:
-            자료['시장'][시장] = snap
-
-    남은 = [m for m in STOCKS_FILE if m not in 자료['시장']]
-    if 남은:
-        for 날짜 in reversed(emit.archive_dates(out_dir)):
-            if not 남은:
-                break
-            if 날짜 >= 기준일:
-                continue
-            보관 = os.path.join(out_dir, ARCHIVE_DIRNAME, 날짜)
-            for 시장 in list(남은):
-                snap = emit.load_json(os.path.join(보관, STOCKS_FILE[시장]))
-                if isinstance(snap, dict) and (snap.get('기준일') or '') < 기준일:
-                    자료['시장'][시장] = snap
-                    남은.remove(시장)
-                    # 그날 화면이 보던 시장요약을 함께 씁니다 (섹터 선정 입력이 같아야
-                    # '섹터가 바뀌어서 생긴 변화'와 '종목이 바뀌어서 생긴 변화'가 안 섞입니다)
-                    자료['요약'] = 자료['요약'] or emit.load_json(
-                        os.path.join(보관, MARKET_FILE))
-    return 자료
+        if isinstance(snap, dict) and str(snap.get('기준일') or '') == 기준일:
+            시장.append(이름)
+    return 시장
 
 
-def 변화쓰기(out_dir, 기준일, 대상시장, 직전자료):
-    """오늘 · 직전 회차에 전략 8종을 각각 돌려 `changes.json` 을 만듭니다.
+def 오늘선정(out_dir, 대상시장, 전략목록, 섹터매핑):
+    """오늘 스냅샷으로 전략 8종을 돌려 `{전략id: {시장: [뽑힌 종목…]}}` 를 만듭니다.
 
-    `대상시장` 은 **이번에 실제로 갱신된 시장만** 넘겨야 합니다.
-    수집이 실패해 어제 파일을 그대로 물려받은 시장을 넣으면 자기 자신과 비교해
-    "변화 없음"이 나오는데, 그것은 "오늘 갱신됐는데 변화가 없다"와 전혀 다른 이야기입니다.
+    시장은 서로 독립이라(전략은 시장마다 따로 돕니다) 한쪽만 넘겨도 나머지 시장의
+    결과가 달라지지 않습니다. 그래서 갱신된 시장만 계산해도 안전합니다.
+    """
+    from . import strategies as S
+
+    시장데이터 = {}
+    for 시장 in 대상시장:
+        snap = emit.load_json(os.path.join(out_dir, STOCKS_FILE[시장]))
+        if isinstance(snap, dict):
+            시장데이터[시장] = S.시장준비(snap)
+    if not 시장데이터:
+        return {}
+
+    요약 = emit.load_json(os.path.join(out_dir, MARKET_FILE)) or {}
+    결과 = S.전체전략실행(전략목록, 시장데이터, 요약, 섹터매핑)
+    # 계산하지 않은 시장은 키 자체를 빼 둡니다 (빈 목록으로 남기면 '오늘 아무것도
+    # 못 뽑았다'와 구분되지 않아, 다음 비교에서 전부 이탈로 잡힙니다)
+    return {전략id: {시장: 목록 for 시장, 목록 in 시장별.items() if 시장 in 시장데이터}
+            for 전략id, 시장별 in S.선정요약(결과).items()}
+
+
+def 변화쓰기(out_dir, 기준일):
+    """오늘 뽑은 종목을 `picks_baseline.json`(어제 몫)과 견줘 `changes.json` 을 만듭니다.
+
+    1. 오늘 갱신된 시장으로 전략 8종을 돌려 오늘 picks 를 얻고
+    2. 기준선의 날짜가 **오늘보다 이전인 시장만** 비교해 changes.json 을 쓰고
+    3. 오늘 picks 를 기준선의 `대기` 칸에 적어 둡니다 (날짜가 바뀌면 비교 기준으로 승격)
+
+    기준선이 없으면(첫 실행) changes.json 을 만들지 않고 manifest 에도 키를 넣지 않습니다.
+    전부 '신규'로 표시하면 첫날 화면이 통째로 새 종목처럼 보이기 때문입니다.
 
     반환: {'변화파일': 'changes.json', '이전기준일': 'YYYYMMDD'} (못 만들면 빈 dict)
     """
@@ -187,47 +205,47 @@ def 변화쓰기(out_dir, 기준일, 대상시장, 직전자료):
         print(f'\n[변화] {emit.STRATEGIES_FILE} 이 없어 전일 대비 변화를 건너뜁니다')
         return {}
 
-    오늘시장, 이전시장 = {}, {}
-    for 시장 in 대상시장:
-        오늘 = emit.load_json(os.path.join(out_dir, STOCKS_FILE[시장]))
-        이전 = (직전자료.get('시장') or {}).get(시장)
-        if isinstance(오늘, dict) and isinstance(이전, dict):
-            오늘시장[시장] = 오늘
-            이전시장[시장] = 이전
-
-    if not 오늘시장:
-        # 첫 실행 — 비교할 어제가 없습니다. 파일을 만들지 않고 manifest 에도 넣지 않습니다.
-        # (전부 '신규'로 표시하면 첫날 화면이 통째로 새 종목처럼 보입니다)
-        print('\n[변화] 비교할 직전 데이터가 없어 changes.json 을 만들지 않았습니다')
+    대상시장 = 갱신된시장(out_dir, 기준일)
+    오늘몫 = 오늘선정(out_dir, 대상시장, 전략목록, 정의.get('섹터매핑') or {})
+    if not 오늘몫:
+        print('\n[변화] 오늘 갱신된 시장이 없어 전일 대비 변화를 건너뜁니다')
         return {}
 
-    이전기준일 = max((s.get('기준일') or '') for s in 이전시장.values())
-    오늘요약 = emit.load_json(os.path.join(out_dir, MARKET_FILE)) or {}
-    이전요약 = 직전자료.get('요약') or 오늘요약
-    섹터매핑 = 정의.get('섹터매핑') or {}
+    기준선 = emit.기준선승격(emit.load_picks_baseline(out_dir), 기준일)
+    기준picks = 기준선.get('전략별') or {}
 
-    오늘결과 = S.전체전략실행(
-        전략목록, {m: S.시장준비(s) for m, s in 오늘시장.items()}, 오늘요약, 섹터매핑)
-    이전결과 = S.전체전략실행(
-        전략목록, {m: S.시장준비(s) for m, s in 이전시장.items()}, 이전요약, 섹터매핑)
+    # 비교할 수 있는 시장 = 기준선에 있고, 그 기준 날짜가 오늘보다 **이전**인 시장
+    비교시장 = [시장 for 시장 in 대상시장
+              if any(시장 in (시장별 or {}) for 시장별 in 기준picks.values())
+              and emit.기준선시장기준일(기준선, 시장) < 기준일]
 
-    변화 = S.변화계산(오늘결과, 이전결과, 기준일, 이전기준일)
+    변화정보 = {}
+    if 비교시장:
+        이전기준일 = max(emit.기준선시장기준일(기준선, 시장) for 시장 in 비교시장)
+        이전몫 = {전략id: {시장: 목록 for 시장, 목록 in (시장별 or {}).items()
+                        if 시장 in 비교시장}
+                for 전략id, 시장별 in 기준picks.items()}
+        변화 = S.변화계산_선정(오늘몫, 이전몫, 기준일, 이전기준일)
 
-    # 갱신되지 않은 시장은 결과에서 아예 뺍니다 (위 주석 참고)
-    신규수 = 이탈수 = 0
-    for 시장별 in (변화.get('전략별') or {}).values():
-        for 시장 in list(시장별):
-            if 시장 not in 오늘시장:
-                del 시장별[시장]
-            else:
-                신규수 += len(시장별[시장].get('신규') or [])
-                이탈수 += len(시장별[시장].get('이탈') or [])
+        신규수 = sum(len(m.get('신규') or [])
+                  for 시장별 in (변화.get('전략별') or {}).values() for m in 시장별.values())
+        이탈수 = sum(len(m.get('이탈') or [])
+                  for 시장별 in (변화.get('전략별') or {}).values() for m in 시장별.values())
+        경로 = emit.write_changes(변화, out_dir)
+        print(f'\n[변화] {경로} — {이전기준일} → {기준일}, '
+              f'전략 {len(변화.get("전략별") or {})}종 · 신규 {신규수}건 · 이탈 {이탈수}건 '
+              f'(대상: {", ".join(비교시장)})')
+        변화정보 = {'변화파일': emit.CHANGES_FILE, '이전기준일': 이전기준일}
+    else:
+        까닭 = ('이번에 처음 만듭니다' if not 기준picks
+              else f'{", ".join(대상시장)} 의 어제 몫이 없습니다')
+        print(f'\n[변화] 비교할 직전 자료가 없어 changes.json 을 만들지 않았습니다 '
+              f'({emit.PICKS_BASELINE_FILE} — {까닭})')
 
-    경로 = emit.write_changes(변화, out_dir)
-    print(f'\n[변화] {경로} — {이전기준일} → {기준일}, '
-          f'전략 {len(변화.get("전략별") or {})}종 · 신규 {신규수}건 · 이탈 {이탈수}건 '
-          f'(대상: {", ".join(오늘시장)})')
-    return {'변화파일': emit.CHANGES_FILE, '이전기준일': 이전기준일}
+    경로 = emit.write_picks_baseline(out_dir, emit.기준선반영(기준선, 기준일, 오늘몫))
+    print(f'[변화] 다음 비교용 기준선 저장: {경로} '
+          f'({os.path.getsize(경로) / 1024:.1f}KB · 오늘 {", ".join(대상시장)})')
+    return 변화정보
 
 
 # =========================
@@ -249,7 +267,8 @@ def build_parser():
     ap.add_argument('--skip-excel', action='store_true', help='엑셀 파일을 만들지 않음')
     ap.add_argument('--excel-dir', default=None, help='엑셀 저장 경로 (기본 <out>/xlsx)')
     ap.add_argument('--archive', action='store_true',
-                    help='산출물을 <out>/archive/YYYYMMDD/ 에도 보관')
+                    help='산출물을 <out>/archive/YYYYMMDD/ 에도 보관 '
+                         '(내 PC 확인용 — 저장소에는 올라가지 않습니다)')
     ap.add_argument('--archive-keep', type=int, default=emit.ARCHIVE_KEEP,
                     help=f'archive/ 에 남길 날짜 폴더 수 (기본 {emit.ARCHIVE_KEEP}, '
                          f'0 이면 정리하지 않음). 오래된 것 중 각 달의 마지막 거래일은 남깁니다')
@@ -275,8 +294,6 @@ def main(argv=None):
     prev_markets = (prev.get('시장') or {}) if isinstance(prev, dict) else {}
     prev_기준일 = (prev.get('기준일') or '') if isinstance(prev, dict) else ''
 
-    # 전일 대비 변화(changes.json)의 비교 대상 — **덮어쓰기 전에** 읽어 둡니다
-    직전자료 = 직전자료읽기(out_dir, 기준일)
     news.뉴스수집초기화()
 
     label = {'all': '미국+한국', 'us': '미국', 'kr': '한국'}[args.market]
@@ -373,7 +390,7 @@ def main(argv=None):
     변화정보 = {}
     if 성공한시장:
         try:
-            변화정보 = 변화쓰기(out_dir, 기준일, 성공한시장, 직전자료)
+            변화정보 = 변화쓰기(out_dir, 기준일)
         except Exception as e:
             traceback.print_exc()
             메모.append(f'전일 대비 변화 계산 실패({type(e).__name__}: {e})')

@@ -255,8 +255,8 @@ def 용량점검(max_mb=MAX_MB):
                 큰것.append(f'{rel} ({sz / 1048576:.0f}MB)')
     # --- 누적 감시 -----------------------------------------------------
     # `--archive` 는 매일 archive/YYYYMMDD/ 에 약 0.6MB 를 남깁니다.
-    # 한 번에 걸리는 양은 작아서 위의 검사에 절대 안 잡히지만, 1년이면 150MB 입니다.
-    # 저장소가 무거워지면 집·회사 두 PC 의 clone·pull 이 같이 느려집니다.
+    # 이 폴더는 `.gitignore` 로 막아 **커밋되지 않습니다**(저장소가 아니라 내 PC 디스크만
+    # 커집니다). 그래도 쌓이면 1년에 150MB 라 눈에 띄게 해 둡니다.
     # 정리는 **pipeline 이 아카이브를 쓴 직후**에 합니다(`--archive-keep`, 기본 60개).
     # 여기(publish)는 커밋만 합니다 — 배포 도구가 데이터를 지우기 시작하면
     # 무엇이 언제 사라졌는지 아무도 모르게 됩니다.
@@ -269,8 +269,9 @@ def 용량점검(max_mb=MAX_MB):
                 pass
     누적mb = 누적 / 1048576
     if 누적mb > 200:
-        print(f'  ⚠ ristock/data 가 {누적mb:.0f}MB 까지 커졌습니다.')
-        print('     archive/ 의 오래된 날짜 폴더를 정리할 때가 됐습니다 (앱은 최신 파일만 씁니다).')
+        print(f'  ⚠ ristock/data 가 {누적mb:.0f}MB 까지 커졌습니다 (내 PC 디스크 기준).')
+        print('     archive/ 의 오래된 날짜 폴더를 정리할 때가 됐습니다.')
+        print('     앱도 변화 계산도 그 폴더를 읽지 않습니다 (변화는 picks_baseline.json 으로 합니다).')
         print('     python -m ristock.engine.pipeline --archive --archive-keep 30 …')
 
     mb = 총 / 1048576

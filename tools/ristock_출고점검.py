@@ -202,7 +202,70 @@ def 로컬점검(markets, 최소=최소종목수):
         if 빈티커:
             실패(f'{시장}: 티커가 빈 종목이 {빈티커}개 있습니다')
 
+    # --- 전일 대비 변화 (설계서 2.5 · 2.6) ---------------------------
+    #   manifest 가 changes.json 을 가리키는데 파일이 없으면 앱이 404 를 받습니다
+    #   (js/data.js 는 이 키를 보고 파일을 읽습니다 — CLAUDE.md 2026-07-22 legal.js 사고와 같은 모양).
+    변화이름 = str(m.get('변화파일') or ('changes.json' if m.get('이전기준일') else ''))
+    if 변화이름:
+        경로 = os.path.join(DATA_DIR, 변화이름)
+        if not os.path.isfile(경로):
+            실패(f'manifest 가 {변화이름} 을 가리키는데 파일이 없습니다 (앱이 404 를 받습니다)')
+        else:
+            try:
+                변화 = json읽기(open(경로, encoding='utf-8').read())
+            except Exception as e:
+                실패(f'{변화이름} 을 읽지 못했습니다: {e}')
+                변화 = None
+            if isinstance(변화, dict):
+                이전 = str(변화.get('이전기준일') or '')
+                흠 = len(문제)
+                # ⚠ 최상단 `기준일`(= 가장 오래된 시장)과 비교하면 안 됩니다.
+                #   한국만 며칠 멈춘 날 changes.json 은 오늘 날짜이고 최상단은 옛날이라
+                #   매번 거짓 경고가 뜹니다. 가장 최근에 갱신된 시장의 날짜와 맞춰 봅니다.
+                if 있는것 and str(변화.get('기준일') or '') != max(있는것):
+                    주의(f'{변화이름} 기준일({변화.get("기준일")}) 이 '
+                       f'가장 최근 시장 기준일({max(있는것)}) 과 다릅니다')
+                if 이전 != str(m.get('이전기준일') or ''):
+                    실패(f'{변화이름} 이전기준일({이전}) 이 manifest.이전기준일'
+                       f'({m.get("이전기준일")}) 과 다릅니다')
+                if 이전 and 이전 >= str(변화.get('기준일') or ''):
+                    실패(f'{변화이름} 이전기준일({이전}) 이 기준일보다 이전이 아닙니다 '
+                       f'— 어제가 아니라 오늘 것과 비교했습니다')
+                if len(문제) == 흠:
+                    통과(f'전일 대비 변화 {이전} → {변화.get("기준일")} '
+                       f'(전략 {len(변화.get("전략별") or {})}종)')
+    else:
+        주의('manifest 에 변화 정보가 없습니다 — 첫 실행이거나 비교할 직전 자료가 없었습니다')
+
+    # 변화 계산의 비교 대상 (설계서 2.6). 이게 없으면 다음 회차에 변화가 안 나옵니다.
+    기준선경로 = os.path.join(DATA_DIR, 'picks_baseline.json')
+    if not os.path.isfile(기준선경로):
+        주의('picks_baseline.json 이 없습니다 — 다음 회차에야 어제 대비 변화가 나옵니다')
+    else:
+        try:
+            기준선 = json읽기(open(기준선경로, encoding='utf-8').read())
+        except Exception as e:
+            실패(f'picks_baseline.json 을 읽지 못했습니다: {e} '
+               f'(다음 회차의 어제 대비 변화가 멈춥니다)')
+            기준선 = None
+        if isinstance(기준선, dict):
+            오늘몫 = str((기준선.get('대기') or {}).get('기준일') or '')
+            # ⚠ 여기서도 최상단 `기준일`(= 가장 오래된 시장)과 비교하면 안 됩니다.
+            #   기준선의 `대기` 에는 **오늘 갱신된 시장**만 들어갑니다. 한국이 며칠 멈춘 날
+            #   최상단은 그 옛날 날짜이고 대기는 오늘이라 매번 거짓 경고가 뜹니다.
+            #   (같은 실수를 위 두 곳에서 이미 겪었습니다 — 진짜 경고가 묻힙니다)
+            최신 = max(있는것) if 있는것 else 기준일
+            if 대상 and 오늘몫 != 최신:
+                주의(f'picks_baseline.json 의 오늘 몫 기준일({오늘몫 or "없음"}) 이 '
+                   f'가장 최근 시장 기준일({최신}) 과 다릅니다 '
+                   f'— 다음 회차의 어제 대비 변화가 어긋날 수 있습니다')
+            크기 = os.path.getsize(기준선경로) / 1024
+            if 크기 > 200:
+                주의(f'picks_baseline.json 이 {크기:.0f}KB 입니다 — 티커 목록만 담아야 합니다')
+
     # --- 실수로 올라가면 안 되는 것이 데이터 폴더에 있는가 -------------
+    #   archive/ 는 여기서 보지 않습니다. 사장님 PC 에는 있는 것이 정상이고
+    #   (.gitignore 로 커밋만 막습니다) 회차마다 경고를 띄우면 진짜 경고가 묻힙니다.
     for 금지 in ('last_run.log', 'xlsx'):
         if os.path.exists(os.path.join(DATA_DIR, 금지)):
             주의(f'ristock/data/{금지} 이(가) 있습니다 — .gitignore 로 걸러집니다')
