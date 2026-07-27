@@ -13,9 +13,17 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
+from openpyxl import load_workbook
+
 from .. import normalize as nz
 from ..dates import fmt_dt, kst, now_kst
 from .base import KIND_LABEL, Source, SourceResult
+
+# ⛔ 이 임포트를 함수 안으로 되돌리지 말 것.
+# openpyxl 은 numpy 가 깔려 있으면 numpy 를 함께 끌어온다(openpyxl/compat/numbers.py).
+# 이 무거운 임포트가 서버 기동 때가 아니라 '도구 호출 처리 중'(이벤트 루프 스레드)에
+# 처음 실행되면 numpy C 확장 로딩이 끝나지 않아 응답이 영영 오지 않는다.
+# → Claude 쪽에서는 원인 없이 타임아웃만 나므로 반드시 기동 시점에 미리 로드한다.
 
 log = logging.getLogger(__name__)
 
@@ -67,8 +75,6 @@ def _signature(files: list[Path]) -> tuple:
 
 def _read_xlsx(path: Path) -> tuple[list[list[Any]], str]:
     """xlsx → 행 목록. 읽기 전용 모드로 열고 반드시 닫는다."""
-    from openpyxl import load_workbook
-
     wb = None
     try:
         wb = load_workbook(path, read_only=True, data_only=True)
