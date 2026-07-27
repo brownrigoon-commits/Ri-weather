@@ -49,9 +49,10 @@ on:
         type: boolean
         default: false
 
-# 데이터를 커밋해야 하므로 쓰기 권한이 필요합니다.
+# 기본은 읽기만. 쓰기 권한은 실제로 커밋하는 job 에서만 켭니다.
+# (나중에 job 을 하나 더 붙였을 때 그 job 까지 저장소를 고칠 수 있게 되는 것을 막습니다)
 permissions:
-  contents: write
+  contents: read
 
 # 16:30 실행이 늦어져 07:00 실행과 겹쳐도 순서대로 하나씩 돌립니다.
 # (cancel-in-progress: false → 돌고 있는 수집을 중간에 죽이지 않습니다. 중간에 죽으면 데이터가 반쪽이 됩니다.)
@@ -66,6 +67,10 @@ jobs:
     name: 데이터 수집·배포
     runs-on: ubuntu-latest
     timeout-minutes: 45
+
+    # 이 job 만 저장소에 쓸 수 있습니다 (ristock/data 커밋용).
+    permissions:
+      contents: write
 
     env:
       # 날짜(기준일)를 한국 시간으로 찍기 위한 설정.
@@ -110,11 +115,22 @@ jobs:
       - name: 실행 조건 정리
         # ※ 셸 변수 이름은 반드시 영문으로 씁니다. bash 는 한글 변수 이름을 받지 못하고,
         #   에러도 없이 빈 값이 되어 조용히 잘못 도는 사고가 납니다. (안내 문구만 한글)
+        # ※ 손으로 넣은 입력값은 env 를 거쳐 받습니다. 스크립트에 직접 끼워 넣으면
+        #   따옴표가 섞인 입력 한 번에 명령이 통째로 바뀔 수 있습니다.
+        env:
+          IN_MARKET: ${{ inputs.market || 'all' }}
+          IN_TOP: ${{ inputs.top || '300' }}
+          IN_NONEWS: ${{ inputs.no_news || 'false' }}
         run: |
           set -euo pipefail
-          MARKET_IN="${{ inputs.market || 'all' }}"
-          TOP_IN="${{ inputs.top || '300' }}"
-          NONEWS_IN="${{ inputs.no_news || 'false' }}"
+          MARKET_IN="$IN_MARKET"
+          TOP_IN="$IN_TOP"
+          NONEWS_IN="$IN_NONEWS"
+
+          # 상위 종목 수는 숫자만 받습니다(오타로 엉뚱한 명령이 되지 않도록).
+          case "$TOP_IN" in
+            ''|*[!0-9]*) echo "::error::상위 종목 수는 숫자로 넣어 주세요: $TOP_IN"; exit 1 ;;
+          esac
 
           echo "MARKET=$MARKET_IN" >> "$GITHUB_ENV"
           echo "TOP=$TOP_IN"       >> "$GITHUB_ENV"
@@ -137,7 +153,9 @@ jobs:
       # 엔진이 데이터를 새로 쓰기 **전에** 원격 상태로 맞춥니다.
       # (집·회사 PC가 방금 올린 데이터가 있으면 그것을 기준으로 시작합니다)
       - name: 원격 데이터와 맞추기
-        run: python -m ristock.engine.publish --sync --branch "${{ github.ref_name }}"
+        env:
+          BRANCH: ${{ github.ref_name }}
+        run: python -m ristock.engine.publish --sync --branch "$BRANCH"
 
       # ------------------------------------------------------------------
       #  미국·한국을 따로 돌립니다. 한쪽이 죽어도 다른 쪽은 살아남아야 하기 때문입니다.
@@ -166,15 +184,57 @@ jobs:
             --archive --runner github-actions \
             --excel-dir "$XLSX_DIR" $RISTOCK_EXTRA_ARGS
 
-      # 한 시장이라도 성공했을 때만 커밋합니다.
+      # ------------------------------------------------------------------
+      #  올리기 **전** 관문 — 여기서 막지 못하면 망가진 데이터가 그대로 사용자에게 갑니다.
+      #
+      #  수집 스텝이 0 을 돌려줘도 안심할 수 없습니다. 야후가 절반만 응답해서
+      #  300종목이 12종목이 되어도 파이썬은 "성공"으로 끝납니다.
+      #  그 12종목을 커밋하면 어제까지 멀쩡하던 앱이 오늘 텅 빈 화면이 됩니다.
+      #  (이 스텝이 실패하면 아래 커밋 스텝은 자동으로 건너뜁니다 — 기존 데이터가 지켜집니다)
+      # ------------------------------------------------------------------
+      - name: 출고 점검 — 올리기 전
+        id: gate
+        if: steps.us.outcome == 'success' || steps.kr.outcome == 'success'
+        env:
+          US_R: ${{ steps.us.outcome }}
+          KR_R: ${{ steps.kr.outcome }}
+        run: |
+          set -euo pipefail
+          # 이번에 실제로 수집에 성공한 시장만 엄격하게 봅니다.
+          # 건너뛴 시장은 '어제 데이터 유지'가 정상이라 검사 대상이 아닙니다.
+          MK=""
+          if [ "$US_R" = "success" ]; then MK="미국"; fi
+          if [ "$KR_R" = "success" ]; then MK="${MK:+$MK,}한국"; fi
+          echo "검사 대상 시장: $MK"
+          python tools/ristock_출고점검.py --markets "$MK"
+
+      # 한 시장이라도 성공했고 출고 점검을 통과했을 때만 커밋합니다.
       # 전부 실패했는데 커밋하면 '오늘 갱신된 척하는 어제 데이터'가 되어 가장 위험합니다.
       - name: 바뀐 데이터만 커밋·푸시
+        id: publish
         if: steps.us.outcome == 'success' || steps.kr.outcome == 'success'
+        env:
+          BRANCH: ${{ github.ref_name }}
         run: |
           python -m ristock.engine.publish --push \
-            --branch "${{ github.ref_name }}" \
+            --branch "$BRANCH" \
             --runner github-actions \
             --author "github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>"
+
+      # ------------------------------------------------------------------
+      #  올린 **뒤** 관문 — CLAUDE.md 2026-07-22 사고의 교훈.
+      #  커밋이 성공했다고 사용자에게 도달한 것이 아닙니다.
+      #  그날 `.nojekyll` 누락으로 GitHub Pages 빌드가 조용히 실패해
+      #  5번의 배포가 아무에게도 닿지 않았습니다.
+      #  여기서 실제 공개 주소를 열어 확인하고, 아니면 시끄럽게 실패합니다.
+      #
+      #  ※ 기본 브랜치에서만 돕니다. 작업 브랜치는 Pages 에 올라가지 않아
+      #    확인해 봐야 항상 실패이기 때문입니다.
+      # ------------------------------------------------------------------
+      - name: 공개 주소 도달 확인
+        id: verify
+        if: steps.publish.outcome == 'success' && github.ref_name == github.event.repository.default_branch
+        run: python tools/ristock_출고점검.py --skip-local --url --wait
 
       - name: 엑셀 분석표 첨부 (14일 보관)
         if: always()
@@ -197,8 +257,14 @@ jobs:
         run: |
           US_R="${{ steps.us.outcome }}"      # success / failure / skipped
           KR_R="${{ steps.kr.outcome }}"
+          GATE_R="${{ steps.gate.outcome }}"     # 올리기 전 출고 점검
+          PUB_R="${{ steps.publish.outcome }}"   # 커밋·푸시
+          VER_R="${{ steps.verify.outcome }}"    # 공개 주소 도달 확인
           [ -n "$US_R" ] || US_R="skipped"
           [ -n "$KR_R" ] || KR_R="skipped"
+          [ -n "$GATE_R" ] || GATE_R="skipped"
+          [ -n "$PUB_R" ] || PUB_R="skipped"
+          [ -n "$VER_R" ] || VER_R="skipped"
 
           mark() { case "$1" in
               success) echo "✅ 성공" ;;
@@ -215,6 +281,9 @@ jobs:
             echo "| 대상 시장 | ${MARKET:-all} (상위 ${TOP:-300}종목) |"
             echo "| 미국 수집 | $(mark "$US_R") |"
             echo "| 한국 수집 | $(mark "$KR_R") |"
+            echo "| 출고 점검(올리기 전) | $(mark "$GATE_R") |"
+            echo "| 커밋·푸시 | $(mark "$PUB_R") |"
+            echo "| 공개 주소 도달 | $(mark "$VER_R") |"
           } >> "$GITHUB_STEP_SUMMARY"
 
           if [ -f ristock/data/manifest.json ]; then
@@ -251,4 +320,40 @@ jobs:
             echo "> ⚠ 한쪽 시장만 갱신됐습니다. 실패한 시장은 **이전 데이터를 그대로 유지**합니다." >> "$GITHUB_STEP_SUMMARY"
             echo "::warning::일부 시장 수집 실패 — 해당 시장은 이전 데이터를 유지합니다."
           fi
+
+          # ----------------------------------------------------------------
+          #  수집이 성공했더라도 관문을 통과하지 못했으면 **성공이 아닙니다.**
+          #  여기서 걸러 주지 않으면 초록 체크만 보고 "오늘도 잘 돌았다"고 착각합니다.
+          # ----------------------------------------------------------------
+          if [ "$GATE_R" = "failure" ]; then
+            {
+              echo ""
+              echo "### ❌ 출고 점검에서 막았습니다 (데이터를 올리지 않았습니다)"
+              echo ""
+              echo "- 수집은 끝났지만 **결과물이 앱에 내보낼 만한 상태가 아닙니다**(종목 수 부족 등)."
+              echo "- 앱에는 이전 데이터가 그대로 보입니다. 사용자는 아무 피해가 없습니다."
+              echo "- 위 \`출고 점검 — 올리기 전\` 로그에 무엇이 걸렸는지 적혀 있습니다."
+            } >> "$GITHUB_STEP_SUMMARY"
+            echo "::error::출고 점검 실패 — 데이터를 올리지 않았습니다."
+            exit 1
+          fi
+
+          if [ "$PUB_R" = "failure" ]; then
+            echo "::error::커밋·푸시 실패 — 데이터가 저장소에 올라가지 않았습니다."
+            exit 1
+          fi
+
+          if [ "$VER_R" = "failure" ]; then
+            {
+              echo ""
+              echo "### ❌ 커밋은 됐지만 **사용자에게 도달하지 못했습니다**"
+              echo ""
+              echo "- GitHub Pages 빌드가 실패했거나 파일이 누락됐을 수 있습니다."
+              echo "- 저장소 Settings → Pages 에서 빌드 상태를 확인해 주세요."
+              echo "- \`.nojekyll\` 이 사라지지 않았는지도 함께 보세요(2026-07-22 같은 사고)."
+            } >> "$GITHUB_STEP_SUMMARY"
+            echo "::error::공개 주소에서 오늘 데이터를 확인하지 못했습니다."
+            exit 1
+          fi
+
           echo "완료: 성공한 시장 ${OK_CNT}개"

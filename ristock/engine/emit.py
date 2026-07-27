@@ -75,8 +75,31 @@ def _txt(v):
 
 
 def _is_evaluated(r):
+    """뉴스·수급 분석을 돌린 종목인가 (= `기업분석` 시트에 실린 종목인가)."""
     v = r.get('총점(100)')
     return v is not None and pd.notna(v)
+
+
+def total_from_scores(점수):
+    """총점(100) — 엑셀 `기업분석` 시트의 총점 수식과 **글자 그대로 같은 식**.
+
+        총점 = round( Σ(항목 10점점수 × 가중치) ÷ 10 ÷ Σ가중치 × 100 , 1 )
+
+    옛 대시보드 `app.py.parse_analysis_sheet()` 가 쓰던 식이 바로 이것이고,
+    전략 결과(정답지)의 총점도 전부 이 값입니다.
+
+    ⚠ `evaluate_stocks` 가 DataFrame 에 들고 있는 `총점(100)` 을 그대로 쓰면 안 됩니다.
+       그 값은 **반올림 전 원점수**(1차원점수 + 뉴스 + 수급)로 계산한 것이라,
+       항목을 10점 만점으로 환산·반올림한 뒤 다시 가중합한 이 값과 어긋납니다
+       (실측: 종목의 약 절반에서 최대 0.3점 차이).
+       총점은 화면에 그대로 보이고 모든 순위 기준의 2차 정렬 키이므로,
+       한쪽만 달라지면 앱 총점 ≠ 엑셀 총점이 되고 전략 순서까지 바뀝니다.
+    """
+    wsum = sum(w for w in WEIGHTS.values() if w)
+    if not wsum:
+        return None
+    sp = sum((점수.get(it) or 0) * WEIGHTS[it] for it in SCORE_ITEMS if WEIGHTS[it])
+    return round(sp / 10 / wsum * 100, 1)
 
 
 # =========================
@@ -98,8 +121,9 @@ def stock_record(r):
 
     # 점수·근거·총점은 평가 종목만 (미평가 종목은 뉴스·수급을 돌리지 않았습니다)
     if rec['평가']:
-        rec['총점'] = _num(r.get('총점(100)'))
-        rec['점수'] = {it: _num(r.get(f'점수_{it}')) for it in SCORE_ITEMS}
+        점수 = {it: _num(r.get(f'점수_{it}')) for it in SCORE_ITEMS}
+        rec['총점'] = total_from_scores(점수)      # 엑셀·정답지와 같은 식으로 재계산
+        rec['점수'] = 점수
         rec['근거'] = {key: _txt(r.get(col)) for key, col in REASON_COLS.items()}
 
     rec['지표'] = {key: _num(r.get(col)) for key, col in METRIC_COLS.items()}
@@ -127,7 +151,14 @@ def sector_order(df):
 
 def ordered_rows(df):
     """섹터별 → 총점 내림차순. 평가 종목을 먼저 놓고 미평가 종목은 시총순위 순으로 뒤에 붙입니다.
-    (엑셀 `기업분석` 시트와 같은 정렬 호출을 써서 동점 순서까지 같게 만듭니다)"""
+    (엑셀 `기업분석` 시트와 같은 정렬 호출을 써서 동점 순서까지 같게 만듭니다)
+
+    ⚠ 정렬 키는 DataFrame 의 `총점(100)`(원점수 기반) 그대로 두어야 합니다.
+       엑셀 시트3 의 **행 순서**가 바로 이 값으로 정해졌고, 옛 대시보드는 그 행 순서를
+       읽어 전략을 돌렸기 때문입니다. 화면에 내보내는 `총점` 값만
+       `total_from_scores()` 로 다시 계산합니다(엑셀 수식과 같은 식).
+       그래서 JSON 안에서 이웃한 두 종목의 `총점` 이 아주 드물게 뒤집혀 보일 수 있는데,
+       이는 옛 엑셀·정답지와 **똑같은** 현상입니다. 고치면 오히려 어긋납니다."""
     evaluated = df[df['총점(100)'].notna()]
     rest = df[df['총점(100)'].isna()]
     rows = []

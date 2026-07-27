@@ -1,0 +1,542 @@
+/* =====================================================================
+ * Ri_Stock — 모바일 우선 스타일
+ *
+ * 디자인 언어는 Ri-weather(골프앱)의 토스풍 라이트 테마를 그대로 가져왔습니다.
+ * 다만 **파일은 복사해서 독립**시켰습니다 — 두 앱이 CSS 를 공유하면
+ * 한쪽을 고칠 때 다른 쪽이 조용히 깨집니다.
+ *
+ * 골프앱과 다른 점은 딱 두 가지입니다.
+ *   1) 포인트 색이 그린(#0b9e36) 대신 파랑(#3182f6) — 주식 앱의 정체성
+ *   2) 한국 증시 관행: 상승/플러스 = 빨강, 하락/마이너스 = 파랑
+ * ===================================================================== */
+
+:root {
+  /* 배경 — 페이지는 옅은 회색, 카드는 순백 (경계선 대신 여백·그림자로 구분) */
+  --bg: #f2f4f6;
+  --surface: #ffffff;
+  --surface-2: #f7f8fa;
+  --surface-press: #edeff2;
+  --line: #e8ebed;
+
+  /* 글자 — 3단 위계만 사용 */
+  --text: #191f28;
+  --text-dim: #4e5968;
+  --text-faint: #8b95a1;
+  --text-on: #ffffff;
+
+  /* 포인트 — 주식 앱은 파랑 */
+  --primary: #3182f6;
+  --primary-press: #1b64da;
+  --primary-weak: #e8f3ff;
+  --primary-ink: #1b64da;
+
+  /* 한국 증시 관행 — 상승/플러스는 빨강, 하락/마이너스는 파랑 */
+  --up: #f04452;
+  --up-weak: #ffeff0;
+  --down: #3182f6;
+  --down-weak: #e8f3ff;
+
+  --warn: #ff9500;
+  --warn-weak: #fff4e5;
+  --danger: #f04452;
+  --danger-weak: #ffeff0;
+
+  /* 모양 */
+  --radius: 16px;
+  --radius-s: 12px;
+  --shadow-1: 0 1px 3px rgba(25, 31, 40, 0.04), 0 4px 14px rgba(25, 31, 40, 0.05);
+  --shadow-2: 0 4px 12px rgba(25, 31, 40, 0.08), 0 12px 32px rgba(25, 31, 40, 0.10);
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* 하단 고정 영역(고지 + 탭바) 높이 — 본문 아래 여백 계산에 씁니다.
+     이 값이 실제보다 작으면 마지막 버튼이 탭바에 가려집니다(CLAUDE.md 3-1). */
+  --footer-h: 92px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+/* ⚠️ `html, body { height:100%; overflow-x:hidden }` 로 쓰면 안 됩니다.
+   body 가 높이 고정 + overflow-y:auto 인 **스크롤 컨테이너**가 되어 버려
+   `window.scrollTo(0,0)` 이 아무 일도 하지 않습니다 (탭을 바꿔도 이전 스크롤 위치 그대로).
+   가로 밀림 방지는 루트(html)에만 걸면 뷰포트로 전파됩니다. */
+html { overflow-x: hidden; }
+
+body {
+  min-height: 100dvh;
+  font-family: "Pretendard", -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo",
+    "Malgun Gothic", "Segoe UI", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  overscroll-behavior-y: none;
+  font-size: 15px;
+  line-height: 1.5;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
+
+input, select, button, textarea { font-family: inherit; min-width: 0; }
+h1, h2, h3, .card-title, .sheet-title { letter-spacing: -0.03em; }
+
+/* ===== 화면 뼈대 ===== */
+.view {
+  max-width: 480px;
+  margin: 0 auto;
+  min-height: 100dvh;
+  padding: env(safe-area-inset-top) 16px calc(var(--footer-h) + env(safe-area-inset-bottom) + 16px);
+  /* clip 은 hidden 과 달리 스크롤 컨테이너를 만들지 않습니다 (위 body 주석과 같은 이유) */
+  overflow-x: clip;
+}
+.view[hidden] { display: none; }
+
+@keyframes viewIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+.view:not([hidden]) { animation: viewIn 0.22s var(--ease); }
+@media (prefers-reduced-motion: reduce) {
+  .view:not([hidden]) { animation: none; }
+  * { transition: none !important; }
+}
+
+.app-header {
+  display: flex; align-items: baseline; gap: 8px;
+  padding: 20px 2px 2px;
+}
+/* 제목은 줄바꿈 금지 — 오른쪽 기준일 문구에 밀려 "Ri / Stock" 두 줄로 쪼개졌던 적이 있습니다 */
+.app-header h1 { flex: none; font-size: 26px; font-weight: 800; white-space: nowrap; }
+.app-header .badge {
+  font-size: 10.5px; font-weight: 700; color: var(--primary-ink);
+  border: 1px solid rgba(49, 130, 246, 0.45); border-radius: 999px; padding: 2px 8px;
+}
+.app-sub { font-size: 12px; color: var(--text-faint); padding: 0 2px 12px; }
+
+.page-title { font-size: 22px; font-weight: 800; padding: 20px 2px 4px; }
+.page-desc { font-size: 13px; color: var(--text-dim); padding: 0 2px 12px; }
+
+/* ===== 카드 ===== */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  margin-bottom: 12px;
+  box-shadow: var(--shadow-1);
+}
+.card-title {
+  font-size: 12px; font-weight: 700; letter-spacing: 0.02em;
+  color: var(--text-faint);
+  display: flex; align-items: center; gap: 6px;
+  margin-bottom: 10px;
+}
+.card-title .grow { margin-left: auto; }
+
+/* ===== 배너 (신선도·오류·안내) ===== */
+.banner {
+  display: flex; gap: 10px; align-items: flex-start;
+  border-radius: var(--radius);
+  padding: 13px 14px;
+  margin-bottom: 12px;
+  font-size: 13.5px; line-height: 1.5;
+}
+.banner .bn-ico { font-size: 19px; line-height: 1.2; flex: none; }
+.banner b { display: block; font-size: 14.5px; margin-bottom: 2px; }
+.banner-info { background: var(--primary-weak); color: var(--primary-ink); }
+.banner-warn { background: var(--warn-weak); color: #8a4b00; border: 1px solid rgba(255, 149, 0, 0.35); }
+.banner-danger { background: var(--danger-weak); color: #a32029; border: 1px solid rgba(240, 68, 82, 0.4); }
+.banner-danger b, .banner-warn b { color: inherit; }
+
+/* 데이터 없음 / 결과 없음 — 절대 빈 화면을 두지 않는다 */
+.empty {
+  text-align: center;
+  padding: 36px 18px;
+  color: var(--text-dim);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  margin-bottom: 12px;
+}
+.empty .em-ico { font-size: 34px; display: block; margin-bottom: 10px; }
+.empty b { display: block; font-size: 16px; color: var(--text); margin-bottom: 6px; }
+.empty p { font-size: 13px; line-height: 1.6; }
+.empty .btn { margin-top: 16px; display: inline-block; width: auto; padding: 11px 22px; }
+
+/* ===== 버튼 ===== */
+.btn {
+  display: block; width: 100%;
+  padding: 13px 16px;
+  border: none; border-radius: var(--radius-s);
+  background: var(--primary); color: var(--text-on);
+  font-size: 15px; font-weight: 700; cursor: pointer;
+  transition: transform 0.12s var(--ease), background-color 0.12s var(--ease);
+}
+.btn:active { transform: scale(0.98); background: var(--primary-press); }
+.btn-sub {
+  background: var(--surface-2); color: var(--text); border: 1px solid var(--line);
+}
+.btn-sub:active { background: var(--surface-press); }
+.btn-danger { background: var(--danger-weak); color: #a32029; border: 1px solid rgba(240, 68, 82, 0.3); }
+.btn-row { display: flex; gap: 8px; margin-bottom: 12px; }
+.btn-row .btn { flex: 1; }
+
+.back-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: none; border: none; cursor: pointer;
+  color: var(--text-dim); font-size: 14px; font-weight: 600;
+  padding: 16px 4px 6px;
+}
+
+/* ===== 세그먼트 (한국 / 미국) ===== */
+.seg {
+  display: flex; gap: 4px;
+  background: var(--surface-2);
+  border-radius: var(--radius-s);
+  padding: 4px;
+  margin-bottom: 12px;
+}
+.seg button {
+  flex: 1; padding: 10px 8px;
+  border: none; border-radius: 9px;
+  background: none; color: var(--text-dim);
+  font-size: 14px; font-weight: 700; cursor: pointer;
+  transition: background-color 0.15s var(--ease), color 0.15s var(--ease);
+}
+.seg button[aria-pressed="true"] {
+  background: var(--surface); color: var(--primary-ink);
+  box-shadow: 0 1px 3px rgba(25, 31, 40, 0.10);
+}
+
+/* ===== 칩 ===== */
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 5px 10px; border-radius: 999px;
+  background: var(--surface-2); border: 1px solid var(--line);
+  font-size: 12px; color: var(--text-dim); font-weight: 600;
+}
+.chip-on { background: var(--primary-weak); border-color: rgba(49, 130, 246, 0.3); color: var(--primary-ink); }
+
+/* ===== 브리핑: 국가별 ===== */
+.mood { font-size: 15px; line-height: 1.65; color: var(--text); }
+.country-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+.country {
+  display: flex; align-items: center; gap: 6px;
+  background: var(--surface-2); border-radius: 10px;
+  padding: 9px 10px; font-size: 13px;
+}
+.country .cn { font-weight: 700; flex: 1; }
+.country .cp { color: var(--up); font-weight: 700; }
+.country .cm { color: var(--down); font-weight: 700; }
+.country .cc { color: var(--text-faint); font-size: 11px; }
+
+/* ===== 브리핑: 섹터 순위 ===== */
+.sector-row { border-top: 1px solid var(--line); }
+.sector-row:first-child { border-top: none; }
+.sector-btn {
+  width: 100%; display: flex; align-items: center; gap: 10px;
+  padding: 12px 2px; background: none; border: none; cursor: pointer;
+  text-align: left; color: var(--text);
+}
+.sector-btn .rk {
+  flex: none; width: 22px; height: 22px; border-radius: 7px;
+  background: var(--surface-2); color: var(--text-dim);
+  font-size: 12px; font-weight: 800;
+  display: flex; align-items: center; justify-content: center;
+}
+.sector-btn.top .rk { background: var(--primary); color: var(--text-on); }
+.sector-btn .nm { flex: 1; font-size: 15px; font-weight: 700; min-width: 0; }
+.sector-btn .nm small { display: block; font-size: 11px; font-weight: 500; color: var(--text-faint); margin-top: 2px; }
+.sector-btn .sc { font-size: 15px; font-weight: 800; color: var(--primary-ink); }
+.sector-btn .ar { color: var(--text-faint); font-size: 12px; width: 12px; text-align: center; }
+.sector-news { list-style: none; padding: 0 2px 12px 34px; }
+.sector-news li {
+  font-size: 12.5px; color: var(--text-dim); line-height: 1.55;
+  padding: 5px 0; border-top: 1px dashed var(--line);
+}
+.sector-news li:first-child { border-top: none; }
+
+/* ===== 브리핑: 전일 대비 ===== */
+.chg-block { padding: 10px 0; border-top: 1px solid var(--line); }
+.chg-block:first-child { border-top: none; padding-top: 0; }
+.chg-name { font-size: 14px; font-weight: 700; margin-bottom: 6px; }
+.chg-line { display: flex; gap: 6px; align-items: flex-start; font-size: 12.5px; margin-top: 4px; }
+.chg-tag {
+  flex: none; font-size: 11px; font-weight: 800; padding: 2px 7px; border-radius: 6px;
+}
+.chg-in { background: var(--up-weak); color: var(--up); }
+.chg-out { background: var(--down-weak); color: var(--down); }
+.chg-list { color: var(--text-dim); line-height: 1.55; }
+
+/* ===== 브리핑: 주요 뉴스 ===== */
+.news-item { display: flex; gap: 8px; padding: 8px 0; border-top: 1px solid var(--line); font-size: 13px; line-height: 1.5; }
+.news-item:first-child { border-top: none; }
+.news-dot { flex: none; width: 6px; height: 6px; border-radius: 50%; margin-top: 7px; }
+.news-up { background: var(--up); }
+.news-down { background: var(--down); }
+.news-item .nt { flex: 1; color: var(--text-dim); }
+.news-item .nc { font-weight: 700; color: var(--text); }
+
+/* ===== 전략 목록 ===== */
+.strategy-card {
+  width: 100%; text-align: left;
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: var(--radius); padding: 15px 16px; margin-bottom: 10px;
+  cursor: pointer; color: var(--text); box-shadow: var(--shadow-1);
+  transition: transform 0.12s var(--ease);
+}
+.strategy-card:active { transform: scale(0.985); }
+.strategy-card .st-top { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+.strategy-card .st-name { font-size: 16px; font-weight: 800; flex: 1; }
+.strategy-card .st-go { color: var(--text-faint); font-size: 14px; }
+.strategy-card .st-desc { font-size: 12.5px; color: var(--text-dim); line-height: 1.55; margin-bottom: 9px; }
+
+/* ===== 섹터 블록 ===== */
+.block-head {
+  display: flex; align-items: center; gap: 8px;
+  margin: 18px 2px 8px;
+}
+.block-head .bh-news {
+  font-size: 12px; font-weight: 800; color: var(--primary-ink);
+  background: var(--primary-weak); border-radius: 999px; padding: 4px 10px;
+}
+.block-head .bh-sec { font-size: 14px; font-weight: 700; color: var(--text-dim); }
+
+/* ===== 종목 카드 (전략 화면) ===== */
+.stock-card {
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: var(--radius); padding: 14px 15px; margin-bottom: 10px;
+  box-shadow: var(--shadow-1);
+}
+.sc-head { display: flex; align-items: flex-start; gap: 10px; }
+.sc-id { flex: 1; min-width: 0; }
+.sc-name { font-size: 16px; font-weight: 800; line-height: 1.3; }
+.sc-ko { font-size: 12.5px; color: var(--text-dim); margin-top: 1px; }
+.sc-meta { font-size: 11.5px; color: var(--text-faint); margin-top: 3px; }
+.sc-meta b { color: var(--text-dim); font-weight: 700; }
+.sc-score { flex: none; text-align: right; }
+.sc-score .v { font-size: 26px; font-weight: 800; color: var(--primary-ink); line-height: 1; }
+.sc-score .l { font-size: 10.5px; color: var(--text-faint); display: block; margin-top: 3px; }
+.fav-btn {
+  flex: none; background: none; border: none; cursor: pointer;
+  font-size: 21px; line-height: 1; color: var(--text-faint);
+  padding: 2px 2px 2px 6px; min-width: 32px; min-height: 32px;
+}
+.fav-btn[aria-pressed="true"] { color: #f7b731; }
+
+/* 13항목 점수 막대 */
+.bars { display: grid; grid-template-columns: repeat(2, 1fr); gap: 4px 12px; margin-top: 12px; }
+.bar { display: flex; align-items: center; gap: 6px; font-size: 11px; }
+.bar .bl { flex: none; width: 46px; color: var(--text-faint); }
+.bar .bt { flex: 1; height: 5px; border-radius: 3px; background: var(--surface-press); overflow: hidden; }
+.bar .bf { display: block; height: 100%; border-radius: 3px; background: var(--primary); }
+.bar .bf.mid { background: #8fbcff; }
+.bar .bf.low { background: #cdd7e3; }
+.bar .bv { flex: none; width: 24px; text-align: right; color: var(--text-dim); font-weight: 700; }
+
+.reasons { margin-top: 11px; display: flex; flex-direction: column; gap: 3px; }
+.reason { display: flex; gap: 7px; font-size: 12.5px; line-height: 1.5; }
+.reason .rk2 { flex: none; width: 42px; color: var(--text-faint); font-weight: 700; }
+.reason .rv { flex: 1; color: var(--text-dim); }
+
+.good-news {
+  margin-top: 10px; padding: 9px 11px; border-radius: 10px;
+  background: var(--up-weak); color: #a32029;
+  font-size: 12px; line-height: 1.55;
+}
+.bad-news {
+  margin-top: 8px; padding: 9px 11px; border-radius: 10px;
+  background: var(--surface-2); color: var(--text-dim);
+  font-size: 12px; line-height: 1.55;
+}
+
+/* ===== 종목 화면 ===== */
+/* ⚠️ 아이폰 사파리는 글자 크기 16px **미만**인 input·select 를 누르면 화면을 확대합니다.
+   확대된 뒤에는 저절로 돌아오지 않아 가로로 밀린 화면을 손으로 되돌려야 합니다.
+   그래서 이 앱의 모든 입력 칸·선택 상자는 16px 밑으로 내리지 않습니다. */
+.search-box {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: var(--radius-s); padding: 0 12px; margin-bottom: 8px;
+}
+/* 위아래 여백을 input 자신이 갖습니다 — 칸 안쪽 아무 데나 눌러도 커서가 들어옵니다.
+   (여백을 바깥 상자가 가지고 있으면 그 부분을 눌러도 아무 일도 일어나지 않습니다) */
+.search-box input {
+  flex: 1; background: none; border: none; outline: none;
+  font-size: 16px; color: var(--text); padding: 12px 0;
+}
+.search-box input::placeholder { color: var(--text-faint); }
+.search-box .si { color: var(--text-faint); font-size: 15px; }
+
+.filter-row { display: flex; gap: 8px; margin-bottom: 10px; }
+.filter-row select {
+  flex: 1; padding: 10px 8px; font-size: 16px;
+  border: 1px solid var(--line); border-radius: var(--radius-s);
+  background: var(--surface); color: var(--text); cursor: pointer;
+  /* 섹터 이름이 길어도 옆 칸을 밀어내지 않도록 */
+  min-width: 0; text-overflow: ellipsis;
+}
+.list-count { font-size: 12px; color: var(--text-faint); padding: 2px 2px 8px; display: flex; align-items: center; }
+.list-count .grow { margin-left: auto; }
+
+.stock-row {
+  display: flex; align-items: center; gap: 10px;
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: var(--radius-s); padding: 11px 12px; margin-bottom: 6px;
+  cursor: pointer; text-align: left; color: var(--text); width: 100%;
+  transition: background-color 0.12s var(--ease);
+}
+.stock-row:active { background: var(--surface-press); }
+.stock-row .rank {
+  flex: none; width: 30px; font-size: 11px; font-weight: 700; color: var(--text-faint); text-align: center;
+}
+.stock-row .info { flex: 1; min-width: 0; }
+/* span 을 그대로 쓰면 이름과 아래 줄이 한 줄에 붙어 버립니다 — display:block 필수 */
+.stock-row .nm { display: block; font-size: 14.5px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.stock-row .sb { display: block; font-size: 11px; color: var(--text-faint); margin-top: 2px; }
+.stock-row .tot { flex: none; font-size: 15px; font-weight: 800; color: var(--primary-ink); width: 42px; text-align: right; }
+.stock-row .tot.none { font-size: 11px; font-weight: 600; color: var(--text-faint); }
+
+/* ===== 내 전략 ===== */
+.toggle-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 11px 2px; border-top: 1px solid var(--line); cursor: pointer;
+  width: 100%; background: none; border-left: none; border-right: none; border-bottom: none;
+  text-align: left; color: var(--text);
+}
+.toggle-row:first-of-type { border-top: none; }
+.toggle-row .tg-txt { flex: 1; min-width: 0; }
+.toggle-row .tg-name { display: block; font-size: 14.5px; font-weight: 700; }
+.toggle-row .tg-desc { display: block; font-size: 11.5px; color: var(--text-faint); line-height: 1.45; margin-top: 2px; }
+.switch {
+  flex: none; width: 46px; height: 27px; border-radius: 999px;
+  background: var(--surface-press); position: relative;
+  transition: background-color 0.18s var(--ease);
+}
+.switch::after {
+  content: ""; position: absolute; top: 3px; left: 3px;
+  width: 21px; height: 21px; border-radius: 50%; background: #fff;
+  box-shadow: 0 1px 3px rgba(25, 31, 40, 0.25);
+  transition: transform 0.18s var(--ease);
+}
+.toggle-row[aria-pressed="true"] .switch { background: var(--primary); }
+.toggle-row[aria-pressed="true"] .switch::after { transform: translateX(19px); }
+
+.saved-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 0; border-top: 1px solid var(--line);
+}
+.saved-item:first-child { border-top: none; }
+.saved-item .sv-name { flex: 1; font-size: 14px; font-weight: 700; min-width: 0; }
+.saved-item .sv-sub { font-size: 11px; color: var(--text-faint); font-weight: 500; display: block; margin-top: 2px; }
+.saved-item button {
+  flex: none; border: 1px solid var(--line); background: var(--surface-2);
+  border-radius: 8px; padding: 7px 11px; font-size: 12px; font-weight: 700;
+  cursor: pointer; color: var(--text-dim); min-height: 32px;
+}
+.saved-item button.del { color: var(--danger); border-color: rgba(240, 68, 82, 0.3); background: var(--danger-weak); }
+
+/* 이름 입력칸·순위 기준 선택 상자 — 위 주석과 같은 이유로 16px 미만 금지 */
+.name-input {
+  width: 100%; padding: 11px 12px; font-size: 16px;
+  border: 1px solid var(--line); border-radius: var(--radius-s);
+  background: var(--surface-2); color: var(--text); outline: none; margin-bottom: 8px;
+}
+.name-input:focus { border-color: var(--primary); background: var(--surface); }
+
+/* ===== 종목 상세 시트 ===== */
+.sheet-back {
+  position: fixed; inset: 0; z-index: 3000;
+  background: rgba(25, 31, 40, 0.35);
+  display: flex; align-items: flex-end; justify-content: center;
+  animation: sheetFade 0.18s ease;
+}
+.sheet-back[hidden] { display: none; }
+/* 시트가 열려 있는 동안 뒤 목록이 따라 움직이지 않게 잠급니다.
+   (어두운 배경을 쓸어내리면 뒤의 300종목 목록이 스크롤돼, 시트를 닫으면
+    보고 있던 자리가 아닌 엉뚱한 위치에 가 있었습니다 — 아이폰에서 특히 심합니다)
+   `top` 값은 app.js 가 넣습니다. */
+body.sheet-open { position: fixed; left: 0; right: 0; width: 100%; overflow: hidden; }
+@keyframes sheetFade { from { opacity: 0; } to { opacity: 1; } }
+.sheet {
+  width: 100%; max-width: 480px;
+  background: var(--surface);
+  border-radius: 20px 20px 0 0;
+  padding: 10px 18px calc(24px + env(safe-area-inset-bottom));
+  max-height: 88dvh; overflow-y: auto; -webkit-overflow-scrolling: touch;
+  animation: sheetUp 0.22s var(--ease);
+}
+@keyframes sheetUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+.sheet-bar { width: 38px; height: 4px; border-radius: 2px; background: var(--surface-press); margin: 0 auto 14px; }
+.sheet-title { font-size: 20px; font-weight: 800; }
+.sheet-sub { font-size: 12.5px; color: var(--text-faint); margin-top: 3px; margin-bottom: 14px; }
+
+.kv { display: grid; grid-template-columns: repeat(2, 1fr); gap: 7px 10px; margin-top: 4px; }
+.kv div { background: var(--surface-2); border-radius: 10px; padding: 8px 10px; }
+.kv .k { font-size: 10.5px; color: var(--text-faint); }
+.kv .v { font-size: 14px; font-weight: 700; margin-top: 2px; }
+.kv .v.up { color: var(--up); }
+.kv .v.down { color: var(--down); }
+
+.mini-table { width: 100%; font-size: 12.5px; border-collapse: collapse; }
+.mini-table th, .mini-table td { padding: 6px 4px; border-bottom: 1px solid var(--line); text-align: right; }
+.mini-table th:first-child, .mini-table td:first-child { text-align: left; color: var(--text-faint); }
+.mini-table th { font-size: 11px; color: var(--text-faint); font-weight: 600; }
+.scroll-x { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+/* ===== 하단 고정 영역: 투자권유 아님 고지 + 탭바 =====
+   고지는 공개 웹 배포 조건이라 모든 화면에서 항상 보이게 고정합니다. */
+.app-footer {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 900;
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(10px);
+  border-top: 1px solid var(--line);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.disclaimer {
+  max-width: 480px; margin: 0 auto;
+  font-size: 10.5px; line-height: 1.35; color: var(--text-faint);
+  text-align: center; padding: 6px 14px 4px;
+}
+.tabbar {
+  max-width: 480px; margin: 0 auto;
+  display: grid; grid-template-columns: repeat(4, 1fr);
+}
+.tabbar button {
+  background: none; border: none; cursor: pointer;
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  padding: 4px 0 8px; color: var(--text-faint);
+  font-size: 10.5px; font-weight: 700;
+  transition: color 0.12s var(--ease);
+}
+.tabbar button .ti { font-size: 19px; line-height: 1.1; }
+.tabbar button[aria-current="page"] { color: var(--primary-ink); }
+
+/* 화면 안에 한 번 더 적는 고지 (스크롤 끝까지 내린 사람에게도 보이도록) */
+.foot-note {
+  font-size: 11px; color: var(--text-faint); line-height: 1.6;
+  text-align: center; padding: 18px 8px 4px;
+}
+
+/* ===== 토스트 ===== */
+.toast {
+  position: fixed; left: 50%; transform: translateX(-50%);
+  bottom: calc(var(--footer-h) + env(safe-area-inset-bottom) + 12px);
+  z-index: 4000; max-width: 400px;
+  background: rgba(25, 31, 40, 0.92); color: #fff;
+  font-size: 13px; font-weight: 600;
+  padding: 11px 18px; border-radius: 999px;
+  animation: toastIn 0.2s var(--ease);
+}
+.toast[hidden] { display: none; }
+@keyframes toastIn { from { opacity: 0; transform: translate(-50%, 10px); } to { opacity: 1; transform: translate(-50%, 0); } }
+
+/* ===== 로딩 ===== */
+.loading { text-align: center; padding: 60px 20px; color: var(--text-faint); font-size: 14px; }
+.spinner {
+  width: 26px; height: 26px; margin: 0 auto 14px;
+  border: 3px solid var(--surface-press); border-top-color: var(--primary);
+  border-radius: 50%; animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* 아주 좁은 기기 대응 */
+@media (max-width: 340px) {
+  .bars { grid-template-columns: 1fr; }
+  .country-grid { grid-template-columns: 1fr; }
+}

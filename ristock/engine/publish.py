@@ -48,6 +48,14 @@ if hasattr(sys.stdout, 'reconfigure'):   # 윈도우 cp949 콘솔에서 한글�
 # 상수 — 이 스크립트가 다루는 유일한 경로
 # =========================
 DATA_REL = os.path.relpath(DATA_DIR, REPO_DIR).replace(os.sep, '/')   # 'ristock/data'
+
+# 데이터 폴더 안에 있지만 **저장소에 올리면 안 되는 것들**
+#   last_run.log : PC 실행 기록(내 PC 사정일 뿐, 앱과 무관)
+#   xlsx/        : 사장님용 엑셀 — 매일 수 MB씩 쌓여 저장소가 무거워집니다
+#                  (엔진 실행 시 --excel-dir 로 저장소 밖에 저장하는 것이 정답)
+EXCLUDES = [f':(exclude){DATA_REL}/last_run.log', f':(exclude){DATA_REL}/xlsx/**']
+PATHSPEC = [DATA_REL] + EXCLUDES
+
 PUSH_BACKOFF = (2, 4, 8, 16)          # 네트워크 실패 시 재시도 간격(초) — 최대 4회
 REBASE_STEPS = 12                     # 리베이스 중 충돌 자동 해결 반복 한도
 MAX_MB = 40                           # 이만큼보다 큰 데이터를 올리려 하면 멈춘다
@@ -87,11 +95,33 @@ def 리베이스중():
             or os.path.exists(os.path.join(g, 'rebase-apply')))
 
 
+def 브랜치확인(요청):
+    """`--branch` 로 받은 이름이 지금 체크아웃된 브랜치와 같은지 본다.
+
+    다르면 그대로 두고 진행하면 **다른 브랜치의 커밋이 통째로 그 브랜치로 넘어갑니다.**
+    (`_푸시` 는 `HEAD:refs/heads/<요청>` 로 보내고, `_원격과합치기` 는 HEAD 를
+     `origin/<요청>` 위로 리베이스합니다. 예를 들어 작업 브랜치에서 실수로
+     `--branch main` 을 주면 아직 검토하지 않은 작업이 전부 main 으로 올라갑니다.)
+
+    분리된 HEAD(CI 등)에서는 판단할 수 없으므로 통과시킵니다.
+    반환값: (진행해도 되는가, 실제 브랜치)
+    """
+    실제 = _out('rev-parse', '--abbrev-ref', 'HEAD')
+    if not 요청 or not 실제 or 실제 == 'HEAD':
+        return True, (요청 or 현재브랜치())
+    if 요청 != 실제:
+        print(f"  ⛔ 지금 체크아웃된 브랜치는 '{실제}' 인데 '{요청}' 로 보내라고 하셨습니다.")
+        print(f"     그대로 하면 '{실제}' 의 커밋이 통째로 '{요청}' 에 올라갑니다 — 멈춥니다.")
+        print(f"     '{요청}' 에 올리려면 먼저 git switch {요청} 로 옮긴 뒤 실행해 주세요.")
+        return False, 실제
+    return True, 실제
+
+
 def _포셀린(경로만=True):
     """`ristock/data` 안의 변경 목록 [(상태, 경로), …]"""
     args = ['status', '--porcelain', '--untracked-files=all']
     if 경로만:
-        args += ['--', DATA_REL]
+        args += ['--'] + PATHSPEC
     rows = []
     for line in (git(*args).stdout or '').splitlines():
         if len(line) < 4:
@@ -120,7 +150,9 @@ def sync_data(branch=None, dry_run=False):
     원격 상태에서 출발했다가 통째로 다시 쓰면 충돌 자체가 생기지 않습니다.
     반환값: 0 정상 / 1 사람이 봐야 함
     """
-    branch = branch or 현재브랜치()
+    괜찮음, branch = 브랜치확인(branch)
+    if not 괜찮음:
+        return 1
     print(f'■ 원격 상태 정렬 — origin/{branch} 의 {DATA_REL}/')
 
     if 리베이스중():
@@ -221,6 +253,22 @@ def 용량점검(max_mb=MAX_MB):
             총 += sz
             if sz > 10 * 1024 * 1024:
                 큰것.append(f'{rel} ({sz / 1048576:.0f}MB)')
+    # --- 누적 감시 -----------------------------------------------------
+    # `--archive` 는 매일 archive/YYYYMMDD/ 에 약 0.6MB 를 남깁니다.
+    # 한 번에 걸리는 양은 작아서 위의 검사에 절대 안 잡히지만, 1년이면 150MB 입니다.
+    # 저장소가 무거워지면 집·회사 두 PC 의 clone·pull 이 같이 느려집니다.
+    누적 = 0
+    for root, _dirs, files in os.walk(DATA_DIR):
+        for x in files:
+            try:
+                누적 += os.path.getsize(os.path.join(root, x))
+            except OSError:
+                pass
+    누적mb = 누적 / 1048576
+    if 누적mb > 200:
+        print(f'  ⚠ ristock/data 가 {누적mb:.0f}MB 까지 커졌습니다.')
+        print('     archive/ 의 오래된 날짜 폴더를 정리할 때가 됐습니다 (앱은 최신 파일만 씁니다).')
+
     mb = 총 / 1048576
     if mb > max_mb:
         print(f'  ⛔ 올리려는 데이터가 {mb:.0f}MB 입니다 (기준 {max_mb}MB).')
@@ -231,6 +279,21 @@ def 용량점검(max_mb=MAX_MB):
         print('     그래도 올리려면: --allow-big')
         return False
     return True
+
+
+def 편집중인_다른파일():
+    """`ristock/data` 밖에 **저장하지 않은 변경**이 있는가 = 사장님이 지금 편집 중인가.
+
+    새로 만들기만 한 파일(`??`)은 리베이스를 방해하지 않으므로 세지 않습니다.
+    """
+    데이터 = DATA_REL + '/'
+    목록 = []
+    for st, p in _포셀린(경로만=False):
+        if st == '??':
+            continue
+        if not p.replace('\\', '/').startswith(데이터):
+            목록.append(p)
+    return 목록
 
 
 def _충돌해결_데이터만():
@@ -259,15 +322,41 @@ def _충돌해결_데이터만():
 def _원격과합치기(branch):
     """푸시가 거부됐을 때 origin/<branch> 위로 리베이스한다. 성공 여부 반환.
 
-    `rebase.autoStash` 를 켜 두어 사장님이 **다른 파일을 편집 중이어도** 그 작업을
-    잠시 보관했다가 그대로 되돌려 줍니다(작업이 사라지지 않습니다).
+    ⚠ 예전에는 `rebase.autoStash` 를 켜서 "사장님이 편집 중이어도 알아서 비켜 준다"고
+      했지만 **그것이 오히려 사장님 파일을 망가뜨렸습니다.**
+      리베이스가 끝난 뒤 보관해 둔 작업을 되돌리다가 충돌하면, git 은 그 파일에
+      `<<<<<<< Updated upstream` 같은 충돌 표시를 그대로 써 넣습니다.
+      그때는 리베이스가 이미 끝나 있어서 `git rebase --abort` 도 소용이 없고,
+      결국 사장님이 편집 중이던 `index.html` 이 충돌 표시가 박힌 채 남았습니다.
+      그 상태에서 `tools/sync.py` 가 `git add -A` 로 쓸어 담으면
+      충돌 표시가 그대로 커밋되어 **앱이 깨진 채로 배포됩니다.**
+
+    그래서 지금은 정반대로 합니다 — **사장님이 편집 중인 파일이 하나라도 있으면
+    아예 합치지 않습니다.** 데이터는 이미 이 PC에 커밋돼 있으므로 사라지지 않고,
+    다음 실행이나 `tools/sync.py` 가 함께 올려 줍니다. 못 올리는 것보다
+    사장님 작업을 건드리는 쪽이 훨씬 나쁩니다.
     """
     print(f'  · 원격이 앞서 있습니다 → origin/{branch} 위로 다시 얹는 중')
+
+    편집중 = 편집중인_다른파일()
+    if 편집중:
+        print('  ⛔ 사장님이 저장하지 않은 파일이 있어 합치지 않았습니다:')
+        for f in 편집중[:10]:
+            print(f'     · {f}')
+        if len(편집중) > 10:
+            print(f'     … 외 {len(편집중) - 10}건')
+        print('     (지금 합치면 이 파일들에 충돌 표시가 박힐 수 있습니다)')
+        print('     오늘 데이터는 이 PC에 커밋해 두었습니다 — 사라지지 않습니다.')
+        print('     위 파일을 정리한 뒤 python tools/sync.py "한 일" 로 함께 올려 주세요.')
+        return False
+
     if git('fetch', '--quiet', 'origin', branch).returncode != 0:
         print('  ⛔ 원격을 받지 못했습니다 (네트워크 확인)')
         return False
 
-    리베이스 = ('-c', 'core.editor=true', '-c', 'rebase.autoStash=true')
+    # core.editor=true : 예약 실행 중에 편집기가 떠서 영영 멈추는 일을 막습니다.
+    # autoStash 는 위 사고 때문에 일부러 켜지 않습니다.
+    리베이스 = ('-c', 'core.editor=true', '-c', 'rebase.autoStash=false')
     r = git(*리베이스, 'rebase', f'origin/{branch}')
     for _ in range(REBASE_STEPS):
         if r.returncode == 0 and not 충돌파일():
@@ -280,8 +369,17 @@ def _원격과합치기(branch):
                   f"{((r.stderr or '') + (r.stdout or '')).strip()[:300]}")
             return False
         if not _충돌해결_데이터만():
-            git('rebase', '--abort')
-            print('     되돌렸습니다. 사람이 확인한 뒤 다시 실행해 주세요.')
+            # ⚠ 리베이스가 진행 중일 때만 되돌릴 수 있습니다.
+            #   진행 중이 아닌데 --abort 를 부르면 아무 일도 일어나지 않는데,
+            #   예전에는 그래도 "되돌렸습니다"라고 말해서 망가진 작업 트리를
+            #   멀쩡한 것으로 착각하게 만들었습니다. 사실대로만 말합니다.
+            if 리베이스중():
+                git('rebase', '--abort')
+                print('     되돌렸습니다. 사람이 확인한 뒤 다시 실행해 주세요.')
+            else:
+                print('     ⛔ 작업 트리가 충돌 상태로 남아 있습니다 — 되돌리지 못했습니다.')
+                print('        이대로 tools/sync.py 를 돌리면 충돌 표시가 그대로 커밋됩니다.')
+                print('        git status 로 확인한 뒤 사람이 정리해 주세요.')
             return False
         r = git(*리베이스, 'rebase', '--continue')
         if 'no rebase in progress' in (r.stderr or ''):
@@ -325,13 +423,26 @@ def _푸시(branch, retries=len(PUSH_BACKOFF)):
     return False
 
 
+def 밀린데이터커밋(branch):
+    """원격에 아직 못 보낸 `ristock/data` 커밋이 남아 있는가."""
+    if git('rev-parse', '--verify', '--quiet', f'origin/{branch}').returncode != 0:
+        return False        # 원격 브랜치를 아직 모른다 — 판단하지 않는다
+    n = _out('rev-list', '--count', f'origin/{branch}..HEAD', '--', DATA_REL)
+    try:
+        return int(n or '0') > 0
+    except ValueError:
+        return False
+
+
 def commit_and_push(message=None, branch=None, author=None, runner=None,
                     dry_run=False, allow_big=False, push=True):
     """`ristock/data` 의 변경분만 커밋하고 보낸다.
 
     반환값: 0 정상(변경 없음 포함) / 1 사람이 봐야 함
     """
-    branch = branch or 현재브랜치()
+    괜찮음, branch = 브랜치확인(branch)
+    if not 괜찮음:
+        return 1
 
     if 리베이스중():
         print('  ⛔ 이전 동기화(rebase)가 끝나지 않았습니다 — 먼저 정리해 주세요.')
@@ -340,6 +451,12 @@ def commit_and_push(message=None, branch=None, author=None, runner=None,
     변경 = _포셀린()
     if not 변경:
         print('■ 바뀐 데이터가 없습니다 — 커밋하지 않고 끝냅니다.')
+        # 지난번에 커밋까지 했는데 못 보낸 데이터가 남아 있을 수 있습니다.
+        # (예: 사장님이 편집 중이라 합치기를 미뤘던 경우)
+        # 그대로 두면 데이터가 이 PC에만 남아 영영 앱에 도달하지 않습니다.
+        if push and not dry_run and 밀린데이터커밋(branch):
+            print('  · 지난번에 못 보낸 데이터 커밋이 있습니다 — 지금 보냅니다.')
+            return 0 if _푸시(branch) else 1
         return 0
 
     print(f'■ 바뀐 데이터 {len(변경)}건')
@@ -354,24 +471,24 @@ def commit_and_push(message=None, branch=None, author=None, runner=None,
     msg = message or 기본커밋메시지(runner)
     if dry_run:
         print('  (미리보기) 아무것도 커밋·푸시하지 않았습니다.')
-        print(f'  (미리보기) git add -A -- {DATA_REL}')
-        print(f'  (미리보기) git commit -- {DATA_REL}')
+        print(f"  (미리보기) git add -A -- {' '.join(PATHSPEC)}")
+        print(f'  (미리보기) git commit -- {DATA_REL} (로그·엑셀 제외)')
         print(f'  (미리보기) 커밋 메시지: {msg.splitlines()[0]}')
         if push:
             print(f'  (미리보기) git push origin HEAD:refs/heads/{branch}')
         return 0
 
-    a = git('add', '-A', '--', DATA_REL)
+    a = git('add', '-A', '--', *PATHSPEC)
     if a.returncode != 0:
         print(f"  ⛔ 스테이징 실패: {(a.stderr or '').strip()[:300]}")
         return 1
 
     # 다른 경로가 이미 스테이징돼 있어도 함께 커밋되지 않도록 경로를 못박는다
-    if git('diff', '--cached', '--quiet', '--', DATA_REL).returncode == 0:
+    if git('diff', '--cached', '--quiet', '--', *PATHSPEC).returncode == 0:
         print('■ 내용이 같아 커밋할 것이 없습니다.')
         return 0
 
-    c = git(*_신원인자(author), 'commit', '-m', msg, '--only', '--', DATA_REL)
+    c = git(*_신원인자(author), 'commit', '-m', msg, '--only', '--', *PATHSPEC)
     if c.returncode != 0:
         print(f"  ⛔ 커밋 실패: {((c.stderr or '') + (c.stdout or '')).strip()[:300]}")
         return 1
