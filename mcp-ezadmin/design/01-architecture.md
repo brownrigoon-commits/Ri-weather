@@ -64,7 +64,7 @@ flowchart LR
 ```json
 "meta": {
   "source": "excel",
-  "files": [{"파일": "주문_0727.xlsx", "수정시각": "2026-07-27 09:12"}],
+  "files": [{"파일": "주문_0727.xlsx", "수정시각": "2026-07-27 09:12", "행수": 1863}],
   "데이터기준": "2026-07-27 09:12",
   "pii_mode": "masked",
   "warnings": ["주문 데이터가 26시간 전 파일입니다. 최신 엑셀을 내려받아 주세요."]
@@ -86,5 +86,7 @@ flowchart LR
   `print()` 금지, 로깅은 `logging.basicConfig(stream=sys.stderr)`
 - 시간대는 항상 KST. `zoneinfo("Asia/Seoul")` 시도 후 실패 시(Windows에서 tzdata 부재)
   `timezone(timedelta(hours=9))` 고정 오프셋으로 폴백 — tzdata를 의존성에 넣지 않는 이유
+- **파일 수정시각도 KST로 변환**해서 쓴다(`datetime.fromtimestamp(mtime, tz=kst())`).
+  시스템 로컬 시간대를 그대로 쓰면 KST가 아닌 PC에서 신선도 경고가 허위로 뜬다
 - 예외는 도구 안에서 잡아 한국어 메시지의 정상 JSON(`{"오류": "..."}` + meta)으로 반환.
   스택트레이스는 stderr 로그로만

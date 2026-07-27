@@ -57,6 +57,7 @@ EZMCP_DB_DSN=
 
   "unshipped_delay_days": 2,         // 미출고 지연 판정 (경과일 기준)
   "low_stock_threshold": 3,          // 안전재고 컬럼이 없을 때 재고부족 판정 기준
+  "stale_hours": 24,                 // 이 시간보다 오래된 파일이면 meta.warnings 에 경고
 
   "courier_urls": {                  // 04 문서 기본 URL 덮어쓰기용
     // "cj": "https://..."
