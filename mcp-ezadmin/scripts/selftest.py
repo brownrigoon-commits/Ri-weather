@@ -18,6 +18,11 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
+# 한국 Windows에서 결과를 파일로 리다이렉트하면 stdout 인코딩이 cp949가 되어
+# 상품명 등에 특수문자가 있을 때 UnicodeEncodeError 로 죽는다. 그걸 막는다.
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+
 RESULTS: list[tuple[bool, str, str]] = []
 
 
@@ -322,6 +327,60 @@ def test_masking_rules() -> None:
     )
 
 
+def test_parsing_rules() -> None:
+    """이지어드민 엑셀에서 실제로 나오는 날짜·숫자 표기 (파싱 실패는 기간 조회 누락으로 이어짐)."""
+    from datetime import datetime
+
+    from ezmcp.normalize import parse_date, parse_int
+
+    cases = {
+        "2026-07-27 09:12:33": datetime(2026, 7, 27, 9, 12, 33),
+        "2026-07-27 09:12": datetime(2026, 7, 27, 9, 12),
+        "2026-07-27": datetime(2026, 7, 27),
+        "2026/07/27 09:12": datetime(2026, 7, 27, 9, 12),
+        "2026.07.27 9:05": datetime(2026, 7, 27, 9, 5),
+        "20260727": datetime(2026, 7, 27),
+        "2026-07-27T09:12:33.123": datetime(2026, 7, 27, 9, 12, 33),
+    }
+    for text, expected in cases.items():
+        check("날짜파싱: %s" % text, parse_date(text) == expected, str(parse_date(text)))
+
+    check("날짜파싱: 숫자로 적힌 날짜 20260727", parse_date(20260727) == datetime(2026, 7, 27),
+          str(parse_date(20260727)))
+    check("날짜파싱: 엑셀 시리얼값", parse_date(46000) == datetime(2025, 12, 9),
+          str(parse_date(46000)))
+    check("날짜파싱: 해석 불가 값은 None", parse_date("미정") is None)
+
+    check("숫자파싱: 12,000원", parse_int("12,000원") == 12000)
+    check("숫자파싱: 3 EA", parse_int("3 EA") == 3)
+    check("숫자파싱: 빈 값", parse_int("") == 0)
+
+
+def test_error_containment(service) -> None:
+    """이상한 인자에도 예외가 밖으로 새지 않아야 한다 (예외가 나가면 연결이 끊긴 것처럼 보임)."""
+    import json
+
+    cases = [
+        ("limit 음수", lambda: service.inventory_lookup(limit=-5)),
+        ("limit 문자열", lambda: service.order_lookup(limit="abc")),
+        ("알 수 없는 기간", lambda: service.order_lookup(period="지지난주")),
+        ("정규식 문자 검색", lambda: service.order_lookup(query="[(*+?")),
+        ("brand=None", lambda: service.inventory_lookup(brand=None)),
+        ("역순 날짜", lambda: service.order_lookup(start_date="2026-12-31", end_date="2026-01-01")),
+        ("잘못된 날짜형식", lambda: service.order_lookup(start_date="2026/13/45")),
+        ("빈 배송구분", lambda: service.shipping_lookup(direction="")),
+    ]
+    for name, fn in cases:
+        try:
+            payload = fn()
+            json.dumps(payload, ensure_ascii=False)
+            ok = isinstance(payload, dict) and "meta" in payload
+        except Exception as exc:  # noqa: BLE001
+            ok = False
+            name += " (%s)" % type(exc).__name__
+        check("예외내성: %s" % name, ok)
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="ezadmin-mcp 셀프테스트")
     parser.add_argument("--source", default="", help="소스 모드 강제 (excel|api|auto)")
@@ -344,11 +403,13 @@ def main() -> int:
     service = _reload_service()
 
     test_masking_rules()
+    test_parsing_rules()
     status = test_data_status(service)
     test_inventory(service, cfg)
     test_orders(service, status)
     test_unshipped(service)
     test_shipping(service)
+    test_error_containment(service)
     test_pii_modes()
 
     print("")

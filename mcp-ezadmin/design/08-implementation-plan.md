@@ -66,24 +66,34 @@ MCP 없이 service 함수를 직접 호출해 검증. 샘플 데이터 없으면
 6. 기간 경계: 오늘 00:00(KST) 주문이 period="오늘"에 포함, 어제 23:59는 미포함
 7. pii_mode=summary로 재로드 시 수취인·전화·주소 키 부재; full 시 원본 (환경변수 바꿔 재검증)
 8. 브랜드 미등록명 → 안내 메시지 반환
+9. 날짜·숫자 파싱 회귀 케이스 (이지어드민 표기 변형 — 파싱 실패는 기간 조회에서 조용히 누락됨)
+10. 예외 내성: 이상한 인자(limit 음수/문자열, 알 수 없는 기간, 정규식 문자, 역순 날짜 등)에도
+    예외가 밖으로 새지 않고 JSON 직렬화 가능한 dict 반환
 
 ### `scripts/mcp_smoke_test.py`
 `mcp` SDK의 stdio 클라이언트로 server.py를 실제 기동:
 initialize → list_tools(5개 확인) → data_status 호출 → inventory_lookup 호출 →
 응답 JSON 파싱 확인. PASS/FAIL 출력, 실패 시 exit 1.
 
-## 완료 기준 체크리스트 (전부 체크되기 전에는 "완료" 보고 금지)
+## 완료 기준 체크리스트 (2026-07-27 구현 완료 — 전부 실제 실행으로 확인)
 
-- [ ] selftest.py 전 항목 PASS (실행 로그를 커밋 메시지나 PR 설명에 첨부)
-- [ ] mcp_smoke_test.py PASS
-- [ ] 쓰기 코드 경로 없음을 확인: `grep -rn "save\|write\|delete\|update" ezmcp/` 결과를
-      직접 훑어 데이터 변경 경로가 없음을 확인 (config 자동 생성·폴더 생성 두 예외만)
-- [ ] `.env`/`config.json`/`data/` 가 git status에 나타나지 않음 (gitignore 동작 확인)
-- [ ] 저장소 어디에도 실키·실데이터·실고객정보 없음
-- [ ] server.py에 `print(` 없음 (stdout 오염 금지)
-- [ ] README가 아래 요구사항 목차를 모두 담음
-- [ ] Windows 실행 관점 점검: 경로 조립은 pathlib, 파일 인코딩 명시(utf-8), KST 폴백(01 문서)
-- [ ] design/ 문서와 코드가 일치 (다르면 문서 먼저 갱신 후 구현)
+- [x] selftest.py 전 항목 PASS (78/78)
+- [x] mcp_smoke_test.py PASS (9/9 — 실제 stdio 기동·도구 5개·전 도구 호출)
+- [x] 쓰기 코드 경로 없음: 패키지 전체에서 파일 쓰기는 `shutil.copyfile`(config.json 자동 생성)과
+      `mkdir`(data 폴더) 둘뿐이고, 파일 오픈은 전부 읽기 모드
+- [x] `.env`/`config.json`/`data/` 가 git status에 나타나지 않음 (`git check-ignore` 로 확인)
+- [x] 저장소 어디에도 실키·실데이터·실고객정보 없음 (샘플은 전부 가상)
+- [x] server.py에 `print(` 없음
+- [x] README가 아래 요구사항 목차를 모두 담음
+- [x] Windows 실행 관점: pathlib 사용, 인코딩 명시, KST 폴백,
+      스크립트 stdout을 UTF-8로 reconfigure (cp949 리다이렉트 시 UnicodeEncodeError 방지)
+- [x] design/ 문서와 코드 일치 (구현 중 바뀐 부분은 문서를 먼저 갱신)
+
+### 남은 검증 (실데이터가 있어야 가능 — 사장님 협조 필요)
+
+- [ ] 실제 이지어드민 엑셀 1벌(주문·재고·반품)로 머리글 매핑 확인
+- [ ] 원문 상태값 → 버킷 매핑표를 뽑아 사장님과 대조 (02 문서의 '조용한 오분류' 경고 참고)
+- [ ] 실제 상품코드 체계로 `config.json` 의 brands 채우기
 
 ## README 요구사항 (재작성 목차)
 

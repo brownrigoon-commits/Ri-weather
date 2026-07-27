@@ -232,6 +232,7 @@ _DATETIME_FORMATS = (
     "%Y/%m/%d %H:%M",
     "%Y/%m/%d",
     "%Y.%m.%d %H:%M:%S",
+    "%Y.%m.%d %H:%M",
     "%Y.%m.%d",
     "%Y%m%d%H%M%S",
     "%Y%m%d",
@@ -255,7 +256,8 @@ def parse_date(value: Any) -> datetime | None:
         serial = float(value)
         if 30000 <= serial <= 80000:
             return _EXCEL_EPOCH + timedelta(days=serial)
-        return None
+        # 시리얼이 아니면 20260727 처럼 숫자로 적힌 날짜일 수 있으므로 문자열로 재시도
+        value = int(serial) if float(serial).is_integer() else serial
 
     text = str(value).strip()
     if not text:

@@ -7,6 +7,7 @@ selftest.py 가 이 함수들을 직접 호출해 검증한다.
 
 from __future__ import annotations
 
+import functools
 import logging
 from collections import Counter
 from typing import Any
@@ -36,6 +37,35 @@ MODE_LABEL = {
 # ---------------------------------------------------------------------------
 # 공통 도우미
 # ---------------------------------------------------------------------------
+
+
+def _guard(fn):
+    """어떤 예외도 도구 밖으로 새지 않게 한다 — 예외가 나가면 Claude 쪽 연결이 끊긴 것처럼 보인다."""
+
+    @functools.wraps(fn)
+    def wrapper(*args, **kwargs):
+        try:
+            return fn(*args, **kwargs)
+        except Exception as exc:  # noqa: BLE001
+            log.exception("%s 실행 중 예외", fn.__name__)
+            try:
+                meta = _meta(get_config(), [])
+            except Exception:  # noqa: BLE001
+                meta = {
+                    "source": "없음",
+                    "files": [],
+                    "데이터기준": "(확인 불가)",
+                    "pii_mode": "masked",
+                    "warnings": [],
+                }
+            return {
+                "오류": "조회 중 예기치 못한 오류가 발생했습니다 (%s). "
+                "python scripts/selftest.py 를 실행하면 원인을 알 수 있습니다."
+                % type(exc).__name__,
+                "meta": meta,
+            }
+
+    return wrapper
 
 
 def _clamp(limit: Any, default: int) -> int:
@@ -137,6 +167,7 @@ def _sort_by_date(records: list[dict], field: str, reverse: bool = True) -> list
 # ---------------------------------------------------------------------------
 
 
+@_guard
 def data_status() -> dict:
     """연결·데이터 상태 진단."""
     cfg = get_config()
@@ -208,6 +239,7 @@ def data_status() -> dict:
 # ---------------------------------------------------------------------------
 
 
+@_guard
 def inventory_lookup(
     query: str = "",
     brand: str = "",
@@ -321,6 +353,7 @@ def _return_rows(records: list[dict], cfg, masker: Masker) -> list[dict]:
     return rows
 
 
+@_guard
 def order_lookup(
     order_no: str = "",
     period: str = "",
@@ -488,6 +521,7 @@ def _order_detail(
 # ---------------------------------------------------------------------------
 
 
+@_guard
 def unshipped_list(period: str = "", brand: str = "", limit: int = 50) -> dict:
     """접수됐지만 출고(송장 등록)되지 않은 주문 목록."""
     cfg = get_config()
@@ -617,6 +651,7 @@ def _shipping_row_from_return(rec: dict, cfg) -> dict:
     }
 
 
+@_guard
 def shipping_lookup(
     order_no: str = "",
     tracking_no: str = "",

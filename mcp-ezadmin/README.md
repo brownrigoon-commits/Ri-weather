@@ -70,13 +70,13 @@ C:\Python314\python.exe C:\work\mcp-ezadmin\scripts\selftest.py
 ```bat
 cd C:\work\mcp-ezadmin
 C:\Python314\python.exe scripts\make_sample_data.py    :: 가상 샘플 엑셀 생성
-C:\Python314\python.exe scripts\selftest.py            :: 조회 로직 57개 검증
+C:\Python314\python.exe scripts\selftest.py            :: 조회 로직 78개 검증
 C:\Python314\python.exe scripts\mcp_smoke_test.py      :: MCP 연결 왕복 확인
 ```
 
 기대 결과:
 
-- `selftest.py` → 마지막 줄에 `총 57개 검증 · 통과 57 · 실패 0`
+- `selftest.py` → 마지막 줄에 `총 78개 검증 · 통과 78 · 실패 0`
 - `mcp_smoke_test.py` → `MCP 스모크 테스트: 통과 9 · 실패 0`
 
 하나라도 FAIL이 나오면 그 줄에 이유가 함께 표시됩니다.

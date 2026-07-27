@@ -21,6 +21,10 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
+# 한국 Windows에서 출력을 파일로 리다이렉트할 때의 cp949 인코딩 오류 방지
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+
 from openpyxl import Workbook  # noqa: E402
 
 from ezmcp.dates import now_kst  # noqa: E402
