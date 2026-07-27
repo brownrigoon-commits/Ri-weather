@@ -257,12 +257,34 @@ for (const 뷰 of 뷰포트들) {
   섹션(`${뷰.이름} · 종목 화면`);
   await p.locator('#tabbar button[data-tab="stocks"]').click();
   await p.waitForTimeout(300);
+  /* 목록은 50행씩 끊어 그립니다 (구형 폰에서 300행 일괄 렌더가 검색을 멈춰 세웁니다 —
+     app.js `표시단위` 주석의 실측값 참고). 개수는 목록 위 카운트에 그대로 나와야 하고,
+     "더 보기"를 끝까지 누르면 정확히 300종목에 닿아야 합니다. */
   const 전체행 = await p.locator('#view-stocks .stock-row').count();
-  확인('종목:한국 300종목', 전체행 === 300, String(전체행));
+  확인('종목:한국 첫 50행만 렌더', 전체행 === 50, String(전체행));
+  확인('종목:한국 총 300종목 표기', (await p.locator('#stock-count').innerText()).includes('300종목'),
+    await p.locator('#stock-count').innerText());
+  let 더누름 = 0;
+  while (await p.locator('#view-stocks [data-act="더보기"]').count()) {
+    await p.locator('#view-stocks [data-act="더보기"]').click();
+    await p.waitForTimeout(120);
+    if (++더누름 > 12) break;
+  }
+  확인('종목:더 보기로 300종목 전부 도달',
+    (await p.locator('#view-stocks .stock-row').count()) === 300,
+    `${더누름}번 눌러 ${await p.locator('#view-stocks .stock-row').count()}행`);
+  await 가로스크롤(p, '종목 300행 전부');
+  await p.locator('#tabbar button[data-tab="stocks"]').click();   // 화면을 새로 열면 다시 50행
+  await p.waitForTimeout(350);
+  확인('종목:화면을 다시 열면 50행부터',
+    (await p.locator('#view-stocks .stock-row').count()) === 50,
+    String(await p.locator('#view-stocks .stock-row').count()));
   await p.locator('#view-stocks .seg button[data-market="미국"]').click();
   await p.waitForTimeout(400);
   const 미국행 = await p.locator('#view-stocks .stock-row').count();
-  확인('종목:미국 300종목', 미국행 === 300, String(미국행));
+  확인('종목:미국도 50행부터', 미국행 === 50, String(미국행));
+  확인('종목:미국 총 300종목 표기', (await p.locator('#stock-count').innerText()).includes('300종목'),
+    await p.locator('#stock-count').innerText());
   const 미국첫 = await p.locator('#view-stocks .stock-row').first().innerText();
   확인('종목:미국 첫 행에 티커', /[A-Z]{1,5}/.test(미국첫), 미국첫.replace(/\n/g, ' '));
   await p.locator('#view-stocks .seg button[data-market="한국"]').click();
@@ -541,7 +563,10 @@ for (const 뷰 of 뷰포트들) {
   await p.waitForTimeout(400);
   const 세그 = await p.locator('#view-stocks .seg button').allInnerTexts();
   확인('부분실패:종목 세그에 한국만', JSON.stringify(세그) === '["한국"]', JSON.stringify(세그));
-  확인('부분실패:한국 목록 정상', (await p.locator('#view-stocks .stock-row').count()) === 300);
+  확인('부분실패:한국 목록 정상',
+    (await p.locator('#view-stocks .stock-row').count()) === 50 &&
+    (await p.locator('#stock-count').innerText()).includes('300종목'),
+    await p.locator('#stock-count').innerText());
   await p.locator('#tabbar button[data-tab="strategy"]').click();
   await p.waitForTimeout(250);
   await p.locator('.strategy-card').first().click();
@@ -658,7 +683,10 @@ for (const 뷰 of 뷰포트들) {
     !로딩중글.includes('아직 데이터가 없습니다') && 로딩중글.includes('불러오는 중'),
     로딩중글.slice(0, 60).replace(/\n/g, ' / '));
   await p2.waitForTimeout(6000);
-  확인('로딩끝:종목 목록이 채워짐', (await p2.locator('#view-stocks .stock-row').count()) === 300);
+  확인('로딩끝:종목 목록이 채워짐',
+    (await p2.locator('#view-stocks .stock-row').count()) === 50 &&
+    (await p2.locator('#stock-count').innerText()).includes('300종목'),
+    await p2.locator('#stock-count').innerText());
   await ctx2.close();
 
   // (마) 주요 뉴스가 한 나라로만 채워지면 안 됩니다
@@ -670,6 +698,197 @@ for (const 뷰 of 뷰포트들) {
   확인('브리핑:주요 뉴스에 한국 기사도 포함', 유일.includes('한국') && 유일.length >= 2, JSON.stringify(나라들));
 
   확인('폰검사:페이지 오류 없음', 오류.length === 0, 오류.join(' | '));
+  await ctx.close();
+}
+
+/* --- 11. 뒤로가기와 상세 시트 ------------------------------------------------
+ * 폰에서는 무언가 덮여 있을 때 뒤로가기를 누르면 **덮인 것부터 닫히는 것**이 관례입니다
+ * (안드로이드 하드웨어 버튼이 특히 그렇습니다).
+ * 예전에는 뒤로가기 한 번에 시트가 닫히면서 보던 탭과 스크롤 위치까지 함께 날아갔고,
+ * 탭으로 해석되지 않는 해시(#외부링크 …)로 바뀌면 시트가 화면에 그대로 남고
+ * 배경 잠금(body.sheet-open)이 안 풀려 스크롤이 통째로 죽었습니다. */
+섹션('뒤로가기 · 상세 시트');
+{
+  const ctx = await 브라우저.newContext({ viewport: { width: 375, height: 812 }, isMobile: true, hasTouch: true, locale: 'ko-KR' });
+  const p = await ctx.newPage();
+  const 오류 = []; p.on('pageerror', e => 오류.push(e.message));
+  const 상태 = () => p.evaluate(() => ({
+    시트: !document.getElementById('sheet-back').hidden,
+    잠금: document.body.classList.contains('sheet-open'),
+    해시: location.hash,
+    y: Math.round(window.scrollY),
+    탭: (document.querySelector('#tabbar button[aria-current]') || {}).dataset.tab
+  }));
+  const 시트열기 = async (n = 3) => {
+    await p.locator('#view-stocks .stock-row').nth(n).click();
+    await p.waitForSelector('#sheet-back:not([hidden])');
+    await p.waitForTimeout(250);
+  };
+
+  await p.goto(BASE, { waitUntil: 'networkidle' });
+  await p.waitForSelector('#view-brief .card');
+  await p.locator('#tabbar button[data-tab="stocks"]').click();
+  await p.waitForSelector('#view-stocks .stock-row');
+  await p.waitForTimeout(300);
+  await p.evaluate(() => window.scrollTo(0, 600));
+  await p.waitForTimeout(150);
+
+  // (가) 뒤로가기 1회 = 시트만 닫힘. 탭도 스크롤도 그대로여야 합니다.
+  await 시트열기(5);
+  const 열린뒤 = await 상태();
+  확인('뒤로가기:시트가 열렸다', 열린뒤.시트 && 열린뒤.잠금, JSON.stringify(열린뒤));
+  await p.goBack();
+  await p.waitForTimeout(400);
+  const 한번 = await 상태();
+  확인('뒤로가기:1회 → 시트만 닫힘 (탭·스크롤 유지)',
+    !한번.시트 && !한번.잠금 && 한번.탭 === 'stocks' && Math.abs(한번.y - 600) <= 5,
+    JSON.stringify(한번));
+
+  // (나) 한 번 더 누르면 그제야 이전 화면으로 (뒤로가기가 먹통이 되면 안 됩니다)
+  await p.goBack();
+  await p.waitForTimeout(400);
+  const 두번 = await 상태();
+  확인('뒤로가기:2회 → 이전 탭으로 이동', 두번.탭 === 'brief', JSON.stringify(두번));
+
+  // (다) 닫기 버튼으로 닫으면 히스토리도 함께 정리 — 그 뒤 뒤로가기 한 번에 이전 탭
+  await p.locator('#tabbar button[data-tab="stocks"]').click();
+  await p.waitForSelector('#view-stocks .stock-row');
+  await p.waitForTimeout(300);
+  await 시트열기(2);
+  await p.locator('#sheet [data-act="시트닫기"]').click();
+  await p.waitForTimeout(350);
+  확인('뒤로가기:닫기 버튼으로 닫힘', !(await 상태()).시트);
+  await p.goBack();
+  await p.waitForTimeout(400);
+  확인('뒤로가기:닫기 뒤 뒤로가기가 한 번에 먹음 (죽은 뒤로가기 없음)',
+    (await 상태()).탭 === 'brief', JSON.stringify(await 상태()));
+
+  // (라) ESC · 배경 탭도 같아야 합니다
+  for (const [이름, 닫기] of [['ESC', async () => p.keyboard.press('Escape')],
+                             ['배경 탭', async () => p.mouse.click(187, 60)]]) {
+    await p.locator('#tabbar button[data-tab="stocks"]').click();
+    await p.waitForSelector('#view-stocks .stock-row');
+    await p.waitForTimeout(300);
+    await 시트열기(1);
+    await 닫기();
+    await p.waitForTimeout(350);
+    확인(`뒤로가기:${이름} 으로 닫힘`, !(await 상태()).시트);
+    await p.goBack();
+    await p.waitForTimeout(400);
+    확인(`뒤로가기:${이름} 뒤 뒤로가기 한 번에 이전 탭`, (await 상태()).탭 === 'brief',
+      JSON.stringify(await 상태()));
+  }
+
+  // (마) 시트가 열려 있는 동안 탭바는 실제로 눌리지 않아야 합니다 (모달이니까 — CLAUDE.md 3-1)
+  await p.locator('#tabbar button[data-tab="stocks"]').click();
+  await p.waitForSelector('#view-stocks .stock-row');
+  await p.waitForTimeout(300);
+  await 시트열기(1);
+  const 덮임 = await p.evaluate(() => {
+    const b = document.querySelector('#tabbar button[data-tab="my"]');
+    const r = b.getBoundingClientRect();
+    const hit = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
+    return { 눌림: hit === b || b.contains(hit), 맞은것: hit ? (hit.id || hit.className) : null };
+  });
+  확인('뒤로가기:시트가 열려 있으면 탭바가 눌리지 않음(모달)', !덮임.눌림, JSON.stringify(덮임));
+
+  // (바) 그래도 화면이 바뀌면(키보드 엔터 등) 시트는 닫히고 히스토리가 오염되면 안 됩니다
+  await p.evaluate(() => document.querySelector('#tabbar button[data-tab="my"]').click());
+  await p.waitForTimeout(450);
+  const 탭이동후 = await 상태();
+  확인('뒤로가기:시트 연 채 화면이 바뀌면 시트도 닫힘',
+    !탭이동후.시트 && !탭이동후.잠금 && 탭이동후.탭 === 'my', JSON.stringify(탭이동후));
+  await p.goBack();
+  await p.waitForTimeout(400);
+  확인('뒤로가기:그 뒤 뒤로가기도 한 번에 먹음', (await 상태()).탭 === 'stocks',
+    JSON.stringify(await 상태()));
+
+  // (사) 탭으로 해석되지 않는 해시로 바뀌어도 시트는 남으면 안 됩니다
+  await p.locator('#tabbar button[data-tab="stocks"]').click();
+  await p.waitForSelector('#view-stocks .stock-row');
+  await p.waitForTimeout(300);
+  await 시트열기(1);
+  await p.evaluate(() => { location.hash = '#다른곳'; });
+  await p.waitForTimeout(400);
+  const 모르는해시 = await 상태();
+  확인('뒤로가기:모르는 해시로 바뀌어도 시트가 남지 않음',
+    !모르는해시.시트 && !모르는해시.잠금, JSON.stringify(모르는해시));
+  const 스크롤살아있나 = await p.evaluate(() => {
+    window.scrollTo(0, 400);
+    return Math.round(window.scrollY);
+  });
+  확인('뒤로가기:배경 잠금이 풀려 스크롤이 살아 있음', 스크롤살아있나 > 0, `scrollY=${스크롤살아있나}`);
+
+  확인('뒤로가기:페이지 오류 없음', 오류.length === 0, 오류.join(' | '));
+  await ctx.close();
+}
+
+/* --- 12. 구형 폰 검색 반응 (CPU 4배 스로틀링) --------------------------------
+ * 300행을 한 번에 그리던 시절 실측: 검색어 "0" 한 글자에 587ms, 전부 지우면 529ms.
+ * 한 글자당 0.5초는 그냥 멈춘 것으로 느껴집니다. 50행씩 끊어 그려 100ms 아래로 내렸고,
+ * 누군가 그 제한을 되돌리면 이 검사가 먼저 걸립니다. */
+섹션('구형 폰 검색 반응 (CPU 4배)');
+{
+  const ctx = await 브라우저.newContext({ viewport: { width: 375, height: 812 }, isMobile: true, hasTouch: true, locale: 'ko-KR' });
+  const p = await ctx.newPage();
+  const 오류 = []; p.on('pageerror', e => 오류.push(e.message));
+  const cdp = await ctx.newCDPSession(p);
+
+  await p.goto(BASE, { waitUntil: 'networkidle' });
+  await p.waitForSelector('#view-brief .card');
+  await p.locator('#tabbar button[data-tab="stocks"]').click();
+  await p.waitForSelector('#view-stocks .stock-row');
+  await p.waitForTimeout(400);
+
+  await cdp.send('Emulation.setCPUThrottlingRate', { rate: 4 });
+
+  // 한 글자씩 넣으며 입력 핸들러가 붙잡고 있는 시간을 잽니다 (레이아웃까지 강제로 끝낸 뒤 정지)
+  const 측정 = async (글) => {
+    await p.evaluate(() => {
+      const el = document.getElementById('stock-search');
+      el.value = ''; el.dispatchEvent(new Event('input', { bubbles: true }));
+    });
+    await p.waitForTimeout(250);
+    const 기록 = [];
+    for (const ch of 글) {
+      기록.push(await p.evaluate((ch) => {
+        const el = document.getElementById('stock-search');
+        el.value += ch;
+        const t0 = performance.now();
+        el.dispatchEvent(new Event('input', { bubbles: true }));
+        void document.getElementById('stock-list').offsetHeight;
+        return Math.round(performance.now() - t0);
+      }, ch));
+    }
+    return 기록;
+  };
+
+  // "0" 은 한국 티커 300개에 전부 걸리는 최악의 검색어입니다
+  const 최악 = await 측정('00593');
+  console.log(`     한 글자당 ms: ${최악.join(', ')}`);
+  확인('구형폰:검색 한 글자당 200ms 이하', Math.max(...최악) <= 200,
+    `최대 ${Math.max(...최악)}ms (제한 없던 시절 587ms)`);
+
+  // 검색어를 전부 지워 목록이 되돌아오는 순간도 무거운 지점입니다
+  await p.evaluate(() => {
+    const el = document.getElementById('stock-search');
+    el.value = '삼'; el.dispatchEvent(new Event('input', { bubbles: true }));
+  });
+  await p.waitForTimeout(300);
+  const 지우기 = await p.evaluate(() => {
+    const el = document.getElementById('stock-search');
+    el.value = '';
+    const t0 = performance.now();
+    el.dispatchEvent(new Event('input', { bubbles: true }));
+    void document.getElementById('stock-list').offsetHeight;
+    return { ms: Math.round(performance.now() - t0), 행: document.querySelectorAll('#view-stocks .stock-row').length };
+  });
+  확인('구형폰:검색어를 지워도 200ms 이하', 지우기.ms <= 200,
+    `${지우기.ms}ms · ${지우기.행}행 (제한 없던 시절 529ms / 300행)`);
+  확인('구형폰:지운 뒤 첫 50행부터 다시', 지우기.행 === 50, `${지우기.행}행`);
+
+  await cdp.send('Emulation.setCPUThrottlingRate', { rate: 1 });
+  확인('구형폰:페이지 오류 없음', 오류.length === 0, 오류.join(' | '));
   await ctx.close();
 }
 

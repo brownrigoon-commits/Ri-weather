@@ -226,9 +226,38 @@ await page.locator('#tabbar button').nth(2).click();
 await page.waitForSelector('#view-stocks .stock-row');
 결과.탭.stocks = await 화면통계(page);
 console.log(JSON.stringify(결과.탭.stocks));
+/* 목록은 50행씩 끊어 그립니다(구형 폰 대응 — app.js `표시단위` 주석 참고).
+   그래서 "처음에 몇 행이 그려졌나"가 아니라 **"더 보기로 300개를 다 볼 수 있나"** 를 봅니다. */
+const 첫행수 = await page.locator('#view-stocks .stock-row').count();
+확인('종목 첫 화면은 50행만 렌더(구형 폰 대응)', 첫행수 === 50, `${첫행수}행`);
+확인('종목 개수 표시는 300종목', (await page.locator('#stock-count').innerText()).includes('300종목'),
+  await page.locator('#stock-count').innerText());
+async function 끝까지펼치기(pg = page) {
+  let 누른횟수 = 0;
+  while (await pg.locator('#view-stocks [data-act="더보기"]').count()) {
+    await pg.locator('#view-stocks [data-act="더보기"]').click();
+    await pg.waitForTimeout(120);
+    if (++누른횟수 > 12) break;      // 무한 루프 방지
+  }
+  return 누른횟수;
+}
+await 터치(page, '더 보기 버튼', '#view-stocks [data-act="더보기"]', 0);
+const 누름 = await 끝까지펼치기();
 const 행수 = await page.locator('#view-stocks .stock-row').count();
-확인('종목 300 목록 렌더', 행수 === 300, `${행수}행`);
-확인('종목 화면 텍스트 렌더', 결과.탭.stocks.텍스트노드 >= 300, `텍스트노드 ${결과.탭.stocks.텍스트노드}개`);
+확인('더 보기로 300종목 전부 도달', 행수 === 300, `${누름}번 눌러 ${행수}행`);
+확인('전부 펼치면 더 보기 버튼이 사라짐',
+  (await page.locator('#view-stocks [data-act="더보기"]').count()) === 0);
+결과.탭.stocks전체 = await 화면통계(page);
+확인('종목 화면 텍스트 렌더(전부 펼친 뒤)', 결과.탭.stocks전체.텍스트노드 >= 300,
+  `텍스트노드 ${결과.탭.stocks전체.텍스트노드}개`);
+// 검색을 건드리면 다시 처음부터 (300행을 들고 다니면 한 글자마다 그걸 다시 그립니다)
+await page.fill('#stock-search', '삼');
+await page.waitForTimeout(250);
+await page.fill('#stock-search', '');
+await page.waitForTimeout(250);
+확인('검색을 지우면 다시 50행부터',
+  (await page.locator('#view-stocks .stock-row').count()) === 50,
+  `${await page.locator('#view-stocks .stock-row').count()}행`);
 확인('가로 스크롤 없음(종목)', !결과.탭.stocks.가로밀림);
 await 터치(page, '검색창', '#stock-search', 0);
 await 터치(page, '종목 행 1번', '#view-stocks .stock-row', 0);
@@ -462,7 +491,10 @@ const 전략글 = await page4.locator('#view-strategy').innerText();
   전략글.includes('뉴스 수집이 실패했을 수 있습니다'), 전략글.slice(0, 60).replace(/\s+/g, ' '));
 await page4.locator('#tabbar button').nth(2).click();
 await page4.waitForSelector('#view-stocks .stock-row');
-확인('뉴스 실패해도 종목 화면은 정상', (await page4.locator('#view-stocks .stock-row').count()) === 300);
+확인('뉴스 실패해도 종목 화면은 정상',
+  (await page4.locator('#view-stocks .stock-row').count()) === 50 &&
+  (await page4.locator('#stock-count').innerText()).includes('300종목'),
+  await page4.locator('#stock-count').innerText());
 await page4.screenshot({ path: `${샷폴더}/13_뉴스실패.png` });
 await page4.close();
 await 컨텍스트4.close();
@@ -500,6 +532,145 @@ const 변화글 = await page3.locator('#view-brief .card', { hasText: '어제 �
 await page3.screenshot({ path: `${샷폴더}/09_전일대비변화.png`, fullPage: false });
 await page3.close();
 await 컨텍스트3.close();
+
+/* ────────────── ⑥-2. 엔진이 실제로 만든 changes.json ──────────────
+   위 ⑥ 은 손으로 적은 두 줄짜리입니다. 화면 코드가 "우리가 상상한 모양"에만 맞고
+   엔진이 진짜로 뱉는 파일에는 안 맞는 일이 흔해서, 여기서는 **엔진 산출물 그대로**를 씁니다.
+
+   fixtures/ 의 두 파일은 지어낸 것이 아니라 사장님 원본 xlsx(7/15 · 7/16)를
+   `engine/seed_from_xlsx.py` → `engine/pipeline.변화쓰기()` 에 통과시켜 나온 실제 산출물입니다.
+   (manifest 도 `emit.write_manifest()` 가 쓴 것 — 변화파일·이전기준일 키가 실제로 이렇게 들어옵니다)  */
+console.log('\n=== ⑥-2 엔진이 만든 진짜 changes.json ===');
+const 컨텍스트5 = await 브라우저.newContext({
+  viewport: { width: 375, height: 812 }, deviceScaleFactor: 2,
+  isMobile: true, hasTouch: true, locale: 'ko-KR', serviceWorkers: 'block'
+});
+const page5 = await 컨텍스트5.newPage();
+const 콘솔5 = [];
+page5.on('console', (m) => { if (m.type() === 'error') 콘솔5.push(m.text()); });
+page5.on('pageerror', (e) => 페이지오류.push('[진짜변화] ' + String(e && e.message || e)));
+
+const 픽스처 = new URL('./fixtures/', import.meta.url).pathname;
+const 진짜manifest = fs.readFileSync(픽스처 + 'manifest_변화있음.json', 'utf8');
+const 진짜changes = fs.readFileSync(픽스처 + 'changes_real.json', 'utf8');
+const 진짜 = JSON.parse(진짜changes);
+확인('엔진 changes.json 규격 (설계서 2.5)',
+  !!진짜.기준일 && !!진짜.이전기준일 && !!진짜.전략별 &&
+  Object.values(진짜.전략별).every((v) => Object.values(v).every((x) => Array.isArray(x.신규) && Array.isArray(x.이탈))),
+  `전략 ${Object.keys(진짜.전략별).length}종 · ${진짜.이전기준일} → ${진짜.기준일}`);
+확인('엔진 manifest 에 변화파일·이전기준일',
+  JSON.parse(진짜manifest).변화파일 === 'changes.json' && !!JSON.parse(진짜manifest).이전기준일,
+  JSON.parse(진짜manifest).변화파일 + ' / ' + JSON.parse(진짜manifest).이전기준일);
+
+// changes.json 은 **manifest 가 알려 줄 때만** 읽어야 합니다 — 실제로 요청이 나갔는지 셉니다
+let 변화요청 = 0;
+page5.on('request', (r) => { if (r.url().includes('changes.json')) 변화요청++; });
+await page5.route('**/data/manifest.json*', (route) =>
+  route.fulfill({ contentType: 'application/json', body: 진짜manifest }));
+await page5.route('**/data/changes.json*', (route) =>
+  route.fulfill({ contentType: 'application/json', body: 진짜changes }));
+await page5.goto(기준주소, { waitUntil: 'domcontentloaded' });
+await page5.waitForSelector('#view-brief .chg-block', { timeout: 10000 });
+확인('manifest.변화파일 을 보고 changes.json 을 실제로 요청', 변화요청 > 0, `${변화요청}회`);
+
+const 진짜글 = await page5.locator('#view-brief .card', { hasText: '어제 대비 변화' }).innerText();
+const 블록수 = await page5.locator('#view-brief .chg-block').count();
+확인('진짜 changes.json → 브리핑 변화 카드가 켜짐', 블록수 >= 4, `${블록수}블록`);
+확인('진짜 changes.json 기간 표기', 진짜글.includes('2026.07.15') && 진짜글.includes('2026.07.16'),
+  진짜글.split('\n')[0]);
+// 파일 안에 실제로 들어 있는 종목명이 화면에 그대로 나와야 합니다
+const 표본 = (진짜.전략별.total?.한국?.신규 || [])[0];
+const 표본이탈 = (진짜.전략별.total?.한국?.이탈 || [])[0];
+확인('진짜 신규 편입 종목명 노출', !!표본 && 진짜글.includes(표본.기업명), 표본 ? 표본.기업명 : '없음');
+확인('진짜 이탈 종목명 노출', !!표본이탈 && 진짜글.includes(표본이탈.기업명), 표본이탈 ? 표본이탈.기업명 : '없음');
+확인('전략 id 가 아니라 전략 이름으로 표시',
+  진짜글.includes('종합점수') && !진짜글.includes('pullback'),
+  진짜글.replace(/\s+/g, ' ').slice(0, 90));
+확인('한국·미국 양쪽 표시', 진짜글.includes('한국 신규') && 진짜글.includes('미국 신규'));
+const 진짜금지 = ['undefined', 'NaN', '[object Object]', '{{'].filter((w) => 진짜글.includes(w));
+확인('진짜 변화 카드에 undefined·NaN 없음', 진짜금지.length === 0, 진짜금지.join(','));
+확인('진짜 변화 화면 콘솔 에러 0건', 콘솔5.length === 0, 콘솔5.join(' | '));
+await page5.screenshot({ path: `${샷폴더}/14_진짜변화.png`, fullPage: true });
+await page5.close();
+await 컨텍스트5.close();
+
+/* ────────────── ⑦. 시장별 데이터 신선도 (설계서 2.1 시장.<시장>.기준일) ──────────────
+   한국 수집만 네이버 차단으로 며칠 멈추고 미국은 매일 갱신되는 날이 실제로 옵니다.
+   그때 최상단 기준일은 새것이라 전체 배너가 안 뜨므로, **그 시장 화면에만** 안내가 붙어야 합니다. */
+console.log('\n=== ⑦ 시장별 신선도 ===');
+async function 시장신선도화면(이름, manifest꾸미기) {
+  const c = await 브라우저.newContext({
+    viewport: { width: 375, height: 812 }, deviceScaleFactor: 2,
+    isMobile: true, hasTouch: true, locale: 'ko-KR', serviceWorkers: 'block'
+  });
+  const pg = await c.newPage();
+  pg.on('pageerror', (e) => 페이지오류.push(`[${이름}] ` + String(e && e.message || e)));
+  const m = JSON.parse(fs.readFileSync(데이터폴더 + 'manifest.json', 'utf8'));
+  await pg.route('**/data/manifest.json*', (route) =>
+    route.fulfill({ contentType: 'application/json', body: JSON.stringify(manifest꾸미기(m)) }));
+  await pg.goto(기준주소, { waitUntil: 'domcontentloaded' });
+  await pg.waitForSelector('#view-brief .card', { timeout: 10000 });
+  return { c, pg };
+}
+const 오늘ymd = (() => { const d = new Date(); return `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}`; })();
+const 엿새전 = (() => { const d = new Date(); d.setDate(d.getDate() - 6); return `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}`; })();
+
+// (가) 한국만 6일 멈춤 — 미국·최상단은 오늘
+{
+  const { c, pg } = await 시장신선도화면('한국만낡음', (m) => ({
+    ...m, 기준일: 오늘ymd,
+    시장: { 한국: { ...m.시장.한국, 기준일: 엿새전 }, 미국: { ...m.시장.미국, 기준일: 오늘ymd } }
+  }));
+  const 브리핑 = await pg.locator('#view-brief').innerText();
+  확인('시장별신선도: 최상단이 오늘이면 전체 경고 배너는 없음',
+    !브리핑.includes('일 전 데이터입니다'), 브리핑.slice(0, 70).replace(/\s+/g, ' '));
+
+  await pg.locator('#tabbar button').nth(2).click();           // 종목 탭 (한국)
+  await pg.waitForSelector('#view-stocks .stock-row');
+  const 종목한국 = await pg.locator('#view-stocks').innerText();
+  확인('시장별신선도: 종목 탭 한국에 안내', 종목한국.includes('한국 데이터는 6일 전 기준입니다'),
+    종목한국.split('\n').find((l) => l.includes('기준입니다')) || 종목한국.slice(0, 60));
+  await pg.locator('#view-stocks .seg button[data-market="미국"]').click();
+  await pg.waitForTimeout(300);
+  const 종목미국 = await pg.locator('#view-stocks').innerText();
+  확인('시장별신선도: 미국으로 바꾸면 안내가 사라짐',
+    !종목미국.includes('데이터는') || !종목미국.includes('기준입니다'),
+    종목미국.split('\n').find((l) => l.includes('기준입니다')) || '없음');
+
+  await pg.locator('#tabbar button').nth(1).click();           // 전략 탭
+  await pg.waitForSelector('.strategy-card');
+  await pg.locator('.strategy-card').first().click();
+  await pg.waitForSelector('#view-strategy .seg button');
+  const 전략한국 = await pg.locator('#view-strategy').innerText();
+  확인('시장별신선도: 전략 탭 한국에 안내', 전략한국.includes('한국 데이터는 6일 전 기준입니다'));
+  await pg.locator('#view-strategy .seg button[data-market="미국"]').click();
+  await pg.waitForTimeout(300);
+  const 전략미국 = await pg.locator('#view-strategy').innerText();
+  확인('시장별신선도: 전략 탭 미국은 깨끗', !전략미국.includes('데이터는 6일 전 기준입니다'));
+  // 배너가 버튼을 덮거나 화면 밖으로 밀지 않는가 (CLAUDE.md 3-1)
+  await pg.locator('#view-strategy .seg button[data-market="한국"]').click();
+  await pg.waitForTimeout(250);
+  const 덮임 = await pg.evaluate(eval(터치검사코드), ['#view-strategy .seg button', 0]);
+  확인('시장별신선도: 배너가 시장 세그를 덮지 않음', 덮임.있음 && 덮임.진짜눌림, 덮임.가린놈);
+  await pg.screenshot({ path: `${샷폴더}/15_시장별신선도.png`, fullPage: true });
+  await pg.close(); await c.close();
+}
+
+// (나) 구 데이터 호환 — 시장별 기준일이 아예 없으면 예전처럼 최상단 값만 쓴다
+{
+  const { c, pg } = await 시장신선도화면('구데이터', (m) => ({
+    ...m, 기준일: 오늘ymd,
+    시장: { 한국: { 파일: 'stocks_KR.json' }, 미국: { 파일: 'stocks_US.json' } }
+  }));
+  await pg.locator('#tabbar button').nth(2).click();
+  await pg.waitForSelector('#view-stocks .stock-row');
+  const 글 = await pg.locator('#view-stocks').innerText();
+  확인('시장별신선도: 시장별 기준일이 없으면 아무 안내도 안 뜸(구 데이터 호환)',
+    !글.includes('기준입니다'), 글.split('\n').find((l) => l.includes('기준입니다')) || '없음');
+  확인('시장별신선도: 구 데이터에서도 종목 목록 정상',
+    (await pg.locator('#view-stocks .stock-row').count()) > 0);
+  await pg.close(); await c.close();
+}
 
 /* ─────────────────────────── 마무리 ─────────────────────────── */
 console.log('\n=== 콘솔/네트워크 ===');

@@ -33,7 +33,7 @@
     전략id: null,
     전략시장: '한국',
     펼친섹터: {},              // 브리핑 섹터 대표뉴스 펼침
-    종목: { 시장: '한국', 검색: '', 섹터: '', 정렬: '시총순위', 관심만: false },
+    종목: { 시장: '한국', 검색: '', 섹터: '', 정렬: '시총순위', 관심만: false, 표시수: 50 },
     // 내 전략에서 켜 둔 조건은 앱을 닫았다 열어도 남아 있어야 합니다 (시작() 에서 채웁니다)
     내전략: { 필터: { 악재제외: true }, rank_by: '총점', 시장: '한국', 이름: '' },
     전략캐시: {}
@@ -107,6 +107,23 @@
     }
     return 배너('warn', '⚠️', f.문구,
       '기준일 ' + esc(f.표시일) + '. 최신 시세가 반영되지 않았을 수 있습니다.');
+  }
+
+  /** 시장 하나만 낡았을 때의 배너 — 그 시장을 보고 있는 화면에만 붙습니다.
+   *
+   *  한국 수집이 네이버 차단으로 며칠 멈춰도 미국은 매일 갱신됩니다. 그러면 최상단 기준일은
+   *  새것이라 위의 전체 배너는 뜨지 않고, 한국 종목만 조용히 옛날 값을 보여 줍니다.
+   *  (manifest 에 시장별 기준일이 없는 옛 데이터에서는 아무것도 뜨지 않습니다.) */
+  function 시장신선도배너(시장) {
+    var s = RiData.상태;
+    if (!s.manifest || !시장) return '';
+    var f = RiData.시장신선도(시장);
+    if (!f.뒤처짐 || f.경과일 === null || f.경과일 < 1) return '';
+
+    return 배너(f.등급 === '경고' ? 'danger' : 'warn', '⏳',
+      시장 + ' 데이터는 ' + f.경과일 + '일 전 기준입니다',
+      '기준일 ' + esc(f.표시일) + '. 다른 시장은 갱신됐지만 ' + esc(시장) +
+      ' 수집만 멈춰 있습니다. 이 화면의 ' + esc(시장) + ' 종목·점수는 그날 값입니다.');
   }
 
   function 배너(종류, 아이콘, 제목, 본문) {
@@ -527,6 +544,7 @@
     }
 
     h += 시장세그(시장, '전략시장');
+    h += 시장신선도배너(시장);
     h += 결과블록HTML(결과, 시장, rank_by);
     h += '<button type="button" class="btn btn-sub" data-act="전략CSV" style="margin-top:14px">CSV 로 내려받기</button>';
     h += 하단고지();
@@ -552,6 +570,7 @@
     화면.종목.시장 = 유효시장(화면.종목.시장);
 
     if (껍데기부터 !== false || !el.querySelector('#stock-list')) {
+      화면.종목.표시수 = 표시단위;      // 화면을 새로 열면 처음 50행부터
       var 섹터들 = RiData.섹터목록(화면.종목.시장);
       if (섹터들.indexOf(화면.종목.섹터) === -1) 화면.종목.섹터 = '';
 
@@ -559,6 +578,7 @@
         '<div class="page-title">종목</div>' +
         '<div class="page-desc">시가총액 상위 300종목. 이름·티커로 찾고, 점수 상세를 볼 수 있습니다.</div>';
       h += 시장세그(화면.종목.시장, '종목시장');
+      h += 시장신선도배너(화면.종목.시장);
       // <label> 로 감싸면 돋보기 아이콘이나 칸 가장자리를 눌러도 커서가 들어옵니다.
       // (<div> 였을 때는 글자 줄(18px)만 실제 터치 지점이라 자꾸 헛손질이 났습니다.)
       h += '<label class="search-box"><span class="si">🔎</span>' +
@@ -617,6 +637,47 @@
     return 목록;
   }
 
+  /* 한 번에 그리는 행 수.
+   *
+   * 300행을 한꺼번에 그리면 **구형 폰에서 검색이 뚝뚝 끊깁니다.**
+   * 헤드리스 크로미움에 CPU 4배 스로틀링을 걸고 실측한 값 (한국 300종목):
+   *     "0" 한 글자 → 300행 렌더 587ms · 검색어를 전부 지워 300행 복귀 529ms
+   * 한 글자당 0.5초는 그냥 멈춘 것으로 느껴집니다. 눈에 보이는 만큼만 그리고
+   * 나머지는 "더 보기"로 잇습니다.
+   *
+   * 첫 화면은 50행(같은 조건에서 90ms 아래 — 타이핑이 끊기지 않는 선),
+   * "더 보기"는 한 번에 100행씩 덧붙입니다. 사장님이 직접 누른 뒤의 0.2초는 기다릴 만하고,
+   * 300종목을 끝까지 펼치는 데 세 번이면 됩니다.
+   * 전체 목록이 필요한 CSV 내보내기는 `종목걸러내기()` 를 그대로 쓰므로 영향이 없습니다. */
+  var 표시단위 = 50;
+  var 더보기단위 = 100;
+
+  function 종목행HTML(s, 시장) {
+    var 관심 = RiData.관심여부(시장, s.티커);
+    return '<button type="button" class="stock-row" data-act="상세" data-market="' + 시장 +
+      '" data-ticker="' + esc(s.티커) + '">' +
+      '<span class="rank">' + (s.시총순위 || '-') + '</span>' +
+      '<span class="info"><span class="nm">' + (관심 ? '★ ' : '') + esc(표시이름(s)) + '</span>' +
+      '<span class="sb">' + esc(s.티커) + ' · ' + esc(s.섹터 || '-') +
+      (s.시총조원 ? ' · ' + 수(s.시총조원, 1) + '조' : '') + '</span></span>' +
+      (s.평가
+        ? '<span class="tot">' + 수(s.총점, 1) + '</span>'
+        : '<span class="tot none">미평가</span>') +
+      '</button>';
+  }
+
+  function 더보기HTML(보인수, 전체) {
+    if (보인수 >= 전체) return '';
+    return '<button type="button" class="btn btn-sub more-btn" data-act="더보기">' +
+      '더 보기 <span class="more-left">' + 보인수 + ' / ' + 전체 + '종목</span></button>';
+  }
+
+  /** 검색·필터가 바뀌면 처음 50행부터 다시 봅니다. */
+  function 종목처음부터그리기() {
+    화면.종목.표시수 = 표시단위;
+    종목목록그리기();
+  }
+
   function 종목목록그리기() {
     var 목록 = 종목걸러내기();
     var 시장 = 화면.종목.시장;
@@ -636,19 +697,41 @@
       return;
     }
 
-    list.innerHTML = 목록.map(function (s) {
-      var 관심 = RiData.관심여부(시장, s.티커);
-      return '<button type="button" class="stock-row" data-act="상세" data-market="' + 시장 +
-        '" data-ticker="' + esc(s.티커) + '">' +
-        '<span class="rank">' + (s.시총순위 || '-') + '</span>' +
-        '<span class="info"><span class="nm">' + (관심 ? '★ ' : '') + esc(표시이름(s)) + '</span>' +
-        '<span class="sb">' + esc(s.티커) + ' · ' + esc(s.섹터 || '-') +
-        (s.시총조원 ? ' · ' + 수(s.시총조원, 1) + '조' : '') + '</span></span>' +
-        (s.평가
-          ? '<span class="tot">' + 수(s.총점, 1) + '</span>'
-          : '<span class="tot none">미평가</span>') +
-        '</button>';
-    }).join('');
+    var 끝 = Math.min(Math.max(화면.종목.표시수, 표시단위), 목록.length);
+    list.innerHTML = 목록.slice(0, 끝).map(function (s) { return 종목행HTML(s, 시장); }).join('') +
+      더보기HTML(끝, 목록.length);
+  }
+
+  /** 목록에서 그 종목 한 줄의 ★ 표시만 고칩니다.
+   *  별표 하나 눌렀다고 보고 있던 수백 행을 통째로 다시 그릴 이유가 없습니다. */
+  function 별표행갱신(시장, 티커, 켜짐) {
+    var 행들 = document.querySelectorAll('#stock-list .stock-row');
+    for (var i = 0; i < 행들.length; i++) {
+      if (행들[i].dataset.ticker !== String(티커) || 행들[i].dataset.market !== String(시장)) continue;
+      var nm = 행들[i].querySelector('.nm');
+      if (nm) nm.textContent = (켜짐 ? '★ ' : '') + nm.textContent.replace(/^★\s*/, '');
+      return;
+    }
+  }
+
+  /** "더 보기" — 이미 그린 행은 그대로 두고 **늘어난 만큼만** 덧붙입니다.
+   *  (전체를 다시 그리면 늘어날수록 느려져서 제한을 둔 의미가 없어집니다.) */
+  function 종목더그리기() {
+    var list = document.getElementById('stock-list');
+    if (!list) return;
+    var 목록 = 종목걸러내기();
+    var 이미 = list.querySelectorAll('.stock-row').length;
+    var 끝 = Math.min(화면.종목.표시수, 목록.length);
+    if (끝 <= 이미) return;
+
+    var 시장 = 화면.종목.시장;
+    var 조각 = 목록.slice(이미, 끝).map(function (s) { return 종목행HTML(s, 시장); }).join('');
+    var 더 = list.querySelector('[data-act="더보기"]');
+    if (더) 더.insertAdjacentHTML('beforebegin', 조각);
+    else list.insertAdjacentHTML('beforeend', 조각);
+
+    if (끝 >= 목록.length) { if (더) 더.parentNode.removeChild(더); }
+    else if (더) 더.innerHTML = '더 보기 <span class="more-left">' + 끝 + ' / ' + 목록.length + '종목</span>';
   }
 
   /* -------------------------------------------------------------
@@ -736,6 +819,7 @@
     var 시장 = 유효시장(화면.내전략.시장);
     box.innerHTML = '<div class="card-title" style="margin:18px 2px 8px">결과</div>' +
       시장세그(시장, '내전략시장') +
+      시장신선도배너(시장) +
       결과블록HTML(결과, 시장, 화면.내전략.rank_by) +
       '<button type="button" class="btn btn-sub" data-act="내전략CSV" style="margin-top:14px">CSV 로 내려받기</button>';
   }
@@ -774,6 +858,27 @@
    *  보고 있던 자리가 아닌 엉뚱한 위치에 가 있었습니다.) */
   var 시트열기전스크롤 = 0;
 
+  /* 뒤로가기로 시트를 닫기 위한 히스토리 항목.
+   *
+   * 폰에서는 무언가 덮여 있을 때 뒤로가기를 누르면 **덮인 것부터 닫히는 것**이 관례입니다
+   * (안드로이드 하드웨어 버튼이 특히 그렇습니다).
+   * 이게 없으면 뒤로가기 한 번에 시트가 닫히면서 보던 탭과 스크롤 위치까지 함께 날아갔습니다.
+   * 시트를 열 때 같은 주소로 항목을 하나 밀어 넣고, 뒤로가기가 그 항목을 먹으면 시트만 닫습니다. */
+  var 시트히스토리 = false;
+
+  function 시트열림() {
+    var back = document.getElementById('sheet-back');
+    return !!back && !back.hidden;
+  }
+
+  function 시트히스토리밀기() {
+    if (시트히스토리) return;
+    try {
+      history.pushState({ ristock시트: true }, '', location.href);
+      시트히스토리 = true;
+    } catch (e) { /* 히스토리를 못 쓰면 예전처럼 해시 변화로 닫힙니다 */ }
+  }
+
   function 배경잠금(잠글까) {
     var b = document.body;
     var 잠겨있음 = b.classList.contains('sheet-open');
@@ -800,6 +905,7 @@
       sheet.innerHTML = '<div class="sheet-bar"></div><div class="sheet-title">종목을 찾지 못했습니다</div>' +
         '<p class="sheet-sub">' + esc(시장) + ' ' + esc(티커) + '</p>' +
         '<button type="button" class="btn btn-sub" data-act="시트닫기">닫기</button>';
+      시트히스토리밀기();
       back.hidden = false;
       배경잠금(true);
       return;
@@ -871,14 +977,24 @@
 
     sheet.innerHTML = h;
     sheet.scrollTop = 0;
+    // 히스토리 항목은 배경을 잠그기 **전에** 밀어 넣습니다
+    // (잠근 뒤에 밀면 브라우저가 이 항목의 스크롤을 0으로 기억해, 닫을 때 맨 위로 튑니다)
+    시트히스토리밀기();
     back.hidden = false;
     배경잠금(true);
   }
 
-  function 시트닫기() {
+  /** 시트 닫기.
+   *  `되돌리기 !== false` 면 시트를 열며 밀어 넣었던 히스토리 항목도 함께 되돌립니다.
+   *  뒤로가기로 이미 그 항목이 사라진 경우(popstate·hashchange)에는 `false` 로 불러야
+   *  사장님이 누른 뒤로가기가 두 칸 움직이지 않습니다. */
+  function 시트닫기(되돌리기) {
     var back = document.getElementById('sheet-back');
     if (back) back.hidden = true;
     배경잠금(false);
+    var 밀어둠 = 시트히스토리;
+    시트히스토리 = false;
+    if (밀어둠 && 되돌리기 !== false) history.back();
   }
 
   /* -------------------------------------------------------------
@@ -891,19 +1007,27 @@
     return { 탭: m[1], 인자: m[2] ? decodeURIComponent(m[2]) : null };
   }
 
-  function 해시쓰기() {
+  /** 주소창 해시 갱신.
+   *  `덮어쓰기` 면 새 항목을 쌓지 않고 지금 항목을 바꿔치웁니다.
+   *  시트를 열며 밀어 넣었던 항목이 남아 있을 때 쓰며, 안 그러면 같은 화면이 히스토리에
+   *  두 번 들어가 뒤로가기를 눌러도 아무 일도 안 일어나는 것처럼 보입니다. */
+  function 해시쓰기(덮어쓰기) {
     var h = '#/' + 화면.탭 + (화면.탭 === 'strategy' && 화면.전략id ? '/' + encodeURIComponent(화면.전략id) : '');
-    if (location.hash !== h) {
-      화면._내가바꿈 = true;
-      location.hash = h;
+    if (location.hash === h) return;
+    if (덮어쓰기 && window.history && history.replaceState) {
+      try { history.replaceState(null, '', h); return; } catch (e) { /* 아래 기본 경로로 */ }
     }
+    화면._내가바꿈 = true;
+    location.hash = h;
   }
 
   function 탭이동(탭, 해시갱신) {
     if (탭목록.indexOf(탭) === -1) 탭 = 'brief';
-    // 상세 시트를 열어 둔 채 뒤로가기를 누르면 화면만 바뀌고 시트가 덩그러니 남았습니다.
-    // 폰 관례대로 화면이 바뀌면 시트는 닫습니다(배경 잠금도 함께 풀립니다).
-    시트닫기();
+    // 상세 시트를 열어 둔 채 화면이 바뀌면 시트가 덩그러니 남았습니다. 폰 관례대로 함께 닫습니다.
+    // 여기서는 history.back() 을 부르지 않습니다 — 바로 뒤에 쓰는 해시와 순서가 엉켜
+    // 엉뚱한 탭으로 튕깁니다. 대신 남은 항목을 새 해시로 덮어씁니다.
+    var 덮어쓰기 = 시트히스토리;
+    시트닫기(false);
     화면.탭 = 탭;
 
     탭목록.forEach(function (t) {
@@ -915,7 +1039,7 @@
     });
 
     그리기(탭);
-    if (해시갱신 !== false) 해시쓰기();
+    if (해시갱신 !== false) 해시쓰기(덮어쓰기);
     window.scrollTo(0, 0);
   }
 
@@ -982,7 +1106,11 @@
           b.setAttribute('aria-pressed', 추가됨 ? 'true' : 'false');
           b.textContent = 추가됨 ? '★' : '☆';
         });
-      if (화면.탭 === 'stocks') 종목목록그리기();
+      if (화면.탭 === 'stocks') {
+        // 목록에서 빠지거나 들어와야 하는 경우만 다시 그리고, 그 밖에는 그 줄의 ★ 만 고칩니다.
+        if (화면.종목.관심만) 종목처음부터그리기();
+        else 별표행갱신(el.dataset.market, el.dataset.ticker, 추가됨);
+      }
       return;
     }
 
@@ -993,7 +1121,13 @@
       화면.종목.관심만 = !화면.종목.관심만;
       el.setAttribute('aria-pressed', 화면.종목.관심만 ? 'true' : 'false');
       el.textContent = 화면.종목.관심만 ? '★ 관심종목만' : '☆ 관심종목만';
-      종목목록그리기();
+      종목처음부터그리기();
+      return;
+    }
+
+    if (act === '더보기') {
+      화면.종목.표시수 += 더보기단위;
+      종목더그리기();
       return;
     }
 
@@ -1063,15 +1197,15 @@
   function 입력처리(e) {
     var t = e.target;
     if (!t || !t.id) return;
-    if (t.id === 'stock-search') { 화면.종목.검색 = t.value; 종목목록그리기(); return; }
+    if (t.id === 'stock-search') { 화면.종목.검색 = t.value; 종목처음부터그리기(); return; }
     if (t.id === 'my-name') { 화면.내전략.이름 = t.value; return; }
   }
 
   function 변경처리(e) {
     var t = e.target;
     if (!t || !t.id) return;
-    if (t.id === 'stock-sector') { 화면.종목.섹터 = t.value; 종목목록그리기(); return; }
-    if (t.id === 'stock-sort') { 화면.종목.정렬 = t.value; 종목목록그리기(); return; }
+    if (t.id === 'stock-sector') { 화면.종목.섹터 = t.value; 종목처음부터그리기(); return; }
+    if (t.id === 'stock-sort') { 화면.종목.정렬 = t.value; 종목처음부터그리기(); return; }
     if (t.id === 'my-rank') { 화면.내전략.rank_by = t.value; 내전략상태저장(); 내전략결과그리기(); return; }
   }
 
@@ -1094,10 +1228,23 @@
       if (e.key === 'Escape') 시트닫기();
     });
 
+    // 뒤로가기(안드로이드 하드웨어 버튼 포함)로 히스토리를 되짚을 때,
+    // 시트가 덮여 있으면 **시트만** 닫고 보던 화면·스크롤은 그대로 둡니다.
+    window.addEventListener('popstate', function () {
+      if (!시트열림()) return;
+      시트히스토리 = false;      // 방금 뒤로가기가 그 항목을 먹었습니다
+      시트닫기(false);
+    });
+
     window.addEventListener('hashchange', function () {
       if (화면._내가바꿈) { 화면._내가바꿈 = false; return; }
       var r = 해시읽기();
-      if (!r) return;
+      if (!r) {
+        // 우리가 모르는 해시(#다른곳 …)로 바뀌어도 덮여 있던 시트는 닫아야 합니다.
+        // 안 닫으면 시트가 화면에 남고 배경 잠금이 안 풀려 스크롤이 통째로 죽습니다.
+        if (시트열림()) 시트닫기(false);
+        return;
+      }
       화면.전략id = (r.탭 === 'strategy') ? r.인자 : null;
       탭이동(r.탭, false);
     });

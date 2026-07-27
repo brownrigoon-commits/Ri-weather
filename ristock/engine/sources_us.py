@@ -18,6 +18,25 @@ import yfinance as yf
 from .config import EXCHANGE_KO, UA, US_SECTOR_KO, US_SYMBOL_FIX
 from .scoring import to_float
 
+# =========================
+# 야후 재시도 설정 — 기본값은 원본과 완전히 같습니다(2회 / 3초).
+# `pipeline --retry N --backoff SEC` 이 실행 직전에 이 값을 바꿉니다.
+# GitHub 러너 IP 는 전 세계가 공유해서 야후가 429(요청 과다)를 자주 돌려주는데,
+# 그럴 때 워크플로 쪽에서 RISTOCK_RETRY/RISTOCK_BACKOFF 로 늘려 줄 수 있어야 합니다.
+# =========================
+RETRY = 2                # 수집 실패 종목 재시도 횟수
+BACKOFF = 3.0            # 재시도 전 대기(초)
+
+
+def set_retry(retry=None, backoff=None):
+    """pipeline 이 CLI 인자를 그대로 흘려 넣습니다."""
+    global RETRY, BACKOFF
+    if retry is not None:
+        RETRY = max(0, int(retry))
+    if backoff is not None:
+        BACKOFF = max(0.0, float(backoff))
+    return RETRY, BACKOFF
+
 
 def to_yahoo_symbol(sym):
     return US_SYMBOL_FIX.get(sym, sym.replace('.', '-'))
@@ -177,11 +196,11 @@ def build_us_universe(top_n, sample=None):
             except Exception:
                 fails.append(s)
 
-    # 일시 오류(레이트리밋 등) 재시도 — 순차, 2회
-    for attempt in range(2):
+    # 일시 오류(레이트리밋 등) 재시도 — 순차, RETRY 회 (기본 2회 · 대기 3초)
+    for attempt in range(RETRY):
         if not fails:
             break
-        time.sleep(3)
+        time.sleep(BACKOFF)
         retry, fails = fails, []
         for s in retry:
             try:
@@ -231,10 +250,10 @@ def fetch_prices_batch(ysymbols, label):
                 pass
         print(f'  진행: {min(i + CHUNK, len(ysymbols))}/{len(ysymbols)}')
 
-    # 누락 종목 개별 재시도 (야후 캐시 잠금 등 일시 오류 대응)
+    # 누락 종목 개별 재시도 (야후 캐시 잠금 등 일시 오류 대응) — RETRY 회
     missing = [s for s in ysymbols if s not in out]
     for s in missing:
-        for _ in range(2):
+        for _ in range(RETRY):
             try:
                 d = yf.download(s, start='2014-12-01', auto_adjust=True,
                                 threads=False, progress=False)
@@ -245,7 +264,7 @@ def fetch_prices_batch(ysymbols, label):
                     break
             except Exception:
                 pass
-            time.sleep(1.5)
+            time.sleep(BACKOFF / 2)
     still = [s for s in ysymbols if s not in out]
     if still:
         print(f'  (경고) 주가 수집 실패 {len(still)}종목: {", ".join(still[:10])}')

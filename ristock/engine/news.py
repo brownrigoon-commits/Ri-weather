@@ -49,6 +49,47 @@ GOOD_THEME = [
 RETRY = 2
 RETRY_SLEEP = 1.0
 
+# =========================
+# 구글 뉴스 차단 감지 — 한 회차에서 통째로 막혔으면 빨리 포기한다
+# =========================
+# GitHub Actions 의 IP 는 구글 뉴스가 통째로 막는 일이 있습니다.
+# 그때 종목마다 3회씩 시도하면 252종목 × 2초 = 약 8분을 그냥 버립니다.
+# (원본 `google_news_titles()` 는 실패하면 그 자리에서 빈 목록을 돌려줬습니다.)
+# 그래서 **연속 실패가 한도를 넘으면 그 회차에서는 뉴스 수집을 포기**하고
+# 이후 종목은 즉시 빈 목록을 돌려줍니다. 개별 종목 재시도 자체는 그대로 둡니다.
+연속실패한도 = 10
+_뉴스상태 = {'연속실패': 0, '포기': False, '실패누계': 0}
+
+
+def 뉴스수집초기화():
+    """새 회차 시작 — 차단 감지 상태를 지웁니다. (pipeline 이 부릅니다)"""
+    _뉴스상태.update(연속실패=0, 포기=False, 실패누계=0)
+
+
+def 뉴스포기여부():
+    return _뉴스상태['포기']
+
+
+def 뉴스포기메모():
+    """manifest.실행.메모 에 남길 한 줄 — 뉴스 점수가 0이 된 이유입니다."""
+    if not _뉴스상태['포기']:
+        return ''
+    return (f'구글 뉴스 연속 {연속실패한도}회 실패 → 이번 회차 종목 뉴스 수집을 중단했습니다 '
+            f'(뉴스 점수 0점 · 호재/악재 빈칸). IP 차단으로 보이며 PC 실행이 보완합니다')
+
+
+def _뉴스실패():
+    _뉴스상태['연속실패'] += 1
+    _뉴스상태['실패누계'] += 1
+    if not _뉴스상태['포기'] and _뉴스상태['연속실패'] >= 연속실패한도:
+        _뉴스상태['포기'] = True
+        print(f'  (중단) 구글 뉴스가 연속 {연속실패한도}회 실패했습니다 — '
+              f'이번 회차 뉴스 수집을 여기서 멈춥니다 (남은 종목은 뉴스 점수 0)')
+
+
+def _뉴스성공():
+    _뉴스상태['연속실패'] = 0
+
 
 def _name_tokens(name):
     tokens = [name]
@@ -104,7 +145,12 @@ def rule_analyze_news(name, headlines):
 
 
 def google_news_titles(query, limit=20):
-    """구글 뉴스 RSS 제목 (실패해도 빈 목록 — 수집 전체를 멈추지 않는다)"""
+    """구글 뉴스 RSS 제목 (실패해도 빈 목록 — 수집 전체를 멈추지 않는다)
+
+    이번 회차가 이미 '차단'으로 판정됐으면 네트워크를 건드리지 않고 즉시 빈 목록입니다.
+    """
+    if _뉴스상태['포기']:
+        return []
     q = urllib.parse.quote(query)
     url = f'https://news.google.com/rss/search?q={q}&hl=ko&gl=KR&ceid=KR:ko'
     for attempt in range(RETRY + 1):
@@ -112,15 +158,19 @@ def google_news_titles(query, limit=20):
             feed = feedparser.parse(url)
             entries = getattr(feed, 'entries', None) or []
             if entries:
+                _뉴스성공()
                 return [(getattr(e, 'title', '') or '').strip()
                         for e in entries[:limit] if getattr(e, 'title', '')]
             # 결과가 비었는데 파싱 오류 흔적이 없으면 '해당 뉴스 없음' — 재시도하지 않는다
+            # (응답은 정상적으로 받은 것이므로 차단이 아닙니다)
             if not getattr(feed, 'bozo', 0):
+                _뉴스성공()
                 return []
         except Exception:
             pass
         if attempt < RETRY:
             time.sleep(RETRY_SLEEP)
+    _뉴스실패()
     return []
 
 

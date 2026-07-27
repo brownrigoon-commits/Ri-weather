@@ -69,8 +69,11 @@ jobs:
     timeout-minutes: 45
 
     # 이 job 만 저장소에 쓸 수 있습니다 (ristock/data 커밋용).
+    #  issues: write 는 '한쪽 시장만 실패' 알림 이슈를 열고 닫기 위해서만 씁니다.
+    #  (그 두 가지 말고 다른 권한은 주지 않습니다 — 최소 권한)
     permissions:
       contents: write
+      issues: write
 
     env:
       # 날짜(기준일)를 한국 시간으로 찍기 위한 설정.
@@ -81,11 +84,16 @@ jobs:
 
       # ---- yfinance 429(요청 과다) 대응 --------------------------------
       # GitHub 러너 IP는 전 세계가 공유해서 야후가 자주 429를 돌려줍니다.
-      # 아래 값이 엔진에 전달됩니다. 엔진에 --retry/--backoff 인자가 생기면
-      # RISTOCK_EXTRA_ARGS 에 "--retry 4 --backoff 3" 처럼 적어 그대로 넘기면 됩니다.
+      # 아래 두 값은 '실행 조건 정리' 스텝에서 `--retry` / `--backoff` 인자로 만들어져
+      # 수집 명령에 그대로 붙습니다(RETRY_ARGS).
+      # 엔진이 그 인자를 아직 모르면 붙이지 않습니다 — 자동화가 통째로 죽지 않게 하기 위함입니다.
       RISTOCK_RETRY: '4'
       RISTOCK_BACKOFF: '3'
+      # 그 외에 손으로 더 넘기고 싶은 인자가 있을 때만 씁니다 (평소에는 비워 둡니다).
       RISTOCK_EXTRA_ARGS: ''
+      # 날짜별 원본(archive/YYYYMMDD)을 몇 개까지 남길지. 오래된 것은 자동으로 지웁니다.
+      # (엔진 기본값과 같은 60 입니다. 저장소가 무거워지면 이 숫자만 줄이면 됩니다)
+      RISTOCK_ARCHIVE_KEEP: '60'
       # ---- 네이버 금융 차단 가능성 -------------------------------------
       # 한국 재무·수급은 네이버 금융에서 가져옵니다. 해외(GitHub) IP는 차단될 수 있어
       # 한국 수집만 실패할 수 있습니다. 그때는 이 워크플로가 **기존 한국 데이터를 그대로 두고**
@@ -134,11 +142,25 @@ jobs:
 
           echo "MARKET=$MARKET_IN" >> "$GITHUB_ENV"
           echo "TOP=$TOP_IN"       >> "$GITHUB_ENV"
+
+          # ---- 엔진이 어떤 인자를 아는지 먼저 물어봅니다 -------------------
+          #  없는 인자를 넘기면 argparse 가 즉시 종료(코드 2)해서 수집이 통째로 실패합니다.
+          #  "있겠지" 하고 넘겼다가 자동화가 매일 죽는 것이 가장 나쁜 결말이라, 확인 후 붙입니다.
+          #  (엔진이 인자를 새로 추가해도 이 워크플로를 고칠 필요가 없습니다)
+          HELP="$(python -m ristock.engine.pipeline --help 2>/dev/null || true)"
+          has_opt() { case "$HELP" in *"$1"*) return 0 ;; *) return 1 ;; esac; }
+
+          # 빠른 점검용 '뉴스 끄기' — 종목 뉴스·수급과 10개국 시장요약을 **둘 다** 끕니다.
+          # (엔진이 둘을 따로 끌 수 있게 나뉘어 있어 두 인자를 함께 넘깁니다)
+          NO_NEWS_FLAG=""
           if [ "$NONEWS_IN" = "true" ]; then
-            echo "NO_NEWS_FLAG=--no-news" >> "$GITHUB_ENV"
-          else
-            echo "NO_NEWS_FLAG=" >> "$GITHUB_ENV"
+            NO_NEWS_FLAG="--no-news"
+            if has_opt '--no-market-news'; then
+              NO_NEWS_FLAG="$NO_NEWS_FLAG --no-market-news"
+            fi
           fi
+          echo "NO_NEWS_FLAG=$NO_NEWS_FLAG" >> "$GITHUB_ENV"
+
           # 어떤 시장을 돌릴지 미리 정해 둡니다(아래 스텝의 if 조건에서 사용).
           case "$MARKET_IN" in
             all) echo "DO_US=1" >> "$GITHUB_ENV"; echo "DO_KR=1" >> "$GITHUB_ENV" ;;
@@ -148,7 +170,21 @@ jobs:
           esac
           # 엑셀은 저장소에 커밋하지 않고 Actions 첨부파일로만 내려받게 합니다(저장소 비대화 방지).
           echo "XLSX_DIR=$RUNNER_TEMP/ristock_xlsx" >> "$GITHUB_ENV"
+
+          # ---- 재시도·보관 설정을 실제 인자로 만들기 -----------------------
+          EXTRA=""
+          if has_opt '--retry';   then EXTRA="$EXTRA --retry $RISTOCK_RETRY"; fi
+          if has_opt '--backoff'; then EXTRA="$EXTRA --backoff $RISTOCK_BACKOFF"; fi
+          if has_opt '--archive-keep'; then EXTRA="$EXTRA --archive-keep $RISTOCK_ARCHIVE_KEEP"; fi
+          EXTRA="${EXTRA# }"
+          echo "RETRY_ARGS=$EXTRA" >> "$GITHUB_ENV"
+          case "$EXTRA" in
+            *--retry*) echo "재시도 설정 연결됨: $EXTRA" ;;
+            *) echo "::warning::엔진이 --retry/--backoff 를 모릅니다. 야후가 429 를 주면 재시도 없이 실패합니다." ;;
+          esac
+
           echo "실행 조건 — 시장:$MARKET_IN / 상위:${TOP_IN}종목 / 뉴스끄기:$NONEWS_IN"
+          echo "수집 명령 뒤에 붙는 인자 — 뉴스:'${NO_NEWS_FLAG}' / 기타:'${EXTRA}'"
 
       # 엔진이 데이터를 새로 쓰기 **전에** 원격 상태로 맞춥니다.
       # (집·회사 PC가 방금 올린 데이터가 있으면 그것을 기준으로 시작합니다)
@@ -161,8 +197,10 @@ jobs:
       #  미국·한국을 따로 돌립니다. 한쪽이 죽어도 다른 쪽은 살아남아야 하기 때문입니다.
       #  (continue-on-error: true → 실패해도 다음 스텝으로 진행. 최종 판정은 맨 아래 게이트에서)
       #
-      #  ※ --no-news 는 '10개국 시장요약'만이 아니라 '종목별 뉴스·수급 점수'까지 끕니다.
-      #    그래서 시장별로 뉴스를 나눠 켤 수 없고, 두 스텝 모두 뉴스를 수집합니다.
+      #  ※ 뉴스는 두 스텝 모두 수집합니다. 시장별로 나눠 켜지 않습니다.
+      #    (Run workflow 에서 '뉴스 끄기'를 켰을 때만 두 스텝 모두 뉴스를 건너뜁니다)
+      #  ※ $RETRY_ARGS 는 앞 스텝이 만든 --retry/--backoff/--archive-keep 입니다.
+      #    엔진이 그 인자를 모르면 빈 값이라 명령이 그대로 돕니다.
       # ------------------------------------------------------------------
       - name: 미국 수집
         id: us
@@ -172,7 +210,7 @@ jobs:
           python -m ristock.engine.pipeline \
             --market us --top "$TOP" $NO_NEWS_FLAG \
             --archive --runner github-actions \
-            --excel-dir "$XLSX_DIR" $RISTOCK_EXTRA_ARGS
+            --excel-dir "$XLSX_DIR" $RETRY_ARGS $RISTOCK_EXTRA_ARGS
 
       - name: 한국 수집
         id: kr
@@ -182,7 +220,7 @@ jobs:
           python -m ristock.engine.pipeline \
             --market kr --top "$TOP" $NO_NEWS_FLAG \
             --archive --runner github-actions \
-            --excel-dir "$XLSX_DIR" $RISTOCK_EXTRA_ARGS
+            --excel-dir "$XLSX_DIR" $RETRY_ARGS $RISTOCK_EXTRA_ARGS
 
       # ------------------------------------------------------------------
       #  올리기 **전** 관문 — 여기서 막지 못하면 망가진 데이터가 그대로 사용자에게 갑니다.
@@ -248,6 +286,166 @@ jobs:
           retention-days: 14
 
       # ------------------------------------------------------------------
+      #  한쪽 시장만 실패했을 때 — 사장님께 **실제로 알림이 가게** 합니다.
+      #
+      #  예전에는 `::warning::` 과 요약 표에만 남겼습니다. 그러면 job 은 초록으로 끝나고,
+      #  Actions 탭을 일부러 열어 보지 않는 한 한국 데이터가 며칠째 멈춘 것을 모릅니다.
+      #  그래서 **저장소에 알림 이슈를 하나 엽니다.** 이슈가 열리면 메일·폰 알림이 옵니다.
+      #
+      #  중복 알림을 막는 규칙 (이게 핵심입니다)
+      #    · 처음 실패   → 이슈를 새로 엽니다              → 알림 1회
+      #    · 계속 실패   → 이슈 **본문만 조용히** 고칩니다  → 알림 없음
+      #    · 5회마다     → 이슈에 댓글 + job 을 실패 처리   → 알림 (재촉)
+      #    · 다시 성공   → 이슈를 닫습니다                  → 알림 (희소식)
+      #  연속 실패 횟수는 이슈 본문 맨 끝의 숨은 표시(ristock-streak)에 적어 둡니다.
+      #  따로 상태 파일을 만들지 않으므로 커밋이 늘지 않습니다.
+      #
+      #  ※ 두 시장이 **모두** 실패한 날은 아래 '결과 판정'이 job 을 빨갛게 실패시켜
+      #    이미 메일이 갑니다. 그래서 그때는 이슈를 건드리지 않습니다(알림 두 번 방지).
+      #  ※ 기본 브랜치(main)에서만 돕니다. 작업 브랜치에서 시험 삼아 돌릴 때마다
+      #    이슈가 열리면 그게 더 괴롭습니다.
+      # ------------------------------------------------------------------
+      - name: 한쪽만 실패했으면 이슈로 알리기
+        id: alert
+        if: always() && github.ref_name == github.event.repository.default_branch
+        # 알림을 못 보냈다고 해서 멀쩡히 수집된 데이터까지 실패로 만들지는 않습니다.
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          US_R: ${{ steps.us.outcome }}
+          KR_R: ${{ steps.kr.outcome }}
+          ESCALATE_EVERY: '5'          # 이 횟수마다 한 번만 다시 알립니다
+          ALERT_LABEL: 'ristock-자동알림'
+        # ※ 셸 변수 이름은 영문만 (bash 는 한글 변수 이름을 조용히 빈 값으로 만듭니다)
+        # ※ set -e 는 일부러 켜지 않습니다. gh 명령이 하나 실패해도 나머지는 계속 처리합니다.
+        run: |
+          set -uo pipefail
+
+          US_R="${US_R:-}" ; KR_R="${KR_R:-}"
+          [ -n "$US_R" ] || US_R="skipped"
+          [ -n "$KR_R" ] || KR_R="skipped"
+
+          OK_CNT=0
+          if [ "$US_R" = "success" ]; then OK_CNT=$((OK_CNT+1)); fi
+          if [ "$KR_R" = "success" ]; then OK_CNT=$((OK_CNT+1)); fi
+
+          BODY="$RUNNER_TEMP/ristock_alert_body.md"
+          ESC=0
+
+          # 라벨은 있으면 보기 좋을 뿐입니다. 없어도 알림을 막지 않도록 따로 처리합니다.
+          gh label create "$ALERT_LABEL" --repo "$REPO" --color 'B60205' \
+             --description 'Ri_Stock 자동 갱신 실패 알림 (자동 생성)' >/dev/null 2>&1 || true
+
+          # 같은 제목의 **열린** 이슈 번호 (없으면 빈 값)
+          open_issue_number() {
+            local raw
+            raw="$(gh issue list --repo "$REPO" --state open --limit 100 \
+                     --json number,title 2>/dev/null)"
+            [ -n "$raw" ] || { echo ""; return; }
+            printf '%s' "$raw" \
+              | jq -r --arg t "$1" '[.[] | select(.title == $t) | .number][0] // empty' 2>/dev/null
+          }
+
+          # 이슈 본문에 숨겨 둔 연속 실패 횟수 읽기
+          read_streak() {
+            gh issue view "$1" --repo "$REPO" --json body -q .body 2>/dev/null \
+              | sed -n 's/.*ristock-streak:[[:space:]]*\([0-9][0-9]*\).*/\1/p' | head -1
+          }
+
+          # 본문 만들기 ($1=시장이름, $2=연속 실패 횟수)
+          #  ※ 여기서 heredoc(<<EOF)을 쓰면 안 됩니다. 끝을 알리는 EOF 는 반드시 맨 왼쪽에
+          #    있어야 하는데, 그러면 YAML 의 run 블록이 거기서 끊겨 워크플로가 통째로 깨집니다.
+          #    printf 와 홑따옴표를 쓰면 들여쓰기를 지킬 수 있고 백틱·달러도 그대로 나갑니다.
+          #  ※ @@...@@ 는 아래 sed 가 실제 값으로 바꿔 넣는 자리입니다.
+          write_body() {
+            printf '%s\n' \
+              '## @@MK@@ 데이터가 자동으로 채워지지 않았습니다' \
+              '' \
+              '- 연속 **@@N@@회** 실패했습니다. (마지막 확인 @@TS@@ 한국시간)' \
+              '- 앱에는 **이전 @@MK@@ 데이터가 그대로** 보입니다. 지워진 것이 아닙니다.' \
+              '- 다른 시장 데이터는 정상으로 갱신됐습니다.' \
+              '' \
+              '### 지금 하실 일 — 둘 중 하나' \
+              '1. **집 PC에서 `tools\ristock_실행.bat` 을 더블클릭**하세요. 가장 확실합니다. (8~15분)' \
+              '2. 그냥 두셔도 됩니다. 다음 예약 시간에 저절로 풀리는 경우가 많습니다.' \
+              '' \
+              '### 흔한 원인' \
+              '- 네이버 금융이 깃허브(해외) 서버 주소를 막음 → 집 PC 실행이면 해결됩니다.' \
+              '- 야후 파이낸스가 요청 과다(429)로 거절 → 시간이 지나면 대개 풀립니다.' \
+              '' \
+              '### 이번 실행 기록' \
+              '@@RUN@@' \
+              '' \
+              '---' \
+              '*자동으로 열린 알림입니다. 데이터가 다시 채워지면 **저절로 닫힙니다.** 손으로 닫지 않으셔도 됩니다.*' \
+              '' \
+              '<!-- ristock-streak: @@N@@ -->' \
+              > "$BODY"
+            sed -i "s#@@MK@@#$1#g; s#@@N@@#$2#g; s#@@TS@@#$(date '+%Y-%m-%d %H:%M')#g; s#@@RUN@@#$RUN_URL#g" "$BODY"
+          }
+
+          for MK in 미국 한국; do
+            if [ "$MK" = "미국" ]; then R="$US_R"; else R="$KR_R"; fi
+            TITLE="🔴 Ri_Stock 자동 갱신 — ${MK} 데이터가 채워지지 않았습니다"
+            NUM="$(open_issue_number "$TITLE")"
+
+            # ---- 다시 성공했다 → 열려 있던 알림을 닫습니다 ----------------
+            if [ "$R" = "success" ]; then
+              if [ -n "$NUM" ]; then
+                gh issue comment "$NUM" --repo "$REPO" \
+                  --body "✅ ${MK} 데이터가 다시 채워졌습니다. 확인한 실행: ${RUN_URL}" >/dev/null 2>&1
+                gh issue close "$NUM" --repo "$REPO" >/dev/null 2>&1 \
+                  && echo "복구 — ${MK} 알림 이슈 #${NUM} 을 닫았습니다."
+              fi
+              continue
+            fi
+
+            # 아예 돌리지 않은 시장(skipped)은 건드리지 않습니다.
+            [ "$R" = "failure" ] || continue
+
+            # 둘 다 실패한 날은 job 자체가 빨갛게 끝나므로 이슈를 겹쳐 열지 않습니다.
+            if [ "$OK_CNT" -eq 0 ]; then
+              echo "두 시장 모두 실패 — job 실패로 이미 알림이 갑니다. 이슈는 열지 않습니다."
+              continue
+            fi
+
+            PREV=0
+            if [ -n "$NUM" ]; then
+              PREV="$(read_streak "$NUM")"
+              [ -n "$PREV" ] || PREV=0
+            fi
+            STREAK=$((PREV + 1))
+            write_body "$MK" "$STREAK"
+
+            if [ -z "$NUM" ]; then
+              NUM="$(gh issue create --repo "$REPO" --title "$TITLE" \
+                       --body-file "$BODY" 2>/dev/null | sed 's#.*/##')"
+              if [ -n "$NUM" ]; then
+                gh issue edit "$NUM" --repo "$REPO" --add-label "$ALERT_LABEL" >/dev/null 2>&1 || true
+                echo "새 알림 이슈 #${NUM} 을 열었습니다 (${MK})."
+              else
+                echo "::warning::${MK} 실패 알림 이슈를 열지 못했습니다(저장소 Issues 가 꺼져 있을 수 있습니다)."
+                continue
+              fi
+            else
+              gh issue edit "$NUM" --repo "$REPO" --body-file "$BODY" >/dev/null 2>&1 \
+                && echo "기존 알림 이슈 #${NUM} 본문만 조용히 갱신했습니다 (연속 ${STREAK}회)."
+            fi
+
+            # 5회마다 한 번만 다시 알립니다 (매일 알리면 그게 더 괴롭습니다)
+            if [ $((STREAK % ESCALATE_EVERY)) -eq 0 ]; then
+              gh issue comment "$NUM" --repo "$REPO" \
+                --body "⏰ ${MK} 데이터가 **연속 ${STREAK}회** 채워지지 않았습니다. 집 PC에서 \`tools\\ristock_실행.bat\` 을 한 번 돌려 주세요. (${RUN_URL})" >/dev/null 2>&1
+              echo "::warning::${MK} 수집이 연속 ${STREAK}회 실패했습니다. 이슈 #${NUM} 을 확인해 주세요."
+              ESC=1
+            fi
+          done
+
+          echo "escalate=$ESC" >> "$GITHUB_OUTPUT"
+
+      # ------------------------------------------------------------------
       #  마지막 게이트 — 여기서만 성공/실패를 판정합니다.
       #  요청한 시장이 **전부** 실패하면 job 을 실패로 끝냅니다(메일 알림이 옵니다).
       # ------------------------------------------------------------------
@@ -260,11 +458,13 @@ jobs:
           GATE_R="${{ steps.gate.outcome }}"     # 올리기 전 출고 점검
           PUB_R="${{ steps.publish.outcome }}"   # 커밋·푸시
           VER_R="${{ steps.verify.outcome }}"    # 공개 주소 도달 확인
+          ALERT_ESC="${{ steps.alert.outputs.escalate }}"   # 1 = 연속 실패가 쌓여 재촉이 필요함
           [ -n "$US_R" ] || US_R="skipped"
           [ -n "$KR_R" ] || KR_R="skipped"
           [ -n "$GATE_R" ] || GATE_R="skipped"
           [ -n "$PUB_R" ] || PUB_R="skipped"
           [ -n "$VER_R" ] || VER_R="skipped"
+          [ -n "$ALERT_ESC" ] || ALERT_ESC="0"
 
           mark() { case "$1" in
               success) echo "✅ 성공" ;;
@@ -316,9 +516,15 @@ jobs:
           fi
 
           if [ "$US_R" = "failure" ] || [ "$KR_R" = "failure" ]; then
-            echo "" >> "$GITHUB_STEP_SUMMARY"
-            echo "> ⚠ 한쪽 시장만 갱신됐습니다. 실패한 시장은 **이전 데이터를 그대로 유지**합니다." >> "$GITHUB_STEP_SUMMARY"
-            echo "::warning::일부 시장 수집 실패 — 해당 시장은 이전 데이터를 유지합니다."
+            {
+              echo ""
+              echo "> ⚠ 한쪽 시장만 갱신됐습니다. 실패한 시장은 **이전 데이터를 그대로 유지**합니다."
+              echo ">"
+              echo "> 이 워크플로가 저장소 **Issues 탭에 알림을 하나 열어 둡니다.**"
+              echo "> 메일이 한 통 갈 것입니다. 데이터가 다시 채워지면 그 알림은 **저절로 닫힙니다.**"
+              echo "> (main 가지에서 돌 때만 열립니다)"
+            } >> "$GITHUB_STEP_SUMMARY"
+            echo "::warning::일부 시장 수집 실패 — 해당 시장은 이전 데이터를 유지합니다. Issues 탭의 알림을 봐 주세요."
           fi
 
           # ----------------------------------------------------------------
@@ -353,6 +559,26 @@ jobs:
               echo "- \`.nojekyll\` 이 사라지지 않았는지도 함께 보세요(2026-07-22 같은 사고)."
             } >> "$GITHUB_STEP_SUMMARY"
             echo "::error::공개 주소에서 오늘 데이터를 확인하지 못했습니다."
+            exit 1
+          fi
+
+          # ----------------------------------------------------------------
+          #  한쪽 시장이 **여러 날 연속** 실패하고 있으면 여기서 job 을 빨갛게 끝냅니다.
+          #  이슈 알림만으로는 못 보고 넘어갈 수 있어서, 5회마다 한 번씩만
+          #  '워크플로 실패' 메일이 가도록 일부러 실패시키는 것입니다.
+          #  (매번 실패시키면 메일이 하루 두 통씩 쌓여 그게 더 괴롭습니다)
+          #  데이터는 정상 갱신된 시장만 올라갔고, 실패한 시장은 이전 데이터 그대로입니다.
+          # ----------------------------------------------------------------
+          if [ "$ALERT_ESC" = "1" ]; then
+            {
+              echo ""
+              echo "### ⏰ 한쪽 시장이 여러 날 연속으로 실패하고 있습니다"
+              echo ""
+              echo "- 갱신된 시장 데이터는 **정상으로 올라갔습니다.** 앱은 계속 동작합니다."
+              echo "- 실패한 시장만 계속 옛날 데이터입니다. 집 PC에서 \`tools\\ristock_실행.bat\` 을 한 번 돌려 주세요."
+              echo "- 자세한 내용은 저장소 **Issues** 탭의 알림에 적혀 있습니다."
+            } >> "$GITHUB_STEP_SUMMARY"
+            echo "::error::한쪽 시장이 연속으로 실패하고 있습니다. Issues 탭의 알림을 확인해 주세요."
             exit 1
           fi
 

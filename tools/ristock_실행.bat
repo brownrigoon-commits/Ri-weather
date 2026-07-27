@@ -6,7 +6,10 @@ rem  하는 일 (순서대로)
 rem    1) 상대 PC 작업 받기      git pull --rebase
 rem    2) 원격 데이터와 맞추기    publish --sync
 rem    3) 미국+한국 수집          pipeline    (8~15분 걸립니다)
-rem    4) 바뀐 데이터만 올리기    publish --push
+rem    4) 결과물 점검             ristock_출고점검.py
+rem    5) 바뀐 데이터만 올리기    publish --push
+rem
+rem  결과 코드: 0 정상 / 4 반쪽만 갱신 / 1 실패 / 2 올리기 실패 / 3 합치다 만 파일 / 9 준비물 없음
 rem
 rem  실행 기록은 ristock\data\last_run.log 에 남습니다.
 rem  엑셀 분석표는 내 문서\Ri_Stock 폴더에 저장됩니다.
@@ -118,6 +121,27 @@ if errorlevel 1 (
   goto :finish
 )
 
+rem --- 3-1) 반쪽만 갱신된 것을 조용히 넘기지 않습니다 ---------------------
+rem  엔진은 한 시장만 성공해도 정상(0)으로 끝납니다. 그대로 두면 한국 데이터가
+rem  며칠째 멈춰 있어도 창에는 "완료되었습니다" 만 뜹니다.
+rem  그래서 manifest 의 실행.성공 을 직접 보고 반쪽이면 화면에 띄웁니다.
+rem  ※ 아래 파이썬 한 줄에 한글을 직접 쓰지 않고 \uXXXX 로 적은 이유:
+rem    콘솔 코드페이지에 따라 한글이 깨지면 조건이 조용히 어긋나 경보가 안 뜹니다.
+rem    (실행=실행, 성공=성공, 메모=메모)
+set "PARTIAL="
+"%PY%" -c "import json,os,sys;p=r'%DATA%\manifest.json';d=json.load(open(p,encoding='utf-8')) if os.path.exists(p) else {};e=d.get('\uc2e4\ud589') or {};print(e.get('\uba54\ubaa8') or '');sys.exit(0 if (not d or e.get('\uc131\uacf5')) else 1)" > "%TEMP%\ristock_memo.txt" 2>nul
+if errorlevel 1 set "PARTIAL=1"
+if defined PARTIAL (
+  call :say ""
+  call :say "  [주의] 일부만 갱신됐습니다. 갱신되지 않은 쪽은 어제 데이터가 그대로 보입니다."
+  call :say "         앱은 정상 동작합니다. 데이터가 지워진 것이 아닙니다."
+  call :say "         이유:"
+  type "%TEMP%\ristock_memo.txt"
+  type "%TEMP%\ristock_memo.txt" >> "%LOG%"
+  call :say "         한국만 비었다면 이 PC에서 잠시 뒤 한 번 더 실행해 보세요."
+  set "RC=4"
+)
+
 rem --- 4) 출고 점검 — 올리기 전에 결과물이 멀쩡한지 확인 ------------------
 rem  수집이 0 을 돌려줘도 안심할 수 없습니다. 야후가 절반만 응답하면
 rem  300종목이 12종목이 되어도 "성공"으로 끝납니다. 그걸 올리면
@@ -143,7 +167,11 @@ if errorlevel 1 (
 )
 
 call :say ""
-call :say "완료되었습니다. 1~2분 뒤 폰에서 새로고침하면 오늘 데이터가 보입니다."
+if defined PARTIAL (
+  call :say "일부만 갱신되어 올렸습니다. 위의 [주의] 를 읽어 주세요."
+) else (
+  call :say "완료되었습니다. 1~2분 뒤 폰에서 새로고침하면 오늘 데이터가 보입니다."
+)
 call :say "  https://brownrigoon-commits.github.io/Ri-weather/ristock/"
 goto :finish
 

@@ -364,7 +364,18 @@ def _evaluated_record(ticker, sector, rec, uni):
 
 
 def _plain_record(ticker, uni):
-    """평가 안 된 종목 — 뉴스·수급을 돌리지 않았으므로 점수·근거·총점이 없습니다(설계서 2.2)."""
+    """평가 안 된 종목 — 뉴스·수급을 돌리지 않았으므로 점수·근거·총점이 없습니다(설계서 2.2).
+
+    ⚠ **키 구성은 `engine/emit.stock_record()` 가 정본입니다.**
+    같은 `stocks_XX.json` 을 만드는 생산자가 둘(시드 변환기·수집 엔진)인데 필드가 서로
+    달라지면, 시드로 열던 앱이 첫 수집 뒤 갑자기 필드가 생기는 불안정한 계약이 됩니다.
+    그래서 `미네르비니 · 호재 · 악재 · 순익` 을 미평가 종목에도 **키만이라도** 채웁니다.
+
+    옛 xlsx 의 `시총순위_분석` 시트에는 이 네 값이 아예 없습니다
+    (뉴스·수급을 돌린 종목만 `기업분석` 시트에 실렸기 때문입니다).
+    읽을 수 없는 값은 **키는 두고 빈 값**으로 둡니다 — 없는 값을 지어내지 않습니다.
+    `지표.모멘텀12M · 거래량비 · 순익성장률` 도 같은 이유로 null 입니다.
+    """
     지표 = {k: None for k in METRIC_KEYS}
     for key, col in METRIC_FROM_UNIVERSE.items():
         지표[key] = _num(uni.get(col))
@@ -379,6 +390,11 @@ def _plain_record(ticker, uni):
         '시총조원': _num(uni.get('시가총액(조원)')),
         '평가': False,
         '지표': 지표,
+        '미네르비니': _text(uni.get('미네르비니')),
+        '호재': _text(uni.get('호재요약')),
+        '악재': _text(uni.get('악재사유')),
+        '순익': {'연도': _text(uni.get('순익연도')),
+                '값': [_num(uni.get(c)) for c in NET5_LABELS]},
         '연도별종가': _closes(uni),
         '수익률': {k: _num(uni.get(col)) for k, col in RETURN_COLS.items()},
     }
@@ -488,9 +504,15 @@ def verify_totals(snap, xlsx_path):
 # manifest / strategies
 # =========================
 def build_manifest(kr_path, us_path, runner='pc', memo=''):
+    """manifest.json — 시장별 `기준일` 을 각각 담고, 최상단은 그중 **가장 오래된** 값.
+
+    앱의 신선도 판정은 최상단 `기준일` 하나만 봅니다. 한쪽 시장만 낡았을 때
+    새 쪽 날짜를 올려 두면 낡은 데이터가 "오늘 것"으로 보입니다
+    (`engine/emit.대표기준일()` 과 같은 규칙입니다).
+    """
     시장 = {}
     생성시각 = ''
-    기준일 = ''
+    기준일들 = []
     for market, path in [('한국', kr_path), ('미국', us_path)]:
         if not path:
             continue
@@ -501,11 +523,13 @@ def build_manifest(kr_path, us_path, runner='pc', memo=''):
             '파일': os.path.basename(path),
             '종목수': len(snap['종목']),
             '평가종목수': ev,
+            '기준일': snap['기준일'],
             '원본': snap['원본'],
             '수집시각': snap['생성시각'],
         }
-        기준일 = max(기준일, snap['기준일'])
+        기준일들.append(snap['기준일'])
         생성시각 = max(생성시각, snap['생성시각'])
+    기준일 = min(기준일들) if 기준일들 else ''
     return {
         '데이터버전': 1,
         '생성시각': 생성시각,

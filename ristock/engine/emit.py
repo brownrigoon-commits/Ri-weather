@@ -15,6 +15,7 @@ DataFrame(평가 완료) → `stocks_KR.json` / `stocks_US.json` / `manifest.jso
 import json
 import math
 import os
+import re
 import shutil
 
 import pandas as pd
@@ -22,6 +23,10 @@ import pandas as pd
 from .config import (ARCHIVE_DIRNAME, DATA_VERSION, MANIFEST_FILE, MARKET_FILE,
                      METRIC_COLS, NET5_LABELS, REASON_COLS, SCORE_ITEMS,
                      STOCKS_FILE, WEIGHTS, YEARS)
+
+# 전일 대비 변화 (설계서 2.5) · 전략 정의 — 앱이 이 이름으로 읽습니다(`js/data.js`)
+CHANGES_FILE = 'changes.json'
+STRATEGIES_FILE = 'strategies.json'
 
 
 # =========================
@@ -201,6 +206,11 @@ def write_market(summary, out_dir):
     return write_json(os.path.join(out_dir, MARKET_FILE), summary)
 
 
+def write_changes(변화, out_dir):
+    """changes.json 저장 (설계서 2.5 — strategies.변화계산 결과 그대로)"""
+    return write_json(os.path.join(out_dir, CHANGES_FILE), 변화)
+
+
 # =========================
 # manifest (설계서 2.1)
 # =========================
@@ -208,24 +218,54 @@ def previous_manifest(out_dir):
     return load_json(os.path.join(out_dir, MANIFEST_FILE), default={}) or {}
 
 
-def build_manifest(시장, 기준일, 생성시각, 주체, 성공, 메모=''):
-    return {
+def build_manifest(시장, 기준일, 생성시각, 주체, 성공, 메모='',
+                   변화파일='', 이전기준일=''):
+    data = {
         '데이터버전': DATA_VERSION,
         '생성시각': 생성시각,
         '기준일': 기준일,
         '시장': 시장,
         '실행': {'주체': 주체, '성공': bool(성공), '메모': 메모},
     }
+    # 전일 대비 변화 — **파일을 실제로 만든 회차에만** 넣습니다.
+    # 앱(`js/data.js` 변화파일명)은 이 키가 있을 때만 changes.json 을 읽으므로,
+    # 첫 실행처럼 비교 대상이 없을 때는 넣지 않아야 404 가 쌓이지 않습니다.
+    if 변화파일:
+        data['변화파일'] = 변화파일
+    if 이전기준일:
+        data['이전기준일'] = 이전기준일
+    return data
 
 
-def write_manifest(out_dir, 시장, 기준일, 생성시각, 주체, 성공, 메모=''):
-    data = build_manifest(시장, 기준일, 생성시각, 주체, 성공, 메모)
+def write_manifest(out_dir, 시장, 기준일, 생성시각, 주체, 성공, 메모='',
+                   변화파일='', 이전기준일=''):
+    data = build_manifest(시장, 기준일, 생성시각, 주체, 성공, 메모,
+                          변화파일, 이전기준일)
     return write_json(os.path.join(out_dir, MANIFEST_FILE), data)
 
 
-def market_entry(파일, 종목수, 평가종목수, 원본, 수집시각):
+def market_entry(파일, 종목수, 평가종목수, 원본, 수집시각, 기준일=''):
+    """manifest.시장.<시장> 한 칸.
+
+    `기준일` 을 **시장마다 따로** 들고 있는 것이 핵심입니다.
+    한국 수집만 실패한 날에도 한국 칸은 옛 기준일을 그대로 유지해야
+    "한국 데이터는 5일 전 것"이라고 정직하게 말할 수 있습니다.
+    """
     return {'파일': 파일, '종목수': 종목수, '평가종목수': 평가종목수,
-            '원본': 원본, '수집시각': 수집시각}
+            '기준일': 기준일, '원본': 원본, '수집시각': 수집시각}
+
+
+def 대표기준일(시장, 기본=''):
+    """최상단 `기준일` — **시장별 기준일 중 가장 오래된 값**.
+
+    앱의 신선도 판정(`js/data.js` 신선도)은 이 값 하나만 봅니다.
+    그래서 여기에 '오늘'을 그냥 찍어 버리면, 한국 수집이 일주일 멈춰 있어도
+    화면에는 "오늘 데이터입니다"라고 나옵니다(2026-07 검증에서 잡힌 사고).
+    가장 오래된 시장을 대표값으로 두면 최소한 **낡은 쪽을 기준으로** 경고가 뜹니다.
+    """
+    날짜 = [(e or {}).get('기준일') for e in (시장 or {}).values()
+           if isinstance(e, dict) and (e or {}).get('기준일')]
+    return min(날짜) if 날짜 else 기본
 
 
 # =========================
@@ -242,3 +282,53 @@ def archive(out_dir, 기준일, filenames):
             shutil.copy2(src, os.path.join(dst_dir, name))
             saved.append(name)
     return dst_dir, saved
+
+
+ARCHIVE_KEEP = 60          # 기본 보관 개수 (--archive-keep 로 바꿉니다)
+
+
+def archive_dates(out_dir):
+    """`archive/` 안의 날짜 폴더 이름 오름차순. YYYYMMDD 형태만 셉니다."""
+    root = os.path.join(out_dir, ARCHIVE_DIRNAME)
+    if not os.path.isdir(root):
+        return []
+    return sorted(n for n in os.listdir(root)
+                  if re.fullmatch(r'\d{8}', n) and os.path.isdir(os.path.join(root, n)))
+
+
+def archive_보관대상(날짜목록, keep=ARCHIVE_KEEP):
+    """남길 날짜 / 지울 날짜를 나눕니다 (파일은 건드리지 않음 — 계산만).
+
+    · 최근 `keep` 개 날짜 폴더는 무조건 남깁니다.
+    · 그보다 오래된 것 중 **각 달의 마지막 날짜 폴더**(= 그 달의 마지막 거래일)는 남깁니다.
+      월별 추이를 나중에 되짚어 볼 수 있어야 하기 때문입니다.
+    """
+    날짜 = sorted(날짜목록)
+    if keep is None or keep <= 0 or len(날짜) <= keep:
+        return 날짜, []
+    남김 = set(날짜[-keep:])
+    월별마지막 = {}
+    for d in 날짜:
+        월별마지막[d[:6]] = d              # 오름차순이라 마지막에 남는 값이 그 달의 마지막
+    남김.update(월별마지막.values())
+    return [d for d in 날짜 if d in 남김], [d for d in 날짜 if d not in 남김]
+
+
+def cleanup_archive(out_dir, keep=ARCHIVE_KEEP):
+    """보관 기간을 넘긴 날짜 폴더를 지웁니다 → 지운 날짜 목록.
+
+    `--archive` 는 매 거래일 약 0.6MB 를 남깁니다. 한 번에 걸리는 양이 작아
+    `publish.용량점검()` 에는 영원히 안 잡히지만, 1년이면 185MB 이고
+    집·회사 두 PC 의 clone·pull 이 함께 느려집니다.
+    앱은 **날짜 없는 최신 파일만** 읽으므로(설계서 1장) 지워도 화면은 아무 영향이 없습니다.
+    """
+    남김, 지움 = archive_보관대상(archive_dates(out_dir), keep)
+    root = os.path.join(out_dir, ARCHIVE_DIRNAME)
+    지운것 = []
+    for d in 지움:
+        try:
+            shutil.rmtree(os.path.join(root, d))
+            지운것.append(d)
+        except OSError:
+            pass
+    return 지운것

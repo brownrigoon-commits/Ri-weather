@@ -150,8 +150,18 @@ def 로컬점검(markets, 최소=최소종목수):
         실패(f'manifest.기준일 이 YYYYMMDD 가 아닙니다: {기준일!r}')
     else:
         통과(f'기준일 {기준일}')
-    if not (m.get('시장') or {}):
+    시장칸 = m.get('시장') or {}
+    if not 시장칸:
         실패('manifest.시장 이 비어 있습니다 (앱이 보여 줄 것이 없습니다)')
+
+    # 최상단 `기준일` 은 **시장별 기준일 중 가장 오래된 값**입니다(emit.대표기준일).
+    # 한국만 며칠 멈춰 있어도 "오늘 데이터"라고 말하지 않기 위한 규칙입니다.
+    시장별기준일 = {k: str((v or {}).get('기준일') or '')
+                for k, v in 시장칸.items() if isinstance(v, dict)}
+    있는것 = [d for d in 시장별기준일.values() if re.fullmatch(r'\d{8}', d)]
+    if 있는것 and 기준일 and min(있는것) != 기준일:
+        주의(f'manifest.기준일({기준일}) 이 시장별 기준일 중 가장 오래된 값'
+           f'({min(있는것)}) 과 다릅니다')
 
     실행 = m.get('실행') or {}
     if 실행.get('메모'):
