@@ -1,5 +1,43 @@
+/* 클럽 피팅 자동 검사 — 4개 클럽 전 흐름을 실제 브라우저로 끝까지 진행해 본다.
+ *
+ *   npm i playwright-core          (최초 1회)
+ *   python -m http.server 8734     (다른 창에서 띄워둘 것)
+ *   node tools/clubfit_check.js
+ *
+ * 잡는 것
+ *   · 문항이 막혀 다음으로 못 가는 경우
+ *   · 결과 화면에 도달 못 하거나 렌더가 실패한 경우
+ *   · 화면에 내부 용어(가봉/본봉)·undefined·NaN 이 새는 경우
+ *   · 클럽 타일·저장 버튼이 다른 요소에 덮여 실제로는 안 눌리는 경우
+ *     (버튼.click() 은 덮여 있어도 통과한다 — elementFromPoint 로 실제 터치 지점 확인)
+ *   · 공통 프로필 재사용이 동작하는지 (25문항 → 16문항)
+ *
+ * ⚠️ 이 검사 자체를 믿지 말 것 — 일부러 고장을 내서 잡히는지 확인하고 쓸 것.
+ *    실제로 이 검사에 구멍 3개가 있었고 자가검증으로 찾아냈다(2026-07-27):
+ *      ① 화면이 안 넘어가도 통과 ② 결과 렌더 실패를 못 잡음
+ *      ③ 서비스워커가 이전 코드를 캐시해 "고쳤는데 그대로" 가 나옴  ← 가장 위험
+ *    ③ 때문에 아래에서 serviceWorkers:'block' 을 반드시 켠다.
+ */
 const { chromium } = require('playwright-core');
-const EXE = '/opt/pw-browsers/chromium-1194/chrome-linux/chrome';
+const path = require('path');
+const fs = require('fs');
+/* 크롬 위치 — 환경변수 CHROME 이 있으면 그걸 쓰고, 없으면 흔한 자리를 찾는다.
+   회사·집 PC(윈도우)와 클라우드(리눅스) 양쪽에서 그대로 돌아가야 한다. */
+const CANDIDATES = [
+  process.env.CHROME,
+  'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
+  'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',
+  '/opt/pw-browsers/chromium-1194/chrome-linux/chrome',
+  '/usr/bin/google-chrome',
+  '/usr/bin/chromium',
+].filter(Boolean);
+const EXE = CANDIDATES.find((p) => { try { return fs.existsSync(p); } catch (_) { return false; } });
+if (!EXE) {
+  console.error('크롬을 못 찾았습니다. 환경변수로 알려주세요:');
+  console.error('  set CHROME=C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe');
+  process.exit(2);
+}
+const HOST = process.env.HOST || 'http://localhost:8734';
 const BAD = /가봉|본봉|재단|undefined|NaN|\[object|null(?![a-zA-Z])/;
 
 (async () => {
@@ -23,7 +61,7 @@ const BAD = /가봉|본봉|재단|undefined|NaN|\[object|null(?![a-zA-Z])/;
       localStorage.removeItem('riweather.fitprofile');
       localStorage.removeItem('riweather.mybag');
     });
-    await p.goto('http://localhost:8734/index.html');
+    await p.goto(HOST + '/index.html');
     await p.waitForTimeout(700);
     await p.evaluate(() => {
       const cv = document.getElementById('consent-view'); if (cv) cv.hidden = true;
@@ -137,7 +175,7 @@ const BAD = /가봉|본봉|재단|undefined|NaN|\[object|null(?![a-zA-Z])/;
   {
     const p = await newPage(b);
     await p.addInitScript(() => localStorage.setItem('riweather.consent', JSON.stringify({ v: '1.0', tos: true, age14: true })));
-    await p.goto('http://localhost:8734/index.html');
+    await p.goto(HOST + '/index.html');
     await p.waitForTimeout(700);
     const n = await p.evaluate(() => {
       document.getElementById('consent-view').hidden = true;
