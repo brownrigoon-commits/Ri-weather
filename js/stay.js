@@ -30,19 +30,21 @@ function stayKind(cat, name) {
   if (/호텔/.test(c) || /호텔/.test(n)) return "호텔";
   if (/모텔|여관/.test(c) || /모텔|여관/.test(n)) return "모텔";
   if (/펜션|풀빌라/.test(c) || /펜션|풀빌라/.test(n)) return "펜션";
-  if (/게스트|민박|한옥/.test(c)) return "게스트하우스";
+  if (/게스트/.test(c) || /게스트하우스/.test(n)) return "게스트하우스";
+  // 한옥숙소도 소규모 가정형 숙소라 민박으로 묶는다 (카카오 분류상 별개, 수가 적음)
+  if (/민박|한옥/.test(c) || /민박/.test(n)) return "민박";
   if (/캠핑|글램핑|카라반/.test(c)) return "캠핑";
   return "기타";
 }
 
 /* 라운딩 전후로 하룻밤 묵는 곳만 보여준다.
-   펜션·캠핑·게스트하우스는 골프 목적에 맞지 않는다는 사장님 판단(2026-07-28).
-   업종 미상("기타")도 뺀다 — 무엇인지 모르는 곳을 권할 수는 없다. */
-const STAY_ALLOW = ["무인텔", "모텔", "호텔", "리조트"];
+   펜션·캠핑·글램핑은 골프 목적에 맞지 않아 제외, 게스트하우스·민박은 포함
+   (사장님 판단 2026-07-28). 업종 미상("기타")도 뺀다 — 무엇인지 모르는 곳을 권할 순 없다. */
+const STAY_ALLOW = ["무인텔", "모텔", "호텔", "리조트", "게스트하우스", "민박"];
 
 const STAY_ICON = {
   "리조트": "🏨", "호텔": "🏨", "무인텔": "🔑", "모텔": "🛏️",
-  "펜션": "🏡", "게스트하우스": "🏠", "캠핑": "⛺", "기타": "🛏️",
+  "게스트하우스": "🏠", "민박": "🏠", "펜션": "🏡", "캠핑": "⛺", "기타": "🛏️",
 };
 
 /* 유형별 키워드로 나눠 찾는다.
@@ -53,8 +55,16 @@ const STAY_ICON = {
  * 안 잡혔고, 신라CC 는 쓸 만한 곳이 2곳뿐이었다.
  * 키워드별로 따로 부르면 각각 45건씩 받으므로 신라CC 2곳 → 81곳이 된다.
  */
-const STAY_KEYWORDS = ["모텔", "무인텔", "호텔", "여관", "리조트"];
-const STAY_MAX = 40;          // 사진 확인은 한 곳당 요청 1건이라 가까운 순으로 잘라 쓴다
+const STAY_KEYWORDS = ["모텔", "무인텔", "호텔", "여관", "리조트", "게스트하우스", "민박"];
+
+/* 사진 확인은 한 곳당 요청 1건이라 가까운 순으로 잘라 쓴다.
+   그런데 거리만으로 자르면 한 유형이 자리를 다 먹는다 — 민박을 넣자마자
+   가까운 민박들이 40칸을 채워 모텔·호텔이 밀려나 목록이 25→18곳으로 줄었다.
+   그래서 주력 유형 몫을 먼저 채우고 게스트하우스·민박을 거기에 더한다. (2026-07-28)
+   한 곳당 0.5초(8개 병렬)이므로 최대 52곳이면 약 26초. */
+const STAY_MAX = 40;                                     // 주력 유형 몫
+const STAY_CORE = ["무인텔", "모텔", "호텔", "리조트"];
+const STAY_SIDE_MAX = 12;                                // 게스트하우스·민박은 여기에 더해서
 
 async function fetchKakaoStay(course) {
   const ck = course.lat.toFixed(3) + "," + course.lon.toFixed(3);
@@ -92,7 +102,11 @@ async function fetchKakaoStay(course) {
     });
   });
   out.sort((a, b) => a.dist - b.dist);
-  const near = out.slice(0, STAY_MAX);
+  // 주력 유형이 자리를 잃지 않도록 몫을 나눠 자른다
+  // 게스트하우스·민박은 항상 뒤 — 호텔·모텔·무인텔이 먼저 나와야 한다
+  const core = out.filter((x) => STAY_CORE.indexOf(x.kind) >= 0).slice(0, STAY_MAX);
+  const side = out.filter((x) => STAY_CORE.indexOf(x.kind) < 0).slice(0, STAY_SIDE_MAX);
+  const near = core.concat(side);
   stayCache.set(ck, near);
   return near;
 }
@@ -131,7 +145,7 @@ function renderStayList(list, course) {
   el.innerHTML = "";
   if (!list.length) {
     el.innerHTML = '<p class="food-osm-empty">골프장 20km 안에서 묵을 만한 곳을 찾지 못했습니다.<br>' +
-      '<small>호텔·모텔·무인텔 위주로 찾습니다.</small></p>';
+      '<small>호텔·모텔·무인텔·게스트하우스 위주로 찾습니다.</small></p>';
     return;
   }
 
@@ -165,13 +179,17 @@ function renderStayList(list, course) {
 
   const note = document.createElement("p");
   note.className = "food-osm-sub";
-  note.innerHTML = `${course.name} 기준 가까운 순 · 하룻밤 묵기 좋은 곳(호텔·모텔·무인텔)만 골랐습니다<br>` +
+  note.innerHTML = `${course.name} 기준 가까운 순 · 하룻밤 묵기 좋은 곳만 골랐습니다 (펜션·캠핑 제외)<br>` +
     `<b>요금은 예약 사이트에서 확인</b>하세요 — 날짜·인원에 따라 달라집니다.`;
   el.appendChild(note);
 
   let arr = list.filter((x) => STAY_VIEW.cat === "전체" || x.kind === STAY_VIEW.cat);
-  arr = arr.slice().sort((a, b) =>
-    STAY_VIEW.sort === "reco" ? recoScore(b) - recoScore(a) : a.dist - b.dist);
+  // 어떤 정렬을 고르든 게스트하우스·민박은 뒤로 밀어 둔다.
+  // 골퍼가 찾는 건 하룻밤 자고 나가는 호텔·모텔·무인텔이고,
+  // 게하·민박은 그런 곳이 없을 때 보이는 대안이다. (사장님 지시 2026-07-28)
+  const side = (x) => (STAY_CORE.indexOf(x.kind) < 0 ? 1 : 0);
+  arr = arr.slice().sort((a, b) => (side(a) - side(b)) ||
+    (STAY_VIEW.sort === "reco" ? recoScore(b) - recoScore(a) : a.dist - b.dist));
 
   arr.slice(0, 30).forEach((it) => {
     const card = document.createElement("div");
