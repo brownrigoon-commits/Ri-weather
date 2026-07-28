@@ -143,7 +143,7 @@ function placePhotos_(id, kind) {
   var ck = (stay ? "s5" : "p5") + id;
   var hit = cache.get(ck);
   if (hit) return json_(JSON.parse(hit));
-  var out = { photos: [], rating: 0, reviews: 0 };
+  var out = { photos: [], rating: 0, reviews: 0, vendor: null };
   var dbg = { code: 0 };
   try {
     // 카카오맵 '사진 탭'을 분류별로 병렬 조회.
@@ -167,7 +167,12 @@ function placePhotos_(id, kind) {
       if (r.getResponseCode() !== 200) return;
       dbg.code = 200;
       try {
-        (JSON.parse(r.getContentText()).photos || []).forEach(function (p) {
+        var body = JSON.parse(r.getContentText());
+        // VENDOR = '카카오 예약하기 제공' 공식 객실사진. 이게 0 이면 온라인 예약 연동이
+        // 없는 곳이라 예약앱에서도 대개 검색되지 않는다. 사장님이 야놀자에서 실패한
+        // 몽마르뜨모텔·2S모텔·뷰티모텔 전부 vendor=0 이었다. (2026-07-28)
+        if (stay && tags[i] === "VENDOR") out.vendor = (body.photos || []).length;
+        (body.photos || []).forEach(function (p) {
           if (p && p.url && p.media_type !== "VOD" && !seen[p.url] && out.photos.length < 10) {
             seen[p.url] = 1;
             out.photos.push(p.url);

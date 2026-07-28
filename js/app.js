@@ -4,8 +4,8 @@
  * ========================================================= */
 "use strict";
 
-const APP_VER = "v136"; // 배포 버전 (홈 화면 배지에 표시)
-const APP_NOTE = "숙박: 게스트하우스·민박 포함하되 항상 후순위, 펜션·캠핑·글램핑 제외"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
+const APP_VER = "v137"; // 배포 버전 (홈 화면 배지에 표시)
+const APP_NOTE = "날씨 차단 30분으로 단축"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
 const STORAGE_KEY = "riweather.courses.v1";
 const GEM_KEY = "riweather.gemini"; // 정밀 인식(비전 AI) 개인 키 저장소
 // 기본 제공 키 (무료 한도 공유) — 개인 키를 설정하면 그 키가 우선됩니다
@@ -113,9 +113,11 @@ function quotaBlockedUntil() {
   } catch (_) { return 0; }
 }
 function markQuotaExhausted() {
-  const d = new Date();
-  d.setHours(24, 5, 0, 0);                  // 다음 날 00:05 에 다시 시도
-  try { localStorage.setItem(QUOTA_LS, String(d.getTime())); } catch (_) {}
+  // 30분만 쉬었다가 다시 확인한다.
+  // 하루 종일 막아버리면 한도가 풀린 뒤에도 앱이 계속 먹통이 된다 —
+  // Open-Meteo 일일 한도는 UTC 자정(한국 오전 9시)에 풀리는데
+  // '한국 자정까지 차단'으로 짜서 15시간을 더 막았던 실수가 있었다. (2026-07-28)
+  try { localStorage.setItem(QUOTA_LS, String(Date.now() + 30 * 60000)); } catch (_) {}
 }
 
 async function fetchJSON(url, { retries = 2, delay = 1200 } = {}) {
@@ -479,19 +481,37 @@ async function fetchHomeWeather(courses) {
     const c = JSON.parse(localStorage.getItem(HOME_WX_LS) || "null");
     if (c && c.k === key && Date.now() - c.t < 20 * 60000) return c.d;   // 20분 캐시
   } catch (_) {}
-  const url = new URL("https://api.open-meteo.com/v1/forecast");
-  url.search = new URLSearchParams({
-    latitude: courses.map((c) => c.lat.toFixed(4)).join(","),
-    longitude: courses.map((c) => c.lon.toFixed(4)).join(","),
-    current: "temperature_2m,weather_code,is_day",
-    daily: "temperature_2m_max,temperature_2m_min",
-    timezone: "Asia/Seoul",
-    forecast_days: "1",
-  });
-  const j = await fetchJSON(url, { retries: 1, delay: 1200 });
-  // 한 곳만 요청하면 배열이 아니라 객체가 온다. 순서는 보낸 좌표 순서와 같다.
-  // 골프장 id 로 묶지 않는다 — 저장된 골프장에 id 가 없는 경우가 있어 서로 덮어썼다.
-  const arr = Array.isArray(j) ? j : [j];
+  const light = (lat, lon) => {
+    const u = new URL("https://api.open-meteo.com/v1/forecast");
+    u.search = new URLSearchParams({
+      latitude: lat, longitude: lon,
+      current: "temperature_2m,weather_code,is_day",
+      daily: "temperature_2m_max,temperature_2m_min",
+      timezone: "Asia/Seoul",
+      forecast_days: "1",
+    });
+    return u;
+  };
+
+  let arr = null;
+  try {
+    const j = await fetchJSON(
+      light(courses.map((c) => c.lat.toFixed(4)).join(","),
+            courses.map((c) => c.lon.toFixed(4)).join(",")),
+      { retries: 1, delay: 1200 });
+    // 한 곳만 요청하면 배열이 아니라 객체가 온다. 순서는 보낸 좌표 순서와 같다.
+    // 골프장 id 로 묶지 않는다 — 저장된 골프장에 id 가 없어 서로 덮어쓴 적이 있다.
+    const a = Array.isArray(j) ? j : [j];
+    if (a.length === courses.length && a[0] && a[0].current) arr = a;
+  } catch (e) {
+    if (String(e && e.message) === "WX_QUOTA") throw e;   // 한도 초과는 그대로 알린다
+  }
+
+  // 묶음 요청이 기대한 모양으로 안 오면 예전처럼 한 곳씩 받는다 (동작 보장 우선)
+  if (!arr) {
+    arr = await Promise.all(courses.map((c) =>
+      fetchJSON(light(c.lat.toFixed(4), c.lon.toFixed(4)), { retries: 1 }).catch(() => null)));
+  }
   try { localStorage.setItem(HOME_WX_LS, JSON.stringify({ k: key, t: Date.now(), d: arr })); } catch (_) {}
   return arr;
 }
@@ -2923,8 +2943,13 @@ async function attachPhotos(list, kind, onProgress) {
     if (!window.RIW_BACKEND) { it.photos = []; return; }
     try {
       const r = await fetchT(window.RIW_BACKEND + "?fn=placephotos&id=" + pid + qs, null, 8000);
-      it.photos = genuinePhotos((await r.json()).photos).slice(0, 10);
-      try { localStorage.setItem(LS, JSON.stringify({ t: Date.now(), d: it.photos })); } catch (_) {}
+      const j = await r.json();
+      it.photos = genuinePhotos(j.photos).slice(0, 10);
+      // 숙박: '카카오 예약하기' 연동 여부. 옛 백엔드는 이 값을 안 주므로 null 이면 판단하지 않는다.
+      it.vendor = (typeof j.vendor === "number") ? j.vendor : null;
+      try {
+        localStorage.setItem(LS, JSON.stringify({ t: Date.now(), d: it.photos, v: it.vendor }));
+      } catch (_) {}
     } catch (_) { it.photos = []; }
   };
   // 동시 8개씩 — 한꺼번에 45개를 던지면 백엔드가 막힌다
