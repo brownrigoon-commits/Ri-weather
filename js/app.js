@@ -4,8 +4,8 @@
  * ========================================================= */
 "use strict";
 
-const APP_VER = "v139"; // 배포 버전 (홈 화면 배지에 표시)
-const APP_NOTE = "예보지도 캐시 30분→3시간, 한도 초과 시 기상청 레이더로 자동 전환·"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
+const APP_VER = "v140"; // 배포 버전 (홈 화면 배지에 표시)
+const APP_NOTE = "홀 3D 영상"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
 const STORAGE_KEY = "riweather.courses.v1";
 const GEM_KEY = "riweather.gemini"; // 정밀 인식(비전 AI) 개인 키 저장소
 // 기본 제공 키 (무료 한도 공유) — 개인 키를 설정하면 그 키가 우선됩니다
@@ -2048,13 +2048,22 @@ function renderImgCourse(course, db) {
       img.hidden = true;
     }
     // 홀 3D 영상 — AI 캐디 아래에 배치, 탭할 때만 로드(데이터 절약)
-    const vp = $("#hole-video-player"), vw = $("#hole-video-wrap");
+    // 처음에는 컨트롤 없이 첫 장면만 보여준다. controls 를 켜둔 채로 두면
+    // iOS 가 ±10초 건너뛰기까지 얹어 영상 위를 덮는다(2026-07-28 지적).
+    const vp = $("#hole-video-player"), vw = $("#hole-video-wrap"),
+          vb = $("#hole-video-play");
     vp.pause?.();
+    vp.removeAttribute("controls");
+    if (vb) vb.hidden = false;
     if (h.video) {
       vp.src = h.video;
+      // 영상에서 미리 뽑아둔 첫 장면을 표지로 — 영상을 받기 전에도 깔끔하게 보인다
+      if (h.frames && h.frames[0]) vp.poster = h.frames[0];
+      else vp.removeAttribute("poster");
       vw.hidden = false;
     } else {
       vp.removeAttribute("src");
+      vp.removeAttribute("poster");
       vw.hidden = true;
     }
     $("#hole-img-src").textContent = "홀맵 출처: " + db.source;
@@ -2476,6 +2485,27 @@ async function runAiCaddieInner() {
   btn.disabled = false; btn.textContent = "🤖 AI 캐디 상세 공략 보기";
 }
 $("#ai-strategy-btn").addEventListener("click", aiCaddie);
+
+/* ---------- 홀 3D 영상: 터치해야 컨트롤이 나온다 ----------
+   처음에는 첫 장면만 깔끔하게 보이고, 화면을 누르면 그때 재생 컨트롤이 붙는다.
+   (controls 를 미리 켜두면 iOS 가 ±10초 버튼으로 영상을 덮어버린다) */
+(function initHoleVideo() {
+  const vp = $("#hole-video-player"), vb = $("#hole-video-play");
+  if (!vp) return;
+  const start = () => {
+    if (!vp.hasAttribute("controls")) vp.setAttribute("controls", "");
+    if (vb) vb.hidden = true;
+    vp.play?.().catch(() => { /* 자동재생이 막히면 컨트롤로 직접 누르면 된다 */ });
+  };
+  vb?.addEventListener("click", start);
+  vp.addEventListener("click", () => { if (!vp.hasAttribute("controls")) start(); });
+  // 재생이 끝나면 다시 처음처럼 — 표지 화면으로 돌아간다
+  vp.addEventListener("ended", () => {
+    vp.removeAttribute("controls");
+    vp.load?.();                 // 표지(poster)를 다시 그리게 한다
+    if (vb) vb.hidden = false;
+  });
+})();
 
 /* 앱 공유 버튼 — 모든 화면 공통 */
 (function initAppShare() {
