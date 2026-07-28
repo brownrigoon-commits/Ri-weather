@@ -48,6 +48,14 @@ on:
         description: '뉴스 분석 건너뛰기 (빠른 점검용 — 점수의 뉴스·수급 항목이 비게 됩니다)'
         type: boolean
         default: false
+      mode:
+        # 앱의 '브리핑 다시 받기' 버튼이 이 값을 brief 로 넣어 부릅니다.
+        # 종목 600개를 다시 받으면 10분이 걸려 폰 앞에서 기다릴 수 없습니다.
+        # 지수 시황 + 10개국 뉴스만 다시 받으면 1~3분이면 끝납니다.
+        description: '무엇을 갱신할지 (full=종목까지 전부 / brief=지수·뉴스만, 1~3분)'
+        type: choice
+        options: [full, brief]
+        default: full
 
 # 기본은 읽기만. 쓰기 권한은 실제로 커밋하는 job 에서만 켭니다.
 # (나중에 job 을 하나 더 붙였을 때 그 job 까지 저장소를 고칠 수 있게 되는 것을 막습니다)
@@ -133,11 +141,20 @@ jobs:
           IN_MARKET: ${{ inputs.market || 'all' }}
           IN_TOP: ${{ inputs.top || '300' }}
           IN_NONEWS: ${{ inputs.no_news || 'false' }}
+          IN_MODE: ${{ inputs.mode || 'full' }}
         run: |
           set -euo pipefail
           MARKET_IN="$IN_MARKET"
           TOP_IN="$IN_TOP"
           NONEWS_IN="$IN_NONEWS"
+          MODE_IN="$IN_MODE"
+
+          # 브리핑만 갱신(brief) — 앱의 '브리핑 다시 받기' 가 쓰는 길입니다.
+          #  · 종목은 한 종목도 받지 않습니다(=DO_US/DO_KR 0). 기존 종목 데이터는 그대로 둡니다.
+          #  · 엔진이 `--only-brief` 를 모르면 **브리핑 갱신을 하지 않고 멈춥니다** —
+          #    모르는 인자를 넘겨 argparse 가 죽거나, 조용히 종목 전체를 받아 10분을 쓰는 것보다
+          #    아무것도 안 하고 이유를 남기는 편이 낫습니다.
+          echo "MODE=$MODE_IN" >> "$GITHUB_ENV"
 
           # 상위 종목 수는 숫자만 받습니다(오타로 엉뚱한 명령이 되지 않도록).
           case "$TOP_IN" in
@@ -166,12 +183,24 @@ jobs:
           echo "NO_NEWS_FLAG=$NO_NEWS_FLAG" >> "$GITHUB_ENV"
 
           # 어떤 시장을 돌릴지 미리 정해 둡니다(아래 스텝의 if 조건에서 사용).
-          case "$MARKET_IN" in
-            all) echo "DO_US=1" >> "$GITHUB_ENV"; echo "DO_KR=1" >> "$GITHUB_ENV" ;;
-            us)  echo "DO_US=1" >> "$GITHUB_ENV"; echo "DO_KR=0" >> "$GITHUB_ENV" ;;
-            kr)  echo "DO_US=0" >> "$GITHUB_ENV"; echo "DO_KR=1" >> "$GITHUB_ENV" ;;
-            *)   echo "::error::알 수 없는 시장 값: $MARKET_IN"; exit 1 ;;
-          esac
+          if [ "$MODE_IN" = "brief" ]; then
+            echo "DO_US=0" >> "$GITHUB_ENV"; echo "DO_KR=0" >> "$GITHUB_ENV"
+            if has_opt '--only-brief'; then
+              echo "DO_BRIEF=1" >> "$GITHUB_ENV"
+              echo "브리핑만 갱신합니다 (지수 시황 + 10개국 뉴스 · 종목은 건드리지 않습니다)"
+            else
+              echo "DO_BRIEF=0" >> "$GITHUB_ENV"
+              echo "::error::엔진이 --only-brief 를 모릅니다. 브리핑 갱신을 건너뜁니다(종목 데이터는 그대로)."
+            fi
+          else
+            echo "DO_BRIEF=0" >> "$GITHUB_ENV"
+            case "$MARKET_IN" in
+              all) echo "DO_US=1" >> "$GITHUB_ENV"; echo "DO_KR=1" >> "$GITHUB_ENV" ;;
+              us)  echo "DO_US=1" >> "$GITHUB_ENV"; echo "DO_KR=0" >> "$GITHUB_ENV" ;;
+              kr)  echo "DO_US=0" >> "$GITHUB_ENV"; echo "DO_KR=1" >> "$GITHUB_ENV" ;;
+              *)   echo "::error::알 수 없는 시장 값: $MARKET_IN"; exit 1 ;;
+            esac
+          fi
           # 엑셀은 저장소에 커밋하지 않고 Actions 첨부파일로만 내려받게 합니다(저장소 비대화 방지).
           echo "XLSX_DIR=$RUNNER_TEMP/ristock_xlsx" >> "$GITHUB_ENV"
 
@@ -239,6 +268,14 @@ jobs:
             echo "오늘($TODAY_KST) 한국 데이터가 국내 PC 것이 아닙니다 — 깃허브가 백업으로 받습니다."
           fi
 
+      # 앱의 '브리핑 다시 받기' — 지수 시황 + 10개국 뉴스만 (1~3분).
+      # 종목 파일은 손대지 않으므로 전략·종목 화면은 그대로 유지됩니다.
+      - name: 브리핑만 갱신
+        id: brief
+        if: env.DO_BRIEF == '1'
+        continue-on-error: true
+        run: python -m ristock.engine.pipeline --only-brief --runner github-actions
+
       - name: 미국 수집
         id: us
         if: env.DO_US == '1'
@@ -287,7 +324,7 @@ jobs:
       # 전부 실패했는데 커밋하면 '오늘 갱신된 척하는 어제 데이터'가 되어 가장 위험합니다.
       - name: 바뀐 데이터만 커밋·푸시
         id: publish
-        if: steps.us.outcome == 'success' || steps.kr.outcome == 'success'
+        if: steps.us.outcome == 'success' || steps.kr.outcome == 'success' || steps.brief.outcome == 'success'
         env:
           BRANCH: ${{ github.ref_name }}
         run: |
@@ -499,6 +536,8 @@ jobs:
         run: |
           US_R="${{ steps.us.outcome }}"      # success / failure / skipped
           KR_R="${{ steps.kr.outcome }}"
+          BRIEF_R="${{ steps.brief.outcome }}"   # 브리핑만 갱신(앱 버튼)
+          [ -n "$BRIEF_R" ] || BRIEF_R="skipped"
           GATE_R="${{ steps.gate.outcome }}"     # 올리기 전 출고 점검
           PUB_R="${{ steps.publish.outcome }}"   # 커밋·푸시
           VER_R="${{ steps.verify.outcome }}"    # 공개 주소 도달 확인
@@ -538,6 +577,23 @@ jobs:
               cat ristock/data/manifest.json
               echo '```'
             } >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+          # 브리핑만 갱신한 회차(앱 버튼)는 종목을 아예 돌리지 않습니다.
+          # 그 회차를 '두 시장 모두 실패' 로 판정하면 멀쩡한 실행이 빨갛게 끝나고
+          # 사장님께 실패 메일이 갑니다 — 여기서 갈라 줍니다.
+          if [ "$BRIEF_R" != "skipped" ]; then
+            if [ "$BRIEF_R" = "success" ]; then
+              echo "브리핑 갱신 성공 (종목 데이터는 그대로)"
+              exit 0
+            fi
+            {
+              echo ""
+              echo "### ❌ 브리핑 갱신에 실패했습니다"
+              echo "- 종목 데이터는 손대지 않았으므로 앱은 그대로 동작합니다."
+            } >> "$GITHUB_STEP_SUMMARY"
+            echo "::error::브리핑 갱신 실패 — 기존 데이터를 유지합니다."
+            exit 1
           fi
 
           OK_CNT=0

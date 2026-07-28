@@ -40,7 +40,7 @@ from ristock.engine.config import MANIFEST_FILE, MARKET_FILE, STOCKS_FILE
 # =====================================================================
 # 수집기만 얼린 pipeline 실행 — 네트워크는 한 번도 쓰지 않습니다
 # =====================================================================
-def _스냅샷쓰기(스냅샷, market, out_dir, 기준일, 생성시각, 원본=''):
+def _스냅샷쓰기(스냅샷, market, out_dir, 기준일, 생성시각, 원본='', 차트=None):
     """`emit.write_stocks` 자리에 끼워 넣는 가짜 — 픽스처 스냅샷을 그날 날짜로 저장합니다.
 
     실제 엔진은 DataFrame 을 받아 종목 레코드를 만들지만, 여기서 검증할 것은
@@ -67,7 +67,9 @@ def 회차실행(monkeypatch, out, 기준일, 스냅샷, 실패시장=(), 인자
                        retry=None, backoff=None):
                 if 시장 in 실패시장:
                     raise RuntimeError(f'{시장} 수집 실패(모의)')
-                return 스냅샷[시장], ''
+                # 수집기는 (DataFrame, 엑셀파일명, 차트) 를 돌려줍니다.
+                # 차트(설계서 2.2)는 그래프용 부가 정보라 여기서는 비워 둡니다.
+                return 스냅샷[시장], '', {}
             return runner
 
         mp.setattr(pipeline, 'RUNNERS',
@@ -296,8 +298,8 @@ def test_한쪽_시장만_돈_회차도_다른_시장의_변화를_지우지_않
         mp.setattr(pipeline, '_today', lambda: 일차2)
         mp.setattr(emit, 'write_stocks', _스냅샷쓰기)
         mp.setattr(pipeline, 'RUNNERS', {
-            'us': ('미국', lambda *a, **k: (하루치[일차2]['미국'], '')),
-            'kr': ('한국', lambda *a, **k: (하루치[일차2]['한국'], ''))})
+            'us': ('미국', lambda *a, **k: (하루치[일차2]['미국'], '', {})),
+            'kr': ('한국', lambda *a, **k: (하루치[일차2]['한국'], '', {}))})
         pipeline.main(['--market', 'us', '--out', str(작업폴더),
                        '--skip-excel', '--no-news', '--no-market-news'])
         assert list(읽기(작업폴더, emit.CHANGES_FILE)['전략별']['total']) == ['미국']

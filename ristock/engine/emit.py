@@ -188,9 +188,14 @@ def ordered_rows(df):
     return rows
 
 
-def build_stocks_payload(df, market, 기준일, 생성시각, 원본=''):
-    """설계서 2.2 규격 dict"""
-    return {
+def build_stocks_payload(df, market, 기준일, 생성시각, 원본='', 차트=None):
+    """설계서 2.2 규격 dict
+
+    `차트` 는 종목 레코드가 아니라 **파일 맨 위에 한 번만** 담습니다(설계서 2.2).
+    날짜축을 종목마다 되풀이하지 않으려는 것입니다 — 하루 두 번 커밋되는 파일이라
+    같은 날짜 문자열 254벌이면 그대로 저장소 무게가 됩니다.
+    """
+    payload = {
         '시장': market,
         '기준일': 기준일,
         '생성시각': 생성시각,
@@ -199,11 +204,14 @@ def build_stocks_payload(df, market, 기준일, 생성시각, 원본=''):
         '가중치': dict(WEIGHTS),
         '종목': [stock_record(r) for r in ordered_rows(df)],
     }
+    if 차트:
+        payload['차트'] = 차트
+    return payload
 
 
-def write_stocks(df, market, out_dir, 기준일, 생성시각, 원본=''):
+def write_stocks(df, market, out_dir, 기준일, 생성시각, 원본='', 차트=None):
     """stocks_KR.json / stocks_US.json 저장 → (경로, 종목수, 평가종목수)"""
-    payload = build_stocks_payload(df, market, 기준일, 생성시각, 원본)
+    payload = build_stocks_payload(df, market, 기준일, 생성시각, 원본, 차트)
     path = os.path.join(out_dir, STOCKS_FILE[market])
     write_json(path, payload)
     n_all = len(payload['종목'])

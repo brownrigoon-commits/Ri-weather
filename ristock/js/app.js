@@ -36,7 +36,10 @@
     종목: { 시장: '한국', 검색: '', 섹터: '', 정렬: '시총순위', 관심만: false, 표시수: 50 },
     // 내 전략에서 켜 둔 조건은 앱을 닫았다 열어도 남아 있어야 합니다 (시작() 에서 채웁니다)
     내전략: { 필터: { 악재제외: true }, rank_by: '총점', 시장: '한국', 이름: '' },
-    전략캐시: {}
+    전략캐시: {},
+    // 종목 상세 시트에서 보고 있는 차트 구간 — 다음에 열 때도 그대로 둡니다
+    차트구간: '일',
+    시트종목: null              // {시장, 티커} — 구간만 바꿔 다시 그릴 때 씁니다
   };
 
   var 요소 = {};
@@ -130,6 +133,43 @@
     return '<div class="banner banner-' + 종류 + '">' +
       '<span class="bn-ico">' + 아이콘 + '</span>' +
       '<span><b>' + esc(제목) + '</b>' + (본문 || '') + '</span></div>';
+  }
+
+  /**
+   * 이 브리핑이 **몇 시에 만들어졌는지** 한 줄 + 다시 받기 버튼.
+   *
+   * 기준일만 있으면 '오늘 데이터'인 것은 알아도 아침 회차인지 저녁 회차인지 모릅니다.
+   * 하루 두 번(16:40 · 07:10) 도는 앱이라 그 차이가 큽니다 —
+   * 장 마감 전 회차와 마감 후 회차는 수급·종가가 통째로 다릅니다.
+   * 시장마다 수집 시각이 다를 수 있어(한쪽만 실패한 날) 시장별로도 적어 둡니다.
+   */
+  function 브리핑시각줄() {
+    var s = RiData.상태;
+    var m = s.manifest || {};
+    var 언제 = m.생성시각 || '';
+    var 시장 = m.시장 || {};
+    var 조각 = ['한국', '미국'].filter(function (k) { return 시장[k] && 시장[k].수집시각; })
+      .map(function (k) {
+        var v = 시장[k];
+        var 곳 = v.수집주체 === 'pc' ? '국내' : (v.수집주체 === 'github-actions' ? '해외서버' : '');
+        return esc(k) + ' ' + esc(짧은시각(v.수집시각)) + (곳 ? '(' + 곳 + ')' : '');
+      });
+
+    return '<div class="brief-when">' +
+      '<span class="bw-main">브리핑 ' + esc(언제 ? 짧은시각(언제) : '시각 알 수 없음') + ' 기준</span>' +
+      (조각.length ? '<span class="bw-sub">수집 ' + 조각.join(' · ') + '</span>' : '') +
+      '<button type="button" class="bw-btn" data-act="브리핑시작">브리핑 다시 받기</button>' +
+      '</div>';
+  }
+
+  /** '2026-07-28 22:29' → '07.28 22:29' (오늘 것이면 '22:29') */
+  function 짧은시각(s) {
+    var m = /^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})/.exec(String(s || ''));
+    if (!m) return String(s || '');
+    var 오늘 = new Date();
+    var 같은날 = Number(m[1]) === 오늘.getFullYear() &&
+      Number(m[2]) === 오늘.getMonth() + 1 && Number(m[3]) === 오늘.getDate();
+    return 같은날 ? (m[4] + ':' + m[5]) : (m[2] + '.' + m[3] + ' ' + m[4] + ':' + m[5]);
   }
 
   /** market.json 의 지수 목록 (없으면 빈 배열) */
@@ -393,7 +433,8 @@
     var h = '';
 
     h += '<div class="app-header"><h1>Ri Stock</h1><span class="badge">오늘 브리핑</span></div>' +
-      '<p class="app-sub">기준일 ' + esc(f.표시일 || '-') + ' · ' + esc(f.문구) + '</p>';
+      '<p class="app-sub">기준일 ' + esc(f.표시일 || '-') + ' · ' + esc(f.문구) + '</p>' +
+      브리핑시각줄();
     h += 신선도배너();
     h += 실행메모배너();
     h += 설치안내카드();
@@ -919,6 +960,138 @@
   /* -------------------------------------------------------------
    * 8. 종목 상세 시트
    * ----------------------------------------------------------- */
+
+  /** 'YYYYMMDD' → '26.07.28' (좁은 폰 축 라벨용) */
+  function 짧은날짜(s) {
+    var t = String(s || '');
+    return /^\d{8}$/.test(t) ? t.slice(2, 4) + '.' + t.slice(4, 6) + '.' + t.slice(6, 8) : t;
+  }
+
+  /**
+   * 주가 선 그래프 (SVG, 라이브러리 없음).
+   *
+   * 앱은 정적 페이지라 브라우저에서 주가 API 를 직접 못 부릅니다(CORS).
+   * 그래서 엔진이 담아 준 값만 그립니다 — 여기서 값을 지어내거나 보간하지 않습니다.
+   * 빈 구간(상장 전·거래정지)은 선을 끊어 둡니다. 이어 버리면 없던 거래가 있던 것처럼 보입니다.
+   *
+   * 색은 한국 증시 관행 — 구간 첫 값보다 오르면 빨강, 내리면 파랑.
+   */
+  function 주가그래프SVG(계열) {
+    var 날짜 = 계열.날짜, 값 = 계열.값;
+    var W = 320, H = 132, 여백 = { 위: 10, 아래: 18, 좌: 4, 우: 4 };
+    var 숫자 = 값.filter(function (v) { return v !== null && v !== undefined; });
+    if (숫자.length < 2) return '';
+
+    var 최소 = Math.min.apply(null, 숫자), 최대 = Math.max.apply(null, 숫자);
+    var 폭 = 최대 - 최소 || Math.abs(최대) * 0.02 || 1;
+    var 안쪽높이 = H - 여백.위 - 여백.아래;
+    var x = function (i) { return 여백.좌 + (W - 여백.좌 - 여백.우) * (값.length === 1 ? 0.5 : i / (값.length - 1)); };
+    var y = function (v) { return 여백.위 + 안쪽높이 * (1 - (v - 최소) / 폭); };
+
+    var 조각 = [], 현재 = [];
+    for (var i = 0; i < 값.length; i++) {
+      if (값[i] === null || 값[i] === undefined) {
+        if (현재.length > 1) 조각.push(현재);
+        현재 = [];
+        continue;
+      }
+      현재.push(x(i).toFixed(1) + ',' + y(값[i]).toFixed(1));
+    }
+    if (현재.length > 1) 조각.push(현재);
+    if (!조각.length) return '';
+
+    var 처음값 = 숫자[0], 끝값 = 숫자[숫자.length - 1];
+    var 색 = 끝값 > 처음값 ? 'var(--up)' : (끝값 < 처음값 ? 'var(--down)' : 'var(--text-dim)');
+    var 선 = 조각.map(function (p) {
+      return '<polyline points="' + p.join(' ') + '" fill="none" stroke="' + 색 +
+        '" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>';
+    }).join('');
+
+    // 마지막 점은 눈에 띄게 — '지금 어디인지'가 가장 먼저 보여야 합니다
+    var 끝i = 값.length - 1;
+    while (끝i > 0 && (값[끝i] === null || 값[끝i] === undefined)) 끝i--;
+    var 끝점 = '<circle cx="' + x(끝i).toFixed(1) + '" cy="' + y(값[끝i]).toFixed(1) +
+      '" r="3" fill="' + 색 + '"/>';
+
+    var 라벨 = '<text x="' + 여백.좌 + '" y="' + (H - 4) + '" class="cht-ax">' + esc(짧은날짜(날짜[0])) +
+      '</text><text x="' + (W - 여백.우) + '" y="' + (H - 4) + '" class="cht-ax" text-anchor="end">' +
+      esc(짧은날짜(날짜[날짜.length - 1])) + '</text>';
+
+    return '<svg class="cht" viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none" ' +
+      'role="img" aria-label="주가 추이 그래프">' + 선 + 끝점 + 라벨 + '</svg>';
+  }
+
+  /**
+   * 종목 상세 맨 위 주가 카드 — 구간(연·월·주·일) 전환.
+   *
+   * 구간 버튼은 시트를 통째로 다시 그리지 않고 이 카드만 갈아 끼웁니다
+   * (다시 그리면 시트 스크롤이 맨 위로 튑니다).
+   */
+  function 주가카드HTML(시장, 티커) {
+    var 전체 = RiData.차트(시장, 티커);
+    if (!전체) {
+      return '<div class="card" id="cht-card"><div class="card-title">주가</div>' +
+        '<p class="cht-none">이 종목은 그래프 자료가 없습니다. ' +
+        '그래프는 전략에 오르는 <b>평가 종목</b>만 담습니다.</p></div>';
+    }
+    var 구간들 = ['연', '월', '주', '일'].filter(function (k) { return !!전체[k]; });
+    var 지금 = 구간들.indexOf(화면.차트구간) >= 0 ? 화면.차트구간 : 구간들[구간들.length - 1];
+    화면.차트구간 = 지금;
+    var 계열 = 전체[지금];
+
+    var 숫자 = 계열.값.filter(function (v) { return v !== null && v !== undefined; });
+    var 처음 = 숫자[0], 끝 = 숫자[숫자.length - 1];
+    var 변화 = 처음 ? (끝 / 처음 - 1) * 100 : null;
+    var 통화 = 시장 === '한국' ? '원' : '$';
+    var 값표시 = 시장 === '한국'
+      ? Number(끝).toLocaleString('ko-KR') + '원'
+      : '$' + Number(끝).toLocaleString('ko-KR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+    var 탭 = 구간들.map(function (k) {
+      return '<button type="button" class="cht-tab' + (k === 지금 ? ' on' : '') +
+        '" data-act="차트구간" data-range="' + k + '" aria-pressed="' + (k === 지금 ? 'true' : 'false') +
+        '">' + k + '</button>';
+    }).join('');
+
+    return '<div class="card" id="cht-card">' +
+      '<div class="card-title">주가 <span class="grow cht-last">' + esc(값표시) + '</span></div>' +
+      '<div class="cht-sub">' +
+        '<span class="' + 부호색(변화) + '">' + (변화 === null ? '-' : 부호수(변화, 1, '%')) + '</span>' +
+        '<span class="cht-range">' + esc(짧은날짜(계열.날짜[0])) + ' → ' +
+        esc(짧은날짜(계열.날짜[계열.날짜.length - 1])) + ' · ' + 계열.값.length + '개 점</span>' +
+      '</div>' +
+      주가그래프SVG(계열) +
+      '<div class="cht-tabs" role="group" aria-label="기간 선택">' + 탭 + '</div>' +
+      '<p class="cht-note">' + esc(통화 === '원' ? '종가 기준(원)' : '종가 기준(달러)') +
+      ' · 마지막 점 ' + esc(짧은날짜(계열.날짜[계열.날짜.length - 1])) +
+      차트지연안내(시장, 계열) + '</p>' +
+      '</div>';
+  }
+
+  /**
+   * 그래프가 기준일보다 뒤처졌을 때 그 사실을 밝힙니다.
+   *
+   * 주가 원본(야후)이 그날 종가를 아직 안 채웠거나 나중에 비우는 일이 실제로 있습니다
+   * (2026-07-28 확인: 저녁에는 220,000 이던 삼성전자 종가가 자정 무렵 빈 값으로 바뀜).
+   * 없는 값을 지어내지 않으니 그래프는 하루 짧아지는데, 아무 설명이 없으면
+   * "오늘 데이터"라는 머리말과 어긋나 보입니다. 그래서 이유를 함께 적습니다.
+   */
+  function 차트지연안내(시장, 계열) {
+    var 칸 = ((RiData.상태.manifest || {}).시장 || {})[시장] || {};
+    var 기준일 = String(칸.기준일 || '');
+    var 마지막 = String(계열.날짜[계열.날짜.length - 1] || '');
+    if (!/^\d{8}$/.test(기준일) || !/^\d{8}$/.test(마지막) || 마지막 >= 기준일) return '';
+    return ' · <b>기준일 ' + esc(RiData.날짜표시(기준일)) + '보다 짧습니다</b> — ' +
+      '주가 원본에 그 뒤 종가가 아직 없습니다';
+  }
+
+  function 차트다시그리기() {
+    var 카드 = document.getElementById('cht-card');
+    var s = 화면.시트종목;
+    if (!카드 || !s) return;
+    카드.outerHTML = 주가카드HTML(s.시장, s.티커);
+  }
+
   function 순익표(종목) {
     var n = 종목.순익 || {};
     var 값 = n.값 || [];
@@ -1017,6 +1190,10 @@
       '<button type="button" class="fav-btn" data-act="관심" data-market="' + esc(시장) + '" data-ticker="' +
       esc(s.티커) + '" aria-pressed="' + (관심 ? 'true' : 'false') + '" aria-label="관심종목">' +
       (관심 ? '★' : '☆') + '</button></div>';
+
+    // 주가 그래프를 맨 위에 둡니다 — 종목을 열었을 때 가장 먼저 보고 싶은 것입니다
+    화면.시트종목 = { 시장: 시장, 티커: s.티커 };
+    h += 주가카드HTML(시장, s.티커);
 
     if (s.평가) {
       h += '<div class="card"><div class="card-title">종합 점수 <span class="grow" style="font-weight:800;font-size:22px;color:var(--primary-ink)">' +
@@ -1148,6 +1325,93 @@
   }
 
   /* -------------------------------------------------------------
+   * 9-1. 브리핑 다시 받기
+   *
+   * 앱은 정적 페이지라 폰에서 수집을 직접 돌릴 수 없습니다(브라우저는 야후·네이버를
+   * 부르는 것조차 CORS 로 막힙니다). 그래서 백엔드(Apps Script)에 부탁해
+   * 깃허브 워크플로를 `brief` 모드로 눌러 달라고 합니다 — 지수 시황 + 10개국 뉴스만
+   * 다시 받는 길이라 1~3분이면 끝나고, 종목 600개는 건드리지 않습니다.
+   *
+   * 백엔드가 없거나 토큰이 아직 없으면 **거짓말하지 않고** 최신 데이터만 다시 불러온 뒤
+   * 무엇이 필요한지 알려 줍니다. 아무 일도 안 하면서 '갱신했다'고 하는 것이 제일 나쁩니다.
+   * ----------------------------------------------------------- */
+  var 브리핑진행중 = false;
+
+  function 브리핑다시받기(버튼) {
+    if (브리핑진행중) return;
+    브리핑진행중 = true;
+    var 원래 = 버튼 ? 버튼.textContent : '';
+    var 되돌리기 = function () {
+      브리핑진행중 = false;
+      var b = document.querySelector('[data-act="브리핑시작"]');
+      if (b) { b.disabled = false; b.textContent = 원래 || '브리핑 다시 받기'; }
+    };
+    if (버튼) { 버튼.disabled = true; 버튼.textContent = '요청 중…'; }
+
+    var 이전시각 = (RiData.상태.manifest || {}).생성시각 || '';
+    var 백엔드 = window.RIW_BACKEND || '';
+
+    if (!백엔드) {
+      RiData.초기화().then(function () {
+        전체다시그리기();
+        토스트('최신 데이터를 다시 불러왔습니다. (서버 재수집은 아직 연결되지 않았습니다)');
+        되돌리기();
+      });
+      return;
+    }
+
+    // Apps Script 는 preflight 를 처리하지 못하므로 단순 요청(text/plain)으로 보냅니다
+    fetch(백엔드, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify({ fn: 'ristock_refresh' })
+    })
+      .then(function (r) { return r.json(); })
+      .catch(function () { return { ok: false, 사유: '연결실패' }; })
+      .then(function (답) {
+        if (답 && 답.ok) {
+          if (버튼) 버튼.textContent = '만드는 중… 1~3분';
+          토스트('브리핑을 다시 만들고 있습니다. 다 되면 화면이 저절로 바뀝니다.');
+          브리핑갱신대기(이전시각, 되돌리기);
+          return;
+        }
+        var 사유 = (답 && 답.사유) || '알 수 없음';
+        RiData.초기화().then(function () {
+          전체다시그리기();
+          토스트(사유 === '잠시전실행'
+            ? '방금 한 번 돌렸습니다. 3분 뒤에 다시 눌러 주세요.'
+            : (사유 === '토큰없음'
+              ? '서버 재수집이 아직 연결되지 않아 최신 데이터만 다시 불러왔습니다.'
+              : '재수집 요청이 닿지 않아(' + 사유 + ') 최신 데이터만 다시 불러왔습니다.'));
+          되돌리기();
+        });
+      });
+  }
+
+  /** 새 브리핑이 올라올 때까지 manifest 를 지켜봅니다 (최대 4분). */
+  function 브리핑갱신대기(이전시각, 끝났을때) {
+    var 시작 = Date.now();
+    var 확인 = function () {
+      if (Date.now() - 시작 > 4 * 60 * 1000) {
+        토스트('아직 새 브리핑이 올라오지 않았습니다. 잠시 뒤 다시 눌러 주세요.');
+        끝났을때();
+        return;
+      }
+      RiData.초기화().then(function () {
+        var 지금 = (RiData.상태.manifest || {}).생성시각 || '';
+        if (지금 && 지금 !== 이전시각) {
+          전체다시그리기();
+          토스트('새 브리핑이 도착했습니다.');
+          끝났을때();
+          return;
+        }
+        setTimeout(확인, 15000);
+      });
+    };
+    setTimeout(확인, 20000);       // 깃허브가 러너를 띄우는 데 20초쯤 걸립니다
+  }
+
+  /* -------------------------------------------------------------
    * 10. 이벤트 (위임 — 화면을 다시 그려도 핸들러가 살아 있습니다)
    * ----------------------------------------------------------- */
   function 클릭처리(e) {
@@ -1173,6 +1437,8 @@
       RiData.초기화().then(function () { 전체다시그리기(); });
       return;
     }
+
+    if (act === '브리핑시작') { 브리핑다시받기(el); return; }
 
     if (act === '설치안내닫기') {
       RiData.설치안내닫기();
@@ -1215,6 +1481,10 @@
 
     if (act === '상세') { 상세열기(el.dataset.market, el.dataset.ticker); return; }
     if (act === '시트닫기') { 시트닫기(); return; }
+
+    // 차트 구간(연·월·주·일) — 시트 전체가 아니라 그 카드만 갈아 끼웁니다.
+    // 시트를 다시 그리면 보고 있던 위치가 맨 위로 튑니다.
+    if (act === '차트구간') { 화면.차트구간 = el.dataset.range; 차트다시그리기(); return; }
 
     if (act === '관심만') {
       화면.종목.관심만 = !화면.종목.관심만;

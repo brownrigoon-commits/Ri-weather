@@ -60,8 +60,26 @@ def _야후재시도설정(retry, backoff):
     return r, b
 
 
+def _차트만들기(df, prices, is_kr):
+    """평가 종목의 주가 차트(일·주·월·연) — 실패해도 회차를 죽이지 않습니다.
+
+    그래프는 있으면 좋은 것이지, 없다고 오늘 데이터를 통째로 버릴 이유는 아닙니다.
+    """
+    from .charts import build_charts
+    try:
+        평가 = df[df['총점(100)'].notna()]
+        symbols = {r['_yf']: str(r['티커']) for _, r in 평가.iterrows()}
+        차트 = build_charts(prices, symbols, is_kr)
+        칸 = len(((차트.get('일') or {}).get('종목')) or {})
+        print(f'  차트: 평가 종목 {칸}개 · 구간 {", ".join(차트.keys()) or "없음"}')
+        return 차트
+    except Exception as e:
+        print(f'  (참고) 차트 생성 실패: {type(e).__name__}: {e} — 그래프 없이 진행합니다')
+        return {}
+
+
 def run_us(top_n, sample, no_news, excel_dir, skip_excel, retry=None, backoff=None):
-    """미국 수집 → 평가 → (엑셀) → DataFrame 반환"""
+    """미국 수집 → 평가 → (엑셀) → (DataFrame, 엑셀파일명, 차트) 반환"""
     # 무거운 의존성(fdr·yfinance)은 실제로 쓸 때만 불러온다
     from .excelout import build_workbook, unique_path
     from .sources_us import (build_us_universe, fetch_prices_batch,
@@ -89,12 +107,14 @@ def run_us(top_n, sample, no_news, excel_dir, skip_excel, retry=None, backoff=No
     print('[미국 4/4] 뉴스 분석...')
     df = news_supply_stage(df, is_kr=False, no_news=no_news)
 
+    차트 = _차트만들기(df, prices, is_kr=False)
+
     xlsx = ''
     if not skip_excel:
         out = unique_path(EXCEL_PREFIX['미국'] + ('_샘플' if sample else ''), excel_dir)
         build_workbook(df, MARKET_LABEL['미국'], out)
         xlsx = os.path.basename(out)
-    return df, xlsx
+    return df, xlsx, 차트
 
 
 def run_kr(top_n, sample, no_news, excel_dir, skip_excel, retry=None, backoff=None):
@@ -122,12 +142,14 @@ def run_kr(top_n, sample, no_news, excel_dir, skip_excel, retry=None, backoff=No
     print('[한국 4/4] 뉴스·수급 분석...')
     df = news_supply_stage(df, is_kr=True, no_news=no_news)
 
+    차트 = _차트만들기(df, prices, is_kr=True)
+
     xlsx = ''
     if not skip_excel:
         out = unique_path(EXCEL_PREFIX['한국'] + ('_샘플' if sample else ''), excel_dir)
         build_workbook(df, MARKET_LABEL['한국'], out)
         xlsx = os.path.basename(out)
-    return df, xlsx
+    return df, xlsx, 차트
 
 
 RUNNERS = {'us': ('미국', run_us), 'kr': ('한국', run_kr)}
@@ -278,6 +300,9 @@ def build_parser():
                     help='야후 재시도 전 대기 초 (기본 3.0)')
     ap.add_argument('--runner', choices=['pc', 'github-actions'], default='pc',
                     help='manifest.실행.주체 에 기록할 실행 주체 (기본 pc)')
+    ap.add_argument('--only-brief', action='store_true',
+                    help='브리핑(지수 시황 + 10개국 뉴스)만 갱신 — 종목 수집은 건너뜁니다 (1~3분). '
+                         '앱의 "브리핑 다시 받기" 가 이 모드를 씁니다')
     return ap
 
 
@@ -288,7 +313,11 @@ def main(argv=None):
     excel_dir = os.path.abspath(args.excel_dir or os.path.join(out_dir, EXCEL_DIRNAME))
     os.makedirs(out_dir, exist_ok=True)
 
-    targets = ['us', 'kr'] if args.market == 'all' else [args.market]
+    # `--only-brief` 는 종목을 하나도 수집하지 않습니다.
+    # 사장님이 폰에서 "브리핑 다시 받기" 를 누르셨을 때 쓰는 길이라 **빨라야** 합니다
+    # (종목 600개까지 받으면 10분, 지수+뉴스만이면 1~3분).
+    # 종목 데이터는 손대지 않으므로 화면의 전략·종목 화면은 그대로 유지됩니다.
+    targets = [] if args.only_brief else (['us', 'kr'] if args.market == 'all' else [args.market])
     기준일 = _today()
     prev = emit.previous_manifest(out_dir)
     prev_markets = (prev.get('시장') or {}) if isinstance(prev, dict) else {}
@@ -298,7 +327,10 @@ def main(argv=None):
 
     label = {'all': '미국+한국', 'us': '미국', 'kr': '한국'}[args.market]
     print('=' * 66)
-    print(f' Ri_Stock 수집 엔진 — 시총 상위 {args.sample or args.top}종목 ({label})')
+    if args.only_brief:
+        print(' Ri_Stock 수집 엔진 — 브리핑만 갱신 (지수 시황 + 10개국 뉴스, 종목 수집 없음)')
+    else:
+        print(f' Ri_Stock 수집 엔진 — 시총 상위 {args.sample or args.top}종목 ({label})')
     print(f' 산출 경로: {out_dir}')
     print('=' * 66)
 
@@ -358,11 +390,11 @@ def main(argv=None):
     for key in targets:
         name, runner = RUNNERS[key]
         try:
-            df, xlsx = runner(args.top, args.sample, args.no_news, excel_dir,
-                              args.skip_excel, args.retry, args.backoff)
+            df, xlsx, 차트 = runner(args.top, args.sample, args.no_news, excel_dir,
+                                    args.skip_excel, args.retry, args.backoff)
             수집시각 = _now()
             path, n_all, n_eval = emit.write_stocks(
-                df, name, out_dir, 기준일, 수집시각, 원본=xlsx)
+                df, name, out_dir, 기준일, 수집시각, 원본=xlsx, 차트=차트)
             시장[name] = emit.market_entry(STOCKS_FILE[name], n_all, n_eval, xlsx,
                                           수집시각, 기준일, args.runner)
             성공한시장.append(name)
@@ -430,6 +462,16 @@ def main(argv=None):
     print('\n※ 스크리닝 참고자료일 뿐 투자 권유가 아니며, 투자 판단과 책임은 본인에게 있습니다.')
 
     # 요청한 시장이 전부 실패했을 때만 실패로 끝냅니다 (부분 성공은 정상 종료)
+    #
+    # `--only-brief` 는 애초에 종목을 하나도 받지 않으므로 '성공한 시장' 이 늘 비어 있습니다.
+    # 그것을 실패로 돌려주면 워크플로가 빨갛게 끝나고 사장님께 실패 메일이 갑니다.
+    # 이 모드의 성패는 **브리핑(market.json)을 새로 썼는가** 하나로 판단합니다.
+    if args.only_brief:
+        브리핑성공 = not args.no_market_news and not 메모
+        if not 브리핑성공:
+            print('브리핑을 갱신하지 못했습니다 — 기존 market.json 을 그대로 두었습니다.')
+        return 0 if 브리핑성공 else 1
+
     return 0 if 성공한시장 else 1
 
 
