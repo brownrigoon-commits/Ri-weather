@@ -46,13 +46,26 @@ def fetch(path):
 
 
 def build_status():
+    """실제 배포 성공 여부는 **최신 워크플로 실행 결과**로 판정한다.
+
+    `/pages/builds/latest` 는 짧은 간격으로 두 번 push 해서 앞 실행이
+    취소(supersede)되면 그걸 'errored' 로 보고한다. 뒤 실행이 성공했는데도
+    실패로 뜨는 헛경보라, v134 때 실제로 한 번 속았다. (2026-07-28)
+    """
     if not GH:
         return "no-gh", "gh CLI 없음 — 빌드상태 확인 생략(HTTP 검사로 판정)"
     try:
-        out = subprocess.run([GH, "api", "repos/brownrigoon-commits/Ri-weather/pages/builds/latest"],
-                             capture_output=True, text=True, encoding="utf-8", timeout=30).stdout
-        j = json.loads(out)
-        return j.get("status"), (j.get("error") or {}).get("message") or ""
+        out = subprocess.run(
+            [GH, "run", "list", "--limit", "1", "--json", "status,conclusion,displayTitle"],
+            capture_output=True, text=True, encoding="utf-8", timeout=30).stdout
+        runs = json.loads(out)
+        if not runs:
+            return "unknown", "워크플로 실행 기록 없음"
+        r = runs[0]
+        if r.get("status") != "completed":
+            return "building", f"진행 중: {r.get('status')}"
+        c = r.get("conclusion")
+        return ("built" if c == "success" else c or "unknown"), r.get("displayTitle") or ""
     except Exception as e:
         return "unknown", str(e)[:60]
 
