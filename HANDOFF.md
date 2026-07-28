@@ -96,9 +96,23 @@ powershell -ExecutionPolicy Bypass -File tools\ristock_스케줄등록.ps1 -상�
   python -m pytest ristock/engine/tests -q          → 277 passed
   node ristock/engine/tests/test_js_golden.mjs      → 정답지 16/16
   python3 -m http.server 8791                       (저장소 최상단에서 띄운 채로)
-  node ristock/tests/verify_pwa.mjs                 → 128/128
+  node ristock/tests/verify_pwa.mjs                 → 149/149
   node ristock/tests/verify_phone_e2e.mjs           → 297/297
   ```
+- **아이폰 앱 전환(2026-07-28)** — 홈 화면 아이콘으로 열 때의 완성도를 올렸습니다.
+  - `ristock/icons/splash/` iOS 스플래시 8장 (253KB). 앱을 켜는 순간 흰 화면이 번쩍이던 것을 없앴습니다.
+    아이폰은 **해상도가 정확히 맞는 것만** 씁니다 — 새 기종이 나오면 `make_icons.py` 의
+    `스플래시목록` 에 한 줄, `index.html` 에 `<link>` 한 줄을 같이 추가해야 합니다.
+    (둘 중 하나만 고치면 verify_pwa 가 잡습니다)
+  - 브리핑 맨 위 **홈 화면 추가 안내 카드** — 아이폰 사파리에는 설치 버튼도
+    `beforeinstallprompt` 도 없어서 앱이 직접 경로를 알려 줍니다.
+    두 번째 방문부터 뜨고, ✕ 로 닫으면 다시 안 뜹니다(`ristock.설치안내.v1`).
+    판단은 전부 `RiData.설치안내보일까()` 안에 있습니다.
+  - 아이콘은 `any`(icon-512)와 `maskable`(icon-512-maskable)을 **분리**했습니다.
+    겸용으로 두면 안드로이드 런처가 원형으로 자를 때 여백이 모자랍니다.
+  - manifest `screenshots` 는 넣지 않았습니다 — **iOS 가 읽지 않는 필드**입니다.
+    안드로이드 설치 시트를 꾸밀 때 그때 넣으면 됩니다.
+  - 안드로이드 APK(TWA)는 **설계만 해 두고 만들지 않았습니다** → `docs/ristock_앱전환_설계.md` §3.
 - `ristock/data/` 는 **자동 생성물입니다.** 손으로 고치지 마세요. 충돌 나면 재생성이 답입니다.
 - **`ristock/data/archive/` 는 이제 커밋하지 않습니다**(2026-07-27, `.gitignore`).
   회차마다 0.6MB 씩 커밋되어 연 40MB 씩 저장소가 무거워지고 있었습니다

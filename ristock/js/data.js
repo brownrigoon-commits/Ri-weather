@@ -21,7 +21,8 @@
     관심: 'ristock.관심종목.v1',
     내전략: 'ristock.내전략.v1',
     내전략상태: 'ristock.내전략상태.v1',  // 지금 켜 둔 조건 — 앱을 닫았다 열어도 그대로여야 합니다
-    마지막: 'ristock.마지막수신.v1'   // 전부 실패했을 때 "언제 것까지 받았었는지" 알려주기 위한 흔적
+    마지막: 'ristock.마지막수신.v1',  // 전부 실패했을 때 "언제 것까지 받았었는지" 알려주기 위한 흔적
+    설치안내: 'ristock.설치안내.v1'   // 홈 화면 추가 안내를 몇 번 봤는지 / 닫았는지
   };
 
   /* -------------------------------------------------------------
@@ -317,6 +318,67 @@
     catch (e) { return false; }
   }
 
+  /* -------------------------------------------------------------
+   * 5-1. 홈 화면 추가(설치) 안내
+   *
+   * 아이폰 사파리에는 설치 버튼도, 설치 프롬프트 API 도 없습니다.
+   * "공유 → 홈 화면에 추가" 를 앱이 직접 알려 주는 수밖에 없습니다.
+   *
+   * 다만 처음 들어오자마자 안내부터 들이밀면 성가십니다.
+   * **두 번째 방문부터** 보여 주고, 한 번 닫으면 다시 띄우지 않습니다.
+   * ----------------------------------------------------------- */
+  function 설치안내상태() {
+    var v = 불러오기(저장키.설치안내, null);
+    if (!v || typeof v !== 'object') v = {};
+    return {
+      방문: typeof v.방문 === 'number' && v.방문 >= 0 ? v.방문 : 0,
+      닫음: v.닫음 === true
+    };
+  }
+
+  /** 앱이 열릴 때 한 번 부릅니다. 방문 횟수를 1 늘리고 새 상태를 돌려줍니다. */
+  function 방문기록() {
+    var s = 설치안내상태();
+    if (s.방문 < 99) {            // 무한정 키울 이유가 없습니다
+      s.방문 += 1;
+      저장하기(저장키.설치안내, s);
+    }
+    return s;
+  }
+
+  function 설치안내닫기() {
+    var s = 설치안내상태();
+    s.닫음 = true;
+    저장하기(저장키.설치안내, s);
+    return s;
+  }
+
+  /** 이미 홈 화면 앱으로 실행 중인가? (iOS 는 navigator.standalone, 그 외는 display-mode) */
+  function 설치됨() {
+    try {
+      if (navigator.standalone === true) return true;
+      if (window.matchMedia &&
+          window.matchMedia('(display-mode: standalone)').matches) return true;
+    } catch (e) { /* 아주 옛 브라우저 */ }
+    return false;
+  }
+
+  /** 아이폰·아이패드인가? (아이패드는 최신 iPadOS 에서 Mac 으로 위장합니다) */
+  function 아이폰류() {
+    var ua = navigator.userAgent || '';
+    if (/iPad|iPhone|iPod/.test(ua)) return true;
+    return /Macintosh/.test(ua) && (navigator.maxTouchPoints || 0) > 1;
+  }
+
+  /** 안내를 지금 보여 줄까? — 세 조건이 모두 맞을 때만 */
+  function 설치안내보일까() {
+    if (설치됨()) return false;              // 이미 앱으로 쓰고 계십니다
+    if (!아이폰류()) return false;           // 지금은 아이폰만 안내합니다
+    var s = 설치안내상태();
+    if (s.닫음) return false;                // 사장님이 닫으셨습니다
+    return s.방문 >= 2;                      // 첫 방문은 데이터 구경이 먼저입니다
+  }
+
   function 관심키(시장, 티커) { return 시장 + ':' + 티커; }
 
   function 관심목록() { return 불러오기(저장키.관심, []); }
@@ -412,6 +474,12 @@
     내전략삭제: 내전략삭제,
     내전략상태: 내전략상태,
     내전략상태저장: 내전략상태저장,
+    설치됨: 설치됨,
+    아이폰류: 아이폰류,
+    설치안내상태: 설치안내상태,
+    설치안내보일까: 설치안내보일까,
+    설치안내닫기: 설치안내닫기,
+    방문기록: 방문기록,
     버전: '1.0.0'
   };
 })(typeof globalThis !== 'undefined' ? globalThis : this);

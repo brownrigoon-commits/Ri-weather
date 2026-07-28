@@ -711,6 +711,157 @@ const 엿새전 = (() => { const d = new Date(); d.setDate(d.getDate() - 6); ret
   await pg.close(); await c.close();
 }
 
+/* =====================================================================
+ * 아이폰 앱 전환 (홈 화면에 추가) — 스플래시 · 설치 안내 · manifest
+ *
+ * 아이폰에는 설치 버튼도 `beforeinstallprompt` 도 없습니다.
+ * "공유 → 홈 화면에 추가" 를 앱이 직접 알려 주지 않으면 사장님은 그 경로를 모릅니다.
+ * 그런데 안내를 아무 때나 띄우면 성가시므로, **띄우지 않아야 할 때 안 뜨는지**도 같이 봅니다.
+ * ===================================================================== */
+
+const 저장소루트 = new URL('../../', import.meta.url).pathname;   // …/Ri-weather/
+
+/** PNG 앞머리 24바이트에서 실제 가로·세로를 읽습니다 (파일 이름만 믿지 않습니다) */
+function png크기(경로) {
+  const b = fs.readFileSync(경로).subarray(0, 24);
+  if (b.length < 24 || b.readUInt32BE(0) !== 0x89504e47) return null;
+  return { 가로: b.readUInt32BE(16), 세로: b.readUInt32BE(20) };
+}
+
+/* (마) iOS 스플래시 — 파일이 실제로 있고 해상도가 선언과 맞는가.
+   하나라도 어긋나면 그 기기에서는 앱 실행 순간 흰 화면이 그대로 보입니다. */
+{
+  const html = fs.readFileSync(저장소루트 + 'ristock/index.html', 'utf8');
+  const 태그 = [...html.matchAll(/rel="apple-touch-startup-image"\s+href="([^"]+)"\s*\n?\s*media="([^"]+)"/g)];
+  확인('스플래시: apple-touch-startup-image 태그가 있다', 태그.length >= 6, `${태그.length}개`);
+
+  let 어긋남 = [], 총합 = 0;
+  for (const [, href, media] of 태그) {
+    const 경로 = 저장소루트 + 'ristock/' + href;
+    if (!fs.existsSync(경로)) { 어긋남.push(`${href} 파일 없음`); continue; }
+    총합 += fs.statSync(경로).size;
+    const 실제 = png크기(경로);
+    const 이름 = /splash-(\d+)x(\d+)\.png$/.exec(href);
+    const 폭 = /device-width:\s*(\d+)px/.exec(media);
+    const 높이 = /device-height:\s*(\d+)px/.exec(media);
+    const 배율 = /device-pixel-ratio:\s*(\d+)/.exec(media);
+    if (!실제 || !이름 || !폭 || !높이 || !배율) { 어긋남.push(`${href} 형식 이상`); continue; }
+    // 파일 이름 ↔ 실제 PNG ↔ media 쿼리(논리크기×배율) 세 값이 전부 같아야 합니다
+    if (실제.가로 !== +이름[1] || 실제.세로 !== +이름[2]) {
+      어긋남.push(`${href} 실제 ${실제.가로}x${실제.세로}`);
+    } else if (+폭[1] * +배율[1] !== 실제.가로 || +높이[1] * +배율[1] !== 실제.세로) {
+      어긋남.push(`${href} media(${폭[1]}x${높이[1]}@${배율[1]}) 불일치`);
+    }
+  }
+  확인('스플래시: 파일·해상도·media 쿼리가 전부 일치', 어긋남.length === 0,
+    어긋남.length ? 어긋남.join(', ') : `${태그.length}장 모두 일치`);
+  확인('스플래시: 합계 300KB 이하', 총합 <= 300 * 1024, `${Math.round(총합 / 1024)}KB`);
+
+  // 아이폰이 흔히 쓰는 해상도가 빠지면 그 기기만 조용히 흰 화면이 됩니다
+  const 있는것 = 태그.map(([, h]) => h);
+  for (const 필수 of ['1125x2436', '1170x2532', '1290x2796']) {
+    확인(`스플래시: ${필수} 포함`, 있는것.some((h) => h.includes(필수)), '');
+  }
+}
+
+/* (바) manifest — 설치 요건과 maskable 아이콘 */
+{
+  const mf = JSON.parse(fs.readFileSync(저장소루트 + 'ristock/manifest.webmanifest', 'utf8'));
+  확인('manifest: id 선언', typeof mf.id === 'string' && mf.id.length > 0, String(mf.id));
+  확인('manifest: display=standalone', mf.display === 'standalone', String(mf.display));
+  확인('manifest: name·short_name 있음', !!mf.name && !!mf.short_name, mf.short_name);
+  const 아이콘들 = mf.icons || [];
+  확인('manifest: 192·512 아이콘', 아이콘들.some((i) => i.sizes === '192x192') &&
+    아이콘들.some((i) => i.sizes === '512x512'), `${아이콘들.length}개`);
+  const 마스커블 = 아이콘들.filter((i) => (i.purpose || '').split(/\s+/).includes('maskable'));
+  확인('manifest: maskable 전용 아이콘 분리', 마스커블.length >= 1 &&
+    마스커블.every((i) => !(i.purpose || '').split(/\s+/).includes('any')),
+    마스커블.map((i) => i.src + '(' + i.purpose + ')').join(', ') || '없음');
+  let 빠진아이콘 = 아이콘들.map((i) => i.src)
+    .filter((s) => !fs.existsSync(저장소루트 + 'ristock/' + s));
+  확인('manifest: 아이콘 파일이 전부 존재', 빠진아이콘.length === 0, 빠진아이콘.join(', ') || 'OK');
+  // apple-touch-icon 은 manifest 를 안 읽는 iOS 홈 화면이 쓰는 그림입니다 — 빠지면 검은 사각형이 됩니다
+  확인('index.html: apple-touch-icon 파일 존재',
+    fs.existsSync(저장소루트 + 'ristock/icons/icon-180.png'), 'icon-180.png');
+}
+
+/* (사) 설치 안내 배너 — 뜰 때 뜨고, 안 뜰 때 안 뜨는가 */
+const 아이폰UA = 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) ' +
+  'AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Mobile/15E148 Safari/604.1';
+
+async function 설치안내화면(이름, opt) {
+  const c = await 브라우저.newContext({
+    viewport: { width: 375, height: 812 }, deviceScaleFactor: 2,
+    isMobile: true, hasTouch: true, locale: 'ko-KR', serviceWorkers: 'block',
+    userAgent: (opt && opt.ua) || 아이폰UA
+  });
+  const pg = await c.newPage();
+  pg.on('pageerror', (e) => 페이지오류.push(`[${이름}] ` + String(e && e.message || e)));
+  // 아이폰 홈 화면 앱으로 실행 중인 상태는 navigator.standalone 으로만 알 수 있습니다
+  if (opt && opt.standalone) {
+    await pg.addInitScript(() => {
+      Object.defineProperty(navigator, 'standalone', { value: true, configurable: true });
+    });
+  }
+  await pg.goto(기준주소, { waitUntil: 'domcontentloaded' });
+  await pg.waitForSelector('#view-brief .card', { timeout: 10000 });
+  return { c, pg };
+}
+
+{
+  // 첫 방문에는 안내를 띄우지 않습니다 — 데이터를 구경하기도 전에 성가십니다
+  const { c, pg } = await 설치안내화면('아이폰1회');
+  확인('설치안내: 첫 방문에는 안 뜬다',
+    (await pg.locator('.install-card').count()) === 0, '');
+
+  // 두 번째 방문부터 뜹니다
+  await pg.reload({ waitUntil: 'domcontentloaded' });
+  await pg.waitForSelector('#view-brief .card');
+  확인('설치안내: 두 번째 방문에 뜬다',
+    (await pg.locator('.install-card').count()) === 1, '');
+  const 안내글 = await pg.locator('.install-card').innerText();
+  확인('설치안내: 공유 → 홈 화면에 추가 경로를 알려 준다',
+    안내글.includes('공유') && 안내글.includes('홈 화면에 추가'),
+    안내글.replace(/\s+/g, ' ').slice(0, 60));
+
+  // 닫기 버튼이 **실제로** 눌리는가 (CLAUDE.md 3-1)
+  await 터치(pg, '설치안내 닫기(✕)', '.install-card .ins-x');
+  await pg.locator('.install-card .ins-x').click();
+  await pg.waitForTimeout(200);
+  확인('설치안내: 닫으면 즉시 사라진다',
+    (await pg.locator('.install-card').count()) === 0, '');
+
+  // 닫은 것은 새로고침해도 기억해야 합니다 (매번 다시 뜨면 그게 제일 성가십니다)
+  await pg.reload({ waitUntil: 'domcontentloaded' });
+  await pg.waitForSelector('#view-brief .card');
+  확인('설치안내: 닫으면 새로고침해도 다시 안 뜬다',
+    (await pg.locator('.install-card').count()) === 0, '');
+  await pg.screenshot({ path: `${샷폴더}/설치안내_닫은뒤.png` });
+  await pg.close(); await c.close();
+}
+
+{
+  // 이미 홈 화면 앱으로 쓰고 계시면 안내할 이유가 없습니다
+  const { c, pg } = await 설치안내화면('아이폰standalone', { standalone: true });
+  await pg.reload({ waitUntil: 'domcontentloaded' });
+  await pg.waitForSelector('#view-brief .card');
+  확인('설치안내: 이미 앱으로 실행 중이면 안 뜬다',
+    (await pg.locator('.install-card').count()) === 0, '');
+  await pg.close(); await c.close();
+}
+
+{
+  // 안드로이드·PC 는 이번 범위가 아닙니다. 엉뚱한 기기에 아이폰 안내가 뜨면 안 됩니다.
+  const 안드UA = 'Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 ' +
+    '(KHTML, like Gecko) Chrome/126.0.0.0 Mobile Safari/537.36';
+  const { c, pg } = await 설치안내화면('안드로이드', { ua: 안드UA });
+  await pg.reload({ waitUntil: 'domcontentloaded' });
+  await pg.waitForSelector('#view-brief .card');
+  확인('설치안내: 아이폰이 아니면 안 뜬다 (아이폰 문구가 잘못 노출되지 않음)',
+    (await pg.locator('.install-card').count()) === 0, '');
+  await pg.close(); await c.close();
+}
+
 /* ─────────────────────────── 마무리 ─────────────────────────── */
 console.log('\n=== 콘솔/네트워크 ===');
 console.log('콘솔 오류: ' + 콘솔오류.length + (콘솔오류.length ? '\n  ' + 콘솔오류.join('\n  ') : ''));

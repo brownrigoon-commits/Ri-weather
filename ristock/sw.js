@@ -22,8 +22,12 @@ const CORE = [
   "./manifest.webmanifest",
   "./icons/icon-192.png",
   "./icons/icon-512.png",
+  "./icons/icon-512-maskable.png",
   "./icons/icon-180.png",
 ];
+// ⚠️ icons/splash/ 는 일부러 넣지 않습니다.
+//    8장 253KB 인데 아이폰이 **앱을 켜기 전에** 자기가 알아서 받아 두는 그림이라,
+//    서비스워커가 설치할 때 또 받으면 첫 실행이 그만큼 느려지기만 합니다.
 
 self.addEventListener("install", (e) => {
   e.waitUntil(

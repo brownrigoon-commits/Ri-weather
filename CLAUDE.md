@@ -165,12 +165,22 @@ python tools/ristock_출고점검.py --skip-local --url --wait   # 올린 뒤 �
 
 ```
 ristock/
-├── index.html  css/style.css  sw.js  manifest.webmanifest  icons/
+├── index.html  css/style.css  sw.js  manifest.webmanifest
+├── icons/    ← 자동 생성물. make_icons.py 가 만듭니다 (아래 참고)
+│   └── splash/   iOS 스플래시 8장
 ├── js/   app.js(화면) · data.js(불러오기) · strategy.js(전략 계산) · export.js(CSV)
 ├── data/     ← 자동 생성물. 손대지 말 것 (위 규칙 참고)
 ├── engine/   ← 파이썬 엔진 + tests/
 └── tests/    verify_pwa.mjs · verify_phone_e2e.mjs (헤드리스 크로미움)
 ```
+
+**아이콘·스플래시는 그림 편집기로 고치지 마세요.** `python ristock/icons/make_icons.py` 가
+전부 다시 그립니다(PIL 만 씀, 외부 자산 없음). 로고를 바꾸려면 그 파일을 고치고 다시 실행하세요.
+
+새 아이폰 기종이 나와 스플래시를 추가할 때는 **두 곳을 같이** 고쳐야 합니다 —
+`make_icons.py` 의 `스플래시목록` 과 `index.html` 의 `apple-touch-startup-image` 줄.
+아이폰은 해상도가 **정확히 맞는 것만** 쓰므로 한쪽만 고치면 그 기기에서 흰 화면이 뜹니다
+(`verify_pwa.mjs` 가 셋의 일치를 검사합니다).
 
 **절대 바뀌면 안 되는 것**: 점수 체계(13항목)와 전략 8종의 종목 선정 결과.
 `ristock/engine/tests/` 의 정답지가 이를 지킵니다. 고치기 전에 반드시 이 4개를 돌려 기준을 잡으세요.
