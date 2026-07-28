@@ -1,7 +1,7 @@
-# mcp-ezadmin 인수인계 (2026-07-28 · 회사 PC 세션용)
+# mcp-ezadmin 인수인계 (2026-07-28 낮 · 회사 PC → 집 PC)
 
 > **이 문서를 읽는 Claude에게**: 사장님은 코드를 직접 짜지 않습니다.
-> 명령어는 복사해 붙여넣을 수 있게 **한 줄씩** 주고, 실행 결과를 받아 판단하세요.
+> 명령어는 복사해 붙여넣을 수 있게 **한 줄씩** 주고, **cmd인지 PowerShell인지 반드시 표기**하세요.
 > 로컬 실행이 가능한 세션이면 직접 실행하고 **결과 요약만** 보고하세요.
 > 단계별 확인 왕복을 최소화하고, 일괄 실행 → 자동 검증 → 최종 요약이 원칙입니다.
 
@@ -9,11 +9,21 @@
 
 ## 1. 지금 상태
 
-- **서버·도구 로직 완성.** `selftest.py` 78개, `mcp_smoke_test.py` 9개 전부 PASS (집 PC 확인).
-- **집 PC에서 Claude Desktop 연결 성공.** `ezadmin` running 확인 완료.
-- ⛔ **아직 실제 이지어드민 데이터에 붙지 않았다.** `data/` 는 전부 가짜 샘플,
-  `config.json` 의 브랜드도 예시("루미네", "베르디"), `api.enabled` 는 `false`.
-  **지금 나오는 숫자는 전부 가짜다.**
+- **서버·도구 로직 완성.** `selftest.py` 78개, `mcp_smoke_test.py` 9개 전부 PASS.
+- **회사 PC·집 PC 모두 Claude Desktop 연결 성공.**
+- ✅ **실제 이지어드민 주문 데이터로 5개 도구 전부 동작하는 것까지 확인했다** (2026-07-28).
+  6월 주문 12,499행 기준 실제 숫자:
+
+  | 항목 | 값 |
+  |---|---|
+  | 미출고 | 586건 |
+  | 상태별 | 배송중 9,704 · 취소 2,095 · 교환 103 |
+  | 윤슬 6/1~6/15 | 1,199건 · 1.13억 |
+  | 개인정보 | `김*철` 마스킹 정상 |
+  | 배송조회 | CJ대한통운 추적링크 자동 생성 |
+
+- ⛔ **남은 것 2가지**: ① 오늘자 주문 엑셀을 **올바른 양식**으로 받기 ② **재고 엑셀** 연결.
+  (지금 `data/` 는 비어 있거나 6월 데이터다. 날짜는 `data_status` 의 `데이터기준`으로 확인할 것.)
 
 ## 2. 기능 (확정 — 이 5개 외 추가 금지)
 
@@ -25,121 +35,167 @@
 | `shipping_lookup` | 배송조회 — 출고·반품 배송 상황 + 택배사 송장 조회 링크 |
 | `data_status` | 연결·데이터 상태 진단 |
 
-## 3. 회사 PC 환경 (2026-07-28 실측)
+> 기간 조회는 `period` 키워드뿐 아니라 `start_date`/`end_date` 로 **임의 날짜 범위가 된다.**
+> "6월 1일~15일 윤슬 주문" 같은 질문도 정상 동작한다.
 
-| 항목 | 값 |
-|---|---|
-| Python 후보 | `C:\Python314\python.exe` (1순위, 공백 없음) · `C:\Programs files\Python311\python.exe` · WindowsApps |
-| git | `C:\Program Files\Git\cmd\git.exe` |
-| 코드 위치 | `C:\work\Ri-weather\mcp-ezadmin` (clone 완료) |
-| 진행 상황 | clone까지 완료. **pip install 부터 남음** |
+## 3. PC별 환경
 
-> 집 PC는 `C:\Program Files\Python311` 이었다. **PC마다 다르므로 항상 `where python` 확인.**
-> 3.14 에서 pip install 이 실패하면 3.11 로 전환할 것(집 PC에서 3.11 검증 완료).
+| 항목 | 회사 PC | 집 PC |
+|---|---|---|
+| Python | `C:\Python314\python.exe` (3.14.3) ✅ 설치·검증 완료 | `C:\Program Files\Python311\python.exe` (3.11.2) |
+| 코드 위치 | `C:\work\Ri-weather\mcp-ezadmin` | 동일 |
+| 의존성 | `mcp-1.28.1`, `openpyxl-3.1.5` | 설치됨 |
+| numpy | 없음 (그래서 무한대기 버그가 재현되지 않음) | 있음 |
 
-## 4. 오늘 할 일 (순서대로)
+> **PC마다 다르므로 항상 `where python` 으로 확인할 것** (cmd에서. PowerShell의 `where` 는
+> `Where-Object` 별칭이라 아무것도 출력하지 않는다 → "Python 없음"으로 오해 금물).
 
-### 4-1. 설치 마무리
+## 4. 집에서 이어서 할 일
+
+### 4-1. 최신 코드 받기 (cmd)
 ```bat
-C:\Python314\python.exe -m pip install -r C:\work\Ri-weather\mcp-ezadmin\requirements.txt
-copy C:\work\Ri-weather\mcp-ezadmin\.env.example C:\work\Ri-weather\mcp-ezadmin\.env
-cd /d C:\work\Ri-weather\mcp-ezadmin
-C:\Python314\python.exe scripts\make_sample_data.py
-C:\Python314\python.exe scripts\selftest.py
-```
-→ `총 78개 검증 · 통과 78 · 실패 0` 확인
-
-### 4-2. Claude Desktop 등록
-앱 → `Ctrl + ,` → **데스크톱 앱 › 개발자** → **로컬 MCP 서버** → **구성 편집**
-```json
-{
-  "mcpServers": {
-    "ezadmin": {
-      "command": "C:\\Python314\\python.exe",
-      "args": ["C:\\work\\Ri-weather\\mcp-ezadmin\\server.py"]
-    }
-  }
-}
-```
-저장 → `taskkill /f /im claude.exe` → 앱 재실행 → **running 배지** 확인
-
-### 4-3. ⭐ 실데이터 투입 (오늘의 핵심)
-1. 샘플 지우기: `rmdir /s /q C:\work\Ri-weather\mcp-ezadmin\data`
-2. 이지어드민에서 내려받은 엑셀을 아래에 넣기 (파일명 자유, 폴더 없으면 만들기)
-   ```
-   C:\work\Ri-weather\mcp-ezadmin\data\orders       ← 주문 (최근 2주 권장)
-   C:\work\Ri-weather\mcp-ezadmin\data\inventory    ← 재고
-   C:\work\Ri-weather\mcp-ezadmin\data\returns      ← 반품·교환 (없어도 동작)
-   ```
-3. "이지어드민 연결 상태 확인해줘" → **행수·기간이 실제와 맞는지** 확인
-   - 행수가 0이거나 "머리글을 찾지 못했습니다" → 컬럼명이 달라서다.
-     `config.json` 의 `columns` 로 매핑 추가 (`design/02` 참고)
-
-### 4-4. ⭐ 상태값 대조 (반드시)
-앱에서 이렇게 질문:
-```
-주문 데이터에 있는 원문 상태값을 전부 뽑아서, 각각 어느 분류로 들어갔는지 표로 보여줘
-```
-- `data_status` 의 **`기타상태값`** = 분류 못 한 값 → `config.json` 의 `status_keywords` 에 추가
-- ⚠️ **더 위험한 것은 엉뚱한 버킷으로 조용히 들어간 값이다.**
-  예) `부분취소` 는 '취소' 가 들어 있어 취소로 분류 → **미출고 목록에서 빠진다.**
-  남은 품목이 아직 출고 대상이면 사고다. **사장님과 표를 보며 하나씩 맞출 것.**
-
-### 4-5. 브랜드 등록
-`config.json` 의 `brands` 를 실제 브랜드로 교체. 이지어드민에서 브랜드는 **두 방식 병행**이다
-(① 상품명·상품코드에 식별자 ② 브랜드별 판매처·계정 분리) → **둘 다 적어야 정확하다.**
-```json
-"brands": {
-  "실제브랜드명": {
-    "aliases": ["영문표기"],
-    "product_keywords": ["코드접두어-"],
-    "malls": ["판매처명 그대로"],
-    "accounts": []
-  }
-}
+cd /d C:\work\Ri-weather & git pull
 ```
 
-### 4-6. 최종 확인 — 이지어드민 화면과 숫자 대조
+### 4-2. `config.json` 복원 — **PC 간에 넘어가지 않는다**
+
+`config.json` 과 `data/` 는 `.gitignore` 대상이다. 집 PC에서는 다시 만들어야 한다.
+
+```bat
+copy C:\work\Ri-weather\mcp-ezadmin\config.example.json C:\work\Ri-weather\mcp-ezadmin\config.json
+```
+
+`config.example.json` 에는 이번에 확정한 `columns`·`status_keywords` 가 이미 들어 있다.
+**브랜드만** 실제 데이터에서 생성한다 (주문 엑셀을 `data/orders` 에 넣은 뒤, cmd):
+
+```bat
+"C:\Program Files\Python311\python.exe" C:\work\Ri-weather\mcp-ezadmin\scripts\make_brands_config.py data/orders
+```
+
+2026-07-02 데이터 기준으로 잡힌 브랜드 25개:
+오브베이지 · 윤슬 · 마누엘에기욤 · 이너프원 · 키코지 · 리플래시 · 페르커 · 레킴 · 예그 ·
+퍼즈플리즈 · CDSD · 릿씨 · 모아뚜아누 · 사이미전 · 비니쿤카 · 코이반트 · 이보크에라 ·
+무어니 · 한림수직 · 카우프만 · 토그 · 클레아리브 · 섹바이리군 · 리군스튜디오 · 제이백
+
+> ⚠️ **사장님 확인 대기**: `리플래시`(814건) · `섹바이리군` · `제이백` · `사이미전` ·
+> `카우프만` 은 브랜드가 아닐 수 있다. 확인 후 정리할 것.
+
+### 4-3. ⭐ 주문 엑셀을 올바른 양식으로 받기 ← **오늘 여기서 멈췄다**
+
+오늘 받은 파일은 **송장 일괄등록용 빈 양식**이었다.
+
+```
+확장주문검색_20260728133517_317482770.xls
+컬럼 4개: 주문상세번호 | 주문상세번호2 | 택배사 | 송장번호   ← 주문 목록이 아님
+```
+
+서버는 이걸 정확히 걸러낸다(`머리글을 찾지 못해 건너뛰었습니다`). 데이터로 쓰이지 않는다.
+
+**필요한 것**: `상태`·`공급처`·`상품명`·`수량`·`판매가`가 다 들어간 **59칸짜리 양식**.
+2026-07-02에 받은 `확장주문검색_20260702150957_597974103.xls` 가 그 양식이다
+(회사 PC `C:\Users\PC\Downloads` 에 있음).
+
+이지어드민 계정에 저장된 다운로드 양식이 여러 개다(4칸·25칸·43칸·**59칸**·286칸).
+**확장주문검색 → 조회 → 엑셀 다운로드 시 양식을 골라야 한다.**
+
+받은 뒤 변환 (cmd):
+```bat
+"C:\Program Files\Python311\python.exe" C:\work\Ri-weather\mcp-ezadmin\scripts\ezadmin_xls_to_xlsx.py "%USERPROFILE%\Downloads" --out C:\work\Ri-weather\mcp-ezadmin\data\orders --name 확장주문검색 --since 1
+```
+→ `(N행 × 59칸)` 처럼 **칸 수가 50 이상**이면 맞는 양식. 4칸이면 또 틀린 것.
+
+### 4-4. ⭐ 재고 엑셀 연결 (아직 한 번도 못 받았다)
+
+`data/inventory` 가 비어 있어 재고 조회는 0건이다.
+파일을 받으면 **컬럼명을 확인해서 `config.json` 의 `columns.inventory` 매핑을 맞춰야 한다.**
+주문과 달리 재고 양식은 아직 실물을 못 봤다.
+
+### 4-5. 최종 확인 — 이지어드민 화면과 숫자 대조
 ```
 미출고 몇 건이야?
 이번주 주문 몇 건이야?
-<실제브랜드> 재고 부족한 것 보여줘
+윤슬 재고 부족한 것 보여줘
 반품 수거 진행 상황
 ```
 **숫자가 이지어드민 화면과 일치하는지 사장님이 직접 대조.** 여기까지 맞아야 실사용 가능.
 
-## 5. 절대 규칙
+## 5. 실데이터를 붙일 때 반드시 지킬 3가지
+
+### ① 이지어드민 `.xls` 는 진짜 엑셀이 아니다 — 반드시 변환한다
+
+확장자만 xls 이고 내용은 HTML `<table>` 이다. openpyxl 이 못 읽는다.
+`scripts/ezadmin_xls_to_xlsx.py` 를 거쳐야 한다. 이 변환기는 세 가지를 같이 처리한다.
+
+- 상품명에 섞인 제어문자 제거 (없으면 `IllegalCharacterError` 로 죽는다)
+- **헤더 표준화**: `CS` → `주문상태`, `상태` → `배송상태` (아래 ② 때문에 필수)
+- 원본 다운로드 시각을 결과 파일에 물려줌 (안 하면 신선도 경고가 무력화된다)
+
+### ② `상태` 컬럼이 `CS` 를 밀어내면 취소분이 미출고로 잡힌다
+
+주문 엑셀에는 상태성 컬럼이 두 개다 — `상태`(접수/송장/배송)와 `CS`(정상/배송전 전체 취소/…).
+표준 매핑에서 `상태` 가 `주문상태` 로 먼저 잡히면서 `CS` 가 통째로 버려진다.
+`config.json` 의 `columns` 는 후보를 **추가**만 하므로 설정으로는 못 뒤집는다.
+
+2026-06 실데이터 교차표:
+
+| | 건수 |
+|---|---|
+| 송장번호 없음 (전체) | 1,264 |
+| 그중 CS=정상 → **진짜 미출고** | **587** |
+| 그중 CS=취소/교환 → 미출고 아님 | 677 |
+
+잘못된 설정이면 1,253건, 바로잡으면 586건(중복제거 1건 차이)이 나온다.
+→ 변환기의 헤더 표준화로 해결되어 있다. **되돌리지 말 것.**
+
+이것이 이전 문서가 경고한 "**원문 상태값이 엉뚱한 버킷으로 조용히 들어가는**" 사고의 실제 사례다.
+새 양식·새 컬럼을 만나면 항상 `data_status` 의 `기타상태값` 과 원문 대조를 먼저 할 것.
+
+### ③ `selftest.py` 는 실데이터를 붙인 뒤에 돌리지 않는다
+
+- `data/` 가 비어 있으면 **가짜 샘플을 `data/` 에 다시 만든다**
+  (`EZMCP_DATA_DIR` 을 다른 곳으로 지정해도 샘플은 프로젝트 `data/` 에 생긴다)
+- 브랜드를 실제 값으로 바꾸면 샘플 기준 검증 2건이 **정상적으로 실패**한다 → 76/78 이 맞는 상태
+
+selftest 는 코드 검증용이다. 실데이터 확인은 Claude 에서 `data_status` 로 한다.
+
+## 6. 절대 규칙
 
 1. **조회 전용.** 쓰기·수정·삭제 도구를 추가하지 않는다. 코드 경로 자체가 없어야 한다.
 2. **`pii_mode` 기본값 `masked` 유지.** 실데이터를 붙이는 순간부터 진짜 고객정보다.
 3. **`data/`, `.env`, `config.json` 커밋 금지** (`.gitignore` 되어 있음. 확인 후 커밋할 것).
 4. **stdout 출력 금지** (`print()` 금지). MCP stdio 가 오염되어 연결이 조용히 죽는다.
+   (`scripts/` 의 실행 스크립트는 예외 — 서버 코드가 아니다.)
 5. **기능 추가 금지.** 위 5개 도구 외 임의 추가 금지.
 6. 브랜치는 `claude/mcp-inventory-order-server-fwzy33` 만 사용. PR은 사장님이 요청할 때만.
-7. 코드를 고쳤으면 `scripts\selftest.py` 를 돌려 **78개 전부 PASS** 확인 후 커밋.
+7. 코드를 고쳤으면 `scripts\selftest.py` 를 돌려 확인 후 커밋(브랜드 교체 후엔 76/78).
 
-## 6. 이미 겪은 함정 (반복 금지)
+## 7. 이미 겪은 함정 (반복 금지)
 
 | 증상 | 원인 | 해결 |
 |---|---|---|
-| 명령이 전부 오류 | **PowerShell** 에서 실행 (문서는 cmd 문법) | 창에 `cmd` 입력해 전환. PowerShell 의 `where` 는 별칭이라 **아무것도 출력 안 함** → "Python 없음"으로 오해 금물 |
+| 명령이 전부 오류 | **PowerShell** 에서 실행 (문서는 cmd 문법) | 창에 `cmd` 입력해 전환. PowerShell 의 `where` 는 별칭이라 **아무것도 출력 안 함** |
 | `지정된 경로를 찾을 수 없습니다` | Python 경로가 PC마다 다름 | `where python` 확인. 공백 있으면 큰따옴표 |
 | `%APPDATA%\Claude` 없음 | Store 버전은 `LocalCache\Roaming\Claude\` 로 가상화 | 앱의 **구성 편집** 버튼 사용 |
-| 브라우저·Code 세션에서 MCP 안 보임 | 웹·Code 세션은 클라우드(Linux)에서 실행 | **설치형 앱의 홈 탭 일반 채팅** 에서 사용 |
-| 도구 호출이 무한 대기 | openpyxl 지연 임포트가 numpy 를 이벤트 루프에서 로드 | **해결됨**(`0eb381d0`). 임포트가 모듈 최상단에 있어야 함. 되돌리지 말 것 |
+| 브라우저·클라우드 Code 세션에서 MCP 안 보임 | 그쪽은 PC에 닿지 않음 | **설치형 앱**에서 사용 |
+| 도구 호출이 무한 대기 | openpyxl 지연 임포트가 numpy 를 이벤트 루프에서 로드 | **해결됨**(`0eb381d0`). 임포트가 모듈 최상단에 있어야 함 |
 | 설정 바꿨는데 반영 안 됨 | 창 X 만 눌러 백그라운드 잔존 | `taskkill /f /im claude.exe` 후 재실행 |
+| 엑셀을 넣었는데 `파일수: 0` | 이지어드민 `.xls` 가 HTML | `ezadmin_xls_to_xlsx.py` 로 변환 |
+| `머리글을 찾지 못했습니다` | 다운로드 **양식**이 틀림(송장등록용 4칸 등) | 59칸 양식으로 다시 받기 |
+| 미출고 건수가 2배로 부풀음 | `상태` 가 `CS` 를 밀어냄 | 변환기 헤더 표준화 (위 5-②) |
+| 몇 주 지난 파일인데 신선도 경고가 없음 | 변환 시각이 mtime 으로 찍힘 | 변환기가 원본 mtime 을 승계 (수정됨) |
 
-자세한 기록: `design/10-setup-log-windows.md`
+자세한 기록: `design/10-setup-log-windows.md` 의 "실데이터 연결 기록 (2026-07-28 회사 PC)"
 
-## 7. 나중에 할 것 (오늘 아님)
+## 8. 나중에 할 것 (오늘 아님)
 
 - **이지어드민 API 전환**: 신청제(법인, 건당 과금, 세팅 약 3일 / apidev@pimz.co.kr).
   명세를 받으면 그 문서를 Claude 에게 주고 `config.json` 의 `api` 섹션을 채우면 켜진다.
   인증키는 **반드시 `.env` 에만** (`EZADMIN_API_DOMAIN`, `EZADMIN_API_KEY`).
   절차: `design/03-datasource-api.md`
+  → API 로 바꾸면 위 5-①(HTML 변환)·4-3(양식 고르기) 문제가 통째로 사라진다.
 - **슬랙 연동 (2단계, 최종 목표)**: 그때는 `pii_mode` 를 `masked`/`summary` 로 강제해야 한다.
 
-## 8. 문서 지도
+## 9. 문서 지도
 
 | 문서 | 내용 |
 |---|---|
@@ -151,7 +207,17 @@ C:\Python314\python.exe scripts\selftest.py
 | `design/06-privacy-masking.md` | 개인정보 마스킹 규칙 |
 | `CLAUDE.md` | 이 프로젝트 절대 규칙 |
 
-## 9. 작업 이력
+## 10. 스크립트
+
+| 스크립트 | 용도 |
+|---|---|
+| `scripts/ezadmin_xls_to_xlsx.py` | 이지어드민 다운로드(.xls=HTML) → xlsx 변환 + 헤더 표준화 |
+| `scripts/make_brands_config.py` | 공급처·판매처 실제 값에서 `config.json` 의 brands 생성 |
+| `scripts/make_sample_data.py` | 가짜 샘플 생성 (실데이터 붙인 뒤에는 쓰지 말 것) |
+| `scripts/selftest.py` | 도구 로직 전수 검증 (코드 검증용) |
+| `scripts/mcp_smoke_test.py` | MCP stdio 프로토콜 왕복 확인 |
+
+## 11. 작업 이력
 
 | 날짜 | 내용 |
 |---|---|
@@ -159,4 +225,5 @@ C:\Python314\python.exe scripts\selftest.py
 | 07-27 저녁 | 구현 완료. selftest 78/78, smoke 9/9. 날짜 파싱 결함 2건·예외 격리 수정 |
 | 07-27 밤 | 집 PC 설치·연결 성공. 도구 호출 무한 대기(openpyxl/numpy) 원인 규명·수정 |
 | 07-28 오전 | 회사 PC clone 완료. PowerShell 함정 문서화 |
-| **다음** | **실데이터 투입 → 상태값 대조 → 브랜드 등록 → 숫자 검증** |
+| 07-28 낮 | 회사 PC 설치 완료. **실데이터로 5개 도구 동작 확인.** 변환기·브랜드 생성기 추가. 상태 컬럼 함정 규명 |
+| **다음** | **59칸 양식으로 오늘자 주문 받기 → 재고 엑셀 연결 → 이지어드민 화면과 숫자 대조** |
