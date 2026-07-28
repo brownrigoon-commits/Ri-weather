@@ -68,7 +68,8 @@ def stage():
     #    로컬 미리보기는 작업본을 그대로 읽으니 화면상으론 멀쩡해 보여 더 위험하다.
     git("add", "holeimg", "coursedata/homepages", "coursedata/workfiles",
         "tools", "js", "css", "icons", "assets", "docs", "sw.js", "index.html",
-        "manifest.webmanifest", ".nojekyll", ".gitignore", ".sync", check=False)
+        "manifest.webmanifest", ".nojekyll", ".gitignore", ".sync",
+        "HANDOFF.md", "README.md", "CLAUDE.md", check=False)
 
 def bump():
     """항상 '현재 파일에 적힌 버전 +1' — 최신화 직후 호출해야 유일한 버전이 됨.
