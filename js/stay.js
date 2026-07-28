@@ -111,13 +111,49 @@ async function fetchKakaoStay(course) {
   return near;
 }
 
-/* 예약 사이트 검색 링크 — 실제로 열리는 주소만 쓴다 (2026-07-27 응답코드 확인) */
-function bookingLinks(name) {
-  const q = encodeURIComponent(name);
+/* 예약 앱 검색어 만들기 — "숙소명만 넣으면 헛친다"를 고치는 부분.
+ *
+ * 카카오맵 상호는 간판·사업자명이고 예약앱 상호는 마케팅명이라 서로 다르다.
+ * (카카오 "몽마르뜨모텔" ↔ 야놀자 "원주 몽마르뜨" 처럼)
+ * 그래서 ① 업종어를 떼고 ② 시·군 이름을 붙인다.
+ * 이름이 너무 짧거나 흔하면(2S, 궁 …) 검색엔진이 엉뚱한 광고를 물어오므로
+ * 아예 이름을 빼고 **지역 숙소 목록**으로 보낸다 — 그러면 "결과 없음"이 나올 수 없다.
+ * (사장님 신고 사례: 몽마르뜨모텔·2S모텔·뷰티모텔 — 2026-07-28)
+ */
+const STAY_BIZWORD = /(무인호텔|무인텔|모텔|호텔|여관|여인숙|파크텔|골프텔|리조트|콘도|게스트하우스|호스텔|민박|한옥|펜션|풀빌라|스테이|인|INN)/gi;
+const STAY_GENERIC = /^(그랜드|뉴|파크|로얄|로얄|프린스|킹|퀸|스타|럭키|자유|시티|센트럴|중앙|대한|한국)$/;
+
+function stayRegion(addr) {
+  // "강원특별자치도 원주시 소초면 …" → "원주"  /  "경기 이천시 장호원읍 …" → "이천"
+  const m = String(addr || "").match(/([가-힣]{2,10}?)(시|군)(?=\s|$)/);
+  return m ? m[1] : "";
+}
+
+function stayQuery(it) {
+  const region = stayRegion(it.addr);
+  let core = String(it.name || "")
+    .replace(/\(.*?\)/g, " ")
+    .replace(/(^|\s)\S*점(?=\s|$)/g, " ")     // "브라운도트 영천점" → "브라운도트"
+    .replace(STAY_BIZWORD, " ")
+    .replace(/[^0-9A-Za-z가-힣\s]/g, " ")
+    .replace(/\s+/g, " ").trim();
+  // 너무 짧거나 흔한 이름은 검색이 엉뚱한 광고를 물어온다 → 지역 목록으로.
+  // 한글은 1자까지만 폴백("궁"). 2자는 "자바"처럼 충분히 특정되는 이름이 많다.
+  const tooShort = /^[가-힣]?$/.test(core) || /^[0-9A-Za-z]{0,2}$/.test(core);
+  if (!core || tooShort || STAY_GENERIC.test(core)) return { q: region, byName: false };
+  return { q: (region ? region + " " : "") + core, byName: true };
+}
+
+/* 예약 앱 3종 — 딥링크(앱 스킴)는 쓰지 않는다.
+   야놀자·여기어때 모두 유니버설링크 설정 파일이 없어(404) 앱이 없으면 오류 화면이 뜬다. */
+function bookingLinks(it) {
+  const { q, byName } = stayQuery(it);
+  const e = encodeURIComponent(q);
+  const tail = byName ? "" : " 숙소";
   return [
-    ["야놀자", "https://www.yanolja.com/search/" + q, "bk-ya"],
-    ["여기어때", "https://www.goodchoice.kr/product/search/1?keyword=" + q, "bk-gc"],
-    ["트립닷컴", "https://kr.trip.com/hotels/list?keyword=" + q, "bk-tc"],
+    ["야놀자", `https://nol.yanolja.com/results?keyword=${e}`, "bk-ya", tail],
+    ["여기어때", `https://www.yeogi.com/domestic-accommodations?searchType=KEYWORD&keyword=${e}`, "bk-gc", tail],
+    ["네이버", `https://search.naver.com/search.naver?query=${encodeURIComponent(q + " 숙박")}`, "bk-nv", tail],
   ];
 }
 
@@ -135,9 +171,10 @@ function bookingLinks(name) {
  * 요금이 확보되면 이 함수와 STAY_SORTS 두 곳만 고치면 된다.
  */
 function bookBtn(it) {
-  // 야놀자 — 국내 펜션·모텔 재고가 가장 넓어 검색이 헛치는 경우가 적다
-  const [t, u, c] = bookingLinks(it.name)[0];
-  return `<a class="fa-btn ${c}" href="${u}" target="_blank" rel="noopener">🛎️ ${t}에서 요금 보기</a>`;
+  // "요금 보기"라고 쓰면 요금이 있다고 단정하는 셈이다. 실제로는 검색만 해줄 뿐이라
+  // 없는 숙소일 때 사용자가 속았다고 느낀다 → "검색"으로 정직하게 쓴다. (2026-07-28)
+  return bookingLinks(it).map(([t, u, c, tail]) =>
+    `<a class="fa-btn ${c}" href="${u}" target="_blank" rel="noopener">${t}${tail}</a>`).join("");
 }
 
 function renderStayList(list, course) {
