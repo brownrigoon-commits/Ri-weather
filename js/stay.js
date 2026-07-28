@@ -173,19 +173,23 @@ function bookingLinks(it) {
   const { q, byName } = stayQuery(it);
   const e = encodeURIComponent(q);
   const tail = byName ? "" : " 숙소";
-  const { ci, co } = stayDates();
-  const n = perRoom();
-  // ⚠️ 날짜·인원은 '실제로 먹히는 곳'에만 붙인다 (2026-07-28 브라우저로 직접 확인):
-  //   · 여기어때 — checkIn/checkOut/personal 그대로 반영됨 ("8.05 수 - 8.06 목 (1박) 인원 2")
-  //   · 야놀자   — /results?...&checkInDate=.. 는 /discovery/list/search?q=.. 로 넘어가며
-  //                날짜·인원이 버려진다 → 붙여봐야 의미 없으므로 키워드만 보낸다
-  //   확인 안 된 파라미터를 넣으면 엉뚱한 결과가 열려 오히려 신뢰를 깎는다.
-  return [
+  /* ⚠️ 날짜·인원을 링크에 붙이지 않는다.
+     붙였더니 "옵션 없을 때는 나오던 숙소가 안 나온다"는 확인을 받았다(2026-07-28).
+     여기어때는 파라미터가 없어도 항상 오늘~내일 날짜가 걸려 있고, 조건을 좁힐수록
+     재고 없는 숙소가 목록에서 빠진다. 링크의 목적은 "그 숙소를 찾아주는 것"이므로
+     조건보다 '찾아지는 것'이 먼저다. 조건은 예약 사이트에서 바꾸면 된다. */
+  const out = [];
+  // 카카오 예약 연동이 있는 곳은 여기가 가장 확실하다 — 검색이 아니라 그 숙소 페이지로 바로 간다.
+  // 실제 요금과 예약 탭이 이 페이지에 있다(치악산호텔 60,000원 확인).
+  if (typeof it.vendor === "number" && it.vendor > 0 && it.url) {
+    out.push(["카카오 예약", it.url, "bk-kk", ""]);
+  }
+  out.push(
     ["야놀자", `https://nol.yanolja.com/results?keyword=${e}`, "bk-ya", tail],
-    ["여기어때", `https://www.yeogi.com/domestic-accommodations?searchType=KEYWORD&keyword=${e}` +
-      `&checkIn=${ci}&checkOut=${co}&personal=${n}`, "bk-gc", tail],
-    ["네이버", `https://search.naver.com/search.naver?query=${encodeURIComponent(q + " 숙박")}`, "bk-nv", tail],
-  ];
+    ["여기어때", `https://www.yeogi.com/domestic-accommodations?searchType=KEYWORD&keyword=${e}`, "bk-gc", tail],
+    ["네이버", `https://search.naver.com/search.naver?query=${encodeURIComponent(q + " 숙박")}`, "bk-nv", tail]
+  );
+  return out;
 }
 
 /* 예약 버튼 — 링크 하나만 단다. 요금 금액은 아직 표시하지 않는다.
@@ -364,8 +368,8 @@ function renderStayForm(course) {
   el.innerHTML = `
     <div class="stay-form">
       <div class="sf-title">언제, 몇 분이<br>묵으시나요?</div>
-      <div class="sf-sub">고르신 조건 그대로 예약 사이트가 열립니다.<br>
-        빈방 여부는 예약 사이트에서 확인하실 수 있어요.</div>
+      <div class="sf-sub">이 조건에 맞는 숙소를 골프장 주변에서 찾아드립니다.<br>
+        <b>실제 빈방과 요금은 예약 사이트에서</b> 확인하세요.</div>
       <div class="stay-when">
         <div class="sw-row">
           <label class="sw-f"><span>체크인</span>
