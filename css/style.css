@@ -1974,8 +1974,7 @@ body, .view, .cf-screen, .card, .sheet { word-break: keep-all; overflow-wrap: br
   word-break: keep-all;
 }
 /* 실루엣은 마스크로 그린다.
-   ⚠️ 원본 4장은 tools/make_icon_mask.js 로 **같은 캔버스(260x300)에 아래·가운데 정렬**
-   해서 만든다. 그래야 클럽마다 mask-size 를 따로 만지지 않아도 크기가 맞는다.
+   원본 4장은 tools/make_club_icons_src.py 로 **여백 없이 딱 잘라서** 만든다.
    알파도 그때 단단하게 만든다 — 반투명이 남으면 그 아이콘만 회색으로 떠 보인다. */
 .cf-club-ico {
   display: block; width: 62px; height: 72px; background-color: #000;
@@ -1984,7 +1983,16 @@ body, .view, .cf-screen, .card, .sheet { word-break: keep-all; overflow-wrap: br
   -webkit-mask-size: contain; mask-size: contain;
 }
 .cf-club-ico.ico-golfer { -webkit-mask-image: url("../assets/golfer.png"); mask-image: url("../assets/golfer.png"); }
-.cf-club-ico.ico-iron   { -webkit-mask-image: url("../assets/iron.png");   mask-image: url("../assets/iron.png"); }
+/* 아이언만 상자를 넓힌다.
+   아이언은 클럽이 옆으로 길게 뻗어 가로가 세로보다 길다(520×400). contain 은 넓은 쪽에
+   맞추므로 62px 폭에 갇혀 사람이 다른 셋보다 작아 보인다(사장님 지적 2026-07-29).
+   62 → 94px 로 넓히면 사람 키가 55px → 72px 이 되어 나머지 셋과 **정확히 같아진다**.
+   (사장님은 15% 를 말씀하셨지만 재보니 그건 절반만 메우는 값이었다 — 71px, 사람 55px)
+   타일이 가운데 정렬이라 위치는 그대로고, 320px 폭 폰에서도 타일 안에 들어간다.
+   ⚠️ mask-size 를 % 로 키우는 방법은 쓰지 말 것 — 상자를 넘는 부분이 잘려
+      클럽 끝이 싹둑 잘린다. */
+.cf-club-ico.ico-iron   { width: 94px;
+  -webkit-mask-image: url("../assets/iron.png");   mask-image: url("../assets/iron.png"); }
 .cf-club-ico.ico-wedge  { -webkit-mask-image: url("../assets/wedge.png");  mask-image: url("../assets/wedge.png"); }
 .cf-club-ico.ico-putter { -webkit-mask-image: url("../assets/putter.png"); mask-image: url("../assets/putter.png"); }
 /* 클럽 이름에 색 — 네 가지를 눈으로 바로 구분하게 한다.
