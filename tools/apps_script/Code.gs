@@ -8,6 +8,13 @@
  * ⚠️ 위치 좌표(위도·경도)는 어떤 경우에도 다루지 않는다.
  * ============================================================ */
 
+/* ⚠️ 이 값을 바꾸면 반드시 Apps Script 를 재배포할 것.
+   (배포 관리 → 기존 배포 수정 → 새 버전. 저장만으로는 서버에 반영되지 않는다)
+   tools/verify_deploy.py 가 이 값을 서버에서 읽어와 로컬과 대조한다.
+   두 번이나 "코드는 고쳤는데 배포를 안 해서" 기능이 죽어 있었다:
+     · 기록 백업·복구 (2026-07-27)  · 숙소 객실사진 우선 (2026-07-28) */
+var BACKEND_VER = "2026-07-28b";
+
 var ADMIN_PW = "golf2026!";   // 관리자 통계 조회 비밀번호 — 설치 때 꼭 바꾸세요
 var SHEET_ID = "1XQ6pbcO9pMnxvpL3K-WiMCgqd5WVIupHgi9uS-vmxcM";   // '골프라이프 통계' 시트
 
@@ -121,7 +128,7 @@ function doGet(e) {
     if (p.pw !== ADMIN_PW) return json_({ err: "비밀번호가 틀립니다" });
     return summary_();
   }
-  return json_({ ok: true, service: "golflife-backend" });
+  return json_({ ok: true, service: "golflife-backend", ver: BACKEND_VER });
 }
 
 /* 카카오 플레이스 사진 — 카카오맵 '사진 탭'(가게 ID 기반 공식 사진첩) 그대로.

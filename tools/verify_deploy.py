@@ -106,6 +106,32 @@ def check():
         problems.append(f"app.js 확인 실패: {str(e)[:40]}")
         live = "?"
 
+    # ── 백엔드(Apps Script)가 최신인지 ─────────────────────────────
+    # Apps Script 는 '저장'만으로는 서버에 반영되지 않는다. 배포를 따로 해야 한다.
+    # 이걸 몰라서 두 번이나 기능이 죽은 채로 며칠을 보냈다:
+    #   · 기록 백업·복구 (2026-07-27) — 사장님 기록 손실
+    #   · 숙소 객실사진 우선 (2026-07-28) — 블로그 사진이 계속 나옴
+    # 그래서 로컬 Code.gs 의 판(版) 표시와 서버 응답을 대조한다.
+    try:
+        import json as _json
+        gs = os.path.join(ROOT, "tools", "apps_script", "Code.gs")
+        if os.path.exists(gs):
+            src = open(gs, encoding="utf-8").read()
+            mv = re.search(r'BACKEND_VER\s*=\s*"([^"]+)"', src)
+            murl = re.search(r'RIW_BACKEND\s*=\s*"([^"]+)"',
+                             open(os.path.join(ROOT, "js", "stats.js"), encoding="utf-8").read())
+            if mv and murl:
+                want_ver = mv.group(1)
+                req = urllib.request.Request(murl.group(1), headers={"User-Agent": "Mozilla/5.0"})
+                with urllib.request.urlopen(req, timeout=30) as r:
+                    live_ver = (_json.loads(r.read().decode("utf-8")) or {}).get("ver")
+                if live_ver != want_ver:
+                    problems.append(
+                        f"백엔드가 옛 버전입니다 (서버 {live_ver or '표시없음'} ≠ 로컬 {want_ver}) — "
+                        "Apps Script 에서 '배포 관리 → 기존 배포 수정 → 새 버전' 을 해야 반영됩니다")
+    except Exception as e:
+        warnings.append(f"백엔드 버전 확인 생략 ({str(e)[:40]})")
+
     return problems, want, live, warnings
 
 

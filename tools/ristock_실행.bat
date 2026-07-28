@@ -77,12 +77,16 @@ rem    (ristock/engine/publish.py 의 _원격과합치기 주석에 적힌 실�
 rem     이 배치는 매일 16:40·07:10 에 사장님 모르게 도는데, 그 시각에 골프앱
 rem     index.html 을 열어 두고 계실 수 있습니다.)
 rem    그래서 ristock\data 밖에 저장 안 한 파일이 있으면 **받기를 통째로 건너뜁니다.**
+rem    ※ 예외 하나 — `.sync\<PC이름>.json` 은 tools\sync.py 가 자기 PC 칸을 적어 두는 파일이라
+rem      **받기를 돌릴 때마다 항상 수정된 상태**로 남습니다. 이것까지 '편집 중'으로 세면
+rem      이 PC 에서는 받기가 영원히 건너뛰어집니다(2026-07-28 확인). 각 PC 가 자기 파일만
+rem      쓰므로 충돌하지 않습니다(tools\sync.py 의 write_status 주석 참고).
 rem    데이터 생성에는 아무 지장이 없습니다 — 아래 [2/5] 가 원격의 ristock\data 만
 rem    따로 받아 오고, 데이터는 어차피 매번 전량 다시 만듭니다.
 call :say ""
 call :say "[1/5] 상대 PC 작업 받는 중..."
 set "DIRTY="
-"%PY%" -c "import subprocess,sys;o=subprocess.run(['git','status','--porcelain','--untracked-files=no'],capture_output=True,text=True,encoding='utf-8',errors='replace').stdout;b=[x for x in [l[3:].strip().strip(chr(34)).replace(chr(92),'/') for l in o.splitlines() if len(l)>3] if not x.startswith('ristock/data/')];print(chr(10).join(b));sys.exit(1 if b else 0)" > "%TEMP%\ristock_dirty.txt" 2>nul
+"%PY%" -c "import subprocess,sys;o=subprocess.run(['git','status','--porcelain','--untracked-files=no'],capture_output=True,text=True,encoding='utf-8',errors='replace').stdout;b=[x for x in [l[3:].strip().strip(chr(34)).replace(chr(92),'/') for l in o.splitlines() if len(l)>3] if not x.startswith(('ristock/data/','.sync/'))];print(chr(10).join(b));sys.exit(1 if b else 0)" > "%TEMP%\ristock_dirty.txt" 2>nul
 if errorlevel 1 set "DIRTY=1"
 if defined DIRTY (
   call :say "  건너뜀: 저장하지 않은 파일이 있어 받기를 하지 않았습니다."

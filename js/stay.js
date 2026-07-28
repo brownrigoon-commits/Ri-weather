@@ -14,7 +14,11 @@
  *    (틀릴 수 있으면 표시하지 않는다 — 앱의 절대 원칙)
  * ========================================================= */
 
-const STAY_VIEW = { sort: "reco", cat: "전체" };
+/* 날짜·인원 — 숙소는 "언제 몇 명"이 정해져야 빈방을 알 수 있다(사장님 지적 2026-07-28).
+   우리가 빈방을 알 수는 없지만, 고른 조건을 예약 사이트로 그대로 넘겨
+   유저가 같은 조건을 두 번 입력하지 않게 한다.
+   기본값 = 내일 하루 1박·성인 2명 (골퍼가 가장 많이 쓰는 조합). */
+const STAY_VIEW = { sort: "reco", cat: "전체", nights: 1, adults: 2, rooms: 1, inDate: null };
 const stayCache = new Map();
 
 /* 숙소 종류 — 카카오 카테고리와 상호를 함께 본다.
@@ -129,6 +133,25 @@ function stayRegion(addr) {
   return m ? m[1] : "";
 }
 
+/* 날짜 계산 — 로컬 기준 (toISOString 은 UTC 라 밤에 하루 밀린다) */
+function ymd(d) {
+  return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") +
+         "-" + String(d.getDate()).padStart(2, "0");
+}
+function stayDates() {
+  const inD = STAY_VIEW.inDate ? new Date(STAY_VIEW.inDate + "T12:00:00")
+                               : new Date(Date.now() + 864e5);          // 기본: 내일
+  const outD = new Date(inD.getTime() + Math.max(1, STAY_VIEW.nights) * 864e5);
+  return { ci: ymd(inD), co: ymd(outD) };
+}
+
+/* 예약 사이트는 '방 하나에 몇 명'으로 검색한다(국내 숙박은 객실 단위 판매).
+   그래서 '2명이 방 2개'는 인원 2가 아니라 **1인 기준**으로 찾아야 1인실 요금이 보인다.
+   확인(2026-07-28): 여기어때는 room 같은 객실 수 파라미터를 받지 않는다 → 인원으로 환산한다. */
+function perRoom() {
+  return Math.max(1, Math.ceil(STAY_VIEW.adults / Math.max(1, STAY_VIEW.rooms)));
+}
+
 function stayQuery(it) {
   const region = stayRegion(it.addr);
   let core = String(it.name || "")
@@ -150,9 +173,17 @@ function bookingLinks(it) {
   const { q, byName } = stayQuery(it);
   const e = encodeURIComponent(q);
   const tail = byName ? "" : " 숙소";
+  const { ci, co } = stayDates();
+  const n = perRoom();
+  // ⚠️ 날짜·인원은 '실제로 먹히는 곳'에만 붙인다 (2026-07-28 브라우저로 직접 확인):
+  //   · 여기어때 — checkIn/checkOut/personal 그대로 반영됨 ("8.05 수 - 8.06 목 (1박) 인원 2")
+  //   · 야놀자   — /results?...&checkInDate=.. 는 /discovery/list/search?q=.. 로 넘어가며
+  //                날짜·인원이 버려진다 → 붙여봐야 의미 없으므로 키워드만 보낸다
+  //   확인 안 된 파라미터를 넣으면 엉뚱한 결과가 열려 오히려 신뢰를 깎는다.
   return [
     ["야놀자", `https://nol.yanolja.com/results?keyword=${e}`, "bk-ya", tail],
-    ["여기어때", `https://www.yeogi.com/domestic-accommodations?searchType=KEYWORD&keyword=${e}`, "bk-gc", tail],
+    ["여기어때", `https://www.yeogi.com/domestic-accommodations?searchType=KEYWORD&keyword=${e}` +
+      `&checkIn=${ci}&checkOut=${co}&personal=${n}`, "bk-gc", tail],
     ["네이버", `https://search.naver.com/search.naver?query=${encodeURIComponent(q + " 숙박")}`, "bk-nv", tail],
   ];
 }
@@ -175,6 +206,21 @@ function bookBtn(it) {
   // 없는 숙소일 때 사용자가 속았다고 느낀다 → "검색"으로 정직하게 쓴다. (2026-07-28)
   return bookingLinks(it).map(([t, u, c, tail]) =>
     `<a class="fa-btn ${c}" href="${u}" target="_blank" rel="noopener">${t}${tail}</a>`).join("");
+}
+
+/* 예약 '창구'가 있는지만 알려준다 — 날짜별 빈방 여부가 아니다.
+   vendor = 카카오 예약하기가 제공한 공식 객실사진 수.
+   실측(2026-07-28): 치악산호텔 7, 무인호텔하루 12 → 온라인 예약 채널 O
+                     치악산모텔·카라반리조트 0 → 채널 X (예약앱에서도 안 나옴)
+
+   ⚠️ "예약 가능" 이라고 쓰면 안 된다. 방이 있는지는 날짜·인원을 넣어야 알 수 있고
+      우리는 그 정보를 갖고 있지 않다. 아는 것(=예약 창구의 종류)만 말한다.
+      vendor 가 null 이면 옛 백엔드라 판단 불가 → 아무것도 표시하지 않는다. */
+function bookableTag(it) {
+  if (typeof it.vendor !== "number") return "";
+  return it.vendor > 0
+    ? ' <span class="stay-ok">온라인 예약</span>'
+    : ' <span class="stay-tel">전화 예약</span>';
 }
 
 function renderStayList(list, course) {
@@ -205,6 +251,15 @@ function renderStayList(list, course) {
     });
     parent.appendChild(row);
   };
+  /* 고른 조건 요약 — 바꾸려면 조건 화면으로 되돌아간다 */
+  const { ci, co } = stayDates();
+  const sum = document.createElement("div");
+  sum.className = "stay-cond";
+  sum.innerHTML = `<span>🗓 ${ci} → ${co} · 성인 ${STAY_VIEW.adults}명 · 방 ${STAY_VIEW.rooms}개</span>
+    <button type="button" class="sc-edit">조건 변경</button>`;
+  sum.querySelector(".sc-edit").addEventListener("click", () => renderStayForm(course));
+  bar.appendChild(sum);
+
   const sorts = [["dist", "📍 가까운순"]];
   if (hasRatings) sorts.push(["reco", "⭐ 추천순"]);
   mk(bar, sorts, STAY_VIEW.sort, (v) => { STAY_VIEW.sort = v; });
@@ -243,7 +298,7 @@ function renderStayList(list, course) {
         <span class="fi-emoji">${STAY_ICON[it.kind] || "🛏️"}</span>
         <div style="flex:1;min-width:0">
           <div class="fi-name">${it.name}</div>
-          <div class="fi-sub">${it.kind}${star}</div>
+          <div class="fi-sub">${it.kind}${star}${bookableTag(it)}</div>
         </div>
         <span class="fi-dist">${km}</span>
       </div>
@@ -282,11 +337,69 @@ function loadStayPhotos(it, box) {
   });
 }
 
-async function openStayView() {
+/* 숙박은 조건부터 받는다.
+   "언제 몇 명"이 정해져야 예약 사이트에서 빈방을 볼 수 있고,
+   조건도 모르는 채로 25초짜리 검색을 먼저 돌리는 건 낭비다. (사장님 지시 2026-07-28) */
+function openStayView() {
   const course = currentCourse;
   if (viewStack[viewStack.length - 1] !== "stay") pushView("stay");
   document.querySelector("#stay-title").textContent = "숙박";
   document.querySelector("#stay-desc").textContent = `${course.name} 주변 숙소`;
+  renderStayForm(course);
+}
+
+/* 고른 조건을 사람 말로 — 방을 나눠 잡으면 왜 1인 기준으로 검색하는지도 알려준다.
+   (같이 자기 불편해 방을 따로 잡는 경우가 많다 — 사장님 지적 2026-07-28) */
+function stayCondText() {
+  const d = stayDates();
+  const base = `${d.ci} → ${d.co} · 성인 ${STAY_VIEW.adults}명 · 방 ${STAY_VIEW.rooms}개`;
+  if (STAY_VIEW.rooms <= 1) return base;
+  const n = perRoom();
+  return base + `<br><b>방 하나에 ${n}명</b> 기준으로 찾습니다 — 예약은 방 수만큼 나눠서 하세요.`;
+}
+
+function renderStayForm(course) {
+  const el = document.querySelector("#stay-list");
+  const { ci, co } = stayDates();
+  el.innerHTML = `
+    <div class="stay-form">
+      <div class="sf-title">언제, 몇 분이<br>묵으시나요?</div>
+      <div class="sf-sub">고르신 조건 그대로 예약 사이트가 열립니다.<br>
+        빈방 여부는 예약 사이트에서 확인하실 수 있어요.</div>
+      <div class="stay-when">
+        <div class="sw-row">
+          <label class="sw-f"><span>체크인</span>
+            <input type="date" id="sw-in" value="${ci}" min="${ymd(new Date())}"></label>
+          <label class="sw-f sw-n"><span>숙박</span>
+            <select id="sw-nights">${[1,2,3,4].map((n) =>
+              `<option value="${n}"${n === STAY_VIEW.nights ? " selected" : ""}>${n}박</option>`).join("")}</select></label>
+          <label class="sw-f sw-n"><span>인원</span>
+            <select id="sw-adults">${[1,2,3,4,5,6].map((n) =>
+              `<option value="${n}"${n === STAY_VIEW.adults ? " selected" : ""}>${n}명</option>`).join("")}</select></label>
+        </div>
+        <div class="sw-row sw-room">
+          <label class="sw-f"><span>객실</span>
+            <select id="sw-rooms">${[1,2,3,4].map((n) =>
+              `<option value="${n}"${n === STAY_VIEW.rooms ? " selected" : ""}>${n}개 방</option>`).join("")}</select></label>
+        </div>
+        <div class="sw-note" id="sw-note">${stayCondText()}</div>
+      </div>
+      <button class="cf-btn" id="sw-go">${course.name} 주변 숙소 찾기</button>
+    </div>`;
+
+  const sync = () => {
+    STAY_VIEW.inDate = el.querySelector("#sw-in").value || null;
+    STAY_VIEW.nights = +el.querySelector("#sw-nights").value;
+    STAY_VIEW.adults = +el.querySelector("#sw-adults").value;
+    STAY_VIEW.rooms = +el.querySelector("#sw-rooms").value;
+    el.querySelector("#sw-note").innerHTML = stayCondText();
+  };
+  ["#sw-in", "#sw-nights", "#sw-adults", "#sw-rooms"].forEach((q) =>
+    el.querySelector(q).addEventListener("change", sync));
+  el.querySelector("#sw-go").addEventListener("click", () => { sync(); runStaySearch(course); });
+}
+
+async function runStaySearch(course) {
   document.querySelector("#stay-list").innerHTML = "";
 
   const alive = () => currentCourse === course && viewStack[viewStack.length - 1] === "stay";
