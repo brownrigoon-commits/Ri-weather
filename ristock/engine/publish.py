@@ -324,8 +324,17 @@ def _충돌해결_데이터만():
     return True
 
 
-def _원격과합치기(branch):
+def _원격과합치기(branch, 신원=()):
     """푸시가 거부됐을 때 origin/<branch> 위로 리베이스한다. 성공 여부 반환.
+
+    ⚠ `신원` 을 반드시 받아 넘겨야 합니다. 리베이스는 **커밋을 새로 만드는** 작업이라
+      git 이 작성자·커밋터 이름을 요구합니다. 깃허브 러너처럼 user.name/user.email 이
+      비어 있는 환경에서는 `fatal: empty ident name` 으로 죽습니다.
+      2026-07-28 첫 실제 수집이 정확히 여기서 멈췄습니다 — 미국·한국 수집도,
+      출고 점검도 다 통과했는데 사장님이 같은 시각 골프앱을 push 하신 탓에
+      푸시가 거부되고, 이어진 리베이스가 신원이 없어 실패해 하루치 데이터가 날아갔습니다.
+      (`git -c user.name=…` 는 GIT_CONFIG_PARAMETERS 로 하위 프로세스까지 전달되므로
+       rebase 가 내부에서 부르는 commit 에도 그대로 적용됩니다.)
 
     ⚠ 예전에는 `rebase.autoStash` 를 켜서 "사장님이 편집 중이어도 알아서 비켜 준다"고
       했지만 **그것이 오히려 사장님 파일을 망가뜨렸습니다.**
@@ -361,7 +370,7 @@ def _원격과합치기(branch):
 
     # core.editor=true : 예약 실행 중에 편집기가 떠서 영영 멈추는 일을 막습니다.
     # autoStash 는 위 사고 때문에 일부러 켜지 않습니다.
-    리베이스 = ('-c', 'core.editor=true', '-c', 'rebase.autoStash=false')
+    리베이스 = tuple(신원) + ('-c', 'core.editor=true', '-c', 'rebase.autoStash=false')
     r = git(*리베이스, 'rebase', f'origin/{branch}')
     for _ in range(REBASE_STEPS):
         if r.returncode == 0 and not 충돌파일():
@@ -396,7 +405,7 @@ def _원격과합치기(branch):
     return not 충돌파일()
 
 
-def _푸시(branch, retries=len(PUSH_BACKOFF)):
+def _푸시(branch, retries=len(PUSH_BACKOFF), 신원=()):
     """푸시 — 강제 푸시는 하지 않는다.
 
     · 네트워크 실패      → 2s → 4s → 8s → 16s 로 최대 4회 재시도
@@ -416,7 +425,10 @@ def _푸시(branch, retries=len(PUSH_BACKOFF)):
                 print(f'  ⛔ 다시 합친 뒤에도 거부됐습니다:\n     {err[:300]}')
                 return False
             재합치기했음 = True
-            if not _원격과합치기(branch):
+            # 거부 사유를 반드시 남깁니다. 2026-07-28 에는 이 줄이 없어서
+            # "왜 거부됐는지" 를 로그에서 찾지 못해 원인 파악이 늦어졌습니다.
+            print(f'  · 원격이 앞서 있어 거부됐습니다: {err.splitlines()[-1][:160] if err else "(사유 없음)"}')
+            if not _원격과합치기(branch, 신원):
                 return False
             continue                       # 합쳤으니 곧바로 한 번 더 시도
         if i >= retries:
@@ -461,7 +473,7 @@ def commit_and_push(message=None, branch=None, author=None, runner=None,
         # 그대로 두면 데이터가 이 PC에만 남아 영영 앱에 도달하지 않습니다.
         if push and not dry_run and 밀린데이터커밋(branch):
             print('  · 지난번에 못 보낸 데이터 커밋이 있습니다 — 지금 보냅니다.')
-            return 0 if _푸시(branch) else 1
+            return 0 if _푸시(branch, 신원=_신원인자(author)) else 1
         return 0
 
     print(f'■ 바뀐 데이터 {len(변경)}건')
@@ -501,7 +513,7 @@ def commit_and_push(message=None, branch=None, author=None, runner=None,
 
     if not push:
         return 0
-    return 0 if _푸시(branch) else 1
+    return 0 if _푸시(branch, 신원=_신원인자(author)) else 1
 
 
 # =========================

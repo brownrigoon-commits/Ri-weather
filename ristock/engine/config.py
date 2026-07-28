@@ -12,8 +12,20 @@ import os
 # =========================
 ENGINE_DIR = os.path.dirname(os.path.abspath(__file__))   # ristock/engine
 RISTOCK_DIR = os.path.dirname(ENGINE_DIR)                 # ristock
-REPO_DIR = os.path.dirname(RISTOCK_DIR)                   # 저장소 루트
-DATA_DIR = os.path.join(RISTOCK_DIR, 'data')              # 기본 산출 경로
+
+# 저장소 루트. 평소에는 위 경로에서 자동으로 정해집니다.
+#
+# `RISTOCK_REPO_DIR` 로 덮어쓸 수 있게 열어 둔 이유는 **테스트 때문**입니다.
+# publish.py 는 git 을 직접 다루는데, 진짜 저장소에 대고 시험할 수는 없습니다.
+# (2026-07-28 사고 — 원격이 앞설 때의 리베이스 실패 — 를 재현하려면
+#  임시 저장소를 만들어 그쪽을 가리키게 해야 합니다. test_publish_rebase.py 참고)
+# 실행에는 절대 쓰지 마세요. 엉뚱한 저장소에 데이터를 커밋하게 됩니다.
+REPO_DIR = os.environ.get('RISTOCK_REPO_DIR') or os.path.dirname(RISTOCK_DIR)
+
+# 산출 경로는 **저장소 루트를 따라갑니다.** 평소에는 ristock/data 로 같은 곳을 가리키고,
+# 위 환경변수로 저장소를 바꾸면 데이터 경로도 함께 따라가야 publish 의
+# 경로 계산(DATA_REL)이 어긋나지 않습니다.
+DATA_DIR = os.path.join(REPO_DIR, 'ristock', 'data')      # 기본 산출 경로
 ARCHIVE_DIRNAME = 'archive'                               # <out>/archive/YYYYMMDD/
 EXCEL_DIRNAME = 'xlsx'                                    # <out>/xlsx/ (사장님용 엑셀)
 
