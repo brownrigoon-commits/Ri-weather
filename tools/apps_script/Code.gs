@@ -13,7 +13,7 @@
    tools/verify_deploy.py 가 이 값을 서버에서 읽어와 로컬과 대조한다.
    두 번이나 "코드는 고쳤는데 배포를 안 해서" 기능이 죽어 있었다:
      · 기록 백업·복구 (2026-07-27)  · 숙소 객실사진 우선 (2026-07-28) */
-var BACKEND_VER = "2026-07-28b";
+var BACKEND_VER = "2026-07-28c";
 
 var ADMIN_PW = "golf2026!";   // 관리자 통계 조회 비밀번호 — 설치 때 꼭 바꾸세요
 var SHEET_ID = "1XQ6pbcO9pMnxvpL3K-WiMCgqd5WVIupHgi9uS-vmxcM";   // '골프라이프 통계' 시트
@@ -211,7 +211,7 @@ function placeMeta_(ids) {
   var cache = CacheService.getScriptCache();
   var out = {}, need = [];
   ids.forEach(function (id) {
-    var hit = cache.get("m2" + id);
+    var hit = cache.get("m3" + id);
     if (hit) out[id] = JSON.parse(hit);
     else need.push(id);
   });
@@ -233,12 +233,34 @@ function placeMeta_(ids) {
         var v = { r: 0, c: 0 };
         try {
           if (r.getResponseCode() === 200) {
-            var sc = (JSON.parse(r.getContentText()).kakaomap_review || {}).score_set || {};
+            var d = JSON.parse(r.getContentText());
+            var sc = (d.kakaomap_review || {}).score_set || {};
             v = { r: sc.average_score || 0, c: sc.review_count || 0 };
+            // 숙박: '카카오 예약하기'에 올라온 객실 목록.
+            //   같은 요청에 이미 들어 있어 추가 호출 없이 얻는다.
+            //   ⚠️ 이건 '판매중인 객실 카탈로그'이지 특정 날짜의 빈방이 아니다.
+            //      날짜를 넣어도 응답이 바뀌지 않는 것을 확인했다(2026-07-28).
+            var ar = d.available_rooms || {};
+            var rooms = [], bk = "";
+            (ar.stores || []).forEach(function (st) {
+              if (!bk && st.landing_link) bk = st.landing_link;
+              (st.rooms || []).forEach(function (rm) {
+                if (rooms.length >= 8) return;
+                var rp = rm.rate_plan || {}, oc = rm.occupancy || {};
+                rooms.push({
+                  n: String(rm.name || "").slice(0, 24),          // 더블룸 / 트윈룸 …
+                  s: oc.standard || 0,                            // 기준 인원
+                  m: oc.maximum || oc.standard || 0,              // 최대 인원
+                  p: rp.sales_price || 0,                         // 실판매가
+                  o: rp.product_sale_status === "ON_SALE" ? 1 : 0 // 판매중인가
+                });
+              });
+            });
+            if (rooms.length) { v.rooms = rooms; v.bk = bk; }
           }
         } catch (e2) {}
         out[need[i]] = v;
-        cache.put("m2" + need[i], JSON.stringify(v), 21600);
+        cache.put("m3" + need[i], JSON.stringify(v), 10800);   // 3시간 (요금이 바뀔 수 있다)
       });
     } catch (err) { /* 실패한 것은 생략 — 앱은 평점 없이 거리순 유지 */ }
   }

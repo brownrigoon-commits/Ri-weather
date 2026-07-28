@@ -4,8 +4,8 @@
  * ========================================================= */
 "use strict";
 
-const APP_VER = "v143"; // 배포 버전 (홈 화면 배지에 표시)
-const APP_NOTE = "숙박 예약링크 수정"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
+const APP_VER = "v144"; // 배포 버전 (홈 화면 배지에 표시)
+const APP_NOTE = "숙박: 날짜·인원 입력 제거"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
 const STORAGE_KEY = "riweather.courses.v1";
 const GEM_KEY = "riweather.gemini"; // 정밀 인식(비전 AI) 개인 키 저장소
 // 기본 제공 키 (무료 한도 공유) — 개인 키를 설정하면 그 키가 우선됩니다
@@ -2947,7 +2947,7 @@ async function attachFoodRatings(list) {
   if (!window.RIW_BACKEND) return false;
   const ids = list.map((it) => (((it.url || "").match(/\/(\d+)\/?$/) || [])[1])).filter(Boolean);
   if (!ids.length) return false;
-  const LS = "riweather.foodmeta." + ids.slice(0, 5).join("_");
+  const LS = "riweather.foodmeta3." + ids.slice(0, 5).join("_");
   let meta = null;
   try {
     const c = JSON.parse(localStorage.getItem(LS) || "null");
@@ -2970,6 +2970,9 @@ async function attachFoodRatings(list) {
     const m = (id && meta[id]) || null;
     it.rating = Number(m && m.r) || 0;    // 문자열 "4.5"가 와도 숫자로 (toFixed 오류 방지)
     it.reviews = Number(m && m.c) || 0;
+    // 숙박: 카카오 예약하기에 올라온 객실·실판매가 (옛 백엔드는 안 준다 → undefined)
+    it.rooms = Array.isArray(m && m.rooms) ? m.rooms : null;
+    it.bookUrl = (m && m.bk) || "";
     if (it.rating > 0) any = true;
   });
   return any;
