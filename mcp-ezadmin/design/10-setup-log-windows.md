@@ -18,6 +18,30 @@
 
 ## 회사 PC 설치 절차 (그대로 따라 하기)
 
+### 0. ⚠️ 반드시 '명령 프롬프트(cmd)' 에서 실행할 것
+
+아래 명령은 전부 **cmd 문법**이다. **PowerShell 에서는 동작하지 않는다.**
+회사 PC에서 실제로 이 함정에 걸렸다.
+
+- PowerShell 에서는 `&`(명령 연결), `2>nul`, `rmdir /s /q` 가 전부 오류가 난다
+- 더 위험한 것: PowerShell 의 **`where` 는 `Where-Object` 의 별칭**이라
+  `where python` 이 **아무것도 출력하지 않는다.** 이걸 "Python 이 없다"로 오해하기 쉽다
+
+**cmd 여는 법**: `윈도우키 + R` → `cmd` → Enter
+(PowerShell 창이 이미 열려 있다면 거기에 `cmd` 라고 입력해도 cmd 로 전환된다)
+
+PowerShell 을 꼭 써야 한다면 대응표:
+
+| cmd | PowerShell |
+|---|---|
+| `where python` | `where.exe python` 또는 `Get-Command python` |
+| `A & B` | `A; B` |
+| `mkdir C:\work 2>nul` | `New-Item -ItemType Directory -Force C:\work` |
+| `rmdir /s /q <경로>` | `Remove-Item -Recurse -Force <경로>` |
+| `cd /d C:\work` | `cd C:\work` |
+| `copy A B` | `Copy-Item A B` |
+| `taskkill /f /im claude.exe` | `Stop-Process -Name claude -Force` |
+
 ### 1. Python·git 위치 확인
 ```bat
 where python

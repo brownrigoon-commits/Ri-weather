@@ -23,7 +23,12 @@
 
 ## 1. 설치 (Windows, 한 번만)
 
-명령 프롬프트(cmd)를 열고 아래를 순서대로 실행하세요.
+> ⚠️ **명령 프롬프트(cmd)에서 실행하세요. PowerShell 에서는 동작하지 않습니다.**
+> cmd 여는 법: `윈도우키 + R` → `cmd` → Enter
+> (PowerShell 창에 `cmd` 를 입력해도 전환됩니다)
+> PowerShell 대응 명령은 [design/10](design/10-setup-log-windows.md) 의 표를 보세요.
+
+아래를 순서대로 실행합니다.
 
 **먼저 이 PC의 Python 위치를 확인합니다** (PC마다 다릅니다):
 ```bat
