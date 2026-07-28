@@ -170,7 +170,7 @@ TWA 는 `https://<host>/.well-known/assetlinks.json` 에 서명키 지문이 있
 | 4 | 검증 하네스에 배너·manifest 검사 추가 | `ristock/tests/verify_pwa.mjs` |
 | 5 | TWA 프로젝트 | `ristock-app/` 신규 |
 | 6 | APK 빌드 워크플로 | `.github/workflows/ristock-apk.yml` 신규 |
-| 7 | 문서 | `docs/ristock_사용안내.md`(설치 장 추가), `HANDOFF.md`(진행 상황), `CLAUDE.md`(영역표에 ristock-app 추가) |
+| 7 | 문서 | `docs/ristock_사용안내.md`(설치 장 추가), `docs/ristock_인수인계.md`(진행 상황), `CLAUDE.md`(영역표에 ristock-app 추가) |
 
 `sw.js` 의 `CORE` 목록에 새 정적 파일(스플래시는 제외 — iOS 가 알아서 캐시함, maskable 아이콘만 추가)을
 반영하는 것을 잊지 마라. **캐시 이름 `ristock-v1` 은 올리지 않는다** (네트워크 우선이라 불필요, CLAUDE.md 참고).
@@ -183,7 +183,7 @@ TWA 는 `https://<host>/.well-known/assetlinks.json` 에 서명키 지문이 있
 3. manifest: Chrome DevTools 기준 설치 가능 판정(필수 필드·아이콘 크기) — playwright 로 점검
 4. 스플래시: 6종 PNG 존재·해상도 일치·총합 300KB 이하를 검사하는 스크립트
 5. APK 워크플로: YAML 문법 + Secrets 없는 상태에서 dispatch 시 한국어 안내로 실패하는지
-   (실제 APK 빌드는 Secrets 가 생겨야 가능 — HANDOFF 에 "미검증" 으로 정직하게 기록)
+   (실제 APK 빌드는 Secrets 가 생겨야 가능 — `docs/ristock_인수인계.md` 에 "미검증" 으로 정직하게 기록)
 6. `tools/ristock_출고점검.py` 통과 + 커밋 전 민감 파일 스캔 (키스토어·비밀번호가 절대 없어야 함)
 
 ## 7. 사장님 결정 대기 (구현과 무관하게 먼저 물어볼 것)

@@ -12,7 +12,8 @@
 >
 > 두 앱은 **파일이 전혀 겹치지 않습니다.** 골프 작업을 할 때 `ristock/` 을 건드릴 일이 없고,
 > 그 반대도 마찬가지입니다. 배포 도구도 서로 다릅니다(아래 도구 표 참고).
-> Ri_Stock 의 지금 상태와 다음 할 일은 `HANDOFF.md` 맨 앞에 있습니다.
+> **문서도 앱별로 나눠 둡니다.** 골프앱은 `HANDOFF.md`, Ri_Stock 은 `docs/ristock_인수인계.md`.
+> 한 문서에 둘을 같이 적으면 집·회사에서 동시에 고칠 때 그 파일에서 충돌이 납니다(2026-07-28 실제 발생).
 
 ## 🔄 동시 작업 프로토콜 (가장 중요)
 
@@ -201,4 +202,4 @@ node ristock/tests/verify_phone_e2e.mjs           # 폰 크기 전체 동선
 - Python: `C:\Python314\python.exe` (selenium·pillow 설치됨)
 - 로컬 서버: `python -m http.server 8734` → http://localhost:8734
 - 배포처: GitHub Pages (push 후 1~2분)
-- 상세 이력·다음 작업은 `HANDOFF.md` 참고
+- 상세 이력·다음 작업 — 골프앱은 `HANDOFF.md`, Ri_Stock 은 `docs/ristock_인수인계.md`
