@@ -114,7 +114,7 @@ function doPost(e) {
 /* ---------- 조회 (관리자 화면 / 사진 프록시) ---------- */
 function doGet(e) {
   var p = (e && e.parameter) || {};
-  if (p.fn === "placephotos") return placePhotos_(p.id);
+  if (p.fn === "placephotos") return placePhotos_(p.id, p.kind);
   if (p.fn === "placemeta") return placeMeta_(p.ids);
   if (p.fn === "restore") return backupLoad_(p.code);
   if (p.fn === "summary") {
@@ -135,18 +135,25 @@ function kakaoHeaders_(id) {
   };
 }
 
-function placePhotos_(id) {
+function placePhotos_(id, kind) {
   id = String(id || "").replace(/\D/g, "");
   if (!id) return json_({ photos: [] });
+  var stay = String(kind || "") === "stay";
   var cache = CacheService.getScriptCache();
-  var hit = cache.get("p5" + id);
+  var ck = (stay ? "s5" : "p5") + id;
+  var hit = cache.get(ck);
   if (hit) return json_(JSON.parse(hit));
   var out = { photos: [], rating: 0, reviews: 0 };
   var dbg = { code: 0 };
   try {
-    // 카카오맵 '사진 탭'을 분류별로 병렬 조회 — 음식 → 메뉴판 → 실내 → 실외 → 기타 순으로 채운다
+    // 카카오맵 '사진 탭'을 분류별로 병렬 조회.
+    // 맛집: 음식 → 메뉴판 → 실내 → 실외 → 기타
+    // 숙박: 업주등록(VENDOR) → 실내 → 실외 → 기타.
+    //   카카오에는 '객실' 태그가 없고 INDOOR 에 객실·욕실·로비가 뒤섞여 들어온다.
+    //   업주가 직접 올린 사진이 대표 객실컷인 경우가 많아 그걸 앞세운다. (2026-07-28)
     var base = "https://place-api.map.kakao.com/places/tab/photos/" + id;
-    var tags = ["FOOD", "MENU", "INDOOR", "OUTDOOR", ""];
+    var tags = stay ? ["MYSTORE", "VENDOR", "INDOOR", "OUTDOOR", ""]
+                    : ["FOOD", "MENU", "INDOOR", "OUTDOOR", ""];
     var reqs = tags.map(function (t) {
       return { url: base + "?page=1" + (t ? "&tag=" + t : ""),
                headers: kakaoHeaders_(id), muteHttpExceptions: true };
@@ -178,7 +185,7 @@ function placePhotos_(id) {
     }
   } catch (err) { dbg.err = String(err).slice(0, 80); }
   out.dbg = dbg;
-  cache.put("p5" + id, JSON.stringify(out), 21600);   // 6시간 캐시
+  cache.put(ck, JSON.stringify(out), 21600);   // 6시간 캐시
   return json_(out);
 }
 

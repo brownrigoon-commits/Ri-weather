@@ -4,8 +4,8 @@
  * ========================================================= */
 "use strict";
 
-const APP_VER = "v131"; // 배포 버전 (홈 화면 배지에 표시)
-const APP_NOTE = "구장 등록 배포"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
+const APP_VER = "v132"; // 배포 버전 (홈 화면 배지에 표시)
+const APP_NOTE = "숙박 화면 정리"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
 const STORAGE_KEY = "riweather.courses.v1";
 const GEM_KEY = "riweather.gemini"; // 정밀 인식(비전 AI) 개인 키 저장소
 // 기본 제공 키 (무료 한도 공유) — 개인 키를 설정하면 그 키가 우선됩니다
@@ -2637,13 +2637,25 @@ async function openFoodView() {
         if (!alive()) { w.close(); return; }
 
         w.say("맛집 사진을 모으고 있어요", 68);
-        try { await prefetchFoodPhotos(list); } catch (_) { /* 사진은 없으면 없는 대로 */ }
+        let shown = [];
+        try {
+          shown = await attachPhotos(list, "food",
+            (d, t) => w.say(`맛집 사진을 모으고 있어요 (${d}/${t})`, 68 + Math.round((d / t) * 20)));
+        } catch (_) { shown = []; }
         if (!alive()) { w.close(); return; }
+
+        // 사진이 한 곳도 없으면 목록을 비우는 대신 이유를 밝힌다 (백엔드 장애일 수 있다)
+        if (!shown.length) {
+          listEl.innerHTML =
+            '<p class="food-osm-empty">사진을 불러오지 못했습니다.<br>잠시 후 다시 열어 주세요.</p>';
+          w.close();
+          return;
+        }
 
         w.say("추천순으로 정리하고 있어요", 92);
         FOOD_VIEW.sort = "reco";
         FOOD_VIEW.cat = "전체";
-        renderFoodList(list, region, true);
+        renderFoodList(shown, region, true);
         staggerIn(listEl);
         w.close();
         return;
@@ -2768,40 +2780,59 @@ const foodPid = (it) => (((it.url || "").match(/\/(\d+)\/?$/) || [])[1]);
    여기서는 형식 검증만 한다 (http 이미지 URL). */
 const genuinePhotos = (arr) => (arr || []).filter((u) => typeof u === "string" && /^https?:\/\//.test(u));
 
-/* 추천 상위 식당의 사진을 미리 받아 로컬에 저장 — 눌렀을 때 기다림 없이 뜨게 */
-async function prefetchFoodPhotos(list) {
-  if (!window.RIW_BACKEND) return;
-  // 이제 이 함수가 끝나야 목록이 보이므로, 순차로 돌면 사용자를 하염없이 기다리게 한다.
-  // → 병렬로 받되 전체 8초 예산을 넘기면 받은 만큼만 쓰고 넘어간다.
-  // 45곳 사진을 전부 미리 받으면 대기가 너무 길어진다.
-  // 첫 화면들에서 실제로 보이는 12곳까지만 미리 받고, 나머지는 스크롤할 때 채운다.
-  const top = list.slice().sort((a, b) => recoScore(b) - recoScore(a)).slice(0, 12);
+/* 사진을 미리 다 받아 it.photos 에 담고, **사진 있는 곳만** 돌려준다.
+ *
+ * 사진 없이 이름만 있는 카드("카카오맵에서 사진 보기")는 오히려 신뢰를 깎는다는
+ * 사장님 지적(2026-07-28). 우리는 이미지로 승부하므로 사진 없는 업체는 아예 뺀다.
+ * 그래서 렌더 전에 전 목록의 사진 유무를 알아야 한다 — 상위 12곳만 미리 받던
+ * 예전 방식으로는 판단이 불가능하다.
+ *
+ * kind: "stay" 면 숙박용 사진 정렬(업주 객실컷 우선)과 별도 캐시를 쓴다.
+ * onProgress(done, total) 로 대기 화면에 진행률을 알려준다.
+ */
+async function attachPhotos(list, kind, onProgress) {
+  const qs = kind === "stay" ? "&kind=stay" : "";
+  const pre = kind === "stay" ? "riweather.stayph1." : "riweather.placeph5.";
+  let done = 0;
   const one = async (it) => {
-    const pid = foodPid(it);
-    if (!pid) return;
-    const LS = "riweather.placeph5." + pid;
-    let cached = null;
+    const pid = it.id || foodPid(it);
+    if (!pid) { it.photos = []; return; }
+    const LS = pre + pid;
     try {
       const c = JSON.parse(localStorage.getItem(LS) || "null");
-      if (c && Date.now() - c.t < 7 * 864e5) cached = c.d;
+      if (c && Date.now() - c.t < 7 * 864e5) { it.photos = genuinePhotos(c.d); return; }
     } catch (_) {}
-    if (!cached) {
-      try {
-        const r = await fetchT(window.RIW_BACKEND + "?fn=placephotos&id=" + pid, null, 7000);
-        cached = genuinePhotos((await r.json()).photos).slice(0, 10);
-        try { localStorage.setItem(LS, JSON.stringify({ t: Date.now(), d: cached })); } catch (_) {}
-      } catch (_) { return; }
+    if (!window.RIW_BACKEND) { it.photos = []; return; }
+    try {
+      const r = await fetchT(window.RIW_BACKEND + "?fn=placephotos&id=" + pid + qs, null, 8000);
+      it.photos = genuinePhotos((await r.json()).photos).slice(0, 10);
+      try { localStorage.setItem(LS, JSON.stringify({ t: Date.now(), d: it.photos })); } catch (_) {}
+    } catch (_) { it.photos = []; }
+  };
+  // 동시 8개씩 — 한꺼번에 45개를 던지면 백엔드가 막힌다
+  let i = 0;
+  const worker = async () => {
+    while (i < list.length) {
+      const it = list[i++];
+      await one(it);
+      done++;
+      if (onProgress && done % 5 === 0) onProgress(done, list.length);
     }
-    // 썸네일을 미리 받아둬야 목록이 뜰 때 사진이 이미 그려져 있다
-    await Promise.all(genuinePhotos(cached).slice(0, 3).map((u) => new Promise((res) => {
+  };
+  await Promise.all(Array.from({ length: 8 }, worker));
+
+  const withPhoto = list.filter((x) => (x.photos || []).length);
+  // 첫 장들은 미리 받아둬야 목록이 뜰 때 사진이 이미 그려져 있다
+  await Promise.race([
+    Promise.all(withPhoto.slice(0, 12).map((it) => new Promise((res) => {
       const im = new Image();
       im.onload = im.onerror = res;
-      im.src = foodThumb(u);
-      setTimeout(res, 3500);          // 느린 이미지 하나가 전체를 잡지 않게
-    })));
-  };
-  const budget = new Promise((res) => setTimeout(res, 9000));
-  await Promise.race([Promise.allSettled(top.map(one)), budget]);
+      im.src = foodThumb(it.photos[0]);
+      setTimeout(res, 3000);
+    }))),
+    new Promise((res) => setTimeout(res, 6000)),
+  ]);
+  return withPhoto;
 }
 
 function renderFoodList(list, region, fromKakao) {
@@ -2867,54 +2898,30 @@ function renderFoodList(list, region, fromKakao) {
     return;
   }
 
-  /* 사진 로더 (공용) — 캐시 → 백엔드, 실패 시 카카오맵 링크 */
-  async function loadFoodPhotos(it, photos, compactFallback) {
-    const pid = ((it.url || "").match(/\/(\d+)\/?$/) || [])[1];
-    const placeBtn = () => {
-      photos.innerHTML = it.url
-        ? (compactFallback
-            ? `<a class="fi-place-mini" href="${it.url}" target="_blank" rel="noopener">📷 카카오맵에서 사진·메뉴 보기</a>`
-            : `<a class="fi-place-btn" href="${it.url}" target="_blank" rel="noopener">📷 실제 매장 사진·메뉴 보기 <small>카카오맵 등록 사진</small></a>`)
-        : "";
-    };
-    photos.hidden = false;
-    if (!window.RIW_BACKEND || !pid) { placeBtn(); return; }
-    try {
-      const LS = "riweather.placeph5." + pid;
-      let list = null;
-      try {
-        const c = JSON.parse(localStorage.getItem(LS) || "null");
-        if (c && Date.now() - c.t < 7 * 864e5) list = c.d;
-      } catch (_) {}
-      if (!list) {
-        const r = await fetchT(window.RIW_BACKEND + "?fn=placephotos&id=" + pid, null, 10000);
-        list = genuinePhotos((await r.json()).photos).slice(0, 10);
-        try { localStorage.setItem(LS, JSON.stringify({ t: Date.now(), d: list })); } catch (_) {}
-      }
-      list = genuinePhotos(list);
-      if (!list.length) { placeBtn(); return; }
-      const imgs = list.map((u) => ({ t: foodThumb(u), u: u }));
-      photos.innerHTML = imgs
-        .map((im, k) => `<img src="${im.t}" data-k="${k}" alt="${it.name}" loading="lazy">`)
-        .join("");
-      photos.querySelectorAll("img").forEach((el) => {
-        el.addEventListener("click", () => openLightbox(imgs, +el.dataset.k));
-        el.addEventListener("error", () => { el.remove(); if (!photos.querySelector("img")) placeBtn(); });
-      });
-    } catch (_) { placeBtn(); }
+  /* 사진 그리기 — attachPhotos() 가 이미 받아 둔 it.photos 만 쓴다.
+     목록에 오른 곳은 사진이 있음이 보장되므로 "카카오맵에서 사진 보기" 대체 링크는 없앴다.
+     (사진 없는 카드는 아예 목록에서 빠진다 — 2026-07-28) */
+  async function loadFoodPhotos(it, photos) {
+    if (!photos) return;
+    const list = genuinePhotos(it.photos);
+    photos.hidden = !list.length;
+    if (!list.length) return;
+    const imgs = list.map((u) => ({ t: foodThumb(u), u: u }));
+    photos.innerHTML = imgs
+      .map((im, k) => `<img src="${im.t}" data-k="${k}" alt="${it.name}" loading="lazy">`)
+      .join("");
+    photos.querySelectorAll("img").forEach((el) => {
+      el.addEventListener("click", () => openLightbox(imgs, +el.dataset.k));
+      el.addEventListener("error", () => el.remove());
+    });
   }
 
   /* ── 새 카드(전면 펼침) — FOOD_UI_V2. 기존 접이식은 아래 else에 보존 ── */
   if (typeof FOOD_UI_V2 !== "undefined" && FOOD_UI_V2) {
-    const io = ("IntersectionObserver" in window)
-      ? new IntersectionObserver((ents) => {
-          ents.forEach((en) => {
-            if (!en.isIntersecting) return;
-            io.unobserve(en.target);
-            loadFoodPhotos(en.target._it, en.target.querySelector(".fi-photos"), true);
-          });
-        }, { rootMargin: "300px" })
-      : null;
+    // 예전엔 IntersectionObserver 로 스크롤할 때 사진을 받아왔는데,
+    // 이제 attachPhotos() 가 목록을 만들기 전에 전부 받아 두므로 바로 그리면 된다.
+    // (관찰이 안 걸려 사진이 영영 안 뜨는 사고가 있었다 — 2026-07-28)
+    // 실제 이미지 내려받기는 <img loading="lazy"> 가 알아서 미룬다.
     shown.forEach((it) => {
       const km = it.dist < 950 ? it.dist + "m" : (it.dist / 1000).toFixed(1) + "km";
       const tel = (it.phone || "").replace(/[^0-9+]/g, "");
@@ -2939,8 +2946,7 @@ function renderFoodList(list, region, fromKakao) {
           <a class="fa-btn fa-naver" href="https://m.search.naver.com/search.naver?query=${encodeURIComponent((region ? region + " " : "") + it.name)}" target="_blank" rel="noopener"><b>N</b>리뷰</a>
         </div>`;
       div._it = it;
-      if (io) io.observe(div);                       // 숨김 요소는 관찰이 안 되므로 카드를 관찰
-      else loadFoodPhotos(it, div.querySelector(".fi-photos"), true);
+      loadFoodPhotos(it, div.querySelector(".fi-photos"));
       listEl.appendChild(div);
     });
     return;
