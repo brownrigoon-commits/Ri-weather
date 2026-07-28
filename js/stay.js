@@ -17,41 +17,72 @@
 const STAY_VIEW = { sort: "reco", cat: "전체" };
 const stayCache = new Map();
 
-/* 숙소 종류 — 카카오 카테고리 문자열을 우리 말로 묶는다 */
-function stayKind(cat) {
-  const c = cat || "";
-  if (/리조트|콘도/.test(c)) return "리조트";
-  if (/호텔/.test(c)) return "호텔";
-  if (/펜션|풀빌라/.test(c)) return "펜션";
-  if (/모텔|여관/.test(c)) return "모텔";
+/* 숙소 종류 — 카카오 카테고리와 상호를 함께 본다.
+ *
+ * 무인텔은 카카오가 따로 분류하지 않고 전부 "여관,모텔"로 넣는다
+ * (아리아무인텔·더자라무인텔·블랙앤화이트무인텔 실측 확인, 2026-07-28).
+ * 골퍼가 실제로 많이 쓰는 유형이라 상호에서 잡아 따로 보여준다.
+ */
+function stayKind(cat, name) {
+  const c = cat || "", n = name || "";
+  if (/무인/.test(n)) return "무인텔";
+  if (/리조트|콘도/.test(c) || /리조트|콘도|골프텔/.test(n)) return "리조트";
+  if (/호텔/.test(c) || /호텔/.test(n)) return "호텔";
+  if (/모텔|여관/.test(c) || /모텔|여관/.test(n)) return "모텔";
+  if (/펜션|풀빌라/.test(c) || /펜션|풀빌라/.test(n)) return "펜션";
   if (/게스트|민박|한옥/.test(c)) return "게스트하우스";
-  if (/캠핑|글램핑/.test(c)) return "캠핑";
+  if (/캠핑|글램핑|카라반/.test(c)) return "캠핑";
   return "기타";
 }
+
+/* 라운딩 전후로 하룻밤 묵는 곳만 보여준다.
+   펜션·캠핑·게스트하우스는 골프 목적에 맞지 않는다는 사장님 판단(2026-07-28).
+   업종 미상("기타")도 뺀다 — 무엇인지 모르는 곳을 권할 수는 없다. */
+const STAY_ALLOW = ["무인텔", "모텔", "호텔", "리조트"];
+
 const STAY_ICON = {
-  "리조트": "🏨", "호텔": "🏨", "펜션": "🏡", "모텔": "🛏️",
-  "게스트하우스": "🏠", "캠핑": "⛺", "기타": "🛏️",
+  "리조트": "🏨", "호텔": "🏨", "무인텔": "🔑", "모텔": "🛏️",
+  "펜션": "🏡", "게스트하우스": "🏠", "캠핑": "⛺", "기타": "🛏️",
 };
+
+/* 유형별 키워드로 나눠 찾는다.
+ *
+ * 예전엔 숙박 카테고리(AD5) 하나로 훑었는데, 카카오가 **45건에서 자르기 때문에**
+ * 가까운 펜션·캠핑장이 그 45칸을 채워버리고 정작 모텔이 밀려났다.
+ * 실측(2026-07-28): 알프스대영CC 는 200m 앞에 모텔이 있는데도 카테고리 검색엔
+ * 안 잡혔고, 신라CC 는 쓸 만한 곳이 2곳뿐이었다.
+ * 키워드별로 따로 부르면 각각 45건씩 받으므로 신라CC 2곳 → 81곳이 된다.
+ */
+const STAY_KEYWORDS = ["모텔", "무인텔", "호텔", "여관", "리조트"];
+const STAY_MAX = 40;          // 사진 확인은 한 곳당 요청 1건이라 가까운 순으로 잘라 쓴다
 
 async function fetchKakaoStay(course) {
   const ck = course.lat.toFixed(3) + "," + course.lon.toFixed(3);
   if (stayCache.has(ck)) return stayCache.get(ck);
-  const out = [];
-  // 숙소는 식당보다 드물어 반경을 넓게(10km) 잡는다
-  const pages = await Promise.all([1, 2, 3].map((page) =>
-    kakaoApi("https://dapi.kakao.com/v2/local/search/category.json" +
-      `?category_group_code=AD5&x=${course.lon}&y=${course.lat}&radius=10000&sort=distance&page=${page}&size=15`)
-      .catch(() => ({}))));
-  const seen = new Set();
+
+  const reqs = [];
+  STAY_KEYWORDS.forEach((kw) => {
+    [1, 2, 3].forEach((page) => {
+      reqs.push(kakaoApi("https://dapi.kakao.com/v2/local/search/keyword.json" +
+        `?query=${encodeURIComponent(kw)}&category_group_code=AD5` +
+        `&x=${course.lon}&y=${course.lat}&radius=20000&sort=distance&page=${page}&size=15`)
+        .catch(() => ({})));
+    });
+  });
+  const pages = await Promise.all(reqs);
+
+  const out = [], seen = new Set();
   pages.forEach((j) => {
     (j.documents || []).forEach((d) => {
       if (seen.has(d.id)) return;
       seen.add(d.id);
+      const kind = stayKind(d.category_name, d.place_name);
+      if (STAY_ALLOW.indexOf(kind) < 0) return;      // 펜션·캠핑·게하 등은 제외
       out.push({
         id: d.id,
         name: d.place_name,
         cat: (d.category_name || "").split(">").pop().trim(),
-        kind: stayKind(d.category_name),
+        kind: kind,
         phone: d.phone || "",
         addr: d.road_address_name || d.address_name || "",
         lat: parseFloat(d.y), lon: parseFloat(d.x),
@@ -61,8 +92,9 @@ async function fetchKakaoStay(course) {
     });
   });
   out.sort((a, b) => a.dist - b.dist);
-  stayCache.set(ck, out);
-  return out;
+  const near = out.slice(0, STAY_MAX);
+  stayCache.set(ck, near);
+  return near;
 }
 
 /* 예약 사이트 검색 링크 — 실제로 열리는 주소만 쓴다 (2026-07-27 응답코드 확인) */
@@ -98,7 +130,8 @@ function renderStayList(list, course) {
   const el = document.querySelector("#stay-list");
   el.innerHTML = "";
   if (!list.length) {
-    el.innerHTML = '<p class="food-osm-empty">골프장 10km 안에서 숙소를 찾지 못했습니다.</p>';
+    el.innerHTML = '<p class="food-osm-empty">골프장 20km 안에서 묵을 만한 곳을 찾지 못했습니다.<br>' +
+      '<small>호텔·모텔·무인텔 위주로 찾습니다.</small></p>';
     return;
   }
 
@@ -124,13 +157,15 @@ function renderStayList(list, course) {
   const sorts = [["dist", "📍 가까운순"]];
   if (hasRatings) sorts.push(["reco", "⭐ 추천순"]);
   mk(bar, sorts, STAY_VIEW.sort, (v) => { STAY_VIEW.sort = v; });
-  mk(bar, ["전체", ...new Set(list.map((x) => x.kind))].map((k) => [k, k]),
+  // 칩 순서는 STAY_ALLOW 를 따른다 — 목록에 들어온 순서대로 두면 갈 때마다 자리가 바뀐다
+  const have = new Set(list.map((x) => x.kind));
+  mk(bar, ["전체", ...STAY_ALLOW.filter((k) => have.has(k))].map((k) => [k, k]),
     STAY_VIEW.cat, (v) => { STAY_VIEW.cat = v; });
   el.appendChild(bar);
 
   const note = document.createElement("p");
   note.className = "food-osm-sub";
-  note.innerHTML = `${course.name} 기준 가까운 순 · 사진이 등록된 숙소만 보여줍니다<br>` +
+  note.innerHTML = `${course.name} 기준 가까운 순 · 하룻밤 묵기 좋은 곳(호텔·모텔·무인텔)만 골랐습니다<br>` +
     `<b>요금은 예약 사이트에서 확인</b>하세요 — 날짜·인원에 따라 달라집니다.`;
   el.appendChild(note);
 
