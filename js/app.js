@@ -4,8 +4,8 @@
  * ========================================================= */
 "use strict";
 
-const APP_VER = "v138"; // 배포 버전 (홈 화면 배지에 표시)
-const APP_NOTE = "숙박 예약앱 3종"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
+const APP_VER = "v139"; // 배포 버전 (홈 화면 배지에 표시)
+const APP_NOTE = "예보지도 캐시 30분→3시간, 한도 초과 시 기상청 레이더로 자동 전환·"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
 const STORAGE_KEY = "riweather.courses.v1";
 const GEM_KEY = "riweather.gemini"; // 정밀 인식(비전 AI) 개인 키 저장소
 // 기본 제공 키 (무료 한도 공유) — 개인 키를 설정하면 그 키가 우선됩니다
@@ -208,11 +208,13 @@ function makeGrid(centerLat, centerLon) {
 
 const GRID_LS = "riweather.precipgrid";
 async function fetchPrecipGrid(GRID) {
-  // 같은 골프장 지도를 다시 열 때마다 49건씩 또 쓰지 않도록 30분 캐시
+  // 격자 1칸 = 호출 1건이라 이 지도가 하루 한도의 대부분을 먹는다.
+  // 모레까지의 강수 예보는 3시간 안에 의미 있게 바뀌지 않으므로 캐시를 길게 잡는다.
+  // (30분 → 3시간: 같은 사용자의 호출이 6분의 1로 준다. 2026-07-28)
   const ck = [GRID.latMax, GRID.lonMin, GRID.nLat, GRID.nLon].join(",");
   try {
     const c = JSON.parse(localStorage.getItem(GRID_LS) || "null");
-    if (c && c.k === ck && Date.now() - c.t < 30 * 60000) return c.d;
+    if (c && c.k === ck && Date.now() - c.t < 180 * 60000) return c.d;
   } catch (_) {}
   const lats = [], lons = [];
   // 북→남, 서→동 순서 (캔버스 픽셀 순서와 일치)
@@ -1148,6 +1150,7 @@ function renderDetail(d, air) {
  * ========================================================= */
 let map = null;
 let mapMode = "fc";              // 'fc' 예보 | 'rv' 실황
+let mapAutoRv = false;           // 예보 지도가 막혀서 '자동으로' 실황으로 넘어간 상태인가
 let playTimer = null;
 
 /* 실황(RainViewer) 상태 */
@@ -1333,6 +1336,14 @@ const gridCache = new Map(); // 같은 지점 재방문 시 API 재호출 방지
 
 async function buildForecastFrames(detailData) {
   $("#radar-updated").textContent = "예보 지도 생성 중...";
+  // 한도가 풀렸을 수 있으니 매번 원래 상태로 되돌려 놓고 시작한다.
+  // 사용자가 직접 실황 탭을 고른 경우는 건드리지 않고, 막혀서 자동으로 넘어갔던 때만 되돌린다.
+  const fcBtn0 = document.querySelector('.mode-btn[data-mode="fc"]');
+  if (fcBtn0 && fcBtn0.disabled) {
+    fcBtn0.disabled = false;
+    fcBtn0.innerHTML = '강수 예보 <small>모레까지</small>';
+  }
+  if (mapAutoRv) { mapAutoRv = false; setMode("fc"); }
   const GRID = makeGrid(currentCourse.lat, currentCourse.lon); // 골프장 중심 격자
   const cacheKey = currentCourse.lat.toFixed(2) + "," + currentCourse.lon.toFixed(2);
   const openedFor = currentCourse;
@@ -1342,8 +1353,23 @@ async function buildForecastFrames(detailData) {
       grid = await fetchPrecipGrid(GRID);
       gridCache.set(cacheKey, grid);
       if (gridCache.size > 12) gridCache.delete(gridCache.keys().next().value);
-    } catch {
-      $("#radar-updated").textContent = "예보 지도는 잠시 후 다시 시도됩니다";
+    } catch (e) {
+      // 예보 지도가 막혀도 지도 화면을 빈손으로 두지 않는다.
+      // 기상청 레이더는 키도 한도도 없으므로 국내 구장이면 그쪽으로 넘긴다. (2026-07-28)
+      const quota = String(e && e.message) === "WX_QUOTA";
+      // 눌러도 안 되는 탭을 그대로 두면 사용자는 앱이 고장난 줄 안다
+      const fcBtn = document.querySelector('.mode-btn[data-mode="fc"]');
+      if (fcBtn && quota) {
+        fcBtn.disabled = true;
+        fcBtn.innerHTML = '강수 예보 <small>잠시 후 이용</small>';
+      }
+      if (isKRCourse()) {
+        mapAutoRv = true;
+        setMode("rv");
+      } else {
+        $("#radar-updated").textContent =
+          quota ? "예보 지도는 잠시 후 다시 이용할 수 있어요" : "예보 지도는 잠시 후 다시 시도됩니다";
+      }
       return;
     }
   }
@@ -1426,6 +1452,7 @@ async function buildForecastFrames(detailData) {
 document.querySelectorAll(".mode-btn").forEach((btn) => {
   btn.addEventListener("click", () => {
     stopPlay();
+    mapAutoRv = false;              // 사용자가 직접 고른 탭은 다음에 되돌리지 않는다
     setMode(btn.dataset.mode);
   });
 });
