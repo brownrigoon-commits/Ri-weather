@@ -17,8 +17,25 @@ GZ = os.path.join(ROOT, "coursedata", "golfzon")
 YARDAGE = os.path.join(GZ, "yardage")
 VIDEO_BASE = "https://mediathumbnail.golfzon.com/media/cc/hole3d/"
 
-TEE_LABEL = [("champTee", "챔피언"), ("backTee", "백"), ("regularTee", "레귤러"),
+# 골프존 필드명은 한국 골프장의 티 호칭과 어긋난다.
+# 전수 검증(9,054홀 / 1,006코스): backTee 가 champTee 보다 긴 코스 961개,
+# 같은 코스 45개, 짧은 코스 0개. 즉 골프존의 backTee 가 실제 최장(챔피언) 티다.
+# front/senior/lady 는 순서가 정상이므로 그대로 둔다.
+# 목록은 거리 내림차순이 되도록 이 순서로 나열한다.
+TEE_LABEL = [("backTee", "챔피언"), ("champTee", "백"),
              ("frontTee", "프론트"), ("seniorTee", "시니어"), ("ladyTee", "레이디")]
+
+def trim_ladder(tees):
+    """라벨 순서와 거리 순서가 어긋나면 그 지점부터 잘라낸다. (신뢰 우선 원칙)
+
+    맨 앞 두 티가 뒤집혀 있으면 어느 것이 주 티인지 알 수 없으므로 전부 버린다.
+    아래쪽 티만 어긋나면 확실한 앞부분만 남긴다.
+    """
+    for i in range(len(tees) - 1):
+        if tees[i]["m"] < tees[i + 1]["m"]:
+            return [] if i == 0 else tees[:i + 1]
+    return tees
+
 
 def norm(s):
     return re.sub(r"(CC|GC|C\.C|G\.C|컨트리클럽|골프클럽|골프장|골프앤리조트|골프리조트|리조트|컨트리|클럽|\s|·|&|\(.*?\))", "", s or "", flags=re.I).lower()
@@ -86,10 +103,11 @@ def build_club(f):
             for t in tees:
                 if t["m"] not in seen:
                     seen.add(t["m"]); uniq.append(t)
+            uniq = trim_ladder(uniq)
             e = {"no": no, "par": par, "_map": os.path.basename(h.get("mapUrl") or "")}
             if uniq:
                 e["tees"] = uniq
-                e["len"] = uniq[0]["m"]
+                e["len"] = uniq[0]["m"]  # 홀 길이는 최장(챔피언) 티 기준
             hb = h.get("heightBackTee")
             if isinstance(hb, (int, float)) and abs(hb) >= 3:
                 e["elev"] = round(hb)
