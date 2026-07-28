@@ -266,7 +266,16 @@
     const pool = sorted.filter((x) => inBudget(x, budget));
     const use = pool.length ? pool : sorted;
     const cur = use.filter((x) => x.st === "cur");
-    const now = pickByBrand(cur.length ? cur : use, brand, key, ok);
+    /* ⚠️ 선호 브랜드는 '현행 우선'보다 앞선다.
+       테일러메이드·캘러웨이·던롭은 표에 단종 모델뿐이라, 현행만 먼저 보면
+       사장님이 그 브랜드를 골라도 타이틀리스트가 나왔다(2026-07-29 sweep 적발).
+       선호 브랜드가 현행에 없으면 단종까지 포함해 그 브랜드에서 고른다.
+       단종이면 화면에 "단종 · 중고로 구함" 이 그대로 붙으므로 속이는 게 아니다. */
+    const bk0 = key || "b";
+    const want0 = brand && brand !== "any" ? brand : null;
+    const brandInCur = !want0 || cur.some((x) => x[bk0] === want0 && (!ok || ok(x)));
+    const base = cur.length && brandInCur ? cur : use;
+    const now = pickByBrand(base, brand, key, ok);
     /* 2차 — 단종 중 가장 잘 맞는 것.
        "단종이 현행보다 점수가 높을 때만" 으로 잡았더니 45조합 중 0번 떴다.
        실제 값어치는 거기 있지 않다 — **성능이 비슷한데 값이 내려가는 것**이 핵심이다.

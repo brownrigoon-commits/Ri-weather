@@ -17,7 +17,7 @@
     "js/clubfit.js": ["openClubfitView", "loadMyBag", "__cfTest"],
     "js/loading.js": ["WAIT", "staggerIn"],
     "js/weatherfx.js": ["WXFX"],
-    "js/stay.js": ["openStayView", "fetchKakaoStay", "stayKind", "bookingLinks"],
+    "js/stay.js": ["openStayView", "fetchKakaoStay", "stayKind", "bookingLinks", "stayCache", "STAY_VIEW"],
     "js/legal.js": ["CONSENT"],
     "js/stats.js": ["STATS"],
   };
@@ -111,14 +111,26 @@
     } catch (e) { add("브랜드 조합 예외", b + "/" + sb, e.message); }
   }));
 
-  /* ── 1-3. 브랜드 질문이 기본 문항에 있는지 ───────────────────────
-     선택 단계에 두었더니 대부분 질문을 못 받고 지나가 기능이 죽어 있었다. */
-  try {
-    const src = await (await fetch("/js/clubfit.js?x=" + Date.now())).text();
-    const seg = src.slice(src.indexOf('stage: "가봉", q: 7'), src.indexOf('stage: "가봉", q: 8'));
-    if (!/\"brand\"|'brand'|"brand"/.test(seg)) add("클럽 브랜드 질문이 기본 문항에 없음", "가봉 7", "");
-    if (!/shaftBrand/.test(seg)) add("샤프트 브랜드 질문이 기본 문항에 없음", "가봉 7", "");
-  } catch (e) { add("문항 확인 실패", "clubfit.js", e.message); }
+
+  /* ── 1-2b. 아이언·웨지·퍼터도 선호 브랜드가 1순위인지 ─────────────
+     드라이버만 검사하고 있어서, 세 클럽은 브랜드를 무시해도 통과했다.
+     특히 표에 단종(st:"old") 모델뿐인 브랜드(핑 아이언·클리브랜드 웨지)는
+     '현행 먼저' 규칙에 밀려 선호가 통째로 무시됐다(2026-07-29 적발). */
+  const BRAND_CASES = [
+    ["iron", "ironBrand", ["타이틀리스트", "핑", "테일러메이드", "캘러웨이", "미즈노", "던롭"],
+      (r) => r.head, { ironMiss: "thin", ironMat: "unsure", ironFeel: "any" }],
+    ["wedge", "wedgeBrand", ["타이틀리스트", "클리브랜드", "핑", "테일러메이드", "캘러웨이", "미즈노"],
+      (r) => r.model, { pwLoft: 45, wedgeTurf: "mid", wedgeMiss: "none" }],
+    ["putter", "putterBrand", ["스카티카메론", "오디세이", "테일러메이드", "핑"],
+      (r) => r.model, { puttStroke: "arc", puttMiss: "dist", puttLook: "any" }],
+  ];
+  BRAND_CASES.forEach(([club, key, brands, get, extra]) => brands.forEach((b) => {
+    try {
+      const r = __cfTest({ ...bb, ...extra, [key]: b }, club);
+      const got = get(r) || "";
+      if (got.split(" ")[0] !== b) add(club + " 추천이 선호 브랜드를 무시함", "선호=" + b, "나온것=" + got);
+    } catch (e) { add(club + " 브랜드 검사 예외", b, e.message); }
+  }));
 
   /* ── 2. 모든 화면 렌더 (오류·깨진 문자열) ───────────────────── */
   const views = ["home","hub","detail","course","food","stay","score","clubfit"];
@@ -146,18 +158,26 @@
      주의: 칩 화면은 고른 순간 스스로 넘어간다.
      '다음 버튼이 없으면 끝'이라고 보면 두 화면만 보고 끝나버린다(실제로 그랬음).
      화면이 바뀌었는지를 기준으로 계속 돈다. */
-  try {
+  for (const club of ["driver", "iron", "wedge", "putter"]) try {
     openClubfitView();
     await sleep(300);
-    let visited = 0, stuck = 0, last = "";
+    /* 첫 화면은 클럽 고르기 타일이다. 칩만 누르던 시절 코드로는 여기서 막혀
+       "방문 1개"로 끝나면서 나머지 화면을 하나도 못 봤다(2026-07-29 적발). */
+    const tile = document.querySelector(`#cf-screen .cf-club-tile[data-club="${club}"]`);
+    if (!tile) { add("클럽 선택 타일이 없음", club, ""); continue; }
+    tile.click();
+    await sleep(300);
+
+    let visited = 0, stuck = 0, last = "", sawBrand = false;
     const badWords = ["가봉", "본봉", "시침", "본박음"];
-    for (let i = 0; i < 40 && stuck < 3; i++) {
+    for (let i = 0; i < 60 && stuck < 3; i++) {
       const eye = (document.querySelector("#cf-screen .q-eyebrow") || {}).innerText || "";
       const stage = (document.querySelector("#cf-stage") || {}).textContent || "";
       const screen = (document.querySelector("#cf-screen") || {}).innerText || "";
-      const sig = eye + "|" + stage;
+      const sig = eye + "|" + stage + "|" + screen.slice(0, 40);
       if (sig === last) { stuck++; } else { stuck = 0; visited++; }
       last = sig;
+      if (/선호하는 브랜드가/.test(screen)) sawBrand = true;
 
       badWords.forEach(w => {
         if (stage.includes(w)) add("진행 표시에 재단 용어", stage, eye);
@@ -165,18 +185,23 @@
       });
 
       document.querySelectorAll("#cf-screen .chips").forEach(g => {
-        if (!g.querySelector('.chip[aria-pressed="true"]')) g.querySelector(".chip").click();
+        const c = g.querySelector('.chip[aria-pressed="true"]') ? null : g.querySelector(".chip");
+        if (c) c.click();
       });
       await sleep(300);                       // 칩 자동 넘김(220ms) 을 기다린다
-      const nb = document.querySelector("#cf-screen .cf-btn[data-next]:not(:disabled)");
+      const nb = document.querySelector("#cf-screen .cf-btn[data-next]:not(:disabled)")
+              || document.querySelector("#cf-screen [data-useprofile]");   // 프로필 확인 화면
       const sk = document.querySelector("#cf-screen [data-skip]");
       const jp = document.querySelector('#cf-screen [data-jump="bag"]');
       if (nb) nb.click(); else if (sk) sk.click(); else if (jp) jp.click();
       await sleep(120);
       if (document.querySelector(".rw-wait")) { WAIT.close(true); await sleep(140); }
     }
-    if (visited < 10) add("피팅 화면 순회가 너무 일찍 끝남(검사 부실)", "clubfit", "방문 " + visited + "개");
-  } catch (e) { add("피팅 화면 순회 예외", "clubfit", e.message); }
+    if (visited < 6) add("피팅 화면 순회가 너무 일찍 끝남(검사 부실)", club, "방문 " + visited + "개");
+    /* 선호 브랜드 질문은 반드시 거쳐야 한다.
+       선택 단계에 두었더니 대부분 질문을 못 받고 지나가 기능이 죽어 있었다(2026-07-27). */
+    if (!sawBrand) add("선호 브랜드 질문을 거치지 않음", club, "방문 " + visited + "개");
+  } catch (e) { add("피팅 화면 순회 예외", club, e.message); }
 
   /* ── 3-3. 백업·복구가 서버에서 실제로 되는지 ─────────────────
      이걸 확인 안 해서 사장님이 기록을 잃었다(2026-07-27).
@@ -262,15 +287,53 @@
 
   /* ── 3-6. 숙박 — 예약 링크가 제대로 만들어지는지 ────────────── */
   try {
-    const ls = bookingLinks("웰리힐리파크");
+    // bookingLinks 는 숙소 '객체'를 받는다 — 문자열을 넘기면 검색어가 빈 채로 통과한다
+    const ls = bookingLinks({ name: "웰리힐리파크", addr: "강원 횡성군 둔내면", kind: "리조트" });
     if (ls.length < 3) add("예약 링크 개수 부족", "stay", ls.length);
     ls.forEach(([t, u]) => {
       if (!/^https:\/\//.test(u)) add("예약 링크 형식 오류", t, u);
-      if (!/%/.test(u)) add("예약 링크에 검색어가 안 들어감", t, u);
+      if (!/=[^&]+/.test(u.split("?")[1] || "")) add("예약 링크에 검색어가 안 들어감", t, u);
     });
     ["호텔 신라", "OO리조트", "행복펜션", "굿모텔", "게스트하우스 봄", "글램핑장"]
-      .forEach((c) => { if (!stayKind(c)) add("숙소 종류 분류 실패", c, ""); });
+      .forEach((c) => { if (!stayKind("", c)) add("숙소 종류 분류 실패", c, ""); });
   } catch (e) { add("숙박 검사 예외", "stay", e.message); }
+
+  /* ── 3-6b. 숙박을 실제로 끝까지 돌려본다 ────────────────────────
+     ⚠️ 이걸 안 만들어서 사고가 났다(2026-07-29).
+     날짜·인원 화면을 걷어낼 때 stayCache 선언이 같이 지워졌는데,
+     링크 만들기·분류 같은 '조각 검사'만 하고 있어서 전부 통과했고
+     사장님 폰에서는 숙박 메뉴가 통째로 "불러오지 못했습니다"만 떴다.
+     조각이 아니라 사장님이 실제로 누르는 경로를 그대로 돌린다. */
+  try {
+    const tc = { name: "알프스대영CC", lat: 37.4612973730308, lon: 128.074450027055 };
+    const list = await fetchKakaoStay(tc);          // ReferenceError 는 여기서 잡힌다
+    if (!list.length) add("숙박 검색 결과 0곳", "fetchKakaoStay", tc.name);
+    else {
+      const bad = list.find((x) => !x.name || !x.id || !(x.dist >= 0));
+      if (bad) add("숙소 항목이 비어 있음", "fetchKakaoStay", JSON.stringify(bad));
+      const shown = await attachPhotos(list.slice(0, 6), "stay");
+      if (!shown.length) add("숙소 사진을 한 장도 못 받음", "attachPhotos(stay)", list.length + "곳 중 6곳 시도");
+      const host = document.createElement("div");
+      host.id = "stay-list";
+      host.style.cssText = "position:fixed;left:-9999px;top:0;width:360px";
+      const real = document.querySelector("#stay-list");
+      if (real) real.id = "stay-list-real";
+      document.body.appendChild(host);
+      try {
+        renderStayList(shown.length ? shown : list.slice(0, 6), tc);
+        const t = host.innerText || "";
+        if (!t.trim()) add("숙박 목록이 비어 있음", "renderStayList", "");
+        ["undefined", "NaN", "[object Object]"].forEach((w) => {
+          if (t.includes(w)) add("숙박 목록에 " + w + " 노출", "renderStayList", t.slice(0, 80));
+        });
+        if (/예약 가능/.test(t))
+          add("날짜별 빈방을 모르는데 '예약 가능'이라 표기", "renderStayList", "");
+      } finally {
+        host.remove();
+        if (real) real.id = "stay-list";
+      }
+    }
+  } catch (e) { add("숙박이 끝까지 돌지 않음", "숙박 메뉴 전체", e.message); }
 
   /* ── 4. 브랜드 잔재 점검 ─────────────────────────────────────── */
   const html = document.body.innerText;
