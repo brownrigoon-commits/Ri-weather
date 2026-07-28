@@ -132,6 +132,69 @@
       '<span><b>' + esc(제목) + '</b>' + (본문 || '') + '</span></div>';
   }
 
+  /** market.json 의 지수 목록 (없으면 빈 배열) */
+  function 지수목록() {
+    var mk = RiData.상태.market;
+    return (mk && mk.지수 && mk.지수.목록) || [];
+  }
+
+  /** 급락으로 볼 등락률 — 엔진(indices.py)이 파일에 함께 담아 준 값을 그대로 씁니다.
+   *  양쪽에 숫자를 따로 적으면 한쪽만 고쳤을 때 화면과 요약 문구가 갈라집니다. */
+  function 급락기준() {
+    var mk = RiData.상태.market;
+    var v = mk && mk.지수 && mk.지수.급락기준;
+    return typeof v === 'number' ? v : -3;
+  }
+
+  /**
+   * 지수가 크게 빠진 날 전략 화면에 띄우는 경고.
+   *
+   * 전략은 '오늘 조건을 통과한 종목'을 뽑을 뿐, 시장 전체가 무너지는 날인지는
+   * 따로 알려 주지 않습니다. 2026-07-28 처럼 코스피가 -10.8% 인 날에도
+   * 화면에는 평소와 똑같이 매수 후보만 5종목씩 떴습니다.
+   */
+  function 급락경고배너() {
+    var 기준 = 급락기준();
+    var 급락 = 지수목록().filter(function (x) { return Number(x.등락률) <= 기준; });
+    if (!급락.length) return '';
+    var 문구 = 급락.map(function (x) {
+      return esc(x.이름) + ' ' + Number(x.등락률).toFixed(1) + '%';
+    }).join(' · ');
+    return 배너('warn', '📉', '오늘 지수가 크게 빠졌습니다 — ' + 문구,
+      '<span>전략은 개별 종목 조건만 봅니다. 시장 전체가 밀리는 날에는 ' +
+      '조건을 통과한 종목도 함께 밀릴 수 있으니, 매수 신호로 바로 읽지 마세요.</span>');
+  }
+
+  /**
+   * 오늘의 지수 카드 — 코스피·코스닥·S&P500·나스닥.
+   *
+   * 시장 분위기를 뉴스 건수만으로 정하던 때에는, 코스피가 -10.8% 빠진 날에도
+   * '중립·혼조' 가 떴습니다. 뉴스는 하루 종일 고르게 쌓이지만 지수는 그날 하루가
+   * 그대로 찍히기 때문입니다. 그래서 브리핑 맨 위에 지수를 둡니다.
+   *
+   * 값 옆의 날짜는 **그 값이 어느 날 종가인지**입니다. 07:00 회차에는 한국 장이
+   * 열리기 전이라 코스피가 어제 종가로 담깁니다 — 날짜를 숨기면 어제 값을
+   * 오늘 것으로 읽게 됩니다.
+   *
+   * 색은 한국 증시 관행을 따릅니다 (상승 빨강 / 하락 파랑).
+   */
+  function 지수카드() {
+    var 목록 = 지수목록();
+    if (!목록.length) return '';
+    return '<div class="card"><div class="card-title">오늘의 지수</div>' +
+      '<div class="idx-grid">' + 목록.map(function (x) {
+        var 등락 = Number(x.등락률);
+        var 방향 = 등락 > 0 ? 'up' : (등락 < 0 ? 'down' : 'flat');
+        var 부호 = 등락 > 0 ? '+' : '';
+        return '<span class="idx idx-' + 방향 + '">' +
+          '<span class="idx-name">' + esc(x.이름) + '</span>' +
+          '<span class="idx-close">' + esc(Number(x.종가).toLocaleString('ko-KR')) + '</span>' +
+          '<span class="idx-rate">' + 부호 + 등락.toFixed(2) + '%</span>' +
+          '<span class="idx-date">' + esc(RiData.날짜표시(x.날짜)) + ' 종가</span>' +
+          '</span>';
+      }).join('') + '</div></div>';
+  }
+
   /** 데이터가 아예 없을 때 — 절대 빈 화면을 두지 않습니다 */
   function 데이터없음화면(제목) {
     var s = RiData.상태;
@@ -334,6 +397,7 @@
     h += 신선도배너();
     h += 실행메모배너();
     h += 설치안내카드();
+    h += 지수카드();          // 오늘 시장이 어땠는지는 지수가 가장 정확합니다
 
     // ── 시장 분위기 한 줄
     h += '<div class="card"><div class="card-title">오늘의 시장 분위기</div>' +
@@ -513,7 +577,7 @@
 
     if (화면.전략id) { 전략상세그리기(); return; }
 
-    var h = 신선도배너() +
+    var h = 신선도배너() + 급락경고배너() +
       '<div class="page-title">전략</div>' +
       '<div class="page-desc">오늘 호재 뉴스가 몰린 섹터에서, 전략별 조건을 통과한 종목을 뽑습니다.</div>';
 
@@ -557,6 +621,7 @@
 
     var h = '<button type="button" class="back-btn" data-act="전략목록">‹ 전략 목록</button>';
     h += 신선도배너();
+    h += 급락경고배너();      // 종목 목록 바로 위 — 여기서 봐야 의미가 있습니다
     h += '<div class="page-title">' + esc(전략.name) + '</div>' +
       '<div class="page-desc">' + esc(전략.desc || '') + '</div>' +
       '<div class="chips" style="margin-bottom:12px">' +

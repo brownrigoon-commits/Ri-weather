@@ -24,6 +24,17 @@
  * CLAUDE.md 3-1: 버튼은 .click() 이 아니라 document.elementFromPoint 로 실제 터치 지점을 확인한다. */
 import fs from 'fs';
 import { createRequire } from 'module';
+import { fileURLToPath } from 'url';
+
+/**
+ * 이 파일 기준 경로 → **실제 파일시스템 경로**.
+ *
+ * `new URL(…, import.meta.url).pathname` 을 그대로 쓰면 윈도우에서 깨집니다.
+ * 앞에 슬래시가 붙고(`/C:/…`) 한글 폴더가 퍼센트 인코딩(`%EB%94%94…`)으로 남아
+ * `C:\C:\Users\%EB%94%94…` 같은 경로가 만들어집니다(2026-07-28 집 PC 에서 확인).
+ * 리눅스에서는 우연히 같은 값이라 그동안 드러나지 않았습니다.
+ */
+const 여기부터 = (상대) => fileURLToPath(new URL(상대, import.meta.url));
 
 // 프로젝트에 playwright 가 설치돼 있으면 그것을, 없으면 전역 설치본을 씁니다.
 const require_ = createRequire(import.meta.url);
@@ -126,8 +137,24 @@ console.log(JSON.stringify(결과.탭.brief));
 확인('브리핑 텍스트 렌더', 결과.탭.brief.텍스트노드 >= 40, `텍스트노드 ${결과.탭.brief.텍스트노드}개 / ${결과.탭.brief.글자수}자`);
 확인('브리핑 카드 렌더', 결과.탭.brief.카드 >= 4, `카드 ${결과.탭.brief.카드}개`);
 확인('가로 스크롤 없음(브리핑)', !결과.탭.brief.가로밀림);
-확인('신선도 경고 배너 노출(11일 지난 데이터)',
-  await page.locator('#view-brief .banner-danger').count() > 0);
+/* 신선도 배너는 **데이터가 오래됐을 때만** 떠야 합니다.
+ * 예전에는 '항상 뜬다'로 못박아 두었는데, 그때 저장소에 커밋돼 있던 데이터가
+ * 마침 11일 지난 것이었기 때문입니다. 자동 수집이 제대로 도는 날에는 오늘 데이터라
+ * 배너가 없는 것이 정상인데도 이 검사만 빨갛게 떴습니다(2026-07-28 확인).
+ * 그래서 manifest 의 기준일을 읽어 **있어야 할 때 있는지**를 봅니다(기준은 js/data.js 신선도: 7일). */
+const 배너기준일 = (() => {
+  try {
+    return String(JSON.parse(fs.readFileSync(여기부터('../data/') + 'manifest.json', 'utf8')).기준일 || '');
+  } catch { return ''; }
+})();
+const 배너경과일 = (() => {
+  if (!/^\d{8}$/.test(배너기준일)) return null;
+  const 그날 = new Date(+배너기준일.slice(0, 4), +배너기준일.slice(4, 6) - 1, +배너기준일.slice(6, 8));
+  const 오늘 = new Date(); 오늘.setHours(0, 0, 0, 0);
+  return Math.round((오늘 - 그날) / 86400000);
+})();
+확인(`신선도 경고 배너는 오래된 데이터일 때만 (기준일 ${배너기준일 || '?'} · ${배너경과일 ?? '?'}일 전)`,
+  (await page.locator('#view-brief .banner-danger').count() > 0) === (배너경과일 !== null && 배너경과일 >= 7));
 확인('투자권유 아님 고지 고정 노출',
   await page.locator('.app-footer .disclaimer').isVisible());
 
@@ -510,7 +537,7 @@ const 콘솔3 = [];
 page3.on('console', (m) => { if (m.type() === 'error') 콘솔3.push(m.text()); });
 page3.on('pageerror', (e) => 페이지오류.push('[변화화면] ' + String(e && e.message || e)));
 
-const 데이터폴더 = new URL('../data/', import.meta.url).pathname;
+const 데이터폴더 = 여기부터('../data/');
 const 원본manifest = JSON.parse(fs.readFileSync(데이터폴더 + 'manifest.json', 'utf8'));
 await page3.route('**/data/manifest.json*', (route) =>
   route.fulfill({ contentType: 'application/json',
@@ -550,7 +577,7 @@ const 콘솔5 = [];
 page5.on('console', (m) => { if (m.type() === 'error') 콘솔5.push(m.text()); });
 page5.on('pageerror', (e) => 페이지오류.push('[진짜변화] ' + String(e && e.message || e)));
 
-const 픽스처 = new URL('./fixtures/', import.meta.url).pathname;
+const 픽스처 = 여기부터('./fixtures/');
 const 진짜manifest = fs.readFileSync(픽스처 + 'manifest_변화있음.json', 'utf8');
 const 진짜changes = fs.readFileSync(픽스처 + 'changes_real.json', 'utf8');
 const 진짜 = JSON.parse(진짜changes);
@@ -719,7 +746,7 @@ const 엿새전 = (() => { const d = new Date(); d.setDate(d.getDate() - 6); ret
  * 그런데 안내를 아무 때나 띄우면 성가시므로, **띄우지 않아야 할 때 안 뜨는지**도 같이 봅니다.
  * ===================================================================== */
 
-const 저장소루트 = new URL('../../', import.meta.url).pathname;   // …/Ri-weather/
+const 저장소루트 = 여기부터('../../');   // …/Ri-weather/
 
 /** PNG 앞머리 24바이트에서 실제 가로·세로를 읽습니다 (파일 이름만 믿지 않습니다) */
 function png크기(경로) {

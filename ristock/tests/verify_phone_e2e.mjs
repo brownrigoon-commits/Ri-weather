@@ -42,6 +42,7 @@ import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import { createRequire } from 'module';
+import { fileURLToPath } from 'url';
 
 const require_ = createRequire(import.meta.url);
 const 후보 = [process.env.PLAYWRIGHT, 'playwright',
@@ -59,7 +60,9 @@ if (!chromium) {
 const BASE = process.env.BASE || 'http://127.0.0.1:8791/ristock/index.html';
 const SHOTS = process.env.SHOTS || path.join(os.tmpdir(), 'ristock_phone_shots');
 fs.mkdirSync(SHOTS, { recursive: true });
-const 데이터폴더 = new URL('../data/', import.meta.url).pathname;
+// ⚠ `new URL(…).pathname` 을 그대로 쓰면 윈도우에서 `C:\C:\Users\%EB%94%94…` 가 됩니다
+//   (앞 슬래시 + 한글 폴더 퍼센트 인코딩). 집 PC 에서 이 검사를 돌리려면 변환이 필요합니다.
+const 데이터폴더 = fileURLToPath(new URL('../data/', import.meta.url));
 
 let 실패 = 0, 통과 = 0;
 const 문제 = [];

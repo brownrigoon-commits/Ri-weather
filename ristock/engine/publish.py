@@ -53,7 +53,12 @@ DATA_REL = os.path.relpath(DATA_DIR, REPO_DIR).replace(os.sep, '/')   # 'ristock
 #   last_run.log : PC 실행 기록(내 PC 사정일 뿐, 앱과 무관)
 #   xlsx/        : 사장님용 엑셀 — 매일 수 MB씩 쌓여 저장소가 무거워집니다
 #                  (엔진 실행 시 --excel-dir 로 저장소 밖에 저장하는 것이 정답)
-EXCLUDES = [f':(exclude){DATA_REL}/last_run.log', f':(exclude){DATA_REL}/xlsx/**']
+# (경로, 제외 pathspec) — 경로는 '이미 .gitignore 가 막고 있는가' 를 물어볼 때 씁니다.
+EXCLUDE_대상 = [
+    (f'{DATA_REL}/last_run.log', f':(exclude){DATA_REL}/last_run.log'),
+    (f'{DATA_REL}/xlsx', f':(exclude){DATA_REL}/xlsx/**'),
+]
+EXCLUDES = [패턴 for _, 패턴 in EXCLUDE_대상]
 PATHSPEC = [DATA_REL] + EXCLUDES
 
 PUSH_BACKOFF = (2, 4, 8, 16)          # 네트워크 실패 시 재시도 간격(초) — 최대 4회
@@ -115,6 +120,31 @@ def 브랜치확인(요청):
         print(f"     '{요청}' 에 올리려면 먼저 git switch {요청} 로 옮긴 뒤 실행해 주세요.")
         return False, 실제
     return True, 실제
+
+
+def 추가경로():
+    """`git add` 에 넘길 경로 목록 (`PATHSPEC` 과 달리 **이미 무시되는 대상은 뺍니다**).
+
+    `git add` 는 `:(exclude)` 로 지목한 파일이라도 그 파일이 실제로 있고
+    `.gitignore` 가 이미 막고 있으면 add 자체를 거부합니다(git 2.55 확인).
+
+        The following paths are ignored by one of your .gitignore files:
+        ristock/data/last_run.log
+
+    깃허브 러너에는 `last_run.log` 가 아예 없어서 이 오류가 나지 않습니다.
+    **집 PC 에서만** — 그것도 수집을 10분 다 마친 마지막 올리기 단계에서 — 죽었습니다
+    (2026-07-28, 결과 코드 2). 그래서 지금 무시되고 있는 대상은 pathspec 에서 빼고
+    `.gitignore` 에 맡깁니다.
+
+    `.gitignore` 규칙이 사라진 비상 상황에서는 `check-ignore` 가 '안 막힘' 을 돌려주므로
+    `:(exclude)` 가 그대로 남아 안전망이 살아 있습니다. 커밋은 어차피
+    `--only -- PATHSPEC`(제외 포함)으로 하므로 여기서 스테이징되더라도 커밋되지 않습니다.
+    """
+    경로 = [DATA_REL]
+    for 대상, 패턴 in EXCLUDE_대상:
+        if git('check-ignore', '-q', '--', 대상).returncode != 0:   # 0 = 이미 무시됨
+            경로.append(패턴)
+    return 경로
 
 
 def _포셀린(경로만=True):
@@ -488,14 +518,14 @@ def commit_and_push(message=None, branch=None, author=None, runner=None,
     msg = message or 기본커밋메시지(runner)
     if dry_run:
         print('  (미리보기) 아무것도 커밋·푸시하지 않았습니다.')
-        print(f"  (미리보기) git add -A -- {' '.join(PATHSPEC)}")
+        print(f"  (미리보기) git add -A -- {' '.join(추가경로())}")
         print(f'  (미리보기) git commit -- {DATA_REL} (로그·엑셀 제외)')
         print(f'  (미리보기) 커밋 메시지: {msg.splitlines()[0]}')
         if push:
             print(f'  (미리보기) git push origin HEAD:refs/heads/{branch}')
         return 0
 
-    a = git('add', '-A', '--', *PATHSPEC)
+    a = git('add', '-A', '--', *추가경로())
     if a.returncode != 0:
         print(f"  ⛔ 스테이징 실패: {(a.stderr or '').strip()[:300]}")
         return 1

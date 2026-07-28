@@ -206,6 +206,39 @@ jobs:
       #  ※ $RETRY_ARGS 는 앞 스텝이 만든 --retry/--backoff/--archive-keep 입니다.
       #    엔진이 그 인자를 모르면 빈 값이라 명령이 그대로 돕니다.
       # ------------------------------------------------------------------
+      # ------------------------------------------------------------------
+      #  한국은 국내 PC 가 주담당입니다 — 깃허브는 백업입니다.
+      #
+      #  한국 재무·수급은 네이버금융에서 받는데, 네이버는 해외(깃허브) IP 를 막을 수 있습니다.
+      #  그래서 오늘 한국 데이터를 **국내 PC 가 이미 받아 올렸다면** 깃허브는 그것을 덮지 않고
+      #  한국 수집을 건너뜁니다. (국내 PC 가 못 돌린 날에는 그대로 깃허브가 받습니다 = 백업)
+      #
+      #  미국은 반대로 깃허브가 주담당이라 언제나 그대로 돕니다.
+      #  판단 근거는 manifest 의 시장별 `수집주체`(pc / github-actions)와 `기준일` 입니다.
+      #  ※ 손으로 'Run workflow' 에서 시장을 콕 집어 돌린 경우(kr/us)는 양보하지 않습니다 —
+      #    사람이 일부러 다시 받으라고 시킨 것이기 때문입니다.
+      # ------------------------------------------------------------------
+      - name: 한국은 국내 PC 가 받았는지 확인
+        if: env.DO_KR == '1' && env.MARKET == 'all'
+        # 이 판단이 깨져도 하루치 수집을 죽이면 안 됩니다 — 실패하면 그냥 한국까지 받습니다.
+        continue-on-error: true
+        # ※ heredoc(<<PY)은 쓰지 않습니다 — 이 파일 아래쪽 주석에 적힌 이유와 같습니다
+        #   (끝 표시가 YAML 블록을 끊어 워크플로가 통째로 깨집니다). 그래서 python -c 한 줄입니다.
+        # ※ 한글 키(시장·한국·기준일·수집주체)를 그대로 쓴 이유: 러너는 리눅스·UTF-8 이라
+        #   윈도우 배치(cp949 때문에 \uXXXX 로 적은 tools\ristock_실행.bat)와 사정이 다릅니다.
+        # ※ 이 스텝이 무슨 이유로든 실패하면 한국 수집은 **그대로 진행**됩니다(양보 안 함).
+        #   양보는 '건너뛰어도 안전할 때'만 하는 최적화라, 판단이 안 되면 받는 쪽이 안전합니다.
+        run: |
+          set -uo pipefail        # -e 는 일부러 켜지 않습니다 (판단 실패로 하루를 날리지 않도록)
+          TODAY_KST="$(TZ=Asia/Seoul date +%Y%m%d)"
+          STATE="$(python -c "import json,os,sys;p=os.path.join('ristock','data','manifest.json');d=(json.load(open(p,encoding='utf-8')) if os.path.exists(p) else {});k=(d.get('시장') or {}).get('한국') or {};print('yield' if (str(k.get('기준일') or '')==sys.argv[1] and str(k.get('수집주체') or '')=='pc') else 'collect')" "$TODAY_KST" 2>/dev/null || echo collect)"
+          if [ "$STATE" = "yield" ]; then
+            echo "DO_KR=0" >> "$GITHUB_ENV"
+            echo "오늘($TODAY_KST) 한국 데이터는 국내 PC 가 이미 받았습니다 — 깃허브는 한국 수집을 건너뜁니다."
+          else
+            echo "오늘($TODAY_KST) 한국 데이터가 국내 PC 것이 아닙니다 — 깃허브가 백업으로 받습니다."
+          fi
+
       - name: 미국 수집
         id: us
         if: env.DO_US == '1'

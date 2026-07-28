@@ -16,11 +16,19 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 import FinanceDataReader as fdr
 import pandas as pd
 import requests
-import yfinance as yf
 from bs4 import BeautifulSoup
 
-from .config import KR_SECTOR_OVERRIDE, KR_SECTOR_RULES, UA
-from .scoring import to_float
+# ⚠ 한국 종목도 주가·순이익은 야후에서 받습니다. 계정 이름이 한글인 PC 에서는
+#    yfinance(curl_cffi) 가 인증서를 못 열어 **국내 분석까지 통째로** 막힙니다.
+#    yfinance import 보다 먼저 우회를 걸어야 합니다 (certfix.py 설명 참고).
+from .certfix import ensure_ascii_cacert
+
+ensure_ascii_cacert()
+
+import yfinance as yf  # noqa: E402  (위 우회를 건 뒤에 불러야 합니다)
+
+from .config import KR_SECTOR_OVERRIDE, KR_SECTOR_RULES, UA  # noqa: E402
+from .scoring import to_float  # noqa: E402
 
 
 def map_kr_sector(krx_sector, name=''):

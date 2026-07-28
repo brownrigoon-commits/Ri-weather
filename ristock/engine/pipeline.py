@@ -314,16 +314,23 @@ def main(argv=None):
     if args.no_market_news:
         print('\n[시장요약] --no-market-news → 건너뜀 (기존 market.json 유지)')
     else:
-        print('\n[시장요약] 10개국 비즈니스 뉴스 수집...')
+        print('\n[시장요약] 지수 시황 + 10개국 비즈니스 뉴스 수집...')
         try:
+            from .indices import collect_indices
             from .news import collect_market_summary
-            summary = collect_market_summary()
+            # 지수는 국내 소스(FinanceDataReader)에서 받습니다 — 야후·해외 IP 와 무관합니다.
+            # 못 받아도 뉴스 요약은 그대로 나옵니다(예전 동작).
+            지수 = collect_indices()
+            summary = collect_market_summary(지수)
             total = sum(c.get('수집', 0) for c in (summary.get('국가별') or {}).values())
             if total == 0:
                 raise RuntimeError('뉴스를 한 건도 받지 못했습니다')
             emit.write_market(summary, out_dir)
+            지수수 = len((지수 or {}).get('목록') or [])
             print(f'  저장 완료: {os.path.join(out_dir, MARKET_FILE)} '
-                  f'(뉴스 {total}건, 섹터 {len(summary.get("섹터순위") or [])}개)')
+                  f'(뉴스 {total}건, 섹터 {len(summary.get("섹터순위") or [])}개, 지수 {지수수}개)')
+            if 지수수:
+                print(f'  {summary["요약"].split(" 오늘 ")[0]}')
         except Exception as e:
             메모.append(f'시장요약 실패({e}) → 기존 market.json 유지')
             print(f'  (실패) 시장요약: {e} — 기존 market.json 을 그대로 둡니다')
@@ -357,7 +364,7 @@ def main(argv=None):
             path, n_all, n_eval = emit.write_stocks(
                 df, name, out_dir, 기준일, 수집시각, 원본=xlsx)
             시장[name] = emit.market_entry(STOCKS_FILE[name], n_all, n_eval, xlsx,
-                                          수집시각, 기준일)
+                                          수집시각, 기준일, args.runner)
             성공한시장.append(name)
             print(f'  저장 완료: {path} (종목 {n_all}, 평가 {n_eval})')
         except Exception as e:

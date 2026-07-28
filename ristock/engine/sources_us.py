@@ -13,10 +13,18 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 import FinanceDataReader as fdr
 import pandas as pd
 import requests
-import yfinance as yf
 
-from .config import EXCHANGE_KO, UA, US_SECTOR_KO, US_SYMBOL_FIX
-from .scoring import to_float
+# ⚠ yfinance(curl_cffi) 는 import 하는 순간 인증서 경로를 상수로 박아 둡니다.
+#    계정 이름이 한글인 PC 에서는 그 경로를 못 열어 야후가 통째로 막히므로,
+#    **import 보다 먼저** 우회를 걸어야 합니다 (certfix.py 설명 참고).
+from .certfix import ensure_ascii_cacert
+
+ensure_ascii_cacert()
+
+import yfinance as yf  # noqa: E402  (위 우회를 건 뒤에 불러야 합니다)
+
+from .config import EXCHANGE_KO, UA, US_SECTOR_KO, US_SYMBOL_FIX  # noqa: E402
+from .scoring import to_float  # noqa: E402
 
 # =========================
 # 야후 재시도 설정 — 기본값은 원본과 완전히 같습니다(2회 / 3초).

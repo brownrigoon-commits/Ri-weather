@@ -19,6 +19,7 @@ import feedparser
 import requests
 from bs4 import BeautifulSoup
 
+from . import indices
 from .config import UA
 
 # =========================
@@ -309,8 +310,56 @@ def _parse_feed(url):
     return last
 
 
-def collect_market_summary():
-    """10개국 비즈니스 뉴스 → 시장 분위기·섹터 순위 (설계서 2.3 market.json 규격)"""
+def 지수_반영_분위기(호재수, 악재수, 지수=None):
+    """요약 첫 문장 — 지수를 받았으면 **지수가 판정**하고, 없으면 예전처럼 뉴스가 판정합니다.
+
+    뉴스 건수는 폭락한 날에도 평소와 비슷하게 나옵니다(하루 종일 고르게 쌓이므로).
+    2026-07-28 코스피 −10.8% 인 날 화면에 `중립·혼조` 가 떴던 것이 그 때문입니다.
+    지수는 그날 하루가 그대로 찍히므로 '오늘 시장이 어땠나'는 지수가 정확합니다.
+
+    국내 앱이므로 **판정 기준은 한국 지수**이고, 미국 지수는 참고로 덧붙입니다.
+    지수가 어느 날 종가인지(`[07.28 종가]`)를 항상 앞에 적습니다 — 07:00 회차에는
+    한국 장이 열리기 전이라 어제 종가가 담기기 때문입니다.
+    """
+    한국평균 = indices.시장별평균(지수, '한국')
+    if 한국평균 is None:
+        if 호재수 > 악재수 * 1.5:
+            분위기 = '위험선호(강세) 분위기'
+        elif 악재수 > 호재수 * 1.5:
+            분위기 = '위험회피(약세) 분위기'
+        else:
+            분위기 = '중립·혼조 분위기'
+        return f'전반적으로 {분위기}입니다.'
+
+    if 한국평균 <= indices.급락기준:
+        판정 = '국내 증시 급락'
+    elif 한국평균 <= -1.0:
+        판정 = '국내 증시 약세'
+    elif 한국평균 >= indices.급등기준:
+        판정 = '국내 증시 급등'
+    elif 한국평균 >= 1.0:
+        판정 = '국내 증시 강세'
+    else:
+        판정 = '국내 증시 보합'
+
+    날짜 = indices.기준날짜(지수, '한국')
+    앞머리 = f'[{날짜} 종가] ' if 날짜 else ''
+    문장 = f'{앞머리}{indices.지수문구(지수, "한국")} — {판정}입니다.'
+    미국 = indices.지수문구(지수, '미국')
+    if 미국:
+        미국날짜 = indices.기준날짜(지수, '미국')
+        문장 += f' (미국 {미국날짜} 종가: {미국})' if 미국날짜 else f' (미국: {미국})'
+    return 문장
+
+
+def collect_market_summary(지수=None):
+    """10개국 비즈니스 뉴스 → 시장 분위기·섹터 순위 (설계서 2.3 market.json 규격)
+
+    `지수` 를 넘기면(= `indices.collect_indices()` 결과) 분위기 판정과 요약 문구가
+    **지수를 우선**합니다. 뉴스 건수만 보면 2026-07-28 처럼 코스피가 −10.8% 빠진 날에도
+    `중립·혼조` 가 나옵니다 — 뉴스는 하루 종일 고르게 쌓이는 반면 지수는 그날 하루에
+    다 반영되기 때문입니다. 지수를 못 받았으면 예전과 똑같이 뉴스만으로 정합니다.
+    """
     countries = {}
     sector_scores = {}
     all_news = []
@@ -360,20 +409,15 @@ def collect_market_summary():
     total_pos = sum(c['긍정'] for c in countries.values())
     total_neg = sum(c['부정'] for c in countries.values())
 
-    if total_pos > total_neg * 1.5:
-        mood = '위험선호(강세) 분위기'
-    elif total_neg > total_pos * 1.5:
-        mood = '위험회피(약세) 분위기'
-    else:
-        mood = '중립·혼조 분위기'
     top3 = [s for s, _ in ranked[:3]]
-    summary_text = (f'오늘 10개국 비즈니스 뉴스 {total}건 기준, 전반적으로 {mood}입니다 '
-                    f'(호재성 {total_pos}건 vs 악재성 {total_neg}건). '
-                    f'호재 뉴스가 몰리는 섹터는 {", ".join(top3) if top3 else "특이 섹터 없음"} 순입니다.')
+    뉴스문장 = (f'오늘 10개국 비즈니스 뉴스 {total}건 기준 호재성 {total_pos}건 vs 악재성 {total_neg}건, '
+                f'호재 뉴스가 몰리는 섹터는 {", ".join(top3) if top3 else "특이 섹터 없음"} 순입니다.')
+    summary_text = f'{지수_반영_분위기(total_pos, total_neg, 지수)} {뉴스문장}'
 
     return {
         '날짜': time.strftime('%Y-%m-%d %H:%M'),
         '요약': summary_text,
+        '지수': 지수 or {},
         '국가별': countries,
         '섹터순위': [
             {'순위': i + 1, '섹터': s, '점수': round(v['점수'], 1), '뉴스수': v['뉴스수'],
