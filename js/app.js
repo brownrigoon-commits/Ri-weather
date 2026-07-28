@@ -4,8 +4,8 @@
  * ========================================================= */
 "use strict";
 
-const APP_VER = "v132"; // 배포 버전 (홈 화면 배지에 표시)
-const APP_NOTE = "숙박 화면 정리"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
+const APP_VER = "v133"; // 배포 버전 (홈 화면 배지에 표시)
+const APP_NOTE = "날씨 한도 초과 수정"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
 const STORAGE_KEY = "riweather.courses.v1";
 const GEM_KEY = "riweather.gemini"; // 정밀 인식(비전 AI) 개인 키 저장소
 // 기본 제공 키 (무료 한도 공유) — 개인 키를 설정하면 그 키가 우선됩니다
@@ -103,7 +103,24 @@ function saveCourses(list) {
 
 /* ---------- API ---------- */
 /* 429(요청 한도) 등 일시적 실패 시 재시도 */
+/* 하루치 한도를 다 쓴 상태 — 재시도해도 소용없고 오히려 한도를 더 태운다.
+   한 번 확인하면 자정(현지시각)까지 기억해 두고 아예 요청하지 않는다. */
+const QUOTA_LS = "riweather.wxquota";
+function quotaBlockedUntil() {
+  try {
+    const t = +localStorage.getItem(QUOTA_LS) || 0;
+    return Date.now() < t ? t : 0;
+  } catch (_) { return 0; }
+}
+function markQuotaExhausted() {
+  const d = new Date();
+  d.setHours(24, 5, 0, 0);                  // 다음 날 00:05 에 다시 시도
+  try { localStorage.setItem(QUOTA_LS, String(d.getTime())); } catch (_) {}
+}
+
 async function fetchJSON(url, { retries = 2, delay = 1200 } = {}) {
+  const isMeteo = String(url).indexOf("open-meteo.com") >= 0;
+  if (isMeteo && quotaBlockedUntil()) throw new Error("WX_QUOTA");
   for (let attempt = 0; ; attempt++) {
     let res;
     try {
@@ -114,7 +131,17 @@ async function fetchJSON(url, { retries = 2, delay = 1200 } = {}) {
       continue;
     }
     if (res.ok) return res.json();
-    // 429/503 등은 잠시 후 재시도
+    if (res.status === 429 && isMeteo) {
+      // 분당·시간당 초과는 잠시 뒤 풀리지만, 일일 한도는 내일까지 안 풀린다.
+      // 본문을 읽어 구분한다 — 안 그러면 3번 더 두드려 한도만 깎는다. (2026-07-28)
+      let reason = "";
+      try { reason = (await res.clone().text()).slice(0, 200); } catch (_) {}
+      if (/Daily API request limit/i.test(reason)) {
+        markQuotaExhausted();
+        throw new Error("WX_QUOTA");
+      }
+    }
+    // 429(분·시간 한도)/503 등은 잠시 후 재시도
     if ((res.status === 429 || res.status >= 500) && attempt < retries) {
       await new Promise((r) => setTimeout(r, delay * (attempt + 1)));
       continue;
@@ -123,7 +150,14 @@ async function fetchJSON(url, { retries = 2, delay = 1200 } = {}) {
   }
 }
 
+const FC_LS = "riweather.fc.";
 async function fetchForecast(lat, lon) {
+  // 같은 골프장을 오갈 때마다 새로 받지 않는다 — 15분이면 예보는 바뀌지 않는다
+  const ck = FC_LS + lat.toFixed(3) + "," + lon.toFixed(3);
+  try {
+    const c = JSON.parse(localStorage.getItem(ck) || "null");
+    if (c && Date.now() - c.t < 15 * 60000) return c.d;
+  } catch (_) {}
   const url = new URL("https://api.open-meteo.com/v1/forecast");
   url.search = new URLSearchParams({
     latitude: lat, longitude: lon,
@@ -134,7 +168,9 @@ async function fetchForecast(lat, lon) {
     timezone: "Asia/Seoul",
     forecast_days: "3",
   });
-  return fetchJSON(url, { retries: 3, delay: 1500 }); // 메인 날씨는 반드시 성공하도록
+  const d = await fetchJSON(url, { retries: 2, delay: 1500 });
+  try { localStorage.setItem(ck, JSON.stringify({ t: Date.now(), d: d })); } catch (_) {}
+  return d;
 }
 
 async function fetchAir(lat, lon) {
@@ -149,9 +185,13 @@ async function fetchAir(lat, lon) {
 
 /* 전국 격자(약 0.5°)의 시간별 강수 예보 — 예보 지도 렌더링용 */
 /* 예보 격자 — 선택한 지점을 중심으로 동적 생성 (해외 골프장도 그대로 동작) */
-const GRID_STEP = 0.5; // 약 55km 간격 — API 요청량을 줄여 한도(429) 회피
+/* 격자 1칸 = Open-Meteo 호출 1건으로 계산된다.
+   예전엔 ±350km / 0.5° = 13×15 = 195칸이라 지도를 50번만 열어도 하루 무료 한도(1만)를
+   통째로 태웠다. 골프 라운딩에 필요한 건 그 골프장 주변 날씨지 전국 지도가 아니다.
+   ±180km / 0.6° = 7×7 = 49칸으로 줄였다 (약 4배 절약). (2026-07-28) */
+const GRID_STEP = 0.6; // 약 66km 간격
 function makeGrid(centerLat, centerLon) {
-  const halfLat = 3.0, halfLon = 3.5; // 선택 지점 중심 약 ±350km 커버
+  const halfLat = 1.8, halfLon = 2.1; // 선택 지점 중심 약 ±200km 커버
   const g = {
     latMin: Math.max(-85, centerLat - halfLat),
     latMax: Math.min(85, centerLat + halfLat),
@@ -164,7 +204,14 @@ function makeGrid(centerLat, centerLon) {
   return g;
 }
 
+const GRID_LS = "riweather.precipgrid";
 async function fetchPrecipGrid(GRID) {
+  // 같은 골프장 지도를 다시 열 때마다 49건씩 또 쓰지 않도록 30분 캐시
+  const ck = [GRID.latMax, GRID.lonMin, GRID.nLat, GRID.nLon].join(",");
+  try {
+    const c = JSON.parse(localStorage.getItem(GRID_LS) || "null");
+    if (c && c.k === ck && Date.now() - c.t < 30 * 60000) return c.d;
+  } catch (_) {}
   const lats = [], lons = [];
   // 북→남, 서→동 순서 (캔버스 픽셀 순서와 일치)
   for (let r = 0; r < GRID.nLat; r++) {
@@ -188,7 +235,9 @@ async function fetchPrecipGrid(GRID) {
     jobs.push(fetchJSON(url, { retries: 2, delay: 1500 }));
   }
   const parts = await Promise.all(jobs);
-  return parts.flatMap((p) => (Array.isArray(p) ? p : [p]));
+  const out = parts.flatMap((p) => (Array.isArray(p) ? p : [p]));
+  try { localStorage.setItem(GRID_LS, JSON.stringify({ k: ck, t: Date.now(), d: out })); } catch (_) {}
+  return out;
 }
 
 async function searchPlaces(q) {
@@ -415,11 +464,44 @@ const searchResults = $("#search-results");
 const searchStatus = $("#search-status");
 const searchClear = $("#search-clear");
 
+/* 홈 카드용 가벼운 날씨 — 저장한 골프장 전부를 **한 번에** 받는다.
+ *
+ * 예전엔 카드마다 3일치 시간별 예보(변수 10개)를 따로 받았다. 카드에 필요한 건
+ * 현재기온·날씨코드·오늘 최고최저뿐인데 수십 배를 받아온 셈이라 무료 한도를
+ * 빠르게 태웠고, 한도가 차면 카드가 "불러오는 중..."에서 멈췄다. (2026-07-28)
+ * Open-Meteo 는 좌표를 콤마로 여러 개 받으면 배열로 돌려준다.
+ */
+const HOME_WX_LS = "riweather.homewx";
+async function fetchHomeWeather(courses) {
+  if (!courses.length) return {};
+  const key = courses.map((c) => c.lat.toFixed(2) + "," + c.lon.toFixed(2)).join("|");
+  try {
+    const c = JSON.parse(localStorage.getItem(HOME_WX_LS) || "null");
+    if (c && c.k === key && Date.now() - c.t < 20 * 60000) return c.d;   // 20분 캐시
+  } catch (_) {}
+  const url = new URL("https://api.open-meteo.com/v1/forecast");
+  url.search = new URLSearchParams({
+    latitude: courses.map((c) => c.lat.toFixed(4)).join(","),
+    longitude: courses.map((c) => c.lon.toFixed(4)).join(","),
+    current: "temperature_2m,weather_code,is_day",
+    daily: "temperature_2m_max,temperature_2m_min",
+    timezone: "Asia/Seoul",
+    forecast_days: "1",
+  });
+  const j = await fetchJSON(url, { retries: 1, delay: 1200 });
+  // 한 곳만 요청하면 배열이 아니라 객체가 온다. 순서는 보낸 좌표 순서와 같다.
+  // 골프장 id 로 묶지 않는다 — 저장된 골프장에 id 가 없는 경우가 있어 서로 덮어썼다.
+  const arr = Array.isArray(j) ? j : [j];
+  try { localStorage.setItem(HOME_WX_LS, JSON.stringify({ k: key, t: Date.now(), d: arr })); } catch (_) {}
+  return arr;
+}
+
 function renderHome() {
   const courses = loadCourses();
   courseListEl.innerHTML = "";
   emptyEl.hidden = courses.length > 0;
 
+  const cards = [];
   courses.forEach((c) => {
     const card = document.createElement("article");
     card.className = "course-card";
@@ -446,8 +528,20 @@ function renderHome() {
       renderHome();
     });
     courseListEl.appendChild(card);
+    cards.push(card);
+  });
+  staggerIn(courseListEl);   // 카드가 위에서부터 차례로 떠오르게
 
-    fetchForecast(c.lat, c.lon).then((d) => {
+  if (!courses.length) return;
+  fetchHomeWeather(courses).then((list) => {
+    courses.forEach((c, i) => {
+      const card = cards[i], d = list[i];
+      if (!card) return;
+      if (!d || !d.current) {
+        card.querySelector(".cc-temp").textContent = "--°";
+        card.querySelector(".cc-desc").textContent = "날씨 정보 없음";
+        return;
+      }
       const cur = d.current;
       // iOS 날씨 앱처럼 카드 자체가 그날 하늘이 된다
       card.insertAdjacentHTML("afterbegin", wxScene(cur.weather_code, cur.is_day));
@@ -458,12 +552,17 @@ function renderHome() {
       card.querySelector(".cc-desc").textContent = wmoIcon(cur.weather_code) + " " + wmoDesc(cur.weather_code);
       card.querySelector(".cc-minmax").textContent =
         `최고:${Math.round(d.daily.temperature_2m_max[0])}° 최저:${Math.round(d.daily.temperature_2m_min[0])}°`;
-    }).catch(() => {
+    });
+  }).catch((e) => {
+    const quota = String(e && e.message) === "WX_QUOTA";
+    courses.forEach((c, i) => {
+      const card = cards[i];
+      if (!card) return;
       card.querySelector(".cc-temp").textContent = "--°";
-      card.querySelector(".cc-desc").textContent = "날씨를 불러오지 못했습니다";
+      card.querySelector(".cc-desc").textContent =
+        quota ? "오늘 날씨 조회 한도를 다 썼어요" : "날씨를 불러오지 못했습니다";
     });
   });
-  staggerIn(courseListEl);   // 카드가 위에서부터 차례로 떠오르게
 }
 
 /* ---------- 검색 ---------- */
@@ -764,6 +863,13 @@ async function openDetail(course) {
   try {
     data = await fetchForecast(course.lat, course.lon);
   } catch (e) {
+    if (String(e && e.message) === "WX_QUOTA") {
+      // 다시 눌러도 오늘은 안 되므로 재시도 버튼을 주지 않는다
+      $("#hero-desc").textContent = "오늘 조회 한도를 다 썼어요";
+      $("#summary-text").innerHTML =
+        '오늘 날씨 조회 한도를 모두 사용했습니다.<br>내일 다시 이용해 주세요.';
+      return;
+    }
     $("#hero-desc").textContent = "일시적으로 불러오지 못했습니다";
     $("#summary-text").innerHTML =
       '날씨 데이터를 일시적으로 불러오지 못했습니다.<br>' +
@@ -2632,15 +2738,27 @@ async function openFoodView() {
       if (!alive()) { w.close(); return; }
 
       if (list.length) {
-        w.say(`맛집 ${list.length}곳을 찾았어요<br>맛을 평가하고 있어요`, 42);
+        w.say(`맛집 ${list.length}곳을 찾았어요<br>먹어본 사람들 평을 확인하고 있어요`, 34);
         try { await attachFoodRatings(list); } catch (_) { /* 평점 없어도 목록은 보여준다 */ }
         if (!alive()) { w.close(); return; }
 
-        w.say("맛집 사진을 모으고 있어요", 68);
+        // 오래 걸리는 구간 — 무슨 발품을 팔고 있는지 문구를 계속 바꿔가며 알려준다
+        const STEPS = [
+          "가게를 하나씩 들여다보고 있어요",
+          "어떤 음식을 내는지 사진을 모으는 중이에요",
+          "메뉴판을 펼쳐 보고 있어요",
+          "가게 안이 어떤 분위기인지 살펴봐요",
+          "별점과 리뷰 수를 맞춰보고 있어요",
+          "사진이 없는 곳은 걸러내고 있어요",
+          "보기 좋게 줄 세우고 있어요",
+        ];
+        w.say(STEPS[0], 46);
         let shown = [];
         try {
-          shown = await attachPhotos(list, "food",
-            (d, t) => w.say(`맛집 사진을 모으고 있어요 (${d}/${t})`, 68 + Math.round((d / t) * 20)));
+          shown = await attachPhotos(list, "food", (d, t) => {
+            const i = Math.min(STEPS.length - 1, Math.floor((d / t) * STEPS.length));
+            w.say(`${STEPS[i]} (${d}/${t})`, 46 + Math.round((d / t) * 44));
+          });
         } catch (_) { shown = []; }
         if (!alive()) { w.close(); return; }
 

@@ -148,11 +148,14 @@ function placePhotos_(id, kind) {
   try {
     // 카카오맵 '사진 탭'을 분류별로 병렬 조회.
     // 맛집: 음식 → 메뉴판 → 실내 → 실외 → 기타
-    // 숙박: 업주등록(VENDOR) → 실내 → 실외 → 기타.
-    //   카카오에는 '객실' 태그가 없고 INDOOR 에 객실·욕실·로비가 뒤섞여 들어온다.
-    //   업주가 직접 올린 사진이 대표 객실컷인 경우가 많아 그걸 앞세운다. (2026-07-28)
+    // 숙박: 예약사진(VENDOR) → 업주등록(MYSTORE) → 실내 → 이용후기 → 실외 → 기타
+    //   카카오에 '객실' 태그는 없다. 실물 확인 결과(2026-07-28):
+    //     VENDOR  = '카카오 예약하기 제공' 공식 객실컷 → 방 컨디션이 바로 보인다
+    //     MYSTORE = 업주 대표컷 → 건물 외관인 경우가 많다
+    //     INDOOR  = 블로그 실내컷 → 객실·부엌·소품이 뒤섞임
+    //   그래서 방이 보이는 순서로 VENDOR 를 맨 앞에 둔다.
     var base = "https://place-api.map.kakao.com/places/tab/photos/" + id;
-    var tags = stay ? ["MYSTORE", "VENDOR", "INDOOR", "OUTDOOR", ""]
+    var tags = stay ? ["VENDOR", "MYSTORE", "INDOOR", "KAKAOMAP_REVIEW", "OUTDOOR", ""]
                     : ["FOOD", "MENU", "INDOOR", "OUTDOOR", ""];
     var reqs = tags.map(function (t) {
       return { url: base + "?page=1" + (t ? "&tag=" + t : ""),

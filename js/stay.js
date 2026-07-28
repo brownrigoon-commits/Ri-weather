@@ -213,16 +213,28 @@ async function openStayView() {
     if (!alive()) { w.close(); return; }
 
     if (!list.length) { w.close(); renderStayList([], course); return; }
-    w.say(`숙소 ${list.length}곳을 찾았어요<br>평점을 확인하고 있어요`, 42);
+    w.say(`숙소 ${list.length}곳을 찾았어요<br>묵어본 사람들 평을 확인하고 있어요`, 34);
     try { await attachFoodRatings(list); } catch (_) {}
     if (!alive()) { w.close(); return; }
 
     // 사진 없는 숙소는 목록에서 뺀다 — 사진으로 고르는 화면이라 이름만 있는 카드는 의미가 없다
-    w.say("숙소 사진을 모으고 있어요", 70);
+    // 오래 걸리는 구간이라 "내가 이만큼 발품 팔고 있다"를 문구로 계속 바꿔가며 보여준다
+    const STEPS = [
+      "숙소를 하나씩 찾아가 보고 있어요",
+      "객실이 어떤지 사진을 모으는 중이에요",
+      "잠자리 컨디션을 살펴보고 있어요",
+      "주차·시설은 어떤지 확인하고 있어요",
+      "골프장에서 얼마나 가까운지 재고 있어요",
+      "사진이 없는 곳은 걸러내고 있어요",
+      "보기 좋게 줄 세우고 있어요",
+    ];
+    w.say(STEPS[0], 46);
     let shown = [];
     try {
-      shown = await attachPhotos(list, "stay",
-        (d, t) => w.say(`숙소 사진을 모으고 있어요 (${d}/${t})`, 70 + Math.round((d / t) * 20)));
+      shown = await attachPhotos(list, "stay", (d, t) => {
+        const i = Math.min(STEPS.length - 1, Math.floor((d / t) * STEPS.length));
+        w.say(`${STEPS[i]} (${d}/${t})`, 46 + Math.round((d / t) * 44));
+      });
     } catch (_) { shown = []; }
     if (!alive()) { w.close(); return; }
     if (!shown.length) {
