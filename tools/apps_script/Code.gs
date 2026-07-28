@@ -13,7 +13,7 @@
    tools/verify_deploy.py 가 이 값을 서버에서 읽어와 로컬과 대조한다.
    두 번이나 "코드는 고쳤는데 배포를 안 해서" 기능이 죽어 있었다:
      · 기록 백업·복구 (2026-07-27)  · 숙소 객실사진 우선 (2026-07-28) */
-var BACKEND_VER = "2026-07-28c";
+var BACKEND_VER = "2026-07-29a";   // Ri_Stock '브리핑 다시 받기' 추가
 
 var ADMIN_PW = "golf2026!";   // 관리자 통계 조회 비밀번호 — 설치 때 꼭 바꾸세요
 var SHEET_ID = "1XQ6pbcO9pMnxvpL3K-WiMCgqd5WVIupHgi9uS-vmxcM";   // '골프라이프 통계' 시트
@@ -87,10 +87,62 @@ function backupLoad_(code) {
   return json_({ ok: false, err: "없음" });
 }
 
+/* ---------- Ri_Stock '브리핑 다시 받기' (앱 → 깃허브 실행) ----------
+ * 주식 앱은 깃허브 페이지에 올라간 정적 화면이라, 폰에서 수집을 직접 돌릴 수 없습니다.
+ * (브라우저에서 야후·네이버를 부르는 것도 CORS 로 막힙니다 — 2026-07-28 확인)
+ * 그래서 이 백엔드가 대신 깃허브 워크플로를 눌러 줍니다.
+ *
+ * 지수 시황 + 10개국 뉴스만 다시 받는 `brief` 모드라 1~3분이면 끝납니다.
+ * 종목 데이터(600종목)는 건드리지 않습니다.
+ *
+ * ⚠ 깃허브 토큰은 **코드에 적지 않습니다.** Apps Script 의
+ *   프로젝트 설정 → 스크립트 속성 에 `GITHUB_TOKEN` 으로 넣어 주세요
+ *   (docs/ristock_브리핑버튼_설치.md 참고). 토큰이 없으면 이유를 그대로 돌려줍니다.
+ *
+ * 남용 방지: 한 번 누르면 3분 동안은 다시 받지 않습니다(같은 회차가 겹쳐 도는 것을 막습니다).
+ */
+var RISTOCK_REPO = "brownrigoon-commits/Ri-weather";
+var RISTOCK_WORKFLOW = "ristock-daily.yml";
+var RISTOCK_쿨다운초 = 180;
+
+function ristockRefresh_() {
+  var 토큰 = PropertiesService.getScriptProperties().getProperty("GITHUB_TOKEN");
+  if (!토큰) {
+    return json_({ ok: false, 사유: "토큰없음",
+                   안내: "Apps Script 스크립트 속성에 GITHUB_TOKEN 을 넣어 주세요" });
+  }
+  var 캐시 = CacheService.getScriptCache();
+  if (캐시.get("ristock_refresh")) {
+    return json_({ ok: false, 사유: "잠시전실행", 남은초: RISTOCK_쿨다운초 });
+  }
+
+  var url = "https://api.github.com/repos/" + RISTOCK_REPO +
+            "/actions/workflows/" + RISTOCK_WORKFLOW + "/dispatches";
+  var res = UrlFetchApp.fetch(url, {
+    method: "post",
+    contentType: "application/json",
+    headers: {
+      Authorization: "Bearer " + 토큰,
+      Accept: "application/vnd.github+json",
+      "X-GitHub-Api-Version": "2022-11-28",
+    },
+    payload: JSON.stringify({ ref: "main", inputs: { mode: "brief" } }),
+    muteHttpExceptions: true,
+  });
+  var 코드 = res.getResponseCode();
+  if (코드 === 204) {                      // 깃허브는 성공 시 본문 없이 204 를 줍니다
+    캐시.put("ristock_refresh", "1", RISTOCK_쿨다운초);
+    return json_({ ok: true, 걸리는시간: "1~3분" });
+  }
+  return json_({ ok: false, 사유: "깃허브거부", 코드: 코드,
+                 본문: String(res.getContentText()).slice(0, 200) });
+}
+
 /* ---------- 통계 수집 (앱 → 서버) ---------- */
 function doPost(e) {
   try {
     var body = JSON.parse(e.postData.contents || "{}");
+    if (body.fn === "ristock_refresh") return ristockRefresh_();
     if (body.fn === "backup") return backupSave_(body.code, body.data);
     var rows = body.rows || [];
     if (!rows.length || rows.length > 100) return json_({ ok: false });
