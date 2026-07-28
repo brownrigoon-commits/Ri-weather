@@ -242,6 +242,9 @@ def main():
 
     dedup = merge_length_rows(dedup)
 
+    import collections as _c
+    dup_models = sorted(m for m, n in _c.Counter(i["model"] for i in dedup).items() if n > 1)
+
     data = {
         "source": LIST_SRC,
         "fetched": date.today().isoformat(),
@@ -250,8 +253,16 @@ def main():
         "category": "putter",
         "note": ("odysseygolf.com 은 odyssey.callawaygolf.com 으로 리다이렉트됨(캘러웨이 공식). "
                  "각 제품 상세페이지의 'Product SPECS' 표만 파싱. "
-                 "표에 없는 값은 null(추정 없음). 항목별 출처는 items[].url."),
-        "product_count": len(dedup),
+                 "표에 없는 값은 null(추정 없음). 항목별 출처는 items[].url. "
+                 "스펙표가 길이별로 여러 줄인 제품군(Ai-One/DFX/Eleven/MicroHinge 등)은 "
+                 "'길이만 다른' 줄을 한 항목으로 합치고 lengths_in 에 전체 길이를 담았다"
+                 "(합친 줄 수는 items[].merged_length_rows). 길이 외 값이 다르면 "
+                 "합치지 않으므로 한 URL 에서 항목이 2개 이상 나올 수 있다. "
+                 "주의: 스펙표의 Model 열은 'Seven', 'Jailbird' 처럼 짧아 제품군이 다르면 "
+                 "이름이 겹친다. 항목 식별은 model 이 아니라 items[].url 을 키로 쓸 것."),
+        "item_count": len(dedup),
+        "product_count": len({i["url"] for i in dedup}),
+        "duplicate_model_names": dup_models,
         "failed": failed,
         "items": dedup,
     }

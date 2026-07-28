@@ -143,6 +143,24 @@
     { m: "오버사이즈 + 카운터밸런스", spec: "약 90~110g", why: "손 떨림·짧은 퍼트 긴장을 눌러줍니다" },
   ];
 
+  /* ───────── 제조사 실측 스펙 덮어쓰기 ─────────
+     js/clubdb.js (tools/build_clubdb.py 산출물)가 로드돼 있으면 그 값을 쓴다.
+     · 제조사 공식 페이지에서만 받은 값이고, 못 읽은 항목은 채우지 않고 비워 뒀다.
+     · 헤드·그립은 엔진이 쓰는 기준(관용성·타감 등)이 계측값이 아니라 어느 제조사도
+       공개하지 않는다 → 실측으로 바꾸지 못하고 데모를 유지한다.
+     · clubdb.js 를 못 불러와도 앱은 데모 데이터로 그대로 동작한다(끊기지 않음). */
+  let SHAFTS_ACTIVE = SHAFTS, IRON_SHAFTS_ACTIVE = IRON_SHAFTS;
+  let WEDGES_ACTIVE = WEDGES, PUTTERS_ACTIVE = PUTTERS;
+  (function useRealSpecs() {
+    const DB = (typeof globalThis !== "undefined" && globalThis.CLUBDB) || null;
+    if (!DB) return;
+    const pick = (arr, fallback) => (Array.isArray(arr) && arr.length ? arr : fallback);
+    SHAFTS_ACTIVE = pick(DB.SHAFTS, SHAFTS);
+    IRON_SHAFTS_ACTIVE = pick(DB.IRON_SHAFTS, IRON_SHAFTS);
+    WEDGES_ACTIVE = pick(DB.WEDGES, WEDGES);
+    PUTTERS_ACTIVE = pick(DB.PUTTERS, PUTTERS);
+  })();
+
   /* ───────── 상태 ───────── */
   /* 공통 프로필(P*)은 클럽을 바꿔도 다시 묻지 않는다 — localStorage 에 저장 */
   const S = {
@@ -1272,9 +1290,9 @@
       notes.push({ t: "rule", h: "클럽보다 공이 먼저", b: "스핀이 많은 신호인데 <b>우레탄 프리미엄 볼</b>을 쓰고 계십니다. 드라이버 스핀은 공이 만드는 몫이 큽니다 — 거리용 공으로 한 라운드만 바꿔 보세요. 훨씬 싸게 해결될 수 있습니다." });
 
     // 샤프트 채점
-    let pool = SHAFTS;
-    if (S.budget === "stock") pool = SHAFTS.filter((s) => s.stock);
-    if (!pool.length) pool = SHAFTS;
+    let pool = SHAFTS_ACTIVE;
+    if (S.budget === "stock") pool = SHAFTS_ACTIVE.filter((s) => s.stock);
+    if (!pool.length) pool = SHAFTS_ACTIVE;
     const cur = CUR_SHAFT[S.curShaft] || CUR_SHAFT.unknown;
     const shafts = pool.map((s) => {
       let p = 0; const why = [];
@@ -1428,8 +1446,8 @@
 
     // ── 샤프트 채점
     const pool = S.ironBudget === "stock"
-      ? IRON_SHAFTS.filter((s) => s.stock || s.w <= 100)
-      : IRON_SHAFTS;
+      ? IRON_SHAFTS_ACTIVE.filter((s) => s.stock || s.w <= 100)
+      : IRON_SHAFTS_ACTIVE;
     const shafts = pool.map((s) => {
       let p = 0; const why = [];
       if (s.mat !== mat) p -= 30;
@@ -1551,7 +1569,7 @@
 
     return {
       pw, cnt, specs, grind, why, shaft,
-      pick: pickTiers(WEDGES.map((w) => ({ ...w, p: w.br === S.wedgeBrand ? 10 : 0 }))
+      pick: pickTiers(WEDGES_ACTIVE.map((w) => ({ ...w, p: w.br === S.wedgeBrand ? 10 : 0 }))
                       .sort((a, b) => b.p - a.p), S.wedgeBrand, "br", null, null),
       grip: gripEngine(),
       note: `피칭(${pw}°)과 로브(58°) 사이 ${span}°를 ${cnt}개로 나눴습니다. ` +
@@ -1568,7 +1586,7 @@
     if (S.puttStroke === "unknown")
       notes.push({ h: "궤도는 이렇게 가정했어요", b: "잘 모르겠다고 하셔서 <b>약간의 아크</b>로 두었습니다. 아마추어에게 가장 흔하고, 약토우행 미드말렛은 어느 궤도에서도 크게 어긋나지 않습니다." });
 
-    const scored = PUTTERS.map((p) => {
+    const scored = PUTTERS_ACTIVE.map((p) => {
       let s = 0; const why = [];
       if (p.arc === arc) { s += 40; why.push(`${arc === "straight" ? "직선" : arc === "arc" ? "아크가 큰" : "약간 아크"} 스트로크에 맞는 ${p.bal}`); }
       else if ((arc === "slight" && p.arc !== "straight") || (p.arc === "slight")) s += 18;
@@ -1694,7 +1712,8 @@
   function tagsOf(x) {
     if (!x) return "";
     const t = [];
-    if (x.pr !== undefined) t.push(`<span class="r-tag">${PRICE_LABEL[x.pr]}</span>`);
+    // 가격대는 제조사 스펙표에 없다(실측분은 pr=null). 모르는 걸 적지 않는다.
+    if (has(x.pr) && PRICE_LABEL[x.pr]) t.push(`<span class="r-tag">${PRICE_LABEL[x.pr]}</span>`);
     if (x.st === "old") t.push(`<span class="r-tag old">단종 · 중고로 구함</span>`);
     return t.length ? `<div class="r-tags">${t.join("")}</div>` : "";
   }
@@ -1728,8 +1747,17 @@
       : `${pick.wanted}에는 맞는 게 없어 전체 1순위로 골랐어요`;
   }
 
+  /* 제조사가 공개하지 않는 값(킥포인트·타감 등)은 비어 있다.
+     "킥 null" 처럼 찍히면 안 되므로, 값이 없으면 그 항목을 통째로 뺀다.
+     — 틀릴 수 있으면 아예 표시하지 않는다는 원칙. */
+  const has = (v) => v !== null && v !== undefined && v !== "";
+  const part = (label, v, unit) => (has(v) ? [`${label} ${v}${unit || ""}`] : []);
+
   function shaftSpec(s) {
-    return `${s.b} · ${s.w}g · ${s.fx} · 토크 ${s.tq}° · 킥 ${s.k}${s.velo ? " · 벨로코어" : ""}`;
+    return [s.b, has(s.w) ? `${s.w}g` : null, s.fx]
+      .filter(Boolean)
+      .concat(part("토크", s.tq, "°"), part("킥", s.k), s.velo ? ["벨로코어"] : [])
+      .join(" · ");
   }
 
   /* ═══════════════════════════════════════════════════════════════
@@ -1797,7 +1825,9 @@
     // ② 기준 → ③ 연결 → ④ 기대
     const why = story("그래서 이 조합입니다", [
       `<b>로프트 ${r.lf.loft}°</b> — ${r.lf.why.join(". ")}. 로프트는 드라이버 거리에서 <b>가장 큰 변수</b>인데, 대부분 스펙 표에서 맨 뒤로 밀립니다. 여기서는 맨 앞에 둡니다.`,
-      `<b>${sp.m} ${sp.sp}</b> — 무게 ${sp.w}g는 계산 밴드 ${r.wLo}~${r.wHi}g 안이고, 플렉스 ${sp.fx}는 ${S.tempo === "fast" ? "전환이 급한 템포를 감안해 한 단계 올린" : "지금 스피드에 맞는"} 강도입니다. 토크 ${sp.tq}°는 ${fl.tq === "high" ? "페이스가 열려 맞는 지금 경향에서 <b>헤드가 제때 돌아오도록</b> 도와주는 쪽" : fl.tq === "low" ? "페이스가 닫혀 맞는 경향을 <b>덜 감기게</b> 눌러주는 쪽" : "중립적인 쪽"}이고, 킥 ${sp.k}는 ${S.flight === "balloon" || S.flight === "high" ? "지금의 <b>과한 런치와 스핀을 눌러주는</b>" : S.flight === "low" ? "부족한 <b>런치를 끌어올리는</b>" : "탄도를 유지하는"} 성격입니다.`,
+      `<b>${sp.m} ${sp.sp}</b> — 무게 ${sp.w}g는 계산 밴드 ${r.wLo}~${r.wHi}g 안이고, 플렉스 ${sp.fx}는 ${S.tempo === "fast" ? "전환이 급한 템포를 감안해 한 단계 올린" : "지금 스피드에 맞는"} 강도입니다.`
+        + (has(sp.tq) ? ` 토크 ${sp.tq}°는 ${fl.tq === "high" ? "페이스가 열려 맞는 지금 경향에서 <b>헤드가 제때 돌아오도록</b> 도와주는 쪽" : fl.tq === "low" ? "페이스가 닫혀 맞는 경향을 <b>덜 감기게</b> 눌러주는 쪽" : "중립적인 쪽"}입니다.` : "")
+        + (has(sp.k) ? ` 킥 ${sp.k}는 ${S.flight === "balloon" || S.flight === "high" ? "지금의 <b>과한 런치와 스핀을 눌러주는</b>" : S.flight === "low" ? "부족한 <b>런치를 끌어올리는</b>" : "탄도를 유지하는"} 성격입니다.` : ""),
       `<b>${hd.br} ${hd.m}</b> — 관용성 ${hd.forg}/5, 스핀 ${hd.spin}${hd.draw ? ", 드로 바이어스" : ", 뉴트럴"}. ${hd.draw ? `페이스가 열려 맞는 ${fl.n} 경향을 헤드 무게 배치로 <b>물리적으로 상쇄</b>합니다 — 스윙을 안 바꿔도 공이 덜 휩니다.` : `구질을 억지로 건드리지 않고 <b>타점이 흔들려도 거리를 지켜주는</b> 쪽으로 골랐습니다.`} 평균 ${gradeTxt()} 구간에서 ${hd.forg >= 4 ? "관용성이 곧 평균 거리입니다 — 잘 맞은 한 방보다 <b>안 맞은 공의 손해를 줄이는 것</b>이 스코어에 훨씬 큽니다." : "조정 기능으로 구질을 직접 세팅할 수 있는 쪽이 낫습니다."}`,
       `<b>길이 ${r.ln.len}</b> — ${r.ln.why}`,
       `<b>그립 ${r.grip.model}</b> — ${r.grip.why.join(". ")}.`,
@@ -1853,7 +1883,7 @@
 
     const why = story("그래서 이 조합입니다", [
       `<b>${r.mat} · 약 ${r.target}g</b> — ${r.mat === "스틸" ? "스틸은 무겁지만 <b>스윙마다의 편차가 작습니다.</b> 아이언은 거리를 맞히는 클럽이라 일관성이 최우선입니다." : "그라파이트는 <b>가벼워서 후반까지 스윙이 유지됩니다.</b> 18홀 뒤쪽 여섯 홀에서 무너지면 앞의 열두 홀이 의미가 없습니다."}`,
-      `<b>${sp.m} ${sp.sp}</b> — 약 ${sp.w}g로 목표에 가장 가깝고, 킥 ${sp.k}는 ${S.ironTraj === "low" ? "부족한 탄도를 <b>끌어올리는</b>" : S.ironTraj === "high" ? "과한 탄도를 <b>눌러주는</b>" : "지금 탄도를 유지하는"} 성격입니다. 타감은 ${sp.feel} 쪽이라 ${S.ironFeel === "any" || !S.ironFeel ? "무난합니다." : "선호하신 느낌과 맞습니다."}`,
+      `<b>${sp.m} ${sp.sp}</b> — 약 ${sp.w}g로 목표에 가장 가깝습니다.` + (has(sp.k) ? ` 킥 ${sp.k}는 ${S.ironTraj === "low" ? "부족한 탄도를 <b>끌어올리는</b>" : S.ironTraj === "high" ? "과한 탄도를 <b>눌러주는</b>" : "지금 탄도를 유지하는"} 성격입니다.` : "") + (has(sp.feel) ? ` 타감은 ${sp.feel} 쪽이라 ${S.ironFeel === "any" || !S.ironFeel ? "무난합니다." : "선호하신 느낌과 맞습니다."}` : ""),
       `<b>${hd.br} ${hd.m}</b> — ${hd.type}, 관용성 ${hd.forg}/5, 오프셋 ${hd.off}. ${S.ironLook === "classic" ? "얇고 깔끔한 걸 원하셔서 <b>취향을 먼저</b> 반영했습니다. 다만 얇을수록 빗맞을 때 손해가 커집니다 — 그건 감수하시는 대가입니다." : S.ironLook === "forgiving" ? "두툼하고 든든한 걸 원하셔서 <b>관용성이 큰 쪽</b>으로 골랐습니다. 어드레스에서 마음이 편한 게 실제로 스윙을 좋게 만듭니다." : `평균 ${gradeTxt()} 구간에서 무리 없는 난이도로 골랐습니다.`}`,
       `<b>라이각 ${r.lie} · 길이 ${r.lenAdj}</b> — ${r.lieWhy.join(". ")}.`,
       r.setAdvice ? `<b>세트 구성</b> — ${r.setAdvice.b}` : null,
@@ -2062,7 +2092,9 @@
       ${ex.read}
       <div class="section-h">샤프트 <span class="cnt">${brandLine(sp)}</span></div>
       ${resCard("샤프트 1순위", `${sp.main.m} ${sp.main.sp}`,
-        `${sp.main.b} · ${sp.main.mat} · 약 ${sp.main.w}g · ${sp.main.fx} · 킥 ${sp.main.k} · ${sp.main.feel}`, sp.main.why, false, sp.main)}
+        [sp.main.b, sp.main.mat, `약 ${sp.main.w}g`, sp.main.fx]
+          .concat(part("킥", sp.main.k), has(sp.main.feel) ? [sp.main.feel] : [])
+          .filter(Boolean).join(" · "), sp.main.why, false, sp.main)}
       ${sp.alt ? altLead("샤프트") + resCard(sp.alt.b, `${sp.alt.m} ${sp.alt.sp}`,
         `${sp.alt.mat} · 약 ${sp.alt.w}g · ${sp.alt.fx}`, sp.alt.why, true, sp.alt) : ""}
       ${olderCard("샤프트", sp.older, sp.older ? `${sp.older.mat} · 약 ${sp.older.w}g · ${sp.older.fx}` : "", sp.olderBetter)}
