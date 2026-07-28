@@ -184,7 +184,8 @@
         if (screen.includes(w)) add("화면 문구에 재단 용어", eye, screen.slice(0, 70));
       });
 
-      document.querySelectorAll("#cf-screen .chips").forEach(g => {
+      const groups = [...document.querySelectorAll("#cf-screen .chips")];
+      groups.forEach(g => {
         const c = g.querySelector('.chip[aria-pressed="true"]') ? null : g.querySelector(".chip");
         if (c) c.click();
       });
@@ -193,7 +194,13 @@
               || document.querySelector("#cf-screen [data-useprofile]");   // 프로필 확인 화면
       const sk = document.querySelector("#cf-screen [data-skip]");
       const jp = document.querySelector('#cf-screen [data-jump="bag"]');
-      if (nb) nb.click(); else if (sk) sk.click(); else if (jp) jp.click();
+      if (nb) nb.click();
+      else if (sk) sk.click();
+      else if (jp) jp.click();
+      /* 다음 버튼이 없는 '고르면 바로 넘어가는' 화면인데 이미 다 선택돼 있으면
+         아무 일도 안 일어나 순회가 거기서 멈춘다(2026-07-29 실제로 그랬다).
+         같은 칩을 다시 눌러도 넘어가므로 그렇게 뚫는다. */
+      else if (groups.length) groups[groups.length - 1].querySelector(".chip").click();
       await sleep(120);
       if (document.querySelector(".rw-wait")) { WAIT.close(true); await sleep(140); }
     }
@@ -201,6 +208,20 @@
     /* 선호 브랜드 질문은 반드시 거쳐야 한다.
        선택 단계에 두었더니 대부분 질문을 못 받고 지나가 기능이 죽어 있었다(2026-07-27). */
     if (!sawBrand) add("선호 브랜드 질문을 거치지 않음", club, "방문 " + visited + "개");
+
+    /* 판정 화면이 뜨기까지 2.4초 기다리는 동안 다른 버튼을 누르면 어떻게 되는지.
+       예약된 그리기가 없어진 화면을 그리려다 앱이 깨진 적이 있다(2026-07-29). */
+    const restart = document.querySelector("#cf-screen [data-restart], #cf-screen [data-jump='pick']");
+    if (restart) {
+      restart.click();
+      await sleep(200);
+      const jump = document.querySelector("#cf-screen .cf-club-tile[data-club='driver']");
+      if (jump) jump.click();
+      await sleep(3000);                       // 예약된 그리기(2.4초)가 지나가도록
+      if (document.querySelector(".rw-wait")) WAIT.close(true);
+      if (!document.querySelector("#cf-screen .q-title, #cf-screen .cf-club-tile"))
+        add("판정 대기 중 화면을 옮기면 피팅이 깨짐", club, "cf-screen 이 비었음");
+    }
   } catch (e) { add("피팅 화면 순회 예외", club, e.message); }
 
   /* ── 3-3. 백업·복구가 서버에서 실제로 되는지 ─────────────────

@@ -223,6 +223,11 @@ function bookBtn(it) {
       우리는 그 정보를 갖고 있지 않다. 아는 것(=예약 창구의 종류)만 말한다.
       vendor 가 null 이면 옛 백엔드라 판단 불가 → 아무것도 표시하지 않는다. */
 function bookableTag(it) {
+  /* 판매중인 객실이 실제로 있으면 그게 가장 확실한 근거다.
+     vendor 수만 보다가 "전화 예약"이라 써 놓고 바로 밑에 "50,000원~ 스탠다드·디럭스"
+     가 뜨는 앞뒤 안 맞는 카드가 나왔다(월드모텔, 2026-07-29 실측). */
+  const rooms = onSaleRooms(it);
+  if (rooms && rooms.length) return ' <span class="stay-ok">온라인 예약</span>';
   if (typeof it.vendor !== "number") return "";
   return it.vendor > 0
     ? ' <span class="stay-ok">온라인 예약</span>'
@@ -230,11 +235,21 @@ function bookableTag(it) {
 }
 
 /* 요금·객실 한 줄 — 눌러보지 않아도 얼마인지, 어떤 방이 있는지 보인다 */
+/* 객실 이름만 남긴다.
+   숙소가 등록한 이름에는 편의시설이 통째로 붙어 있다 —
+   "일반실A(스마트TV/WIFI/스타일러 이용가능)" 처럼. 한 줄에 세 개를 넣으면
+   전부 중간에서 잘려 "일반실A(스마트TV/WIFI/스타일러 이용가" 로 보인다(2026-07-29 실측).
+   괄호 앞까지가 실제 방 이름이므로 거기서 끊는다. */
+function roomName(r) {
+  const n = String(r.n || "").split(/[(\[]/)[0].trim().replace(/[\s·,/-]+$/, "");
+  return n || String(r.n || "").slice(0, 12);
+}
+
 function roomLine(it) {
   const rooms = onSaleRooms(it);
   if (rooms === null || !rooms.length) return "";      // 모르면 아무 말도 안 한다
   const p = lowPrice(rooms);
-  const names = [...new Set(rooms.map((r) => r.n))].slice(0, 3).join(" · ");
+  const names = [...new Set(rooms.map(roomName))].slice(0, 3).join(" · ");
   return `<div class="fi-room"><b>${p ? won(p) + "~" : "요금 문의"}</b><span>${names}</span></div>`;
 }
 

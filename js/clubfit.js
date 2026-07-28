@@ -2198,18 +2198,29 @@
   /* 판정 화면은 계산이 순식간이라 그냥 뜨면 "정말 분석한 게 맞나" 싶어진다.
      실제로 룰 엔진이 도는 동안 무엇을 보고 있는지 말해주는 편이 결과를 신뢰하게 만든다. */
   const RESULT_KEYS = ["result", "ironResult", "wedgeResult", "puttResult"];
+  /* 판정 화면은 2.4초 뒤에 그린다. 그 사이에 사장님이 '처음부터 다시'나
+     '다른 클럽도 맞춰보기'를 누르면 SCREENS 가 통째로 [PICK] 로 바뀌는데,
+     예약해둔 그리기가 그대로 실행되면서 없는 화면을 그리려다 앱이 깨졌다
+     (Cannot read properties of undefined (reading 'render') — 2026-07-29 sweep 적발).
+     이동할 때마다 번호를 새로 매기고, 번호가 바뀌었으면 예약된 그리기를 버린다. */
+  let paintToken = 0;
   function go(i) {
     const target = Math.max(0, Math.min(i, SCREENS.length - 1));
-    if (RESULT_KEYS.includes(SCREENS[target].key) && typeof WAIT !== "undefined") {
+    const mine = ++paintToken;
+    if (SCREENS[target] && RESULT_KEYS.includes(SCREENS[target].key) && typeof WAIT !== "undefined") {
       const w = WAIT.open("clubfit");
-      setTimeout(() => { paint(target); w.close(); }, 2400);
+      setTimeout(() => {
+        if (mine !== paintToken) { w.close(); return; }   // 그 사이에 다른 데로 갔다
+        paint(target); w.close();
+      }, 2400);
       return;
     }
     paint(target);
   }
   function paint(i) {
-    idx = i;
+    idx = Math.max(0, Math.min(i, SCREENS.length - 1));
     const sc = SCREENS[idx];
+    if (!sc) return;                                      // 화면 목록이 비어 있으면 아무것도 하지 않는다
     scrEl().innerHTML = (idx > 0 ? `<button class="cf-back" data-back>← 이전</button>` : "") + sc.render();
     const stage = $$("#cf-stage"), step = $$("#cf-step");
     // 진행 표시는 내부 단계 이름이 아니라 "지금 무슨 일이 일어나는지"를 말한다.
