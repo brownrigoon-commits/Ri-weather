@@ -72,9 +72,14 @@ def num(s):
 
 COLMAP = {
     "club": "club", "club #": "club",
+    # 어떤 페이지는 클럽칸 머리글이 'Name' / 'Iron' 이다 (내용은 '#5','PW','3H' 로 동일)
+    "name": "club", "club name": "club", "iron": "club", "irons": "club",
     "loft": "loft", "lofts": "loft",
     "lie": "lie", "lie angle": "lie",
     "length": "length", "standard length": "length",
+    # 여성용 표는 길이 칸 머리글이 "Women's Length" 다 — 같은 길이 값이다
+    "women s length": "length", "womens length": "length",
+    "men s length": "length", "mens length": "length",
     "cc": "cc", "volume": "cc", "head size": "cc",
     "availability": "availability", "hand": "availability",
     "offset mm": "offset_mm", "offset": "offset_mm",
@@ -88,6 +93,8 @@ def norm_cols(header):
     out = []
     for h in header:
         k = h.lower().replace("°", " ").replace("(", " ").replace(")", " ")
+        # 아포스트로피는 표기가 제각각(' / ’)이라 공백으로 눕혀서 맞춘다: "Women's Length" → "women s length"
+        k = k.replace("'", " ").replace("’", " ")
         k = re.sub(r"\s+", " ", k).strip()
         out.append(COLMAP.get(k, re.sub(r"\W+", "_", k).strip("_") or "col"))
     return out
@@ -108,10 +115,36 @@ def tables(html):
 
 def title_of(html):
     m = re.search(r"(?is)<title[^>]*>(.*?)</title>", html)
-    if not m:
-        return None
-    t = txt(m.group(1))
-    return re.sub(r"\s*\|\s*Callaway Golf\s*$", "", t).strip() or None
+    if m:
+        # <title> 은 "모델명 | Callaway Golf | Specs & Reviews" 처럼 꼬리가 여러 개 붙는다.
+        # 첫 '|' 앞이 모델명이다 — 꼬리를 통째로 버린다.
+        t = txt(m.group(1)).split("|")[0].strip()
+        if t:
+            return t
+    # <title> 이 비면 h1 으로 대체
+    m = re.search(r"(?is)<h1[^>]*>(.*?)</h1>", html)
+    if m:
+        return txt(m.group(1)).strip() or None
+    return None
+
+
+# '9°', '10.5 °' 처럼 도수만 들어있는 칸인지 (Model 칸에 로프트가 오는 페이지가 있다)
+DEG_ONLY = re.compile(r"^\s*\d+(?:\.\d+)?\s*°\s*$")
+
+
+def loft_cell(rc):
+    """로프트 원문 칸을 고른다.
+
+    Loft 칸이 있으면 그것을, 없고 Model 칸이 '9°' 같은 도수 표기면 그것을 쓴다.
+    (Paradym Ai Smoke MAX / Elyte Night Edition / Reva Rise 처럼 표 머리글이
+     'Model' 인데 실제 내용은 로프트인 페이지 대응 — 지어낸 값이 아니라 표 원문이다.)
+    """
+    if rc.get("loft"):
+        return rc["loft"]
+    m = rc.get("model")
+    if m and DEG_ONLY.match(m):
+        return m
+    return None
 
 
 def collect(slug, kind):
@@ -147,8 +180,8 @@ def collect(slug, kind):
     }
     if kind == "driver":
         item["loft_options"] = [
-            {"loft_label": rc.get("loft"),
-             "loft_deg": num(rc.get("loft")),
+            {"loft_label": loft_cell(rc),
+             "loft_deg": num(loft_cell(rc)),
              "availability": rc.get("availability"),
              "length_inch": num(rc.get("length")),
              "lie_deg": num(rc.get("lie")),

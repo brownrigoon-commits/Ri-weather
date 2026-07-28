@@ -4,8 +4,8 @@
  * ========================================================= */
 "use strict";
 
-const APP_VER = "v126"; // 배포 버전 (홈 화면 배지에 표시)
-const APP_NOTE = "클럽 피팅 아이콘 교체"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
+const APP_VER = "v127"; // 배포 버전 (홈 화면 배지에 표시)
+const APP_NOTE = "점검 반영"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
 const STORAGE_KEY = "riweather.courses.v1";
 const GEM_KEY = "riweather.gemini"; // 정밀 인식(비전 AI) 개인 키 저장소
 // 기본 제공 키 (무료 한도 공유) — 개인 키를 설정하면 그 키가 우선됩니다
@@ -496,7 +496,7 @@ function renderResultItem(entry) {
     hideSearchUI();
     searchInput.value = "";
     searchClear.hidden = true;
-    openHub({ id: entry.id, name: entry.name, addr: entry.addr || "", lat: entry.lat, lon: entry.lon });
+    openHub({ id: entry.id, name: entry.name, addr: entry.addr || "", lat: entry.lat, lon: entry.lon, c: entry.c });
   });
   return li;
 }
@@ -509,6 +509,7 @@ const runSearch = debounce(async (q) => {
     id: "gdb-" + g.lat + "," + g.lon,
     name: g.k || g.n,                       // 한국어 우선
     addr: "", lat: g.lat, lon: g.lon, golf: true,
+    c: g.c,
     flag: COUNTRY_FLAG[g.c] || "",
     alias: g.k ? g.n : (g.a ? g.a.split(" ")[0] : ""),  // 부제: 현지어 원어명
   }));
@@ -725,9 +726,14 @@ document.querySelectorAll(".hub-item").forEach((btn) => {
 });
 
 // 스크롤 시 상단 미니 타이틀 표시
-window.addEventListener("scroll", () => {
-  $("#detail-title-mini").classList.toggle("show", window.scrollY > 140);
-});
+// 브라우저·CSS 조합에 따라 실제로 스크롤되는 요소가 window 가 아니라 body 일 수 있어
+// 둘 다에서 값을 읽고 이벤트도 둘 다 받는다 (한쪽만 보면 0 이라 영영 안 뜬다).
+const onScrollForTitle = () => {
+  const y = window.scrollY || document.body.scrollTop || document.documentElement.scrollTop || 0;
+  $("#detail-title-mini").classList.toggle("show", y > 140);
+};
+window.addEventListener("scroll", onScrollForTitle, { passive: true });
+document.body.addEventListener("scroll", onScrollForTitle, { passive: true });
 
 async function openDetail(course) {
   currentCourse = course;
@@ -1300,7 +1306,15 @@ document.querySelectorAll(".mode-btn").forEach((btn) => {
 
 /* 한국 구장 여부 — 기상청 레이더는 한반도 전용이라 해외 구장은 기존 위성 레이더 유지 */
 function isKRCourse() {
-  return !currentCourse || (currentCourse.c || "KR") === "KR";
+  if (!currentCourse) return true;
+  if (currentCourse.c) return currentCourse.c === "KR";
+  // 옛 저장 기록(c 없음): 내장 DB 에서 좌표로 정확히 되찾는다
+  const hit = (typeof GOLF_DB !== "undefined" ? GOLF_DB : [])
+    .find((g) => g.lat === currentCourse.lat && g.lon === currentCourse.lon);
+  if (hit && hit.c) return hit.c === "KR";
+  // 지역 검색(OSM) 등 DB 밖: 기상청 영상이 실제로 덮는 한반도 범위일 때만 한국
+  const { lat, lon } = currentCourse;
+  return lat >= 32.5 && lat <= 39.5 && lon >= 124 && lon <= 132;
 }
 
 /* 기상청 레이더 이미지(500x520) 위경도→픽셀 변환.
@@ -1329,7 +1343,8 @@ function positionKmaView() {
   img.style.transform = `translate(${-ox}px, ${-oy}px)`;
   dot.style.left = (p.x * s - ox) + "px";
   dot.style.top = (p.y * s - oy) + "px";
-  dot.hidden = false;
+  // 영상 밖이면 아예 감춘다 — 틀린 위치를 보여주느니 안 보여준다
+  dot.hidden = !(p.x >= 0 && p.x <= 500 && p.y >= 0 && p.y <= 520);
   const zb = $("#kma-zoom-btn");
   if (zb) zb.textContent = kmaZoomed ? "전국 보기" : "🔍 내 골프장 확대";
   // 시각 띠: 영상 상단 제목부(0,0~340,26)만 확대해 항상 보이게 — 프레임별 시각이 그대로 읽힌다
@@ -1569,8 +1584,13 @@ const PROFILE_KEY = "riweather.profile";
 function loadProfile() {
   try { return JSON.parse(localStorage.getItem(PROFILE_KEY)) || {}; } catch { return {}; }
 }
-function saveProfile(p) {
-  localStorage.setItem(PROFILE_KEY, JSON.stringify(p));
+/* 프로필은 여러 화면에서 조각조각 저장된다(구질·비거리 / 평균타수 / 약관 / 백업복구).
+   통째로 덮어쓰면 다른 화면이 넣어둔 값이 조용히 사라진다 —
+   실제로 평균타수를 고른 뒤 구질을 건드리면 평균타수가 날아갔다(2026-07-28).
+   그래서 항상 '병합'한다. {avg:null} 처럼 값을 지우는 것도 그대로 동작한다. */
+function saveProfile(patch) {
+  const cur = loadProfile();
+  localStorage.setItem(PROFILE_KEY, JSON.stringify(Object.assign(cur, patch)));
   if (typeof BACKUP !== "undefined") BACKUP.touch();
 }
 
@@ -1778,7 +1798,7 @@ async function openCourseView() {
         iconSize: [26, 26], iconAnchor: [13, 13],
       }),
     });
-    mk.on("click", () => selectHole(i));
+    mk.on("click", () => selectHole(i, true));
     courseLayers.push(mk.addTo(courseMap));
   });
   courseMap.fitBounds(allBounds.pad(0.08));
@@ -1793,12 +1813,12 @@ async function openCourseView() {
     const b = document.createElement("button");
     b.className = "hole-btn";
     b.innerHTML = `${h.ref}<small>파${h.par}</small>`;
-    b.addEventListener("click", () => selectHole(i));
+    b.addEventListener("click", () => selectHole(i, true));
     grid.appendChild(b);
   });
   $("#hole-list-card").hidden = false;
 
-  function selectHole(i) {
+  function selectHole(i, byUser) {
     const h = courseHoles[i];
     grid.querySelectorAll(".hole-btn").forEach((b, j) => b.classList.toggle("active", j === i));
     holeLayers.forEach((l) => courseMap.removeLayer(l));
@@ -1824,6 +1844,10 @@ async function openCourseView() {
     $("#hole-video").href = "https://www.youtube.com/results?search_query=" +
       encodeURIComponent(`${course.name} ${h.ref}번홀 공략`);
     $("#hole-detail-card").hidden = false;
+    // 사용자가 직접 홀을 눌렀을 때만 공략으로 스크롤한다.
+    // (진입 자동선택·프로필 재계산에서 움직이면 홀 목록이 사라지고 입력 중 화면이 튄다)
+    // ⚠️ 이 앱은 스크롤러가 body 라 window.scrollTo 가 듣지 않는다 — scrollIntoView 를 쓸 것
+    if (byUser) $("#hole-detail-card").scrollIntoView({ behavior: "smooth", block: "start" });
   }
   selectHole(0);
 }
@@ -1850,7 +1874,7 @@ function renderImgCourse(course, db) {
       const b = document.createElement("button");
       b.className = "hole-btn";
       b.innerHTML = `${h.no}<small>파${h.par}</small>`;
-      b.addEventListener("click", () => sel(i));
+      b.addEventListener("click", () => sel(i, true));
       grid.appendChild(b);
     });
   });
@@ -1858,7 +1882,7 @@ function renderImgCourse(course, db) {
     `<span class="ic">⛳</span> 홀 선택`;
   $("#hole-list-card").hidden = false;
 
-  function sel(i) {
+  function sel(i, byUser) {
     const h = flat[i];
     grid.querySelectorAll(".hole-btn").forEach((b, j) => b.classList.toggle("active", j === i));
     $("#hole-detail-title").textContent = `${h.cname} ${h.no}번홀 공략`;
@@ -1917,6 +1941,10 @@ function renderImgCourse(course, db) {
     lastHoleSelect = () => sel(i);
     $("#hole-video").hidden = true; // 홀별 영상 선별 불가 — 신뢰 문제로 미표시
     $("#hole-detail-card").hidden = false;
+    // 사용자가 직접 홀을 눌렀을 때만 공략으로 스크롤한다.
+    // (진입 자동선택·프로필 재계산에서 움직이면 홀 목록이 사라지고 입력 중 화면이 튄다)
+    // ⚠️ 이 앱은 스크롤러가 body 라 window.scrollTo 가 듣지 않는다 — scrollIntoView 를 쓸 것
+    if (byUser) $("#hole-detail-card").scrollIntoView({ behavior: "smooth", block: "start" });
   }
   sel(0);
 }

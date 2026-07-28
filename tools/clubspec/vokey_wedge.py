@@ -103,8 +103,13 @@ def main():
                 grind = r[2] or None
                 if loft is None or grind is None:
                     continue
-                key = (loft, bounce, grind)
-                if key in seen:          # 페이지 내 중복 방지
+                # 주의: (loft, bounce, grind) 만으로 키를 잡으면 길이·스윙웨이트가
+                #       다른 별개 사양이 같은 조합으로 묶여 통째로 버려질 수 있다.
+                #       행 전체를 키로 써서 진짜 동일행만 제거한다.
+                key = (loft, bounce, grind,
+                       num(r[3]) if len(r) > 3 else None,
+                       (r[4] or None) if len(r) > 4 else None)
+                if key in seen:          # 완전히 동일한 행만 중복 제거
                     continue
                 seen.add(key)
                 items.append({

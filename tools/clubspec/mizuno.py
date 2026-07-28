@@ -57,6 +57,26 @@ def num(s):
     return float(m.group()) if m else None
 
 
+def length_options(s):
+    """'34/35' 처럼 슬래시로 나열된 길이 선택지를 그대로 목록으로 돌려준다.
+
+    퍼터는 단일 길이가 아니라 34"/35" 두 가지로 나오는 식이라 length_inch 는 null 이 된다.
+    여기서 만드는 건 표에 적힌 숫자 그대로이지 추정값이 아니다. 하나뿐이면 None.
+    """
+    if not s:
+        return None
+    t = s.replace("″", "").replace('"', "").strip()
+    if "/" not in t:
+        return None
+    parts = [p.strip() for p in t.split("/")]
+    out = []
+    for p in parts:
+        if not re.fullmatch(r"[-+]?\d+(?:\.\d+)?", p):
+            return None          # 하나라도 숫자가 아니면 해석하지 않는다
+        out.append(float(p))
+    return out or None
+
+
 def blocks(html):
     """<h4> 제목과 바로 뒤 <table> 을 짝지어 문서 순서대로 돌려준다."""
     out = []
@@ -137,6 +157,7 @@ def parse_table(heading, rows, product_url, spec_url, kind):
                 "lie_range_deg": li if li and RANGE.match(li) else None,
                 "head_volume_cc": num(re.sub(r"(?i)cc", "", vol)) if vol else None,
                 "length_inch": num(rec.get("length_inch")),
+                "length_options_inch": length_options(rec.get("length_inch")),
                 "raw": rec,
                 "product_url": product_url,
                 "spec_url": spec_url,

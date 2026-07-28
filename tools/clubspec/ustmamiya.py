@@ -122,6 +122,20 @@ SUBCAT = {
     "putter shafts": "putter", "putter shaft": "putter",
 }
 
+# 표 중간의 섹션 라벨(예: 'V2 SERIES', 'HL SERIES', 'HYBRIDS') 중
+# 하위 카테고리를 명확히 나타내는 것만 매핑. 애매하면 건드리지 않는다.
+GROUP_SUBCAT = {
+    "hybrids": "hybrid", "hybrid": "hybrid",
+    "woods": "wood", "wood": "wood",
+    "irons": "iron", "iron": "iron",
+    "putters": "putter", "putter": "putter",
+}
+
+# 스펙 행이 아닌 부속 표(팁핑 가이드/피팅 차트 등)의 라벨.
+# 섹션 라벨로 오인해 행으로 만들지 않도록 차단한다.
+NOT_A_GROUP = ("tipping", "instruction", "fitting", "chart",
+               "swing speed", "carry")
+
 
 def norm_label(label):
     h = label.lower().strip().rstrip(".").strip()
@@ -143,6 +157,14 @@ def parse_spec_tables(page):
     (네비게이션 메뉴나 마케팅 문구 heading 이 섞여도 안전)
 
     헤더 뒤에 이어지는 text-editor 들을 헤더 개수만큼 잘라 행으로 만든다.
+
+    [중요] 한 헤더 아래에 섹션 라벨로 나뉜 여러 블록이 오는 페이지가 있다.
+      예) PROFORCE V2: 헤더 → 'V2 SERIES' 10행 → 'HL SERIES' 7행
+                            → 'HYBRIDS' 4행
+      단일 heading 이 나온 뒤 셀 수가 열 수로 나누어떨어지면 같은 헤더의
+      연속 블록으로 보고 계속 수집한다. (예전에는 여기서 멈춰 11행을 잃었다)
+
+    반환: [(headers, rows, group_label), ...]
     """
     seq = widget_sequence(page)
     tables = []
@@ -162,35 +184,74 @@ def parse_spec_tables(page):
         # run 안에서 '알려진 헤더'가 연속되는 최대 구간들을 추출
         windows = []
         cur = []
-        for lab in run:
+        start = 0
+        for idx, lab in enumerate(run):
             if is_known_header(lab):
+                if not cur:
+                    start = idx
                 cur.append(lab)
             else:
                 if cur:
-                    windows.append(cur)
+                    windows.append((start, idx, cur))
                 cur = []
         if cur:
-            windows.append(cur)
+            windows.append((start, len(run), cur))
 
         headers = None
-        for w in windows:
+        h_end = None
+        for s, e, w in windows:
             low = [norm_label(x) for x in w]
             if len(w) >= 4 and "flex" in low and "weight" in low:
                 headers = w  # 스펙 표 헤더로 확정
+                h_end = e
         if headers:
-            cells = []
+            width = len(headers)
+            # 헤더 창 뒤에 남은 heading 이 딱 1개면 첫 블록의 섹션 라벨
+            # (예: 'V2 SERIES'). 그 외에는 라벨 없음으로 둔다.
+            tail = run[h_end:]
+            group = tail[0] if len(tail) == 1 else None
+
             k = j
-            while k < n and seq[k][0] == "text-editor":
-                cells.append(seq[k][1])
-                k += 1
-            if cells:
-                w = len(headers)
-                if len(cells) % w != 0:
+            first = True
+            while True:
+                cells = []
+                while k < n and seq[k][0] == "text-editor":
+                    cells.append(seq[k][1])
+                    k += 1
+                if not cells:
+                    break
+                if len(cells) % width != 0:
                     print("      (경고) 셀수 %d 가 열수 %d 로 나누어떨어지지 "
-                          "않음 - 표 폐기: %s" % (len(cells), w, headers))
+                          "않음 - 블록 폐기: %s / %s"
+                          % (len(cells), width, headers, group))
                 else:
-                    rows = [cells[x:x + w] for x in range(0, len(cells), w)]
-                    tables.append((headers, rows))
+                    rows = [cells[x:x + width]
+                            for x in range(0, len(cells), width)]
+                    tables.append((headers, rows, group))
+                first = False
+                # 다음이 '단일 heading + 나누어떨어지는 셀' 이면 연속 블록
+                if k >= n or seq[k][0] != "heading":
+                    break
+                h2 = k
+                run2 = []
+                while h2 < n and seq[h2][0] == "heading":
+                    run2.append(seq[h2][1])
+                    h2 += 1
+                nxt = []
+                m2 = h2
+                while m2 < n and seq[m2][0] == "text-editor":
+                    nxt.append(seq[m2][1])
+                    m2 += 1
+                lab = run2[0] if run2 else ""
+                low = norm_label(lab)
+                if (len(run2) == 1 and nxt and len(nxt) % width == 0
+                        and not is_known_header(lab)
+                        and not any(b in low for b in NOT_A_GROUP)):
+                    group = lab
+                    k = h2  # 셀 재수집
+                    continue
+                break
+            if not first:
                 i = k
                 continue
         i = j
@@ -242,7 +303,7 @@ def collect():
 
         tables = parse_spec_tables(page)
         cnt = 0
-        for headers, rows in tables:
+        for headers, rows, group in tables:
             fields = [norm_field(h) for h in headers]
             # 모델 열 제목이 'Wood Shafts'/'Iron Shafts' 식이면 하위 카테고리로 사용
             sub = kind
@@ -250,12 +311,17 @@ def collect():
                 if norm_label(h) in SUBCAT:
                     sub = SUBCAT[norm_label(h)]
                     break
+            # 표 중간 섹션 라벨이 하위 카테고리를 명시하면(예: 'HYBRIDS') 반영.
+            # 페이지에 적힌 문구를 읽는 것이며 임의 판단이 아니다.
+            if group and norm_label(group) in GROUP_SUBCAT:
+                sub = GROUP_SUBCAT[norm_label(group)]
             for row in rows:
                 it = {
                     "model": None,
                     "product": pname,
                     "category": sub,
                     "listing_category": kind,
+                    "spec_group": group,   # 페이지의 섹션 라벨 원문 (없으면 null)
                     "source_url": purl,
                 }
                 for f, v in zip(fields, row):
