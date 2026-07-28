@@ -64,8 +64,10 @@ def git(*args, check=True):
 def stage():
     # 폴더 통째로 담는다 — 파일을 하나씩 나열하면 새로 만든 파일이 누락되어
     # 앱이 깨진 채 배포된다(실제로 js/legal.js 누락 사고 발생).
+    # ⚠️ assets 가 빠져 있어서 클럽 아이콘을 바꿔도 배포에 안 들어갔다(2026-07-29).
+    #    로컬 미리보기는 작업본을 그대로 읽으니 화면상으론 멀쩡해 보여 더 위험하다.
     git("add", "holeimg", "coursedata/homepages", "coursedata/workfiles",
-        "tools", "js", "css", "icons", "sw.js", "index.html",
+        "tools", "js", "css", "icons", "assets", "docs", "sw.js", "index.html",
         "manifest.webmanifest", ".nojekyll", ".gitignore", ".sync", check=False)
 
 def bump():

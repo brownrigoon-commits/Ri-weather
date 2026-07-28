@@ -96,6 +96,28 @@ def check():
         elif f.endswith(".css") and body.lstrip().startswith("<!DOCTYPE"):
             problems.append(f"{f}: 파일이 없습니다(404 페이지가 옴)")
 
+    # ── 그림 파일이 로컬과 같은 것인지 (내용까지) ──────────────────
+    # 파일이 200 으로 응답한다고 최신인 게 아니다. 배포 스크립트에 assets 가
+    # 빠져 있어 클럽 아이콘을 바꿔도 옛 그림이 계속 서빙됐다(2026-07-29).
+    # 로컬 미리보기는 작업본을 읽으니 화면으로는 절대 못 잡는다 → 바이트로 대조한다.
+    try:
+        import hashlib
+        adir = os.path.join(ROOT, "assets")
+        for name in sorted(os.listdir(adir)) if os.path.isdir(adir) else []:
+            if not name.lower().endswith((".png", ".jpg", ".svg", ".webp")):
+                continue
+            local = open(os.path.join(adir, name), "rb").read()
+            url = f"{BASE}/assets/{name}?t={int(time.time()*1000)}"
+            req = urllib.request.Request(url, headers={"Cache-Control": "no-cache"})
+            with urllib.request.urlopen(req, timeout=20) as r:
+                remote = r.read()
+            if hashlib.md5(local).hexdigest() != hashlib.md5(remote).hexdigest():
+                problems.append(
+                    f"assets/{name} 이 로컬과 다릅니다 (배포 {len(remote)}B ≠ 로컬 {len(local)}B) "
+                    "— git add 가 안 됐거나 배포가 아직 안 끝났습니다")
+    except Exception as e:
+        warnings.append(f"그림 파일 대조 생략 ({str(e)[:40]})")
+
     try:
         _, appjs = fetch("js/app.js")
         m = re.search(r'APP_VER = "(v\d+)"', appjs)
