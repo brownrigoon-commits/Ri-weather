@@ -4,7 +4,7 @@
  * ========================================================= */
 "use strict";
 
-const APP_VER = "v140"; // 배포 버전 (홈 화면 배지에 표시)
+const APP_VER = "v141"; // 배포 버전 (홈 화면 배지에 표시)
 const APP_NOTE = "홀 3D 영상"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
 const STORAGE_KEY = "riweather.courses.v1";
 const GEM_KEY = "riweather.gemini"; // 정밀 인식(비전 AI) 개인 키 저장소
@@ -751,6 +751,11 @@ window.addEventListener("popstate", () => {
   }
 });
 function goBack() {
+  // 클럽 피팅 중에는 화면을 나가지 말고 '이전 문항'으로 돌아간다.
+  // 선택지를 누르면 자동으로 다음 문항으로 넘어가므로, 잘못 눌렀을 때
+  // 가장 눈에 띄는 뒤로가기가 피팅 전체를 날려버리면 안 된다(2026-07-28 지적).
+  if (viewStack[viewStack.length - 1] === "clubfit" &&
+      typeof window.clubfitBack === "function" && window.clubfitBack()) return;
   if (viewStack.length > 1) history.back();
 }
 document.querySelectorAll(".btn-back-any").forEach((b) => b.addEventListener("click", goBack));
@@ -2492,13 +2497,23 @@ $("#ai-strategy-btn").addEventListener("click", aiCaddie);
 (function initHoleVideo() {
   const vp = $("#hole-video-player"), vb = $("#hole-video-play");
   if (!vp) return;
+  /* 재생을 시작할 때는 컨트롤을 붙이지 않는다.
+     controls 를 켜는 순간 iOS 가 ±10초·일시정지·진행바를 영상 위에 덮어버려
+     정작 보려던 코스가 가려진다(2026-07-28 지적). 영상만 깨끗하게 흐르게 둔다. */
   const start = () => {
-    if (!vp.hasAttribute("controls")) vp.setAttribute("controls", "");
     if (vb) vb.hidden = true;
-    vp.play?.().catch(() => { /* 자동재생이 막히면 컨트롤로 직접 누르면 된다 */ });
+    vp.removeAttribute("controls");
+    vp.play?.().catch(() => {
+      // 브라우저가 자동재생을 막으면 그때만 컨트롤을 붙여 직접 누르게 한다
+      vp.setAttribute("controls", "");
+    });
   };
   vb?.addEventListener("click", start);
-  vp.addEventListener("click", () => { if (!vp.hasAttribute("controls")) start(); });
+  vp.addEventListener("click", () => {
+    if (vp.hasAttribute("controls")) return;   // 이미 떠 있으면 브라우저에 맡긴다
+    if (vp.paused) start();                    // 아직 시작 전 → 재생만
+    else vp.setAttribute("controls", "");      // 재생 중에 터치 → 그때 컨트롤을 띄운다
+  });
   // 재생이 끝나면 다시 처음처럼 — 표지 화면으로 돌아간다
   vp.addEventListener("ended", () => {
     vp.removeAttribute("controls");

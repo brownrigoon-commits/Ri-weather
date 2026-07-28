@@ -2396,6 +2396,16 @@
   }
 
   /* ───────── 진입점 ───────── */
+  /* 한 문항 뒤로 — 잘못 눌렀을 때 되돌리는 통로.
+     선택지를 누르면 바로 다음으로 넘어가므로(자동 진행) 되돌릴 길이 반드시 있어야 한다.
+     화면 왼쪽 아래 뒤로가기 버튼과 스와이프가 이 함수를 먼저 부른다.
+     반환값 true = 여기서 처리했으니 화면을 빠져나가지 말 것. */
+  window.clubfitBack = function () {
+    if (idx <= 0) return false;          // 첫 화면이면 피팅을 나가는 게 맞다
+    go(idx - 1);
+    return true;
+  };
+
   window.openClubfitView = function () {
     computeAuto();
     bindEvents();
