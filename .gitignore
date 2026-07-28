@@ -9,6 +9,45 @@ coursedata/homepages_auto/*/img/
 __pycache__/
 *.pyc
 .~lock.*
+.pytest_cache/
 
 # 크롭 전 원본 (앱에서 사용하지 않음, 재생성 가능)
 holeimg/*/_raw_*
+
+# =====================================================================
+#  Ri_Stock — 저장소에 올리면 안 되는 것
+#
+#  ⚠ 여기 적힌 것들은 `tools/sync.py` 가 `git add -A` 로 전부 쓸어 담기 때문에
+#    .gitignore 로 막지 않으면 **반드시** 커밋됩니다.
+#    (`ristock/engine/publish.py` 는 스스로 걸러 내지만 sync.py 는 그렇지 않습니다)
+# =====================================================================
+
+# PC 실행 기록 — 내 PC 사정일 뿐이고 윈도우 계정 이름·폴더 경로가 그대로 들어갑니다.
+# 공개 저장소이므로 개인정보가 노출됩니다. 게다가 실행할 때마다 바뀌어서
+# 집 PC·회사 PC 가 같은 파일을 매번 다르게 고치는 = 매번 충돌하는 파일이 됩니다.
+ristock/data/last_run.log
+ristock/data/*.tmp
+
+# 날짜별 원본 보관 — 매 회차 약 0.6MB(manifest·market·stocks_KR·stocks_US).
+# 커밋하면 연 40MB 씩(압축 후) 불어나고, git 이력은 append-only 라 나중에 지워도
+# **영원히 남습니다.** 이미 837MB 인 저장소이고 집·회사 두 PC 가 매번 clone·pull 합니다.
+# 이 폴더는 사장님 PC 에서 되짚어 볼 때 쓰는 로컬 사본으로만 둡니다
+# (오래된 것은 pipeline 이 --archive-keep 으로 알아서 지웁니다).
+# 어제 대비 변화는 archive 가 아니라 picks_baseline.json(약 10~30KB) 으로 계산하므로
+# 이 폴더가 없어도 changes.json 은 정상으로 나옵니다(설계서 2.6).
+ristock/data/archive/
+
+# 사장님용 엑셀 분석표 — 하루 수 MB 씩 쌓입니다.
+# 정상 경로는 저장소 밖(내 문서\Ri_Stock)이고, 여기 생기는 건 사고입니다.
+ristock/data/xlsx/
+ristock/engine/*.xlsx
+ristock/*.xlsx
+
+# 옛 Flask 대시보드에서 옮겨 올 때 딸려오면 안 되는 것들.
+# secret_key.txt = 세션 서명 키, users.json = 로그인 비밀번호 해시.
+# 공개 저장소에 한 번 올라가면 이력에서 지워도 이미 유출된 것으로 봐야 합니다.
+secret_key.txt
+users.json
+.env
+.env.*
+주식_대시보드/
