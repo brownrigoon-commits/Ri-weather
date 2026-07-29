@@ -551,19 +551,41 @@
     const S = speechText("[티샷] 350m 를 노리세요! 🎯");
     if (/\[|🎯/.test(S) || !S.includes("350미터")) add("음성 전처리 미흡", "caddie", S);
 
-    // (4) 카드가 실제로 그려지고 버튼이 진짜 눌리는지 (덮여 있으면 .click() 은 통과해버린다)
+    /* (4) 카드가 실제로 그려지고 버튼이 진짜 눌리는지 (덮여 있으면 .click() 은 통과해버린다)
+       ⚠️ 크기를 재려면 **화면이 실제로 보여야** 한다. 앞 검사들이 다른 화면을 켜 두고 가서
+       #course-view 가 hidden 이면 모든 크기가 0 이 되고, "버튼이 0px" 이라는 헛경보가 뜬다.
+       그동안 안 걸린 건 음성 목록이 늦게 로드되면 버튼이 hidden 이라 검사를 통째로
+       건너뛰었기 때문이다 — 즉 **이 검사는 될 때만 되는 상태였다**(2026-07-30 확인). */
     const outEl = document.getElementById("ai-strategy");
+    const courseView = document.getElementById("course-view");
+    const courseWasHidden = courseView.hidden;
+    courseView.hidden = false;
+    /* 동의 시트가 떠 있으면 그게 화면 전체를 덮어 "버튼이 덮였다"는 헛경보가 난다.
+       실제 사용자는 동의를 끝낸 뒤 이 화면에 온다 → 검사 동안만 치워 둔다. */
+    const veils = [...document.querySelectorAll(".consent-back, .sheet-back")].filter((v) => !v.hidden);
+    veils.forEach((v) => { v.hidden = true; });
     document.getElementById("hole-detail-card").hidden = false;
     renderCaddieCards([{ label: "티샷", text: "테스트 멘트" }], outEl);
     if (outEl.querySelectorAll(".cad-card").length !== 1) add("캐디 카드가 안 그려짐", "caddie", outEl.innerHTML.slice(0, 60));
     if (parseFloat(getComputedStyle(outEl.querySelector(".cad-text")).fontSize) < 15.5)
       add("캐디 멘트 글씨가 작음(고령 이용자 가독성)", "caddie", getComputedStyle(outEl.querySelector(".cad-text")).fontSize);
     outEl.querySelectorAll(".cad-play, .cad-all").forEach(el => {
-      if (el.hidden) return;                       // 음성 없는 기기 = 숨기는 게 정상
+      /* 음성이 없는 기기면 숨기는 게 정상이라 건너뛴다.
+         ⚠️ 단, 음성 목록은 늦게 로드된다 — 여기서 그냥 return 하면
+         "빠르면 검사 안 하고 넘어가는" 상태가 된다. 크기만이라도 강제로 재도록
+         잠깐 보이게 해서 확인한다(원래 hidden 이었으면 되돌린다). */
+      const wasHidden = el.hidden;
+      if (wasHidden) el.hidden = false;
+      /* 화면 밖에 있으면 elementFromPoint 가 null 을 준다 — 그건 '덮였다'가 아니다.
+         사용자도 스크롤해서 누르므로 **보이는 자리로 가져와서** 잰다. */
+      el.scrollIntoView({ block: "center" });
       const r = el.getBoundingClientRect();
       const hit = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
-      if (!(hit === el || el.contains(hit))) add("캐디 듣기 버튼이 덮여 있음", "caddie", el.className);
+      if (!hit) add("캐디 듣기 버튼이 화면 밖", "caddie", el.className + " top=" + Math.round(r.top));
+      else if (!(hit === el || el.contains(hit)))
+        add("캐디 듣기 버튼이 덮여 있음", "caddie", el.className + " ← " + (hit.className || hit.tagName));
       if (r.height < 44) add("캐디 듣기 버튼이 손가락에 작음", "caddie", el.className + " " + Math.round(r.height));
+      if (wasHidden) el.hidden = true;
     });
 
     // (5) 제공 범위 — 공식 홀 자료가 없는 구장에 캐디를 내보내면 안 된다(파·거리가 추정치)
@@ -578,6 +600,8 @@
     // (6) 위성 추정 구장에 AI 를 붙이던 옛 경로가 남아 있지 않은지
     if (typeof holeSatelliteDataUrl !== "undefined")
       add("위성 AI 캐디 옛 경로가 남아 있음", "caddie", "holeSatelliteDataUrl");
+    if (courseWasHidden) courseView.hidden = true;        // 원래대로 되돌린다
+    veils.forEach((v) => { v.hidden = false; });
   } catch (e) { add("캐디 검사 예외", "caddie", e.message); }
 
   /* ── 4. 브랜드 잔재 점검 ─────────────────────────────────────── */
