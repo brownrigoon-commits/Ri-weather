@@ -76,15 +76,22 @@ function bookingIdOf(course) {
   return BK_INDEX[bkCore(course.name)] || null;
 }
 
+/* 골팡 지역 이름 — 카드에 "어느 칸을 누르면 되는지"까지 적어주기 위해서다. */
+const BK_SECTOR_NAME = { 5: "한강/이남", 1: "강북/경춘", 4: "충청", 8: "원주/영동", 16: "영호남·제주" };
+
 /* 골팡 — **모바일(m.golfpang.com)** 로 보낸다.
  *
  * 사장님 지적(2026-07-30): 폰에서 데스크톱 레이아웃이 떠서 글씨가 깨알같다.
- * 실측으로 확인한 것:
- *  · m/round/booking_main.do 는 `rd_date`·`sector` 를 폼에 그대로 채워준다 → 날짜·지역 유지
- *  · 구장까지 걸린 모바일 목록(m/round/bookListTmp.do)은 **POST 전용**이다.
- *    GET 으로 열면 로그인 화면으로 튕긴다(세션이 있어도 마찬가지 — 실측).
- *    링크로는 도달할 수 없으므로 구장은 목록에서 한 번 고르게 하고, 카드에 이름을 적어준다.
+ *
+ * ⚠️ 구장까지 걸어서 보낼 수는 없다. 골팡이 막아 놓았다 — 추측이 아니라 실측이다:
+ *  · 구장이 걸린 모바일 목록(m/round/bookListTmp.do)은 GET 으로 열면 로그인으로 튕긴다.
+ *  · 우리 앱에서 그들 화면과 **똑같은 POST** 를 보내면 2020년 날짜의
+ *    **가짜 "서비스 점검 중" 페이지**를 준다(2026-07-30 실측). 외부 유입을 막는 장치다.
+ *  · m/round/booking_list.do 는 200 이지만 목록이 없는 껍데기만 나온다.
+ *  → 우리가 보낼 수 있는 것은 **날짜 + 지역**까지. 구장은 사용자가 목록에서 고른다.
+ *    그래서 카드 부제에 "어느 칸을 누르고 무엇을 고르면 되는지" 를 적어준다.
  *  · 데스크톱(www)은 구장까지 걸리지만 폰에서 읽을 수가 없다 → 모바일 우선이 맞다.
+ *  골팡이 나중에 외부 딥링크를 열어주면 이 함수 한 곳만 고치면 된다.
  */
 function golfpangUrl(kind, id, ymd) {
   const base = "https://m.golfpang.com/m/round/" +
@@ -94,13 +101,25 @@ function golfpangUrl(kind, id, ymd) {
   return base + "?" + p.toString();
 }
 
+/* 조인 인원 — 골프몬 필터 값 그대로 쓴다(`filterJoinCount`, 실측 2026-07-30).
+   ⚠️ 골팡에는 **인원 필터가 없다**. 조인을 유형(초대·부부·남성·여성)으로 나눈다.
+      모바일 폼에 `noma` 라는 칸이 있지만 화면 어디서도 쓰이지 않아 값의 뜻을 확인할 수 없었다.
+      뜻을 모르는 파라미터를 찍어 보내면 엉뚱하게 걸러진 목록을 보여주게 된다 → 보내지 않는다. */
+const BK_JOIN_COUNTS = [
+  { v: "", t: "전체" }, { v: "1인", t: "1명" }, { v: "2인", t: "2명" },
+  { v: "3인", t: "3명" }, { v: "부부커플", t: "부부·커플" },
+];
+
 /* 골프몬 — golfFk(구장 번호)가 있어야 걸러진다. 이름만 넘기면 전체 목록이 나온다(실측).
    tab=조인 이면 조인 목록으로 열린다(실측 2026-07-30).
    번호가 없으면 검색 화면으로 보낸다 — 거기서 구장명을 한 번 고르면 된다. */
-function golfmonUrl(id, ymd, name, kind) {
+function golfmonUrl(id, ymd, name, kind, joinCount) {
   if (id && id.mon) {
     const p = new URLSearchParams({ startDate: ymd, golfFk: String(id.mon), golfFkName: name });
-    if (kind === "join") p.set("tab", "조인");
+    if (kind === "join") {
+      p.set("tab", "조인");
+      if (joinCount) p.set("filterJoinCount", joinCount);
+    }
     return "https://www.golfmon.net/search/booking?" + p.toString();
   }
   return "https://www.golfmon.net/search/bookingsearch";
@@ -128,32 +147,39 @@ function officialSiteUrl(course) {
    먼저 물어야 어디로 보낼지가 정해진다(사장님 지적 2026-07-30). */
 const BK_MODES = { booking: "부킹", join: "조인" };
 
-function bookingLinkCards(course, ymd, kind) {
+function bookingLinkCards(course, ymd, kind, joinCount) {
   const mode = kind === "join" ? "join" : "booking";
   const id = bookingIdOf(course);
   const site = officialSiteUrl(course);
   const md = ymd.slice(5).replace("-", "/");
-  // 골팡 모바일은 구장까지 못 걸어준다(POST 전용) → 무엇을 고르면 되는지 알려준다
-  const pangSub = id ? `${md} · ${id.pangName} 선택하세요` : `${md} · 지역부터 골라주세요`;
+  // 골팡은 구장까지 못 걸어준다(외부 유입 차단) → 어느 칸을 누르고 무엇을 고를지 알려준다
+  const pangSub = id
+    ? `${md} · ${BK_SECTOR_NAME[id.sector] || "지역"} 칸 → ${id.pangName}`
+    : `${md} · 지역 칸부터 골라주세요`;
   const monExact = !!(id && id.mon);
+  const cnt = (BK_JOIN_COUNTS.find((c) => c.v === joinCount) || {}).t;
 
+  /* ⚠️ 제목은 짧게 — 로고 칸이 들어오면서 가로가 좁아져 긴 제목이 "…" 로 잘렸다.
+     날짜·조건은 부제로 내린다(2026-07-30). */
   if (mode === "join") {
-    const out = [
-      { key: "pang_join", ico: "👥", cls: "bk-pang", title: "골팡 조인",
+    return [
+      // 골팡은 인원으로 못 거른다 — 걸러준다고 쓰면 거짓말이 된다
+      { key: "pang_join", img: "assets/brand/golfpang.png", cls: "bk-pang", title: "골팡 조인",
         sub: pangSub, url: golfpangUrl("join", id, ymd) },
-      { key: "mon_join", ico: "🏌️", cls: "bk-mon",
-        title: monExact ? `골프몬 조인 ${md}` : "골프몬에서 조인 찾기",
-        sub: monExact ? `${course.name} 조인 목록` : "구장명을 한 번 골라주세요",
-        url: golfmonUrl(id, ymd, course.name, "join") },
+      { key: "mon_join", img: "assets/brand/golfmon.png", cls: "bk-mon",
+        title: "골프몬 조인",
+        sub: monExact
+          ? `${md} · ${course.name}` + (joinCount ? ` · ${cnt} 모집만` : "")
+          : "구장명을 한 번 골라주세요",
+        url: golfmonUrl(id, ymd, course.name, "join", joinCount) },
     ];
-    return out;
   }
   const out = [
-    { key: "pang_booking", ico: "⛳", cls: "bk-pang", title: "골팡 부킹",
+    { key: "pang_booking", img: "assets/brand/golfpang.png", cls: "bk-pang", title: "골팡 부킹",
       sub: pangSub, url: golfpangUrl("booking", id, ymd) },
-    { key: "mon_booking", ico: "🏌️", cls: "bk-mon",
-      title: monExact ? `골프몬에서 ${md} 티타임 보기` : "골프몬에서 찾기",
-      sub: monExact ? `${course.name} 양도 목록` : "구장명을 한 번 골라주세요",
+    { key: "mon_booking", img: "assets/brand/golfmon.png", cls: "bk-mon",
+      title: "골프몬 부킹",
+      sub: monExact ? `${md} · ${course.name} 양도 목록` : "구장명을 한 번 골라주세요",
       url: golfmonUrl(id, ymd, course.name, "booking") },
   ];
   if (site) {
@@ -199,10 +225,10 @@ function bookingDayNote(days, wx, pick) {
   return `${dow}요일 ${wmoDesc(code)} · 라운딩하기 좋은 날이에요`;
 }
 
-const BOOKING_VIEW = { days: [], wx: null, pick: 0, course: null, mode: "booking" };
+const BOOKING_VIEW = { days: [], wx: null, pick: 0, course: null, mode: "booking", joinCount: "" };
 
 function paintBooking() {
-  const { days, wx, pick, course, mode } = BOOKING_VIEW;
+  const { days, wx, pick, course, mode, joinCount } = BOOKING_VIEW;
   const ymd = bkYmd(days[pick]);
   const el = document.querySelector("#booking-body");
   const note = bookingDayNote(days, wx, pick);
@@ -215,16 +241,28 @@ function paintBooking() {
     `<p class="bk-mode-sub">${mode === "join"
       ? "혼자 가시나요? 같이 칠 사람을 찾습니다"
       : "일행이 있으신가요? 넘겨받을 티타임을 찾습니다"}</p>` +
+    (mode === "join"
+      ? `<div class="bk-cnt-row"><span class="bk-cnt-label">몇 명 자리를 찾으세요?</span>
+         <div class="bk-cnts">` +
+        BK_JOIN_COUNTS.map((c) =>
+          `<button class="bk-cnt${c.v === joinCount ? " on" : ""}" data-cnt="${c.v}">${c.t}</button>`).join("") +
+        `</div></div>`
+      : "") +
     `<div class="bk-days">${renderBookingDays(days, wx, pick)}</div>` +
     (note ? `<p class="bk-note">${note}</p>` : "") +
     `<div class="bk-links">` +
-    bookingLinkCards(course, ymd, mode).map((c) =>
+    bookingLinkCards(course, ymd, mode, joinCount).map((c) =>
       `<a class="bk-card ${c.cls}" href="${c.url}" target="_blank" rel="noopener" data-out="${c.key}">
-         <span class="bk-card-ic">${c.ico}</span>
+         <span class="bk-card-ic">${c.img
+           ? `<img src="${c.img}" alt="">` : c.ico}</span>
          <span class="bk-card-tx"><b>${c.title}</b><small>${c.sub}</small></span>
          <span class="bk-card-go">↗</span>
        </a>`).join("") +
     `</div>` +
+    (mode === "join" && joinCount
+      ? `<p class="bk-cnt-note">인원 조건은 골프몬에만 걸립니다 — 골팡은 조인을
+         인원이 아니라 유형(초대·부부·남성·여성)으로 나눕니다.</p>`
+      : "") +
     `<p class="bk-legal">예약·결제·취소는 각 사이트에서 진행됩니다.<br>` +
     `티타임과 요금은 실시간으로 바뀌므로 각 사이트에서 확인하세요.</p>`;
 
@@ -237,6 +275,9 @@ function paintBooking() {
       if (typeof STATS !== "undefined") STATS.hit("feature", "booking_mode_" + b.dataset.mode);
       paintBooking();
     });
+  });
+  el.querySelectorAll(".bk-cnt").forEach((b) => {
+    b.addEventListener("click", () => { BOOKING_VIEW.joinCount = b.dataset.cnt; paintBooking(); });
   });
   // 어디로 얼마나 보내는지 센다 — 이 숫자가 나중에 제휴 협상 카드가 된다
   el.querySelectorAll("[data-out]").forEach((a) => {
@@ -262,6 +303,7 @@ async function openBookingView() {
   BOOKING_VIEW.pick = defaultBookingDay(days);
   BOOKING_VIEW.wx = null;
   BOOKING_VIEW.mode = "booking";       // 들어올 때마다 부킹부터 — 대부분이 부킹이다
+  BOOKING_VIEW.joinCount = "";         // 인원 조건도 초기화 (지난번 조건이 남으면 헷갈린다)
   paintBooking();                       // 예보 없이도 링크는 바로 쓸 수 있게 먼저 그린다
 
   try {

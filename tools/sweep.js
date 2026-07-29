@@ -414,6 +414,20 @@
     // 날짜 칸 문구는 달까지 — "화 4" 는 월말·월초에 헷갈린다
     if (bkDayLabel(new Date(2026, 7, 4)) !== "화 8/4")
       add("날짜 칸에 달이 빠짐", "bkDayLabel", bkDayLabel(new Date(2026, 7, 4)));
+
+    // 조인 인원 — 골프몬에만 걸린다(골팡은 인원 필터가 없음). 실측 파라미터 이름 고정.
+    for (const c of BK_JOIN_COUNTS) {
+      const cards = bookingLinkCards(known, ymd, "join", c.v);
+      const mon = cards.find((k) => k.key === "mon_join").url;
+      const want = c.v ? "filterJoinCount=" + encodeURIComponent(c.v) : null;
+      if (want && mon.indexOf(want) < 0) add("조인 인원이 골프몬 링크에 안 걸림", c.t, mon);
+      if (!c.v && mon.indexOf("filterJoinCount") >= 0)
+        add("전체인데 인원 조건을 붙임", c.t, mon);
+      // 골팡에는 뜻을 확인 못 한 파라미터를 찍어 보내지 않는다
+      const pang = cards.find((k) => k.key === "pang_join").url;
+      if (/noma=|jitype=|filterJoinCount=/.test(pang))
+        add("골팡에 확인 안 된 인원 파라미터를 보냄", c.t, pang);
+    }
     // 번호표 자체 검산 — 숫자가 아니면 링크가 깨진다
     let bad = 0;
     for (const n in BOOKING_IDS) {
@@ -445,6 +459,21 @@
     if (body && body.querySelectorAll(".bk-mode").length !== 2)
       add("부킹/조인 선택이 없음", "booking", body.querySelectorAll(".bk-mode").length);
     if (body && !body.querySelector(".bk-mode.on")) add("부킹/조인 현재 선택 표시가 없음", "booking", "");
+    /* 로고·제목 — 로고 칸이 들어오면서 가로가 좁아져 제목이 "…" 로 잘린 적이 있다(2026-07-30).
+       그림이 실제로 그려졌는지(naturalWidth)와 제목이 잘리지 않았는지를 함께 본다. */
+    if (body) {
+      const imgs = [...body.querySelectorAll(".bk-card-ic img")];
+      if (imgs.length < 2) add("연결처 로고가 없음", "booking", imgs.length);
+      await Promise.all(imgs.map((im) => im.complete ? null : new Promise((res) => {
+        im.onload = im.onerror = res; setTimeout(res, 1500);
+      })));
+      imgs.forEach((im) => {
+        if (!im.naturalWidth) add("로고 그림이 안 뜸", im.getAttribute("src"), "파일 경로·배포 확인");
+      });
+      body.querySelectorAll(".bk-card-tx b").forEach((t) => {
+        if (t.scrollWidth > t.clientWidth + 1) add("카드 제목이 잘림", t.innerText, t.scrollWidth + ">" + t.clientWidth);
+      });
+    }
     if (body) {
       const join = body.querySelector('.bk-mode[data-mode="join"]');
       if (join) {
