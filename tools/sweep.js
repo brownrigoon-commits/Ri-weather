@@ -380,23 +380,40 @@
      티타임·요금을 우리가 옮겨 적지 않으므로, 이 화면의 품질 = 링크의 정확성이다. */
   try {
     const ymd = "2026-08-01";
-    const known = { name: "솔라고컨트리클럽" };      // 번호가 등록된 구장
-    const unknown = { name: "없는골프장XYZ" };       // 폴백으로 떨어져야 하는 구장
-    for (const [c, tag] of [[known, "번호있음"], [unknown, "번호없음"]]) {
-      const cards = bookingLinkCards(c, ymd);
-      if (cards.length < 3) add("부킹 링크 개수 부족", tag, cards.length);
-      cards.forEach((k) => {
-        if (!/^https:\/\//.test(k.url)) add("부킹 링크 형식 오류", tag + " " + k.key, k.url);
-        if (/undefined|null|NaN/.test(k.url)) add("부킹 링크에 빈 값이 샜음", tag + " " + k.key, k.url);
-        if (/undefined/.test(k.title + k.sub)) add("부킹 카드 문구에 undefined", tag + " " + k.key, k.title);
-      });
-      const pang = cards.find((k) => k.key === "golfpang").url;
-      if (pang.indexOf("rd_date=" + ymd) < 0) add("골팡 링크에 날짜가 안 들어감", tag, pang);
-      if (tag === "번호있음" && pang.indexOf("clubname=") < 0)
-        add("번호가 있는데 구장 지정이 안 됨", tag, pang);
-      if (tag === "번호없음" && pang.indexOf("clubname=") >= 0)
-        add("번호가 없는데 구장 번호를 지어냄", tag, pang);
+    // ⚠️ "파주" 는 번호표에 "파주CC" 로 들어 있다. 이름을 통째로 비교하던 시절
+    //    사장님 폰의 "파주" 가 폴백으로 떨어졌다(2026-07-30) → 핵심이름 매칭을 검사한다.
+    const known = { name: "솔라고컨트리클럽" };
+    const shortName = { name: "파주" };               // 업종어 없는 이름도 찾아야 한다
+    const unknown = { name: "없는골프장XYZ" };        // 폴백으로 떨어져야 하는 구장
+    if (!bookingIdOf(shortName)) add("업종어 없는 이름으로 번호를 못 찾음", "파주", "핵심이름 매칭 확인");
+    if (bookingIdOf(unknown)) add("없는 구장인데 번호를 찾아냄", "없는골프장XYZ", "");
+    for (const [c, tag] of [[known, "번호있음"], [shortName, "짧은이름"], [unknown, "번호없음"]]) {
+      for (const mode of ["booking", "join"]) {
+        const cards = bookingLinkCards(c, ymd, mode);
+        if (cards.length < 2) add("부킹 링크 개수 부족", tag + "/" + mode, cards.length);
+        cards.forEach((k) => {
+          if (!/^https:\/\//.test(k.url)) add("부킹 링크 형식 오류", tag + " " + k.key, k.url);
+          if (/undefined|null|NaN/.test(k.url)) add("부킹 링크에 빈 값이 샜음", tag + " " + k.key, k.url);
+          if (/undefined/.test(k.title + k.sub)) add("부킹 카드 문구에 undefined", tag + " " + k.key, k.title);
+        });
+        const pang = cards.find((k) => /^pang_/.test(k.key));
+        if (!pang) { add("골팡 카드가 없음", tag + "/" + mode, ""); continue; }
+        // 폰에서 데스크톱 화면이 뜨면 못 읽는다 — 반드시 모바일(m.)로 보낸다
+        if (pang.url.indexOf("https://m.golfpang.com/") !== 0)
+          add("골팡을 모바일이 아닌 곳으로 보냄", tag + "/" + mode, pang.url);
+        if (pang.url.indexOf("rd_date=" + ymd) < 0) add("골팡 링크에 날짜가 안 들어감", tag, pang.url);
+        if ((mode === "join") !== (pang.url.indexOf("join_main") >= 0))
+          add("골팡 부킹/조인 경로가 모드와 다름", tag + "/" + mode, pang.url);
+        const mon = cards.find((k) => /^mon_/.test(k.key));
+        if (mode === "join" && mon.url.indexOf("golfFk=") >= 0 && mon.url.indexOf("tab=") < 0)
+          add("골프몬 조인 탭이 안 걸림", tag, mon.url);
+        if (tag === "번호없음" && mon.url.indexOf("golfFk=") >= 0)
+          add("번호가 없는데 골프몬 번호를 지어냄", tag, mon.url);
+      }
     }
+    // 날짜 칸 문구는 달까지 — "화 4" 는 월말·월초에 헷갈린다
+    if (bkDayLabel(new Date(2026, 7, 4)) !== "화 8/4")
+      add("날짜 칸에 달이 빠짐", "bkDayLabel", bkDayLabel(new Date(2026, 7, 4)));
     // 번호표 자체 검산 — 숫자가 아니면 링크가 깨진다
     let bad = 0;
     for (const n in BOOKING_IDS) {
@@ -424,6 +441,19 @@
     if (body && body.querySelectorAll(".bk-day").length !== 7)
       add("날짜 칸이 7개가 아님", "booking", body.querySelectorAll(".bk-day").length);
     if (body && !body.querySelector(".bk-day.on")) add("고른 날짜 표시가 없음", "booking", "");
+    // 부킹/조인을 먼저 고르게 하는 화면 — 토글이 살아 있어야 한다
+    if (body && body.querySelectorAll(".bk-mode").length !== 2)
+      add("부킹/조인 선택이 없음", "booking", body.querySelectorAll(".bk-mode").length);
+    if (body && !body.querySelector(".bk-mode.on")) add("부킹/조인 현재 선택 표시가 없음", "booking", "");
+    if (body) {
+      const join = body.querySelector('.bk-mode[data-mode="join"]');
+      if (join) {
+        join.click(); await sleep(200);
+        const u = [...body.querySelectorAll(".bk-card")].map((a) => a.href).join(" ");
+        if (u.indexOf("join_main") < 0) add("조인을 골랐는데 부킹으로 보냄", "booking", u.slice(0, 90));
+        body.querySelector('.bk-mode[data-mode="booking"]').click(); await sleep(200);
+      }
+    }
     ["undefined", "NaN", "[object Object]"].forEach((w) => {
       if (txt.includes(w)) add("부킹 화면에 " + w + " 노출", "booking", txt.slice(0, 80));
     });

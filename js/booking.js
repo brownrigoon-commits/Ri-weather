@@ -37,6 +37,9 @@ async function fetchBookingWeek(course) {
 const BK_DOW = ["일", "월", "화", "수", "목", "금", "토"];
 const bkYmd = (d) => d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") +
                      "-" + String(d.getDate()).padStart(2, "0");
+/* 날짜 칸은 "화 8/4" 처럼 **달까지** 적는다.
+   "화 4" 만 쓰면 월말·월초가 섞일 때 며칠인지 헷갈린다(사장님 지적 2026-07-30). */
+const bkDayLabel = (d) => BK_DOW[d.getDay()] + " " + (d.getMonth() + 1) + "/" + d.getDate();
 
 /* 기본 선택은 다가오는 토요일. 골프는 주말에 가장 많이 나가고,
    토요일이 7일 안에 없을 수는 없다. 오늘이 토요일이면 오늘. */
@@ -49,58 +52,109 @@ function defaultBookingDay(days) {
  * 번호(js/bookingids.js)가 있으면 그 구장 목록으로 바로, 없으면 지역 목록·검색 화면으로.
  * ⚠️ 없는 번호를 지어내지 않는다. 엉뚱한 구장 티타임을 띄우는 것이 곧 거짓 정보다.
  */
+/* 구장 이름은 사람마다·출처마다 다르게 적힌다 — "파주" · "파주CC" · "파주 컨트리클럽".
+   ⚠️ 이름을 통째로 비교했더니 사장님 폰에 저장된 "파주" 가 번호표의 "파주CC" 를 못 찾아
+   폴백(검색창)으로 떨어졌다(2026-07-30 신고). 업종어를 걷어낸 핵심 이름으로 찾는다.
+   tools/build_booking_ids.py 의 core() 와 같은 규칙이어야 한다. */
+const BK_BIZ = /(컨트리클럽|골프앤리조트|골프클럽|골프리조트|골프장|리조트|CC|GC|G\.C|C\.C|골프)/gi;
+function bkCore(name) {
+  return String(name || "").replace(/\(.*?\)|\[.*?\]/g, " ")
+    .replace(BK_BIZ, " ").replace(/[^0-9A-Za-z가-힣]/g, "").toLowerCase();
+}
+let BK_INDEX = null;
 function bookingIdOf(course) {
   if (typeof BOOKING_IDS === "undefined" || !course) return null;
-  return BOOKING_IDS[course.name] || null;
+  if (BOOKING_IDS[course.name]) return BOOKING_IDS[course.name];
+  if (!BK_INDEX) {
+    BK_INDEX = {};
+    for (const n in BOOKING_IDS) {
+      const k = bkCore(n);
+      // 핵심 이름이 겹치면 둘 다 버린다 — 엉뚱한 구장으로 보내느니 폴백이 낫다
+      BK_INDEX[k] = k in BK_INDEX ? null : BOOKING_IDS[n];
+    }
+  }
+  return BK_INDEX[bkCore(course.name)] || null;
 }
 
-/* 골팡 — 실측(2026-07-30): booking_list.do?rd_date=&sector=&clubname= 으로
-   그 구장·그 날짜 목록에 바로 착지한다(파주 8/1 확인). 조인은 join_list.do 로 같은 규격. */
+/* 골팡 — **모바일(m.golfpang.com)** 로 보낸다.
+ *
+ * 사장님 지적(2026-07-30): 폰에서 데스크톱 레이아웃이 떠서 글씨가 깨알같다.
+ * 실측으로 확인한 것:
+ *  · m/round/booking_main.do 는 `rd_date`·`sector` 를 폼에 그대로 채워준다 → 날짜·지역 유지
+ *  · 구장까지 걸린 모바일 목록(m/round/bookListTmp.do)은 **POST 전용**이다.
+ *    GET 으로 열면 로그인 화면으로 튕긴다(세션이 있어도 마찬가지 — 실측).
+ *    링크로는 도달할 수 없으므로 구장은 목록에서 한 번 고르게 하고, 카드에 이름을 적어준다.
+ *  · 데스크톱(www)은 구장까지 걸리지만 폰에서 읽을 수가 없다 → 모바일 우선이 맞다.
+ */
 function golfpangUrl(kind, id, ymd) {
-  const base = "https://www.golfpang.com/web/round/" +
-               (kind === "join" ? "join_list" : "booking_list") + ".do";
+  const base = "https://m.golfpang.com/m/round/" +
+               (kind === "join" ? "join_main" : "booking_main") + ".do";
   const p = new URLSearchParams({ rd_date: ymd });
-  if (id) {
-    p.set("sector", String(id.sector));
-    if (id.sector3) p.set("sector3", String(id.sector3));
-    p.set("clubname", String(id.pang));
-  }
+  if (id) p.set("sector", String(id.sector));
   return base + "?" + p.toString();
 }
 
 /* 골프몬 — golfFk(구장 번호)가 있어야 걸러진다. 이름만 넘기면 전체 목록이 나온다(실측).
+   tab=조인 이면 조인 목록으로 열린다(실측 2026-07-30).
    번호가 없으면 검색 화면으로 보낸다 — 거기서 구장명을 한 번 고르면 된다. */
-function golfmonUrl(id, ymd, name) {
+function golfmonUrl(id, ymd, name, kind) {
   if (id && id.mon) {
     const p = new URLSearchParams({ startDate: ymd, golfFk: String(id.mon), golfFkName: name });
+    if (kind === "join") p.set("tab", "조인");
     return "https://www.golfmon.net/search/booking?" + p.toString();
   }
   return "https://www.golfmon.net/search/bookingsearch";
 }
 
-/* 구장 공식 홈페이지 — 홀맵 DB 에 이미 출처 URL 이 들어 있다(232곳). */
+/* 구장 공식 홈페이지 — 홀맵 DB 에 이미 출처 URL 이 들어 있다(232곳).
+   여기도 이름을 통째로 비교하면 "파주" 가 "파주CC" 를 못 찾는다 → 핵심 이름으로. */
+let BK_SITE_INDEX = null;
 function officialSiteUrl(course) {
   if (typeof HOLEIMG_DB === "undefined" || !course) return "";
-  const rec = HOLEIMG_DB[course.name];
-  return (rec && rec.sourceUrl) || "";
+  const direct = HOLEIMG_DB[course.name];
+  if (direct && direct.sourceUrl) return direct.sourceUrl;
+  if (!BK_SITE_INDEX) {
+    BK_SITE_INDEX = {};
+    for (const n in HOLEIMG_DB) {
+      const k = bkCore(n), u = HOLEIMG_DB[n].sourceUrl;
+      if (u) BK_SITE_INDEX[k] = k in BK_SITE_INDEX ? null : u;
+    }
+  }
+  return BK_SITE_INDEX[bkCore(course.name)] || "";
 }
 
-function bookingLinkCards(course, ymd) {
+/* 부킹이냐 조인이냐를 **먼저** 고르게 한다.
+   같이 갈 사람이 있으면 부킹(티타임 양도), 혼자면 조인 — 찾는 곳이 아예 다르다.
+   먼저 물어야 어디로 보낼지가 정해진다(사장님 지적 2026-07-30). */
+const BK_MODES = { booking: "부킹", join: "조인" };
+
+function bookingLinkCards(course, ymd, kind) {
+  const mode = kind === "join" ? "join" : "booking";
   const id = bookingIdOf(course);
-  const exact = !!id;
   const site = officialSiteUrl(course);
   const md = ymd.slice(5).replace("-", "/");
+  // 골팡 모바일은 구장까지 못 걸어준다(POST 전용) → 무엇을 고르면 되는지 알려준다
+  const pangSub = id ? `${md} · ${id.pangName} 선택하세요` : `${md} · 지역부터 골라주세요`;
+  const monExact = !!(id && id.mon);
+
+  if (mode === "join") {
+    const out = [
+      { key: "pang_join", ico: "👥", cls: "bk-pang", title: "골팡 조인",
+        sub: pangSub, url: golfpangUrl("join", id, ymd) },
+      { key: "mon_join", ico: "🏌️", cls: "bk-mon",
+        title: monExact ? `골프몬 조인 ${md}` : "골프몬에서 조인 찾기",
+        sub: monExact ? `${course.name} 조인 목록` : "구장명을 한 번 골라주세요",
+        url: golfmonUrl(id, ymd, course.name, "join") },
+    ];
+    return out;
+  }
   const out = [
-    { key: "golfpang", ico: "⛳", cls: "bk-pang", title: `골팡에서 ${md} 티타임 보기`,
-      sub: exact ? `${course.name} 목록으로 바로` : "지역 목록에서 골라주세요",
-      url: golfpangUrl("booking", id, ymd) },
-    { key: "golfpang_join", ico: "👥", cls: "bk-pang2", title: `골팡 조인 ${md}`,
-      sub: exact ? "같이 칠 사람 찾기" : "지역 목록에서 골라주세요",
-      url: golfpangUrl("join", id, ymd) },
-    { key: "golfmon", ico: "🏌️", cls: "bk-mon",
-      title: (id && id.mon) ? `골프몬에서 ${md} 티타임 보기` : "골프몬에서 찾기",
-      sub: (id && id.mon) ? "양도 · 조인 함께 보기" : "구장명을 한 번 골라주세요",
-      url: golfmonUrl(id, ymd, course.name) },
+    { key: "pang_booking", ico: "⛳", cls: "bk-pang", title: "골팡 부킹",
+      sub: pangSub, url: golfpangUrl("booking", id, ymd) },
+    { key: "mon_booking", ico: "🏌️", cls: "bk-mon",
+      title: monExact ? `골프몬에서 ${md} 티타임 보기` : "골프몬에서 찾기",
+      sub: monExact ? `${course.name} 양도 목록` : "구장명을 한 번 골라주세요",
+      url: golfmonUrl(id, ymd, course.name, "booking") },
   ];
   if (site) {
     out.push({ key: "official", ico: "🏛️", cls: "bk-site", title: "구장 공식 홈페이지 예약",
@@ -117,7 +171,7 @@ function renderBookingDays(days, wx, pick) {
     const pop = wx ? wx.precipitation_probability_max[i] : null;
     const rainy = pop !== null && pop >= 60;
     return `<button class="bk-day${i === pick ? " on" : ""}" data-day="${i}">
-      <span class="bk-dow${d.getDay() === 0 ? " sun" : d.getDay() === 6 ? " sat" : ""}">${BK_DOW[d.getDay()]} ${d.getDate()}</span>
+      <span class="bk-dow${d.getDay() === 0 ? " sun" : d.getDay() === 6 ? " sat" : ""}">${bkDayLabel(d)}</span>
       <span class="bk-ic">${code === null ? "·" : wmoIcon(code)}</span>
       <span class="bk-t">${rainy ? pop + "%" : (tmax === null ? "" : tmax + "°")}</span>
     </button>`;
@@ -145,18 +199,26 @@ function bookingDayNote(days, wx, pick) {
   return `${dow}요일 ${wmoDesc(code)} · 라운딩하기 좋은 날이에요`;
 }
 
-const BOOKING_VIEW = { days: [], wx: null, pick: 0, course: null };
+const BOOKING_VIEW = { days: [], wx: null, pick: 0, course: null, mode: "booking" };
 
 function paintBooking() {
-  const { days, wx, pick, course } = BOOKING_VIEW;
+  const { days, wx, pick, course, mode } = BOOKING_VIEW;
   const ymd = bkYmd(days[pick]);
   const el = document.querySelector("#booking-body");
   const note = bookingDayNote(days, wx, pick);
   el.innerHTML =
+    `<div class="bk-modes" role="tablist">` +
+    Object.keys(BK_MODES).map((k) =>
+      `<button class="bk-mode${k === mode ? " on" : ""}" data-mode="${k}" role="tab"
+        aria-selected="${k === mode}">${BK_MODES[k]}</button>`).join("") +
+    `</div>` +
+    `<p class="bk-mode-sub">${mode === "join"
+      ? "혼자 가시나요? 같이 칠 사람을 찾습니다"
+      : "일행이 있으신가요? 넘겨받을 티타임을 찾습니다"}</p>` +
     `<div class="bk-days">${renderBookingDays(days, wx, pick)}</div>` +
     (note ? `<p class="bk-note">${note}</p>` : "") +
     `<div class="bk-links">` +
-    bookingLinkCards(course, ymd).map((c) =>
+    bookingLinkCards(course, ymd, mode).map((c) =>
       `<a class="bk-card ${c.cls}" href="${c.url}" target="_blank" rel="noopener" data-out="${c.key}">
          <span class="bk-card-ic">${c.ico}</span>
          <span class="bk-card-tx"><b>${c.title}</b><small>${c.sub}</small></span>
@@ -168,6 +230,13 @@ function paintBooking() {
 
   el.querySelectorAll(".bk-day").forEach((b) => {
     b.addEventListener("click", () => { BOOKING_VIEW.pick = +b.dataset.day; paintBooking(); });
+  });
+  el.querySelectorAll(".bk-mode").forEach((b) => {
+    b.addEventListener("click", () => {
+      BOOKING_VIEW.mode = b.dataset.mode;
+      if (typeof STATS !== "undefined") STATS.hit("feature", "booking_mode_" + b.dataset.mode);
+      paintBooking();
+    });
   });
   // 어디로 얼마나 보내는지 센다 — 이 숫자가 나중에 제휴 협상 카드가 된다
   el.querySelectorAll("[data-out]").forEach((a) => {
@@ -192,6 +261,7 @@ async function openBookingView() {
   BOOKING_VIEW.course = course;
   BOOKING_VIEW.pick = defaultBookingDay(days);
   BOOKING_VIEW.wx = null;
+  BOOKING_VIEW.mode = "booking";       // 들어올 때마다 부킹부터 — 대부분이 부킹이다
   paintBooking();                       // 예보 없이도 링크는 바로 쓸 수 있게 먼저 그린다
 
   try {
