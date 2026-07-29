@@ -1977,23 +1977,32 @@ body, .view, .cf-screen, .card, .sheet { word-break: keep-all; overflow-wrap: br
    원본 4장은 tools/make_club_icons_src.py 로 **여백 없이 딱 잘라서** 만든다.
    알파도 그때 단단하게 만든다 — 반투명이 남으면 그 아이콘만 회색으로 떠 보인다. */
 .cf-club-ico {
-  display: block; width: 62px; height: 72px; background-color: #000;
+  display: block; width: 62px; height: 83px; background-color: #000;
   -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
   -webkit-mask-position: bottom center; mask-position: bottom center;
-  -webkit-mask-size: contain; mask-size: contain;
+  /* ⚠️ contain 을 쓰지 않는다 — contain 은 상자 크기에 그림을 맞추므로
+     하나만 키우려고 상자를 키우면 네 개가 전부 따라 커진다.
+     그래서 **그림 높이를 직접 적는다**(auto 72px = 가로는 비율대로).
+     상자 높이 83px 은 넷이 같다 — 타일이 2열 격자라 상자 높이가 서로 다르면
+     웨지·퍼터 줄만 아래로 내려앉는다. 남는 위쪽은 빈 공간이고, 그림은
+     mask-position: bottom 이라 항상 바닥에 붙어 네 개의 발 높이가 맞는다. */
+  -webkit-mask-size: auto 72px; mask-size: auto 72px;
 }
 .cf-club-ico.ico-golfer { -webkit-mask-image: url("../assets/golfer.png"); mask-image: url("../assets/golfer.png"); }
-/* 아이언만 상자를 넓힌다.
-   아이언은 클럽이 옆으로 길게 뻗어 가로가 세로보다 길다(520×400). contain 은 넓은 쪽에
-   맞추므로 62px 폭에 갇혀 사람이 다른 셋보다 작아 보인다(사장님 지적 2026-07-29).
-   62 → 94px 로 넓히면 사람 키가 55px → 72px 이 되어 나머지 셋과 **정확히 같아진다**.
-   (사장님은 15% 를 말씀하셨지만 재보니 그건 절반만 메우는 값이었다 — 71px, 사람 55px)
-   타일이 가운데 정렬이라 위치는 그대로고, 320px 폭 폰에서도 타일 안에 들어간다.
-   ⚠️ mask-size 를 % 로 키우는 방법은 쓰지 말 것 — 상자를 넘는 부분이 잘려
-      클럽 끝이 싹둑 잘린다. */
+/* 아이언만 가로 기준으로 맞춘다.
+   아이언은 클럽이 옆으로 길게 뻗어 가로가 세로보다 길다(520×400). 세로를 72px 로 맞추면
+   가로가 94px 이 되므로 상자도 94px 로 넓혀 클럽 헤드까지 담는다(사장님 지적 2026-07-29).
+   이렇게 하면 사람 키가 55px → 72px 이 되어 나머지 셋과 **정확히 같아진다**.
+   타일이 가운데 정렬이라 위치는 그대로고, 320px 폭 폰에서도 타일 안에 들어간다. */
 .cf-club-ico.ico-iron   { width: 94px;
+  -webkit-mask-size: 94px auto; mask-size: 94px auto;
   -webkit-mask-image: url("../assets/iron.png");   mask-image: url("../assets/iron.png"); }
-.cf-club-ico.ico-wedge  { -webkit-mask-image: url("../assets/wedge.png");  mask-image: url("../assets/wedge.png"); }
+/* 웨지만 15% 크게 (사장님 지시 2026-07-29 — "나머지에 비해 이미지가 좀 작아요").
+   웨지는 피니시 자세라 세로로 홀쭉해 같은 72px 이어도 폭이 37px 밖에 안 된다
+   (드라이버 46 · 퍼터 43 · 아이언 94). 그래서 눈에는 혼자 작아 보인다.
+   72 → 83px (×1.15). 상자 높이 83px 안에 딱 들어가므로 잘리는 곳은 없다. */
+.cf-club-ico.ico-wedge  { -webkit-mask-size: auto 83px; mask-size: auto 83px;
+  -webkit-mask-image: url("../assets/wedge.png");  mask-image: url("../assets/wedge.png"); }
 .cf-club-ico.ico-putter { -webkit-mask-image: url("../assets/putter.png"); mask-image: url("../assets/putter.png"); }
 /* 클럽 이름에 색 — 네 가지를 눈으로 바로 구분하게 한다.
    ⚠️ 앱의 색 역할(브랜드 그린 · 깃발 빨강 · 강수 파랑 · 경고 주황)과 겹치지 않는

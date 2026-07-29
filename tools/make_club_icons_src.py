@@ -48,6 +48,29 @@ def drop_ground(mask):
     return mask.crop((0, 0, w, cut)) if cut < h else mask
 
 
+def drop_top_border(mask):
+    """윗변에 붙은 테두리 선을 지운다.
+
+    웨지 원본(wedge.jpg)은 **맨 윗줄 1px 이 가로로 꽉 찬 검은 선**이다(스캔/저장 때 붙은 테두리).
+    작은 아이콘으로 줄이면 클럽 위에 뜬금없는 '가로 막대'로 보인다(사장님 지적 2026-07-29).
+    아래쪽만 보던 drop_ground 로는 못 잡아서 그대로 배포됐었다.
+
+    위쪽 5% 안에서 가로로 **90% 이상** 채워진 줄만 지운다.
+    사람도 클럽도 이만큼 가로로 꽉 차지 않는다 — 네 원본 전부 실측해 확인했다
+    (드라이버·아이언·퍼터는 윗줄에 어두운 픽셀이 0개라 이 함수가 아무것도 하지 않는다).
+    """
+    w, h = mask.size
+    mp = mask.load()
+    cut = 0
+    for y in range(0, int(h * 0.05) + 1):
+        filled = sum(1 for x in range(w) if mp[x, y] > 128)
+        if filled > w * 0.90:
+            cut = y + 1
+        else:
+            break
+    return mask.crop((0, cut, w, h)) if cut else mask
+
+
 def drop_specks(mask):
     """바닥 그림자 꼬리만 지운다.
 
@@ -117,6 +140,7 @@ def to_mask(path):
             else:
                 mp[x, y] = int((170 - v) / 70 * 255)  # 안티에일리어싱 가장자리
 
+    mask = drop_top_border(mask)
     mask = drop_ground(mask)
     mask = drop_specks(mask)
 
