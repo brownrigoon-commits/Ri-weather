@@ -51,11 +51,32 @@
     budget: ["stock", "mid", "any"],
     scoreGrp: ["80", "90", "100"],
     heightV: [155, 172, 190],
+    /* 2026-07-30 추가 — 구력·주 플레이가 실제로 엔진에 물렸다.
+       예전엔 career 에 없는 값("5y")을 넣어 구력 규칙이 한 번도 안 돌았다. */
+    career: ["lt3", "y3_10", "gt10"],
+    venue: ["field", "screen", "both"],
   };
   const pick = a => a[Math.floor(Math.random() * a.length)];
+  /* 요약(세 문장)에 내부 코드값이 새는지 — 이 조합에서 실제로 쓴 영문 값만 본다 */
+  const codesOf = (o) => {
+    const out = [];
+    const walk = (x) => { if (typeof x === "string") { if (/^[a-z][a-zA-Z0-9_]{1,}$/.test(x)) out.push(x); }
+      else if (x && typeof x === "object") Object.values(x).forEach(walk); };
+    walk(o); return out;
+  };
+  const checkTldr = (t, where, inp) => {
+    if (!t || !t.read || !t.fix) { add("요약이 비어 있음", where, JSON.stringify(t)); return; }
+    [t.read, t.fix, t.act].filter(Boolean).forEach(line => {
+      if (/undefined|null|NaN|\[object/.test(line)) add("요약에 빈 값 노출", where, line.slice(0, 80));
+      codesOf(inp).forEach(c => {
+        if (new RegExp(`(^|[^A-Za-z0-9])${c}([^A-Za-z0-9]|$)`).test(line))
+          add("요약에 내부 코드값 노출", where, c + " → " + line.slice(0, 60));
+      });
+    });
+  };
   let n = 0;
   for (let i = 0; i < 400; i++) {
-    const inp = { career: "5y", scoreConfirm: "ok", tempo: pick(["smooth","normal","fast"]),
+    const inp = { scoreConfirm: "ok", tempo: pick(["smooth","normal","fast"]),
       traj: pick(["low","mid","high",null]), shapeI: pick(["slice","straight","hook",null]),
       auto: { age: pick(["30대","50대","60대 이상",null]), sex: null,
               avg: pick([79, 88, 95, 108, null]), fade: pick([0, 2, 4, null]) } };
@@ -90,6 +111,22 @@
         puttMiss: pick(["dist","dir","none"]), puttLook: pick(["blade","mallet","any"]) }, "putter");
       if (!pu.model || /undefined/.test(pu.model)) add("퍼터 모델 비정상", JSON.stringify(inp), pu.model);
       if (pu.len < 32 || pu.len > 36) add("퍼터 길이 이상", JSON.stringify(inp), pu.len);
+
+      /* 볼 (2026-07-30 신설) — 커버·컴프레션 성향이 표에 있는 값으로만 나와야 한다.
+         ⚠️ 컴프레션 **수치**는 제조사 비공개라 절대 숫자로 나오면 안 된다(절대 원칙 2). */
+      const ba = __cfTest({ ...inp, ball: pick(["urethane","mid","distance","any","unknown"]),
+        ballLost: pick(["few","some","many"]), ballShort: pick(["roll","control","none"]),
+        ballShape: pick(["slice","straight","hook"]), ballFeel: pick(["soft","firm","any"]),
+        ballCold: pick(["yes","no"]), ballFind: pick(["often","rare"]) }, "ball");
+      if (!ba.model || /undefined|null|NaN/.test(ba.model)) add("볼 모델 비정상", JSON.stringify(inp), ba.model);
+      if (!["우레탄", "아이오노머"].includes(ba.cover)) add("볼 커버 값 이상", JSON.stringify(inp), ba.cover);
+      if (!["소프트", "미드", "펌"].includes(ba.feel)) add("볼 컴프레션 성향 값 이상", JSON.stringify(inp), ba.feel);
+      if (/컴프레션\s*\d/.test(JSON.stringify(ba))) add("컴프레션을 숫자로 표기(제조사 비공개값)", JSON.stringify(inp), JSON.stringify(ba).slice(0, 80));
+
+      // 요약 세 문장 — 다섯 클럽 모두
+      checkTldr(d.tldr, "driver", inp); checkTldr(ir.tldr, "iron", inp);
+      checkTldr(we.tldr, "wedge", inp); checkTldr(pu.tldr, "putter", inp);
+      checkTldr(ba.tldr, "ball", inp);
     } catch (e) { add("엔진 예외", JSON.stringify(inp), e.message); }
   }
 
