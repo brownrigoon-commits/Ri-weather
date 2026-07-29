@@ -180,7 +180,7 @@ function paintBooking() {
 async function openBookingView() {
   const course = currentCourse;
   if (viewStack[viewStack.length - 1] !== "booking") pushView("booking");
-  document.querySelector("#booking-title").textContent = "부킹";
+  document.querySelector("#booking-title").textContent = "부킹/조인";
   document.querySelector("#booking-desc").textContent =
     `${course.name} — 가는 날을 고르면 그날 티타임으로 연결합니다`;
 
