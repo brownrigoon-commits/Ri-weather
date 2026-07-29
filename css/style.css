@@ -2004,6 +2004,22 @@ body, .view, .cf-screen, .card, .sheet { word-break: keep-all; overflow-wrap: br
 .cf-club-ico.ico-wedge  { -webkit-mask-size: auto 83px; mask-size: auto 83px;
   -webkit-mask-image: url("../assets/wedge.png");  mask-image: url("../assets/wedge.png"); }
 .cf-club-ico.ico-putter { -webkit-mask-image: url("../assets/putter.png"); mask-image: url("../assets/putter.png"); }
+/* 볼 아이콘 — 실루엣 PNG 가 없어 CSS 로 그린다.
+   ⛔ tools/draw_wedge_icon.py · tools/build_club_icons.js 는 배포 중인 아이콘을 덮어쓴다. 쓰지 않는다.
+   ⛔ mask-size: contain 금지 — 이 앱에서 아이언을 두 번이나 망가뜨린 속성이다.
+   마스크를 쓰지 않으므로 배경 그라디언트로 직접 그린다(테마와 무관하게 공은 흰색이 맞다). */
+.cf-club-ico.ico-ball {
+  position: relative; width: 54px; height: 54px; border-radius: 50%;
+  background-color: transparent;
+  background-image: radial-gradient(circle at 32% 28%, #fff 0%, #f3f5f7 45%, #d8dde2 78%, #bcc4cc 100%);
+  box-shadow: inset 0 -2px 6px rgba(0, 0, 0, .12), 0 1px 3px rgba(0, 0, 0, .18);
+  -webkit-mask-image: none; mask-image: none;
+}
+.cf-club-ico.ico-ball::after {                 /* 딤플 */
+  content: ""; position: absolute; inset: 7px; border-radius: 50%;
+  background-image: radial-gradient(circle, rgba(0, 0, 0, .11) 1.1px, transparent 1.3px);
+  background-size: 9px 9px;
+}
 /* 클럽 이름에 색 — 네 가지를 눈으로 바로 구분하게 한다.
    ⚠️ 앱의 색 역할(브랜드 그린 · 깃발 빨강 · 강수 파랑 · 경고 주황)과 겹치지 않는
    색만 골랐다. 여기서 쓴 색은 **클럽 구분 표시 전용**이며 다른 화면으로 넘기지 말 것.
@@ -2012,12 +2028,63 @@ body, .view, .cf-screen, .card, .sheet { word-break: keep-all; overflow-wrap: br
 .cf-club-tile[data-club="iron"]   b { color: #0f6f66; }   /* 딥 틸 */
 .cf-club-tile[data-club="wedge"]  b { color: #8a5a1e; }   /* 브론즈 */
 .cf-club-tile[data-club="putter"] b { color: #6b3fa0; }   /* 딥 퍼플 */
+.cf-club-tile[data-club="ball"]   b { color: #a8443c; }   /* 테라코타 */
 
 .cf-club-done {
   position: absolute; top: 8px; right: 8px; font-size: 10.5px; font-weight: 700;
   color: var(--primary-ink); background: var(--primary-weak);
   padding: 2px 7px; border-radius: 999px;
 }
+/* 볼 타일만 가로 한 줄 — 클럽 4개(2×2) 아래에 붙는다. 2열 격자라 span 2 로 편다. */
+.cf-club-tile.wide {
+  grid-column: 1 / -1; flex-direction: row; justify-content: flex-start;
+  gap: 14px; padding: 14px 16px; text-align: left;
+}
+.cf-club-tile.wide .cf-club-ico { flex: none; }
+.cf-club-tile.wide > b, .cf-club-tile.wide > small { display: block; }
+.cf-club-tile.wide small { margin-top: 2px; }
+
+/* ── 내 골프백 ──────────────────────────────────────────────────
+   저장한 클럽을 다시 볼 수 있는 화면(사장님 지시 2026-07-30).
+   저장은 되는데 볼 곳이 없으면 저장 버튼은 아무 말도 하지 않는 버튼이다. */
+.bag-strip {
+  display: flex; align-items: center; gap: 12px; width: 100%;
+  padding: 14px 16px; margin-bottom: 14px; border: 1px solid var(--line);
+  border-radius: 16px; background: var(--card); color: var(--text);
+  text-align: left; cursor: pointer;
+}
+.bag-strip.empty { background: var(--surface-2); cursor: default; }
+.bag-strip:not(.empty):active { transform: scale(0.99); }
+.bag-strip-ic { font-size: 24px; line-height: 1; flex: none; }
+.bag-strip-t { flex: 1; min-width: 0; }
+.bag-strip-t b { display: block; font-size: 15px; font-weight: 700; letter-spacing: -0.02em; }
+.bag-strip-t span {
+  display: block; margin-top: 2px; font-size: 12.5px; line-height: 1.5;
+  color: var(--text-faint); word-break: keep-all;
+}
+.bag-strip-go { flex: none; font-size: 13px; font-weight: 700; color: var(--primary-ink); }
+
+.bag-card {
+  margin-bottom: 12px; padding: 15px 16px; border: 1px solid var(--line);
+  border-radius: 16px; background: var(--card);
+}
+.bag-card.empty { background: var(--surface-2); border-style: dashed; }
+.bag-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin-bottom: 10px; }
+.bag-head b { font-size: 16px; font-weight: 700; letter-spacing: -0.02em; }
+.bag-head span { font-size: 11.5px; color: var(--text-faint); font-weight: 600; flex: none; }
+.bag-row {
+  display: flex; align-items: baseline; gap: 10px; padding: 6px 0;
+  border-top: 1px solid var(--line);
+}
+.bag-row:first-of-type { border-top: none; padding-top: 0; }
+.bag-row > span { flex: none; width: 78px; font-size: 12px; color: var(--text-faint); font-weight: 600; }
+.bag-row > b { flex: 1; font-size: 14px; font-weight: 700; letter-spacing: -0.02em; word-break: keep-all; }
+.bag-none { font-size: 13px; color: var(--text-faint); margin-bottom: 12px; }
+.bag-why {
+  margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--line);
+  font-size: 12.5px; line-height: 1.65; color: var(--text-dim); word-break: keep-all;
+}
+.bag-btn { margin-top: 12px; width: 100%; padding: 11px; font-size: 14px; }
 /* 직접 입력 칸 (지금 쓰는 모델 등) */
 .cf-text {
   width: 100%; padding: 13px 14px; border: 1px solid var(--line);
@@ -2058,6 +2125,60 @@ body, .view, .cf-screen, .card, .sheet { word-break: keep-all; overflow-wrap: br
 .cf-story.good .cf-story-h { color: var(--primary-ink); }
 .cf-story.warn { background: transparent; border-style: dashed; }
 .cf-story.warn .cf-story-h { color: var(--text-dim); }
+
+/* ── 결과 세 줄 요약 (사장님 지시 2026-07-30) ──────────────────────
+   "내용이 너무 많아서 다 읽어볼 엄두가 안 난다."
+   설명을 없애는 게 아니라 순서를 바꾼다 — 결론 먼저, 근거는 접어서 아래로. */
+.cf-tldr {
+  margin: 14px 0 16px; padding: 4px 0; border-radius: 16px;
+  background: var(--card); border: 1px solid var(--line); overflow: hidden;
+}
+.cf-tldr-r { display: flex; gap: 12px; padding: 13px 16px; border-top: 1px solid var(--line); }
+.cf-tldr-r:first-child { border-top: none; }
+.cf-tldr-r > span {
+  flex: none; width: 34px; padding-top: 1px; font-size: 11.5px; font-weight: 800;
+  color: var(--text-faint); letter-spacing: -0.02em;
+}
+.cf-tldr-r > p {
+  margin: 0; flex: 1; font-size: 14.5px; line-height: 1.7;
+  color: var(--text); word-break: keep-all;
+}
+.cf-tldr-r > p b { font-weight: 800; }
+/* 추정값 표시 — 단정한 숫자와 눈으로 구분되게 (절대 원칙 2) */
+.cf-tldr-r > p i { font-style: normal; font-size: 12px; color: var(--text-faint); font-weight: 600; }
+.cf-tldr-r.act { background: var(--primary-weak); border-top-color: transparent; }
+.cf-tldr-r.act > span { color: var(--primary-ink); }
+.cf-tldr-r.act > p { color: var(--primary-ink); }
+.cf-tldr-r.act > p b { color: var(--primary-ink); }
+
+/* 1순위만 한 줄씩 — 대안·단종은 접힌 쪽으로 내린다 */
+.cf-picks {
+  margin: 0 0 16px; border: 1px solid var(--line); border-radius: 16px;
+  background: var(--card); overflow: hidden;
+}
+.cf-pick { display: flex; gap: 12px; align-items: baseline; padding: 12px 16px; border-top: 1px solid var(--line); }
+.cf-pick:first-child { border-top: none; }
+.cf-pick-k { flex: none; width: 62px; font-size: 12px; font-weight: 700; color: var(--text-faint); }
+.cf-pick-v { flex: 1; min-width: 0; }
+.cf-pick-v b { display: block; font-size: 15.5px; font-weight: 700; letter-spacing: -0.02em; word-break: keep-all; }
+.cf-pick-v small {
+  display: block; margin-top: 2px; font-size: 12px; line-height: 1.5;
+  color: var(--text-faint); word-break: keep-all;
+}
+
+/* 접이식 — <details> 대신 앱의 다른 버튼과 같은 모양으로 만든다 */
+.cf-fold { margin: 10px 0; }
+.cf-fold-h {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  width: 100%; padding: 14px 16px; border: 1px solid var(--line); border-radius: 14px;
+  background: var(--surface-2); color: var(--text); text-align: left; cursor: pointer;
+}
+.cf-fold-h:active { background: var(--surface-press); }
+.cf-fold-t { font-size: 14px; font-weight: 700; letter-spacing: -0.02em; }
+.cf-fold-t small { display: block; margin-top: 2px; font-size: 12px; font-weight: 500; color: var(--text-faint); }
+.cf-fold-x { flex: none; font-size: 17px; font-weight: 700; color: var(--text-faint); line-height: 1; }
+.cf-fold-b { padding: 2px 0 6px; }
+.cf-fold-b .cf-fold-h { background: transparent; }
 
 /* 가격대·단종 표시 — 스펙만큼 고르는 데 중요한 정보 */
 .r-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }

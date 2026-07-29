@@ -2304,6 +2304,7 @@ function playerTraits() {
     bits.push("드라이버 " + (bag.driver.keep ? bag.driver.shaft : bag.driver.head + " + " + bag.driver.shaft));
   if (bag && bag.iron) bits.push("아이언 " + bag.iron.head);
   if (bag && bag.carryD) bits.push("드라이버 캐리 " + bag.carryD + "m");
+  if (bag && bag.ball && bag.ball.cover) bits.push("볼 " + (bag.ball.model || bag.ball.cat));
   return bits.length ? ", " + bits.join(" ") : "";
 }
 function playerTraitGuide() {
@@ -2352,6 +2353,12 @@ function playerTraitGuide() {
   if (bag && bag.wedge && bag.wedge.lofts && bag.wedge.lofts.length)
     g += `이 골퍼의 웨지는 ${bag.wedge.lofts.join("°, ")}° 구성입니다. ` +
          "그린 주변 조언에서는 이 중에서만 클럽을 지정하고, 갖고 있지 않은 로프트는 언급하지 마세요. ";
+  // 볼 — 그린 주변에서 세울 수 있느냐 굴려야 하느냐는 커버 소재가 정한다
+  if (bag && bag.ball && bag.ball.cover)
+    g += `이 골퍼의 볼은 ${bag.ball.model || bag.ball.cat}(${bag.ball.cover} 커버)입니다. ` +
+         (bag.ball.cover === "우레탄"
+           ? "숏게임 스핀이 걸리는 공이므로 그린 주변에서 띄워 세우는 공략을 선택지에 넣어도 됩니다. "
+           : "숏게임 스핀이 적은 공이므로 그린 주변에서는 띄워 세우기보다 굴려 붙이는 공략을 권하세요. ");
   return g;
 }
 
