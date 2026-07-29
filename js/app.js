@@ -727,6 +727,7 @@ function showOnly(name, back) {
   for (const k in VIEWS) VIEWS[k].hidden = k !== name;
   window.scrollTo(0, 0);
   if (name !== "detail") stopPlay();
+  if (typeof stopCaddieVoice === "function") stopCaddieVoice();  // 화면을 옮기면 캐디 음성도 멈춘다
   if (name === "home") renderHome();
   // 홈이 아니면 플로팅 뒤로가기 버튼 표시
   const fb = document.getElementById("float-back-btn");
@@ -1995,10 +1996,12 @@ async function openCourseView() {
     // 지도는 전체 코스 뷰 유지 — 홀 상세는 아래 세로 홀 뷰(캔버스)로 표시
     renderHoleCanvas(h, course.name + "|" + h.name + h.ref);
 
-    // 내 구질·비거리 기반 맞춤 공략 생성
+    // 내 구질·비거리 기반 맞춤 공략 생성 (규칙 기반 — 화면의 위성 라인이 근거)
     aiHoleCtx = { h, bunkers, waters, courseName: course.name };
     lastHoleSelect = () => selectHole(i);
-    $("#ai-strategy").hidden = true; $("#ai-strategy").textContent = "";
+    // ⚠ 이 구장은 홀 라인이 공개 지도 자료라 파·거리가 추정치다.
+    //   샷별 AI 캐디는 파를 기준으로 항목을 나누므로 여기서 제공하면 전제부터 틀린다.
+    setCaddieAvailable(false);
     $("#hole-detail-title").textContent = `${h.ref}번홀 공략` + (h.name ? ` · ${h.name}` : "");
     $("#hole-strategy").hidden = false;
     $("#hole-strategy").textContent = buildHoleStrategy(h, bunkers, waters) +
@@ -2107,8 +2110,8 @@ function renderImgCourse(course, db) {
       $("#hole-strategy").textContent = "";
       $("#hole-strategy").hidden = true;
     }
-    $("#ai-strategy").hidden = true;
-    $("#ai-strategy").textContent = "";
+    // 공식 홀 자료가 있는 구장 — 샷별 캐디 제공. 홀을 옮기면 읽던 음성은 끊는다.
+    setCaddieAvailable(true);
     aiHoleCtx = { imgHole: h, courseName: course.name };
     lastHoleSelect = () => sel(i);
     $("#hole-video").hidden = true; // 홀별 영상 선별 불가 — 신뢰 문제로 미표시
@@ -2246,48 +2249,191 @@ async function renderHoleCanvas(h, cacheKey) {
   }
 }
 
-/* 홀 영역 위성 타일을 합성해 티(노랑)·그린(빨강) 표시된 이미지 생성 */
-async function holeSatelliteDataUrl(h) {
-  const lats = h.line.map((p) => p[0]), lons = h.line.map((p) => p[1]);
-  const dLat = Math.max(Math.max(...lats) - Math.min(...lats), 0.0008);
-  const dLon = Math.max(Math.max(...lons) - Math.min(...lons), 0.0008);
-  const bb = {
-    latMin: Math.min(...lats) - dLat * 0.2, latMax: Math.max(...lats) + dLat * 0.2,
-    lonMin: Math.min(...lons) - dLon * 0.2, lonMax: Math.max(...lons) + dLon * 0.2,
-  };
-  let z = 18, tx0, tx1, ty0, ty1;
-  while (z > 14) {
-    tx0 = Math.floor(lon2tx(bb.lonMin, z)); tx1 = Math.floor(lon2tx(bb.lonMax, z));
-    ty0 = Math.floor(lat2ty(bb.latMax, z)); ty1 = Math.floor(lat2ty(bb.latMin, z));
-    if (tx1 - tx0 < 4 && ty1 - ty0 < 4) break;
-    z--;
+/* ---------- 샷별 캐디: 파에 맞는 항목 · 응답 파싱 · 음성 ----------
+   홀 전체를 한 덩어리로 설명하면 길어서 티박스에서 읽을 수가 없다.
+   그래서 파를 보고 '샷 단위'로 나눠 짧게 말하고, 각각 따로 들을 수 있게 한다.
+   설계: docs/코스공략_캐디_설계.md                                     */
+
+/* 항목을 코드가 정한다 — 모델에게 "파 보고 알아서 나누라"고 하면
+   홀마다 항목 수가 들쭉날쭉해져 화면과 음성이 흔들린다. */
+function shotLabels(par, hasGreen) {
+  const p = Number(par) || 4;
+  const base = p <= 3 ? ["티샷", "그린 주변"]
+             : p >= 5 ? ["티샷", "세컨샷", "서드샷"]
+             : ["티샷", "세컨샷"];
+  return hasGreen ? base.concat("그린") : base;
+}
+const SHOT_ICON = { "티샷": "⛳", "세컨샷": "🏌️", "서드샷": "🎯", "그린 주변": "🎯", "그린": "🟢" };
+
+/* 모델 응답(라벨 줄) → 카드 배열.
+   라벨이 하나도 안 잡히면 통짜로 한 장 — 받은 내용을 잃지 않는다. */
+function parseCaddie(text, labels) {
+  const t = String(text || "").trim();
+  if (!t) return [];
+  const head = new RegExp("^\\s*[\\[\\(【]\\s*(" + labels.join("|") + ")\\s*[\\]\\)】]\\s*[:：]?\\s*");
+  const cards = [];
+  t.split(/\r?\n/).forEach((line) => {
+    const s = line.trim();
+    if (!s) return;
+    const m = s.match(head);
+    if (m) cards.push({ label: m[1], text: s.slice(m[0].length).trim() });
+    else if (cards.length) cards[cards.length - 1].text += " " + s;   // 줄바꿈된 이어진 문장
+  });
+  const ok = cards.filter((c) => c.text);
+  return ok.length ? ok : [{ label: "공략", text: t }];
+}
+
+/* ── 음성: 기기 내장 TTS(여성 한국어). 없으면 조용히 숨긴다 ──
+   어색한 억양으로 읽느니 글자만 보여주는 게 낫다(틀릴 수 있으면 표시하지 않는다). */
+const VOICE_OFF_KEY = "riweather.voice.off";
+const voiceOn = () => !localStorage.getItem(VOICE_OFF_KEY);
+const hasTTS = () => typeof speechSynthesis !== "undefined" && typeof SpeechSynthesisUtterance !== "undefined";
+/* 이름이 알려진 여성 한국어 음성부터 — iOS/맥 유나, 안드로이드 크롬, 윈도우 순 */
+const VOICE_PREFER = ["Yuna", "유나", "Google 한국의", "Heami", "SunHi", "Sora"];
+let koVoice = null, voiceUnlocked = false, speakingBtn = null;
+function pickKoVoice() {
+  if (!hasTTS()) return null;
+  let all = [];
+  try { all = speechSynthesis.getVoices() || []; } catch { return null; }
+  const ko = all.filter((v) => /^ko/i.test(v.lang || "") || /korean|한국/i.test(v.name || ""));
+  if (!ko.length) return null;
+  for (const want of VOICE_PREFER) {
+    const hit = ko.find((v) => (v.name || "").includes(want));
+    if (hit) return hit;
   }
-  const cv = document.createElement("canvas");
-  cv.width = (tx1 - tx0 + 1) * 256; cv.height = (ty1 - ty0 + 1) * 256;
-  const ctx = cv.getContext("2d");
-  const jobs = [];
-  for (let tx = tx0; tx <= tx1; tx++) {
-    for (let ty = ty0; ty <= ty1; ty++) {
-      jobs.push(fetchT(`https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/${z}/${ty}/${tx}`, null, 8000)
-        .then((r) => r.blob()).then(createImageBitmap)
-        .then((bmp) => ctx.drawImage(bmp, (tx - tx0) * 256, (ty - ty0) * 256)));
-    }
+  return ko[0];
+}
+if (hasTTS()) {
+  koVoice = pickKoVoice();
+  // 첫 호출에 빈 배열이 오는 기기가 많다 — 목록이 준비되면 다시 고르고 버튼을 살린다
+  speechSynthesis.addEventListener?.("voiceschanged", () => {
+    koVoice = pickKoVoice();
+    document.querySelectorAll(".cad-voice").forEach((b) => { b.hidden = !koVoice || !voiceOn(); });
+  });
+}
+/* iOS는 '사용자가 누른 그 순간' 소리를 한 번 내야 이후 재생이 허용된다.
+   그래서 버튼 핸들러 안에서 동기적으로 호출해야 한다(응답을 기다린 뒤엔 늦다). */
+function unlockVoice() {
+  if (!hasTTS() || voiceUnlocked || !voiceOn()) return;
+  try {
+    const u = new SpeechSynthesisUtterance(" ");
+    u.volume = 0;
+    speechSynthesis.speak(u);
+    voiceUnlocked = true;
+  } catch { /* 안 되면 그냥 글자만 */ }
+}
+function stopCaddieVoice() {
+  if (!hasTTS()) return;
+  try { speechSynthesis.cancel(); } catch { /* 무시 */ }
+  if (speakingBtn) { speakingBtn.textContent = "🔊"; speakingBtn = null; }
+}
+/* 화면 글자 → 읽을 글자 (같은 문장을 쓰고 전처리만 다르게 한다) */
+function speechText(s) {
+  return String(s || "")
+    .replace(/[\[\(【][^\]\)】]*[\]\)】]/g, " ")
+    .replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE0F}]/gu, " ")
+    .replace(/(\d)\s*m(?![a-z])/gi, "$1미터")
+    .replace(/파\s*(\d)/g, "파 $1")
+    .replace(/["'`*]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+function speakCaddie(texts, btn) {
+  if (!hasTTS() || !voiceOn()) return;
+  koVoice = koVoice || pickKoVoice();
+  if (!koVoice) return;
+  stopCaddieVoice();
+  const list = (Array.isArray(texts) ? texts : [texts]).map(speechText).filter(Boolean);
+  if (!list.length) return;
+  if (btn) { speakingBtn = btn; btn.textContent = "⏹"; }
+  const done = () => { if (btn && speakingBtn === btn) { btn.textContent = "🔊"; speakingBtn = null; } };
+  list.forEach((t, i) => {
+    const u = new SpeechSynthesisUtterance(t);
+    u.voice = koVoice;
+    u.lang = koVoice.lang || "ko-KR";
+    u.pitch = 1.12;      // 밝은 톤
+    u.rate = 1.02;
+    if (i === list.length - 1) { u.onend = done; u.onerror = done; }
+    try { speechSynthesis.speak(u); } catch { done(); }
+  });
+}
+
+/* 카드 그리기 — 샷마다 한 장, 각 장에 🔊 */
+function renderCaddieCards(cards, out) {
+  out.innerHTML = "";
+  out.hidden = false;
+  const voiceReady = hasTTS() && !!koVoice;
+  cards.forEach((c) => {
+    const card = document.createElement("div");
+    card.className = "cad-card";
+    const head = document.createElement("div");
+    head.className = "cad-head";
+    head.innerHTML = `<span class="cad-ico">${SHOT_ICON[c.label] || "💡"}</span>` +
+                     `<span class="cad-label"></span>`;
+    head.querySelector(".cad-label").textContent = c.label;
+    const play = document.createElement("button");
+    play.type = "button";
+    play.className = "cad-play cad-voice";
+    play.textContent = "🔊";
+    play.setAttribute("aria-label", c.label + " 공략 듣기");
+    play.hidden = !voiceReady || !voiceOn();
+    play.addEventListener("click", () => {
+      if (speakingBtn === play) { stopCaddieVoice(); return; }
+      speakCaddie(c.text, play);
+    });
+    head.appendChild(play);
+    const p = document.createElement("p");
+    p.className = "cad-text";
+    p.textContent = c.text;
+    card.appendChild(head);
+    card.appendChild(p);
+    out.appendChild(card);
+  });
+
+  const foot = document.createElement("div");
+  foot.className = "cad-foot";
+  const all = document.createElement("button");
+  all.type = "button";
+  all.className = "cad-all cad-voice";
+  all.textContent = "▶ 전체 듣기";
+  all.hidden = !voiceReady || !voiceOn();
+  all.addEventListener("click", () => {
+    if (speakingBtn === all) { stopCaddieVoice(); return; }
+    speakCaddie(cards.map((c) => c.label + ". " + c.text), all);
+  });
+  const mute = document.createElement("button");
+  mute.type = "button";
+  mute.className = "cad-mute";
+  mute.hidden = !hasTTS() || !koVoice;
+  const paintMute = () => { mute.textContent = voiceOn() ? "🔕 음성 끄기" : "🔔 음성 켜기"; };
+  paintMute();
+  mute.addEventListener("click", () => {
+    if (voiceOn()) { localStorage.setItem(VOICE_OFF_KEY, "1"); stopCaddieVoice(); }
+    else localStorage.removeItem(VOICE_OFF_KEY);
+    paintMute();
+    out.querySelectorAll(".cad-voice").forEach((b) => { b.hidden = !voiceOn() || !koVoice; });
+  });
+  foot.appendChild(all);
+  foot.appendChild(mute);
+  out.appendChild(foot);
+  return voiceReady;
+}
+
+/* 이 홀에 캐디 공략을 제공할 수 있는지 — 공식 홀 자료가 있는 구장만.
+   위성으로 추정한 구장은 파·거리가 추정치라 샷별로 나누면 그 전제부터 틀린다.
+   (자신감 있는 음성으로 틀리는 것이 가장 나쁘다 — 설계서 2-1장)            */
+function setCaddieAvailable(ok) {
+  const btn = $("#ai-strategy-btn"), out = $("#ai-strategy");
+  stopCaddieVoice();
+  btn.hidden = !ok;
+  out.innerHTML = "";
+  if (ok) {
+    out.hidden = true;
+  } else {
+    out.innerHTML = '<div class="cad-prep">🛠 이 구장의 <b>캐디 공략을 준비중</b>입니다.' +
+      '<span>공식 홀 자료가 확보되는 대로 제공됩니다. 위 위성 홀 그림으로 방향을 확인하세요.</span></div>';
+    out.hidden = false;
   }
-  await Promise.all(jobs);
-  const px = (p) => [(lon2tx(p[1], z) - tx0) * 256, (lat2ty(p[0], z) - ty0) * 256];
-  // 홀 라인 + 티/그린 마커
-  ctx.strokeStyle = "rgba(255,255,255,0.9)"; ctx.lineWidth = 3; ctx.setLineDash([10, 8]);
-  ctx.beginPath();
-  h.line.forEach((p, i) => { const [X, Y] = px(p); i ? ctx.lineTo(X, Y) : ctx.moveTo(X, Y); });
-  ctx.stroke(); ctx.setLineDash([]);
-  const dot = (p, color) => {
-    const [X, Y] = px(p);
-    ctx.fillStyle = color; ctx.strokeStyle = "#fff"; ctx.lineWidth = 3;
-    ctx.beginPath(); ctx.arc(X, Y, 11, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
-  };
-  dot(h.line[0], "#ffd60a");
-  dot(h.line[h.line.length - 1], "#ff3b30");
-  return cv.toDataURL("image/jpeg", 0.85);
 }
 
 /* 동의받은 연령대·성별을 AI 캐디 공략에 실제로 반영한다 */
@@ -2398,101 +2544,136 @@ const AI_PROFILE = {
 };
 
 async function aiCaddie() {
-  if (!aiHoleCtx) return;
+  if (!aiHoleCtx || !aiHoleCtx.imgHole) return;
+  // iOS는 '누른 그 순간' 소리를 한 번 내야 이후 재생이 허용된다 — 응답을 기다린 뒤엔 늦다
+  unlockVoice();
   if (typeof STATS !== "undefined") STATS.hit("feature", "ai");
   if (AI_PROFILE.need()) { AI_PROFILE.ask(() => runAiCaddie()); return; }
   return runAiCaddie();
 }
 
-/* 3~8초 걸리는 호출 — 대기 화면으로 말을 걸어 기다림을 지운다 */
+/* 몇 초 걸리는 호출 — 대기 화면으로 말을 걸어 기다림을 지운다 */
 async function runAiCaddie() {
   if (!aiHoleCtx) return;
   return WAIT.run("caddie", () => runAiCaddieInner());
 }
+
+/* 같은 홀을 다시 열면 다시 부르지 않는다(홀 이동 중엔 0초가 최고).
+   프로필이 바뀌면 키가 달라져 저절로 새로 만든다. */
+const caddieCache = new Map();
+function caddieKey(hh, courseName) {
+  const p = loadProfile(), c = CONSENT.get() || {};
+  const bag = (typeof loadMyBag === "function") ? loadMyBag() : null;
+  return [courseName, hh.cname, hh.no, p.shape, p.dist, p.years, p.avg,
+          c.age, c.gender, bag && bag.carryD].join("|");
+}
+
+/* 같은 출처 이미지 → base64 (모델 첨부용) */
+async function fetchImgB64(src) {
+  const b = await fetchT(src, null, 5000).then((r) => r.blob());
+  return await new Promise((res, rej) => {
+    const fr = new FileReader();
+    fr.onload = () => res(String(fr.result).split(",")[1]);
+    fr.onerror = rej;
+    fr.readAsDataURL(b);
+  });
+}
+
 async function runAiCaddieInner() {
   const btn = $("#ai-strategy-btn"), out = $("#ai-strategy");
-  btn.disabled = true; btn.textContent = "🤖 AI 캐디가 홀을 분석 중... (3~8초)";
+  const hh = aiHoleCtx && aiHoleCtx.imgHole;
+  if (!hh) return;                       // 공식 홀 자료가 없는 구장은 버튼 자체가 없다
+  stopCaddieVoice();
+  btn.disabled = true; btn.textContent = "🤖 캐디가 이 홀을 보는 중...";
 
-  // 공식 홀맵 이미지 모드
-  if (aiHoleCtx.imgHole) {
-    const hh = aiHoleCtx.imgHole;
-    const prof2 = loadProfile();
-    try {
-      const hasImg = !!hh.img;
-      const data = hasImg ? await imgToB64($("#hole-img")) : null;
-      // 홀 3D 영상에서 뽑아둔 실제 코스 장면 (티→중간→그린)
-      const frameData = [];
-      for (const src of (hh.frames || [])) {
-        try {
-          const b = await fetchT(src, null, 5000).then((r) => r.blob());
-          frameData.push(await new Promise((res, rej) => {
-            const fr = new FileReader();
-            fr.onload = () => res(String(fr.result).split(",")[1]);
-            fr.onerror = rej;
-            fr.readAsDataURL(b);
-          }));
-        } catch { /* 프레임 없으면 건너뜀 */ }
-      }
-      const elevTxt = hh.elev
-        ? `티에서 그린까지 ${hh.elev > 0 ? "오르막 " + hh.elev : "내리막 " + Math.abs(hh.elev)}m. ` : "";
-      const frameTxt = frameData.length
-        ? `이어지는 ${frameData.length}장은 이 홀의 실제 3D 코스 영상에서 뽑은 장면입니다(티잉구역 → 페어웨이 중간 → 그린 접근 순서). 페어웨이 폭·굴곡, 나무·러프 경계, 해저드, 그린 주변 지형을 이 장면들에서 직접 확인하고 조언에 반영하세요. `
-        : "";
-      const prompt = hasImg ?
-        `당신은 투어 경력의 친절한 한국인 캐디입니다. 첨부 이미지 1번은 ${aiHoleCtx.courseName} ${hh.cname}코스 ${hh.no}번홀(파${hh.par})의 공식 홀맵입니다. ` +
-        `홀맵에는 홀 모양, 벙커·해저드 위치, 그린까지 거리선(50/100/150M)이 표시되어 있습니다. ` + frameTxt + elevTxt :
-        `당신은 투어 경력의 친절한 한국인 캐디입니다. ${aiHoleCtx.courseName} ${hh.cname}코스 ${hh.no}번홀(파${hh.par})을 안내합니다. ` +
-        `홀맵 그림은 없고 아래 수치 정보만 있습니다. 사진이 있는 것처럼 지형·벙커 위치를 지어내지 말고, 주어진 파·거리·고도차와 플레이어 구질만으로 조언하세요. ` + elevTxt;
-      const promptTail =
-        (hh.dist ? `티별 거리(m): L그린 백${hh.dist.L[0]}/레귤러${hh.dist.L[1]}/프론트${hh.dist.L[2]}/레이디${hh.dist.L[3]}, R그린 백${hh.dist.R[0]}/레귤러${hh.dist.R[1]}/프론트${hh.dist.R[2]}/레이디${hh.dist.R[3]}. ` :
-         hh.tees ? `티별 거리: ${hh.tees.map((t) => t.name + " " + t.m + "m").join(", ")}. ` :
-         hh.len ? `전장 ${hh.len}m${hh.hdcp ? ", 핸디캡 " + hh.hdcp : ""}. ` : "") +
-        (hh.tip ? `골프장 공식 공략 TIP: "${hh.tip}" ` : "") +
-        `플레이어: 구질 ${prof2.shape || "스트레이트"}, 드라이버 평균 ${prof2.dist || 200}m${playerTraits()}. ` +
-        playerTraitGuide() +
-        `가장 중요한 것은 구질 맞춤입니다 — 이 플레이어의 구질(${prof2.shape || "스트레이트"})이 이 홀에서 유리한지 불리한지 판단하고, ` +
-        `구질을 감안한 구체적인 조준점(예: 슬라이스면 좌측 OO를 보고)과 위험 구역 회피법을 반드시 포함하세요. ` +
-        `주어진 정보만 근거로 ①티샷(구질 맞춤 조준점·클럽) ②세컨샷 ③그린 주변 순서로 4~6문장, 친근한 존댓말로 조언하세요. ` +
-        `확인할 수 없는 정보(그린 경사, 잔디 상태 등)는 절대 지어내지 마세요.`;
-      const parts = [{ text: prompt + promptTail }];
-      if (hasImg) parts.push({ inline_data: { mime_type: "image/jpeg", data } });
-      frameData.forEach((d2) => parts.push({ inline_data: { mime_type: "image/jpeg", data: d2 } }));
-      const text = await geminiGenerate(parts, 0.4);
-      out.textContent = text.trim();
-      out.hidden = false;
-    } catch (e) {
-      out.textContent = "AI 캐디 연결에 실패했습니다. 잠시 후 다시 시도해 주세요.";
-      out.hidden = false;
-    }
-    btn.disabled = false; btn.textContent = "🤖 AI 캐디 상세 공략 보기";
-    return;
-  }
+  const finish = (cards) => {
+    const voiceReady = renderCaddieCards(cards, out);
+    btn.disabled = false; btn.textContent = "🎧 AI 캐디 공략 듣기";
+    // 버튼을 누른 순간 골퍼는 티박스에 있다 — 티샷만 자동으로 읽어준다.
+    // 세컨샷부터는 그 지점에서 카드를 눌러 듣는 게 자연스럽다.
+    if (voiceReady && voiceOn()) speakCaddie(cards[0].text, out.querySelector(".cad-play"));
+  };
 
-  const { h, bunkers, waters, courseName } = aiHoleCtx;
-  const prof = loadProfile();
-  const facts = `${courseName} ${h.ref}번홀, 파${h.par}, 길이 약 ${h.len}m, 홀 주변 벙커 ${bunkers.length}개·워터해저드 ${waters.length}곳. 플레이어: 구질 ${prof.shape || "스트레이트"}, 드라이버 평균 ${prof.dist || 200}m${playerTraits()}. ${playerTraitGuide()}`;
-  const basePrompt =
-    `당신은 투어 경력의 친절한 한국인 캐디입니다. ${facts}\n` +
-    `첨부된 위성사진이 이 홀입니다 (흰 점선=홀 진행선, 노란 점=티잉구역, 빨간 점=그린).\n` +
-    `사진에서 실제로 보이는 지형(페어웨이 폭·모양, 해저드 위치, 도그레그)과 플레이어의 구질·비거리를 근거로 ` +
-    `①티샷 조준점 ②세컨샷 ③그린 주변 순서로 4~6문장 존댓말 조언을 하세요. ` +
-    `사진으로 확인할 수 없는 것(그린 경사, 잔디 상태 등)은 절대 지어내지 마세요.`;
+  const key = caddieKey(hh, aiHoleCtx.courseName);
+  const hit = caddieCache.get(key);
+  if (hit) { finish(hit); return; }
+
+  const prof2 = loadProfile();
+  const labels = shotLabels(hh.par, !!hh.green);
   try {
-    let parts;
-    try {
-      const img = await holeSatelliteDataUrl(h);
-      parts = [{ text: basePrompt }, { inline_data: { mime_type: "image/jpeg", data: img.split(",")[1] } }];
-    } catch {
-      parts = [{ text: basePrompt.replace(/첨부된 위성사진.*?\n/, "위성사진 없이 위 정보만으로 조언하세요.\n") }];
+    const hasImg = !!hh.img;
+    // 홀맵·3D 장면·그린 경사도를 한꺼번에 받는다(순차로 받으면 그만큼 늦어진다)
+    const [data, frameData, greenData] = await Promise.all([
+      hasImg ? imgToB64($("#hole-img")).catch(() => null) : Promise.resolve(null),
+      Promise.all((hh.frames || []).map((s) => fetchImgB64(s).catch(() => null)))
+        .then((a) => a.filter(Boolean)),
+      hh.green ? fetchImgB64(hh.green).catch(() => null) : Promise.resolve(null),
+    ]);
+    const elevTxt = hh.elev
+      ? `티에서 그린까지 ${hh.elev > 0 ? "오르막 " + hh.elev : "내리막 " + Math.abs(hh.elev)}m. ` : "";
+    const frameTxt = frameData.length
+      ? `이어지는 ${frameData.length}장은 이 홀의 실제 3D 코스 영상에서 뽑은 장면입니다(티잉구역 → 페어웨이 중간 → 그린 접근 순서). 페어웨이 폭·굴곡, 나무·러프 경계, 해저드, 그린 주변 지형을 이 장면들에서 직접 확인하고 조언에 반영하세요. `
+      : "";
+    const greenTxt = greenData
+      ? `마지막 이미지는 이 홀 그린의 공식 경사도입니다(빨강=높은 쪽, 파랑=낮은 쪽). [그린] 항목은 이 그림에서 보이는 것만 근거로 말하세요. `
+      : "";
+    const head = hasImg ?
+      `당신은 밝고 자신감 넘치는 투어 경력의 여성 캐디입니다. 플레이어에게 확신을 주는 말투로 말합니다. ` +
+      `첨부 이미지 1번은 ${aiHoleCtx.courseName} ${hh.cname}코스 ${hh.no}번홀(파${hh.par})의 공식 홀맵입니다. ` +
+      `홀맵에는 홀 모양, 벙커·해저드 위치, 그린까지 거리선(50/100/150M)이 표시되어 있습니다. ` + frameTxt + greenTxt + elevTxt :
+      `당신은 밝고 자신감 넘치는 투어 경력의 여성 캐디입니다. 플레이어에게 확신을 주는 말투로 말합니다. ` +
+      `${aiHoleCtx.courseName} ${hh.cname}코스 ${hh.no}번홀(파${hh.par})을 안내합니다. ` +
+      `홀맵 그림은 없고 아래 수치 정보만 있습니다. 사진이 있는 것처럼 지형·벙커 위치를 지어내지 말고, 주어진 파·거리·고도차와 플레이어 구질만으로 조언하세요. ` + elevTxt;
+    const facts =
+      (hh.dist ? `티별 거리(m): L그린 백${hh.dist.L[0]}/레귤러${hh.dist.L[1]}/프론트${hh.dist.L[2]}/레이디${hh.dist.L[3]}, R그린 백${hh.dist.R[0]}/레귤러${hh.dist.R[1]}/프론트${hh.dist.R[2]}/레이디${hh.dist.R[3]}. ` :
+       hh.tees ? `티별 거리: ${hh.tees.map((t) => t.name + " " + t.m + "m").join(", ")}. ` :
+       hh.len ? `전장 ${hh.len}m${hh.hdcp ? ", 핸디캡 " + hh.hdcp : ""}. ` : "") +
+      (hh.tip ? `골프장 공식 공략 TIP: "${hh.tip}" ` : "") +
+      `플레이어: 구질 ${prof2.shape || "스트레이트"}, 드라이버 평균 ${prof2.dist || 200}m${playerTraits()}. ` +
+      playerTraitGuide() +
+      `가장 중요한 것은 구질 맞춤입니다 — 이 플레이어의 구질(${prof2.shape || "스트레이트"})이 이 홀에서 유리한지 불리한지 판단해, ` +
+      `구질을 감안한 구체적인 조준점(예: 슬라이스면 좌측 OO를 보고)과 위험 구역 회피법을 [티샷]에 반드시 넣으세요. ` +
+      `확인할 수 없는 정보(그린 경사, 잔디 상태 등)는 절대 지어내지 마세요. ` +
+      `위 지시들은 문장 수를 늘리지 말고 각 항목 안에 녹여 넣으세요. `;
+    // 형식 지시는 맨 끝에 — 지시가 여러 개일 때 마지막 지시의 이행률이 가장 높다
+    const fmt =
+      `\n아래 형식으로만 답하세요. 각 줄은 대괄호 라벨로 시작합니다.\n` +
+      labels.map((l) => `[${l}] (조언)`).join("\n") + "\n" +
+      `- 위 ${labels.length}개 라벨을 순서대로 정확히 한 번씩만 쓰고, 다른 줄은 절대 쓰지 마세요.\n` +
+      `- [티샷]은 1~2문장 90자 이내, 나머지 항목은 1~2문장 70자 이내.\n` +
+      `- 호칭(예: 싱글 골퍼님)은 [티샷]에서 한 번만. 자신감을 주는 격려 한마디는 마지막 줄 끝에 한 번만.\n` +
+      `- 목록·번호·별표·이모지 금지. 소리 내어 읽어줄 문장이니 자연스러운 존댓말 문장으로만.\n` +
+      `예시 — [티샷] 싱글 골퍼님, 미스가 적으시니 좌측 카트도로를 보고 드라이버로 과감하게 스윙하세요. 페이드가 페어웨이 중앙으로 돌아옵니다.\n`;
+
+    const build = (extra) => {
+      const parts = [{ text: head + facts + fmt + (extra || "") }];
+      if (data) parts.push({ inline_data: { mime_type: "image/jpeg", data } });
+      frameData.forEach((d2) => parts.push({ inline_data: { mime_type: "image/jpeg", data: d2 } }));
+      if (greenData) parts.push({ inline_data: { mime_type: "image/jpeg", data: greenData } });
+      return parts;
+    };
+    // 상한은 '생각 + 답' 합계다 — 낮게 잡으면 답이 잘린다(주석 참고). 넉넉히 준다.
+    const opts = { maxTokens: 3072, lowThinking: true };
+    let text = await geminiGenerate(build(), 0.4, opts);
+    let cards = parseCaddie(text, labels);
+    // 형식이 어긋나면 한 번만 다시 — 그래도 어긋나면 받은 그대로 보여준다(내용을 버리지 않는다)
+    const tooLong = cards.reduce((s, c) => s + c.text.length, 0) > 400;
+    if (cards.length !== labels.length || tooLong) {
+      try {
+        text = await geminiGenerate(
+          build(`\n⚠ 반드시 지키세요: 정확히 ${labels.length}줄, 각 줄은 [${labels.join("] / [")}] 라벨로 시작, ` +
+                `[티샷] 90자 이내·나머지 70자 이내. 다른 줄은 쓰지 마세요.\n`), 0.4, opts);
+        const retry = parseCaddie(text, labels);
+        if (retry.length === labels.length) cards = retry;
+      } catch { /* 재시도 실패 시 첫 응답을 그대로 쓴다 */ }
     }
-    const text = await geminiGenerate(parts, 0.4);
-    out.textContent = text.trim();
-    out.hidden = false;
+    caddieCache.set(key, cards);
+    finish(cards);
   } catch (e) {
-    out.textContent = "AI 캐디 연결에 실패했습니다. 잠시 후 다시 시도해 주세요.";
+    out.innerHTML = '<div class="cad-card"><p class="cad-text">AI 캐디 연결에 실패했습니다. 잠시 후 다시 시도해 주세요.</p></div>';
     out.hidden = false;
+    btn.disabled = false; btn.textContent = "🎧 AI 캐디 공략 듣기";
   }
-  btn.disabled = false; btn.textContent = "🤖 AI 캐디 상세 공략 보기";
 }
 $("#ai-strategy-btn").addEventListener("click", aiCaddie);
 
@@ -3633,23 +3814,43 @@ function renderCartChips(cartPlayers) {
 }
 
 /* 범용 정밀 AI 텍스트 생성 (AI 캐디 등) */
-async function geminiGenerate(parts, temperature = 0.3) {
+/* opts.maxTokens    — 출력 상한.
+     ⚠️ 이 상한에는 **모델의 '생각' 토큰이 함께 잡힌다.** 짧은 답이라고 512 같은 값을 주면
+     생각하다 한도를 다 써서 **답이 문장 중간에 잘린다**(2026-07-29 실측으로 확인).
+     캐디 멘트는 출력이 100토큰 남짓이지만 생각이 1,000~2,000 나오므로 3072 로 잡는다.
+   opts.lowThinking — 생각을 줄인다. 지연의 대부분이 여기서 나온다(실측: 생각 1,900 → 900,
+     11~18초 → 7초대). 캐디 멘트처럼 짧은 답에는 이 정도면 충분하다.
+     ⚠️ 항목 이름·값이 판마다 다르다. `thinkingBudget`·소문자 `low`·generationConfig 최상위는
+     전부 400 이고, **thinkingConfig.thinkingLevel = "LOW"(대문자)만** 통했다.
+     lite 계열은 이 항목 자체를 모르므로(400) 그때는 빼고 한 번 더 보낸다. */
+async function geminiGenerate(parts, temperature = 0.3, opts = {}) {
   const key = getGemKey();
   if (!key) throw new Error("no key");
-  const body = { contents: [{ parts }], generationConfig: { temperature } };
+  const cfg = { temperature };
+  if (opts.maxTokens) cfg.maxOutputTokens = opts.maxTokens;
   const models = ["gemini-flash-latest", "gemini-flash-lite-latest"];
   let lastErr = null;
   for (const model of models) {
-    try {
-      const r = await fetchT(
-        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=` + encodeURIComponent(key),
-        { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }, 20000);
-      if (!r.ok) { lastErr = new Error("HTTP " + r.status); continue; }
-      const j = await r.json();
-      const t = j.candidates?.[0]?.content?.parts?.[0]?.text;
-      if (t) return t;
-      lastErr = new Error("빈 응답");
-    } catch (e) { lastErr = e; }
+    // 1차: 생각 줄이기 포함 / 2차: 거부당하면 그 항목만 빼고 재시도
+    const tries = opts.lowThinking ? [{ ...cfg, thinkingConfig: { thinkingLevel: "LOW" } }, cfg] : [cfg];
+    for (const generationConfig of tries) {
+      try {
+        const r = await fetchT(
+          `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=` + encodeURIComponent(key),
+          { method: "POST", headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ contents: [{ parts }], generationConfig }) }, 20000);
+        if (!r.ok) {
+          lastErr = new Error("HTTP " + r.status);
+          if (r.status === 400 && generationConfig.thinkingConfig) continue;  // 이 판은 생각 끄기를 모른다
+          break;                                                             // 그 외 오류는 다음 모델로
+        }
+        const j = await r.json();
+        const t = j.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (t) return t;
+        lastErr = new Error("빈 응답");
+        break;
+      } catch (e) { lastErr = e; break; }
+    }
   }
   throw lastErr || new Error("gemini fail");
 }

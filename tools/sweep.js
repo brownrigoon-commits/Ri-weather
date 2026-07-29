@@ -462,6 +462,58 @@
     currentCourse = keep;
   } catch (e) { add("부킹 화면 검사 예외", "booking", e.message); }
 
+  /* ── 3-10. 샷별 AI 캐디 — 파별 항목·응답 파싱·음성 전처리·제공 범위 ──
+     실제 AI 호출은 하지 않는다(돈·한도). 호출 결과를 다루는 부분만 검사한다.
+     설계: docs/코스공략_캐디_설계.md                                       */
+  try {
+    // (1) 파에 맞는 항목 구성 — 항목 수가 흔들리면 화면도 음성도 흔들린다
+    const L3 = shotLabels(3, false), L4 = shotLabels(4, false), L5 = shotLabels(5, false);
+    if (L3.join() !== "티샷,그린 주변") add("파3 캐디 항목 어긋남", "caddie", L3.join());
+    if (L4.join() !== "티샷,세컨샷") add("파4 캐디 항목 어긋남", "caddie", L4.join());
+    if (L5.join() !== "티샷,세컨샷,서드샷") add("파5 캐디 항목 어긋남", "caddie", L5.join());
+    if (shotLabels(4, true).slice(-1)[0] !== "그린")
+      add("그린 자료가 있는데 [그린] 항목이 안 붙음", "caddie", shotLabels(4, true).join());
+
+    // (2) 응답 파싱 — 라벨이 없어도 내용을 잃으면 안 된다
+    const P = parseCaddie("[티샷] 좌측을 보고\n치세요.\n[세컨샷] 길게.", ["티샷", "세컨샷"]);
+    if (P.length !== 2) add("캐디 응답 파싱 실패", "caddie", JSON.stringify(P));
+    else if (P[0].text !== "좌측을 보고 치세요.") add("줄바뀐 문장이 이어붙지 않음", "caddie", P[0].text);
+    const F = parseCaddie("라벨 없는 통짜 답변", ["티샷", "세컨샷"]);
+    if (F.length !== 1 || !F[0].text.includes("통짜")) add("라벨 없을 때 내용이 사라짐", "caddie", JSON.stringify(F));
+
+    // (3) 읽어줄 글자 — 라벨·이모지가 그대로 읽히면 안 된다
+    const S = speechText("[티샷] 350m 를 노리세요! 🎯");
+    if (/\[|🎯/.test(S) || !S.includes("350미터")) add("음성 전처리 미흡", "caddie", S);
+
+    // (4) 카드가 실제로 그려지고 버튼이 진짜 눌리는지 (덮여 있으면 .click() 은 통과해버린다)
+    const outEl = document.getElementById("ai-strategy");
+    document.getElementById("hole-detail-card").hidden = false;
+    renderCaddieCards([{ label: "티샷", text: "테스트 멘트" }], outEl);
+    if (outEl.querySelectorAll(".cad-card").length !== 1) add("캐디 카드가 안 그려짐", "caddie", outEl.innerHTML.slice(0, 60));
+    if (parseFloat(getComputedStyle(outEl.querySelector(".cad-text")).fontSize) < 15.5)
+      add("캐디 멘트 글씨가 작음(고령 이용자 가독성)", "caddie", getComputedStyle(outEl.querySelector(".cad-text")).fontSize);
+    outEl.querySelectorAll(".cad-play, .cad-all").forEach(el => {
+      if (el.hidden) return;                       // 음성 없는 기기 = 숨기는 게 정상
+      const r = el.getBoundingClientRect();
+      const hit = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
+      if (!(hit === el || el.contains(hit))) add("캐디 듣기 버튼이 덮여 있음", "caddie", el.className);
+      if (r.height < 44) add("캐디 듣기 버튼이 손가락에 작음", "caddie", el.className + " " + Math.round(r.height));
+    });
+
+    // (5) 제공 범위 — 공식 홀 자료가 없는 구장에 캐디를 내보내면 안 된다(파·거리가 추정치)
+    setCaddieAvailable(false);
+    if (!document.getElementById("ai-strategy-btn").hidden)
+      add("자료 없는 구장인데 캐디 버튼이 보임", "caddie", "setCaddieAvailable(false)");
+    if (!outEl.textContent.includes("준비중")) add("자료 없는 구장 안내가 없음", "caddie", outEl.textContent.slice(0, 40));
+    setCaddieAvailable(true);
+    if (document.getElementById("ai-strategy-btn").hidden)
+      add("등록 구장인데 캐디 버튼이 안 돌아옴", "caddie", "setCaddieAvailable(true)");
+
+    // (6) 위성 추정 구장에 AI 를 붙이던 옛 경로가 남아 있지 않은지
+    if (typeof holeSatelliteDataUrl !== "undefined")
+      add("위성 AI 캐디 옛 경로가 남아 있음", "caddie", "holeSatelliteDataUrl");
+  } catch (e) { add("캐디 검사 예외", "caddie", e.message); }
+
   /* ── 4. 브랜드 잔재 점검 ─────────────────────────────────────── */
   const html = document.body.innerText;
   if (/Ri-Weather/i.test(html)) add("옛 브랜드명 노출", "body", html.match(/.{0,30}Ri-Weather.{0,30}/i)[0]);
