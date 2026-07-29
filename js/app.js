@@ -4,8 +4,8 @@
  * ========================================================= */
 "use strict";
 
-const APP_VER = "v161"; // 배포 버전 (홈 화면 배지에 표시)
-const APP_NOTE = "캐디 음성 명료도 개선"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
+const APP_VER = "v162"; // 배포 버전 (홈 화면 배지에 표시)
+const APP_NOTE = "캐디 음성을 네이버 클로바로"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
 const STORAGE_KEY = "riweather.courses.v1";
 const GEM_KEY = "riweather.gemini"; // 정밀 인식(비전 AI) 개인 키 저장소
 // 기본 제공 키 (무료 한도 공유) — 개인 키를 설정하면 그 키가 우선됩니다
@@ -2331,7 +2331,9 @@ if (hasTTS()) {
 /* iOS는 '사용자가 누른 그 순간' 소리를 한 번 내야 이후 재생이 허용된다.
    그래서 버튼 핸들러 안에서 동기적으로 호출해야 한다(응답을 기다린 뒤엔 늦다). */
 function unlockVoice() {
-  if (!hasTTS() || voiceUnlocked || !voiceOn()) return;
+  if (voiceUnlocked || !voiceOn()) return;
+  ttsUnlock();                       // 서버 음성(mp3)도 같은 규칙이라 여기서 함께 푼다
+  if (!hasTTS()) { voiceUnlocked = true; return; }
   try {
     const u = new SpeechSynthesisUtterance(" ");
     u.volume = 0;
@@ -2340,8 +2342,9 @@ function unlockVoice() {
   } catch { /* 안 되면 그냥 글자만 */ }
 }
 function stopCaddieVoice() {
-  if (!hasTTS()) return;
-  try { speechSynthesis.cancel(); } catch { /* 무시 */ }
+  // 서버 음성·기기 음성 둘 다 멈춘다. 홀을 옮겼는데 이전 홀 멘트가 계속 나오면 안 된다.
+  if (ttsAudio) { try { ttsAudio.pause(); ttsAudio.onended = ttsAudio.onerror = null; } catch (_) {} }
+  if (hasTTS()) { try { speechSynthesis.cancel(); } catch { /* 무시 */ } }
   if (speakingBtn) { speakingBtn.textContent = "🔊"; speakingBtn = null; }
 }
 /* 화면 글자 → 읽을 글자 (같은 문장을 쓰고 전처리만 다르게 한다) */
@@ -2355,19 +2358,93 @@ function speechText(s) {
     .replace(/\s+/g, " ")
     .trim();
 }
+/* ───────── 서버 음성 (네이버 클로바 보이스) ─────────
+ *
+ * 기기에 깔린 합성음은 압축판이라 "기계가 읽는 느낌"을 못 벗어난다(사장님 2026-07-30).
+ * 그래서 백엔드가 클로바 보이스로 만든 mp3 를 받아 재생한다.
+ *
+ * ⚠️ 규칙: **서버가 안 되면 반드시 기기 음성으로 되돌아간다.**
+ *    소리가 아예 안 나오는 것이 가장 나쁘다. 키가 없든, 요금이 끊겼든,
+ *    네트워크가 죽었든 — 캐디는 계속 말해야 한다.
+ * ⚠️ iOS 는 사용자가 누른 그 순간이 아니면 오디오를 못 튼다.
+ *    그래서 무음 재생으로 미리 풀어 둔다(unlockVoice 와 같은 이유).
+ */
+const TTS_SPEAKER = "nara";        // 여성·차분 — 캐디 톤
+let ttsServerOk = null;            // null=아직 모름 · true=됨 · false=안 됨(다시 안 부른다)
+let ttsAudio = null;               // 재생기는 하나만 — 겹쳐 나오면 알아들을 수 없다
+const ttsMemo = new Map();         // 같은 문장은 다시 받지 않는다
+
+function ttsUnlock() {
+  if (ttsAudio) return;
+  try {
+    ttsAudio = new Audio();
+    ttsAudio.preload = "auto";
+    // 아주 짧은 무음 — 이걸 사용자 터치 안에서 한 번 틀어야 이후 재생이 허용된다
+    ttsAudio.src = "data:audio/mp3;base64,//uQxAAAAAAAAAAAAAAAAAAAAAAAWGluZwAAAA8AAAACAAACcQCA";
+    ttsAudio.play().catch(() => {});
+  } catch (_) { ttsAudio = null; }
+}
+
+async function ttsFetch(text) {
+  if (ttsServerOk === false || !window.RIW_BACKEND) return null;
+  if (ttsMemo.has(text)) return ttsMemo.get(text);
+  try {
+    const u = window.RIW_BACKEND + "?fn=tts&speaker=" + TTS_SPEAKER +
+              "&text=" + encodeURIComponent(text);
+    const r = await fetchT(u, null, 9000);
+    const j = await r.json();
+    if (!j || !j.ok || !j.mp3) { ttsServerOk = false; return null; }
+    ttsServerOk = true;
+    const src = "data:audio/mp3;base64," + j.mp3;
+    if (ttsMemo.size > 60) ttsMemo.clear();       // 메모리 정리
+    ttsMemo.set(text, src);
+    return src;
+  } catch (_) { ttsServerOk = false; return null; }
+}
+
+/* 서버 음성으로 이어 읽기. 하나라도 실패하면 false 를 돌려주고 호출한 쪽이 기기 음성으로 간다. */
+async function speakByServer(parts, btn, done) {
+  const first = await ttsFetch(parts[0]);
+  if (!first) return false;
+  if (!ttsAudio) ttsUnlock();
+  const play = (src) => new Promise((res) => {
+    ttsAudio.onended = ttsAudio.onerror = () => res();
+    ttsAudio.src = src;
+    ttsAudio.play().catch(() => res());
+  });
+  const srcs = [first];
+  for (let i = 1; i < parts.length; i++) srcs.push(await ttsFetch(parts[i]));
+  for (const s of srcs) {
+    if (speakingBtn !== btn) return true;          // 그 사이 멈췄거나 다른 걸 눌렀다
+    if (s) await play(s);
+  }
+  done();
+  return true;
+}
+
 function speakCaddie(texts, btn) {
-  if (!hasTTS() || !voiceOn()) return;
-  koVoice = koVoice || pickKoVoice();
-  if (!koVoice) return;
+  if (!voiceOn()) return;
   stopCaddieVoice();
-  const list = (Array.isArray(texts) ? texts : [texts]).map(speechText).filter(Boolean);
-  if (!list.length) return;
+  const raw = (Array.isArray(texts) ? texts : [texts]).map(speechText).filter(Boolean);
+  if (!raw.length) return;
+  const chunks = [];
+  raw.forEach((t) => t.split(/(?<=[.!?])\s+/).forEach((s) => { if (s.trim()) chunks.push(s.trim()); }));
   if (btn) { speakingBtn = btn; btn.textContent = "⏹"; }
-  const done = () => { if (btn && speakingBtn === btn) { btn.textContent = "🔊"; speakingBtn = null; } };
+  const finish = () => { if (btn && speakingBtn === btn) { btn.textContent = "🔊"; speakingBtn = null; } };
+
+  // 1순위 서버 음성 → 안 되면 기기 음성
+  speakByServer(chunks, btn, finish).then((ok) => {
+    if (!ok) speakByDevice(chunks, btn, finish);
+  }).catch(() => speakByDevice(chunks, btn, finish));
+}
+
+function speakByDevice(parts, btn, done) {
+  if (!hasTTS()) { done(); return; }
+  koVoice = koVoice || pickKoVoice();
+  if (!koVoice) { done(); return; }
   /* 문장 단위로 끊어서 말한다 — 통짜로 넘기면 쉼 없이 쏟아져 알아듣기 어렵다.
-     문장마다 따로 넣으면 브라우저가 사이에 자연스러운 쉼을 준다. */
-  const parts = [];
-  list.forEach((t) => t.split(/(?<=[.!?])\s+/).forEach((s) => { if (s.trim()) parts.push(s.trim()); }));
+     문장마다 따로 넣으면 브라우저가 사이에 자연스러운 쉼을 준다.
+     (쪼개는 일은 speakCaddie 가 이미 해서 넘겨준다) */
   parts.forEach((t, i) => {
     const u = new SpeechSynthesisUtterance(t);
     u.voice = koVoice;
@@ -2392,7 +2469,10 @@ function speakCaddie(texts, btn) {
 function renderCaddieCards(cards, out, autoPlay) {
   out.innerHTML = "";
   out.hidden = false;
-  const voiceReady = hasTTS() && !!koVoice;
+  /* 읽어줄 수 있는가 — 서버 음성(클로바)이 살아 있으면 기기 음성이 없어도 된다.
+     ttsServerOk 가 null(아직 안 불러봄)이면 '될 수도 있다'로 보고 버튼을 보여준다.
+     실제로 안 되면 speakCaddie 가 기기 음성으로 되돌아가고, 그것도 없으면 조용히 넘어간다. */
+  const voiceReady = (hasTTS() && !!koVoice) || (ttsServerOk !== false && !!window.RIW_BACKEND);
   const canSpeak = () => voiceReady && voiceOn();
   const openers = [];        // 아직 안 연 카드의 여는 버튼 (음성 껐다 켤 때 글자만 바꾼다)
   let firstPlay = null;
@@ -2469,7 +2549,7 @@ function renderCaddieCards(cards, out, autoPlay) {
   const mute = document.createElement("button");
   mute.type = "button";
   mute.className = "cad-mute";
-  mute.hidden = !hasTTS() || !koVoice;
+  mute.hidden = !voiceReady;
   const paintMute = () => { mute.textContent = voiceOn() ? "🔕 음성 끄기" : "🔔 음성 켜기"; };
   paintMute();
   mute.addEventListener("click", () => {
@@ -2491,7 +2571,8 @@ function renderCaddieCards(cards, out, autoPlay) {
      iOS·안드로이드 모두 고품질 한국어 음성을 **따로 내려받아야** 하고,
      받고 나면 같은 코드로 훨씬 사람에 가깝게 들린다. 우리가 해줄 수 없는 부분이라
      "어디서 받는지"를 알려주는 것이 최선이다. (2026-07-30) */
-  if (canSpeak() && voiceIsBasic()) {
+  // 서버 음성이 살아 있으면 기기 음성 품질은 상관없다 → 안내를 띄우지 않는다
+  if (canSpeak() && ttsServerOk === false && voiceIsBasic()) {
     const tip = document.createElement("p");
     tip.className = "cad-voice-tip";
     const ios = /iPad|iPhone|iPod/.test(navigator.userAgent);

@@ -13,7 +13,7 @@
    tools/verify_deploy.py 가 이 값을 서버에서 읽어와 로컬과 대조한다.
    두 번이나 "코드는 고쳤는데 배포를 안 해서" 기능이 죽어 있었다:
      · 기록 백업·복구 (2026-07-27)  · 숙소 객실사진 우선 (2026-07-28) */
-var BACKEND_VER = "2026-07-28c";
+var BACKEND_VER = "2026-07-30a";
 
 var ADMIN_PW = "golf2026!";   // 관리자 통계 조회 비밀번호 — 설치 때 꼭 바꾸세요
 var SHEET_ID = "1XQ6pbcO9pMnxvpL3K-WiMCgqd5WVIupHgi9uS-vmxcM";   // '골프라이프 통계' 시트
@@ -128,7 +128,65 @@ function doGet(e) {
     if (p.pw !== ADMIN_PW) return json_({ err: "비밀번호가 틀립니다" });
     return summary_();
   }
-  return json_({ ok: true, service: "golflife-backend", ver: BACKEND_VER });
+  if (p.fn === "tts") return tts_(p.text, p.speaker, p.speed);
+  return json_({ ok: true, service: "golflife-backend", ver: BACKEND_VER,
+                 tts: ttsKeys_() ? "on" : "off" });
+}
+
+/* ---------- 캐디 음성 (네이버 클로바 보이스) ----------
+ *
+ * 왜 백엔드를 거치는가: API 키를 앱에 넣으면 누구나 꺼내 쓸 수 있다.
+ * 키는 여기 **스크립트 속성**에만 둔다 — 코드에 적지 않는다.
+ *   Apps Script 편집기 → 프로젝트 설정(⚙) → 스크립트 속성 →
+ *     CLOVA_ID     = NCP 앱의 Client ID
+ *     CLOVA_SECRET = NCP 앱의 Client Secret
+ *   (키를 넣지 않으면 tts:"off" 를 돌려주고, 앱은 기기 음성으로 그대로 동작한다)
+ *
+ * ⚠️ 음성이 안 나오는 것보다 나쁜 건 없다. 어떤 실패에서도 에러를 감추지 말고
+ *    이유를 돌려준다 — 앱이 그걸 보고 기기 음성으로 되돌아간다.
+ */
+function ttsKeys_() {
+  var pr = PropertiesService.getScriptProperties();
+  var id = pr.getProperty("CLOVA_ID"), sec = pr.getProperty("CLOVA_SECRET");
+  return (id && sec) ? { id: id, sec: sec } : null;
+}
+
+function tts_(text, speaker, speed) {
+  text = String(text || "").slice(0, 400);          // 한 번에 너무 긴 건 받지 않는다
+  if (!text) return json_({ ok: false, why: "no-text" });
+  var k = ttsKeys_();
+  if (!k) return json_({ ok: false, why: "no-key" });
+
+  speaker = speaker || "nara";                      // 여성 차분한 톤 (캐디 기본)
+  speed = String(speed === undefined || speed === "" ? "0" : speed);
+
+  /* 같은 문장은 다시 만들지 않는다 — 요금과 지연을 함께 줄인다.
+     CacheService 는 한 항목 100KB 제한이라 큰 건 그냥 건너뛴다. */
+  var cache = CacheService.getScriptCache();
+  var key = "tts:" + speaker + ":" + speed + ":" +
+            Utilities.base64Encode(Utilities.computeDigest(
+              Utilities.DigestAlgorithm.MD5, text, Utilities.Charset.UTF_8));
+  var hit = cache.get(key);
+  if (hit) return json_({ ok: true, mp3: hit, cached: true });
+
+  try {
+    var res = UrlFetchApp.fetch("https://naveropenapi.apigw.ntruss.com/tts-premium/v1/tts", {
+      method: "post",
+      headers: { "X-NCP-APIGW-API-KEY-ID": k.id, "X-NCP-APIGW-API-KEY": k.sec },
+      payload: { speaker: speaker, text: text, format: "mp3", speed: speed, volume: "0", pitch: "0" },
+      muteHttpExceptions: true,
+    });
+    var code = res.getResponseCode();
+    if (code !== 200) {
+      return json_({ ok: false, why: "clova-" + code,
+                     msg: String(res.getContentText()).slice(0, 200) });
+    }
+    var b64 = Utilities.base64Encode(res.getContent());
+    if (b64.length < 95000) { try { cache.put(key, b64, 21600); } catch (e) {} }   // 6시간
+    return json_({ ok: true, mp3: b64 });
+  } catch (err) {
+    return json_({ ok: false, why: "fetch-fail", msg: String(err).slice(0, 200) });
+  }
 }
 
 /* 카카오 플레이스 사진 — 카카오맵 '사진 탭'(가게 ID 기반 공식 사진첩) 그대로.

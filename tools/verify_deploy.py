@@ -128,6 +128,15 @@ def check():
         problems.append(f"app.js 확인 실패: {str(e)[:40]}")
         live = "?"
 
+    # ── 봇 차단이 실제로 서빙되는지 (2026-07-30 사장님 지시) ────────
+    # robots.txt 는 신사협정이지만, 그마저 안 떠 있으면 아무 봇도 안 막는다.
+    try:
+        code, body = fetch("robots.txt")
+        if "Disallow: /" not in body:
+            problems.append("robots.txt 에 차단 규칙이 없습니다 (봇 수집 차단 풀림)")
+    except Exception as e:
+        problems.append(f"robots.txt 요청 실패 {str(e)[:40]} — 봇 차단이 서빙되지 않음")
+
     # ── 백엔드(Apps Script)가 최신인지 ─────────────────────────────
     # Apps Script 는 '저장'만으로는 서버에 반영되지 않는다. 배포를 따로 해야 한다.
     # 이걸 몰라서 두 번이나 기능이 죽은 채로 며칠을 보냈다:
