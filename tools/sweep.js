@@ -551,18 +551,11 @@
     const S = speechText("[티샷] 350m 를 노리세요! 🎯");
     if (/\[|🎯/.test(S) || !S.includes("350미터")) add("음성 전처리 미흡", "caddie", S);
 
-<<<<<<< HEAD
     /* (4) 카드가 실제로 그려지고 버튼이 진짜 눌리는지 (덮여 있으면 .click() 은 통과해버린다)
        ⚠️ 크기를 재려면 **화면이 실제로 보여야** 한다. 앞 검사들이 다른 화면을 켜 두고 가서
        #course-view 가 hidden 이면 모든 크기가 0 이 되고, "버튼이 0px" 이라는 헛경보가 뜬다.
        그동안 안 걸린 건 음성 목록이 늦게 로드되면 버튼이 hidden 이라 검사를 통째로
        건너뛰었기 때문이다 — 즉 **이 검사는 될 때만 되는 상태였다**(2026-07-30 확인). */
-=======
-    // (4) 카드 구성 — 티샷은 펼쳐진 채로, 나머지는 그 지점에서 눌러 여는 방식이어야 한다
-    // ⚠ 앞의 화면 순회가 다른 화면을 켜 둔 채 끝난다. 코스공략 화면을 켜지 않으면
-    //   카드 크기가 0 이라 터치 지점 검사가 무조건 실패한다(2026-07-29 실제로 겪음).
-    views.forEach(x => { const e2 = document.querySelector("#" + x + "-view"); if (e2) e2.hidden = x !== "course"; });
->>>>>>> 2d725e24 (샷별 캐디 여는 방식 수정 — 티샷은 바로 펼치고 자동 음성, 세컨·서드는 눌러야 공략이 열리며 그때 읽어줌 (사장님 지시))
     const outEl = document.getElementById("ai-strategy");
     const courseView = document.getElementById("course-view");
     const courseWasHidden = courseView.hidden;
@@ -587,8 +580,7 @@
     }
     if (parseFloat(getComputedStyle(outEl.querySelector(".cad-text")).fontSize) < 15.5)
       add("캐디 멘트 글씨가 작음(고령 이용자 가독성)", "caddie", getComputedStyle(outEl.querySelector(".cad-text")).fontSize);
-<<<<<<< HEAD
-    outEl.querySelectorAll(".cad-play, .cad-all").forEach(el => {
+    outEl.querySelectorAll(".cad-play, .cad-all, .cad-open").forEach(el => {
       /* 음성이 없는 기기면 숨기는 게 정상이라 건너뛴다.
          ⚠️ 단, 음성 목록은 늦게 로드된다 — 여기서 그냥 return 하면
          "빠르면 검사 안 하고 넘어가는" 상태가 된다. 크기만이라도 강제로 재도록
@@ -600,22 +592,11 @@
       el.scrollIntoView({ block: "center" });
       const r = el.getBoundingClientRect();
       const hit = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
-      if (!hit) add("캐디 듣기 버튼이 화면 밖", "caddie", el.className + " top=" + Math.round(r.top));
+      if (!hit) add("캐디 버튼이 화면 밖", "caddie", el.className + " top=" + Math.round(r.top));
       else if (!(hit === el || el.contains(hit)))
-        add("캐디 듣기 버튼이 덮여 있음", "caddie", el.className + " ← " + (hit.className || hit.tagName));
-      if (r.height < 44) add("캐디 듣기 버튼이 손가락에 작음", "caddie", el.className + " " + Math.round(r.height));
-      if (wasHidden) el.hidden = true;
-=======
-    // 실제 터치 지점 검사 — 덮여 있으면 .click() 은 통과해버린다
-    renderCaddieCards(demo, outEl, false);
-    outEl.querySelectorAll(".cad-play, .cad-all, .cad-open").forEach(el => {
-      if (el.hidden) return;                       // 음성 없는 기기·아직 안 연 카드 = 숨기는 게 정상
-      el.scrollIntoView({ block: "center" });      // 화면 밖이면 elementFromPoint 가 null 이다
-      const r = el.getBoundingClientRect();
-      const hit = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
-      if (!(hit === el || el.contains(hit))) add("캐디 버튼이 덮여 있음", "caddie", el.className + " " + (hit ? hit.className : "화면 밖"));
+        add("캐디 버튼이 덮여 있음", "caddie", el.className + " ← " + (hit.className || hit.tagName));
       if (r.height < 44) add("캐디 버튼이 손가락에 작음", "caddie", el.className + " " + Math.round(r.height));
->>>>>>> 2d725e24 (샷별 캐디 여는 방식 수정 — 티샷은 바로 펼치고 자동 음성, 세컨·서드는 눌러야 공략이 열리며 그때 읽어줌 (사장님 지시))
+      if (wasHidden) el.hidden = true;
     });
 
     // (5) 제공 범위 — 공식 홀 자료가 없는 구장에 캐디를 내보내면 안 된다(파·거리가 추정치)
