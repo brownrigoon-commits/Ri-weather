@@ -4,8 +4,8 @@
  * ========================================================= */
 "use strict";
 
-const APP_VER = "v160"; // 배포 버전 (홈 화면 배지에 표시)
-const APP_NOTE = "코스공략 샷별 AI 캐디"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
+const APP_VER = "v161"; // 배포 버전 (홈 화면 배지에 표시)
+const APP_NOTE = "캐디 음성 명료도 개선"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
 const STORAGE_KEY = "riweather.courses.v1";
 const GEM_KEY = "riweather.gemini"; // 정밀 인식(비전 AI) 개인 키 저장소
 // 기본 제공 키 (무료 한도 공유) — 개인 키를 설정하면 그 키가 우선됩니다
@@ -2288,20 +2288,37 @@ function parseCaddie(text, labels) {
 const VOICE_OFF_KEY = "riweather.voice.off";
 const voiceOn = () => !localStorage.getItem(VOICE_OFF_KEY);
 const hasTTS = () => typeof speechSynthesis !== "undefined" && typeof SpeechSynthesisUtterance !== "undefined";
-/* 이름이 알려진 여성 한국어 음성부터 — iOS/맥 유나, 안드로이드 크롬, 윈도우 순 */
-const VOICE_PREFER = ["Yuna", "유나", "Google 한국의", "Heami", "SunHi", "Sora"];
+/* 이름이 알려진 여성 한국어 음성 — iOS/맥 유나, 안드로이드 크롬, 윈도우 순 */
+const VOICE_PREFER = ["Yuna", "유나", "Google 한국의", "SunHi", "Sora", "Heami"];
 let koVoice = null, voiceUnlocked = false, speakingBtn = null;
+
+/* 목소리 점수 — 이름 순서만 보면 '압축판'을 고르게 된다.
+ *
+ * 기기에 깔린 기본 한국어 음성은 대부분 용량을 줄인 압축판(compact)이라
+ * 딱딱하고 알아듣기 어렵다. 같은 유나라도 (Enhanced)/(Premium) 이 붙은 것은
+ * 훨씬 사람에 가깝고, localService=false 인 서버 합성 음성도 대개 신경망이다.
+ * 그래서 이름 우선순위보다 **품질 표시를 먼저** 본다. (사장님 지적 2026-07-30)
+ */
+function voiceScore(v) {
+  const n = v.name || "";
+  let s = 0;
+  if (/premium|enhanced|neural|natural|고품질|프리미엄/i.test(n)) s += 100;
+  if (v.localService === false) s += 40;          // 서버 합성 = 대개 신경망
+  VOICE_PREFER.forEach((w, i) => { if (n.includes(w)) s += 30 - i * 3; });
+  return s;
+}
 function pickKoVoice() {
   if (!hasTTS()) return null;
   let all = [];
   try { all = speechSynthesis.getVoices() || []; } catch { return null; }
   const ko = all.filter((v) => /^ko/i.test(v.lang || "") || /korean|한국/i.test(v.name || ""));
   if (!ko.length) return null;
-  for (const want of VOICE_PREFER) {
-    const hit = ko.find((v) => (v.name || "").includes(want));
-    if (hit) return hit;
-  }
-  return ko[0];
+  return ko.slice().sort((a, b) => voiceScore(b) - voiceScore(a))[0];
+}
+/* 지금 고른 목소리가 압축판뿐인지 — 화면에서 안내를 띄울지 판단하는 데 쓴다 */
+function voiceIsBasic() {
+  return !!koVoice && !/premium|enhanced|neural|natural|고품질|프리미엄/i.test(koVoice.name || "")
+         && koVoice.localService !== false;
 }
 if (hasTTS()) {
   koVoice = pickKoVoice();
@@ -2347,13 +2364,20 @@ function speakCaddie(texts, btn) {
   if (!list.length) return;
   if (btn) { speakingBtn = btn; btn.textContent = "⏹"; }
   const done = () => { if (btn && speakingBtn === btn) { btn.textContent = "🔊"; speakingBtn = null; } };
-  list.forEach((t, i) => {
+  /* 문장 단위로 끊어서 말한다 — 통짜로 넘기면 쉼 없이 쏟아져 알아듣기 어렵다.
+     문장마다 따로 넣으면 브라우저가 사이에 자연스러운 쉼을 준다. */
+  const parts = [];
+  list.forEach((t) => t.split(/(?<=[.!?])\s+/).forEach((s) => { if (s.trim()) parts.push(s.trim()); }));
+  parts.forEach((t, i) => {
     const u = new SpeechSynthesisUtterance(t);
     u.voice = koVoice;
     u.lang = koVoice.lang || "ko-KR";
-    u.pitch = 1.12;      // 밝은 톤
-    u.rate = 1.02;
-    if (i === list.length - 1) { u.onend = done; u.onerror = done; }
+    /* ⚠️ 예전엔 pitch 1.12 · rate 1.02 였다. 톤을 올리면 밝아 보이지만
+       합성음은 소리가 얇아져 **더 안 들린다**("뭐라는지 하나도 안 들려요" — 2026-07-30).
+       라운드 중엔 바람·주변 소음도 있다. 기본 톤에 살짝 느리게가 가장 잘 들린다. */
+    u.pitch = 1.0;
+    u.rate = 0.94;
+    if (i === parts.length - 1) { u.onend = done; u.onerror = done; }
     try { speechSynthesis.speak(u); } catch { done(); }
   });
 }
@@ -2462,6 +2486,21 @@ function renderCaddieCards(cards, out, autoPlay) {
   foot.appendChild(all);
   foot.appendChild(mute);
   out.appendChild(foot);
+
+  /* 기기에 압축판 목소리뿐이면 안내한다.
+     iOS·안드로이드 모두 고품질 한국어 음성을 **따로 내려받아야** 하고,
+     받고 나면 같은 코드로 훨씬 사람에 가깝게 들린다. 우리가 해줄 수 없는 부분이라
+     "어디서 받는지"를 알려주는 것이 최선이다. (2026-07-30) */
+  if (canSpeak() && voiceIsBasic()) {
+    const tip = document.createElement("p");
+    tip.className = "cad-voice-tip";
+    const ios = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    tip.innerHTML = "🎧 지금은 기기 기본 음성이라 딱딱하게 들립니다. " +
+      (ios
+        ? "<b>설정 › 손쉬운 사용 › 콘텐츠 말하기 › 음성 › 한국어</b> 에서 고품질 음성을 받으면 훨씬 자연스러워집니다."
+        : "<b>설정 › 시스템 › 언어 및 입력 › 음성 출력</b> 에서 한국어 고품질 음성을 받으면 훨씬 자연스러워집니다.");
+    out.appendChild(tip);
+  }
 
   // 티샷은 버튼을 누른 그 순간 바로 들려준다
   if (autoPlay && canSpeak() && firstPlay) speakCaddie(cards[0].text, firstPlay);
