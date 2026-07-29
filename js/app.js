@@ -2358,12 +2358,22 @@ function speakCaddie(texts, btn) {
   });
 }
 
-/* 카드 그리기 — 샷마다 한 장, 각 장에 🔊 */
-function renderCaddieCards(cards, out) {
+/* 카드 그리기 — 샷마다 한 장.
+   AI 호출은 한 번이고 세 샷을 한꺼번에 받아 둔다(생각 시간이 지연의 대부분이라
+   샷마다 따로 부르면 그 시간이 그대로 곱해진다). 받아 둔 것을 언제 보여주느냐만 다르다.
+
+   ⛳ 티샷  : 버튼을 누른 그 자리가 티박스다 → 글도 바로 보이고 음성도 바로 나온다.
+   🏌️ 나머지: 그 지점에 가서 누르면 → 그때 공략이 열리면서 캐디가 읽어준다.
+              (사장님 지시 2026-07-29. 미리 다 펼쳐 두면 결국 다 읽어야 해서 길어진다) */
+function renderCaddieCards(cards, out, autoPlay) {
   out.innerHTML = "";
   out.hidden = false;
   const voiceReady = hasTTS() && !!koVoice;
-  cards.forEach((c) => {
+  const canSpeak = () => voiceReady && voiceOn();
+  const openers = [];        // 아직 안 연 카드의 여는 버튼 (음성 껐다 켤 때 글자만 바꾼다)
+  let firstPlay = null;
+
+  cards.forEach((c, i) => {
     const card = document.createElement("div");
     card.className = "cad-card";
     const head = document.createElement("div");
@@ -2371,23 +2381,53 @@ function renderCaddieCards(cards, out) {
     head.innerHTML = `<span class="cad-ico">${SHOT_ICON[c.label] || "💡"}</span>` +
                      `<span class="cad-label"></span>`;
     head.querySelector(".cad-label").textContent = c.label;
+
+    // 다시 듣기 (카드가 열린 뒤에만 보인다)
     const play = document.createElement("button");
     play.type = "button";
     play.className = "cad-play cad-voice";
     play.textContent = "🔊";
-    play.setAttribute("aria-label", c.label + " 공략 듣기");
-    play.hidden = !voiceReady || !voiceOn();
+    play.setAttribute("aria-label", c.label + " 공략 다시 듣기");
     play.addEventListener("click", () => {
       if (speakingBtn === play) { stopCaddieVoice(); return; }
       speakCaddie(c.text, play);
     });
     head.appendChild(play);
+
     const p = document.createElement("p");
     p.className = "cad-text";
     p.textContent = c.text;
+
+    // 이 샷 차례에 누르는 버튼 — 누르면 공략이 열리면서 읽어준다
+    const open = document.createElement("button");
+    open.type = "button";
+    open.className = "cad-open";
+    const paintOpen = () => { open.textContent = (canSpeak() ? "▶ " : "") + c.label + " 공략 " + (canSpeak() ? "듣기" : "보기"); };
+    paintOpen();
+    const reveal = (speak) => {
+      p.hidden = false;
+      open.hidden = true;
+      play.hidden = !canSpeak();
+      if (speak && canSpeak()) speakCaddie(c.text, play);
+    };
+    open.addEventListener("click", () => reveal(true));
+
     card.appendChild(head);
+    card.appendChild(open);
     card.appendChild(p);
     out.appendChild(card);
+
+    if (i === 0) {
+      // 티샷은 열어둔 채로 시작 (누른 사람이 지금 티박스에 서 있다)
+      p.hidden = false;
+      open.hidden = true;
+      play.hidden = !canSpeak();
+      firstPlay = play;
+    } else {
+      p.hidden = true;
+      play.hidden = true;
+      openers.push({ open, paintOpen, reveal });
+    }
   });
 
   const foot = document.createElement("div");
@@ -2396,9 +2436,10 @@ function renderCaddieCards(cards, out) {
   all.type = "button";
   all.className = "cad-all cad-voice";
   all.textContent = "▶ 전체 듣기";
-  all.hidden = !voiceReady || !voiceOn();
+  all.hidden = !canSpeak();
   all.addEventListener("click", () => {
     if (speakingBtn === all) { stopCaddieVoice(); return; }
+    openers.forEach((o) => o.reveal(false));            // 전체 듣기는 전부 펼치고 이어서 읽는다
     speakCaddie(cards.map((c) => c.label + ". " + c.text), all);
   });
   const mute = document.createElement("button");
@@ -2411,11 +2452,19 @@ function renderCaddieCards(cards, out) {
     if (voiceOn()) { localStorage.setItem(VOICE_OFF_KEY, "1"); stopCaddieVoice(); }
     else localStorage.removeItem(VOICE_OFF_KEY);
     paintMute();
-    out.querySelectorAll(".cad-voice").forEach((b) => { b.hidden = !voiceOn() || !koVoice; });
+    // 음성을 끄면 '듣기'가 아니라 '보기'가 되어야 한다 (안 나오는 걸 나온다고 하면 안 됨)
+    openers.forEach((o) => o.paintOpen());
+    out.querySelectorAll(".cad-voice").forEach((b) => {
+      if (b.closest(".cad-card") && b.parentElement.parentElement.querySelector(".cad-text").hidden) return;
+      b.hidden = !canSpeak();
+    });
   });
   foot.appendChild(all);
   foot.appendChild(mute);
   out.appendChild(foot);
+
+  // 티샷은 버튼을 누른 그 순간 바로 들려준다
+  if (autoPlay && canSpeak() && firstPlay) speakCaddie(cards[0].text, firstPlay);
   return voiceReady;
 }
 
@@ -2594,11 +2643,9 @@ async function runAiCaddieInner() {
   btn.disabled = true; btn.textContent = "🤖 캐디가 이 홀을 보는 중...";
 
   const finish = (cards) => {
-    const voiceReady = renderCaddieCards(cards, out);
+    // 티샷은 바로 펼쳐서 읽어주고(누른 곳이 티박스다), 세컨샷부터는 그 지점에서 눌러 연다
+    renderCaddieCards(cards, out, true);
     btn.disabled = false; btn.textContent = "🎧 AI 캐디 공략 듣기";
-    // 버튼을 누른 순간 골퍼는 티박스에 있다 — 티샷만 자동으로 읽어준다.
-    // 세컨샷부터는 그 지점에서 카드를 눌러 듣는 게 자연스럽다.
-    if (voiceReady && voiceOn()) speakCaddie(cards[0].text, out.querySelector(".cad-play"));
   };
 
   const key = caddieKey(hh, aiHoleCtx.courseName);
