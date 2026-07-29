@@ -49,6 +49,19 @@ missing = [p for p in imgs if not os.path.exists(os.path.join(ROOT, p))]
 assert not missing, f"이미지 파일 없음: {missing[:5]}"
 print(f"무결성 OK: 총 {holes}홀, 이미지 {len(imgs)}개 전부 존재")
 
+# 티별 거리가 화면에 적히는 순서대로 내림차순인지 (v130 의 챔피언/백 뒤집힘 재발 방지)
+from check_tees import violations as tee_violations
+tee_bad, tee_note = tee_violations(ROOT)
+for s in tee_note:
+    print("  · 참고:", s)
+if tee_bad:
+    print(f"✖ 티 거리 검사 실패 {len(tee_bad)}건 — 배포를 멈춥니다")
+    for s in tee_bad[:20]:
+        print("   -", s)
+    print("  원본 자료를 대조해 고치거나, 확인된 예외면 tools/check_tees.py 의 ALLOW 에 근거와 함께 적으세요.")
+    sys.exit(1)
+print("티 거리 검사 OK: 모든 홀이 거리 내림차순")
+
 # ── 3. 커밋 → 최신화 → 버전 → 푸시 (양쪽 PC 동시 배포 안전) ──────
 app = os.path.join(ROOT, "js", "app.js")
 sw = os.path.join(ROOT, "sw.js")
