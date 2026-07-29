@@ -4,8 +4,8 @@
  * ========================================================= */
 "use strict";
 
-const APP_VER = "v154"; // 배포 버전 (홈 화면 배지에 표시)
-const APP_NOTE = "질문 화면 골퍼 실루엣도 메인 메뉴와 같은 비율로"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
+const APP_VER = "v155"; // 배포 버전 (홈 화면 배지에 표시)
+const APP_NOTE = "부킹 메뉴 완성"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
 const STORAGE_KEY = "riweather.courses.v1";
 const GEM_KEY = "riweather.gemini"; // 정밀 인식(비전 AI) 개인 키 저장소
 // 기본 제공 키 (무료 한도 공유) — 개인 키를 설정하면 그 키가 우선됩니다
@@ -715,8 +715,12 @@ const VIEWS = {
   home: homeView, hub: $("#hub-view"), detail: detailView,
   course: $("#course-view"), food: $("#food-view"), score: $("#score-view"),
   stay: $("#stay-view"),
+  booking: $("#booking-view"),
   clubfit: $("#clubfit-view"),
 };
+/* ⚠️ 화면을 새로 만들면 **여기 등록부터** 하세요.
+   showOnly() 는 이 표에 있는 것만 켜고 나머지는 전부 끕니다.
+   빠뜨리면 메뉴를 눌러도 하얀 화면만 뜹니다(2026-07-30 부킹에서 실제로 겪음). */
 let viewStack = ["home"];
 
 function showOnly(name, back) {
@@ -847,6 +851,7 @@ document.querySelectorAll(".hub-item").forEach((btn) => {
     else if (m === "food") openFoodView();
     else if (m === "score") openScoreView();
     else if (m === "stay") openStayView();
+    else if (m === "booking") openBookingView();
     else if (m === "clubfit") openClubfitView();
   });
 });

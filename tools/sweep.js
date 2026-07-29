@@ -18,6 +18,8 @@
     "js/loading.js": ["WAIT", "staggerIn"],
     "js/weatherfx.js": ["WXFX"],
     "js/stay.js": ["openStayView", "fetchKakaoStay", "stayKind", "bookingLinks", "stayCache", "STAY_VIEW"],
+    "js/booking.js": ["openBookingView", "golfpangUrl", "golfmonUrl", "bookingLinkCards", "BOOKING_VIEW"],
+    "js/bookingids.js": ["BOOKING_IDS"],
     "js/legal.js": ["CONSENT"],
     "js/stats.js": ["STATS"],
   };
@@ -133,7 +135,7 @@
   }));
 
   /* ── 2. 모든 화면 렌더 (오류·깨진 문자열) ───────────────────── */
-  const views = ["home","hub","detail","course","food","stay","score","clubfit"];
+  const views = ["home","hub","detail","course","food","stay","booking","score","clubfit"];
   for (const v of views) {
     try {
       const el = document.querySelector("#" + v + "-view");
@@ -355,6 +357,80 @@
       }
     }
   } catch (e) { add("숙박이 끝까지 돌지 않음", "숙박 메뉴 전체", e.message); }
+
+  /* ── 3-7. 허브 메뉴가 전부 '보이는 화면'으로 이어지는지 ──────────
+     ⚠️ 2026-07-30: 부킹 화면을 만들고 VIEWS 등록부에 넣는 걸 빠뜨려서
+     메뉴를 눌러도 하얀 화면만 떴다. DOM 에는 내용이 다 있는데 hidden 이라
+     '내용이 있는지'만 보는 검사로는 절대 안 잡힌다. **보이는지**를 본다. */
+  try {
+    const menus = [...document.querySelectorAll(".hub-item")].map((b) => b.dataset.menu);
+    if (menus.length < 6) add("허브 메뉴 수가 줄었음", "hub", menus.join(","));
+    for (const m of menus) {
+      const id = { weather: "detail", course: "course", food: "food", stay: "stay",
+                   score: "score", booking: "booking", clubfit: "clubfit" }[m];
+      if (!id) { add("허브 메뉴에 대응 화면이 없음", m, ""); continue; }
+      if (typeof VIEWS === "undefined" || !VIEWS[id])
+        add("VIEWS 등록부에 없음(눌러도 하얀 화면)", m, id + "-view");
+      const el = document.querySelector("#" + id + "-view");
+      if (!el) add("화면 요소가 없음", m, id + "-view");
+    }
+  } catch (e) { add("허브 메뉴 검사 예외", "hub", e.message); }
+
+  /* ── 3-8. 부킹 — 링크가 제대로 만들어지는지 ─────────────────────
+     티타임·요금을 우리가 옮겨 적지 않으므로, 이 화면의 품질 = 링크의 정확성이다. */
+  try {
+    const ymd = "2026-08-01";
+    const known = { name: "솔라고컨트리클럽" };      // 번호가 등록된 구장
+    const unknown = { name: "없는골프장XYZ" };       // 폴백으로 떨어져야 하는 구장
+    for (const [c, tag] of [[known, "번호있음"], [unknown, "번호없음"]]) {
+      const cards = bookingLinkCards(c, ymd);
+      if (cards.length < 3) add("부킹 링크 개수 부족", tag, cards.length);
+      cards.forEach((k) => {
+        if (!/^https:\/\//.test(k.url)) add("부킹 링크 형식 오류", tag + " " + k.key, k.url);
+        if (/undefined|null|NaN/.test(k.url)) add("부킹 링크에 빈 값이 샜음", tag + " " + k.key, k.url);
+        if (/undefined/.test(k.title + k.sub)) add("부킹 카드 문구에 undefined", tag + " " + k.key, k.title);
+      });
+      const pang = cards.find((k) => k.key === "golfpang").url;
+      if (pang.indexOf("rd_date=" + ymd) < 0) add("골팡 링크에 날짜가 안 들어감", tag, pang);
+      if (tag === "번호있음" && pang.indexOf("clubname=") < 0)
+        add("번호가 있는데 구장 지정이 안 됨", tag, pang);
+      if (tag === "번호없음" && pang.indexOf("clubname=") >= 0)
+        add("번호가 없는데 구장 번호를 지어냄", tag, pang);
+    }
+    // 번호표 자체 검산 — 숫자가 아니면 링크가 깨진다
+    let bad = 0;
+    for (const n in BOOKING_IDS) {
+      const r = BOOKING_IDS[n];
+      if (!(r.pang > 0) || !(r.sector > 0)) bad++;
+      if ("mon" in r && !(r.mon > 0)) bad++;
+    }
+    if (bad) add("번호표에 잘못된 값", "bookingids.js", bad + "건");
+    // 날짜 문자열 형식 (KST 기준으로 어제·내일이 되면 안 된다)
+    const t = new Date(2026, 7, 1);
+    if (bkYmd(t) !== "2026-08-01") add("날짜 문자열 형식 오류", "bkYmd", bkYmd(t));
+  } catch (e) { add("부킹 링크 검사 예외", "booking", e.message); }
+
+  /* ── 3-9. 부킹 화면을 실제로 열어본다 ─────────────────────────── */
+  try {
+    const keep = currentCourse;
+    currentCourse = { name: "솔라고컨트리클럽", lat: 36.7648, lon: 126.3452 };
+    await openBookingView();
+    await sleep(600);
+    const view = document.querySelector("#booking-view");
+    if (view && view.hidden) add("부킹 화면이 열리지 않음(hidden)", "booking", "VIEWS 등록 확인");
+    const body = document.querySelector("#booking-body");
+    const txt = (body && body.innerText) || "";
+    if (!txt.trim()) add("부킹 화면이 비어 있음", "booking", "");
+    if (body && body.querySelectorAll(".bk-day").length !== 7)
+      add("날짜 칸이 7개가 아님", "booking", body.querySelectorAll(".bk-day").length);
+    if (body && !body.querySelector(".bk-day.on")) add("고른 날짜 표시가 없음", "booking", "");
+    ["undefined", "NaN", "[object Object]"].forEach((w) => {
+      if (txt.includes(w)) add("부킹 화면에 " + w + " 노출", "booking", txt.slice(0, 80));
+    });
+    // 요금·잔여 티타임을 우리 화면에 적으면 안 된다 (제휴 전)
+    if (/\d{1,3},\d{3}원/.test(txt)) add("부킹 화면에 요금이 표시됨(제휴 전 금지)", "booking", txt.slice(0, 80));
+    currentCourse = keep;
+  } catch (e) { add("부킹 화면 검사 예외", "booking", e.message); }
 
   /* ── 4. 브랜드 잔재 점검 ─────────────────────────────────────── */
   const html = document.body.innerText;
