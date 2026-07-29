@@ -2095,18 +2095,28 @@ body, .view, .cf-screen, .card, .sheet { word-break: keep-all; overflow-wrap: br
 .cf-golfer .cf-fig {
   width: 100%; height: 100%;
   background-color: var(--text);
-  -webkit-mask: url("../assets/golfer.png") no-repeat bottom center;
-  mask: url("../assets/golfer.png") no-repeat bottom center;
-  -webkit-mask-size: contain;
-  mask-size: contain;
+  -webkit-mask: url("../assets/golfer.png") no-repeat bottom left;
+  mask: url("../assets/golfer.png") no-repeat bottom left;
+  /* ⚠️ contain 을 쓰지 말 것 (클럽 선택 타일과 같은 이유).
+     contain 은 상자에 맞추므로 **아이언만 혼자 납작해진다** — 아이언은 클럽이 옆으로
+     길어(520×400) 가로에 먼저 걸리기 때문이다. 실제로 사람 키가 다른 셋의 80% 밖에
+     안 됐다(사장님 지적 2026-07-29). 그래서 클럽 선택 타일과 **똑같은 비율**로
+     높이를 직접 적는다: 드라이버·퍼터 = 기준, 아이언 = 가로 기준, 웨지 = +15%.
+     ※ foreignObject 안이라 여기 px 는 SVG 좌표(viewBox 320×78) 단위다.
+       바닥선이 y=68 이고 상자 아래가 68 이므로 네 실루엣의 발 높이가 자동으로 맞는다.
+     타일 72px : 여기 50px = 0.694 배. 이 배율만 바꾸면 넷이 같이 커진다. */
+  -webkit-mask-size: auto 50px;
+  mask-size: auto 50px;
   transform-origin: 50% 100%;
 }
 /* 고른 클럽에 맞춰 실루엣이 바뀐다 (사장님 제공 이미지, 배경 투명·지면선 제거).
    파일만 갈아 끼우면 되도록 경로를 고정해 둔다. */
 .cf-golfer.club-iron .cf-fig {
+  -webkit-mask-size: 65px auto; mask-size: 65px auto;   /* 타일 94px × 0.694 */
   -webkit-mask-image: url("../assets/iron.png"); mask-image: url("../assets/iron.png");
 }
 .cf-golfer.club-wedge .cf-fig {
+  -webkit-mask-size: auto 58px; mask-size: auto 58px;    /* 타일 83px × 0.694 */
   -webkit-mask-image: url("../assets/wedge.png"); mask-image: url("../assets/wedge.png");
 }
 .cf-golfer.club-putter .cf-fig {
