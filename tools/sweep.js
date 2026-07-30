@@ -13,7 +13,7 @@
      그런데 DOM 은 그대로라 화면 검사는 통과해버린다(2026-07-27 실제로 놓쳤음).
      그래서 각 파일의 대표 전역이 실제로 존재하는지를 가장 먼저 확인한다. */
   const MUST = {
-    "js/app.js": ["APP_VER", "renderHome", "wmoClass", "wxScene", "BACKUP", "loadScores", "loadCourses"],
+    "js/app.js": ["APP_VER", "renderHome", "wmoClass", "wxScene", "BACKUP", "loadScores", "loadCourses", "FB_UI"],
     "js/clubfit.js": ["openClubfitView", "loadMyBag", "__cfTest"],
     "js/loading.js": ["WAIT", "staggerIn"],
     "js/weatherfx.js": ["WXFX"],
@@ -21,7 +21,7 @@
     "js/booking.js": ["openBookingView", "golfpangUrl", "golfmonUrl", "bookingLinkCards", "BOOKING_VIEW"],
     "js/bookingids.js": ["BOOKING_IDS"],
     "js/legal.js": ["CONSENT"],
-    "js/stats.js": ["STATS"],
+    "js/stats.js": ["STATS", "FEEDBACK"],
   };
   for (const file in MUST) {
     for (const name of MUST[file]) {

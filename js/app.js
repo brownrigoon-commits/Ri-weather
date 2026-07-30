@@ -4,7 +4,7 @@
  * ========================================================= */
 "use strict";
 
-const APP_VER = "v170"; // 배포 버전 (홈 화면 배지에 표시)
+const APP_VER = "v171"; // 배포 버전 (홈 화면 배지에 표시)
 const APP_NOTE = "앱 자동 업데이트"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
 const STORAGE_KEY = "riweather.courses.v1";
 const GEM_KEY = "riweather.gemini"; // 정밀 인식(비전 AI) 개인 키 저장소
@@ -724,6 +724,7 @@ const VIEWS = {
 let viewStack = ["home"];
 
 function showOnly(name, back) {
+  window.__curView = name;          // 베타 의견에 '어느 화면에서 썼는지' 함께 보내기 위함
   for (const k in VIEWS) VIEWS[k].hidden = k !== name;
   window.scrollTo(0, 0);
   if (name !== "detail") stopPlay();
@@ -817,7 +818,16 @@ $("#btn-back").addEventListener("click", goBack);
 /* ---------- 허브 (4개 메뉴) ---------- */
 function openHub(course) {
   currentCourse = course;
-  if (typeof STATS !== "undefined") STATS.hit("course", course.name);   // 좌표는 절대 보내지 않음
+  /* 이 골프장을 봤다고 한 번만 기록한다.
+     지역은 '골프장 주소의 시/도' 한 단어뿐 — 좌표는 절대 보내지 않는다.
+     주소를 아직 모르면(검색으로 처음 연 곳) 주소가 도착한 뒤에 기록해
+     지역 칸이 빈 채로 쌓이지 않게 한다. */
+  const hitCourse = () => {
+    if (typeof STATS === "undefined" || course.__hit) return;
+    course.__hit = 1;
+    STATS.hit("course", course.name, STATS.region(course.addr, course.c));
+  };
+  if (course.addr || (course.c && course.c !== "KR")) hitCourse();
   $("#hub-name").textContent = course.name;
   $("#hub-title-mini").textContent = course.name;
   $("#hub-addr").textContent = course.addr || "";
@@ -826,13 +836,14 @@ function openHub(course) {
 
   if (!course.addr) {
     reverseGeocode(course.lat, course.lon).then((addr) => {
+      if (addr) course.addr = addr;
+      hitCourse();                      // 주소를 못 받아도 방문 자체는 기록한다(지역만 빈칸)
       if (currentCourse !== course || !addr) return;
-      course.addr = addr;
       $("#hub-addr").textContent = addr;
       const list = loadCourses();
       const saved = list.find((c) => c.id === course.id);
       if (saved && !saved.addr) { saved.addr = addr; saveCourses(list); }
-    }).catch(() => {});
+    }).catch(() => hitCourse());
   }
   fetchForecast(course.lat, course.lon).then((d) => {
     if (currentCourse !== course) return;
@@ -5340,8 +5351,129 @@ $("#bk-copy")?.addEventListener("click", async () => {
 });
 $("#bk-restore-btn")?.addEventListener("click", () => BACKUP.restore($("#bk-restore-input").value));
 
+/* ---------- 베타 의견 보내기 ----------
+   100명 시험 배포(2026-07-31)용. 들어오는 길은 셋 — 홈의 초대 카드,
+   푸터 링크, BETA 배지 탭. 어디서 눌러도 같은 시트가 열린다.
+   ⚠️ 이름·연락처는 받지 않는다. 함께 가는 건 앱 버전·기기 종류·현재 화면뿐이고,
+      그 사실을 시트 안에 그대로 적어 이용자가 보고 보내게 한다. */
+const SCREEN_KO = {
+  home: "홈", hub: "골프장 메뉴", detail: "날씨", course: "코스 공략",
+  food: "맛집", score: "스코어", stay: "숙소", booking: "부킹", clubfit: "클럽 피팅",
+};
+const FB_UI = (() => {
+  let cat = "", stars = 0, sending = false;
+
+  const el = (id) => document.getElementById(id);
+  const msg = (text, kind) => {
+    const m = el("fb-msg");
+    if (!m) return;
+    m.hidden = !text;
+    m.textContent = text || "";
+    m.className = "fb-msg" + (kind ? " " + kind : "");
+  };
+
+  function refreshStars() {
+    document.querySelectorAll("#fb-stars button").forEach((b) => {
+      const on = Number(b.dataset.s) <= stars;
+      b.textContent = on ? "★" : "☆";
+      b.classList.toggle("on", on);
+    });
+  }
+
+  function open() {
+    cat = ""; stars = 0; sending = false;
+    document.querySelectorAll("#fb-cats .pi-chip").forEach((b) => b.classList.remove("on"));
+    refreshStars();
+    const t = el("fb-text");
+    if (t) { t.value = ""; }
+    el("fb-count").textContent = "0";
+    msg("");
+    const send = el("fb-send");
+    if (send) { send.disabled = false; send.textContent = "보내기"; }
+
+    const dev = /iPhone|iPad|iPod/i.test(navigator.userAgent) ? "아이폰"
+      : /Android/i.test(navigator.userAgent) ? "안드로이드" : "PC";
+    const scr = SCREEN_KO[window.__curView] || "홈";
+    const waiting = typeof FEEDBACK !== "undefined" ? FEEDBACK.pending() : 0;
+    el("fb-note").innerHTML =
+      `함께 보내지는 정보: <b>앱 ${APP_VER} · ${dev} · 방금 있던 화면(${scr})</b><br>` +
+      "이름·전화번호·위치는 보내지 않습니다. 내용에도 개인정보는 적지 말아 주세요." +
+      (waiting ? `<br><b>보내지 못한 의견 ${waiting}건</b>이 남아 있어 함께 다시 보냅니다.` : "");
+
+    el("fb-sheet").hidden = false;
+    if (typeof FEEDBACK !== "undefined") FEEDBACK.flush();   // 밀린 것 먼저 정리
+  }
+
+  function close() { el("fb-sheet").hidden = true; }
+
+  async function submit() {
+    if (sending) return;
+    const text = (el("fb-text").value || "").trim();
+    if (!cat) { msg("어떤 이야기인지 위에서 하나 골라 주세요.", "bad"); return; }
+    if (text.length < 5) { msg("내용을 조금만 더 적어 주세요. (5자 이상)", "bad"); return; }
+
+    sending = true;
+    const btn = el("fb-send");
+    btn.disabled = true; btn.textContent = "보내는 중...";
+    msg("");
+
+    const res = await FEEDBACK.send({
+      cat, stars, text, screen: window.__curView || "home",
+    });
+
+    sending = false;
+    btn.disabled = false; btn.textContent = "보내기";
+
+    if (res.ok) {
+      msg("고맙습니다! 잘 받았습니다.\n다음 업데이트에 반영할게요.", "ok");
+      el("fb-text").value = "";
+      el("fb-count").textContent = "0";
+      setTimeout(() => { if (!el("fb-sheet").hidden) close(); }, 1800);
+      return;
+    }
+    if (res.limit) {
+      msg("오늘은 여기까지 받겠습니다. (하루 5건)\n내일 또 알려주세요 — 이미 보내주신 건 잘 보관돼 있습니다.", "bad");
+      return;
+    }
+    if (res.queued) {
+      // 서버에 못 닿았을 뿐 내용은 폰에 남아 있다 — 사라졌다고 오해하지 않게 분명히 말한다
+      msg("지금 서버에 연결되지 않아 폰에 보관했습니다.\n인터넷이 되면 자동으로 보내집니다. (앱을 지우지만 마세요)", "bad");
+      el("fb-text").value = "";
+      el("fb-count").textContent = "0";
+      return;
+    }
+    msg(res.err ? "보내지 못했습니다 — " + res.err : "보내지 못했습니다. 잠시 후 다시 시도해 주세요.", "bad");
+  }
+
+  document.addEventListener("click", (e) => {
+    const chip = e.target.closest("#fb-cats .pi-chip");
+    if (chip) {
+      cat = chip.dataset.cat;
+      document.querySelectorAll("#fb-cats .pi-chip").forEach((b) => b.classList.toggle("on", b === chip));
+      msg("");
+      return;
+    }
+    const st = e.target.closest("#fb-stars button");
+    if (st) { stars = Number(st.dataset.s); refreshStars(); }
+  });
+
+  el("fb-text")?.addEventListener("input", (e) => {
+    el("fb-count").textContent = String(e.target.value.length);
+  });
+  el("fb-send")?.addEventListener("click", submit);
+  el("fb-close")?.addEventListener("click", close);
+  el("fb-sheet")?.addEventListener("click", (e) => { if (e.target === el("fb-sheet")) close(); });
+
+  return { open, close };
+})();
+
+$("#fb-open")?.addEventListener("click", () => FB_UI.open());
+$("#fb-open-foot")?.addEventListener("click", () => FB_UI.open());
+document.querySelector(".beta-badge")?.addEventListener("click", () => FB_UI.open());
+
 /* ---------- 시작 ---------- */
 document.querySelector(".beta-badge").textContent = "BETA " + APP_VER;
+document.querySelector(".beta-badge").title = "눌러서 베타 의견 보내기";
 { const cv = document.getElementById("consent-ver"); if (cv) cv.textContent = APP_VER; }
 
 /* 버전이 올라갔으면 무엇이 바뀌었는지 잠깐 알려준다 */

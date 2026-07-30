@@ -13,9 +13,22 @@
    tools/verify_deploy.py 가 이 값을 서버에서 읽어와 로컬과 대조한다.
    두 번이나 "코드는 고쳤는데 배포를 안 해서" 기능이 죽어 있었다:
      · 기록 백업·복구 (2026-07-27)  · 숙소 객실사진 우선 (2026-07-28) */
-var BACKEND_VER = "2026-07-30b";
+var BACKEND_VER = "2026-07-31a";
+
+/* 관리자 비밀번호 — 스크립트 속성 ADMIN_PW 에 넣는 것을 권장한다.
+   (코드에 적으면 저장소를 공개로 돌리는 순간 그대로 노출된다.
+    Apps Script 편집기 → 프로젝트 설정(⚙) → 스크립트 속성 → ADMIN_PW)
+   속성이 없으면 아래 기본값을 그대로 쓰므로 지금 동작이 끊기지는 않는다. */
+function adminPw_() {
+  try {
+    var v = PropertiesService.getScriptProperties().getProperty("ADMIN_PW");
+    if (v) return v;
+  } catch (e) {}
+  return ADMIN_PW;
+}
 
 var ADMIN_PW = "golf2026!";   // 관리자 통계 조회 비밀번호 — 설치 때 꼭 바꾸세요
+var ADMIN_MAIL = "brown.rigoon@gmail.com";   // 베타 피드백 알림 받는 주소
 var SHEET_ID = "1XQ6pbcO9pMnxvpL3K-WiMCgqd5WVIupHgi9uS-vmxcM";   // '골프라이프 통계' 시트
 
 /* ---------- 공통 ---------- */
@@ -29,9 +42,120 @@ function sheet_() {
   var sh = ss.getSheetByName("log");
   if (!sh) {
     sh = ss.insertSheet("log");
-    sh.appendRow(["시각", "cid", "이벤트", "이름", "버전", "기기", "연령대", "성별"]);
+    sh.appendRow(["시각", "cid", "이벤트", "이름", "버전", "기기", "연령대", "성별", "지역"]);
+    return sh;
+  }
+  // 이미 있는 시트에 '지역'(9번째) 칸을 한 번만 붙인다.
+  // ⚠️ 여기 들어가는 건 시/도 이름("경기")뿐이다. 좌표는 앱에서도 서버에서도 다루지 않는다.
+  if (!sh.getRange(1, 9).getValue()) sh.getRange(1, 9).setValue("지역");
+  return sh;
+}
+
+/* ---------- 베타 피드백 ---------- */
+var FB_CATS = { "오류": 1, "불편": 1, "아이디어": 1, "칭찬": 1 };
+var FB_PER_USER_DAY = 5;    // 한 기기가 하루에 보낼 수 있는 건수 (도배 방지)
+var FB_MAIL_PER_DAY = 30;   // 알림 메일 상한 (구글 개인계정 하루 100통 — 여유를 둔다)
+
+function fbSheet_() {
+  var ss = SHEET_ID ? SpreadsheetApp.openById(SHEET_ID) : SpreadsheetApp.getActiveSpreadsheet();
+  var sh = ss.getSheetByName("fb");
+  if (!sh) {
+    sh = ss.insertSheet("fb");
+    sh.appendRow(["시각", "cid", "분류", "별점", "내용", "화면", "버전", "기기"]);
+    sh.setColumnWidth(5, 460);
   }
   return sh;
+}
+
+/* 최근 h시간 동안의 건수 — 전체(메일 상한용)와 이 기기 것(도배 방지용).
+   CacheService 는 최대 6시간이라 '하루' 를 셀 수 없어서 시트를 직접 센다. */
+function fbCount_(sh, cid, h) {
+  var last = sh.getLastRow();
+  if (last < 2) return { mine: 0, all: 0 };
+  var from = Math.max(2, last - 500);
+  var v = sh.getRange(from, 1, last - from + 1, 2).getValues();
+  var cut = Date.now() - h * 3600000;
+  var mine = 0, all = 0;
+  for (var i = 0; i < v.length; i++) {
+    var t = new Date(v[i][0]).getTime();
+    if (!(t >= cut)) continue;
+    all++;
+    if (String(v[i][1]) === cid) mine++;
+  }
+  return { mine: mine, all: all };
+}
+
+function fbSave_(b) {
+  var cat = String(b.cat || "");
+  if (!FB_CATS[cat]) return json_({ ok: false, err: "분류를 선택해 주세요" });
+
+  // 사용자가 직접 쓴 글이라 HTML 태그만 걷어낸다(관리자 화면에서 그대로 보여주므로).
+  var text = String(b.text || "").replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+  if (text.length < 5) return json_({ ok: false, err: "내용을 조금만 더 적어 주세요" });
+  text = text.slice(0, 500);
+
+  var cid = String(b.cid || "").slice(0, 20);
+  var stars = Math.max(0, Math.min(5, parseInt(b.stars, 10) || 0));
+  var screen = String(b.screen || "").slice(0, 20);
+  var ver = String(b.ver || "").slice(0, 10);
+  var dev = String(b.dev || "").slice(0, 10);
+  // 화면 이름 같은 기계값에는 좌표성 항목이 들어올 자리가 없다 — 그래도 한 번 막는다
+  if (/lat|lon|coord|위도|경도/i.test(screen + " " + ver + " " + dev))
+    return json_({ ok: false, err: "형식" });
+
+  var lock = LockService.getScriptLock();
+  lock.waitLock(10000);
+  var cnt;
+  try {
+    var sh = fbSheet_();
+    cnt = fbCount_(sh, cid, 24);
+    if (cid && cnt.mine >= FB_PER_USER_DAY)
+      return json_({ ok: false, err: "limit" });   // 앱이 '내일 다시' 안내
+    sh.appendRow([new Date(), cid, cat, stars || "", text, screen, ver, dev]);
+  } finally {
+    lock.releaseLock();
+  }
+
+  /* 알림 메일 — 저장이 본체, 메일은 부가 기능이다.
+     메일이 실패해도 피드백은 이미 시트에 있으므로 성공으로 답한다. */
+  var mailed = false;
+  try {
+    var quotaOk = true;
+    try { quotaOk = MailApp.getRemainingDailyQuota() > 5; } catch (e) {}
+    if (quotaOk && cnt.all < FB_MAIL_PER_DAY) {
+      MailApp.sendEmail({
+        to: ADMIN_MAIL,
+        subject: "[골프라이프 베타] " + cat + (stars ? " ★" + stars : "") + " — " + text.slice(0, 30),
+        body: text +
+          "\n\n────────────────────────" +
+          "\n분류: " + cat + (stars ? "   별점: " + stars + "/5" : "") +
+          "\n화면: " + (screen || "-") + "   앱: " + (ver || "-") + "   기기: " + (dev || "-") +
+          "\n기기ID: " + (cid || "-") + " (개인 식별 불가)" +
+          "\n시각: " + Utilities.formatDate(new Date(), "Asia/Seoul", "M월 d일 HH:mm") +
+          "\n\n오늘 받은 피드백: " + (cnt.all + 1) + "건",
+      });
+      mailed = true;
+    }
+  } catch (e) { /* 메일 실패는 삼킨다 — 데이터는 이미 저장됐다 */ }
+
+  return json_({ ok: true, mailed: mailed });
+}
+
+/* 관리자 화면용 피드백 목록 (최근 200건, 최신순) */
+function fbList_() {
+  var sh = fbSheet_();
+  var last = sh.getLastRow();
+  if (last < 2) return json_({ rows: [], total: 0 });
+  var from = Math.max(2, last - 199);
+  var v = sh.getRange(from, 1, last - from + 1, 8).getValues();
+  var rows = v.map(function (r) {
+    return {
+      t: new Date(r[0]).getTime(), cid: String(r[1] || ""), cat: String(r[2] || ""),
+      stars: r[3] || 0, text: String(r[4] || ""), screen: String(r[5] || ""),
+      ver: String(r[6] || ""), dev: String(r[7] || ""),
+    };
+  }).reverse();
+  return json_({ rows: rows, total: last - 1 });
 }
 
 /* ---------- 기록 백업 (즐겨찾기·스코어 지키기) ----------
@@ -92,6 +216,7 @@ function doPost(e) {
   try {
     var body = JSON.parse(e.postData.contents || "{}");
     if (body.fn === "backup") return backupSave_(body.code, body.data);
+    if (body.fn === "feedback") return fbSave_(body);
     var rows = body.rows || [];
     if (!rows.length || rows.length > 100) return json_({ ok: false });
     var sh = sheet_();
@@ -109,9 +234,10 @@ function doPost(e) {
         String(r.dev || "").slice(0, 10),
         String(r.age || "").slice(0, 10),
         String(r.gen || "").slice(0, 6),
+        String(r.reg || "").slice(0, 10),   // 시/도 이름만 (좌표 아님)
       ]);
     });
-    if (out.length) sh.getRange(sh.getLastRow() + 1, 1, out.length, 8).setValues(out);
+    if (out.length) sh.getRange(sh.getLastRow() + 1, 1, out.length, 9).setValues(out);
     return json_({ ok: true, n: out.length });
   } catch (err) {
     return json_({ ok: false, err: String(err) });
@@ -125,8 +251,12 @@ function doGet(e) {
   if (p.fn === "placemeta") return placeMeta_(p.ids);
   if (p.fn === "restore") return backupLoad_(p.code);
   if (p.fn === "summary") {
-    if (p.pw !== ADMIN_PW) return json_({ err: "비밀번호가 틀립니다" });
+    if (p.pw !== adminPw_()) return json_({ err: "비밀번호가 틀립니다" });
     return summary_();
+  }
+  if (p.fn === "fblist") {
+    if (p.pw !== adminPw_()) return json_({ err: "비밀번호가 틀립니다" });
+    return fbList_();
   }
   if (p.fn === "tts") return tts_(p.text, p.speaker, p.speed);
   return json_({ ok: true, service: "golflife-backend", ver: BACKEND_VER,
@@ -378,36 +508,91 @@ function placeMeta_(ids) {
   return json_(out);
 }
 
-/* 통계 요약 — 관리자 화면용 */
+/* 통계 요약 — 관리자 화면용
+ *
+ * 집계 기준을 여기 적어 둔다(관리자 화면에도 같은 문구를 띄운다):
+ *   · 방문(hits)   = visit 이벤트 수 — 같은 사람이 여러 번 열면 여러 번 센다
+ *   · 사용자(users)= 그 날 방문한 서로 다른 기기 수
+ *   · 연령·성별    = '맞춤 정보 제공'에 동의한 이용자만 → 전체와 수가 다른 게 정상
+ *   · 지역         = 이용자가 조회한 골프장의 시/도. 이용자의 실제 위치가 아니다.
+ */
 function summary_() {
   var sh = sheet_();
   var last = sh.getLastRow();
-  if (last < 2) return json_({ days: [], courses: [], features: [], devices: [], ages: [], genders: [], total: 0 });
+  var empty = { days: [], courses: [], features: [], devices: [], ages: [], genders: [],
+                regions: [], total: 0, uniq: 0, back7: null, today: { hits: 0, users: 0 },
+                fbTotal: 0, fbToday: 0, ver: BACKEND_VER };
+  if (last < 2) return json_(empty);
   var from = Math.max(2, last - 20000);              // 최근 2만 건
-  var v = sh.getRange(from, 1, last - from + 1, 8).getValues();
-  var days = {}, courses = {}, feats = {}, devs = {}, ages = {}, gens = {}, uniq = {};
+  var v = sh.getRange(from, 1, last - from + 1, 9).getValues();
+  var days = {}, courses = {}, feats = {}, devs = {}, ages = {}, gens = {}, regs = {};
+  var uniq = {}, seen = {}, cidDays = {};
+  var today = Utilities.formatDate(new Date(), "Asia/Seoul", "MM-dd");
+  var cut7 = Date.now() - 7 * 86400000;
+  /* 아주 오래된 기록 몇 줄에 글자가 깨진 값(�)이 남아 있다.
+     세어 봐야 '50�' 같은 항목이 화면에 뜰 뿐이라 집계에서 뺀다.
+     (2026-07-31 기준 2,556건 중 2건 — 새로 들어오는 기록에는 없다) */
+  var okv = function (x) { return x && String(x).indexOf("�") < 0; };
   v.forEach(function (r) {
-    var d = Utilities.formatDate(new Date(r[0]), "Asia/Seoul", "MM-dd");
+    var when = new Date(r[0]);
+    var d = Utilities.formatDate(when, "Asia/Seoul", "MM-dd");
     var cid = r[1], ev = r[2], name = r[3];
-    if (ev === "visit") { days[d] = (days[d] || 0) + 1; uniq[d + "|" + cid] = 1; }
+    if (ev === "visit") {
+      days[d] = (days[d] || 0) + 1;
+      uniq[d + "|" + cid] = 1;
+      seen[cid] = 1;
+      // 최근 7일 안에서 '서로 다른 날' 방문 수 — 재방문율 계산용
+      if (when.getTime() >= cut7 && cid) {
+        if (!cidDays[cid]) cidDays[cid] = {};
+        cidDays[cid][d] = 1;
+      }
+    }
     if (ev === "course" && name) courses[name] = (courses[name] || 0) + 1;
     if (ev === "feature" && name) feats[name] = (feats[name] || 0) + 1;
-    if (r[5]) devs[r[5]] = (devs[r[5]] || 0) + 1;
-    if (r[6]) ages[r[6]] = (ages[r[6]] || 0) + 1;
-    if (r[7] && r[7] !== "선택 안 함") gens[r[7]] = (gens[r[7]] || 0) + 1;
+    if (okv(r[5])) devs[r[5]] = (devs[r[5]] || 0) + 1;
+    if (okv(r[6])) ages[r[6]] = (ages[r[6]] || 0) + 1;
+    if (okv(r[7]) && r[7] !== "선택 안 함") gens[r[7]] = (gens[r[7]] || 0) + 1;
+    if (okv(r[8])) regs[r[8]] = (regs[r[8]] || 0) + 1;
   });
   var uniqDays = {};
   Object.keys(uniq).forEach(function (k) { var d = k.split("|")[0]; uniqDays[d] = (uniqDays[d] || 0) + 1; });
+
+  // 7일 재방문율 = 최근 7일에 방문한 기기 중 '이틀 이상' 방문한 비율.
+  // 표본이 너무 작으면(5명 미만) 숫자가 요동쳐 오해를 부르니 아예 주지 않는다.
+  var base = Object.keys(cidDays), rep = 0;
+  base.forEach(function (c) { if (Object.keys(cidDays[c]).length >= 2) rep++; });
+  var back7 = base.length >= 5 ? Math.round((rep / base.length) * 100) : null;
+
   var top = function (o, n) {
     return Object.keys(o).map(function (k) { return [k, o[k]]; })
       .sort(function (a, b) { return b[1] - a[1]; }).slice(0, n);
   };
+
+  // 피드백 건수 (오늘 / 전체)
+  var fbTotal = 0, fbToday = 0;
+  try {
+    var fs = fbSheet_(), fl = fs.getLastRow();
+    fbTotal = Math.max(0, fl - 1);
+    if (fl >= 2) {
+      var ff = Math.max(2, fl - 300);
+      fs.getRange(ff, 1, fl - ff + 1, 1).getValues().forEach(function (r) {
+        if (Utilities.formatDate(new Date(r[0]), "Asia/Seoul", "MM-dd") === today) fbToday++;
+      });
+    }
+  } catch (e) {}
+
   return json_({
+    ver: BACKEND_VER,
     total: last - 1,
+    uniq: Object.keys(seen).length,
+    back7: back7,
+    today: { hits: days[today] || 0, users: uniqDays[today] || 0 },
+    fbTotal: fbTotal, fbToday: fbToday,
     days: Object.keys(days).sort().slice(-30).map(function (d) {
       return { d: d, hits: days[d], users: uniqDays[d] || 0 };
     }),
-    courses: top(courses, 20), features: top(feats, 10),
+    courses: top(courses, 20), features: top(feats, 14),
     devices: top(devs, 5), ages: top(ages, 8), genders: top(gens, 3),
+    regions: top(regs, 12),
   });
 }

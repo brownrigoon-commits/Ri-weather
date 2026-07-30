@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>골프라이프 관리자</title>
+<!--
+  골프라이프 관리자 프로그램 (2026-07-31, 베타 100명 배포용)
+
+  · 파일 하나로 끝난다 — 외부 라이브러리·CDN 을 쓰지 않는다(앱과 같은 원칙).
+  · 이 파일 안에는 비밀이 없다. 숫자는 전부 비밀번호를 넣어야 백엔드에서 온다.
+  · 비밀번호는 sessionStorage 에만 둔다 — 탭을 닫으면 사라진다.
+  · robots.txt 가 사이트 전체를 막고 있어 검색에 뜨지 않는다.
+
+  ⚠️ 여기 나오는 '지역'은 이용자가 조회한 골프장의 시/도다.
+     이용자의 위치가 아니다 — 앱은 위치 좌표를 수집하지 않는다.
+-->
+<style>
+  :root{
+    --bg:#f5f6f8; --card:#fff; --line:#e6e8ec; --text:#191f28; --dim:#6b7684; --faint:#8b95a1;
+    --primary:#2f6ef0; --good:#2ea06a; --warn:#d94a4a; --bar:#dbe4f7;
+    --radius:16px; --shadow:0 1px 3px rgba(0,0,0,.06),0 6px 18px rgba(0,0,0,.04);
+  }
+  @media (prefers-color-scheme: dark){
+    :root{ --bg:#15171c; --card:#1e2128; --line:#2c313a; --text:#eef1f5; --dim:#9aa5b1; --faint:#78828d;
+           --bar:#2b3c5e; --shadow:0 1px 3px rgba(0,0,0,.4); }
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; padding:0 0 60px; background:var(--bg); color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+    -webkit-font-smoothing:antialiased; letter-spacing:-0.02em;
+  }
+  .wrap{max-width:860px; margin:0 auto; padding:20px 16px calc(20px + env(safe-area-inset-bottom));}
+  h1{font-size:22px; font-weight:800; margin:6px 0 2px}
+  .sub{font-size:13px; color:var(--faint); margin:0 0 18px}
+
+  /* ── 로그인 ── */
+  #gate{display:flex; flex-direction:column; gap:10px; background:var(--card); border-radius:var(--radius);
+        padding:22px 18px; box-shadow:var(--shadow); max-width:380px; margin:40px auto}
+  #gate h2{margin:0 0 4px; font-size:18px}
+  #gate p{margin:0 0 10px; font-size:13px; color:var(--dim); line-height:1.55}
+  input[type=password]{
+    width:100%; padding:14px; font-size:16px; font-family:inherit;
+    border:1px solid var(--line); border-radius:12px; background:var(--bg); color:var(--text);
+  }
+  button{font-family:inherit; cursor:pointer}
+  .btn{padding:14px; font-size:15px; font-weight:700; border:none; border-radius:12px;
+       background:var(--primary); color:#fff}
+  .btn:active{opacity:.8}
+  .btn.sub{background:var(--card); color:var(--dim); border:1px solid var(--line); font-weight:600; padding:9px 14px; font-size:13px}
+  .err{color:var(--warn); font-size:13px; font-weight:600; min-height:18px; margin:2px 0 0}
+
+  /* ── 카드 ── */
+  .cards{display:grid; grid-template-columns:repeat(2,1fr); gap:10px; margin-bottom:18px}
+  .card{background:var(--card); border-radius:var(--radius); padding:16px 14px; box-shadow:var(--shadow)}
+  .card .k{font-size:12px; color:var(--faint); font-weight:600}
+  .card .v{font-size:27px; font-weight:800; margin-top:6px; letter-spacing:-0.04em}
+  .card .v small{font-size:13px; font-weight:600; color:var(--dim); letter-spacing:0}
+  .card .n{font-size:11.5px; color:var(--faint); margin-top:3px}
+
+  section{background:var(--card); border-radius:var(--radius); padding:16px 16px 18px;
+          box-shadow:var(--shadow); margin-bottom:14px}
+  section h3{margin:0 0 3px; font-size:15px; font-weight:800}
+  section .hint{margin:0 0 14px; font-size:11.5px; color:var(--faint); line-height:1.5}
+  .empty{font-size:13px; color:var(--faint); padding:10px 0}
+
+  /* ── 막대 목록 ── */
+  .rows{display:flex; flex-direction:column; gap:9px}
+  .row{display:grid; grid-template-columns:1fr auto; gap:4px 10px; align-items:center}
+  .row .nm{font-size:13.5px; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+  .row .ct{font-size:13px; color:var(--dim); font-variant-numeric:tabular-nums}
+  .row .bar{grid-column:1/-1; height:6px; border-radius:99px; background:var(--bar); overflow:hidden}
+  .row .bar i{display:block; height:100%; background:var(--primary); border-radius:99px}
+
+  /* ── 일별 추이 ── */
+  .days{display:flex; align-items:flex-end; gap:3px; height:120px; margin-top:6px; overflow-x:auto; padding-bottom:2px}
+  .day{flex:1 0 16px; display:flex; flex-direction:column; justify-content:flex-end; align-items:center; height:100%}
+  .day .b{width:100%; background:var(--bar); border-radius:4px 4px 0 0; position:relative; min-height:2px}
+  .day .b i{position:absolute; inset:auto 0 0 0; background:var(--primary); border-radius:4px 4px 0 0}
+  .day .d{font-size:9px; color:var(--faint); margin-top:4px; white-space:nowrap}
+  .legend{display:flex; gap:14px; font-size:11.5px; color:var(--faint); margin-top:8px}
+  .legend b{display:inline-block; width:9px; height:9px; border-radius:3px; vertical-align:-1px; margin-right:4px}
+
+  /* ── 피드백 ── */
+  .fbhead{display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap}
+  .filters{display:flex; gap:6px; flex-wrap:wrap; margin:12px 0 14px}
+  .chip{padding:7px 12px; border-radius:99px; border:1px solid var(--line); background:var(--bg);
+        color:var(--dim); font-size:12.5px; font-weight:600}
+  .chip.on{background:var(--primary); border-color:var(--primary); color:#fff}
+  .fb{border-top:1px solid var(--line); padding:14px 0 2px}
+  .fb:first-of-type{border-top:none}
+  .fb .top{display:flex; align-items:center; gap:7px; flex-wrap:wrap; font-size:12px; color:var(--faint)}
+  .tag{padding:3px 9px; border-radius:99px; font-size:11.5px; font-weight:700; color:#fff}
+  .t오류{background:#d94a4a} .t불편{background:#e08b2f} .t아이디어{background:#2f6ef0} .t칭찬{background:#2ea06a}
+  .stars{color:#f5a623; letter-spacing:1px}
+  .fb .txt{margin:9px 0 0; font-size:14.5px; line-height:1.62; white-space:pre-wrap; word-break:break-word}
+  .fb .meta{margin-top:7px; font-size:11.5px; color:var(--faint)}
+
+  .foot{margin-top:22px; font-size:11.5px; color:var(--faint); line-height:1.7; text-align:center}
+  .warnbox{background:rgba(217,74,74,.1); color:var(--warn); border-radius:12px; padding:12px 14px;
+           font-size:13px; line-height:1.6; font-weight:600; margin-bottom:14px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ── 비밀번호 ── -->
+  <div id="gate">
+    <h2>골프라이프 관리자</h2>
+    <p>통계와 베타 의견을 보려면 관리자 비밀번호가 필요합니다.<br>
+       비밀번호는 이 탭에만 잠시 저장되고, 탭을 닫으면 지워집니다.</p>
+    <input id="pw" type="password" placeholder="관리자 비밀번호" autocomplete="off">
+    <button class="btn" id="go">들어가기</button>
+    <p class="err" id="gate-err"></p>
+  </div>
+
+  <!-- ── 본문 ── -->
+  <div id="main" hidden>
+    <h1>골프라이프 관리자</h1>
+    <p class="sub" id="sub">불러오는 중…</p>
+
+    <div id="stale"></div>
+
+    <div class="cards">
+      <div class="card"><div class="k">오늘 방문</div><div class="v" id="c-today">–</div><div class="n" id="c-today-n"></div></div>
+      <div class="card"><div class="k">누적 사용자</div><div class="v" id="c-uniq">–</div><div class="n">앱을 한 번이라도 연 기기 수</div></div>
+      <div class="card"><div class="k">7일 재방문율</div><div class="v" id="c-back">–</div><div class="n" id="c-back-n">최근 7일 중 이틀 이상 온 비율</div></div>
+      <div class="card"><div class="k">베타 의견</div><div class="v" id="c-fb">–</div><div class="n" id="c-fb-n"></div></div>
+    </div>
+
+    <section>
+      <h3>날짜별 방문</h3>
+      <p class="hint">최근 30일. 진한 막대 = 그날 온 사람 수(기기), 옅은 막대 = 앱을 연 횟수.</p>
+      <div class="days" id="days"></div>
+      <div class="legend"><span><b style="background:var(--primary)"></b>사람 수</span><span><b style="background:var(--bar)"></b>연 횟수</span></div>
+    </section>
+
+    <section>
+      <h3>어떤 메뉴를 썼나</h3>
+      <p class="hint">골프장 안에서 누른 메뉴와 기능. 많이 눌린 순.</p>
+      <div class="rows" id="features"></div>
+    </section>
+
+    <section>
+      <h3>어느 지역 골프장을 봤나</h3>
+      <p class="hint">이용자가 조회한 <b>골프장의 시·도</b>입니다. 이용자가 있는 위치가 아닙니다(앱은 위치 좌표를 수집하지 않습니다).</p>
+      <div class="rows" id="regions"></div>
+    </section>
+
+    <section>
+      <h3>인기 골프장</h3>
+      <p class="hint">조회수 상위 20곳.</p>
+      <div class="rows" id="courses"></div>
+    </section>
+
+    <section>
+      <h3>기기</h3>
+      <div class="rows" id="devices"></div>
+    </section>
+
+    <section>
+      <h3>연령대</h3>
+      <p class="hint">‘맞춤 정보 제공’에 동의한 이용자만 집계됩니다 — 전체 사용자 수와 다른 것이 정상입니다.</p>
+      <div class="rows" id="ages"></div>
+    </section>
+
+    <section>
+      <h3>성별</h3>
+      <p class="hint">위와 같이 동의한 이용자만.</p>
+      <div class="rows" id="genders"></div>
+    </section>
+
+    <section>
+      <div class="fbhead">
+        <div>
+          <h3>베타 의견</h3>
+          <p class="hint" style="margin:0">최근 200건, 최신순. 도착할 때마다 메일로도 알려드립니다.</p>
+        </div>
+        <button class="btn sub" id="reload">새로고침</button>
+      </div>
+      <div class="filters" id="fb-filters">
+        <button class="chip on" data-f="">전체</button>
+        <button class="chip" data-f="오류">🐞 안 돼요</button>
+        <button class="chip" data-f="불편">😥 불편해요</button>
+        <button class="chip" data-f="아이디어">💡 아이디어</button>
+        <button class="chip" data-f="칭찬">👍 좋아요</button>
+      </div>
+      <div id="fb-list"></div>
+    </section>
+
+    <p class="foot">
+      집계 기준 — 방문: 앱을 연 횟수 · 사람 수: 그날의 서로 다른 기기 수<br>
+      연령·성별은 동의한 이용자만, 지역은 조회한 골프장의 시·도<br>
+      <span id="bever"></span>
+    </p>
+  </div>
+</div>
+
+<script>
+"use strict";
+/* 백엔드 주소는 앱과 같은 것을 쓴다. 여기 적힌 주소만으로는 아무 데이터도 볼 수 없다
+   — 모든 조회에 비밀번호가 필요하다. */
+var BACKEND = "https://script.google.com/macros/s/AKfycbzVkab8qBwUdukg_O9FtYjwHvTygc9Riyh3tEOD0z-bALNZxbO9ksRNPLM9y1mOWv9q4A/exec";
+
+var PWKEY = "riwadmin.pw";
+var pw = "";
+var fbRows = [], fbFilter = "";
+
+var $ = function (id) { return document.getElementById(id); };
+var esc = function (s) {
+  return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
+    return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+  });
+};
+
+/* 계측 키(영문) → 사람이 읽는 이름.
+   앱에 기능을 추가하면 여기도 한 줄 넣어 주세요. 없으면 원래 키가 그대로 보입니다. */
+var MENU = {
+  weather: "날씨", course: "코스 공략", food: "맛집", score: "스코어",
+  stay: "숙소", booking: "부킹", clubfit: "클럽 피팅", ai: "AI 캐디",
+};
+var CLUB = { driver: "드라이버", iron: "아이언", wedge: "웨지", putter: "퍼터", ball: "볼" };
+var OUT = { golfpang: "골팡", golfmon: "골프몬" };
+function label(k) {
+  if (MENU[k]) return MENU[k];
+  var m;
+  if ((m = /^clubfit_start_(.+)$/.exec(k))) return "피팅 시작 · " + (CLUB[m[1]] || m[1]);
+  if ((m = /^clubfit_save_(.+)$/.exec(k))) return "내 클럽 저장 · " + (CLUB[m[1]] || m[1]);
+  if ((m = /^booking_out_(.+)$/.exec(k))) return "예약 사이트로 이동 · " + (OUT[m[1]] || m[1]);
+  if ((m = /^booking_mode_(.+)$/.exec(k))) return "부킹 탭 · " + m[1];
+  return k;
+}
+
+function bars(id, list, mapName) {
+  var box = $(id);
+  if (!list || !list.length) { box.innerHTML = '<p class="empty">아직 데이터가 없습니다.</p>'; return; }
+  var max = list[0][1] || 1;
+  box.innerHTML = list.map(function (r) {
+    var nm = mapName ? mapName(r[0]) : r[0];
+    var pct = Math.max(2, Math.round((r[1] / max) * 100));
+    return '<div class="row"><span class="nm">' + esc(nm) + '</span>' +
+           '<span class="ct">' + r[1].toLocaleString() + '</span>' +
+           '<span class="bar"><i style="width:' + pct + '%"></i></span></div>';
+  }).join("");
+}
+
+function paintDays(days) {
+  var box = $("days");
+  if (!days || !days.length) { box.innerHTML = '<p class="empty">아직 데이터가 없습니다.</p>'; return; }
+  var max = 1;
+  days.forEach(function (d) { max = Math.max(max, d.hits || 0); });
+  box.innerHTML = days.map(function (d) {
+    var h = Math.round(((d.hits || 0) / max) * 100);
+    var u = Math.round(((d.users || 0) / max) * 100);
+    return '<div class="day" title="' + esc(d.d) + ' · ' + (d.users || 0) + '명 / ' + (d.hits || 0) + '회">' +
+           '<div class="b" style="height:' + Math.max(2, h) + '%"><i style="height:' + Math.max(2, u ? (u / (h || 1)) * 100 : 0) + '%"></i></div>' +
+           '<div class="d">' + esc(String(d.d).slice(-5)) + '</div></div>';
+  }).join("");
+}
+
+function paintFb() {
+  var box = $("fb-list");
+  var rows = fbFilter ? fbRows.filter(function (r) { return r.cat === fbFilter; }) : fbRows;
+  if (!rows.length) {
+    box.innerHTML = '<p class="empty">' +
+      (fbRows.length ? "이 분류의 의견이 아직 없습니다." : "아직 받은 의견이 없습니다.") + "</p>";
+    return;
+  }
+  box.innerHTML = rows.map(function (r) {
+    var d = new Date(r.t);
+    var when = (d.getMonth() + 1) + "월 " + d.getDate() + "일 " +
+      String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0");
+    var st = r.stars ? '<span class="stars">' + "★".repeat(r.stars) + "</span>" : "";
+    return '<div class="fb"><div class="top">' +
+      '<span class="tag t' + esc(r.cat) + '">' + esc(r.cat) + "</span>" + st +
+      "<span>" + esc(when) + "</span></div>" +
+      '<p class="txt">' + esc(r.text) + "</p>" +
+      '<div class="meta">화면: ' + esc(r.screen || "-") + " · 앱 " + esc(r.ver || "-") +
+      " · " + esc(r.dev || "-") + " · 기기ID " + esc(r.cid || "-") + "</div></div>";
+  }).join("");
+}
+
+function get(fn) {
+  var url = BACKEND + "?fn=" + fn + "&pw=" + encodeURIComponent(pw) + "&t=" + Date.now();
+  return fetch(url).then(function (r) { return r.json(); });
+}
+
+function load() {
+  $("sub").textContent = "불러오는 중…";
+  return Promise.all([get("summary"), get("fblist")]).then(function (res) {
+    var s = res[0] || {}, f = res[1] || {};
+    if (s.err) throw new Error(s.err);
+    /* 백엔드가 옛 버전이면 없는 항목이 온다.
+       ⚠️ 이때 0 을 보여주면 '오늘 아무도 안 왔다'로 읽힌다 — 모르는 것은 모른다고 쓴다. */
+    if (!s.today) {
+      $("c-today").innerHTML = '<small>집계 전</small>';
+      $("c-today-n").textContent = "백엔드 재배포 후 표시됩니다";
+    } else {
+      $("c-today").innerHTML = (s.today.users || 0) + '<small>명</small>';
+      $("c-today-n").textContent = "앱을 연 횟수 " + (s.today.hits || 0) + "회";
+    }
+    $("c-uniq").innerHTML = (s.uniq || 0) + '<small>명</small>';
+    if (s.uniq === undefined) $("c-uniq").innerHTML = '<small>집계 전</small>';
+    if (s.back7 === null || s.back7 === undefined) {
+      $("c-back").innerHTML = '<small>집계 전</small>';
+      $("c-back-n").textContent = "최근 7일 사용자가 5명이 넘어야 표시합니다";
+    } else {
+      $("c-back").innerHTML = s.back7 + '<small>%</small>';
+      $("c-back-n").textContent = "최근 7일 중 이틀 이상 온 비율";
+    }
+    if (s.fbTotal === undefined) {
+      $("c-fb").innerHTML = '<small>준비 전</small>';
+      $("c-fb-n").textContent = "백엔드 재배포 후 집계됩니다";
+    } else {
+      $("c-fb").innerHTML = s.fbTotal + '<small>건</small>';
+      $("c-fb-n").textContent = "오늘 " + (s.fbToday || 0) + "건";
+    }
+
+    paintDays(s.days);
+    bars("features", s.features, label);
+    bars("regions", s.regions);
+    bars("courses", s.courses);
+    bars("devices", s.devices);
+    bars("ages", s.ages);
+    bars("genders", s.genders);
+
+    fbRows = (f && f.rows) || [];
+    paintFb();
+    // 옛 백엔드는 fblist 를 몰라서 기본 응답(service)만 준다 → '의견 0건'으로 오해하지 않게
+    if (f && !f.rows && f.service) $("fb-list").innerHTML =
+      '<p class="empty">백엔드를 다시 배포하면 여기에 의견이 쌓입니다.</p>';
+
+    var now = new Date();
+    $("sub").textContent = "기록 " + (s.total || 0).toLocaleString() + "건 · " +
+      String(now.getHours()).padStart(2, "0") + ":" + String(now.getMinutes()).padStart(2, "0") + " 기준";
+    $("bever").textContent = "백엔드 " + (s.ver || "?");
+
+    // 백엔드가 옛 버전이면 피드백·지역이 아예 쌓이지 않는다 — 숫자를 믿기 전에 알린다
+    $("stale").innerHTML = (s.ver && s.ver >= "2026-07-31a") ? "" :
+      '<div class="warnbox">⚠️ 백엔드가 옛 버전입니다(' + esc(s.ver || "표시없음") + ').<br>' +
+      'Apps Script 에서 <b>배포 → 배포 관리 → ✏️ → 새 버전</b>을 해야 베타 의견과 지역 통계가 쌓입니다.</div>';
+  });
+}
+
+function enter() {
+  pw = $("pw").value.trim();
+  if (!pw) { $("gate-err").textContent = "비밀번호를 입력해 주세요."; return; }
+  $("gate-err").textContent = "확인 중…";
+  load().then(function () {
+    try { sessionStorage.setItem(PWKEY, pw); } catch (e) {}
+    $("gate").hidden = true;
+    $("main").hidden = false;
+  }).catch(function (e) {
+    $("gate-err").textContent = /비밀번호/.test(e.message) ? "비밀번호가 틀립니다."
+      : "불러오지 못했습니다 — " + e.message;
+  });
+}
+
+$("go").addEventListener("click", enter);
+$("pw").addEventListener("keydown", function (e) { if (e.key === "Enter") enter(); });
+$("reload").addEventListener("click", function () {
+  var b = $("reload"); b.disabled = true; b.textContent = "불러오는 중…";
+  load().catch(function (e) { alert("불러오지 못했습니다 — " + e.message); })
+    .then(function () { b.disabled = false; b.textContent = "새로고침"; });
+});
+$("fb-filters").addEventListener("click", function (e) {
+  var c = e.target.closest(".chip");
+  if (!c) return;
+  fbFilter = c.dataset.f || "";
+  Array.prototype.forEach.call(this.querySelectorAll(".chip"), function (x) { x.classList.toggle("on", x === c); });
+  paintFb();
+});
+
+/* 같은 탭에서 새로고침했을 때만 자동 로그인 */
+(function () {
+  var saved = "";
+  try { saved = sessionStorage.getItem(PWKEY) || ""; } catch (e) {}
+  if (!saved) return;
+  pw = saved;
+  load().then(function () { $("gate").hidden = true; $("main").hidden = false; })
+    .catch(function () { try { sessionStorage.removeItem(PWKEY); } catch (e) {} });
+})();
+</script>
+</body>
+</html>
