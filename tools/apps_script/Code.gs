@@ -13,7 +13,7 @@
    tools/verify_deploy.py 가 이 값을 서버에서 읽어와 로컬과 대조한다.
    두 번이나 "코드는 고쳤는데 배포를 안 해서" 기능이 죽어 있었다:
      · 기록 백업·복구 (2026-07-27)  · 숙소 객실사진 우선 (2026-07-28) */
-var BACKEND_VER = "2026-07-30a";
+var BACKEND_VER = "2026-07-30b";
 
 var ADMIN_PW = "golf2026!";   // 관리자 통계 조회 비밀번호 — 설치 때 꼭 바꾸세요
 var SHEET_ID = "1XQ6pbcO9pMnxvpL3K-WiMCgqd5WVIupHgi9uS-vmxcM";   // '골프라이프 통계' 시트
@@ -133,20 +133,26 @@ function doGet(e) {
                  tts: ttsKeys_() ? "on" : "off" });
 }
 
-/* ---------- 캐디 음성 (네이버 클로바 보이스) ----------
+/* ---------- 캐디 음성 (구글 TTS 우선, 클로바는 예비) ----------
  *
  * 왜 백엔드를 거치는가: API 키를 앱에 넣으면 누구나 꺼내 쓸 수 있다.
  * 키는 여기 **스크립트 속성**에만 둔다 — 코드에 적지 않는다.
  *   Apps Script 편집기 → 프로젝트 설정(⚙) → 스크립트 속성 →
- *     CLOVA_ID     = NCP 앱의 Client ID
- *     CLOVA_SECRET = NCP 앱의 Client Secret
- *   (키를 넣지 않으면 tts:"off" 를 돌려주고, 앱은 기기 음성으로 그대로 동작한다)
+ *     GOOGLE_TTS_KEY = 구글 클라우드 API 키 (Cloud Text-to-Speech 전용으로 제한 권장)
+ *     CLOVA_ID / CLOVA_SECRET = 네이버 키 (예비 — 구글 키가 없을 때만 사용)
+ *   (아무 키도 없으면 tts:"off" 를 돌려주고, 앱은 기기 음성으로 그대로 동작한다)
+ *
+ * 왜 구글이 기본인가(2026-07-30 사장님 결정): 클로바 프리미엄은 호출 0건이어도
+ * **월 기본료 9만원**이 붙는다(NCP 콘솔 팝업으로 확인). 구글은 기본료가 없고
+ * Chirp3-HD 기준 월 100만 자까지 영구 무료 — 우리 사용량(라운드당 ~5,400자)이면 0원.
  *
  * ⚠️ 음성이 안 나오는 것보다 나쁜 건 없다. 어떤 실패에서도 에러를 감추지 말고
  *    이유를 돌려준다 — 앱이 그걸 보고 기기 음성으로 되돌아간다.
  */
 function ttsKeys_() {
   var pr = PropertiesService.getScriptProperties();
+  var g = pr.getProperty("GOOGLE_TTS_KEY");
+  if (g) return { google: g };
   var id = pr.getProperty("CLOVA_ID"), sec = pr.getProperty("CLOVA_SECRET");
   return (id && sec) ? { id: id, sec: sec } : null;
 }
@@ -163,12 +169,61 @@ function tts_(text, speaker, speed) {
   /* 같은 문장은 다시 만들지 않는다 — 요금과 지연을 함께 줄인다.
      CacheService 는 한 항목 100KB 제한이라 큰 건 그냥 건너뛴다. */
   var cache = CacheService.getScriptCache();
-  var key = "tts:" + speaker + ":" + speed + ":" +
+  var key = "tts:" + (k.google ? "g" : "c") + ":" + speaker + ":" + speed + ":" +
             Utilities.base64Encode(Utilities.computeDigest(
               Utilities.DigestAlgorithm.MD5, text, Utilities.Charset.UTF_8));
   var hit = cache.get(key);
   if (hit) return json_({ ok: true, mp3: hit, cached: true });
 
+  var out = k.google ? googleTts_(k.google, text, speed) : clovaTts_(k, text, speaker, speed);
+  if (!out.ok) return json_(out);
+  if (out.mp3.length < 95000) { try { cache.put(key, out.mp3, 21600); } catch (e) {} }   // 6시간
+  return json_(out);
+}
+
+/* 구글 Cloud Text-to-Speech.
+ * 화자: ko-KR-Chirp3-HD-Kore (여성, 차분·자연) — 최신 HD 계열이라 클로바급이다.
+ * 앱이 보내는 speed 는 클로바 눈금(-5 빠름 ~ 5 느림, 0 보통)이므로 구글의
+ * speakingRate(배속)로 환산한다: 0 → 1.0, 한 눈금당 5%.
+ * ⚠️ Chirp3-HD 가 요청 항목을 거부하면(파라미터 미지원 등) Neural2 여성으로 한 번 더
+ *    시도한다 — 미리보기 계열은 지원 항목이 바뀌곤 해서 한 발 물러날 곳을 둔다.
+ */
+function googleTts_(apiKey, text, speed) {
+  var rate = 1 - (parseFloat(speed) || 0) * 0.05;
+  rate = Math.max(0.5, Math.min(1.5, rate));
+  var voices = ["ko-KR-Chirp3-HD-Kore", "ko-KR-Neural2-A"];
+  var last = "";
+  for (var i = 0; i < voices.length; i++) {
+    try {
+      var res = UrlFetchApp.fetch(
+        "https://texttospeech.googleapis.com/v1/text:synthesize?key=" + encodeURIComponent(apiKey), {
+        method: "post",
+        contentType: "application/json",
+        payload: JSON.stringify({
+          input: { text: text },
+          voice: { languageCode: "ko-KR", name: voices[i] },
+          audioConfig: { audioEncoding: "MP3", speakingRate: rate },
+        }),
+        muteHttpExceptions: true,
+      });
+      var code = res.getResponseCode();
+      if (code === 200) {
+        var mp3 = (JSON.parse(res.getContentText()) || {}).audioContent;
+        if (mp3) return { ok: true, mp3: mp3, voice: voices[i] };
+        last = "google-200-but-empty";
+      } else {
+        last = "google-" + code + " " + String(res.getContentText()).slice(0, 150);
+        if (code === 401 || code === 403) break;   // 키 문제는 화자를 바꿔도 소용없다
+      }
+    } catch (err) {
+      last = "fetch-fail " + String(err).slice(0, 150);
+    }
+  }
+  return { ok: false, why: "google-tts", msg: last };
+}
+
+/* 네이버 클로바 보이스 (예비 — GOOGLE_TTS_KEY 가 없을 때만) */
+function clovaTts_(k, text, speaker, speed) {
   try {
     var res = UrlFetchApp.fetch("https://naveropenapi.apigw.ntruss.com/tts-premium/v1/tts", {
       method: "post",
@@ -178,14 +233,12 @@ function tts_(text, speaker, speed) {
     });
     var code = res.getResponseCode();
     if (code !== 200) {
-      return json_({ ok: false, why: "clova-" + code,
-                     msg: String(res.getContentText()).slice(0, 200) });
+      return { ok: false, why: "clova-" + code,
+               msg: String(res.getContentText()).slice(0, 200) };
     }
-    var b64 = Utilities.base64Encode(res.getContent());
-    if (b64.length < 95000) { try { cache.put(key, b64, 21600); } catch (e) {} }   // 6시간
-    return json_({ ok: true, mp3: b64 });
+    return { ok: true, mp3: Utilities.base64Encode(res.getContent()) };
   } catch (err) {
-    return json_({ ok: false, why: "fetch-fail", msg: String(err).slice(0, 200) });
+    return { ok: false, why: "fetch-fail", msg: String(err).slice(0, 200) };
   }
 }
 
