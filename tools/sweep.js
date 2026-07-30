@@ -92,11 +92,25 @@
       if (lo > hi) add("무게 밴드 역전", JSON.stringify(inp), d.band);
       if (lo < 20 || hi > 110) add("무게 밴드 범위 이탈", JSON.stringify(inp), d.band);
 
+      /* ironLook(어드레스 취향)을 꼭 섞는다 — 실력 게이트가 없던 시절 초심자용 헤드가
+         1순위로 나가던 60개 조합이 전부 look=forgiving 이었다. 이걸 안 섞으면
+         게이트가 사라져도 이 검사가 영영 못 잡는다. */
       const ir = __cfTest({ ...inp, ironMiss: pick(["thin","fat","dir","none"]),
-        ironMat: pick(["unsure","스틸","그라파이트"]), ironFeel: pick(["soft","solid","light","any"]) }, "iron");
+        ironMat: pick(["unsure","스틸","그라파이트"]), ironFeel: pick(["soft","solid","light","any"]),
+        ironLook: pick([null, "classic", "forgiving"]),
+        ironComplaint: pick(["dist","dir","forg","feel","none"]) }, "iron");
       if (!ir.shaft1 || /undefined/.test(ir.shaft1)) add("아이언 샤프트 비정상", JSON.stringify(inp), ir.shaft1);
       if (!ir.head || /undefined/.test(ir.head)) add("아이언 헤드 비정상", JSON.stringify(inp), ir.head);
       if (ir.target < 40 || ir.target > 160) add("아이언 목표무게 이상", JSON.stringify(inp), ir.target);
+      /* 실력 게이트(2026-07-30 사장님 지적) — 평균 80대 이하에게 초심자용 맥스 관용성
+         헤드(forg 5)가 나가면 피팅 신뢰가 무너진다. 어떤 미스·취향 조합에서도 컷이어야 한다.
+         반대로 100타 이상에게 블레이드급(forg 2)이 나가도 잡는다. */
+      if (inp.scoreGrp === "80") {
+        if (d.headForg > 4) add("80대 이하에 초심자용 드라이버 헤드", JSON.stringify(inp), d.head);
+        if (ir.headForg > 4) add("80대 이하에 초심자용 아이언 헤드", JSON.stringify(inp), ir.head);
+      }
+      if (inp.scoreGrp === "100" && ir.headForg < 3)
+        add("100타 이상에 블레이드급 아이언 헤드", JSON.stringify(inp), ir.head);
 
       const we = __cfTest({ ...inp, pwLoft: pick([41,43,45,46,48]),
         wedgeTurf: pick(["dig","sweep","mid"]), wedgeMiss: pick(["fat","thin","none"]) }, "wedge");
@@ -138,15 +152,22 @@
   const bb = { career: "5y", scoreConfirm: "ok", scoreGrp: "80", heightV: 175, tempo: "normal",
     budget: "any", carry7: 165, carryD: 250, shapeD: "fade", endur: "strong",
     curShaft: "unknown", complaint: "dist", auto: { age: null, sex: null, avg: null, fade: null } };
+  /* 실력 게이트(2026-07-30)와 부딪히는 브랜드 — 데모 표 기준 상급자용(forg≤4)
+     드라이버가 없는 브랜드. bb 가 scoreGrp "80" 이므로 이 브랜드들은 **브랜드를 접고
+     실력을 따르는 것이 정답**이고, 대신 "왜 못 지켰는지" 안내문이 반드시 있어야 한다. */
+  const NO_ADV_DRV = ["던롭", "테일러메이드"];
   CLUB_B.forEach(b => SHAFT_B.forEach(sb => {
     try {
       const r = __cfTest({ ...bb, brand: b, shaftBrand: sb });
-      if (b !== "any" && r.head.split(" ")[0] !== b)
+      const gated = NO_ADV_DRV.includes(b);
+      if (b !== "any" && !gated && r.head.split(" ")[0] !== b)
         add("헤드가 선호 브랜드를 무시함", "선호=" + b, "나온것=" + r.head);
+      if (gated && !(r.notes || []).some((h) => /상급자용 헤드가 없/.test(h)))
+        add("게이트로 브랜드를 못 지켰는데 안내가 없음", "선호=" + b, "나온것=" + r.head);
       if (sb !== "any" && r.shaftBrand1 !== sb)
         add("샤프트가 선호 브랜드를 무시함", "선호=" + sb, "나온것=" + r.shaftBrand1);
       if (!r.shaftAlt) add("다른 브랜드 대안이 없음", "샤프트 " + b + "/" + sb, "");
-      if (!r.headAlt) add("다른 브랜드 대안이 없음", "헤드 " + b + "/" + sb, "");
+      if (!gated && !r.headAlt) add("다른 브랜드 대안이 없음", "헤드 " + b + "/" + sb, "");
     } catch (e) { add("브랜드 조합 예외", b + "/" + sb, e.message); }
   }));
 
@@ -156,18 +177,23 @@
      특히 표에 단종(st:"old") 모델뿐인 브랜드(핑 아이언·클리브랜드 웨지)는
      '현행 먼저' 규칙에 밀려 선호가 통째로 무시됐다(2026-07-29 적발). */
   const BRAND_CASES = [
+    // 마지막 배열 = 실력 게이트 때문에 브랜드를 접는 게 정답인 브랜드(데모 표 기준, bb=80대)
     ["iron", "ironBrand", ["타이틀리스트", "핑", "테일러메이드", "캘러웨이", "미즈노", "던롭"],
-      (r) => r.head, { ironMiss: "thin", ironMat: "unsure", ironFeel: "any" }],
+      (r) => r.head, { ironMiss: "thin", ironMat: "unsure", ironFeel: "any" }, ["던롭"]],
     ["wedge", "wedgeBrand", ["타이틀리스트", "클리브랜드", "핑", "테일러메이드", "캘러웨이", "미즈노"],
-      (r) => r.model, { pwLoft: 45, wedgeTurf: "mid", wedgeMiss: "none" }],
+      (r) => r.model, { pwLoft: 45, wedgeTurf: "mid", wedgeMiss: "none" }, []],
     ["putter", "putterBrand", ["스카티카메론", "오디세이", "테일러메이드", "핑"],
-      (r) => r.model, { puttStroke: "arc", puttMiss: "dist", puttLook: "any" }],
+      (r) => r.model, { puttStroke: "arc", puttMiss: "dist", puttLook: "any" }, []],
   ];
-  BRAND_CASES.forEach(([club, key, brands, get, extra]) => brands.forEach((b) => {
+  BRAND_CASES.forEach(([club, key, brands, get, extra, gatedBrands]) => brands.forEach((b) => {
     try {
       const r = __cfTest({ ...bb, ...extra, [key]: b }, club);
       const got = get(r) || "";
-      if (got.split(" ")[0] !== b) add(club + " 추천이 선호 브랜드를 무시함", "선호=" + b, "나온것=" + got);
+      const gated = (gatedBrands || []).includes(b);
+      if (!gated && got.split(" ")[0] !== b)
+        add(club + " 추천이 선호 브랜드를 무시함", "선호=" + b, "나온것=" + got);
+      if (gated && !(r.notes || []).some((h) => /상급자용 아이언이 없/.test(h)))
+        add("게이트로 브랜드를 못 지켰는데 안내가 없음", club + " " + b, "나온것=" + got);
     } catch (e) { add(club + " 브랜드 검사 예외", b, e.message); }
   }));
 

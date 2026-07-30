@@ -325,6 +325,12 @@
     const brandInCur = !want0 || cur.some((x) => x[bk0] === want0 && (!ok || ok(x)));
     const base = cur.length && brandInCur ? cur : use;
     const now = pickByBrand(base, brand, key, ok);
+    /* 다른 브랜드 대안이 현행 안에서 안 나오면 단종까지 넓혀 찾는다.
+       실력 게이트(2026-07-30)가 현행 후보를 한 브랜드만 남기는 경우가 실제로 있다 —
+       80대 이하 드라이버에서 비(非)타이틀 현행이 전부 forg 5 라 컷됐다.
+       단종이면 화면에 그 표시가 그대로 붙으니 속이는 게 아니다. */
+    if (now.main && !now.alt)
+      now.alt = use.find((x) => x[bk0] !== now.main[bk0] && (!ok || ok(x))) || null;
     /* 2차 — 단종 중 가장 잘 맞는 것.
        "단종이 현행보다 점수가 높을 때만" 으로 잡았더니 45조합 중 0번 떴다.
        실제 값어치는 거기 있지 않다 — **성능이 비슷한데 값이 내려가는 것**이 핵심이다.
@@ -1547,6 +1553,12 @@
     if (S.faceV === "high") { L -= 0.5; why.push("페이스 위쪽 타격 — 기어 효과로 이미 스핀이 낮습니다"); }
     if (S.curveDir === "right") { L += 0.5; why.push("우측으로 휘는 경향 — <b>로프트가 높을수록 사이드스핀 비율이 줄어듭니다</b>"); }
     if (S.endur === "weak" || S.auto.age === "60대 이상") { L += 0.5; why.push("스피드 여유가 크지 않아 런치를 조금 더 확보"); }
+    /* 상급자 보정(사장님 지적 2026-07-30) — 정타 관리가 되는 골퍼는 스핀 손실이 적어
+       같은 스피드라도 로프트를 반 클릭 낮춰 강한 탄도로 가는 것이 실제 피팅 관행이다.
+       단, 탄도가 낮다는 신호(flight low·페이스 하단 타격)가 있으면 건드리지 않는다. */
+    if (S.scoreGrp === "80" && S.flight !== "low" && S.faceV !== "low") {
+      L -= 0.5; why.push("평균 80대 이하 — 정타 관리가 되는 골퍼라 <b>−0.5°</b> 낮춰 강한 탄도 세팅");
+    }
     L = Math.max(8.5, Math.min(12, Math.round(L * 2) / 2));
     return { loft: L, why };
   }
@@ -1620,12 +1632,27 @@
       if (S.complaint === "dist" && s.w <= (wLo + wHi) / 2) { p += 6; why.push("밴드 내 가벼운 쪽 — 스피드 확보"); }
       if (S.complaint === "dir" && s.tq <= 3.4) { p += 8; why.push("저토크 — 방향 안정"); }
       if (S.complaint === "consist" && s.tq <= 3.6) { p += 8; why.push("저토크 — 스윙마다 편차를 줄여줍니다"); }
+      /* 상급자 성향(사장님 지적 2026-07-30) — 80대 이하는 벤투스류 저킥·저토크의
+         안정형 프로파일을 선호하고 실제로도 그 편이 맞는다. 탄도를 띄워야 하는
+         신호(flight low)가 있으면 이 가점은 주지 않는다. */
+      if (S.scoreGrp === "80" && S.flight !== "low") {
+        if (s.k === "낮음" || s.k === "중저") { p += 8; why.push("상급자 세팅 — 탄도를 눌러주는 안정형 킥"); }
+        if (s.tq !== null && s.tq !== undefined && s.tq <= 3.4) p += 4;
+      }
       if (cur.w && Math.abs(s.w - cur.w) > 10) p -= 15;   // 안전장치: 10g 점프 감점
       return { ...s, p, why };
     }).sort((a, b) => b.p - a.p);
 
-    // 헤드 채점
-    const heads = HEADS.map((h) => {
+    // 헤드 채점 — 아이언과 같은 실력 게이트: 80대 이하에게 초심자용 맥스 헤드는 후보에서 컷
+    const drvPool = S.scoreGrp === "80" ? HEADS.filter((h) => h.forg <= 4) : HEADS;
+    /* 브랜드 선호와 게이트가 부딪히면 **게이트가 이긴다**(사장님 2026-07-30 —
+       상급자에게 초심자 헤드를 권하는 순간 신뢰가 무너진다). 다만 말없이 다른
+       브랜드를 내밀면 v150 "브랜드 무시" 사고와 똑같아 보이므로 이유를 꼭 적는다. */
+    if (S.brand && S.brand !== "any" && HEADS.some((h) => h.br === S.brand) &&
+        !drvPool.some((h) => h.br === S.brand))
+      notes.push({ t: "rule", h: "선호 브랜드에 상급자용 헤드가 없습니다",
+        b: `${S.brand}의 표 안 라인업은 관용성(초심자·중급) 위주라 <b>평균 80대 이하 기준에서는 후보에서 뺐습니다.</b> 실력에 맞는 다른 브랜드로 추천드립니다 — 실제 피팅샵도 이렇게 안내합니다.` });
+    const heads = drvPool.map((h) => {
       let p = h.forg * 8; const why = [];
       if (h.fit.includes(S.scoreGrp)) p += 15;
       if (fl.bias === "draw" && h.draw) { p += 28; why.push(`드로 바이어스 — 페이스가 열려 맞는 ${fl.n} 교정`); }
@@ -1805,7 +1832,25 @@
 
     // ── 헤드 채점 — 어드레스 취향이 실제 기준. 실력만으로 정하면 취향이 무시된다
     const look = S.ironLook;
-    const heads = IRON_HEADS.map((hd) => {
+    /* ⚠️ 실력 게이트 — 가점이 아니라 **컷**이다 (사장님 실사용 지적 2026-07-30).
+       관용성 기본점(forg×7)에 미스 가점이 쌓이면 실력 가점(+22)은 반드시 진다.
+       실측: 평균 80대(싱글 포함) 프로필의 답 240조합 중 60조합에서 T350 같은
+       맥스 관용성(초심자용) 헤드가 1순위로 나갔다. 상급자에게 초심자 헤드를 권하는
+       순간 피팅 전체의 신뢰가 무너진다 — 뒤땅·방향 보정은 상급자용 후보
+       (투어 캐비티~중공) **안에서** 한다. 실제 피팅샵의 방식이다.
+       반대로 100타 이상에게 블레이드급(forg 2)도 후보에서 뺀다. */
+    const ironPool = S.scoreGrp === "80" ? IRON_HEADS.filter((hd) => hd.forg <= 4)
+                   : S.scoreGrp === "100" ? IRON_HEADS.filter((hd) => hd.forg >= 3)
+                   : IRON_HEADS;
+    if (S.scoreGrp === "80")
+      notes.push({ h: "상급자 기준으로 후보를 추렸습니다",
+        b: "평균 80대 이하시라 <b>초심자용 맥스 관용성 헤드는 후보에서 뺐습니다.</b> 뒤땅·방향 고민은 상급자용 캐비티·중공 안에서 해결합니다 — 실제 피팅샵과 같은 방식입니다." });
+    // 브랜드 선호와 게이트가 부딪히면 게이트가 이긴다 — 대신 이유를 꼭 적는다 (드라이버와 동일)
+    if (S.ironBrand && S.ironBrand !== "any" && IRON_HEADS.some((h) => h.br === S.ironBrand) &&
+        !ironPool.some((h) => h.br === S.ironBrand))
+      notes.push({ h: "선호 브랜드에 상급자용 아이언이 없습니다",
+        b: `${S.ironBrand}의 표 안 라인업은 관용성(초심자·중급) 위주라 <b>평균 80대 이하 기준에서는 후보에서 뺐습니다.</b> 실력에 맞는 다른 브랜드로 추천드립니다 — 실제 피팅샵도 이렇게 안내합니다.` });
+    const heads = ironPool.map((hd) => {
       let p = hd.forg * 7; const why = [];
       if (hd.fit.includes(S.scoreGrp || "90")) { p += 22; why.push(`평균 ${S.auto.avg || (S.scoreGrp + "대")}타 구간에 맞는 난이도`); }
       if (look === "classic") { p += (5 - hd.forg) * 7; if (hd.off === "적음") { p += 14; why.push("얇은 톱라인·적은 오프셋 — 원하시는 생김새"); } }
@@ -3259,7 +3304,9 @@
         shaft1: `${r.shaftPick.main.m} ${r.shaftPick.main.sp}`,
         shaftAlt: r.shaftPick.alt ? `${r.shaftPick.alt.b} ${r.shaftPick.alt.m}` : null,
         head: `${r.headPick.main.br} ${r.headPick.main.m}`,
+        headForg: r.headPick.main.forg,          // 검사용 — 실력 게이트(80대 이하 forg≤4) 검증
         headAlt: r.headPick.alt ? `${r.headPick.alt.br} ${r.headPick.alt.m}` : null,
+        notes: r.notes.map((n) => n.h),          // 검사용 — 게이트로 브랜드를 못 지킨 안내 확인
         grip: r.grip.model + " / " + r.grip.size, tldr: r.tldr };
     } else if (which === "wedge") {
       const r = wedgeEngine();
@@ -3288,6 +3335,7 @@
         shaftBrand1: r.shaftPick.main.b,
         shaftAlt: r.shaftPick.alt ? `${r.shaftPick.alt.b} ${r.shaftPick.alt.m}` : null,
         head: `${r.headPick.main.br} ${r.headPick.main.m}`,
+        headForg: r.headPick.main.forg,          // 검사용 — 실력 게이트(80대 이하 forg≤4) 검증
         headAlt: r.headPick.alt ? `${r.headPick.alt.br} ${r.headPick.alt.m}` : null,
         grip: r.grip.model + " / " + r.grip.size,
         priceShaft: r.shaftPick.main.pr, priceHead: r.headPick.main.pr,

@@ -105,7 +105,8 @@ const check = (n, c, d = '') => { if (!c) fail++; console.log(`  ${c ? '✔' : '
     return { view: v?.id, tiles: document.querySelectorAll('.cf-club-tile').length, hasNull: /null|undefined|NaN/.test(txt) };
   });
   check('클럽 피팅 화면 열림', screen.view === 'clubfit-view', screen.view || screen.err);
-  check('클럽 4종 표시', screen.tiles === 4, String(screen.tiles));
+  // 볼 피팅 타일이 추가돼 5종이 됐다(v159, 2026-07-30). 4로 남아 있어 정상인데 실패로 떴었다.
+  check('클럽 5종 표시(드라이버·아이언·웨지·퍼터·볼)', screen.tiles === 5, String(screen.tiles));
   check('화면에 null 없음', !screen.hasNull);
 
   console.log('\n' + '─'.repeat(52));
