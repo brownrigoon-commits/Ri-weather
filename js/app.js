@@ -4,8 +4,8 @@
  * ========================================================= */
 "use strict";
 
-const APP_VER = "v169"; // 배포 버전 (홈 화면 배지에 표시)
-const APP_NOTE = "피팅 실력 게이트"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
+const APP_VER = "v170"; // 배포 버전 (홈 화면 배지에 표시)
+const APP_NOTE = "앱 자동 업데이트"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
 const STORAGE_KEY = "riweather.courses.v1";
 const GEM_KEY = "riweather.gemini"; // 정밀 인식(비전 AI) 개인 키 저장소
 // 기본 제공 키 (무료 한도 공유) — 개인 키를 설정하면 그 키가 우선됩니다
@@ -728,6 +728,8 @@ function showOnly(name, back) {
   window.scrollTo(0, 0);
   if (name !== "detail") stopPlay();
   if (typeof stopCaddieVoice === "function") stopCaddieVoice();  // 화면을 옮기면 캐디 음성도 멈춘다
+  // 미뤄둔 업데이트가 있으면 화면을 옮기는 이 순간이 적용하기 가장 안전하다
+  if (typeof window.__applyPendingUpdate === "function") setTimeout(window.__applyPendingUpdate, 0);
   if (name === "home") renderHome();
   // 홈이 아니면 플로팅 뒤로가기 버튼 표시
   const fb = document.getElementById("float-back-btn");
@@ -5362,16 +5364,74 @@ document.querySelector(".beta-badge").textContent = "BETA " + APP_VER;
 })();
 renderHome();
 
-/* PWA 서비스 워커 — 새 버전이 올라오면 자동으로 최신 화면으로 교체 */
+/* ---------- PWA 자동 업데이트 ----------
+ *
+ * 목표(사장님 2026-07-31): **앱을 껐다 켜지 않아도** 새 버전이 저절로 적용될 것.
+ * 알림(푸시)을 보낼 수 없는 환경이라, 앱이 눈앞에 있을 때 스스로 챙겨야 한다.
+ *
+ * 예전에 안 되던 이유 세 가지:
+ *  ① 새 버전 확인을 **앱을 처음 열 때와 1시간마다**만 했다. 폰에서 홈으로 나갔다
+ *     돌아오면 화면은 그대로 살아 있고 스크립트가 다시 돌지 않는다 —
+ *     게다가 iOS 는 백그라운드에서 타이머를 멈춰 1시간 간격도 안 온다.
+ *     → **화면이 다시 보일 때마다** 확인한다(visibilitychange · pageshow).
+ *  ② 첫 방문에도 controllerchange 가 떠서 **쓸데없이 한 번 새로고침**됐다.
+ *     → 원래 컨트롤러가 있었을 때(= 진짜 업데이트)만 새로고침한다.
+ *  ③ 피팅 문항을 채우는 도중에 새로고침되면 답이 다 날아간다.
+ *     → 그런 화면에서는 **미뤘다가** 빠져나오는 순간 적용한다.
+ */
 if ("serviceWorker" in navigator) {
-  let reloading = false;
-  navigator.serviceWorker.addEventListener("controllerchange", () => {
-    if (reloading) return;              // 새로고침 무한반복 방지
+  const hadController = !!navigator.serviceWorker.controller;   // 첫 설치인지 업데이트인지
+  let reloading = false, pending = false;
+
+  /* 지금 새로고침하면 사용자가 하던 걸 잃는 화면인가 */
+  const busy = () => {
+    const v = viewStack[viewStack.length - 1];
+    if (v === "clubfit") {
+      // 결과 화면까지 간 상태면 잃을 게 없다 — 문항을 채우는 중일 때만 미룬다
+      return !document.querySelector("#cf-screen [data-savebag]");
+    }
+    if (v === "score") return !!document.querySelector("#score-form:not([hidden])");
+    return false;
+  };
+
+  const applyUpdate = () => {
+    if (reloading) return;
+    if (busy()) { pending = true; return; }     // 하던 일이 끝나면 그때
     reloading = true;
     location.reload();
+  };
+
+  navigator.serviceWorker.addEventListener("controllerchange", () => {
+    if (!hadController) return;                 // 첫 설치는 새로고침할 이유가 없다
+    applyUpdate();
   });
+
   navigator.serviceWorker.register("sw.js").then((reg) => {
-    reg.update().catch(() => {});       // 실행할 때마다 새 버전 확인
-    setInterval(() => reg.update().catch(() => {}), 60 * 60 * 1000);
+    const check = () => { try { reg.update(); } catch (_) {} };
+    check();
+    /* 화면이 다시 보일 때마다 확인 — 이게 "껐다 켜지 않아도" 를 만드는 핵심이다.
+       너무 잦은 호출은 의미가 없으니 30초 안에 두 번은 건너뛴다. */
+    let last = 0;
+    const checkThrottled = () => {
+      const now = Date.now();
+      if (now - last < 30000) return;
+      last = now;
+      check();
+    };
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState !== "visible") return;
+      checkThrottled();
+      if (pending && !busy()) { pending = false; applyUpdate(); }
+    });
+    window.addEventListener("pageshow", checkThrottled);   // iOS 복원(bfcache)
+    window.addEventListener("focus", checkThrottled);
+    setInterval(check, 30 * 60 * 1000);                    // 계속 켜둔 경우 대비
   }).catch(() => {});
+
+  /* 미뤄둔 업데이트를 놓치지 않도록 — 화면을 옮길 때마다 적용 가능한지 본다.
+     showOnly() 가 이 함수를 불러준다(피팅 문항을 빠져나오는 순간이 여기다). */
+  window.__applyPendingUpdate = () => {
+    if (pending && !busy()) { pending = false; applyUpdate(); }
+  };
+  window.addEventListener("popstate", window.__applyPendingUpdate);
 }

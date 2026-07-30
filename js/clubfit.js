@@ -311,7 +311,7 @@
     if (x.pr === undefined) return true;              // 모르는 건 거르지 않는다
     return budget === "stock" ? x.pr <= 1 : x.pr <= 2;
   }
-  function pickTiers(sorted, brand, key, ok, budget) {
+  function pickTiers(sorted, brand, key, ok, budget, levelFit) {
     const pool = sorted.filter((x) => inBudget(x, budget));
     const use = pool.length ? pool : sorted;
     const cur = use.filter((x) => x.st === "cur");
@@ -319,10 +319,18 @@
        테일러메이드·캘러웨이·던롭은 표에 단종 모델뿐이라, 현행만 먼저 보면
        사장님이 그 브랜드를 골라도 타이틀리스트가 나왔다(2026-07-29 sweep 적발).
        선호 브랜드가 현행에 없으면 단종까지 포함해 그 브랜드에서 고른다.
-       단종이면 화면에 "단종 · 중고로 구함" 이 그대로 붙으므로 속이는 게 아니다. */
+       단종이면 화면에 "단종 · 중고로 구함" 이 그대로 붙으므로 속이는 게 아니다.
+
+       ⚠️ 실력도 '현행 우선'보다 앞선다 (2026-07-31 발견 — v169 게이트의 거울상).
+       캘러웨이는 현행이 '에이팩스 프로'(관용성 3, 80대용) 하나뿐이라, 100타 초심자가
+       캘러웨이를 고르면 **현행 안에서만 고르느라** 그 상급자용 아이언이 1순위로 나갔다.
+       정작 맞는 '패러다임 Ai스모크'(관용성 5, 90·100대용)는 단종이라 후보에서 통째로 빠졌다.
+       상급자에게 초심자 클럽을 주면 신뢰가 무너지고, 초심자에게 상급자 클럽을 주면
+       **아예 못 친다.** 그래서 그 브랜드의 현행이 실력대에 안 맞으면 단종까지 열어 준다. */
     const bk0 = key || "b";
     const want0 = brand && brand !== "any" ? brand : null;
-    const brandInCur = !want0 || cur.some((x) => x[bk0] === want0 && (!ok || ok(x)));
+    const brandInCur = !want0 || cur.some((x) =>
+      x[bk0] === want0 && (!ok || ok(x)) && (!levelFit || levelFit(x)));
     const base = cur.length && brandInCur ? cur : use;
     const now = pickByBrand(base, brand, key, ok);
     /* 다른 브랜드 대안이 현행 안에서 안 나오면 단종까지 넓혀 찾는다.
@@ -1681,7 +1689,8 @@
       return { ...h, p, why };
     }).sort((a, b) => b.p - a.p);
 
-    const headPick = pickTiers(heads, S.brand, "br", null, null);
+    const headPick = pickTiers(heads, S.brand, "br", null, null,
+                               (hd) => (hd.fit || []).includes(S.scoreGrp || "90"));
     const mainHead = headPick.main, altHead = headPick.alt;
     const shaftPick = pickTiers(shafts, S.shaftBrand, "b",
       (s) => s.w >= wLo - 6 && s.w <= wHi + 6, S.budget);
@@ -1905,7 +1914,9 @@
       grip: gripEngine(),
       shaftPick: pickTiers(shafts, S.ironShaftBrand, "b",
         (s) => s.mat === mat && Math.abs(s.w - target) <= 12, S.ironBudget),
-      headPick: pickTiers(heads, S.ironBrand, "br", null, null),
+      // 실력대(fit)에 맞는 현행이 그 브랜드에 없으면 단종까지 연다 — pickTiers 주석 참고
+      headPick: pickTiers(heads, S.ironBrand, "br", null, null,
+                          (hd) => (hd.fit || []).includes(S.scoreGrp || "90")),
     };
     out.tldr = tldrIron(out);
     return out;
