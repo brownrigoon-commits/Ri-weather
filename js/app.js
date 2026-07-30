@@ -4,8 +4,8 @@
  * ========================================================= */
 "use strict";
 
-const APP_VER = "v164"; // 배포 버전 (홈 화면 배지에 표시)
-const APP_NOTE = "골팡 카드에 두 경로 제공"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
+const APP_VER = "v165"; // 배포 버전 (홈 화면 배지에 표시)
+const APP_NOTE = "다른 구장 자료로 등록돼 있던 2건 교정"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
 const STORAGE_KEY = "riweather.courses.v1";
 const GEM_KEY = "riweather.gemini"; // 정밀 인식(비전 AI) 개인 키 저장소
 // 기본 제공 키 (무료 한도 공유) — 개인 키를 설정하면 그 키가 우선됩니다

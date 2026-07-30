@@ -62,6 +62,17 @@ if tee_bad:
     sys.exit(1)
 print("티 거리 검사 OK: 모든 홀이 거리 내림차순")
 
+# 등록명과 자료 출처가 같은 구장인지 (2026-07-30 '그린골프클럽←골드그린GC' 사고 재발 방지)
+from check_sources import violations as src_violations
+src_bad, _ = src_violations(ROOT)
+if src_bad:
+    print(f"✖ 등록명과 자료 출처가 다릅니다 {len(src_bad)}건 — 배포를 멈춥니다")
+    for s in src_bad[:20]:
+        print("   -", s)
+    print("  tools/check_sources.py 참고. 새 도메인이면 SITE_NAME 에 확인 결과를 적으세요.")
+    sys.exit(1)
+print("출처 검사 OK: 등록명과 자료 출처 일치")
+
 # ── 3. 커밋 → 최신화 → 버전 → 푸시 (양쪽 PC 동시 배포 안전) ──────
 app = os.path.join(ROOT, "js", "app.js")
 sw = os.path.join(ROOT, "sw.js")
