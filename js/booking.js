@@ -170,11 +170,22 @@ function bookingLinkCards(course, ymd, kind, joinCount) {
 
   /* ⚠️ 제목은 짧게 — 로고 칸이 들어오면서 가로가 좁아져 긴 제목이 "…" 로 잘렸다.
      날짜·조건은 부제로 내린다(2026-07-30). */
+  /* 골팡은 둘 중 하나를 고르게 한다 — 어느 쪽도 완벽하지 않기 때문이다.
+     · 기본(카드)  : PC 목록 = 구장까지 정확히 걸림. 글씨가 작다.
+     · 보조(작은 줄): 모바일 화면 = 읽기 편하다. 구장은 목록에서 한 번 골라야 한다.
+     골팡이 모바일 딥링크를 열어주면 보조 줄을 지우고 기본을 모바일로 바꾸면 된다. */
+  const pangAlt = id
+    ? { label: "글씨가 작으면 → 골팡 모바일 화면 (구장은 직접 선택)",
+        url: "https://m.golfpang.com/m/round/" +
+             (mode === "join" ? "join_main" : "booking_main") + ".do?rd_date=" + ymd +
+             "&sector=" + id.sector }
+    : null;
+
   if (mode === "join") {
     return [
       // 골팡은 인원으로 못 거른다 — 걸러준다고 쓰면 거짓말이 된다
       { key: "pang_join", img: "assets/brand/golfpang.png", cls: "bk-pang", title: "골팡 조인",
-        sub: pangSub, url: golfpangUrl("join", id, ymd) },
+        sub: pangSub, url: golfpangUrl("join", id, ymd), alt: pangAlt },
       { key: "mon_join", img: "assets/brand/golfmon.png", cls: "bk-mon",
         title: "골프몬 조인",
         sub: monExact
@@ -185,7 +196,7 @@ function bookingLinkCards(course, ymd, kind, joinCount) {
   }
   const out = [
     { key: "pang_booking", img: "assets/brand/golfpang.png", cls: "bk-pang", title: "골팡 부킹",
-      sub: pangSub, url: golfpangUrl("booking", id, ymd) },
+      sub: pangSub, url: golfpangUrl("booking", id, ymd), alt: pangAlt },
     { key: "mon_booking", img: "assets/brand/golfmon.png", cls: "bk-mon",
       title: "골프몬 부킹",
       sub: monExact ? `${md} · ${course.name} 양도 목록` : "구장명을 한 번 골라주세요",
@@ -261,12 +272,17 @@ function paintBooking() {
     (note ? `<p class="bk-note">${note}</p>` : "") +
     `<div class="bk-links">` +
     bookingLinkCards(course, ymd, mode, joinCount).map((c) =>
+      `<div class="bk-slot">` +
       `<a class="bk-card ${c.cls}" href="${c.url}" target="_blank" rel="noopener" data-out="${c.key}">
          <span class="bk-card-ic">${c.img
            ? `<img src="${c.img}" alt="">` : c.ico}</span>
          <span class="bk-card-tx"><b>${c.title}</b><small>${c.sub}</small></span>
          <span class="bk-card-go">↗</span>
-       </a>`).join("") +
+       </a>` +
+      // 골팡만 — 어느 쪽도 완벽하지 않으니 그 자리에서 고를 수 있게 둔다
+      (c.alt ? `<a class="bk-alt" href="${c.alt.url}" target="_blank" rel="noopener"
+                  data-out="${c.key}_m">${c.alt.label}</a>` : "") +
+      `</div>`).join("") +
     `</div>` +
     (mode === "join" && joinCount
       ? `<p class="bk-cnt-note">인원 조건은 골프몬에만 걸립니다 — 골팡은 조인을
