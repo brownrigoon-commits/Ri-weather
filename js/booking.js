@@ -79,26 +79,34 @@ function bookingIdOf(course) {
 /* 골팡 지역 이름 — 카드에 "어느 칸을 누르면 되는지"까지 적어주기 위해서다. */
 const BK_SECTOR_NAME = { 5: "한강/이남", 1: "강북/경춘", 4: "충청", 8: "원주/영동", 16: "영호남·제주" };
 
-/* 골팡 — **모바일(m.golfpang.com)** 로 보낸다.
+/* 골팡 — **번호가 있으면 그 구장 목록으로 바로 보낸다(PC 화면)**, 없으면 모바일 화면.
  *
- * 사장님 지적(2026-07-30): 폰에서 데스크톱 레이아웃이 떠서 글씨가 깨알같다.
+ * 이 규칙에 이른 과정 (전부 실측, 2026-07-30):
+ *  ① 모바일(m.)에서 구장까지 걸린 목록에는 **밖에서 못 들어간다.**
+ *     · `m/round/bookListTmp.do` GET → 로그인으로 튕김
+ *     · 그들 화면과 똑같은 POST → **2020년 날짜의 가짜 "서비스 점검 중" 페이지**
+ *     · `m/round/booking_list.do` → 200 이지만 목록 없는 껍데기
+ *     · 유니버설 링크 파일(apple-app-site-association·assetlinks.json) 없음 → 앱으로도 못 연다
+ *  ② 데스크톱(www)은 `booking_list.do?rd_date=&sector=&clubname=` 로
+ *     **그 구장 티타임 목록에 정확히 착지한다**(파주 134개 확인).
  *
- * ⚠️ 구장까지 걸어서 보낼 수는 없다. 골팡이 막아 놓았다 — 추측이 아니라 실측이다:
- *  · 구장이 걸린 모바일 목록(m/round/bookListTmp.do)은 GET 으로 열면 로그인으로 튕긴다.
- *  · 우리 앱에서 그들 화면과 **똑같은 POST** 를 보내면 2020년 날짜의
- *    **가짜 "서비스 점검 중" 페이지**를 준다(2026-07-30 실측). 외부 유입을 막는 장치다.
- *  · m/round/booking_list.do 는 200 이지만 목록이 없는 껍데기만 나온다.
- *  → 우리가 보낼 수 있는 것은 **날짜 + 지역**까지. 구장은 사용자가 목록에서 고른다.
- *    그래서 카드 부제에 "어느 칸을 누르고 무엇을 고르면 되는지" 를 적어준다.
- *  · 데스크톱(www)은 구장까지 걸리지만 폰에서 읽을 수가 없다 → 모바일 우선이 맞다.
- *  골팡이 나중에 외부 딥링크를 열어주면 이 함수 한 곳만 고치면 된다.
+ * 처음엔 ②가 폰에서 글씨가 작아 ①로 갔는데, 지역까지만 걸리니 "의미가 없다"는
+ * 판단을 받았다(사장님 2026-07-30). **구장까지 정확히 가는 것이 먼저다.**
+ * 골팡이 모바일 딥링크를 열어주면 이 함수 한 곳만 고치면 된다.
  */
 function golfpangUrl(kind, id, ymd) {
-  const base = "https://m.golfpang.com/m/round/" +
-               (kind === "join" ? "join_main" : "booking_main") + ".do";
-  const p = new URLSearchParams({ rd_date: ymd });
-  if (id) p.set("sector", String(id.sector));
-  return base + "?" + p.toString();
+  const join = kind === "join";
+  if (id) {
+    // 구장 번호가 있다 → 그 구장 목록으로 바로 (PC 화면이지만 내용이 정확하다)
+    const p = new URLSearchParams({ rd_date: ymd, sector: String(id.sector) });
+    if (id.sector3) p.set("sector3", String(id.sector3));
+    p.set("clubname", String(id.pang));
+    return "https://www.golfpang.com/web/round/" +
+           (join ? "join_list" : "booking_list") + ".do?" + p.toString();
+  }
+  // 번호가 없다 → 어차피 사용자가 골라야 하니 읽기 편한 모바일 화면으로
+  return "https://m.golfpang.com/m/round/" +
+         (join ? "join_main" : "booking_main") + ".do?rd_date=" + ymd;
 }
 
 /* 조인 인원 — 골프몬 필터 값 그대로 쓴다(`filterJoinCount`, 실측 2026-07-30).
@@ -152,10 +160,11 @@ function bookingLinkCards(course, ymd, kind, joinCount) {
   const id = bookingIdOf(course);
   const site = officialSiteUrl(course);
   const md = ymd.slice(5).replace("-", "/");
-  // 골팡은 구장까지 못 걸어준다(외부 유입 차단) → 어느 칸을 누르고 무엇을 고를지 알려준다
+  /* 번호가 있으면 그 구장 목록으로 바로 간다. 다만 PC 화면이라 글씨가 작으니
+     기대를 미리 맞춰준다 — 열어보고 당황하는 것보다 낫다. */
   const pangSub = id
-    ? `${md} · ${BK_SECTOR_NAME[id.sector] || "지역"} 칸 → ${id.pangName}`
-    : `${md} · 지역 칸부터 골라주세요`;
+    ? `${md} · ${id.pangName} 티타임 바로 · PC 화면`
+    : `${md} · ${BK_SECTOR_NAME[id && id.sector] || "지역"} 목록에서 골라주세요`;
   const monExact = !!(id && id.mon);
   const cnt = (BK_JOIN_COUNTS.find((c) => c.v === joinCount) || {}).t;
 

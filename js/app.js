@@ -4,8 +4,8 @@
  * ========================================================= */
 "use strict";
 
-const APP_VER = "v162"; // 배포 버전 (홈 화면 배지에 표시)
-const APP_NOTE = "캐디 음성을 네이버 클로바로"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
+const APP_VER = "v163"; // 배포 버전 (홈 화면 배지에 표시)
+const APP_NOTE = "골팡을 구장까지 걸린 티타임 목록으로 연결"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
 const STORAGE_KEY = "riweather.courses.v1";
 const GEM_KEY = "riweather.gemini"; // 정밀 인식(비전 AI) 개인 키 저장소
 // 기본 제공 키 (무료 한도 공유) — 개인 키를 설정하면 그 키가 우선됩니다

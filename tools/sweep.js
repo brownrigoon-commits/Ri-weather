@@ -435,11 +435,23 @@
         });
         const pang = cards.find((k) => /^pang_/.test(k.key));
         if (!pang) { add("골팡 카드가 없음", tag + "/" + mode, ""); continue; }
-        // 폰에서 데스크톱 화면이 뜨면 못 읽는다 — 반드시 모바일(m.)로 보낸다
-        if (pang.url.indexOf("https://m.golfpang.com/") !== 0)
-          add("골팡을 모바일이 아닌 곳으로 보냄", tag + "/" + mode, pang.url);
+        /* 골팡: 번호가 있으면 **구장까지 걸린 목록**(www, clubname 포함)으로 보내야 한다.
+           지역까지만 걸리면 "의미가 없다"는 판단을 받았다(2026-07-30).
+           번호가 없을 때만 읽기 편한 모바일 화면으로 보낸다. */
         if (pang.url.indexOf("rd_date=" + ymd) < 0) add("골팡 링크에 날짜가 안 들어감", tag, pang.url);
-        if ((mode === "join") !== (pang.url.indexOf("join_main") >= 0))
+        if (tag === "번호없음") {
+          if (pang.url.indexOf("https://m.golfpang.com/") !== 0)
+            add("번호가 없으면 모바일로 보내야 함", tag + "/" + mode, pang.url);
+          if (pang.url.indexOf("clubname=") >= 0)
+            add("번호가 없는데 구장 번호를 지어냄", tag, pang.url);
+        } else {
+          if (pang.url.indexOf("clubname=") < 0)
+            add("번호가 있는데 구장까지 안 걸림", tag + "/" + mode, pang.url);
+          if (pang.url.indexOf("sector=") < 0)
+            add("골팡 링크에 지역이 안 들어감", tag + "/" + mode, pang.url);
+        }
+        const wantJoinPath = mode === "join" ? /join_(list|main)/ : /booking_(list|main)/;
+        if (!wantJoinPath.test(pang.url))
           add("골팡 부킹/조인 경로가 모드와 다름", tag + "/" + mode, pang.url);
         const mon = cards.find((k) => /^mon_/.test(k.key));
         if (mode === "join" && mon.url.indexOf("golfFk=") >= 0 && mon.url.indexOf("tab=") < 0)
@@ -516,7 +528,8 @@
       if (join) {
         join.click(); await sleep(200);
         const u = [...body.querySelectorAll(".bk-card")].map((a) => a.href).join(" ");
-        if (u.indexOf("join_main") < 0) add("조인을 골랐는데 부킹으로 보냄", "booking", u.slice(0, 90));
+        // 번호가 있으면 join_list(PC·구장까지), 없으면 join_main(모바일) — 둘 다 조인이다
+        if (!/join_(list|main)/.test(u)) add("조인을 골랐는데 부킹으로 보냄", "booking", u.slice(0, 90));
         body.querySelector('.bk-mode[data-mode="booking"]').click(); await sleep(200);
       }
     }
