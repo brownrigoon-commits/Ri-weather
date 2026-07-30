@@ -435,22 +435,18 @@
         });
         const pang = cards.find((k) => /^pang_/.test(k.key));
         if (!pang) { add("골팡 카드가 없음", tag + "/" + mode, ""); continue; }
-        /* 골팡: 번호가 있으면 **구장까지 걸린 목록**(www, clubname 포함)으로 보내야 한다.
-           지역까지만 걸리면 "의미가 없다"는 판단을 받았다(2026-07-30).
-           번호가 없을 때만 읽기 편한 모바일 화면으로 보낸다. */
+        /* 골팡: **항상 모바일 화면**(사장님 확정 2026-07-30 — "PC 화면은 정말 아니다").
+           구장 딥링크(clubname)는 PC 화면에서만 되는데 그 경로를 폐기했으므로,
+           clubname 이 보이면 PC 링크가 되살아났다는 뜻이다. 날짜(+지역)까지만 건다. */
         if (pang.url.indexOf("rd_date=" + ymd) < 0) add("골팡 링크에 날짜가 안 들어감", tag, pang.url);
-        if (tag === "번호없음") {
-          if (pang.url.indexOf("https://m.golfpang.com/") !== 0)
-            add("번호가 없으면 모바일로 보내야 함", tag + "/" + mode, pang.url);
-          if (pang.url.indexOf("clubname=") >= 0)
-            add("번호가 없는데 구장 번호를 지어냄", tag, pang.url);
-        } else {
-          if (pang.url.indexOf("clubname=") < 0)
-            add("번호가 있는데 구장까지 안 걸림", tag + "/" + mode, pang.url);
-          if (pang.url.indexOf("sector=") < 0)
-            add("골팡 링크에 지역이 안 들어감", tag + "/" + mode, pang.url);
-        }
-        const wantJoinPath = mode === "join" ? /join_(list|main)/ : /booking_(list|main)/;
+        if (pang.url.indexOf("https://m.golfpang.com/") !== 0)
+          add("골팡은 모바일 화면이어야 함(PC 폐기, 2026-07-30)", tag + "/" + mode, pang.url);
+        if (pang.url.indexOf("clubname=") >= 0)
+          add("골팡 PC 딥링크가 되살아남(쓰지 않기로 함)", tag + "/" + mode, pang.url);
+        if (tag !== "번호없음" && pang.url.indexOf("sector=") < 0)
+          add("번호가 있는데 지역이 안 걸림", tag + "/" + mode, pang.url);
+        // 부킹이면 부킹 화면, 조인이면 조인 화면 — 모드와 화면이 어긋나면 안 된다
+        const wantJoinPath = mode === "join" ? /join_main/ : /booking_main/;
         if (!wantJoinPath.test(pang.url))
           add("골팡 부킹/조인 경로가 모드와 다름", tag + "/" + mode, pang.url);
         const mon = cards.find((k) => /^mon_/.test(k.key));
