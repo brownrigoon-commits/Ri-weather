@@ -143,23 +143,30 @@ function paintSpirit() {
   if (sec.key === "rules" && SPIRIT_DB.rulesNotice)
     html += '<p class="sp-notice">' + spEsc(SPIRIT_DB.rulesNotice) + "</p>";
 
-  // 카드 — g(소그룹)가 바뀔 때마다 소제목을 굵게 넣는다
+  /* 카드
+     · g(소그룹)가 바뀔 때마다 소제목을 굵게 넣는다 (동반자 배려 탭)
+     · num 섹션(공식 룰·동호회 룰)은 번호를 붙인다 — "공식 4번"처럼 서로 가리킬 수 있어야
+       두 탭을 오가며 비교가 된다 (사장님 지시 2026-07-31) */
   let lastG = null;
   html += '<div class="sp-list">';
-  sec.items.forEach((it) => {
+  sec.items.forEach((it, i) => {
     if (it.g && it.g !== lastG) {
       html += '<h3 class="sp-group">' + spEsc(it.g) + "</h3>";
       lastG = it.g;
     }
     html += '<div class="sp-item">' +
-      '<div class="sp-t">' + spEsc(it.t) + "</div>" +
+      '<div class="sp-t">' +
+      (sec.num ? '<span class="sp-no">' + (i + 1) + "</span>" : "") +
+      spEsc(it.t) + "</div>" +
       '<div class="sp-d">' + spEsc(it.d) + "</div>" +
+      (it.see ? '<button class="sp-see" data-see="' + it.see + '">공식 룰 ' + it.see +
+                "번과 비교해 보기</button>" : "") +
       (it.ref ? '<div class="sp-ref">' + spEsc(it.ref) + "</div>" : "") +
       "</div>";
   });
   html += "</div>";
 
-  // 룰 탭 맨 아래 — 출처와 신선도를 밝힌다
+  // 공식 룰 탭 맨 아래 — 출처와 신선도를 밝힌다
   if (sec.key === "rules") {
     html += '<div class="sp-foot">' +
       "<p>이 코너는 R&amp;A·USGA " + spEsc(SPIRIT_DB.rulesEdition) +
@@ -168,6 +175,13 @@ function paintSpirit() {
       " · 내용 반영 " + spEsc(SPIRIT_DB.updated) + "</p>" +
       '<a class="sp-link" href="' + spEsc(SPIRIT_DB.rulesLink) +
       '" target="_blank" rel="noopener">공식 규칙 보기 (대한골프협회)</a></div>';
+  }
+  // 동호회 룰 탭 — 규칙이 아니라는 것을 화면 안에서도 못 박는다
+  if (sec.key === "club") {
+    html += '<div class="sp-foot">' +
+      "<p>여기 있는 것은 <b>공식 규칙이 아니라 모임의 약속</b>입니다. " +
+      "대회나 공식 경기에서는 왼쪽 '공식 룰' 탭이 기준입니다.</p>" +
+      "<p>모임마다 다르니, 그날 함께 치는 분들과 시작 전에 맞춰 보세요.</p></div>";
   }
 
   body.innerHTML = html;
@@ -182,6 +196,22 @@ function paintSpirit() {
       if (sc) sc.scrollTop = 0;
     });
   });
+  /* "공식 룰 n번과 비교해 보기" — 공식 룰 탭으로 건너가 그 카드를 잠깐 강조한다.
+     탭만 바꾸고 끝내면 27장 중 어느 것인지 스스로 찾아야 해서 비교가 되지 않는다. */
+  body.querySelectorAll(".sp-see").forEach((b) => {
+    b.addEventListener("click", () => {
+      const no = parseInt(b.dataset.see, 10);
+      SPIRIT_VIEW.tab = "rules";
+      if (typeof STATS !== "undefined") STATS.hit("feature", "spirit_compare");
+      paintSpirit();
+      const target = body.querySelectorAll(".sp-item")[no - 1];
+      if (target) {
+        target.classList.add("focus");
+        target.scrollIntoView({ block: "center" });
+      }
+    });
+  });
+
   const tg = spQ("#sp-toggle");
   if (tg) tg.addEventListener("click", () => {
     setQuotePref(quotePref() === "on" ? "off" : "on");

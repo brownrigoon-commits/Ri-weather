@@ -702,14 +702,26 @@
         const q = QUOTES_DB[d % QUOTES_DB.length];
         if (!q || !q.ko) { add("그날의 명언이 비어 있음", "todayQuote", d + "일"); break; }
       }
-      // (3) 필드 룰이 정식 룰로 읽히면 안 된다 — diff 표시된 카드는 "정식" 병기 필수
-      const rules = (SPIRIT_DB.sections.find((s) => s.key === "rules") || {}).items || [];
-      rules.forEach((it) => {
-        if (it.diff && !/정식/.test(it.d))
-          add("필드 룰에 '정식 규칙' 병기가 없음(정식 룰로 오해)", "spiritdb", it.t);
-      });
-      if (!rules.some((it) => it.g === "정식 규칙")) add("정식 규칙 카드가 없음", "spiritdb", "");
-      if (!rules.some((it) => it.g === "아마추어 필드 룰")) add("아마추어 필드 룰 카드가 없음", "spiritdb", "");
+      /* (3) 동호회 룰이 공식 룰로 읽히면 안 된다 — diff 표시 카드는 "공식 룰" 병기 필수.
+             그리고 룰 두 탭은 서로 비교하라고 나란히 둔 것이라, 순서·번호가 전제다
+             (사장님 지시 2026-07-31). */
+      const sec = (k) => SPIRIT_DB.sections.find((s) => s.key === k);
+      const official = sec("rules"), club = sec("club");
+      if (!official) add("공식 룰 탭이 없음", "spiritdb", "");
+      if (!club) add("동호회 룰 탭이 없음", "spiritdb", "");
+      if (official && club) {
+        if (SPIRIT_DB.sections[0].key !== "rules" || SPIRIT_DB.sections[1].key !== "club")
+          add("룰 탭이 맨 앞 두 자리가 아님", "spiritdb",
+              SPIRIT_DB.sections.map((s) => s.key).join(","));
+        if (!official.num || !club.num) add("룰 탭에 번호(num)가 꺼져 있음", "spiritdb", "");
+        club.items.forEach((it) => {
+          if (it.diff && !/공식/.test(it.d))
+            add("동호회 룰에 '공식 룰' 병기가 없음(공식 룰로 오해)", "spiritdb", it.t);
+          // 비교 링크가 없는 번호를 가리키면 눌러도 엉뚱한 카드로 간다
+          if (it.see && !(it.see >= 1 && it.see <= official.items.length))
+            add("비교 대상 공식 룰 번호가 범위 밖", "spiritdb", it.t + " → " + it.see);
+        });
+      }
       // (4) 규칙 원문 전재 감지 — 카드 본문에 영문이 길게 이어지면 배포를 멈춘다(저작권)
       SPIRIT_DB.sections.forEach((s) => s.items.forEach((it) => {
         const m = String(it.d || "").match(/[A-Za-z][A-Za-z'’,.\-]*(?:\s+[A-Za-z][A-Za-z'’,.\-]*){19,}/);
@@ -725,7 +737,7 @@
       spView.hidden = false;
       paintSpirit();
       const tabs = [...spView.querySelectorAll(".sp-tab")];
-      if (tabs.length < 5) add("골프 정신 탭 수가 모자람", "spirit", tabs.length + "개");
+      if (tabs.length < 6) add("골프 정신 탭 수가 모자람", "spirit", tabs.length + "개");
       for (const tb of tabs) {
         tb.click();
         await sleep(30);
