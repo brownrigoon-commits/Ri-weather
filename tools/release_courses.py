@@ -84,6 +84,18 @@ if brand_bad:
     sys.exit(1)
 print("브랜드명 검사 OK: 사용자 화면에 옛 이름 없음")
 
+# 골프장DB 한국 항목이 그대로인지 (2026-07-31 신설 — 이름·좌표가 조인 키다)
+from check_golfdb_kr import violations as kr_violations
+kr_bad, _kr_note = kr_violations(ROOT)
+if kr_bad:
+    print(f"✖ 골프장DB 한국 항목이 바뀌었습니다 {len(kr_bad)}건 — 배포를 멈춥니다")
+    for s in kr_bad[:20]:
+        print("   -", s)
+    print("  저장 구장 재식별·날씨 캐시·홀맵 연결이 이름/좌표 완전일치에 걸려 있습니다.")
+    print("  의도한 변경이면 python tools/check_golfdb_kr.py --update 로 기준표를 갱신하세요.")
+    sys.exit(1)
+print("골프장DB 한국 항목 검사 OK: 기존 항목 그대로")
+
 # ── 3. 커밋 → 최신화 → 버전 → 푸시 (양쪽 PC 동시 배포 안전) ──────
 app = os.path.join(ROOT, "js", "app.js")
 sw = os.path.join(ROOT, "sw.js")
@@ -145,6 +157,20 @@ for attempt in range(1, 4):
         need = re.findall(r'src="(js/[^"]+\.js)"', open(
             os.path.join(ROOT, "index.html"), encoding="utf-8").read())
         need += ["css/style.css", "sw.js", "index.html", "ops-k58zq.html"]
+        # 나중에 불러오는 파일(js/app.js 의 LAZY_FILES)은 <script src=> 에 없어서
+        # 위 정규식이 못 본다. 목록을 읽어 함께 확인한다(2026-07-31).
+        _app = open(app, encoding="utf-8").read()
+        _lz = re.search(r"const LAZY_FILES = \[(.*?)\]", _app, re.S)
+        need += re.findall(r'"([^"]+)"', _lz.group(1)) if _lz else []
+        # 서비스워커가 설치 때 통째로 받는 목록도 저장소에 다 있어야 한다.
+        # 하나만 없어도 addAll 이 실패해 설치가 통째로 깨진다(자동 업데이트 정지).
+        _sw = open(sw, encoding="utf-8").read()
+        _core = re.search(r"const CORE = \[(.*?)\];", _sw, re.S)
+        if _core:
+            for u in re.findall(r'"([^"]+)"', _core.group(1)):
+                u = u[2:] if u.startswith("./") else u
+                if u and not u.startswith("http"):
+                    need.append(u)
         # CSS 가 불러오는 파일(마스크·배경 이미지 등)도 확인한다.
         # js/legal.js 누락 때처럼, 참조는 있는데 저장소에 없으면 조용히 깨진다.
         css = open(os.path.join(ROOT, "css", "style.css"), encoding="utf-8").read()

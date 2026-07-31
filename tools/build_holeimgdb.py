@@ -32,6 +32,23 @@ for f in sorted(glob.glob(os.path.join(HP, "*", "parsed.json"))):
     total = sum(len(c["holes"]) for c in d["courses"])
     print(f'{d["course"]}: {total}홀 ({", ".join(c["name"] for c in d["courses"])})')
 
+# ── 중복 구장명 차단 (2026-07-31 G5) ─────────────────────────────
+# HOLEIMG_DB 는 구장명을 그대로 JS 객체 키로 쓴다. 같은 이름이 둘이면
+# **뒤에 쓴 항목이 앞을 조용히 덮어써** 한 구장의 홀 데이터가 통째로 사라진다.
+# 화면에는 '다른 구장 자료가 이 구장 이름으로' 나오므로 2026-07-30 '그린골프클럽
+# ← 골드그린GC' 사고와 증상이 같다. 그때는 사람이 눈으로 찾아냈다.
+# 일본 구장을 넣기 시작하면 동명이 흔해진다(golfdb 에 이미 동명 15건) — 그 전에 막는다.
+from collections import Counter
+dups = [n for n, c in Counter(d["course"] for d in entries).items() if c > 1]
+if dups:
+    print(f"✖ 구장명이 겹칩니다 {len(dups)}건 — 조립을 멈춥니다(뒤 항목이 앞을 덮어씁니다)")
+    for n in dups:
+        srcs = [d.get("sourceUrl") or d.get("source") or "?" for d in entries if d["course"] == n]
+        print(f'   - "{n}" ← {" / ".join(srcs)}')
+    print("  coursedata/homepages/*/parsed.json 의 course 값을 서로 다르게 하세요")
+    print("  (같은 구장을 두 이름으로 찾게 하려면 이 파일의 MIRROR 를 쓰세요)")
+    sys.exit(1)
+
 with open(OUT, "w", encoding="utf-8", newline="\n") as w:
     w.write("/* Ri-Weather 공식 홀맵 이미지 DB — 각 골프장 공식 홈페이지 원문 (출처 표기) */\n")
     w.write("const HOLEIMG_DB = {\n")

@@ -7,6 +7,15 @@
 const APP_VER = "v177"; // 배포 버전 (홈 화면 배지에 표시)
 const APP_NOTE = "관리자 통계에서 개발·테스트 접속 제외 + 지역을 지역군으로"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
 const STORAGE_KEY = "riweather.courses.v1";
+
+/* 나중에 필요할 때 불러오는 파일 목록 (2026-07-31 신설).
+   index.html 의 <script src=...> 에 없는 파일은 배포 관문이 통째로 놓친다 —
+   저장소에서 빠지거나 배포가 404 여도 아무도 모른다(js/legal.js 404 사고와 같은 구멍).
+   그래서 **여기 적힌 것만** 지연 로드하고, release_courses.py 와 verify_deploy.py 가
+   이 목록을 읽어 '저장소에 있는지·실서버에서 받아지는지'를 함께 검사한다.
+   ⚠️ 동적으로 불러오는 파일을 새로 만들면 반드시 여기에 먼저 적을 것.
+   (일본 홀맵 js/holeimgdb_jp.js 가 첫 사용처가 된다) */
+const LAZY_FILES = [];
 const GEM_KEY = "riweather.gemini"; // 정밀 인식(비전 AI) 개인 키 저장소
 // 기본 제공 키 (무료 한도 공유) — 개인 키를 설정하면 그 키가 우선됩니다
 const EMBED_GEM_B64 = "QVEuQWI4Uk42S29NMXN6VU9DbnE3UUpCQUc2b1FtUU1hMnc5RnpONnF3WnlVUG43WjdHMXc=";

@@ -22,6 +22,13 @@
     "js/bookingids.js": ["BOOKING_IDS"],
     "js/legal.js": ["CONSENT"],
     "js/stats.js": ["STATS", "FEEDBACK"],
+    /* 2026-07-31 G7 — 데이터 파일도 여기 넣는다. 여태 golfdb/holeimgdb/clubdb 는
+       이 표에 없어서, 문법 오류로 통째로 죽어도 sweep 이 직접 잡지 못했다.
+       (국가별 파일 분리 작업을 앞두고 가장 먼저 막아야 할 구멍) */
+    "js/golfdb.js": ["GOLF_DB"],
+    "js/holesdb.js": ["HOLES_DB"],
+    "js/holeimgdb.js": ["HOLEIMG_DB"],
+    "js/clubdb.js": ["CLUBDB"],
   };
   for (const file in MUST) {
     for (const name of MUST[file]) {
@@ -37,6 +44,30 @@
       try { new Function(t); } catch (e) { add("문법 오류", file, e.message); }
     } catch (_) { add("파일을 받지 못함", file, ""); }
   }
+
+  /* ── 0-b. 데이터가 '반토막'으로 실린 건 아닌지 (2026-07-31 G7) ───
+     전역이 있다고 내용이 온전한 게 아니다. 조립기가 중간에 실패하거나 파일이
+     잘려도 선언부만 살아 있으면 위 검사는 그대로 통과한다.
+     그래서 건수 하한을 함께 본다. **하한은 느슨하게** 잡는다 — 오등록 구장을
+     지우는 정상 작업(2026-07-30 232→231)까지 막으면 안 되기 때문이다.
+     KR 항목의 '한 건도 변하지 않았음'은 여기가 아니라 tools/check_golfdb_kr.py
+     (배포 관문)가 정확히 본다. 여기서 잡을 것은 '반토막' 뿐이다.
+     실측 기준(2026-07-31): GOLF_DB 2,984(KR 635·JP 2,014·CN 335) ·
+     HOLEIMG_DB 231구장 · CLUBDB.SHAFTS 876 · IRON_SHAFTS 322 */
+  const MIN = [
+    ["GOLF_DB 전체", () => GOLF_DB.length, 2900],
+    ["GOLF_DB 한국분", () => GOLF_DB.filter(x => x.c === "KR").length, 600],
+    ["HOLEIMG_DB 구장수", () => Object.keys(HOLEIMG_DB).length, 220],
+    ["CLUBDB.SHAFTS", () => CLUBDB.SHAFTS.length, 800],
+    ["CLUBDB.IRON_SHAFTS", () => CLUBDB.IRON_SHAFTS.length, 300],
+  ];
+  for (const [label, get, min] of MIN) {
+    let n = -1;
+    try { n = get(); } catch (_) { n = -1; }
+    if (!(n >= min)) add("데이터가 반토막으로 실렸습니다", label, `${n}건 (하한 ${min})`);
+  }
+  /* 일본 홀맵(HOLEIMG_DB_JP)은 Phase 5 에서 생긴다. 생기면 위 MUST·MIN 에 함께 넣을 것 —
+     넣지 않으면 지연 로드 실패가 '코스공략 준비중'으로만 보여 조용히 묻힌다. */
 
   /* ── 1. 클럽 피팅 엔진 전수 조합 (조용한 논리 오류 잡기) ───────── */
   const V = {

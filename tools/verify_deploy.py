@@ -31,11 +31,44 @@ def local_version():
     return re.search(r'APP_VER = "(v\d+)"', a).group(1)
 
 
+def lazy_files():
+    """앱이 **나중에 동적으로** 불러오는 파일들 (js/app.js 의 LAZY_FILES).
+
+    index.html 의 <script src=...> 만 훑는 검사는 이런 파일을 통째로 놓친다.
+    배포에서 빠져도 관문이 조용히 통과하므로, 목록을 코드 한 곳에 두고 여기서 읽는다.
+    (2026-07-22 js/legal.js 404 사고와 같은 유형의 구멍을 미리 막는 것)
+    """
+    a = open(os.path.join(ROOT, "js", "app.js"), encoding="utf-8").read()
+    m = re.search(r"const LAZY_FILES = \[(.*?)\]", a, re.S)
+    return re.findall(r'"([^"]+)"', m.group(1)) if m else []
+
+
+def core_files():
+    """서비스워커가 설치 때 통째로 받는 목록 (sw.js 의 CORE).
+
+    CORE 는 `cache.addAll` 이라 **하나라도 404 면 서비스워커 설치가 통째로 실패**한다.
+    그런데 fetch 전략이 '네트워크 우선'이라 온라인 화면은 멀쩡해 보이고,
+    실패하면 **자동 업데이트가 영구히 멈춘다**(controllerchange 가 영영 안 옴).
+    화면에 아무 표시도 없어서 아무도 모른다 — 그래서 배포마다 실제로 받아 본다.
+    """
+    s = open(os.path.join(ROOT, "sw.js"), encoding="utf-8").read()
+    m = re.search(r"const CORE = \[(.*?)\];", s, re.S)
+    if not m:
+        return []
+    out = []
+    for u in re.findall(r'"([^"]+)"', m.group(1)):
+        u = u[2:] if u.startswith("./") else u
+        u = u or "index.html"                  # "./" 는 루트 = index.html
+        if u not in out:                       # "./" 와 "./index.html" 이 겹친다
+            out.append(u)
+    return out
+
+
 def needed_files():
     html = open(os.path.join(ROOT, "index.html"), encoding="utf-8").read()
     files = re.findall(r'src="(js/[^"]+\.js)"', html)
     files += re.findall(r'href="(css/[^"]+\.css)"', html)
-    return ["index.html", "sw.js", "manifest.webmanifest"] + files
+    return ["index.html", "sw.js", "manifest.webmanifest"] + files + lazy_files()
 
 
 def fetch(path):
@@ -43,6 +76,15 @@ def fetch(path):
     req = urllib.request.Request(url, headers={"Cache-Control": "no-cache"})
     with urllib.request.urlopen(req, timeout=20) as r:
         return r.status, r.read(400000).decode("utf-8", errors="replace")
+
+
+def fetch_head(path, n=512):
+    """앞부분만 받아 본다 — 있는지/404 페이지가 오는지만 보면 되므로 그림도 가볍게 확인된다.
+    없으면 urllib 가 예외를 던지므로, 부르는 쪽에서 잡아 '못 받음'으로 처리한다."""
+    url = f"{BASE}/{path}?t={int(time.time()*1000)}"
+    req = urllib.request.Request(url, headers={"Cache-Control": "no-cache"})
+    with urllib.request.urlopen(req, timeout=20) as r:
+        return r.read(n).decode("utf-8", errors="replace")
 
 
 def build_status():
@@ -95,6 +137,27 @@ def check():
             problems.append(f"{f}: 파일이 없습니다(404 페이지가 옴) — 앱이 깨집니다")
         elif f.endswith(".css") and body.lstrip().startswith("<!DOCTYPE"):
             problems.append(f"{f}: 파일이 없습니다(404 페이지가 옴)")
+
+    # ── 서비스워커 CORE 목록이 실제로 전부 받아지는지 (2026-07-31 G1) ──
+    # addAll 은 전부 아니면 전무다. 한 줄만 어긋나도 설치가 통째로 실패하고,
+    # 그 결과는 '앱은 멀쩡한데 업데이트만 영영 안 되는' 조용한 고장이다.
+    # 파일명을 옮기거나 새 파일을 CORE 에 넣을 때 가장 잘 나는 사고라 배포마다 본다.
+    core = core_files()
+    if not core:
+        problems.append("sw.js 에서 CORE 목록을 읽지 못했습니다 — 캐시 검사를 못 합니다")
+    for f in core:
+        try:
+            head = fetch_head(f)
+        except Exception as e:
+            problems.append(f"sw.js CORE: {f} 를 받지 못합니다 ({str(e)[:40]}) "
+                            "— 서비스워커 설치가 통째로 실패하고 자동 업데이트가 멈춥니다")
+            continue
+        # 없는 파일 자리에 404 안내 페이지(HTML)가 200 으로 오는 경우가 있다.
+        # 단 index.html 자체는 원래 HTML 이므로 이 판별을 적용하면 안 된다
+        # (적용했다가 멀쩡한 index.html 을 404 라고 우기는 오탐을 만들었다 — 2026-07-31).
+        if not f.endswith(".html") and head.lstrip().lower().startswith(("<!doctype", "<html")):
+            problems.append(f"sw.js CORE: {f} 자리에 404 페이지가 옵니다 "
+                            "— 서비스워커 설치가 통째로 실패합니다")
 
     # ── 그림 파일이 로컬과 같은 것인지 (내용까지) ──────────────────
     # 파일이 200 으로 응답한다고 최신인 게 아니다. 배포 스크립트에 assets 가
