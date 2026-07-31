@@ -2503,21 +2503,25 @@ body, .view, .cf-screen, .card, .sheet { word-break: keep-all; overflow-wrap: br
    안쪽 링(0 0 0 1px)이 유리테를 그린다.
    사장님이 네 가지 시안 중 '2 살짝'을 고르셨다(2026-07-31, 사진 위에서 대조). */
 .float-btn {
-  width: 52px; height: 52px;                       /* 시안에서 고르신 크기 */
-  background: radial-gradient(circle at 50% 40%,
-    rgba(255, 255, 255, 0.10) 0%,                  /* 가운데 — 빛이 맺힌 자리 */
-    rgba(18, 23, 30, 0.12) 46%,                    /* 중간 — 거의 맑아 뒤가 통과 */
-    rgba(8, 12, 18, 0.46) 100%);                   /* 가장자리 — 유리 두께 */
-  backdrop-filter: blur(11px) saturate(1.6);
-  -webkit-backdrop-filter: blur(11px) saturate(1.6);
+  width: 52px; height: 52px;
+  /* 가운데는 사실상 투명하다 — 유리를 통과해 뒤 글자·그림이 그대로 보인다.
+     원의 존재는 ①가장자리 그늘 ②유리테 ③위쪽 빛 반사, 이 세 가지가 만든다. */
+  background: radial-gradient(circle at 50% 38%,
+    rgba(255, 255, 255, 0.06) 0%,                  /* 빛이 맺힌 자리 */
+    rgba(255, 255, 255, 0) 58%,                    /* 완전히 맑은 구간 */
+    rgba(6, 10, 16, 0.22) 100%);                   /* ① 가장자리 그늘 = 유리 두께 */
+  /* ⚠️ 블러를 세게 걸면 뒤가 뭉개져 그냥 회색 원이 된다. 얕게 걸어야
+     '무엇인지 알아볼 수 있게' 통과한다 — 유리지 젖빛유리가 아니다. */
+  backdrop-filter: blur(1.8px) saturate(1.4);
+  -webkit-backdrop-filter: blur(1.8px) saturate(1.4);
   border: 0;                                       /* 테두리는 아래 inset 링이 그린다 */
   color: #fff;
   box-shadow:
-    inset 0 0 0 1px rgba(255, 255, 255, 0.30),     /* 유리테 */
-    inset 0 1.5px 1px rgba(255, 255, 255, 0.55),   /* 위쪽 빛 반사 */
-    inset 0 -3px 6px rgba(0, 0, 0, 0.32),          /* 아래쪽 그늘 */
-    0 3px 8px rgba(8, 11, 16, 0.26),               /* 가까운 그림자 */
-    0 14px 32px rgba(8, 11, 16, 0.24);             /* 퍼지는 그림자 */
+    inset 0 0 0 1.2px rgba(255, 255, 255, 0.44),   /* ② 유리테 */
+    inset 0 2px 1px rgba(255, 255, 255, 0.7),      /* ③ 위쪽 빛 반사 */
+    inset 0 -3px 8px rgba(0, 0, 0, 0.2),           /* 아래쪽 그늘 */
+    0 3px 8px rgba(8, 11, 16, 0.2),                /* 가까운 그림자 */
+    0 14px 28px rgba(8, 11, 16, 0.18);             /* 퍼지는 그림자 */
   opacity: 1;
   font-size: 22px;
   line-height: 1;
@@ -2526,25 +2530,27 @@ body, .view, .cf-screen, .card, .sheet { word-break: keep-all; overflow-wrap: br
 .float-btn:active {
   transform: scale(0.92);
   /* 누른 건 확실히 — 잠깐 진해진다 */
-  background: radial-gradient(circle at 50% 40%,
-    rgba(255, 255, 255, 0.10) 0%, rgba(18, 23, 30, 0.30) 46%, rgba(8, 12, 18, 0.66) 100%);
+  background: radial-gradient(circle at 50% 38%,
+    rgba(255, 255, 255, 0.06) 0%, rgba(10, 14, 20, 0.16) 58%, rgba(6, 10, 16, 0.5) 100%);
   opacity: 1;
 }
-/* 아이콘은 어떤 배경 위에서도 읽혀야 한다 — 유리가 맑아진 만큼 그림자를 준다 */
+/* 유리가 맑아진 만큼 아이콘 자체가 대비를 만들어야 한다 —
+   흰 배경 위에서는 이 그림자가 없으면 흰 아이콘이 사라진다. */
 .float-btn svg {
   width: 22px; height: 22px; fill: currentColor;
-  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.55));
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.6));
 }
-/* 공유는 주된 행동이라 브랜드색을 입히되, 렌즈 구조는 그대로 쓴다 */
+/* 공유는 주된 행동이라 브랜드색을 입히되, 렌즈 구조는 그대로 쓴다.
+   초록이 사라지지 않을 만큼만 진하게 — 뒤로가기보다 가장자리를 조금 더 준다. */
 .app-share-btn {
-  background: radial-gradient(circle at 50% 40%,
-    rgba(120, 255, 170, 0.22) 0%,
-    rgba(9, 120, 42, 0.46) 48%,
-    rgba(5, 70, 26, 0.72) 100%);                   /* --primary #0b9e36 계열 */
+  background: radial-gradient(circle at 50% 38%,
+    rgba(160, 255, 195, 0.12) 0%,
+    rgba(11, 158, 54, 0.14) 56%,
+    rgba(5, 78, 28, 0.5) 100%);                    /* --primary #0b9e36 계열 */
 }
 .app-share-btn:active {
-  background: radial-gradient(circle at 50% 40%,
-    rgba(120, 255, 170, 0.22) 0%, rgba(9, 120, 42, 0.66) 48%, rgba(5, 70, 26, 0.88) 100%);
+  background: radial-gradient(circle at 50% 38%,
+    rgba(160, 255, 195, 0.12) 0%, rgba(11, 158, 54, 0.34) 56%, rgba(5, 78, 28, 0.74) 100%);
 }
 /* 블러를 못 쓰는 브라우저에서는 통과가 안 되므로 진하게 — 글자 위에서 안 보이는 일은 없어야 한다 */
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {

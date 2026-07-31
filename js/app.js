@@ -786,8 +786,19 @@ function showOnly(name, back) {
 function nudgeFloatBlur() {
   const btns = document.querySelectorAll(".float-btn");
   if (!btns.length) return;
-  btns.forEach((b) => { b.style.backdropFilter = "blur(14.01px) saturate(1.4)";
-                        b.style.webkitBackdropFilter = "blur(14.01px) saturate(1.4)"; });
+  /* ⚠️ 흔드는 값을 여기 적어 두면 안 된다 — css/style.css 의 버튼 모양을 바꿀 때마다
+     같이 안 고치면 화면 전환 순간 한 프레임 동안 엉뚱한 블러가 스친다.
+     (2026-07-31 실제로 어긋났다: CSS 는 1.8px 인데 여기는 14.01px 였다)
+     지금 적용된 값을 읽어서 0.01px 만 더한다 — 언제 스타일이 바뀌어도 따라간다. */
+  btns.forEach((b) => {
+    const cs = getComputedStyle(b);
+    const cur = cs.backdropFilter || cs.webkitBackdropFilter || "";
+    if (!cur || cur === "none") return;
+    const nudged = cur.replace(/blur\(([\d.]+)px\)/,
+      (_, px) => `blur(${(parseFloat(px) + 0.01).toFixed(2)}px)`);
+    b.style.backdropFilter = nudged;
+    b.style.webkitBackdropFilter = nudged;
+  });
   requestAnimationFrame(() => {
     btns.forEach((b) => { b.style.backdropFilter = ""; b.style.webkitBackdropFilter = ""; });
   });
