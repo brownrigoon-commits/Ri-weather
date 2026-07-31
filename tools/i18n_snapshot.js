@@ -84,7 +84,11 @@ const STEPS = [
   ["booking", "openBookingView();"],
   ["score", "openScoreView();"],
   ["clubfit", "openClubfitView();"],
+  ["spirit", "openSpiritView();"],
 ];
+/* 화면을 새로 만들면 여기에도 한 줄 추가할 것 — 안 넣으면 그 화면의 문구는
+   기준 스냅샷에 '빈 화면'으로 잡혀 다국어 작업 중 바뀌어도 안 잡힌다.
+   (VIEWS 등록부·sweep MUST 와 같은 성격의 등록부다) */
 
 async function walk(page, inflight) {
   const log = [];
@@ -94,8 +98,11 @@ async function walk(page, inflight) {
       catch (e) { return "실패:" + String(e && e.message).slice(0, 40); }
     }, { code, C: COURSE });
     log.push(r === "ok" ? name : name + r);
-    // 한 화면이 끝나고 다음으로 — 화면끼리 겹쳐 돌면 결과가 실행마다 달라진다
-    await settle(page, inflight, { quiet: 700, cap: 12000 });
+    /* 한 화면이 끝나고 다음으로 — 화면끼리 겹쳐 돌면 결과가 실행마다 달라진다.
+       상한을 넉넉히 준다: --save 는 진짜 네트워크라 느린데, 여기서 끊기면
+       기준 스냅샷만 '덜 그려진 상태'로 굳어 매번 어긋난다(숙박 화면에서 실제로 겪음). */
+    const ok = await settle(page, inflight, { quiet: 700, cap: 45000 });
+    if (!ok) console.log(`  ※ [${name}] 요청이 안 멎어 대기를 끊었습니다 — 이 화면은 결과가 흔들릴 수 있습니다`);
   }
   return log;
 }
