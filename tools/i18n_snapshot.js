@@ -124,7 +124,9 @@ async function settle(page, inflight, { quiet = 900, cap = 25000 } = {}) {
 
 async function snapshot(page) {
   return await page.evaluate(() => {
-    const norm = (s) => (s || "").replace(/\s+/g, " ").trim();
+    /* 버전 번호(BETA v178 등)는 배포마다 바뀐다 — 문구 회귀를 보는 게이트라
+       이걸 그대로 두면 배포할 때마다 기준이 무효가 된다. 비교에서만 가린다. */
+    const norm = (s) => (s || "").replace(/\s+/g, " ").trim().replace(/\bv\d+\b/g, "v#");
     const out = { title: document.title, lang: document.documentElement.lang, views: {}, dialogs: [] };
     const names = typeof VIEWS !== "undefined" ? Object.keys(VIEWS) : [];
     const was = names.map((k) => VIEWS[k].hidden);

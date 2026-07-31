@@ -4,8 +4,8 @@
  * ========================================================= */
 "use strict";
 
-const APP_VER = "v178"; // 배포 버전 (홈 화면 배지에 표시)
-const APP_NOTE = "골프 정신 메뉴"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
+const APP_VER = "v179"; // 배포 버전 (홈 화면 배지에 표시)
+const APP_NOTE = "버튼이 글자를 가리던 문제 수정"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
 const STORAGE_KEY = "riweather.courses.v1";
 
 /* 나중에 필요할 때 불러오는 파일 목록 (2026-07-31 신설).
@@ -756,6 +756,21 @@ function showOnly(name, back) {
     void el.offsetWidth;
     el.classList.add(back ? "is-entering-back" : "is-entering");
   }
+  nudgeFloatBlur();
+}
+
+/* 플로팅 버튼의 '배경 블러'를 한 번 다시 그리게 흔든다.
+   iOS 는 뒤에 깔린 내용이 통째로 바뀌면(화면 전환) 블러 스냅샷을 옛 화면인 채로
+   굳혀 버리는 일이 있다 — 예전에 이 문제로 블러를 아예 뺐던 이력이 있다.
+   값을 아주 살짝 바꿨다가 다음 프레임에 되돌리면 다시 그린다(눈에는 안 보인다). */
+function nudgeFloatBlur() {
+  const btns = document.querySelectorAll(".float-btn");
+  if (!btns.length) return;
+  btns.forEach((b) => { b.style.backdropFilter = "blur(7.01px) saturate(1.25)";
+                        b.style.webkitBackdropFilter = "blur(7.01px) saturate(1.25)"; });
+  requestAnimationFrame(() => {
+    btns.forEach((b) => { b.style.backdropFilter = ""; b.style.webkitBackdropFilter = ""; });
+  });
 }
 function pushView(name) {
   viewStack.push(name);

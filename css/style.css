@@ -77,7 +77,11 @@ body::before {
   max-width: 480px;
   margin: 0 auto;
   min-height: 100dvh;
-  padding: env(safe-area-inset-top) 16px env(safe-area-inset-bottom);
+  /* 아래쪽 여백은 '안전영역'만으로는 모자란다 — 하단 플로팅 버튼(뒤로가기·공유)이
+     화면에 고정돼 있어서 마지막 카드의 글자를 덮는다(2026-07-31 사장님 지적, 골프 정신 화면).
+     버튼은 bottom 20px + 지름 46px = 66px 을 쓰므로 손가락 여유까지 더해 비워 둔다.
+     특정 화면만 고치면 다른 화면에서 같은 일이 또 나므로 전 화면 공통으로 둔다. */
+  padding: env(safe-area-inset-top) 16px calc(88px + env(safe-area-inset-bottom));
 }
 
 /* ===== 홈 ===== */
@@ -1250,8 +1254,13 @@ body::before {
 #backup-sheet .guide-close { margin-top: 10px; }
 
 /* 홈 하단 약관 링크 */
+/* 항목이 6개라 한 줄에 안 들어간다 — 줄바꿈을 허용한다.
+   nowrap 이던 시절엔 폭 403px 짜리 줄이 358px 칸에 눌려 좌우 글자가 잘렸고,
+   그 바람에 **본문 전체가 가로로 밀렸다**(body scrollWidth > 화면폭).
+   2026-07-31 발견 — 화면 어디에도 가로 스크롤은 있으면 안 된다. */
 .home-foot {
-  display: flex; align-items: center; justify-content: center; gap: 6px;
+  display: flex; align-items: center; justify-content: center;
+  flex-wrap: wrap; gap: 2px 6px; row-gap: 2px;
   margin: 28px 0 10px; font-size: 11px; color: var(--text-faint);
 }
 .home-foot .c-view { font-size: 12px; padding: 10px 8px; }   /* 손가락으로 누를 수 있는 크기 확보 */
@@ -2469,12 +2478,21 @@ body, .view, .cf-screen, .card, .sheet { word-break: keep-all; overflow-wrap: br
 
 /* ── 플로팅 버튼 (뒤로가기 · 공유) ────────────────────────────────
    라이트 테마로 바꾸면서 '어두운 배경 + 어두운 아이콘'이 되어 거의 안 보였다.
-   흰 원 + 진한 아이콘으로 바꾸고, 불투명도를 낮추지 않는다. */
+   흰 원 + 진한 아이콘으로 바꿨다.
+
+   2026-07-31 사장님 지시 — "투명하게, 주변은 아주 조금만 블러".
+   글 위에 늘 떠 있는 물건이라 꽉 찬 원은 읽기를 방해한다. 반투명 + 옅은 블러로
+   '아래 글이 비쳐 보이되 아이콘은 또렷하게' 만든다.
+   ⚠️ 블러는 한 번 뺐던 이력이 있다 — iOS 에서 아래 내용이 통째로 바뀌면(화면 전환)
+   블러 스냅샷이 옛 화면으로 굳는 문제였다. 그래서 이번엔 화면을 바꿀 때
+   js/app.js 의 nudgeFloatBlur() 가 버튼을 한 번 흔들어 다시 그리게 한다. */
 .float-btn {
-  background: var(--surface);
-  border: none;
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(7px) saturate(1.25);
+  -webkit-backdrop-filter: blur(7px) saturate(1.25);
+  border: 1px solid rgba(255, 255, 255, 0.55);
   color: var(--text);
-  box-shadow: 0 2px 8px rgba(25, 31, 40, 0.10), 0 8px 24px rgba(25, 31, 40, 0.10);
+  box-shadow: 0 2px 8px rgba(25, 31, 40, 0.08), 0 8px 24px rgba(25, 31, 40, 0.08);
   opacity: 1;
   font-size: 22px;
   line-height: 1;
@@ -2482,13 +2500,22 @@ body, .view, .cf-screen, .card, .sheet { word-break: keep-all; overflow-wrap: br
 .float-btn:hover { opacity: 1; }
 .float-btn:active {
   transform: scale(0.92);
-  background: var(--surface-press);
+  background: rgba(237, 239, 242, 0.85);   /* 누른 건 확실히 보이게 */
   opacity: 1;
 }
 .float-btn svg { width: 20px; height: 20px; fill: currentColor; }
-/* 공유는 주된 행동이라 브랜드색으로 한 번 더 눈에 띄게 */
-.app-share-btn { background: var(--primary); color: #fff; }
-.app-share-btn:active { background: var(--primary-press); }
+/* 공유는 주된 행동이라 브랜드색을 유지하되, 같은 정도로 비치게 한다 */
+.app-share-btn {
+  background: rgba(11, 158, 54, 0.72);     /* --primary #0b9e36 */
+  border-color: rgba(255, 255, 255, 0.35);
+  color: #fff;
+}
+.app-share-btn:active { background: rgba(8, 125, 42, 0.92); }
+/* 블러를 못 쓰는 브라우저에서는 그냥 진하게 — 글자 위에서 안 보이는 일은 없어야 한다 */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .float-btn { background: rgba(255, 255, 255, 0.92); }
+  .app-share-btn { background: rgba(11, 158, 54, 0.92); }
+}
 
 /* 백업 실패 안내 — 눈에 띄어야 한다 (백업된 줄 알고 앱을 지우는 사고 방지) */
 .bk-bad {
