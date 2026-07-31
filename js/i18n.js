@@ -43,6 +43,32 @@ const I18N = {
     return key;
   },
 
+  /* 정적 마크업(index.html)에 사전을 입힌다.
+     HTML 안에서는 tr() 을 부를 수 없으므로 요소에 표시를 달아 두고 여기서 채운다.
+         <h2 data-i18n="ui.hub.title">코스공략</h2>
+         <input data-i18n-attr="placeholder:ui.search.ph">
+         <button data-i18n-attr="aria-label:ui.a11y.close">
+     ⚠️ **한국어에서는 원래 있던 글자와 똑같은 글자로 다시 채워진다** — 화면은 변하지 않는다.
+        HTML 에 원문을 그대로 남겨 두는 이유가 이것이다. 사전이 안 실리거나 자바스크립트가
+        늦게 와도 화면이 비지 않는다(빈 화면보다 한국어가 낫다).
+     ⚠️ 자식 요소가 있는 곳에는 data-i18n 을 달지 말 것 — textContent 로 덮으면 자식이 사라진다. */
+  applyDom: function (root) {
+    const scope = root || document;
+    scope.querySelectorAll("[data-i18n]").forEach((el) => {
+      const k = el.getAttribute("data-i18n");
+      if (k) el.textContent = tr(k);
+    });
+    scope.querySelectorAll("[data-i18n-attr]").forEach((el) => {
+      el.getAttribute("data-i18n-attr").split(";").forEach((pair) => {
+        const i = pair.indexOf(":");
+        if (i < 0) return;
+        const attr = pair.slice(0, i).trim();
+        const key = pair.slice(i + 1).trim();
+        if (attr && key) el.setAttribute(attr, tr(key));
+      });
+    });
+  },
+
   /* 언어를 바꾸고 화면을 다시 그린다. Phase 3(일본어) 에서 설정 화면이 부른다. */
   setLang: function (lang) {
     if (lang !== "ko" && lang !== "ja") return;
@@ -61,6 +87,10 @@ const I18N = {
     document.documentElement.lang = this.lang;
   },
 };
+
+/* 마크업이 다 올라온 뒤 한 번 입힌다. i18n.js 는 <head> 쪽에서 먼저 실리므로
+   이 시점에는 아직 body 가 없다 — DOMContentLoaded 를 기다린다. */
+document.addEventListener("DOMContentLoaded", function () { I18N.applyDom(); });
 
 /* 문구 하나 꺼내기. vars 를 주면 {이름} 자리를 채운다.
    숫자·구장명처럼 매번 달라지는 값은 문구에 박지 말고 반드시 vars 로 넘길 것 —
