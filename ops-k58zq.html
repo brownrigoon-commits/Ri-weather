@@ -211,6 +211,8 @@
       <h3>관리자 비밀번호 바꾸기</h3>
       <p class="hint">여기서 바로 바꿀 수 있습니다. 바꾸면 <b>다른 기기에 저장된 로그인은 자동으로 풀립니다.</b>
         8자 이상, 공백 없이.</p>
+      <div class="warnbox" id="pw-need" hidden>⚠️ 이 기능은 <b>백엔드를 다시 배포해야</b> 켜집니다.<br>
+        Apps Script → <b>배포 → 배포 관리 → ✏️ → 새 버전</b> (판번호 2026-07-31c 이상)</div>
       <div class="pwform">
         <input id="pw-new" type="password" placeholder="새 비밀번호 (8자 이상)" autocomplete="new-password">
         <input id="pw-new2" type="password" placeholder="새 비밀번호 다시" autocomplete="new-password">
@@ -235,6 +237,7 @@ var BACKEND = "https://script.google.com/macros/s/AKfycbzVkab8qBwUdukg_O9FtYjwHv
 
 var PWKEY = "riwadmin.pw";
 var pw = "";
+var backendVer = "";          // 서버가 알려준 판번호 — 기능이 있는 배포인지 판단에 쓴다
 var fbRows = [], fbFilter = "";
 
 var $ = function (id) { return document.getElementById(id); };
@@ -365,6 +368,13 @@ function load() {
     $("sub").textContent = "기록 " + (s.total || 0).toLocaleString() + "건 · " +
       String(now.getHours()).padStart(2, "0") + ":" + String(now.getMinutes()).padStart(2, "0") + " 기준";
     $("bever").textContent = "백엔드 " + (s.ver || "?");
+    backendVer = s.ver || "";
+    /* 비밀번호 바꾸기는 백엔드 2026-07-31c 부터 있다. 옛 배포에 대고 누르면
+       서버가 그냥 {ok:false} 만 줘서 "바꾸지 못했습니다" 라는 영문 모를 문구가 떴다
+       (사장님 2026-07-31). 아예 눌리지 않게 막고 이유를 적는다. */
+    var pwOk = backendVer >= "2026-07-31c";
+    $("pw-save").disabled = !pwOk;
+    $("pw-need").hidden = pwOk;
 
     // 백엔드가 옛 버전이면 피드백·지역이 아예 쌓이지 않는다 — 숫자를 믿기 전에 알린다
     $("stale").innerHTML = (s.ver && s.ver >= "2026-07-31a") ? "" :
@@ -421,6 +431,10 @@ function changePw() {
   var b = $("pw-save"), msg = $("pw-msg");
   var a = $("pw-new").value, c = $("pw-new2").value;
   msg.className = "err";
+  if (backendVer && backendVer < "2026-07-31c") {
+    msg.textContent = "백엔드를 다시 배포해야 쓸 수 있습니다 (지금 " + backendVer + ").";
+    return;
+  }
   if (a !== c) { msg.textContent = "두 번 입력한 값이 다릅니다."; return; }
   if (a.length < 8) { msg.textContent = "8자 이상으로 정해 주세요."; return; }
   if (/\s/.test(a)) { msg.textContent = "공백은 쓸 수 없습니다."; return; }
@@ -430,6 +444,9 @@ function changePw() {
     method: "POST", headers: { "Content-Type": "text/plain" },
     body: JSON.stringify({ fn: "setpw", pw: pw, newPw: a }),
   }).then(function (r) { return r.json(); }).then(function (j) {
+    // 옛 백엔드는 setpw 를 몰라 통계 수집 경로로 흘러가 {ok:false} 만 준다 → 이유를 짚어준다
+    if (j && j.ok === false && !j.err)
+      throw new Error("백엔드가 이 기능을 모릅니다 — 다시 배포해 주세요.");
     if (!j || !j.ok) throw new Error((j && j.err) || "바꾸지 못했습니다");
     pw = a;
     // 로그인 유지를 쓰고 있었다면 그쪽을, 아니면 이 탭 것을 새 비밀번호로 바꾼다
