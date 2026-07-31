@@ -90,10 +90,12 @@ def stage():
     # 앱이 깨진 채 배포된다(실제로 js/legal.js 누락 사고 발생).
     # ⚠️ assets 가 빠져 있어서 클럽 아이콘을 바꿔도 배포에 안 들어갔다(2026-07-29).
     #    로컬 미리보기는 작업본을 그대로 읽으니 화면상으론 멀쩡해 보여 더 위험하다.
+    # ⚠️ 관리자 화면(ops-k58zq.html)도 반드시 여기 있어야 한다 — v171 때 admin.html 이
+    #    이 목록에 없어서, 고쳤어도 sync 를 안 거치면 배포에서 빠질 뻔했다(2026-07-31 발견).
     git("add", "holeimg", "coursedata/homepages", "coursedata/workfiles",
         "tools", "js", "css", "icons", "assets", "docs", "sw.js", "index.html",
-        "manifest.webmanifest", ".nojekyll", ".gitignore", ".sync", "robots.txt",
-        "HANDOFF.md", "README.md", "CLAUDE.md", check=False)
+        "ops-k58zq.html", "manifest.webmanifest", ".nojekyll", ".gitignore", ".sync",
+        "robots.txt", "HANDOFF.md", "README.md", "CLAUDE.md", check=False)
 
 def bump():
     """항상 '현재 파일에 적힌 버전 +1' — 최신화 직후 호출해야 유일한 버전이 됨.
@@ -131,7 +133,7 @@ for attempt in range(1, 4):
         # 앱이 실제로 불러오는 파일이 저장소에 다 있는지 확인 (누락 배포 방지)
         need = re.findall(r'src="(js/[^"]+\.js)"', open(
             os.path.join(ROOT, "index.html"), encoding="utf-8").read())
-        need += ["css/style.css", "sw.js", "index.html"]
+        need += ["css/style.css", "sw.js", "index.html", "ops-k58zq.html"]
         # CSS 가 불러오는 파일(마스크·배경 이미지 등)도 확인한다.
         # js/legal.js 누락 때처럼, 참조는 있는데 저장소에 없으면 조용히 깨진다.
         css = open(os.path.join(ROOT, "css", "style.css"), encoding="utf-8").read()

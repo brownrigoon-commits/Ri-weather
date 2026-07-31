@@ -10,8 +10,11 @@
 
   · 파일 하나로 끝난다 — 외부 라이브러리·CDN 을 쓰지 않는다(앱과 같은 원칙).
   · 이 파일 안에는 비밀이 없다. 숫자는 전부 비밀번호를 넣어야 백엔드에서 온다.
-  · 비밀번호는 sessionStorage 에만 둔다 — 탭을 닫으면 사라진다.
-  · robots.txt 가 사이트 전체를 막고 있어 검색에 뜨지 않는다.
+  · 비밀번호: 기본은 '로그인 유지'(localStorage, 사장님 폰·PC 용) — 수시로 확인해야
+    하는데 탭 닫을 때마다 다시 넣게 했더니 불편했다(사장님 요청 2026-07-31).
+    유지를 끄면 sessionStorage — 탭을 닫으면 사라진다. 로그아웃 버튼으로 언제든 지움.
+  · robots.txt 가 사이트 전체를 막고 있어 검색에 뜨지 않고, 파일 이름도
+    추측 어려운 이름을 쓴다(숨은 주소). 진짜 잠금은 어디까지나 비밀번호다.
 
   ⚠️ 여기 나오는 '지역'은 이용자가 조회한 골프장의 시/도다.
      이용자의 위치가 아니다 — 앱은 위치 좌표를 수집하지 않는다.
@@ -109,11 +112,17 @@
   <!-- ── 비밀번호 ── -->
   <div id="gate">
     <h2>골프라이프 관리자</h2>
-    <p>통계와 베타 의견을 보려면 관리자 비밀번호가 필요합니다.<br>
-       비밀번호는 이 탭에만 잠시 저장되고, 탭을 닫으면 지워집니다.</p>
+    <p>통계와 베타 의견을 보려면 관리자 비밀번호가 필요합니다.</p>
     <input id="pw" type="password" placeholder="관리자 비밀번호" autocomplete="off">
+    <label style="display:flex;align-items:center;gap:8px;font-size:13.5px;color:var(--dim)">
+      <input type="checkbox" id="keep" checked style="width:17px;height:17px;accent-color:var(--primary)">
+      이 기기에서 로그인 유지
+    </label>
     <button class="btn" id="go">들어가기</button>
     <p class="err" id="gate-err"></p>
+    <p style="margin:2px 0 0;font-size:11.5px;color:var(--faint);line-height:1.55">
+      유지를 켜면 이 폰/PC에서는 다시 입력하지 않아도 됩니다.
+      다른 사람 기기에서 열 때는 꺼두세요 — 탭을 닫으면 지워집니다.</p>
   </div>
 
   <!-- ── 본문 ── -->
@@ -178,7 +187,10 @@
           <h3>베타 의견</h3>
           <p class="hint" style="margin:0">최근 200건, 최신순. 도착할 때마다 메일로도 알려드립니다.</p>
         </div>
-        <button class="btn sub" id="reload">새로고침</button>
+        <div style="display:flex;gap:6px">
+          <button class="btn sub" id="reload">새로고침</button>
+          <button class="btn sub" id="logout">로그아웃</button>
+        </div>
       </div>
       <div class="filters" id="fb-filters">
         <button class="chip on" data-f="">전체</button>
@@ -349,7 +361,12 @@ function enter() {
   if (!pw) { $("gate-err").textContent = "비밀번호를 입력해 주세요."; return; }
   $("gate-err").textContent = "확인 중…";
   load().then(function () {
-    try { sessionStorage.setItem(PWKEY, pw); } catch (e) {}
+    /* '로그인 유지'를 켜면 이 기기(localStorage)에 저장 — 사장님이 수시로 여는 용도.
+       끄면 이 탭(sessionStorage)에만 — 남의 기기에서 잠깐 볼 때. (2026-07-31) */
+    try {
+      if ($("keep").checked) { localStorage.setItem(PWKEY, pw); sessionStorage.removeItem(PWKEY); }
+      else { sessionStorage.setItem(PWKEY, pw); localStorage.removeItem(PWKEY); }
+    } catch (e) {}
     $("gate").hidden = true;
     $("main").hidden = false;
   }).catch(function (e) {
@@ -373,14 +390,22 @@ $("fb-filters").addEventListener("click", function (e) {
   paintFb();
 });
 
-/* 같은 탭에서 새로고침했을 때만 자동 로그인 */
+$("logout").addEventListener("click", function () {
+  try { localStorage.removeItem(PWKEY); sessionStorage.removeItem(PWKEY); } catch (e) {}
+  location.reload();
+});
+
+/* 자동 로그인 — '로그인 유지'(localStorage)가 있으면 그것으로, 없으면 이 탭 것으로.
+   비밀번호가 틀렸으면(바뀌었으면) 저장을 지우고 조용히 로그인 화면으로. */
 (function () {
   var saved = "";
-  try { saved = sessionStorage.getItem(PWKEY) || ""; } catch (e) {}
+  try { saved = localStorage.getItem(PWKEY) || sessionStorage.getItem(PWKEY) || ""; } catch (e) {}
   if (!saved) return;
   pw = saved;
   load().then(function () { $("gate").hidden = true; $("main").hidden = false; })
-    .catch(function () { try { sessionStorage.removeItem(PWKEY); } catch (e) {} });
+    .catch(function () {
+      try { localStorage.removeItem(PWKEY); sessionStorage.removeItem(PWKEY); } catch (e) {}
+    });
 })();
 </script>
 </body>

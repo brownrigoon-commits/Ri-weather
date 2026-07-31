@@ -64,7 +64,7 @@ MailApp(메일 발송)이 **이번 판에서 처음 쓰는 권한**이라 스크
 | 들어가는 길 3개 — 홈 초대카드 / 푸터 🧪베타 의견 / **BETA 배지 탭** | `index.html`, `css/style.css` `.beta-invite` |
 | 전송·재전송 큐 (`riweather.fbq`) | `js/stats.js` `FEEDBACK` |
 | 서버 저장 + **brown.rigoon@gmail.com 메일 알림** | `Code.gs` `fbSave_` → `fb` 시트 |
-| 관리자 화면 | **`admin.html`** (앱과 같은 주소 뒤에 `/admin.html`) |
+| 관리자 화면 | ~~`admin.html`~~ → **`ops-k58zq.html`** 로 개명 (7/31 회사 PC — 아래 섹션) |
 | 지역(시/도) 통계 | `stats.js` `region()` → `log` 시트 9번째 칸 |
 
 ### 판단이 필요했던 곳 — 왜 그렇게 했나
