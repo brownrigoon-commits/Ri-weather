@@ -73,6 +73,17 @@ if src_bad:
     sys.exit(1)
 print("출처 검사 OK: 등록명과 자료 출처 일치")
 
+# 옛 브랜드명이 사용자 화면에 남아 있는지 (2026-07-31 골프라이프→투어리스트 개명)
+from check_brand import violations as brand_violations
+brand_bad, _ = brand_violations(ROOT)
+if brand_bad:
+    print(f"✖ 옛 브랜드명이 남아 있습니다 {len(brand_bad)}건 — 배포를 멈춥니다")
+    for s in brand_bad[:20]:
+        print("   -", s)
+    print("  tools/check_brand.py 참고.")
+    sys.exit(1)
+print("브랜드명 검사 OK: 사용자 화면에 옛 이름 없음")
+
 # ── 3. 커밋 → 최신화 → 버전 → 푸시 (양쪽 PC 동시 배포 안전) ──────
 app = os.path.join(ROOT, "js", "app.js")
 sw = os.path.join(ROOT, "sw.js")
