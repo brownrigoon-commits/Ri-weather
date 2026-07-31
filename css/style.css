@@ -236,7 +236,7 @@ body::before {
   background: var(--surface-2); color: var(--text);
   border: none; font-size: 24px; line-height: 1; cursor: pointer;
 }
-.hdr-btn.star { font-size: 20px; }
+.hdr-btn.star { font-size: 24px; }   /* 2026-07-31 사장님 지시로 20% 키움 (20 → 24px) */
 .hdr-btn.star.saved { color: #e08600; }
 .hdr-title { font-size: 15px; font-weight: 600; opacity: 0; transition: opacity 0.2s; }
 .hdr-title.show { opacity: 1; }
@@ -2487,10 +2487,13 @@ body, .view, .cf-screen, .card, .sheet { word-break: keep-all; overflow-wrap: br
    블러 스냅샷이 옛 화면으로 굳는 문제였다. 그래서 이번엔 화면을 바꿀 때
    js/app.js 의 nudgeFloatBlur() 가 버튼을 한 번 흔들어 다시 그리게 한다. */
 .float-btn {
-  background: rgba(255, 255, 255, 0.55);
-  backdrop-filter: blur(7px) saturate(1.25);
-  -webkit-backdrop-filter: blur(7px) saturate(1.25);
-  border: 1px solid rgba(255, 255, 255, 0.55);
+  /* 2026-07-31 2차 — "블러를 조금만 더, 뒤쪽 이미지가 더 잘 보이게".
+     흰 면을 옅게(0.55→0.38) 만들어 뒤가 더 비치게 하고, 대신 블러를 올려(7→14px)
+     비치는 것이 '글자'가 아니라 '흐린 그림'으로 읽히게 한다. */
+  background: rgba(255, 255, 255, 0.38);
+  backdrop-filter: blur(14px) saturate(1.4);
+  -webkit-backdrop-filter: blur(14px) saturate(1.4);
+  border: 1px solid rgba(255, 255, 255, 0.45);
   color: var(--text);
   box-shadow: 0 2px 8px rgba(25, 31, 40, 0.08), 0 8px 24px rgba(25, 31, 40, 0.08);
   opacity: 1;
@@ -2506,7 +2509,7 @@ body, .view, .cf-screen, .card, .sheet { word-break: keep-all; overflow-wrap: br
 .float-btn svg { width: 20px; height: 20px; fill: currentColor; }
 /* 공유는 주된 행동이라 브랜드색을 유지하되, 같은 정도로 비치게 한다 */
 .app-share-btn {
-  background: rgba(11, 158, 54, 0.72);     /* --primary #0b9e36 */
+  background: rgba(11, 158, 54, 0.60);     /* --primary #0b9e36 — 흰 아이콘이 읽히는 하한 */
   border-color: rgba(255, 255, 255, 0.35);
   color: #fff;
 }

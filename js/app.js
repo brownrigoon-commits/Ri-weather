@@ -4,8 +4,8 @@
  * ========================================================= */
 "use strict";
 
-const APP_VER = "v179"; // 배포 버전 (홈 화면 배지에 표시)
-const APP_NOTE = "버튼이 글자를 가리던 문제 수정"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
+const APP_VER = "v180"; // 배포 버전 (홈 화면 배지에 표시)
+const APP_NOTE = "화면 넘어갈 때 맨 위부터 보이도록 수정"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
 const STORAGE_KEY = "riweather.courses.v1";
 
 /* 나중에 필요할 때 불러오는 파일 목록 (2026-07-31 신설).
@@ -736,10 +736,30 @@ const VIEWS = {
    빠뜨리면 메뉴를 눌러도 하얀 화면만 뜹니다(2026-07-30 부킹에서 실제로 겪음). */
 let viewStack = ["home"];
 
+/* 화면 맨 위로 올린다.
+   ⚠️ 이 앱은 `html, body { height: 100% }` 때문에 **스크롤 주체가 body** 다.
+   `window.scrollTo` 는 html 을 움직이려 하는데 html 은 넘칠 일이 없어서 **아무 일도 안 한다**
+   (같은 경고가 app.js 2057·2163 에도 적혀 있다).
+   그래서 화면을 옮겨도 앞 화면의 스크롤 위치가 그대로 남아, 새 화면이 중간부터 보였다
+   (2026-07-31 사장님 지적 — 허브로 넘어가면 구장 이름이 잘린 채로 뜸).
+   맨 위로 올리는 일은 반드시 이 함수로 한다. */
+function scrollToTop(smooth) {
+  const el = document.scrollingElement || document.documentElement;
+  if (smooth) {
+    try { document.body.scrollTo({ top: 0, behavior: "smooth" }); } catch (_) { document.body.scrollTop = 0; }
+    try { el.scrollTo({ top: 0, behavior: "smooth" }); } catch (_) { el.scrollTop = 0; }
+    return;
+  }
+  document.body.scrollTop = 0;
+  el.scrollTop = 0;
+  window.scrollTo(0, 0);
+}
+window.scrollToTop = scrollToTop;   // 다른 파일(clubfit 등)에서도 쓴다
+
 function showOnly(name, back) {
   window.__curView = name;          // 베타 의견에 '어느 화면에서 썼는지' 함께 보내기 위함
   for (const k in VIEWS) VIEWS[k].hidden = k !== name;
-  window.scrollTo(0, 0);
+  scrollToTop();
   if (name !== "detail") stopPlay();
   if (typeof stopCaddieVoice === "function") stopCaddieVoice();  // 화면을 옮기면 캐디 음성도 멈춘다
   // 미뤄둔 업데이트가 있으면 화면을 옮기는 이 순간이 적용하기 가장 안전하다
@@ -766,8 +786,8 @@ function showOnly(name, back) {
 function nudgeFloatBlur() {
   const btns = document.querySelectorAll(".float-btn");
   if (!btns.length) return;
-  btns.forEach((b) => { b.style.backdropFilter = "blur(7.01px) saturate(1.25)";
-                        b.style.webkitBackdropFilter = "blur(7.01px) saturate(1.25)"; });
+  btns.forEach((b) => { b.style.backdropFilter = "blur(14.01px) saturate(1.4)";
+                        b.style.webkitBackdropFilter = "blur(14.01px) saturate(1.4)"; });
   requestAnimationFrame(() => {
     btns.forEach((b) => { b.style.backdropFilter = ""; b.style.webkitBackdropFilter = ""; });
   });
@@ -4822,7 +4842,7 @@ function renderScores() {
       $("#sf-memo").value = r.memo || "";
       if (r.photo) { $("#sf-photo-preview").src = r.photo; $("#sf-photo-preview").hidden = false; }
       $("#score-form").hidden = false;
-      window.scrollTo(0, 0);
+      scrollToTop();          // window.scrollTo 는 이 앱에서 듣지 않는다(scrollToTop 주석 참고)
     });
     el.appendChild(div);
   });

@@ -3056,7 +3056,9 @@
     const fig = $$("#cf-golfer");
     if (fig) fig.setAttribute("class", "cf-golfer" + (S.club ? " club-" + S.club : ""));
     flyBall(t);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    // window.scrollTo 는 이 앱에서 듣지 않는다 — 스크롤 주체가 body 다(app.js scrollToTop 주석)
+    if (typeof window.scrollToTop === "function") window.scrollToTop(true);
+    else document.body.scrollTo({ top: 0, behavior: "smooth" });
   }
 
   /* 공을 궤적 위 t(0~1) 지점으로 보낸다.
