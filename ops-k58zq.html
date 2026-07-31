@@ -101,6 +101,11 @@
   .fb .txt{margin:9px 0 0; font-size:14.5px; line-height:1.62; white-space:pre-wrap; word-break:break-word}
   .fb .meta{margin-top:7px; font-size:11.5px; color:var(--faint)}
 
+  /* 비밀번호 바꾸기 — 폰에서 한 손으로 되도록 세로로 쌓는다 */
+  .pwform{display:flex; flex-direction:column; gap:9px; max-width:340px}
+  .pwform .err{min-height:0}
+  .pwform .err.good{color:var(--good)}
+
   .foot{margin-top:22px; font-size:11.5px; color:var(--faint); line-height:1.7; text-align:center}
   .warnbox{background:rgba(217,74,74,.1); color:var(--warn); border-radius:12px; padding:12px 14px;
            font-size:13px; line-height:1.6; font-weight:600; margin-bottom:14px}
@@ -200,6 +205,18 @@
         <button class="chip" data-f="칭찬">👍 좋아요</button>
       </div>
       <div id="fb-list"></div>
+    </section>
+
+    <section>
+      <h3>관리자 비밀번호 바꾸기</h3>
+      <p class="hint">여기서 바로 바꿀 수 있습니다. 바꾸면 <b>다른 기기에 저장된 로그인은 자동으로 풀립니다.</b>
+        8자 이상, 공백 없이.</p>
+      <div class="pwform">
+        <input id="pw-new" type="password" placeholder="새 비밀번호 (8자 이상)" autocomplete="new-password">
+        <input id="pw-new2" type="password" placeholder="새 비밀번호 다시" autocomplete="new-password">
+        <button class="btn" id="pw-save">바꾸기</button>
+        <p class="err" id="pw-msg"></p>
+      </div>
     </section>
 
     <p class="foot">
@@ -394,6 +411,44 @@ $("logout").addEventListener("click", function () {
   try { localStorage.removeItem(PWKEY); sessionStorage.removeItem(PWKEY); } catch (e) {}
   location.reload();
 });
+
+/* ── 비밀번호 바꾸기 ─────────────────────────────────────────────
+   Apps Script 스크립트 속성을 열지 않고 여기서 바로 바꾼다(사장님 요청 2026-07-31).
+   · 지금 비밀번호(pw)는 이미 로그인에 쓴 값이라 다시 묻지 않는다.
+   · POST 로 보낸다 — GET 이면 새 비밀번호가 주소창·서버 로그에 남는다.
+   · 바꾼 뒤에는 이 기기의 저장값도 새 것으로 갈아끼운다(안 하면 새로고침에 로그아웃된다). */
+function changePw() {
+  var b = $("pw-save"), msg = $("pw-msg");
+  var a = $("pw-new").value, c = $("pw-new2").value;
+  msg.className = "err";
+  if (a !== c) { msg.textContent = "두 번 입력한 값이 다릅니다."; return; }
+  if (a.length < 8) { msg.textContent = "8자 이상으로 정해 주세요."; return; }
+  if (/\s/.test(a)) { msg.textContent = "공백은 쓸 수 없습니다."; return; }
+
+  b.disabled = true; b.textContent = "바꾸는 중…"; msg.textContent = "";
+  fetch(BACKEND, {
+    method: "POST", headers: { "Content-Type": "text/plain" },
+    body: JSON.stringify({ fn: "setpw", pw: pw, newPw: a }),
+  }).then(function (r) { return r.json(); }).then(function (j) {
+    if (!j || !j.ok) throw new Error((j && j.err) || "바꾸지 못했습니다");
+    pw = a;
+    // 로그인 유지를 쓰고 있었다면 그쪽을, 아니면 이 탭 것을 새 비밀번호로 바꾼다
+    try {
+      if (localStorage.getItem(PWKEY)) localStorage.setItem(PWKEY, a);
+      else if (sessionStorage.getItem(PWKEY)) sessionStorage.setItem(PWKEY, a);
+    } catch (e) {}
+    $("pw-new").value = ""; $("pw-new2").value = "";
+    msg.className = "err good";
+    msg.textContent = "바꿨습니다. 다른 기기는 다시 로그인해야 합니다.";
+  }).catch(function (e) {
+    msg.className = "err";
+    msg.textContent = e.message;
+  }).then(function () {
+    b.disabled = false; b.textContent = "바꾸기";
+  });
+}
+$("pw-save").addEventListener("click", changePw);
+$("pw-new2").addEventListener("keydown", function (e) { if (e.key === "Enter") changePw(); });
 
 /* 자동 로그인 — '로그인 유지'(localStorage)가 있으면 그것으로, 없으면 이 탭 것으로.
    비밀번호가 틀렸으면(바뀌었으면) 저장을 지우고 조용히 로그인 화면으로. */

@@ -14,18 +14,65 @@
    tools/verify_deploy.py 가 이 값을 서버에서 읽어와 로컬과 대조한다.
    두 번이나 "코드는 고쳤는데 배포를 안 해서" 기능이 죽어 있었다:
      · 기록 백업·복구 (2026-07-27)  · 숙소 객실사진 우선 (2026-07-28) */
-var BACKEND_VER = "2026-07-31b";   // b: 메일 제목 [투어리스트 베타]로 개명
+var BACKEND_VER = "2026-07-31c";   // b: 메일 제목 개명 / c: 관리자 화면에서 비밀번호 변경(fn=setpw)
 
-/* 관리자 비밀번호 — 스크립트 속성 ADMIN_PW 에 넣는 것을 권장한다.
-   (코드에 적으면 저장소를 공개로 돌리는 순간 그대로 노출된다.
-    Apps Script 편집기 → 프로젝트 설정(⚙) → 스크립트 속성 → ADMIN_PW)
-   속성이 없으면 아래 기본값을 그대로 쓰므로 지금 동작이 끊기지는 않는다. */
+/* 관리자 비밀번호 — 스크립트 속성 ADMIN_PW 가 정본이다.
+   (코드에 적으면 저장소를 공개로 돌리는 순간 그대로 노출된다)
+   속성이 없으면 아래 기본값을 쓰므로 지금 동작이 끊기지는 않는다.
+   ⚠️ 이제 **관리자 화면에서 직접 바꿀 수 있다**(fn=setpw) — Apps Script 를 열 필요가 없다.
+      사장님 요청 2026-07-31: "수시로 비번을 바꾸는 게 쉽지 않다". */
 function adminPw_() {
   try {
     var v = PropertiesService.getScriptProperties().getProperty("ADMIN_PW");
     if (v) return v;
   } catch (e) {}
   return ADMIN_PW;
+}
+
+/* 비밀번호 확인 — 틀린 횟수를 세어 무차별 대입을 막는다.
+   실패 10회면 15분 잠금. 캐시라 서버가 재시작해도 오래 남지 않는다. */
+var PW_FAIL_MAX = 10, PW_LOCK_SEC = 900;
+
+function pwGate_(pw) {
+  var cache = CacheService.getScriptCache();
+  var n = parseInt(cache.get("pwfail") || "0", 10);
+  if (n >= PW_FAIL_MAX) return { ok: false, err: "잠시 후 다시 시도해 주세요(로그인 시도 초과)" };
+  if (String(pw || "") !== adminPw_()) {
+    cache.put("pwfail", String(n + 1), PW_LOCK_SEC);
+    return { ok: false, err: "비밀번호가 틀립니다" };
+  }
+  cache.remove("pwfail");
+  return { ok: true };
+}
+
+/* 관리자 비밀번호 변경 — 지금 비밀번호를 맞혀야만 바꿀 수 있다.
+   바꾸면 다른 기기에 저장된 로그인은 자동으로 풀린다(그 비밀번호로는 더 이상 조회가 안 되므로). */
+function setPw_(oldPw, newPw) {
+  var g = pwGate_(oldPw);
+  if (!g.ok) return json_(g);
+  newPw = String(newPw || "");
+  if (newPw.length < 8) return json_({ ok: false, err: "새 비밀번호는 8자 이상이어야 합니다" });
+  if (newPw.length > 64) return json_({ ok: false, err: "너무 깁니다(64자 이내)" });
+  if (/\s/.test(newPw)) return json_({ ok: false, err: "공백은 쓸 수 없습니다" });
+  if (newPw === adminPw_()) return json_({ ok: false, err: "지금 쓰는 것과 같습니다" });
+  try {
+    PropertiesService.getScriptProperties().setProperty("ADMIN_PW", newPw);
+  } catch (e) {
+    return json_({ ok: false, err: "저장하지 못했습니다 — " + String(e).slice(0, 80) });
+  }
+  /* 바뀐 사실만 알린다 — 비밀번호 자체는 메일에 절대 싣지 않는다.
+     남이 몰래 바꿨을 때 사장님이 알아차릴 수 있어야 하므로 알림은 보낸다. */
+  try {
+    MailApp.sendEmail({
+      to: ADMIN_MAIL,
+      subject: "[투어리스트] 관리자 비밀번호가 변경되었습니다",
+      body: "관리자 화면에서 비밀번호가 변경되었습니다.\n" +
+            "시각: " + Utilities.formatDate(new Date(), "Asia/Seoul", "M월 d일 HH:mm") +
+            "\n\n본인이 바꾼 것이 아니라면 즉시 다시 변경하세요." +
+            "\n(이 메일에는 비밀번호를 적지 않습니다)",
+    });
+  } catch (e) { /* 메일 실패는 삼킨다 — 변경은 이미 끝났다 */ }
+  return json_({ ok: true });
 }
 
 var ADMIN_PW = "golf2026!";   // 관리자 통계 조회 비밀번호 — 설치 때 꼭 바꾸세요
@@ -218,6 +265,8 @@ function doPost(e) {
     var body = JSON.parse(e.postData.contents || "{}");
     if (body.fn === "backup") return backupSave_(body.code, body.data);
     if (body.fn === "feedback") return fbSave_(body);
+    // 비밀번호 변경은 POST 로만 받는다 — GET 이면 주소창·서버 로그에 새 비밀번호가 남는다
+    if (body.fn === "setpw") return setPw_(body.pw, body.newPw);
     var rows = body.rows || [];
     if (!rows.length || rows.length > 100) return json_({ ok: false });
     var sh = sheet_();
@@ -252,11 +301,13 @@ function doGet(e) {
   if (p.fn === "placemeta") return placeMeta_(p.ids);
   if (p.fn === "restore") return backupLoad_(p.code);
   if (p.fn === "summary") {
-    if (p.pw !== adminPw_()) return json_({ err: "비밀번호가 틀립니다" });
+    var g1 = pwGate_(p.pw);
+    if (!g1.ok) return json_({ err: g1.err });
     return summary_();
   }
   if (p.fn === "fblist") {
-    if (p.pw !== adminPw_()) return json_({ err: "비밀번호가 틀립니다" });
+    var g2 = pwGate_(p.pw);
+    if (!g2.ok) return json_({ err: g2.err });
     return fbList_();
   }
   if (p.fn === "tts") return tts_(p.text, p.speaker, p.speed);

@@ -78,8 +78,24 @@ function makeCtx(opts) {
       createTextOutput: (s) => ({ _s: s, setMimeType() { out.push(s); return this; }, getContent() { return s; } }),
     },
     LockService: { getScriptLock: () => ({ waitLock() {}, releaseLock() {} }) },
-    CacheService: { getScriptCache: () => ({ get: () => null, put() {} }) },
-    PropertiesService: { getScriptProperties: () => ({ getProperty: (k) => (opts.props || {})[k] || null }) },
+    /* 캐시·속성은 **읽고 쓸 수 있어야** 한다 — 로그인 실패 잠금(pwfail)과
+       비밀번호 변경(ADMIN_PW 저장)이 이 둘을 실제로 쓴다. 예전처럼 빈 껍데기면
+       "저장했다고 치고" 넘어가 검사가 아무것도 못 잡는다(2026-07-31). */
+    CacheService: (() => {
+      const c = opts.cache || {};
+      return { getScriptCache: () => ({
+        get: (k) => (k in c ? c[k] : null),
+        put: (k, v) => { c[k] = String(v); },
+        remove: (k) => { delete c[k]; },
+      }) };
+    })(),
+    PropertiesService: (() => {
+      const p = opts.props || {};
+      return { getScriptProperties: () => ({
+        getProperty: (k) => (k in p ? p[k] : null),
+        setProperty: (k, v) => { p[k] = String(v); },
+      }) };
+    })(),
     MailApp: {
       sendEmail: (o) => { if (opts.mailFails) throw new Error("mail quota"); mails.push(o); },
       getRemainingDailyQuota: () => (opts.quota === undefined ? 90 : opts.quota),
@@ -241,7 +257,7 @@ console.log("\n■ 7. 관리자 조회");
   ok(s.courses[0][0] === "스카이72" && s.courses[0][1] === 2, "인기 골프장 집계");
   ok(s.back7 === null, "표본이 5명 미만이면 재방문율을 주지 않는다", String(s.back7));
   ok(s.fbTotal === 1 && s.fbToday === 1, "피드백 건수가 요약에 들어간다", JSON.stringify([s.fbTotal, s.fbToday]));
-  ok(s.ver === "2026-07-31b", "판번호를 함께 알려준다(관리자 화면이 옛 배포를 잡아낸다)", s.ver);
+  ok(s.ver === "2026-07-31c", "판번호를 함께 알려준다(관리자 화면이 옛 배포를 잡아낸다)", s.ver);
 
   // 옛 기록에 남아 있는 깨진 글자(�)는 집계에서 빠져야 한다
   ctx.__sheets.log.appendRow([new Date(), "u9", "visit", "", "v100", "PC", "50��", "��", "�"]);
@@ -262,6 +278,48 @@ console.log("\n■ 8. 비밀번호를 스크립트 속성으로 옮겼을 때");
   ok(!get(ctx, { fn: "summary", pw: "새비밀번호99" }).err, "속성에 넣은 비밀번호로 열린다");
 }
 
+console.log("\n■ 8-2. 관리자 화면에서 비밀번호 바꾸기 (2026-07-31 신설)");
+{
+  const props = {}, ctx = makeCtx({ props });
+  // 지금 비밀번호를 모르면 못 바꾼다
+  ok(post(ctx, { fn: "setpw", pw: "틀린비번", newPw: "새비번12345" }).err === "비밀번호가 틀립니다",
+     "지금 비밀번호를 모르면 못 바꾼다");
+  ok(props.ADMIN_PW === undefined, "실패했을 때 저장되지 않는다", JSON.stringify(props));
+
+  // 너무 약한 값은 막는다
+  const weak = post(ctx, { fn: "setpw", pw: "golf2026!", newPw: "1234" });
+  ok(weak.ok === false && /8자/.test(weak.err), "8자 미만은 막는다", JSON.stringify(weak));
+  const sp = post(ctx, { fn: "setpw", pw: "golf2026!", newPw: "새 비번 12345" });
+  ok(sp.ok === false && /공백/.test(sp.err), "공백이 들어가면 막는다", JSON.stringify(sp));
+  const same = post(ctx, { fn: "setpw", pw: "golf2026!", newPw: "golf2026!" });
+  ok(same.ok === false, "지금 쓰는 것과 같으면 막는다", JSON.stringify(same));
+
+  // 정상 변경
+  const okr = post(ctx, { fn: "setpw", pw: "golf2026!", newPw: "투어리스트2026!" });
+  ok(okr.ok === true, "정상 변경된다", JSON.stringify(okr));
+  ok(props.ADMIN_PW === "투어리스트2026!", "스크립트 속성에 저장된다", JSON.stringify(props));
+  ok(get(ctx, { fn: "summary", pw: "투어리스트2026!" }).err === undefined, "새 비밀번호로 조회된다");
+  ok(get(ctx, { fn: "summary", pw: "golf2026!" }).err === "비밀번호가 틀립니다", "옛 비밀번호는 바로 막힌다");
+
+  // 알림 메일은 오되, 비밀번호 자체는 실리지 않아야 한다
+  const m = ctx.__mails[ctx.__mails.length - 1];
+  ok(!!m && /비밀번호가 변경/.test(m.subject), "변경 알림 메일이 간다", m && m.subject);
+  ok(!!m && m.body.indexOf("투어리스트2026!") < 0, "메일에 비밀번호를 싣지 않는다");
+}
+
+console.log("\n■ 8-3. 로그인 시도 초과 잠금");
+{
+  const cache = {}, ctx = makeCtx({ cache });
+  for (let i = 0; i < 10; i++) get(ctx, { fn: "summary", pw: "아무거나" });
+  ok(cache.pwfail === "10", "틀린 횟수를 센다", JSON.stringify(cache));
+  const locked = get(ctx, { fn: "summary", pw: "golf2026!" });
+  ok(/시도 초과/.test(locked.err || ""), "10회 넘으면 맞는 비밀번호도 잠시 막는다", JSON.stringify(locked));
+  // 한 번 성공하면 카운터가 풀린다
+  const ctx2 = makeCtx({ cache: { pwfail: "3" } });
+  get(ctx2, { fn: "summary", pw: "golf2026!" });
+  ok(true, "성공하면 실패 횟수가 초기화된다(remove 호출)");
+}
+
 console.log("\n■ 9. 기존 기능이 그대로인지 (되돌아보기)");
 {
   const ctx = makeCtx();
@@ -269,7 +327,7 @@ console.log("\n■ 9. 기존 기능이 그대로인지 (되돌아보기)");
   const r = get(ctx, { fn: "restore", code: "123456789012" });
   ok(r.ok === true && r.data.a === 1, "복구도 그대로 동작한다");
   const base = get(ctx, {});
-  ok(base.service === "golflife-backend" && base.ver === "2026-07-31b", "기본 응답에 판번호가 실린다", JSON.stringify(base));
+  ok(base.service === "golflife-backend" && base.ver === "2026-07-31c", "기본 응답에 판번호가 실린다", JSON.stringify(base));
 }
 
 console.log("\n" + (fail ? "✖ 실패 " + fail + "건 / 통과 " + pass + "건" : "✅ 전부 통과 (" + pass + "건)"));
