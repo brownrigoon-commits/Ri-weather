@@ -106,6 +106,18 @@
   .pwform .err{min-height:0}
   .pwform .err.good{color:var(--good)}
 
+  /* 기기 목록 — 어느 기기가 우리 테스트인지 고르는 자리 */
+  .cid{display:flex; align-items:center; gap:10px; padding:10px 0; border-top:1px solid var(--line)}
+  .cid:first-child{border-top:none}
+  .cid .who{flex:1; min-width:0}
+  .cid .id{font-size:13.5px; font-weight:700; font-family:ui-monospace,Menlo,Consolas,monospace}
+  .cid .mt{font-size:11.5px; color:var(--faint); margin-top:2px; line-height:1.5}
+  .cid.off .who{opacity:.45}
+  .cid .btn{flex:none; padding:7px 11px; font-size:12.5px; min-width:64px}
+  .me{display:inline-block; margin-left:6px; padding:1px 6px; border-radius:6px; font-size:10.5px;
+      font-weight:700; background:var(--primary); color:#fff; vertical-align:1px}
+  .auto{display:inline-block; margin-left:6px; font-size:10.5px; color:var(--faint); font-weight:600}
+
   .foot{margin-top:22px; font-size:11.5px; color:var(--faint); line-height:1.7; text-align:center}
   .warnbox{background:rgba(217,74,74,.1); color:var(--warn); border-radius:12px; padding:12px 14px;
            font-size:13px; line-height:1.6; font-weight:600; margin-bottom:14px}
@@ -159,7 +171,9 @@
 
     <section>
       <h3>어느 지역 골프장을 봤나</h3>
-      <p class="hint">이용자가 조회한 <b>골프장의 시·도</b>입니다. 이용자가 있는 위치가 아닙니다(앱은 위치 좌표를 수집하지 않습니다).</p>
+      <p class="hint">이용자가 조회한 <b>골프장이 있는 지역</b>입니다. 경기·강원은 <b>경기북부·경기남부·강원영동</b>처럼
+        지역군으로 나눠 보여 줍니다(파주 골프장을 봤으면 ‘경기북부’).<br>
+        이용자가 있는 위치가 아닙니다 — 앱은 <b>위치 좌표를 서버로 보내거나 저장하지 않습니다</b>.</p>
       <div class="rows" id="regions"></div>
     </section>
 
@@ -184,6 +198,14 @@
       <h3>성별</h3>
       <p class="hint">위와 같이 동의한 이용자만.</p>
       <div class="rows" id="genders"></div>
+    </section>
+
+    <section>
+      <h3>기기 목록 — 우리 테스트 빼기</h3>
+      <p class="hint">‘안 셈’으로 바꾸면 그 기기의 기록이 <b>위의 모든 통계에서 빠집니다</b>.
+        기록을 지우는 게 아니라 세지 않는 것이라 언제든 되돌릴 수 있습니다.<br>
+        고르는 요령 — <b>본 버전 수</b>가 많을수록 개발 기기입니다. 진짜 이용자는 한두 개만 봅니다.</p>
+      <div id="cids"><p class="empty">불러오는 중…</p></div>
     </section>
 
     <section>
@@ -223,7 +245,8 @@
 
     <p class="foot">
       집계 기준 — 방문: 앱을 연 횟수 · 사람 수: 그날의 서로 다른 기기 수<br>
-      연령·성별은 동의한 이용자만, 지역은 조회한 골프장의 시·도<br>
+      연령·성별은 동의한 이용자만, 지역은 조회한 골프장이 있는 지역군<br>
+      개발·테스트 접속은 빠집니다 — 앱을 <b>?dev=1</b> 로 한 번 열면 그 기기는 계속 빠집니다(<b>?dev=0</b> 해제)<br>
       <span id="bever"></span>
     </p>
   </div>
@@ -319,8 +342,76 @@ function get(fn) {
   return fetch(url).then(function (r) { return r.json(); });
 }
 
+/* ── 기기 목록 — 우리 테스트 기록 빼기 ─────────────────────────────
+   관리자 화면은 앱과 같은 주소(오리진)라 앱이 만든 기기ID를 그대로 읽을 수 있다.
+   그래서 '이 기기'가 목록의 어느 줄인지 표시해 줄 수 있다. */
+var myCid = "";
+try { myCid = localStorage.getItem("riweather.cid") || ""; } catch (e) {}
+
+function when(t) {
+  if (!t) return "-";
+  var d = new Date(t);
+  return (d.getMonth() + 1) + "/" + d.getDate();
+}
+
+function paintCids(rows) {
+  var box = $("cids");
+  if (!rows || !rows.length) { box.innerHTML = '<p class="empty">아직 기록이 없습니다.</p>'; return; }
+  box.innerHTML = rows.map(function (r) {
+    var mine = r.cid === myCid ? '<span class="me">이 기기</span>' : "";
+    var auto = r.auto ? '<span class="auto">검사용 — 늘 빠짐</span>' : "";
+    var meta = [
+      r.dev || "?",
+      "접속 " + (r.visits || 0) + "회",
+      "기록 " + (r.n || 0) + "건",
+      "본 버전 " + (r.vers || 0) + "개",
+      when(r.first) + "~" + when(r.last),
+    ];
+    if (r.course) meta.push(esc(r.course));
+    return '<div class="cid' + (r.off ? " off" : "") + '">' +
+      '<div class="who"><div class="id">' + esc(r.cid) + mine + auto + "</div>" +
+      '<div class="mt">' + meta.join(" · ") + "</div></div>" +
+      (r.auto ? "" :
+        '<button class="btn sub" data-cid="' + esc(r.cid) + '" data-on="' + (r.off ? "0" : "1") + '">' +
+        (r.off ? "다시 셈" : "안 셈") + "</button>") +
+      "</div>";
+  }).join("");
+}
+
+function loadCids() {
+  return get("cids").then(function (j) {
+    if (j && j.err) { $("cids").innerHTML = '<p class="empty">' + esc(j.err) + "</p>"; return; }
+    // 옛 백엔드는 fn=cids 를 몰라서 기본 응답(service)만 준다 — 0대로 오해하지 않게
+    if (!j || !j.rows) {
+      $("cids").innerHTML = '<p class="empty">백엔드를 다시 배포하면 여기에 기기 목록이 나옵니다.</p>';
+      return;
+    }
+    paintCids(j.rows);
+  }).catch(function (e) {
+    $("cids").innerHTML = '<p class="empty">불러오지 못했습니다 — ' + esc(e.message) + "</p>";
+  });
+}
+
+$("cids").addEventListener("click", function (e) {
+  var b = e.target.closest("button[data-cid]");
+  if (!b) return;
+  var on = b.dataset.on === "1";      // 지금 세고 있으면 → 빼기
+  b.disabled = true; b.textContent = "…";
+  fetch(BACKEND, {
+    method: "POST", headers: { "Content-Type": "text/plain" },
+    body: JSON.stringify({ fn: "devcid", pw: pw, cid: b.dataset.cid, on: on }),
+  }).then(function (r) { return r.json(); }).then(function (j) {
+    if (!j || !j.ok) throw new Error((j && j.err) || "바꾸지 못했습니다");
+    return load();                    // 통계까지 다시 계산해 바로 반영한다
+  }).catch(function (err) {
+    b.disabled = false;
+    alert("바꾸지 못했습니다 — " + err.message);
+  });
+});
+
 function load() {
   $("sub").textContent = "불러오는 중…";
+  loadCids();                        // 기기 목록은 따로 — 느려도 통계 표시를 막지 않는다
   return Promise.all([get("summary"), get("fblist")]).then(function (res) {
     var s = res[0] || {}, f = res[1] || {};
     if (s.err) throw new Error(s.err);
@@ -365,7 +456,15 @@ function load() {
       '<p class="empty">백엔드를 다시 배포하면 여기에 의견이 쌓입니다.</p>';
 
     var now = new Date();
-    $("sub").textContent = "기록 " + (s.total || 0).toLocaleString() + "건 · " +
+    /* 뺀 것을 반드시 적는다 — 조용히 빼면 숫자가 왜 줄었는지 알 수 없다 (2026-07-31) */
+    var ex = s.excluded, exTxt = "";
+    if (ex && (ex.rows || ex.test)) {
+      var bits = [];
+      if (ex.rows) bits.push("테스트 기기 " + ex.devices + "대 " + ex.rows.toLocaleString() + "건");
+      if (ex.test) bits.push("테스트 골프장 " + ex.test.toLocaleString() + "건");
+      exTxt = " · 뺀 것 " + bits.join(" + ");
+    }
+    $("sub").textContent = "기록 " + (s.total || 0).toLocaleString() + "건" + exTxt + " · " +
       String(now.getHours()).padStart(2, "0") + ":" + String(now.getMinutes()).padStart(2, "0") + " 기준";
     $("bever").textContent = "백엔드 " + (s.ver || "?");
     backendVer = s.ver || "";

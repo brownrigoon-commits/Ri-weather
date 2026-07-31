@@ -257,7 +257,7 @@ console.log("\n■ 7. 관리자 조회");
   ok(s.courses[0][0] === "스카이72" && s.courses[0][1] === 2, "인기 골프장 집계");
   ok(s.back7 === null, "표본이 5명 미만이면 재방문율을 주지 않는다", String(s.back7));
   ok(s.fbTotal === 1 && s.fbToday === 1, "피드백 건수가 요약에 들어간다", JSON.stringify([s.fbTotal, s.fbToday]));
-  ok(s.ver === "2026-07-31c", "판번호를 함께 알려준다(관리자 화면이 옛 배포를 잡아낸다)", s.ver);
+  ok(s.ver === "2026-07-31d", "판번호를 함께 알려준다(관리자 화면이 옛 배포를 잡아낸다)", s.ver);
 
   // 옛 기록에 남아 있는 깨진 글자(�)는 집계에서 빠져야 한다
   ctx.__sheets.log.appendRow([new Date(), "u9", "visit", "", "v100", "PC", "50��", "��", "�"]);
@@ -327,7 +327,68 @@ console.log("\n■ 9. 기존 기능이 그대로인지 (되돌아보기)");
   const r = get(ctx, { fn: "restore", code: "123456789012" });
   ok(r.ok === true && r.data.a === 1, "복구도 그대로 동작한다");
   const base = get(ctx, {});
-  ok(base.service === "golflife-backend" && base.ver === "2026-07-31c", "기본 응답에 판번호가 실린다", JSON.stringify(base));
+  ok(base.service === "golflife-backend" && base.ver === "2026-07-31d", "기본 응답에 판번호가 실린다", JSON.stringify(base));
+}
+
+console.log("\n■ 10. 개발·테스트 기록을 집계에서 뺀다 (2026-07-31 사장님 지시)");
+{
+  const ctx = makeCtx();
+  /* 앱은 늘 버전(ver)을 함께 보낸다 — '본 버전 수'가 개발 기기를 가려내는 근거라
+     시험 데이터에도 반드시 넣는다. 빼고 돌렸더니 vers=0 이 나와 검사가 잡아냈다. */
+  post(ctx, { rows: [
+    { t: Date.now(), cid: "real1", ev: "visit", ver: "v175", dev: "iOS", age: "40대", gen: "남성" },
+    { t: Date.now(), cid: "real1", ev: "course", ver: "v175", name: "스카이72", reg: "경기북부" },
+    { t: Date.now(), cid: "mypc", ev: "visit", ver: "v174", dev: "PC", age: "30대", gen: "여성" },
+    { t: Date.now(), cid: "mypc", ev: "course", ver: "v175", name: "스카이72", reg: "경기북부" },
+    { t: Date.now(), cid: "verify-pc", ev: "visit", ver: "v175", dev: "PC" },
+    { t: Date.now(), cid: "real1", ev: "course", ver: "v175", name: "테스트CC", reg: "경기남부" },
+  ] });
+
+  // ① 이름만으로 아는 것 — 검사 스크립트(verify-)와 가짜 골프장은 손대지 않아도 빠진다
+  const s0 = get(ctx, { fn: "summary", pw: "golf2026!" });
+  ok(s0.uniq === 2, "검사 스크립트(verify-) 기록은 자동으로 빠진다", "uniq=" + s0.uniq);
+  ok(!s0.courses.some((c) => c[0] === "테스트CC"), "'테스트'가 든 가짜 골프장은 집계에 안 넣는다",
+     JSON.stringify(s0.courses));
+  ok(s0.excluded && s0.excluded.rows === 1 && s0.excluded.test === 1,
+     "뺀 건수를 화면에 알려준다", JSON.stringify(s0.excluded));
+
+  // ② 관리자가 고른 기기 — 기록은 그대로 두고 집계에서만 뺀다
+  const before = ctx.__sheets.log.cells.length;
+  ok(post(ctx, { fn: "devcid", pw: "틀린값", cid: "mypc", on: true }).ok === false,
+     "기기 제외에도 비밀번호가 필요하다");
+  ok(post(ctx, { fn: "devcid", pw: "golf2026!", cid: "mypc", on: true }).ok === true, "기기를 뺄 수 있다");
+  ok(ctx.__sheets.log.cells.length === before, "⚠️ 뺀다고 기록을 지우지는 않는다 — 되돌릴 수 있어야 한다");
+
+  const s1 = get(ctx, { fn: "summary", pw: "golf2026!" });
+  ok(s1.uniq === 1, "뺀 기기는 누적 사용자에서 사라진다", "uniq=" + s1.uniq);
+  ok(!s1.devices.some((d) => d[0] === "PC"), "기기 통계에서도 빠진다", JSON.stringify(s1.devices));
+  ok(!s1.ages.some((a) => a[0] === "30대"), "연령대에서도 빠진다", JSON.stringify(s1.ages));
+  ok(s1.courses[0][1] === 1, "인기 골프장 조회수도 줄어든다", JSON.stringify(s1.courses));
+
+  // ③ 되돌리기 — 잘못 뺐을 때 원래대로
+  ok(post(ctx, { fn: "devcid", pw: "golf2026!", cid: "mypc", on: false }).ok === true, "다시 넣을 수 있다");
+  ok(get(ctx, { fn: "summary", pw: "golf2026!" }).uniq === 2, "되돌리면 숫자가 원래대로 돌아온다");
+
+  // ④ 기기 목록 — 관리자가 고를 근거를 준다
+  ok(get(ctx, { fn: "cids" }).err === "비밀번호가 틀립니다", "기기 목록도 비밀번호가 필요하다");
+  const c = get(ctx, { fn: "cids", pw: "golf2026!" });
+  const row = c.rows.filter((r) => r.cid === "verify-pc")[0];
+  ok(c.rows.length === 3, "기기별로 한 줄씩 준다", "rows=" + c.rows.length);
+  ok(row && row.auto === true && row.off === true, "검사 스크립트 줄은 '늘 빠짐'으로 표시된다", JSON.stringify(row));
+  ok(c.rows[0].vers >= 1 && "n" in c.rows[0] && "first" in c.rows[0],
+     "고를 근거(본 버전 수·기록 수·기간)가 함께 온다", JSON.stringify(c.rows[0]));
+
+  // ⑤ 베타 의견 — 우리가 검사로 넣은 것은 목록에도 안 보인다
+  const ctx2 = makeCtx();
+  // 방문 기록이 하나도 없으면 요약이 빈 값으로 일찍 끝난다 — 실제와 같게 한 줄 넣어 둔다
+  post(ctx2, { rows: [{ t: Date.now(), cid: "abc123", ev: "visit", ver: "v175", dev: "iOS" }] });
+  post(ctx2, fb({ text: "진짜 이용자가 보낸 의견입니다" }));
+  post(ctx2, fb({ cid: "verify-pc", text: "검사하면서 넣은 의견입니다" }));
+  const f = get(ctx2, { fn: "fblist", pw: "golf2026!" });
+  ok(f.rows.length === 1 && !/검사하면서/.test(f.rows[0].text),
+     "검사용 의견은 목록에서 빠진다", JSON.stringify(f.rows.map((r) => r.text)));
+  ok(get(ctx2, { fn: "summary", pw: "golf2026!" }).fbTotal === 1,
+     "의견 건수에서도 빠진다");
 }
 
 console.log("\n" + (fail ? "✖ 실패 " + fail + "건 / 통과 " + pass + "건" : "✅ 전부 통과 (" + pass + "건)"));

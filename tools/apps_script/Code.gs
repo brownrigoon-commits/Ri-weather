@@ -14,7 +14,7 @@
    tools/verify_deploy.py 가 이 값을 서버에서 읽어와 로컬과 대조한다.
    두 번이나 "코드는 고쳤는데 배포를 안 해서" 기능이 죽어 있었다:
      · 기록 백업·복구 (2026-07-27)  · 숙소 객실사진 우선 (2026-07-28) */
-var BACKEND_VER = "2026-07-31c";   // b: 메일 제목 개명 / c: 관리자 화면에서 비밀번호 변경(fn=setpw)
+var BACKEND_VER = "2026-07-31d";   // b: 메일 제목 개명 / c: 비밀번호 변경(fn=setpw) / d: 개발기기 제외·지역군
 
 /* 관리자 비밀번호 — 스크립트 속성 ADMIN_PW 가 정본이다.
    (코드에 적으면 저장소를 공개로 돌리는 순간 그대로 노출된다)
@@ -98,6 +98,49 @@ function sheet_() {
   if (!sh.getRange(1, 9).getValue()) sh.getRange(1, 9).setValue("지역");
   return sh;
 }
+
+/* ---------- 개발·테스트 기록 제외 (2026-07-31 사장님 지시) ----------
+ *
+ * "우리가 테스트로 들어가서 본 내용은 통계에서 빼 달라 — 헷갈린다."
+ *
+ * ⚠️ **기록을 지우지 않는다.** 집계에서만 뺀다.
+ *    지워 버리면 잘못 뺀 걸 알아차렸을 때 되돌릴 방법이 없다.
+ *    스크립트 속성 DEV_CIDS(기기ID 목록)에 넣고 빼는 것이 전부이고,
+ *    관리자 화면에서 버튼으로 켜고 끌 수 있으니 콘솔을 열 일은 없다.
+ *
+ * 앞으로 쌓이는 것은 앱이 막는다(js/stats.js — localhost, `?dev=1`).
+ * 여기서 빼는 것은 그 장치가 없던 때(v170 이전)에 이미 쌓인 기록이다.
+ */
+var DEV_PROP = "DEV_CIDS";
+
+function devCids_() {
+  try {
+    var v = PropertiesService.getScriptProperties().getProperty(DEV_PROP);
+    var a = v ? JSON.parse(v) : [];
+    return Object.prototype.toString.call(a) === "[object Array]" ? a : [];
+  } catch (e) { return []; }
+}
+
+function devMark_(cid, on) {
+  cid = String(cid || "").slice(0, 20);
+  if (!cid) return json_({ ok: false, err: "기기ID가 없습니다" });
+  var list = devCids_(), i = list.indexOf(cid);
+  if (on && i < 0) list.push(cid);
+  if (!on && i >= 0) list.splice(i, 1);
+  PropertiesService.getScriptProperties().setProperty(DEV_PROP, JSON.stringify(list.slice(0, 200)));
+  return json_({ ok: true, n: list.length });
+}
+
+/* 손대지 않아도 늘 빼는 것 — 우리 검사 스크립트가 남긴 기록.
+   (fb 시트의 `verify-pc` 2건이 여기 걸린다) */
+function autoDev_(cid) { return /^(verify|test|dev)[-_]/i.test(String(cid || "")); }
+
+/* 검사하려고 지어낸 가짜 골프장. 실제 등록 구장 231곳에 '테스트'가 든 이름은 없다
+   — 인기 골프장 3위에 '테스트CC 35건'이 올라와 있었다. */
+function isTestName_(name) { return /테스트/.test(String(name || "")); }
+
+/* 이 기록을 집계에서 뺄 것인가 */
+function skipCid_(cid, devMap) { return !!(devMap[cid] || autoDev_(cid)); }
 
 /* ---------- 베타 피드백 ---------- */
 var FB_CATS = { "오류": 1, "불편": 1, "아이디어": 1, "칭찬": 1 };
@@ -196,14 +239,19 @@ function fbList_() {
   if (last < 2) return json_({ rows: [], total: 0 });
   var from = Math.max(2, last - 199);
   var v = sh.getRange(from, 1, last - from + 1, 8).getValues();
-  var rows = v.map(function (r) {
+  // 우리 검사로 넣은 의견은 목록에서도 뺀다 (fb 시트의 `verify-pc` 2건)
+  var devMap = {};
+  devCids_().forEach(function (c) { devMap[c] = 1; });
+  var rows = v.filter(function (r) {
+    return !skipCid_(String(r[1] || ""), devMap);
+  }).map(function (r) {
     return {
       t: new Date(r[0]).getTime(), cid: String(r[1] || ""), cat: String(r[2] || ""),
       stars: r[3] || 0, text: String(r[4] || ""), screen: String(r[5] || ""),
       ver: String(r[6] || ""), dev: String(r[7] || ""),
     };
   }).reverse();
-  return json_({ rows: rows, total: last - 1 });
+  return json_({ rows: rows, total: rows.length });
 }
 
 /* ---------- 기록 백업 (즐겨찾기·스코어 지키기) ----------
@@ -267,6 +315,12 @@ function doPost(e) {
     if (body.fn === "feedback") return fbSave_(body);
     // 비밀번호 변경은 POST 로만 받는다 — GET 이면 주소창·서버 로그에 새 비밀번호가 남는다
     if (body.fn === "setpw") return setPw_(body.pw, body.newPw);
+    // 개발·테스트 기기 표시 (관리자만)
+    if (body.fn === "devcid") {
+      var g = pwGate_(body.pw);
+      if (!g.ok) return json_({ ok: false, err: g.err });
+      return devMark_(body.cid, !!body.on);
+    }
     var rows = body.rows || [];
     if (!rows.length || rows.length > 100) return json_({ ok: false });
     var sh = sheet_();
@@ -309,6 +363,11 @@ function doGet(e) {
     var g2 = pwGate_(p.pw);
     if (!g2.ok) return json_({ err: g2.err });
     return fbList_();
+  }
+  if (p.fn === "cids") {
+    var g3 = pwGate_(p.pw);
+    if (!g3.ok) return json_({ err: g3.err });
+    return cidList_();
   }
   if (p.fn === "tts") return tts_(p.text, p.speaker, p.speed);
   return json_({ ok: true, service: "golflife-backend", ver: BACKEND_VER,
@@ -560,6 +619,48 @@ function placeMeta_(ids) {
   return json_(out);
 }
 
+/* 기기별 목록 — 관리자 화면에서 '이건 우리 테스트' 를 골라내라고 주는 자료.
+ *
+ * 기기ID(cid)만 보고는 누구인지 알 수 없다. 그래서 판단할 근거를 같이 준다:
+ *   · 본 앱 버전 수 — 개발 기기의 가장 뚜렷한 자국이다.
+ *     진짜 이용자는 배포된 버전을 한두 개 본다. v150~v175 를 다 본 기기는 우리다.
+ *   · 접속 수 / 처음·마지막 / 기기 종류 / 대표로 본 골프장
+ * 자동 판정은 하지 않는다 — 헤비 이용자를 개발자로 오해해 지워 버리면 되돌릴 수 없다.
+ */
+function cidList_() {
+  var sh = sheet_();
+  var last = sh.getLastRow();
+  if (last < 2) return json_({ ok: true, rows: [] });
+  var from = Math.max(2, last - 20000);
+  var v = sh.getRange(from, 1, last - from + 1, 9).getValues();
+  var m = {};
+  v.forEach(function (r) {
+    var cid = String(r[1] || "");
+    if (!cid) return;
+    var o = m[cid];
+    if (!o) o = m[cid] = { cid: cid, n: 0, visits: 0, first: 0, last: 0,
+                           dev: "", vers: {}, course: "" };
+    o.n++;
+    if (r[2] === "visit") o.visits++;
+    var t = new Date(r[0]).getTime();
+    if (!o.first || t < o.first) o.first = t;
+    if (t > o.last) o.last = t;
+    if (r[5]) o.dev = String(r[5]);
+    if (r[4]) o.vers[String(r[4])] = 1;
+    if (r[2] === "course" && r[3] && !o.course) o.course = String(r[3]);
+  });
+  var devMap = {};
+  devCids_().forEach(function (c) { devMap[c] = 1; });
+  var rows = Object.keys(m).map(function (k) {
+    var o = m[k];
+    o.vers = Object.keys(o.vers).length;
+    o.auto = autoDev_(k);            // 손댈 수 없는 자동 제외(검사 스크립트)
+    o.off = !!devMap[k] || o.auto;   // 지금 빠져 있나
+    return o;
+  }).sort(function (a, b) { return b.n - a.n; }).slice(0, 150);
+  return json_({ ok: true, rows: rows });
+}
+
 /* 통계 요약 — 관리자 화면용
  *
  * 집계 기준을 여기 적어 둔다(관리자 화면에도 같은 문구를 띄운다):
@@ -585,10 +686,16 @@ function summary_() {
      세어 봐야 '50�' 같은 항목이 화면에 뜰 뿐이라 집계에서 뺀다.
      (2026-07-31 기준 2,556건 중 2건 — 새로 들어오는 기록에는 없다) */
   var okv = function (x) { return x && String(x).indexOf("�") < 0; };
+  /* 개발·테스트 기기는 통째로 건너뛴다 — 방문·기기·연령까지 전부 (2026-07-31) */
+  var devMap = {};
+  devCids_().forEach(function (c) { devMap[c] = 1; });
+  var exRows = 0, exCids = {}, exTest = 0;
   v.forEach(function (r) {
     var when = new Date(r[0]);
     var d = Utilities.formatDate(when, "Asia/Seoul", "MM-dd");
     var cid = r[1], ev = r[2], name = r[3];
+    if (skipCid_(cid, devMap)) { exRows++; exCids[cid] = 1; return; }
+    if (ev === "course" && isTestName_(name)) { exTest++; return; }
     if (ev === "visit") {
       days[d] = (days[d] || 0) + 1;
       uniq[d + "|" + cid] = 1;
@@ -624,18 +731,24 @@ function summary_() {
   var fbTotal = 0, fbToday = 0;
   try {
     var fs = fbSheet_(), fl = fs.getLastRow();
-    fbTotal = Math.max(0, fl - 1);
     if (fl >= 2) {
+      // 우리 검사로 넣은 의견은 빼고 센다 — 시각뿐 아니라 기기ID(2번째 칸)도 읽는다
       var ff = Math.max(2, fl - 300);
-      fs.getRange(ff, 1, fl - ff + 1, 1).getValues().forEach(function (r) {
+      fs.getRange(ff, 1, fl - ff + 1, 2).getValues().forEach(function (r) {
+        if (skipCid_(String(r[1] || ""), devMap)) return;
+        fbTotal++;
         if (Utilities.formatDate(new Date(r[0]), "Asia/Seoul", "MM-dd") === today) fbToday++;
       });
+      // 300건 넘게 쌓이면 그 앞쪽은 세지 못하므로 더해 준다(제외 대상은 초기 2건뿐이라 무시 가능)
+      if (fl - 1 > 300) fbTotal += (fl - 1 - 300);
     }
   } catch (e) {}
 
   return json_({
     ver: BACKEND_VER,
     total: last - 1,
+    // 집계에서 뺀 것 — 화면에 그대로 적어 준다. 조용히 빼면 숫자가 줄어든 이유를 알 수 없다.
+    excluded: { devices: Object.keys(exCids).length, rows: exRows, test: exTest },
     uniq: Object.keys(seen).length,
     back7: back7,
     today: { hits: days[today] || 0, users: uniqDays[today] || 0 },

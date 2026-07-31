@@ -16,12 +16,31 @@
 window.RIW_BACKEND = "https://script.google.com/macros/s/AKfycbzVkab8qBwUdukg_O9FtYjwHvTygc9Riyh3tEOD0z-bALNZxbO9ksRNPLM9y1mOWv9q4A/exec";
 
 const STATS = (() => {
-  /* 개발용 접속(localhost)은 통계에 넣지 않는다.
-     우리가 하루에도 수십 번 열어보는 로컬 미리보기가 그대로 쌓여서,
+  /* 개발용 접속은 통계에 넣지 않는다.
+     우리가 하루에도 수십 번 열어보는 미리보기가 그대로 쌓여서,
      2026-07-31 기준 PC 접속 1,559건 중 상당수가 개발자 자신이었다.
      베타 100명의 진짜 사용 패턴을 보려면 이 잡음을 먼저 걷어내야 한다.
-     ⚠️ 베타 의견(FEEDBACK)은 이용자가 스스로 누른 것이라 여기서 막지 않는다. */
-  const IS_DEV = /^(localhost|127\.0\.0\.1|0\.0\.0\.0|\[::1\])$/.test(location.hostname);
+
+     막는 경로가 둘이다:
+       ① 로컬 미리보기(localhost) — 자동
+       ② 배포본을 우리가 열어 보는 경우 — 주소 뒤에 **?dev=1** 을 한 번 붙이면
+          그 기기는 계속 빠진다(`?dev=0` 으로 해제). 관리자 화면에도 버튼이 있다.
+          ⚠️ ①만 있던 때는 github.io 로 우리가 확인한 것이 전부 쌓였다.
+
+     ⚠️ 베타 의견(FEEDBACK)은 이용자가 스스로 누른 것이라 여기서 막지 않는다.
+        (우리가 검사로 보낸 의견은 서버가 기기ID로 걸러 낸다) */
+  const DEV_KEY = "riweather.dev";
+  try {
+    const m = /[?&]dev=([01])/.exec(location.search);
+    if (m) {
+      if (m[1] === "1") localStorage.setItem(DEV_KEY, "1");
+      else localStorage.removeItem(DEV_KEY);
+    }
+  } catch (_) {}
+  let devDevice = false;
+  try { devDevice = localStorage.getItem(DEV_KEY) === "1"; } catch (_) {}
+  const IS_DEV = devDevice ||
+    /^(localhost|127\.0\.0\.1|0\.0\.0\.0|\[::1\])$/.test(location.hostname);
   const STATS_URL = IS_DEV ? "" : window.RIW_BACKEND;
 
   const CID_KEY = "riweather.cid";
@@ -75,14 +94,51 @@ const STATS = (() => {
     ["경상북", "경북"], ["경북", "경북"], ["경상남", "경남"], ["경남", "경남"],
     ["제주", "제주"],
   ];
+
+  /* 시/도만으로는 뭉뚱그려져 쓸모가 적다 — 국내 골프장의 절반 가까이가 '경기' 한 칸에 몰린다.
+     그래서 '파주 골프장을 봤으면 경기북부' 처럼 골프장이 실제로 묶이는 축으로 쪼갠다
+     (사장님 지시 2026-07-31).
+     ⚠️ 쪼개는 기준은 여전히 **골프장 주소**다. 이용자가 있는 위치가 아니다.
+     경기·강원만 나눈다. 나머지 도는 골프장 수가 적어 더 쪼개면 한 칸에 한두 곳이 되어
+     오히려 읽기 어려워진다. */
+  const GROUP = {
+    경기: {
+      경기북부: ["고양", "파주", "김포", "양주", "의정부", "동두천", "연천",
+                 "포천", "남양주", "구리", "가평"],
+      경기동부: ["하남", "광주", "이천", "여주", "양평"],
+      경기서부: ["부천", "광명", "시흥", "안산"],
+      경기남부: ["성남", "용인", "수원", "화성", "평택", "오산", "안성",
+                 "안양", "과천", "의왕", "군포"],
+    },
+    강원: {
+      강원영동: ["강릉", "속초", "동해", "삼척", "양양", "고성"],
+      강원영서: ["춘천", "원주", "홍천", "횡성", "평창", "정선", "영월",
+                 "철원", "화천", "양구", "인제", "태백"],
+    },
+  };
+
+  /* "파주시" → "파주", "가평군" → "가평".
+     '광주시'(경기)와 '광주광역시'는 시/도 칸이 다르므로 여기서 섞이지 않는다. */
+  function city(s) {
+    return String(s || "").replace(/(특별자치|광역)?시$|군$|구$/, "");
+  }
+
   function region(addr, country) {
     const c = String(country || "").toUpperCase();
     if (c === "JP") return "일본";
     if (c === "CN") return "중국";
-    const head = String(addr || "").trim().split(/\s+/)[0] || "";
-    for (const [pre, out] of SIDO) if (head.indexOf(pre) === 0) return out;
-    if (c && c !== "KR") return "해외";
-    return "";
+    const tok = String(addr || "").trim().split(/\s+/);
+    const head = tok[0] || "";
+    let sido = "";
+    for (const [pre, out] of SIDO) if (head.indexOf(pre) === 0) { sido = out; break; }
+    if (!sido) return (c && c !== "KR") ? "해외" : "";
+    const g = GROUP[sido];
+    if (g) {
+      const t = city(tok[1]);
+      // 시/군 이름을 모르면(주소가 시/도까지만 온 경우) 시/도 그대로 둔다 — 지어내지 않는다
+      if (t) for (const name in g) if (g[name].indexOf(t) >= 0) return name;
+    }
+    return sido;
   }
 
   function hit(ev, name, reg) {
