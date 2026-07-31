@@ -20,6 +20,8 @@
     "js/stay.js": ["openStayView", "fetchKakaoStay", "stayKind", "bookingLinks", "stayCache", "STAY_VIEW"],
     "js/booking.js": ["openBookingView", "golfpangUrl", "golfmonUrl", "bookingLinkCards", "BOOKING_VIEW"],
     "js/bookingids.js": ["BOOKING_IDS"],
+    "js/spirit.js": ["openSpiritView", "SPIRIT_VIEW", "todayQuote", "renderQuoteCard"],
+    "js/spiritdb.js": ["SPIRIT_DB", "QUOTES_DB"],
     "js/legal.js": ["CONSENT"],
     "js/stats.js": ["STATS", "FEEDBACK"],
     /* 2026-07-31 G7 — 데이터 파일도 여기 넣는다. 여태 golfdb/holeimgdb/clubdb 는
@@ -229,7 +231,7 @@
   }));
 
   /* ── 2. 모든 화면 렌더 (오류·깨진 문자열) ───────────────────── */
-  const views = ["home","hub","detail","course","food","stay","booking","score","clubfit"];
+  const views = ["home","hub","detail","course","food","stay","booking","score","clubfit","spirit"];
   for (const v of views) {
     try {
       const el = document.querySelector("#" + v + "-view");
@@ -461,7 +463,7 @@
     if (menus.length < 6) add("허브 메뉴 수가 줄었음", "hub", menus.join(","));
     for (const m of menus) {
       const id = { weather: "detail", course: "course", food: "food", stay: "stay",
-                   score: "score", booking: "booking", clubfit: "clubfit" }[m];
+                   score: "score", booking: "booking", clubfit: "clubfit", spirit: "spirit" }[m];
       if (!id) { add("허브 메뉴에 대응 화면이 없음", m, ""); continue; }
       if (typeof VIEWS === "undefined" || !VIEWS[id])
         add("VIEWS 등록부에 없음(눌러도 하얀 화면)", m, id + "-view");
@@ -680,6 +682,82 @@
     if (courseWasHidden) courseView.hidden = true;        // 원래대로 되돌린다
     veils.forEach((v) => { v.hidden = false; });
   } catch (e) { add("캐디 검사 예외", "caddie", e.message); }
+
+  /* ── 3-11. 골프 정신 — 탭·명언·룰 카드 ─────────────────────────
+     설계: docs/골프정신_설계.md 9장.
+     이 화면은 '읽으라고 만든 글'이라 검사 항목도 내용 쪽에 몰려 있다:
+     글씨 크기, 출처 표기, 정식 규칙과 필드 룰의 구분, 규칙 원문 전재 여부. */
+  try {
+    if (typeof SPIRIT_DB === "undefined" || typeof QUOTES_DB === "undefined") {
+      add("골프 정신 DB 없음", "spirit", "SPIRIT_DB/QUOTES_DB");
+    } else {
+      // (1) 명언 무결성 — en 은 선택(국내 선수의 한국어 원발언), 나머지는 필수
+      QUOTES_DB.forEach((q, i) => {
+        if (!q.who || !q.ko || !q.tip) add("명언에 빈 칸이 있음", "QUOTES_DB[" + i + "]", JSON.stringify(q).slice(0, 90));
+        if (!q.en && !q.ko) add("명언 원문·번역이 둘 다 없음", "QUOTES_DB[" + i + "]", "");
+        if (typeof q.sure !== "boolean") add("명언 출처 표시(sure) 없음", "QUOTES_DB[" + i + "]", q.who || "");
+      });
+      // (2) 1~366일 어느 날이든 유효한 명언이 나오는지
+      for (let d = 1; d <= 366; d++) {
+        const q = QUOTES_DB[d % QUOTES_DB.length];
+        if (!q || !q.ko) { add("그날의 명언이 비어 있음", "todayQuote", d + "일"); break; }
+      }
+      // (3) 필드 룰이 정식 룰로 읽히면 안 된다 — diff 표시된 카드는 "정식" 병기 필수
+      const rules = (SPIRIT_DB.sections.find((s) => s.key === "rules") || {}).items || [];
+      rules.forEach((it) => {
+        if (it.diff && !/정식/.test(it.d))
+          add("필드 룰에 '정식 규칙' 병기가 없음(정식 룰로 오해)", "spiritdb", it.t);
+      });
+      if (!rules.some((it) => it.g === "정식 규칙")) add("정식 규칙 카드가 없음", "spiritdb", "");
+      if (!rules.some((it) => it.g === "아마추어 필드 룰")) add("아마추어 필드 룰 카드가 없음", "spiritdb", "");
+      // (4) 규칙 원문 전재 감지 — 카드 본문에 영문이 길게 이어지면 배포를 멈춘다(저작권)
+      SPIRIT_DB.sections.forEach((s) => s.items.forEach((it) => {
+        const m = String(it.d || "").match(/[A-Za-z][A-Za-z'’,.\-]*(?:\s+[A-Za-z][A-Za-z'’,.\-]*){19,}/);
+        if (m) add("규칙 원문 전재 의심(영문 20단어 이상)", "spiritdb", it.t + " — " + m[0].slice(0, 60));
+      }));
+    }
+
+    // (5) 실제로 화면을 열어 탭을 눌러 본다
+    const spView = document.querySelector("#spirit-view");
+    if (!spView) add("골프 정신 화면 요소가 없음", "spirit", "#spirit-view");
+    else if (typeof openSpiritView === "function") {
+      const wasHidden = spView.hidden;
+      spView.hidden = false;
+      paintSpirit();
+      const tabs = [...spView.querySelectorAll(".sp-tab")];
+      if (tabs.length < 5) add("골프 정신 탭 수가 모자람", "spirit", tabs.length + "개");
+      for (const tb of tabs) {
+        tb.click();
+        await sleep(30);
+        const items = spView.querySelectorAll(".sp-item");
+        if (!items.length) add("탭을 눌렀는데 카드가 없음", "spirit", tb.dataset.tab);
+        // 읽는 글이라 16px 기준 — 캐디 멘트와 같은 이유(고령 이용자 가독성)
+        const d0 = spView.querySelector(".sp-d");
+        if (d0) {
+          const px = parseFloat(getComputedStyle(d0).fontSize);
+          if (px < 15.5) add("골프 정신 본문 글씨가 작음(고령 이용자 가독성)", tb.dataset.tab, px + "px");
+        }
+      }
+      // (6) 룰 탭 꼬리말 — 점검일·반영일·공식 링크
+      const rt = tabs.find((t) => t.dataset.tab === "rules");
+      if (rt) {
+        rt.click();
+        await sleep(30);
+        const foot = spView.querySelector(".sp-foot");
+        const ft = foot ? foot.innerText : "";
+        if (!/최근 점검/.test(ft)) add("룰 탭에 최근 점검일이 없음", "spirit", ft.slice(0, 60));
+        if (!/내용 반영/.test(ft)) add("룰 탭에 내용 반영일이 없음", "spirit", ft.slice(0, 60));
+        if (!spView.querySelector(".sp-link")) add("룰 탭에 공식 규칙 링크가 없음", "spirit", "");
+      }
+      // (7) 출처 불확실한 명언은 반드시 "전해지는" 으로 적는다
+      if (typeof quoteWho === "function") {
+        const unsure = QUOTES_DB.find((q) => !q.sure);
+        if (unsure && !/전해지는/.test(quoteWho(unsure)))
+          add("출처 불확실 명언에 '전해지는 말' 표기가 없음", "quoteWho", unsure.who);
+      }
+      spView.hidden = wasHidden;
+    }
+  } catch (e) { add("골프 정신 검사 예외", "spirit", e.message); }
 
   /* ── 4. 브랜드 잔재 점검 ─────────────────────────────────────── */
   const html = document.body.innerText;

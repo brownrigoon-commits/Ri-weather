@@ -563,6 +563,9 @@ function renderHome() {
   });
   staggerIn(courseListEl);   // 카드가 위에서부터 차례로 떠오르게
 
+  // 오늘의 한마디 (승락한 분에게만) — 저장 구장이 없어도 보여야 하므로 return 앞에 둔다
+  if (typeof renderQuoteCard === "function") renderQuoteCard();
+
   if (!courses.length) return;
   fetchHomeWeather(courses).then((list) => {
     courses.forEach((c, i) => {
@@ -726,6 +729,7 @@ const VIEWS = {
   stay: $("#stay-view"),
   booking: $("#booking-view"),
   clubfit: $("#clubfit-view"),
+  spirit: $("#spirit-view"),
 };
 /* ⚠️ 화면을 새로 만들면 **여기 등록부터** 하세요.
    showOnly() 는 이 표에 있는 것만 켜고 나머지는 전부 끕니다.
@@ -870,6 +874,7 @@ document.querySelectorAll(".hub-item").forEach((btn) => {
     const m = btn.dataset.menu;
     if (typeof STATS !== "undefined") STATS.hit("feature", m);
     if (m === "weather") openDetail(currentCourse);
+    else if (m === "spirit") openSpiritView();
     else if (m === "course") openCourseView();
     else if (m === "food") openFoodView();
     else if (m === "score") openScoreView();

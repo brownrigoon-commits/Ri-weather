@@ -25,6 +25,7 @@ TARGETS = [
     "index.html", "manifest.webmanifest", "ops-k58zq.html",
     "js/app.js", "js/legal.js", "js/stats.js", "js/clubfit.js",
     "js/booking.js", "js/stay.js", "js/loading.js", "css/style.css",
+    "js/spirit.js", "js/spiritdb.js",
     "tools/apps_script/Code.gs",
 ]
 

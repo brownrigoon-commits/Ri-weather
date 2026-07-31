@@ -12,6 +12,8 @@ const CORE = [
   "./js/stay.js",
   "./js/bookingids.js",
   "./js/booking.js",
+  "./js/spiritdb.js",
+  "./js/spirit.js",
   "./assets/brand/golfpang.png",
   "./assets/brand/golfmon.png",
   "./js/clubdb.js",
