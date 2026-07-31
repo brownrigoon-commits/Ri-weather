@@ -19,79 +19,82 @@ const WAIT = (() => {
      2) 가운데는 "지금 무엇을 하고 있는지" (진행 중이라는 증거)
      3) 마지막은 곧 끝난다는 신호
      각 문구는 약 1.9초씩 머문다. 마지막 문구는 끝날 때까지 유지된다. */
+  /* 바깥 키(score·caddie·food…)는 문구가 아니라 '값'이다.
+     WAIT.open("food") 처럼 호출하는 쪽이 이 이름으로 상황을 고른다 — 번역하지 않는다.
+     문구만 tr() 로 사전(js/i18n/src/ko.loading.json)에서 꺼낸다. */
   const SCRIPTS = {
     // MY스코어 저장·분석
     score: {
-      sub: "잠시만 기다려 주세요",
+      sub: tr("wait.score.sub"),
       msgs: [
-        "이번 라운딩도 고생하셨어요",
-        "방금 치신 기록을 적고 있어요",
-        "지난 라운딩들과 나란히 놓아볼게요",
-        "평균 타수를 다시 계산하는 중이에요",
-        "거의 다 정리했어요",
+        tr("wait.score.1"),
+        tr("wait.score.2"),
+        tr("wait.score.3"),
+        tr("wait.score.4"),
+        tr("wait.score.5"),
       ],
     },
     // AI 캐디 코스 공략
     // ⚠ 여기 문구는 실제로 하는 일만 적는다. 예전에 "오늘 바람과 기온을 확인" 이라고
     //   적혀 있었지만 캐디는 날씨를 보지 않는다(프롬프트에 날씨가 없다). 2026-07-29 교정.
     caddie: {
-      sub: "홀맵과 골퍼님 실력을 함께 봅니다",
+      sub: tr("wait.caddie.sub"),
       msgs: [
-        "이 홀을 살펴보고 있어요",
-        "골퍼님 구질과 평균 타수에 맞춰 생각하고 있어요",
-        "샷마다 공략을 정리하고 있어요",
+        tr("wait.caddie.1"),
+        tr("wait.caddie.2"),
+        tr("wait.caddie.3"),
       ],
     },
     // 클럽 피팅 판정 — 피팅샵에 클럽을 맡긴 것처럼 과정을 들려준다.
     // (사장님 지시 2026-07-27: "클럽을 당신에게 맞추고 있다"는 느낌이 나야 함)
     clubfit: {
-      sub: "답해주신 내용으로 후보를 좁힙니다",
+      sub: tr("wait.clubfit.sub"),
       msgs: [
-        "지금 당신의 스윙을 분석하고 있어요",
-        "피팅샵 문을 열고 들어갔어요",
-        "클럽 강도와 무게를 확인하는 중이에요",
-        "당신 스윙에 맞게 샤프트를 깎고 있어요",
-        "마지막으로 그립을 감고 있어요",
-        "거의 다 됐어요",
+        tr("wait.clubfit.1"),
+        tr("wait.clubfit.2"),
+        tr("wait.clubfit.3"),
+        tr("wait.clubfit.4"),
+        tr("wait.clubfit.5"),
+        tr("wait.clubfit.6"),
       ],
     },
     // 주변 맛집
     food: {
-      sub: "라운딩 끝나고 가실 곳을 찾습니다",
+      sub: tr("wait.food.sub"),
       msgs: [
-        "골프장 주변을 둘러보고 있어요",
-        "별점 높은 곳부터 모으는 중이에요",
-        "가게 사진을 가져오고 있어요",
-        "거의 다 왔어요",
+        tr("wait.food.1"),
+        tr("wait.food.2"),
+        tr("wait.food.3"),
+        tr("wait.food.4"),
       ],
     },
     // 숙박 — 라운딩 뒤 어디서 잘지
     stay: {
-      sub: "골프장에서 가까운 곳부터 봅니다",
+      sub: tr("wait.stay.sub"),
       msgs: [
-        "골프장 주변 숙소를 찾고 있어요",
-        "평점이 좋은 곳부터 모으는 중이에요",
-        "숙소 사진을 가져오고 있어요",
-        "거의 다 왔어요",
+        tr("wait.stay.1"),
+        tr("wait.stay.2"),
+        tr("wait.stay.3"),
+        tr("wait.stay.4"),
       ],
     },
     // 날씨 불러오기
     weather: {
       // 실제 출처는 Open-Meteo 다. "기상청 자료"라고 쓰면 사실과 다르다. (2026-07-28)
-      sub: "예보 자료를 받아옵니다",
+      sub: tr("wait.weather.sub"),
       msgs: [
-        "골프장 하늘을 확인하고 있어요",
-        "시간대별 날씨를 정리하는 중이에요",
-        "비구름이 지나가는지 보고 있어요",
+        tr("wait.weather.1"),
+        tr("wait.weather.2"),
+        tr("wait.weather.3"),
       ],
     },
     // 기록 백업·복원
     backup: {
-      sub: "안전하게 옮기는 중입니다",
+      sub: tr("wait.backup.sub"),
       msgs: [
-        "소중한 기록을 옮기고 있어요",
-        "하나도 빠뜨리지 않게 확인하는 중이에요",
-        "거의 다 됐어요",
+        tr("wait.backup.1"),
+        tr("wait.backup.2"),
+        tr("wait.backup.3"),
       ],
     },
   };

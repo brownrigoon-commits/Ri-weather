@@ -235,7 +235,7 @@ const FEEDBACK = (() => {
 
   /* 대기 중인 것 먼저 비우고, 새 글을 보낸다 */
   async function send(input) {
-    if (!URL_) return { ok: false, err: "서버 주소가 없습니다" };
+    if (!URL_) return { ok: false, err: tr("stats.err.nourl") };
     const item = Object.assign({ t: Date.now() }, meta(), input);
     const res = await post(item);
     if (res.ok) { flush(); return res; }

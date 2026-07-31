@@ -56,6 +56,26 @@ const STAY_ICON = {
   "게스트하우스": "🏠", "민박": "🏠", "펜션": "🏡", "캠핑": "⛺", "기타": "🛏️",
 };
 
+/* 유형 이름을 '화면 글자'로 바꾼다.
+   ⚠️ 들어오는 한국어(kind)는 **값**이다 — stayKind() 의 반환값이자 필터 비교값(STAY_VIEW.cat)이고
+      STAY_ALLOW·STAY_CORE·STAY_ICON 의 키다. 값은 그대로 두고 보여줄 때만 여기서 갈아끼운다.
+      모르는 값이 오면 원문 그대로 — 빈칸이 되느니 한국어라도 보이는 편이 낫다. */
+function stayKindLabel(kind) {
+  switch (kind) {
+    case "전체":        return tr("stay.cat.all");
+    case "무인텔":      return tr("stay.kind.unmanned");
+    case "모텔":        return tr("stay.kind.motel");
+    case "호텔":        return tr("stay.kind.hotel");
+    case "리조트":      return tr("stay.kind.resort");
+    case "게스트하우스": return tr("stay.kind.guesthouse");
+    case "민박":        return tr("stay.kind.minbak");
+    case "펜션":        return tr("stay.kind.pension");
+    case "캠핑":        return tr("stay.kind.camping");
+    case "기타":        return tr("stay.kind.etc");
+    default:            return kind;
+  }
+}
+
 /* 유형별 키워드로 나눠 찾는다.
  *
  * 예전엔 숙박 카테고리(AD5) 하나로 훑었는데, 카카오가 **45건에서 자르기 때문에**
@@ -148,7 +168,8 @@ function lowPrice(rooms) {
   const ps = (rooms || []).map((r) => r.p).filter((p) => p > 0);
   return ps.length ? Math.min(...ps) : 0;
 }
-const won = (n) => n.toLocaleString("ko-KR") + "원";
+// 숫자 자릿점은 표기 형식이라 "ko-KR" 그대로 둔다(문구가 아니다). 단위 글자만 문구로.
+const won = (n) => tr("stay.won", { n: n.toLocaleString("ko-KR") });
 
 function stayQuery(it) {
   const region = stayRegion(it.addr);
@@ -170,7 +191,9 @@ function stayQuery(it) {
 function bookingLinks(it) {
   const { q, byName } = stayQuery(it);
   const e = encodeURIComponent(q);
-  const tail = byName ? "" : " 숙소";
+  /* ⚠️ 검색어 q 는 예약 사이트로 나가는 **값**이다 — 사전으로 옮기지 않는다.
+     이름이 아니라 '지역 숙소 목록'으로 보내는 링크만 버튼 글자에 그렇게 적어준다. */
+  const area = !byName;
   /* ⚠️ 날짜·인원을 링크에 붙이지 않는다.
      붙였더니 "옵션 없을 때는 나오던 숙소가 안 나온다"는 확인을 받았다(2026-07-28).
      여기어때는 파라미터가 없어도 항상 오늘~내일 날짜가 걸려 있고, 조건을 좁힐수록
@@ -182,14 +205,15 @@ function bookingLinks(it) {
   // 판매중인 객실이 있으면 그 숙소 예약 페이지로 바로 보낸다(검색 실패 없음).
   const rooms = onSaleRooms(it);
   if (rooms && rooms.length && (it.bookUrl || it.url)) {
-    out.push(["카카오 예약", it.bookUrl || it.url, "bk-kk", ""]);
+    out.push([tr("stay.book.kakao"), it.bookUrl || it.url, "bk-kk", false]);
   } else if (rooms === null && typeof it.vendor === "number" && it.vendor > 0 && it.url) {
-    out.push(["카카오 예약", it.url, "bk-kk", ""]);   // 객실 정보를 못 받은 경우의 폴백
+    out.push([tr("stay.book.kakao"), it.url, "bk-kk", false]);   // 객실 정보를 못 받은 경우의 폴백
   }
   out.push(
-    ["야놀자", `https://nol.yanolja.com/results?keyword=${e}`, "bk-ya", tail],
-    ["여기어때", `https://www.yeogi.com/domestic-accommodations?searchType=KEYWORD&keyword=${e}`, "bk-gc", tail],
-    ["네이버", `https://search.naver.com/search.naver?query=${encodeURIComponent(q + " 숙박")}`, "bk-nv", tail]
+    [tr("stay.book.yanolja"), `https://nol.yanolja.com/results?keyword=${e}`, "bk-ya", area],
+    [tr("stay.book.yeogi"), `https://www.yeogi.com/domestic-accommodations?searchType=KEYWORD&keyword=${e}`, "bk-gc", area],
+    // 네이버 검색어의 " 숙박" 은 검색엔진에 보내는 값이라 그대로 둔다
+    [tr("stay.book.naver"), `https://search.naver.com/search.naver?query=${encodeURIComponent(q + " 숙박")}`, "bk-nv", area]
   );
   return out;
 }
@@ -210,8 +234,9 @@ function bookingLinks(it) {
 function bookBtn(it) {
   // "요금 보기"라고 쓰면 요금이 있다고 단정하는 셈이다. 실제로는 검색만 해줄 뿐이라
   // 없는 숙소일 때 사용자가 속았다고 느낀다 → "검색"으로 정직하게 쓴다. (2026-07-28)
-  return bookingLinks(it).map(([t, u, c, tail]) =>
-    `<a class="fa-btn ${c}" href="${u}" target="_blank" rel="noopener">${t}${tail}</a>`).join("");
+  return bookingLinks(it).map(([t, u, c, area]) =>
+    `<a class="fa-btn ${c}" href="${u}" target="_blank" rel="noopener">${
+      area ? tr("stay.book.area", { name: t }) : t}</a>`).join("");
 }
 
 /* 예약 '창구'가 있는지만 알려준다 — 날짜별 빈방 여부가 아니다.
@@ -227,11 +252,11 @@ function bookableTag(it) {
      vendor 수만 보다가 "전화 예약"이라 써 놓고 바로 밑에 "50,000원~ 스탠다드·디럭스"
      가 뜨는 앞뒤 안 맞는 카드가 나왔다(월드모텔, 2026-07-29 실측). */
   const rooms = onSaleRooms(it);
-  if (rooms && rooms.length) return ' <span class="stay-ok">온라인 예약</span>';
+  if (rooms && rooms.length) return ' <span class="stay-ok">' + tr("stay.tag.online") + "</span>";
   if (typeof it.vendor !== "number") return "";
   return it.vendor > 0
-    ? ' <span class="stay-ok">온라인 예약</span>'
-    : ' <span class="stay-tel">전화 예약</span>';
+    ? ' <span class="stay-ok">' + tr("stay.tag.online") + "</span>"
+    : ' <span class="stay-tel">' + tr("stay.tag.tel") + "</span>";
 }
 
 /* 요금·객실 한 줄 — 눌러보지 않아도 얼마인지, 어떤 방이 있는지 보인다 */
@@ -250,15 +275,15 @@ function roomLine(it) {
   if (rooms === null || !rooms.length) return "";      // 모르면 아무 말도 안 한다
   const p = lowPrice(rooms);
   const names = [...new Set(rooms.map(roomName))].slice(0, 3).join(" · ");
-  return `<div class="fi-room"><b>${p ? won(p) + "~" : "요금 문의"}</b><span>${names}</span></div>`;
+  return `<div class="fi-room"><b>${p ? tr("stay.room.from", { price: won(p) })
+    : tr("stay.room.ask")}</b><span>${names}</span></div>`;
 }
 
 function renderStayList(list, course) {
   const el = document.querySelector("#stay-list");
   el.innerHTML = "";
   if (!list.length) {
-    el.innerHTML = '<p class="food-osm-empty">골프장 20km 안에서 묵을 만한 곳을 찾지 못했습니다.<br>' +
-      '<small>호텔·모텔·무인텔·게스트하우스 위주로 찾습니다.</small></p>';
+    el.innerHTML = '<p class="food-osm-empty">' + tr("stay.empty") + "</p>";
     return;
   }
 
@@ -281,19 +306,19 @@ function renderStayList(list, course) {
     });
     parent.appendChild(row);
   };
-  const sorts = [["dist", "📍 가까운순"]];
-  if (hasRatings) sorts.push(["reco", "⭐ 추천순"]);
+  // 칩의 [v, t] 에서 v 는 값(STAY_VIEW 에 담겨 === 로 비교된다) · t 만 화면 글자다
+  const sorts = [["dist", "📍 " + tr("stay.sort.dist")]];
+  if (hasRatings) sorts.push(["reco", "⭐ " + tr("stay.sort.reco")]);
   mk(bar, sorts, STAY_VIEW.sort, (v) => { STAY_VIEW.sort = v; });
   // 칩 순서는 STAY_ALLOW 를 따른다 — 목록에 들어온 순서대로 두면 갈 때마다 자리가 바뀐다
   const have = new Set(list.map((x) => x.kind));
-  mk(bar, ["전체", ...STAY_ALLOW.filter((k) => have.has(k))].map((k) => [k, k]),
+  mk(bar, ["전체", ...STAY_ALLOW.filter((k) => have.has(k))].map((k) => [k, stayKindLabel(k)]),
     STAY_VIEW.cat, (v) => { STAY_VIEW.cat = v; });
   el.appendChild(bar);
 
   const note = document.createElement("p");
   note.className = "food-osm-sub";
-  note.innerHTML = `${course.name} 기준 가까운 순 · 하룻밤 묵기 좋은 곳만 골랐습니다 (펜션·캠핑 제외)<br>` +
-    `<b>요금은 예약 사이트에서 확인</b>하세요 — 날짜·인원에 따라 달라집니다.`;
+  note.innerHTML = tr("stay.note", { course: course.name });
   el.appendChild(note);
 
   let arr = list.filter((x) => STAY_VIEW.cat === "전체" || x.kind === STAY_VIEW.cat);
@@ -319,7 +344,7 @@ function renderStayList(list, course) {
         <span class="fi-emoji">${STAY_ICON[it.kind] || "🛏️"}</span>
         <div style="flex:1;min-width:0">
           <div class="fi-name">${it.name}</div>
-          <div class="fi-sub">${it.kind}${star}${bookableTag(it)}</div>
+          <div class="fi-sub">${stayKindLabel(it.kind)}${star}${bookableTag(it)}</div>
           ${roomLine(it)}
         </div>
         <span class="fi-dist">${km}</span>
@@ -327,10 +352,10 @@ function renderStayList(list, course) {
       <div class="fi-photos" data-pid="${it.id}"></div>
       <div class="fi-meta">📍 ${it.addr}</div>
       <div class="fi-actions">
-        ${tel ? `<a class="fa-btn fa-tel" href="tel:${tel}">📞 전화</a>` : ""}
-        <a class="fa-btn fa-kakao" href="kakaomap://route?ep=${it.lat},${it.lon}&by=CAR">카카오내비</a>
-        <a class="fa-btn fa-tmap" href="tmap://route?goalname=${encodeURIComponent(it.name)}&goaly=${it.lat}&goalx=${it.lon}">T맵</a>
-        <a class="fa-btn fa-naver" href="https://m.search.naver.com/search.naver?query=${encodeURIComponent(it.name)}" target="_blank" rel="noopener"><b>N</b>리뷰</a>
+        ${tel ? `<a class="fa-btn fa-tel" href="tel:${tel}">📞 ${tr("stay.act.tel")}</a>` : ""}
+        <a class="fa-btn fa-kakao" href="kakaomap://route?ep=${it.lat},${it.lon}&by=CAR">${tr("stay.act.navi")}</a>
+        <a class="fa-btn fa-tmap" href="tmap://route?goalname=${encodeURIComponent(it.name)}&goaly=${it.lat}&goalx=${it.lon}">${tr("stay.act.tmap")}</a>
+        <a class="fa-btn fa-naver" href="https://m.search.naver.com/search.naver?query=${encodeURIComponent(it.name)}" target="_blank" rel="noopener"><b>N</b>${tr("stay.act.review")}</a>
       </div>
       <div class="fi-actions stay-book">${bookBtn(it)}</div>`;
     el.appendChild(card);
@@ -362,8 +387,8 @@ function loadStayPhotos(it, box) {
 function openStayView() {
   const course = currentCourse;
   if (viewStack[viewStack.length - 1] !== "stay") pushView("stay");
-  document.querySelector("#stay-title").textContent = "숙박";
-  document.querySelector("#stay-desc").textContent = `${course.name} 주변 숙소`;
+  document.querySelector("#stay-title").textContent = tr("stay.title");
+  document.querySelector("#stay-desc").textContent = tr("stay.desc", { course: course.name });
   runStaySearch(course);
 }
 
@@ -373,31 +398,27 @@ async function runStaySearch(course) {
   const alive = () => currentCourse === course && viewStack[viewStack.length - 1] === "stay";
   if (!getKakaoKey()) {
     document.querySelector("#stay-list").innerHTML =
-      '<p class="food-osm-empty">숙소 정보를 불러올 수 없습니다.</p>';
+      '<p class="food-osm-empty">' + tr("stay.err.nokey") + "</p>";
     return;
   }
 
-  const w = WAIT.open("stay", { msgs: [`${course.name} 주변 숙소를 찾고 있어요`] });
+  const searching = tr("stay.wait.search", { course: course.name });
+  const w = WAIT.open("stay", { msgs: [searching] });
   try {
-    w.say(`${course.name} 주변 숙소를 찾고 있어요`, 12);
+    w.say(searching, 12);
     const list = await fetchKakaoStay(course);
     if (!alive()) { w.close(); return; }
 
     if (!list.length) { w.close(); renderStayList([], course); return; }
-    w.say(`숙소 ${list.length}곳을 찾았어요<br>묵어본 사람들 평을 확인하고 있어요`, 34);
+    w.say(tr("stay.wait.found", { n: list.length }), 34);
     try { await attachFoodRatings(list); } catch (_) {}
     if (!alive()) { w.close(); return; }
 
     // 사진 없는 숙소는 목록에서 뺀다 — 사진으로 고르는 화면이라 이름만 있는 카드는 의미가 없다
     // 오래 걸리는 구간이라 "내가 이만큼 발품 팔고 있다"를 문구로 계속 바꿔가며 보여준다
     const STEPS = [
-      "숙소를 하나씩 찾아가 보고 있어요",
-      "객실이 어떤지 사진을 모으는 중이에요",
-      "잠자리 컨디션을 살펴보고 있어요",
-      "주차·시설은 어떤지 확인하고 있어요",
-      "골프장에서 얼마나 가까운지 재고 있어요",
-      "사진이 없는 곳은 걸러내고 있어요",
-      "보기 좋게 줄 세우고 있어요",
+      tr("stay.step.1"), tr("stay.step.2"), tr("stay.step.3"), tr("stay.step.4"),
+      tr("stay.step.5"), tr("stay.step.6"), tr("stay.step.7"),
     ];
     w.say(STEPS[0], 46);
     let shown = [];
@@ -410,18 +431,18 @@ async function runStaySearch(course) {
     if (!alive()) { w.close(); return; }
     if (!shown.length) {
       document.querySelector("#stay-list").innerHTML =
-        '<p class="food-osm-empty">사진이 등록된 숙소를 찾지 못했습니다.<br>잠시 후 다시 열어 주세요.</p>';
+        '<p class="food-osm-empty">' + tr("stay.err.nophoto") + "</p>";
       w.close();
       return;
     }
 
-    w.say("가까운 순으로 정리하고 있어요", 92);
+    w.say(tr("stay.wait.sort"), 92);
     STAY_VIEW.sort = "dist";
     STAY_VIEW.cat = "전체";
     renderStayList(shown, course);
   } catch (e) {
     document.querySelector("#stay-list").innerHTML =
-      '<p class="food-osm-empty">숙소를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.</p>';
+      '<p class="food-osm-empty">' + tr("stay.err.load") + "</p>";
   } finally {
     w.close();
   }

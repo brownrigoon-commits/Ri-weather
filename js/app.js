@@ -4,7 +4,7 @@
  * ========================================================= */
 "use strict";
 
-const APP_VER = "v181"; // 배포 버전 (홈 화면 배지에 표시)
+const APP_VER = "v182"; // 배포 버전 (홈 화면 배지에 표시)
 const APP_NOTE = "골프 정신"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
 const STORAGE_KEY = "riweather.courses.v1";
 
@@ -23,18 +23,18 @@ const getGemKey = () => localStorage.getItem(GEM_KEY) || atob(EMBED_GEM_B64);
 
 /* ---------- WMO 날씨 코드 → 설명/아이콘 ---------- */
 const WMO = {
-  0:  ["맑음", "☀️"],       1:  ["대체로 맑음", "🌤️"],
-  2:  ["구름 조금", "⛅️"],  3:  ["흐림", "☁️"],
-  45: ["안개", "🌫️"],       48: ["착빙 안개", "🌫️"],
-  51: ["약한 이슬비", "🌦️"], 53: ["이슬비", "🌦️"], 55: ["강한 이슬비", "🌧️"],
-  56: ["어는 이슬비", "🌧️"], 57: ["강한 어는 이슬비", "🌧️"],
-  61: ["약한 비", "🌧️"],    63: ["비", "🌧️"],     65: ["강한 비", "🌧️"],
-  66: ["어는 비", "🌧️"],    67: ["강한 어는 비", "🌧️"],
-  71: ["약한 눈", "🌨️"],    73: ["눈", "🌨️"],     75: ["강한 눈", "❄️"],
-  77: ["싸락눈", "🌨️"],
-  80: ["약한 소나기", "🌦️"], 81: ["소나기", "🌧️"], 82: ["강한 소나기", "⛈️"],
-  85: ["소낙눈", "🌨️"],     86: ["강한 소낙눈", "❄️"],
-  95: ["뇌우", "⛈️"],       96: ["뇌우·우박", "⛈️"], 99: ["강한 뇌우·우박", "⛈️"],
+  0:  [tr("app.wmo.0"), "☀️"],       1:  [tr("app.wmo.1"), "🌤️"],
+  2:  [tr("app.wmo.2"), "⛅️"],  3:  [tr("app.wmo.3"), "☁️"],
+  45: [tr("app.wmo.45"), "🌫️"],       48: [tr("app.wmo.48"), "🌫️"],
+  51: [tr("app.wmo.51"), "🌦️"], 53: [tr("app.wmo.53"), "🌦️"], 55: [tr("app.wmo.55"), "🌧️"],
+  56: [tr("app.wmo.56"), "🌧️"], 57: [tr("app.wmo.57"), "🌧️"],
+  61: [tr("app.wmo.61"), "🌧️"],    63: [tr("app.wmo.63"), "🌧️"],     65: [tr("app.wmo.65"), "🌧️"],
+  66: [tr("app.wmo.66"), "🌧️"],    67: [tr("app.wmo.67"), "🌧️"],
+  71: [tr("app.wmo.71"), "🌨️"],    73: [tr("app.wmo.73"), "🌨️"],     75: [tr("app.wmo.75"), "❄️"],
+  77: [tr("app.wmo.77"), "🌨️"],
+  80: [tr("app.wmo.80"), "🌦️"], 81: [tr("app.wmo.81"), "🌧️"], 82: [tr("app.wmo.82"), "⛈️"],
+  85: [tr("app.wmo.85"), "🌨️"],     86: [tr("app.wmo.86"), "❄️"],
+  95: [tr("app.wmo.95"), "⛈️"],       96: [tr("app.wmo.96"), "⛈️"], 99: [tr("app.wmo.99"), "⛈️"],
 };
 const wmoDesc = (c) => (WMO[c] || ["-", "🌡️"])[0];
 const wmoIcon = (c) => (WMO[c] || ["-", "🌡️"])[1];
@@ -76,12 +76,11 @@ function wxScene(code, isDay) {
   return `<div class="wx-scene ${k}${night ? " is-night" : ""}" aria-hidden="true">${bits.join("")}</div>`;
 }
 
-const DIR_KO = ["북", "북북동", "북동", "동북동", "동", "동남동", "남동", "남남동",
-                "남", "남남서", "남서", "서남서", "서", "서북서", "북서", "북북서"];
+const DIR_KO = tr("app.dir").split(",");
 const windDirKo = (deg) => DIR_KO[Math.round(((deg % 360) + 360) % 360 / 22.5) % 16];
 
-const DAY_NAMES = ["오늘", "내일", "모레", "3일 후"];
-const WEEKDAYS = ["일", "월", "화", "수", "목", "금", "토"];
+const DAY_NAMES = tr("app.day.names").split(",");
+const WEEKDAYS = tr("app.dow").split(",");
 const fmtDayDate = (dOff, t) =>
   `${DAY_NAMES[dOff] || ""}(${WEEKDAYS[t.getDay()]}) ${t.getMonth() + 1}/${t.getDate()}`;
 
@@ -89,9 +88,9 @@ const fmtDayDate = (dOff, t) =>
 const $ = (sel) => document.querySelector(sel);
 const fmtHourKo = (d) => {
   const h = d.getHours();
-  const ampm = h < 12 ? "오전" : "오후";
+  const ampm = h < 12 ? tr("app.time.am") : tr("app.time.pm");
   const h12 = h % 12 === 0 ? 12 : h % 12;
-  return `${ampm} ${h12}시`;
+  return tr("app.time.hour", { ampm: ampm, h: h12 });
 };
 const fmtHM = (d) => `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
 const dayOffsetFrom = (base, t) =>
@@ -423,31 +422,31 @@ const COUNTRY_FLAG = { KR: "🇰🇷", JP: "🇯🇵", CN: "🇨🇳" };
 
 /* ---------- 골프 기준 한 줄 평가 ---------- */
 function evalPrecip(mmh) {
-  if (mmh < 0.1) return ["비 걱정 없어요", "grade-good"];
-  if (mmh < 0.5) return ["이슬비 — 라운딩 가능, 우비 챙기세요", "grade-normal"];
-  if (mmh < 3)   return ["우산·우비 필수, 그린이 느려져요", "grade-bad"];
-  if (mmh < 8)   return ["라운딩이 힘든 비예요", "grade-worst"];
-  return ["폭우 — 라운딩 불가 수준", "grade-worst"];
+  if (mmh < 0.1) return [tr("app.eval.rain.0"), "grade-good"];
+  if (mmh < 0.5) return [tr("app.eval.rain.1"), "grade-normal"];
+  if (mmh < 3)   return [tr("app.eval.rain.2"), "grade-bad"];
+  if (mmh < 8)   return [tr("app.eval.rain.3"), "grade-worst"];
+  return [tr("app.eval.rain.4"), "grade-worst"];
 }
 function evalHumidity(rh) {
-  if (rh < 40) return ["건조 — 공이 잘 날아가요", "grade-good"];
-  if (rh < 65) return ["쾌적한 라운딩 습도예요", "grade-good"];
-  if (rh < 80) return ["약간 습해요 — 수건 챙기세요", "grade-normal"];
-  if (rh < 90) return ["습해서 땀이 잘 안 말라요", "grade-bad"];
-  return ["매우 습함 — 그립 미끄러짐 주의", "grade-worst"];
+  if (rh < 40) return [tr("app.eval.hum.0"), "grade-good"];
+  if (rh < 65) return [tr("app.eval.hum.1"), "grade-good"];
+  if (rh < 80) return [tr("app.eval.hum.2"), "grade-normal"];
+  if (rh < 90) return [tr("app.eval.hum.3"), "grade-bad"];
+  return [tr("app.eval.hum.4"), "grade-worst"];
 }
 function evalWind(ms) {
-  if (ms < 2) return ["바람 영향 거의 없어요", "grade-good"];
-  if (ms < 4) return ["약풍 — 반 클럽 정도 영향", "grade-good"];
-  if (ms < 6) return ["한 클럽 더 잡으세요", "grade-normal"];
-  if (ms < 9) return ["강풍 — 두 클럽 이상 봐야 해요", "grade-bad"];
-  return ["매우 강한 바람 — 라운딩 힘들어요", "grade-worst"];
+  if (ms < 2) return [tr("app.eval.wind.0"), "grade-good"];
+  if (ms < 4) return [tr("app.eval.wind.1"), "grade-good"];
+  if (ms < 6) return [tr("app.eval.wind.2"), "grade-normal"];
+  if (ms < 9) return [tr("app.eval.wind.3"), "grade-bad"];
+  return [tr("app.eval.wind.4"), "grade-worst"];
 }
 function evalVis(km) {
-  if (km >= 10) return ["시야 좋음 — 공 끝까지 보여요", "grade-good"];
-  if (km >= 5)  return ["약간 뿌옇지만 지장 없어요", "grade-normal"];
-  if (km >= 2)  return ["연무 — 공 찾기 어려울 수 있어요", "grade-bad"];
-  return ["짙은 안개 — 낙하지점이 안 보여요", "grade-worst"];
+  if (km >= 10) return [tr("app.eval.vis.0"), "grade-good"];
+  if (km >= 5)  return [tr("app.eval.vis.1"), "grade-normal"];
+  if (km >= 2)  return [tr("app.eval.vis.2"), "grade-bad"];
+  return [tr("app.eval.vis.3"), "grade-worst"];
 }
 function setEval(id, [text, cls]) {
   const el = $(id);
@@ -459,10 +458,10 @@ function setEval(id, [text, cls]) {
 function pmGrade(v, isPm25) {
   const t = isPm25 ? [15, 35, 75] : [30, 80, 150];
   if (v == null) return ["-", ""];
-  if (v <= t[0]) return ["좋음", "grade-good"];
-  if (v <= t[1]) return ["보통", "grade-normal"];
-  if (v <= t[2]) return ["나쁨", "grade-bad"];
-  return ["매우나쁨", "grade-worst"];
+  if (v <= t[0]) return [tr("app.pm.good"), "grade-good"];
+  if (v <= t[1]) return [tr("app.pm.normal"), "grade-normal"];
+  if (v <= t[2]) return [tr("app.pm.bad"), "grade-bad"];
+  return [tr("app.pm.worst"), "grade-worst"];
 }
 
 /* =========================================================
@@ -544,17 +543,17 @@ function renderHome() {
         </div>
         <div style="display:flex;align-items:flex-start">
           <div class="cc-temp"><span class="skel" style="display:inline-block;width:44px;height:26px"></span></div>
-          <button class="cc-del" aria-label="삭제">✕</button>
+          <button class="cc-del" aria-label="${tr("app.home.del")}">✕</button>
         </div>
       </div>
       <div class="cc-bottom">
-        <span class="cc-desc">불러오는 중...</span>
+        <span class="cc-desc">${tr("app.loading")}</span>
         <span class="cc-minmax"></span>
       </div>`;
     card.addEventListener("click", () => openHub(c));
     card.querySelector(".cc-del").addEventListener("click", (e) => {
       e.stopPropagation();
-      if (!confirm(`'${c.name}'을(를) 목록에서 삭제할까요?`)) return;
+      if (!confirm(tr("app.home.del.ask", { name: c.name }))) return;
       saveCourses(loadCourses().filter((x) => x.id !== c.id));
       renderHome();
     });
@@ -573,7 +572,7 @@ function renderHome() {
       if (!card) return;
       if (!d || !d.current) {
         card.querySelector(".cc-temp").textContent = "--°";
-        card.querySelector(".cc-desc").textContent = "날씨 정보 없음";
+        card.querySelector(".cc-desc").textContent = tr("app.home.nowx");
         return;
       }
       const cur = d.current;
@@ -585,7 +584,8 @@ function renderHome() {
       card.querySelector(".cc-temp").textContent = Math.round(cur.temperature_2m) + "°";
       card.querySelector(".cc-desc").textContent = wmoIcon(cur.weather_code) + " " + wmoDesc(cur.weather_code);
       card.querySelector(".cc-minmax").textContent =
-        `최고:${Math.round(d.daily.temperature_2m_max[0])}° 최저:${Math.round(d.daily.temperature_2m_min[0])}°`;
+        tr("app.minmax", { max: Math.round(d.daily.temperature_2m_max[0]),
+                                min: Math.round(d.daily.temperature_2m_min[0]) });
     });
   }).catch((e) => {
     const quota = String(e && e.message) === "WX_QUOTA";
@@ -594,7 +594,7 @@ function renderHome() {
       if (!card) return;
       card.querySelector(".cc-temp").textContent = "--°";
       card.querySelector(".cc-desc").textContent =
-        quota ? "오늘 날씨 조회 한도를 다 썼어요" : "날씨를 불러오지 못했습니다";
+        quota ? tr("app.home.quota") : tr("app.home.wxfail");
     });
   });
 }
@@ -617,10 +617,10 @@ function renderResultItem(entry) {
   const li = document.createElement("li");
   const flag = entry.flag ? entry.flag + " " : "";
   const tag = entry.golf
-    ? '<span class="r-tag">⛳ 골프장</span>'
+    ? `<span class="r-tag">${tr("app.search.tag.golf")}</span>`
     : `<span class="r-tag r-tag-area">📍 ${entry.typeKo || "지역"}</span>`;
   const note = entry.centerNote
-    ? ' <span class="r-note">· 해당 지역 중심 기준</span>' : "";
+    ? ` <span class="r-note">${tr("app.search.centernote")}</span>` : "";
   const sub = entry.addr || entry.alias || "";
   li.innerHTML = `
     <div class="r-name">${flag}${entry.name}${tag}</div>
@@ -653,7 +653,7 @@ const runSearch = debounce(async (q) => {
     golf.forEach((e) => searchResults.appendChild(renderResultItem(e)));
     searchResults.hidden = false;
   } else {
-    searchStatus.textContent = "검색 중...";
+    searchStatus.textContent = tr("app.search.searching");
     searchStatus.hidden = false;
     searchResults.hidden = true;
   }
@@ -693,7 +693,7 @@ const runSearch = debounce(async (q) => {
   areas.push(...dedupedAreas);
 
   if (!golf.length && !areas.length) {
-    searchStatus.textContent = `'${q}' 검색 결과가 없습니다. 골프장 이름이나 지역명(예: 제주 서귀포)으로 검색해 보세요.`;
+    searchStatus.textContent = tr("app.search.empty", { q: q });
     searchStatus.hidden = false;
     return;
   }
@@ -895,9 +895,12 @@ function openHub(course) {
   }
   fetchForecast(course.lat, course.lon).then((d) => {
     if (currentCourse !== course) return;
-    $("#hub-now").innerHTML =
-      `<b>${Math.round(d.current.temperature_2m)}°</b> ${wmoDesc(d.current.weather_code)}` +
-      ` · 최고 ${Math.round(d.daily.temperature_2m_max[0])}° 최저 ${Math.round(d.daily.temperature_2m_min[0])}°`;
+    $("#hub-now").innerHTML = tr("app.hub.now", {
+      temp: Math.round(d.current.temperature_2m),
+      desc: wmoDesc(d.current.weather_code),
+      max: Math.round(d.daily.temperature_2m_max[0]),
+      min: Math.round(d.daily.temperature_2m_min[0]),
+    });
   }).catch(() => {});
   prefetchFood(course); // 맛집 메뉴를 누르기 전에 미리 로딩 → 즉시 표시
 
@@ -938,9 +941,9 @@ async function openDetail(course) {
   $("#detail-title-mini").textContent = course.name;
   $("#hero-addr").textContent = course.addr || "";
   $("#hero-temp").textContent = "--°";
-  $("#hero-desc").textContent = "불러오는 중...";
+  $("#hero-desc").textContent = tr("app.loading");
   $("#hero-minmax").textContent = "";
-  $("#summary-text").textContent = "예보를 불러오는 중입니다...";
+  $("#summary-text").textContent = tr("app.detail.summary.loading");
   $("#hourly-scroll").innerHTML = "";
   $("#precip-scroll").innerHTML = "";
 
@@ -950,7 +953,7 @@ async function openDetail(course) {
     resetMapState(course);
     initRadar();               // 실황 레이더 프레임 로드 (백그라운드)
   } else {
-    $("#radar-updated").textContent = "지도를 불러오지 못했습니다 — 앱을 껐다 다시 열어주세요";
+    $("#radar-updated").textContent = tr("app.detail.map.fail");
   }
   const airP = fetchAir(course.lat, course.lon).catch(() => null);
 
@@ -960,15 +963,14 @@ async function openDetail(course) {
   } catch (e) {
     if (String(e && e.message) === "WX_QUOTA") {
       // 다시 눌러도 오늘은 안 되므로 재시도 버튼을 주지 않는다
-      $("#hero-desc").textContent = "오늘 조회 한도를 다 썼어요";
-      $("#summary-text").innerHTML =
-        '오늘 날씨 조회 한도를 모두 사용했습니다.<br>내일 다시 이용해 주세요.';
+      $("#hero-desc").textContent = tr("app.detail.quota.short");
+      $("#summary-text").innerHTML = tr("app.detail.quota.long");
       return;
     }
-    $("#hero-desc").textContent = "일시적으로 불러오지 못했습니다";
+    $("#hero-desc").textContent = tr("app.detail.err.short");
     $("#summary-text").innerHTML =
-      '날씨 데이터를 일시적으로 불러오지 못했습니다.<br>' +
-      '<button class="retry-btn" id="btn-retry">다시 시도</button>';
+      tr("app.detail.err.long") +
+      `<button class="retry-btn" id="btn-retry">${tr("app.retry")}</button>`;
     $("#btn-retry").addEventListener("click", () => openDetail(course));
     return;
   }
@@ -982,7 +984,8 @@ const routeCache = new Map();
 
 function fmtDrive(sec) {
   const m = Math.round(sec / 60);
-  return m < 60 ? `${m}분` : `${Math.floor(m / 60)}시간 ${m % 60}분`;
+  return m < 60 ? tr("app.drive.min", { m: m })
+                : tr("app.drive.hm", { h: Math.floor(m / 60), m: m % 60 });
 }
 
 function updateDistCard(course) {
@@ -991,7 +994,7 @@ function updateDistCard(course) {
   if (fresh) { renderDist(course, el); return; }
   // 권한이 이미 허용돼 있으면 자동, 아니면 버튼으로 요청
   const ask = () => {
-    el.innerHTML = '<span class="dist-loading">📍 내 위치 확인 중...</span>';
+    el.innerHTML = `<span class="dist-loading">${tr("app.dist.locating")}</span>`;
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         userPos = [pos.coords.latitude, pos.coords.longitude];
@@ -1000,9 +1003,9 @@ function updateDistCard(course) {
       },
       () => {
         el.innerHTML =
-          '<div class="dist-denied">📍 위치를 가져오지 못했습니다.' +
-          '<small>휴대폰 설정에서 브라우저의 위치 권한을 <b>허용</b>으로 바꾼 뒤 다시 시도해 주세요.</small></div>' +
-          '<button class="dist-btn">다시 시도</button>';
+          `<div class="dist-denied">${tr("app.dist.denied")}` +
+          `<small>${tr("app.dist.denied.sub")}</small></div>` +
+          `<button class="dist-btn">${tr("app.retry")}</button>`;
         el.querySelector(".dist-btn").addEventListener("click", ask);
       },
       { timeout: 9000, maximumAge: 300000 }
@@ -1014,7 +1017,7 @@ function updateDistCard(course) {
   if (CONSENT.allowsLocation()) { ask(); return; }
 
   const showButton = () => {
-    el.innerHTML = '<button class="dist-btn">📍 내 위치에서 거리·이동시간 보기</button>';
+    el.innerHTML = `<button class="dist-btn">${tr("app.dist.ask")}</button>`;
     el.querySelector(".dist-btn").addEventListener("click", () => {
       requestLocationConsent(() => { if (currentCourse === course) ask(); });
     });
@@ -1038,7 +1041,7 @@ function requestLocationConsent(after) {
   wrap.style.marginTop = "14px";
   const ok = document.createElement("button");
   ok.className = "consent-start";
-  ok.textContent = "동의하고 거리 보기";
+  ok.textContent = tr("app.dist.consent.ok");
   ok.addEventListener("click", () => {
     CONSENT.setLocation(true);
     $("#doc-sheet").hidden = true;
@@ -1055,19 +1058,19 @@ async function renderDist(course, el) {
   const tmapUrl = `tmap://route?goalname=${encodeURIComponent(course.name)}&goaly=${course.lat}&goalx=${course.lon}`;
   const show = (km, mins, approx) => {
     el.innerHTML = `
-      <div class="dist-main">🚗 내 위치에서 <b>${km}km</b> · 차로 약 <b>${mins}</b>
-        <small>${approx ? "직선거리 기준 추정" : "실제 도로 경로 기준"}</small>
+      <div class="dist-main">${tr("app.dist.main", { km: km, mins: mins })}
+        <small>${approx ? tr("app.dist.approx") : tr("app.dist.exact")}</small>
       </div>
       <div class="dist-navs">
-        <a class="dist-nav kakao" href="${kakaoUrl}">카카오내비</a>
-        <a class="dist-nav tmap" href="${tmapUrl}">T맵</a>
+        <a class="dist-nav kakao" href="${kakaoUrl}">${tr("app.dist.nav.kakao")}</a>
+        <a class="dist-nav tmap" href="${tmapUrl}">${tr("app.dist.nav.tmap")}</a>
       </div>`;
   };
   const key = userPos[0].toFixed(3) + "|" + course.lat.toFixed(4) + "," + course.lon.toFixed(4);
   const cached = routeCache.get(key);
   if (cached) { show(cached.km, cached.mins, cached.approx); return; }
 
-  el.innerHTML = '<span class="dist-loading">🚗 이동 시간 계산 중...</span>';
+  el.innerHTML = `<span class="dist-loading">${tr("app.dist.calc")}</span>`;
   try {
     const r = await fetchT(
       `https://router.project-osrm.org/route/v1/driving/${userPos[1]},${userPos[0]};${course.lon},${course.lat}?overview=false`,
@@ -1105,7 +1108,8 @@ function renderDetail(d, air) {
   $("#hero-temp").textContent = Math.round(cur.temperature_2m) + "°";
   $("#hero-desc").textContent = wmoDesc(cur.weather_code);
   $("#hero-minmax").textContent =
-    `최고:${Math.round(d.daily.temperature_2m_max[0])}° 최저:${Math.round(d.daily.temperature_2m_min[0])}°`;
+    tr("app.minmax", { max: Math.round(d.daily.temperature_2m_max[0]),
+                       min: Math.round(d.daily.temperature_2m_min[0]) });
 
   /* 시간별 (현재부터 24시간) */
   const now = new Date();
@@ -1122,7 +1126,7 @@ function renderDetail(d, air) {
     item.className = "hour-item" + (isNow ? " now" : "");
     const pop = d.hourly.precipitation_probability[i];
     item.innerHTML = `
-      <span class="h-time">${isNow ? "지금" : fmtHourKo(times[i])}</span>
+      <span class="h-time">${isNow ? tr("app.now") : fmtHourKo(times[i])}</span>
       <span class="h-icon">${wmoIcon(d.hourly.weather_code[i])}</span>
       <span class="h-pop">${pop >= 20 ? pop + "%" : ""}</span>
       <span class="h-temp">${Math.round(d.hourly.temperature_2m[i])}°</span>`;
@@ -1136,15 +1140,16 @@ function renderDetail(d, air) {
     if (d.hourly.precipitation[i] >= 0.1 || d.hourly.precipitation_probability[i] >= 60) { rainIdx = i; break; }
   }
   if (cur.precipitation >= 0.1) {
-    summary = `현재 시간당 ${cur.precipitation}mm의 강수가 관측되고 있습니다.`;
+    summary = tr("app.sum.raining", { mm: cur.precipitation });
   } else if (rainIdx >= 0) {
     const amt = d.hourly.precipitation[rainIdx];
-    summary = `${fmtHourKo(times[rainIdx])}쯤 강우 상태가 예상됩니다.` + (amt >= 0.1 ? ` 예상 강수량은 시간당 ${amt}mm입니다.` : "");
+    summary = tr("app.sum.rain.soon", { time: fmtHourKo(times[rainIdx]) }) +
+      (amt >= 0.1 ? tr("app.sum.rain.amt", { mm: amt }) : "");
   } else {
-    summary = "앞으로 12시간 동안 강수 소식은 없습니다.";
+    summary = tr("app.sum.dry");
   }
   const maxGust = Math.max(...d.hourly.wind_gusts_10m.slice(startIdx, startIdx + 12));
-  summary += ` 돌풍의 풍속은 최대 ${Math.round(maxGust)}m/s입니다.`;
+  summary += tr("app.sum.gust", { gust: Math.round(maxGust) });
   $("#summary-text").textContent = summary;
 
   /* 시간별 강수 예보 (모레까지) — 지도 타임라인과 1:1 동기화 */
@@ -1171,7 +1176,7 @@ function renderDetail(d, air) {
     const barH = Math.max(2, Math.round((mm / maxMm) * 44));
     cell.innerHTML = `
       <span class="p-day">${dayLabel}</span>
-      <span class="p-time">${isNow ? "지금" : t.getHours() + "시"}</span>
+      <span class="p-time">${isNow ? tr("app.now") : tr("app.hour", { h: t.getHours() })}</span>
       <span class="p-bar"><i class="${mm > 0 ? "" : "zero"}" style="height:${mm > 0 ? barH : 2}px"></i></span>
       <span class="p-mm ${mm > 0 ? "has-rain" : "dry"}">${mm > 0 ? mm : 0}<small>mm</small></span>
       <span class="p-pop ${pop >= 60 ? "high" : ""}">${pop >= 10 ? pop + "%" : "-"}</span>`;
@@ -1189,19 +1194,21 @@ function renderDetail(d, air) {
   const todayPrecip = d.daily.precipitation_sum[0];
   $("#m-precip").innerHTML = `${cur.precipitation ?? 0}<small> mm/h</small>`;
   setEval("#m-precip-eval", evalPrecip(cur.precipitation ?? 0));
-  $("#m-precip-sub").textContent = `오늘 예상 누적 ${todayPrecip ?? 0}mm`;
+  $("#m-precip-sub").textContent = tr("app.m.precip.sub", { mm: todayPrecip ?? 0 });
 
   const curIdx = Math.max(0, startIdx);
   $("#m-humidity").innerHTML = `${cur.relative_humidity_2m}<small> %</small>`;
   setEval("#m-humidity-eval", evalHumidity(cur.relative_humidity_2m));
-  $("#m-humidity-sub").textContent = `이슬점 ${Math.round(d.hourly.dew_point_2m[curIdx])}° · 체감 ${Math.round(cur.apparent_temperature)}°`;
+  $("#m-humidity-sub").textContent = tr("app.m.humidity.sub", {
+    dew: Math.round(d.hourly.dew_point_2m[curIdx]), feel: Math.round(cur.apparent_temperature) });
 
   const ws = Math.round(cur.wind_speed_10m * 10) / 10;
   const gust = Math.round(cur.wind_gusts_10m * 10) / 10;
   $("#m-wind").innerHTML = `${ws}<small> m/s</small>`;
   setEval("#m-wind-eval", evalWind(ws));
   $("#m-wind-arrow").style.transform = `rotate(${(cur.wind_direction_10m + 180) % 360}deg)`;
-  $("#m-wind-sub").textContent = `${windDirKo(cur.wind_direction_10m)}풍 · 돌풍 ${gust}m/s`;
+  $("#m-wind-sub").textContent =
+    tr("app.m.wind.sub", { dir: windDirKo(cur.wind_direction_10m), gust: gust });
 
   const visKm = d.hourly.visibility[curIdx] / 1000;
   $("#m-vis").innerHTML = `${visKm >= 10 ? Math.round(visKm) : visKm.toFixed(1)}<small> km</small>`;
