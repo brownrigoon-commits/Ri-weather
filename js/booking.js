@@ -34,7 +34,7 @@ async function fetchBookingWeek(course) {
   return d;
 }
 
-const BK_DOW = ["일", "월", "화", "수", "목", "금", "토"];
+const BK_DOW = tr("bk.dow").split(",");
 const bkYmd = (d) => d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") +
                      "-" + String(d.getDate()).padStart(2, "0");
 /* 날짜 칸은 "화 8/4" 처럼 **달까지** 적는다.
@@ -106,8 +106,8 @@ function golfpangUrl(kind, id, ymd) {
       모바일 폼에 `noma` 라는 칸이 있지만 화면 어디서도 쓰이지 않아 값의 뜻을 확인할 수 없었다.
       뜻을 모르는 파라미터를 찍어 보내면 엉뚱하게 걸러진 목록을 보여주게 된다 → 보내지 않는다. */
 const BK_JOIN_COUNTS = [
-  { v: "", t: "전체" }, { v: "1인", t: "1명" }, { v: "2인", t: "2명" },
-  { v: "3인", t: "3명" }, { v: "부부커플", t: "부부·커플" },
+  { v: "", t: tr("bk.cnt.all") }, { v: "1인", t: tr("bk.cnt.1") }, { v: "2인", t: tr("bk.cnt.2") },
+  { v: "3인", t: tr("bk.cnt.3") }, { v: "부부커플", t: tr("bk.cnt.couple") },
 ];
 
 /* 골프몬 — golfFk(구장 번호)가 있어야 걸러진다. 이름만 넘기면 전체 목록이 나온다(실측).
@@ -145,7 +145,7 @@ function officialSiteUrl(course) {
 /* 부킹이냐 조인이냐를 **먼저** 고르게 한다.
    같이 갈 사람이 있으면 부킹(티타임 양도), 혼자면 조인 — 찾는 곳이 아예 다르다.
    먼저 물어야 어디로 보낼지가 정해진다(사장님 지적 2026-07-30). */
-const BK_MODES = { booking: "부킹", join: "조인" };
+const BK_MODES = { booking: tr("bk.mode.booking"), join: tr("bk.mode.join") };
 
 function bookingLinkCards(course, ymd, kind, joinCount) {
   const mode = kind === "join" ? "join" : "booking";
@@ -157,8 +157,8 @@ function bookingLinkCards(course, ymd, kind, joinCount) {
      부제에 "목록에서 무엇을 고르면 되는지"를 적어준다. */
   // 구장명 받침에 따라 조사가 달라지므로("파주를"/"솔라고를") 조사가 필요 없는 꼴로 쓴다
   const pangSub = id
-    ? `${md} · 목록에서 '${id.pangName}' 선택해 주세요`
-    : `${md} · 목록에서 구장을 골라주세요`;
+    ? tr("bk.sub.pang.pick", { md: md, name: id.pangName })
+    : tr("bk.sub.pang.nopick", { md: md });
   const monExact = !!(id && id.mon);
   const cnt = (BK_JOIN_COUNTS.find((c) => c.v === joinCount) || {}).t;
 
@@ -167,27 +167,28 @@ function bookingLinkCards(course, ymd, kind, joinCount) {
   if (mode === "join") {
     return [
       // 골팡은 인원으로 못 거른다 — 걸러준다고 쓰면 거짓말이 된다
-      { key: "pang_join", img: "assets/brand/golfpang.png", cls: "bk-pang", title: "골팡 조인",
+      { key: "pang_join", img: "assets/brand/golfpang.png", cls: "bk-pang", title: tr("bk.card.pang.join"),
         sub: pangSub, url: golfpangUrl("join", id, ymd) },
       { key: "mon_join", img: "assets/brand/golfmon.png", cls: "bk-mon",
-        title: "골프몬 조인",
+        title: tr("bk.card.mon.join"),
         sub: monExact
-          ? `${md} · ${course.name}` + (joinCount ? ` · ${cnt} 모집만` : "")
-          : "구장명을 한 번 골라주세요",
+          ? (joinCount ? tr("bk.sub.mon.join.cnt", { md: md, course: course.name, cnt: cnt })
+                       : tr("bk.sub.mon.join", { md: md, course: course.name }))
+          : tr("bk.sub.mon.pick"),
         url: golfmonUrl(id, ymd, course.name, "join", joinCount) },
     ];
   }
   const out = [
-    { key: "pang_booking", img: "assets/brand/golfpang.png", cls: "bk-pang", title: "골팡 부킹",
+    { key: "pang_booking", img: "assets/brand/golfpang.png", cls: "bk-pang", title: tr("bk.card.pang.booking"),
       sub: pangSub, url: golfpangUrl("booking", id, ymd) },
     { key: "mon_booking", img: "assets/brand/golfmon.png", cls: "bk-mon",
-      title: "골프몬 부킹",
-      sub: monExact ? `${md} · ${course.name} 양도 목록` : "구장명을 한 번 골라주세요",
+      title: tr("bk.card.mon.booking"),
+      sub: monExact ? tr("bk.sub.mon.booking", { md: md, course: course.name }) : tr("bk.sub.mon.pick"),
       url: golfmonUrl(id, ymd, course.name, "booking") },
   ];
   if (site) {
-    out.push({ key: "official", ico: "🏛️", cls: "bk-site", title: "구장 공식 홈페이지 예약",
-      sub: "회원 우선 · 정가 예약", url: site });
+    out.push({ key: "official", ico: "🏛️", cls: "bk-site", title: tr("bk.card.official"),
+      sub: tr("bk.card.official.sub"), url: site });
   }
   return out;
 }
@@ -221,11 +222,11 @@ function bookingDayNote(days, wx, pick) {
       if (wx.precipitation_probability_max[i] <= 30 &&
           (best < 0 || wx.precipitation_probability_max[i] < wx.precipitation_probability_max[best])) best = i;
     }
-    return `${dow}요일은 비 올 확률 ${pop}%` +
-      (best >= 0 ? ` — ${BK_DOW[days[best].getDay()]}요일이 나아 보여요` : "");
+    return tr("bk.note.rain", { dow: dow, pop: pop }) +
+      (best >= 0 ? tr("bk.note.better", { dow: BK_DOW[days[best].getDay()] }) : "");
   }
-  if (pop >= 30) return `${dow}요일 강수 확률 ${pop}% — 우비는 챙기세요`;
-  return `${dow}요일 ${wmoDesc(code)} · 라운딩하기 좋은 날이에요`;
+  if (pop >= 30) return tr("bk.note.mid", { dow: dow, pop: pop });
+  return tr("bk.note.good", { dow: dow, desc: wmoDesc(code) });
 }
 
 const BOOKING_VIEW = { days: [], wx: null, pick: 0, course: null, mode: "booking", joinCount: "" };
@@ -242,10 +243,10 @@ function paintBooking() {
         aria-selected="${k === mode}">${BK_MODES[k]}</button>`).join("") +
     `</div>` +
     `<p class="bk-mode-sub">${mode === "join"
-      ? "혼자 가시나요? 같이 칠 사람을 찾습니다"
-      : "일행이 있으신가요? 넘겨받을 티타임을 찾습니다"}</p>` +
+      ? tr("bk.mode.sub.join")
+      : tr("bk.mode.sub.booking")}</p>` +
     (mode === "join"
-      ? `<div class="bk-cnt-row"><span class="bk-cnt-label">몇 명 자리를 찾으세요?</span>
+      ? `<div class="bk-cnt-row"><span class="bk-cnt-label">${tr("bk.cnt.label")}</span>
          <div class="bk-cnts">` +
         BK_JOIN_COUNTS.map((c) =>
           `<button class="bk-cnt${c.v === joinCount ? " on" : ""}" data-cnt="${c.v}">${c.t}</button>`).join("") +
@@ -265,11 +266,9 @@ function paintBooking() {
       `</div>`).join("") +
     `</div>` +
     (mode === "join" && joinCount
-      ? `<p class="bk-cnt-note">인원 조건은 골프몬에만 걸립니다 — 골팡은 조인을
-         인원이 아니라 유형(초대·부부·남성·여성)으로 나눕니다.</p>`
+      ? `<p class="bk-cnt-note">${tr("bk.cnt.note")}</p>`
       : "") +
-    `<p class="bk-legal">예약·결제·취소는 각 사이트에서 진행됩니다.<br>` +
-    `티타임과 요금은 실시간으로 바뀌므로 각 사이트에서 확인하세요.</p>`;
+    `<p class="bk-legal">${tr("bk.legal")}</p>`;
 
   el.querySelectorAll(".bk-day").forEach((b) => {
     b.addEventListener("click", () => { BOOKING_VIEW.pick = +b.dataset.day; paintBooking(); });
@@ -295,9 +294,9 @@ function paintBooking() {
 async function openBookingView() {
   const course = currentCourse;
   if (viewStack[viewStack.length - 1] !== "booking") pushView("booking");
-  document.querySelector("#booking-title").textContent = "부킹/조인";
+  document.querySelector("#booking-title").textContent = tr("bk.title");
   document.querySelector("#booking-desc").textContent =
-    `${course.name} — 가는 날을 고르면 그날 티타임으로 연결합니다`;
+    tr("bk.desc", { course: course.name });
 
   const today = new Date(); today.setHours(0, 0, 0, 0);
   const days = Array.from({ length: BOOKING_DAYS }, (_, i) => {

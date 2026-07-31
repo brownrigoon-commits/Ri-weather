@@ -8,7 +8,12 @@
  */
 "use strict";
 
-const SPIRIT_VIEW = { tab: "mind", checked: null };   // checked: 최근 점검일(스냅샷에서 읽음)
+/* 시작 탭은 **맨 앞 섹션**을 따라간다 — 탭 순서를 바꿔도 저절로 맞는다.
+   (탭을 재배치하면서 여기를 "mind" 로 놔둬 '공식 룰'을 앞으로 뺀 의미가 없어진 적이 있다) */
+const SPIRIT_VIEW = {
+  tab: (typeof SPIRIT_DB !== "undefined" && SPIRIT_DB.sections[0].key) || "rules",
+  checked: null,                                      // 최근 점검일(스냅샷에서 읽음)
+};
 
 const QUOTE_KEY = "riweather.quote";                  // "on" | "off" | 없음(아직 안 물어봄)
 

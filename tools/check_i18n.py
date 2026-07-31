@@ -44,6 +44,9 @@ KEEP = [
     ("js/app.js", '"60대 이상"', "프로필 값(문자열 동치 분기 + localStorage)"),
     ("js/clubfit.js", "타이틀리스트", "클럽 브랜드 값(피팅 엔진 매칭)"),
     ("js/stats.js", "경기", "통계 지역 집계 키"),
+    ('js/booking.js', 'p.set("tab", "조인")', "골프몬에 보내는 URL 파라미터 값 — 번역하면 조인 목록이 안 열린다"),
+    ("js/booking.js", '"1인"', "골프몬 인원 필터 값"),
+    ("js/booking.js", "컨트리클럽", "구장명 정규화 값(build_booking_ids.py 와 같은 규칙)"),
 ]
 
 

@@ -741,6 +741,12 @@
       paintSpirit();
       const tabs = [...spView.querySelectorAll(".sp-tab")];
       if (tabs.length < 6) add("골프 정신 탭 수가 모자람", "spirit", tabs.length + "개");
+      /* 열었을 때 켜져 있는 탭이 맨 앞 탭인지 — 탭을 재배치하고 시작 탭을 안 고쳐
+         '공식 룰을 앞으로' 한 의미가 사라진 적이 있다(2026-07-31 실서버에서 발견) */
+      const on = spView.querySelector(".sp-tab.on");
+      if (on && tabs[0] && on !== tabs[0])
+        add("열었을 때 첫 탭이 아닌 곳이 켜져 있음", "spirit",
+            on.textContent + " (맨 앞은 " + tabs[0].textContent + ")");
       for (const tb of tabs) {
         tb.click();
         await sleep(30);
