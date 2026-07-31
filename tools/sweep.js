@@ -653,7 +653,12 @@
   /* ── 4. 브랜드 잔재 점검 ─────────────────────────────────────── */
   const html = document.body.innerText;
   if (/Ri-Weather/i.test(html)) add("옛 브랜드명 노출", "body", html.match(/.{0,30}Ri-Weather.{0,30}/i)[0]);
-  if (!/골프라이프/.test(document.title)) add("타이틀 미변경", "title", document.title);
+  /* 2026-07-31 투어리스트로 개명(상표 출원 진행, 사장님 지시).
+     옛 이름 '골프라이프'가 화면에 남으면 잡는다 — '구 골프라이프' 병기(약관)만 허용. */
+  const oldName = html.match(/.{0,20}골프라이프.{0,20}/g) || [];
+  oldName.filter((s) => !/구 골프라이프/.test(s))
+    .forEach((s) => add("옛 브랜드명 노출", "body", s));
+  if (!/투어리스트/.test(document.title)) add("타이틀 미변경", "title", document.title);
 
   /* ── 5. 색 잔재 점검 (파랑이 남았는지) ───────────────────────── */
   const blues = [];

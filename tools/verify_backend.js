@@ -241,7 +241,7 @@ console.log("\n■ 7. 관리자 조회");
   ok(s.courses[0][0] === "스카이72" && s.courses[0][1] === 2, "인기 골프장 집계");
   ok(s.back7 === null, "표본이 5명 미만이면 재방문율을 주지 않는다", String(s.back7));
   ok(s.fbTotal === 1 && s.fbToday === 1, "피드백 건수가 요약에 들어간다", JSON.stringify([s.fbTotal, s.fbToday]));
-  ok(s.ver === "2026-07-31a", "판번호를 함께 알려준다(관리자 화면이 옛 배포를 잡아낸다)", s.ver);
+  ok(s.ver === "2026-07-31b", "판번호를 함께 알려준다(관리자 화면이 옛 배포를 잡아낸다)", s.ver);
 
   // 옛 기록에 남아 있는 깨진 글자(�)는 집계에서 빠져야 한다
   ctx.__sheets.log.appendRow([new Date(), "u9", "visit", "", "v100", "PC", "50��", "��", "�"]);
@@ -269,7 +269,7 @@ console.log("\n■ 9. 기존 기능이 그대로인지 (되돌아보기)");
   const r = get(ctx, { fn: "restore", code: "123456789012" });
   ok(r.ok === true && r.data.a === 1, "복구도 그대로 동작한다");
   const base = get(ctx, {});
-  ok(base.service === "golflife-backend" && base.ver === "2026-07-31a", "기본 응답에 판번호가 실린다", JSON.stringify(base));
+  ok(base.service === "golflife-backend" && base.ver === "2026-07-31b", "기본 응답에 판번호가 실린다", JSON.stringify(base));
 }
 
 console.log("\n" + (fail ? "✖ 실패 " + fail + "건 / 통과 " + pass + "건" : "✅ 전부 통과 (" + pass + "건)"));

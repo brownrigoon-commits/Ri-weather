@@ -1,5 +1,5 @@
 ﻿/* =========================================================
- * 골프라이프 (Golf Life) — 골프 날씨·코스공략·맛집·스코어·클럽 피팅
+ * 투어리스트 (TOURLIST, 구 골프라이프) — 골프 날씨·코스공략·맛집·스코어·클럽 피팅
  * 데이터: Open-Meteo(예보/대기질), RainViewer(레이더), Nominatim(검색)
  * ========================================================= */
 "use strict";
@@ -2915,8 +2915,8 @@ $("#ai-strategy-btn").addEventListener("click", aiCaddie);
   let toastTimer = null;
   btn.addEventListener("click", async () => {
     const data = {
-      title: "골프라이프",
-      text: "골프장 날씨·홀별 코스공략·AI캐디까지 한 번에 — 골프라이프",
+      title: "투어리스트",
+      text: "골프장 날씨·홀별 코스공략·AI캐디까지 한 번에 — 투어리스트",
       url: APP_URL,
     };
     try {
@@ -3051,7 +3051,7 @@ function prefetchFood(course) { fetchFoodData(course).catch(() => {}); }
 
 /* ---------- 카카오 로컬/이미지 API (맛집 목록·사진) ---------- */
 const KAKAO_KEY_LS = "riweather.kakaokey";
-const EMBED_KAKAO_B64 = "OTg0N2VjNWU5YTRkMTEyN2M1NzY1MDY1YjNlNzFmZjI=";   // 골프라이프 공용 키
+const EMBED_KAKAO_B64 = "OTg0N2VjNWU5YTRkMTEyN2M1NzY1MDY1YjNlNzFmZjI=";   // 투어리스트 공용 키
 const getKakaoKey = () => localStorage.getItem(KAKAO_KEY_LS) ||
   (EMBED_KAKAO_B64 ? atob(EMBED_KAKAO_B64) : "");
 
@@ -4672,7 +4672,7 @@ async function shareScoreCard(r) {
   // 워터마크
   x.fillStyle = "#0b9e36";
   x.font = "700 26px -apple-system, sans-serif";
-  x.fillText("⛳ 골프라이프", W / 2, H - 50);
+  x.fillText("⛳ 투어리스트", W / 2, H - 50);
 
   return new Promise((resolve) => {
     cv.toBlob(async (blob) => {

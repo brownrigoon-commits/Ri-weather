@@ -1,5 +1,6 @@
 /* ============================================================
- * Ri-Weather(골프라이프) 백엔드 — Google Apps Script
+ * 투어리스트(구 골프라이프·Ri-Weather) 백엔드 — Google Apps Script
+ * ※ service:"golflife-backend" 는 내부 식별자라 바꾸지 않는다(verify_backend 가 대조)
  *
  * 기능 1) 이용 통계 수집·조회  (관리자 모드)
  * 기능 2) 카카오 플레이스 사진 프록시 (맛집 — '그 가게' 사진만 정확히)
@@ -13,7 +14,7 @@
    tools/verify_deploy.py 가 이 값을 서버에서 읽어와 로컬과 대조한다.
    두 번이나 "코드는 고쳤는데 배포를 안 해서" 기능이 죽어 있었다:
      · 기록 백업·복구 (2026-07-27)  · 숙소 객실사진 우선 (2026-07-28) */
-var BACKEND_VER = "2026-07-31a";
+var BACKEND_VER = "2026-07-31b";   // b: 메일 제목 [투어리스트 베타]로 개명
 
 /* 관리자 비밀번호 — 스크립트 속성 ADMIN_PW 에 넣는 것을 권장한다.
    (코드에 적으면 저장소를 공개로 돌리는 순간 그대로 노출된다.
@@ -125,7 +126,7 @@ function fbSave_(b) {
     if (quotaOk && cnt.all < FB_MAIL_PER_DAY) {
       MailApp.sendEmail({
         to: ADMIN_MAIL,
-        subject: "[골프라이프 베타] " + cat + (stars ? " ★" + stars : "") + " — " + text.slice(0, 30),
+        subject: "[투어리스트 베타] " + cat + (stars ? " ★" + stars : "") + " — " + text.slice(0, 30),
         body: text +
           "\n\n────────────────────────" +
           "\n분류: " + cat + (stars ? "   별점: " + stars + "/5" : "") +
