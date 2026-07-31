@@ -96,6 +96,21 @@ if kr_bad:
     sys.exit(1)
 print("골프장DB 한국 항목 검사 OK: 기존 항목 그대로")
 
+# 문구 사전 재조립 + 검사 (2026-07-31 다국어 — ko.js 는 생성물이라 매번 다시 만든다)
+r = subprocess.run([sys.executable, os.path.join(ROOT, "tools", "build_i18n.py")],
+                   capture_output=True, text=True, encoding="utf-8")
+print(r.stdout.strip())
+if r.returncode != 0:
+    print("✖ 문구 사전 조립 실패:", r.stderr[:400]); sys.exit(1)
+from check_i18n import violations as i18n_violations
+i18n_bad, _i18n_note = i18n_violations()
+if i18n_bad:
+    print(f"✖ 문구 사전 검사 실패 {len(i18n_bad)}건 — 배포를 멈춥니다")
+    for s in i18n_bad[:20]:
+        print("   -", s)
+    sys.exit(1)
+print("문구 사전 검사 OK: 키가 모두 있고, 옮기면 안 되는 값도 그대로")
+
 # ── 3. 커밋 → 최신화 → 버전 → 푸시 (양쪽 PC 동시 배포 안전) ──────
 app = os.path.join(ROOT, "js", "app.js")
 sw = os.path.join(ROOT, "sw.js")

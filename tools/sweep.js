@@ -27,6 +27,9 @@
     /* 2026-07-31 G7 — 데이터 파일도 여기 넣는다. 여태 golfdb/holeimgdb/clubdb 는
        이 표에 없어서, 문법 오류로 통째로 죽어도 sweep 이 직접 잡지 못했다.
        (국가별 파일 분리 작업을 앞두고 가장 먼저 막아야 할 구멍) */
+    /* 문구 사전 — 이게 안 실리면 화면이 통째로 키(home.title 같은 글자)로 도배된다 */
+    "js/i18n.js": ["I18N", "tr"],
+    "js/i18n/ko.js": [],
     "js/golfdb.js": ["GOLF_DB"],
     "js/holesdb.js": ["HOLES_DB"],
     "js/holeimgdb.js": ["HOLEIMG_DB"],
@@ -780,6 +783,14 @@
   oldName.filter((s) => !/구 골프라이프/.test(s))
     .forEach((s) => add("옛 브랜드명 노출", "body", s));
   if (!/투어리스트/.test(document.title)) add("타이틀 미변경", "title", document.title);
+
+  /* 문구 사전 키가 화면에 그대로 새어 나왔는지 (2026-07-31 다국어 작업)
+     tr("hub.title") 을 불렀는데 사전에 그 키가 없으면 `hub.title` 이 그대로 찍힌다.
+     화면 어디에도 `영문.영문` 꼴의 낱말이 홀로 서 있을 이유가 없다. */
+  const leaked = (html.match(/(^|[\s>])([a-z][a-z0-9_]*(?:\.[a-z][a-z0-9_]*)+)(?=[\s<]|$)/g) || [])
+    .map((s) => s.trim())
+    .filter((s) => !/\.(com|net|kr|jp|co|org|io|gg|js|css|png|jpg|html)$/i.test(s));
+  [...new Set(leaked)].slice(0, 5).forEach((s) => add("문구 사전 키가 화면에 노출", "i18n", s));
 
   /* ── 5. 색 잔재 점검 (파랑이 남았는지) ───────────────────────── */
   const blues = [];

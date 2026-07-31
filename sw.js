@@ -6,6 +6,8 @@ const CORE = [
   "./css/style.css",
   "./css/leaflet.css",
   "./js/vendor/leaflet.js",
+  "./js/i18n.js",
+  "./js/i18n/ko.js",
   "./js/app.js",
   "./js/legal.js",
   "./js/stats.js",
