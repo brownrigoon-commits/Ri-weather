@@ -199,7 +199,7 @@ ${_contact()}
   <li>${tr("legal.privacy.s4.li2")}</li>
   <li>${tr("legal.privacy.s4.li3")}</li>
   <li>${tr("legal.privacy.s4.li4")}</li>
-  <li>${tr("legal.privacy.s4.li5")}</li>
+  <li>골프존 — 홀 정보</li>
   <li>${tr("legal.privacy.s4.li6")}</li>
 </ul>
 

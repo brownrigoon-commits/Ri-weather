@@ -68,6 +68,11 @@ def dict_keys(lang="ko"):
 
 
 def used_keys():
+    """문구를 부르는 곳 — 두 가지 방식이 있다.
+       ① 자바스크립트: tr("키")
+       ② 정적 마크업: data-i18n="키" / data-i18n-attr="placeholder:키;aria-label:키2"
+          (HTML 안에서는 tr() 을 못 부르므로 표시만 달고 I18N.applyDom() 이 채운다)
+       ②를 세지 않으면 index.html 문구 200개가 통째로 '아무도 안 쓰는 키'로 잡힌다. """
     used = {}
     for rel in CALLERS:
         src = read(rel)
@@ -75,6 +80,12 @@ def used_keys():
             used.setdefault(m.group(1), []).append(rel)
         for m in re.finditer(r"tr\(\s*'([^']+)'", src):
             used.setdefault(m.group(1), []).append(rel)
+        for m in re.finditer(r'data-i18n="([^"]+)"', src):
+            used.setdefault(m.group(1), []).append(rel)
+        for m in re.finditer(r'data-i18n-attr="([^"]+)"', src):
+            for pair in m.group(1).split(";"):
+                if ":" in pair:
+                    used.setdefault(pair.split(":", 1)[1].strip(), []).append(rel)
     return used
 
 

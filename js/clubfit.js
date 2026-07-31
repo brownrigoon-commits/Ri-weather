@@ -45,12 +45,12 @@
     { br: "던롭", m: "젝시오 13", st: "old", pr: 3, forg: 5, draw: true, spin: "중고", light: true, fit: ["90", "100"] },
   ];
   const CUR_SHAFT = {
-    unknown: { label: "몰라요", w: null, fx: null },
-    stock: { label: "순정 그대로", w: 50, fx: "SR" },
-    s50s: { label: "50g대 · S", w: 55, fx: "S" },
-    s50x: { label: "50g대 · X", w: 55, fx: "X" },
-    s60s: { label: "60g대 · S", w: 65, fx: "S" },
-    s60x: { label: "60g대 · X", w: 65, fx: "X" },
+    unknown: { label: tr("cf.curshaft.unknown"), w: null, fx: null },
+    stock: { label: tr("cf.curshaft.stock"), w: 50, fx: "SR" },
+    s50s: { label: tr("cf.curshaft.s50s"), w: 55, fx: "S" },
+    s50x: { label: tr("cf.curshaft.s50x"), w: 55, fx: "X" },
+    s60s: { label: tr("cf.curshaft.s60s"), w: 65, fx: "S" },
+    s60x: { label: tr("cf.curshaft.s60x"), w: 65, fx: "X" },
   };
 
   /* ───────── 아이언 ─────────
@@ -174,9 +174,9 @@
 
   /* 퍼터 그립 — 손을 얼마나 쓰게 할지로 갈린다 */
   const PUTTER_GRIPS = [
-    { m: "표준 피스톨", spec: "약 50~60g", why: "손끝 감각이 그대로 전달됩니다" },
-    { m: "미드사이즈 (예: 슈퍼스트로크 2.0)", spec: "약 70~80g", why: "손 동작이 줄어 방향이 안정됩니다" },
-    { m: "오버사이즈 + 카운터밸런스", spec: "약 90~110g", why: "손 떨림·짧은 퍼트 긴장을 눌러줍니다" },
+    { m: tr("cf.pg.pistol"), spec: tr("cf.pg.pistol.spec"), why: tr("cf.pg.pistol.why") },
+    { m: tr("cf.pg.mid"), spec: tr("cf.pg.mid.spec"), why: tr("cf.pg.mid.why") },
+    { m: tr("cf.pg.over"), spec: tr("cf.pg.over.spec"), why: tr("cf.pg.over.why") },
   ];
 
   /* ───────── 제조사 실측 스펙 덮어쓰기 ─────────
@@ -305,7 +305,7 @@
               한국은 중고 시장이 커서 이게 실제로 값어치 있는 정보다.
      st: "cur" 현행 · "old" 단종/구세대 · 없음 = 아직 확인 못 함(현행으로 취급하지 않는다)
      pr: 1 순정·저가 · 2 중가 · 3 고가 */
-  const PRICE_LABEL = { 1: "순정·보급", 2: "중가", 3: "고가" };
+  const PRICE_LABEL = { 1: tr("cf.price.1"), 2: tr("cf.price.2"), 3: tr("cf.price.3") };
   function inBudget(x, budget) {
     if (!budget || budget === "any") return true;
     if (x.pr === undefined) return true;              // 모르는 건 거르지 않는다
@@ -411,12 +411,13 @@
   /* 추정·환산으로 세운 값이면 결과에 그 사실과 근거를 카드로 남긴다 */
   function carry7Note() {
     if (S.carry7Est === "추정")
-      return { t: "rule", h: "7번 캐리는 추정값입니다",
-        b: `모르겠다고 하셔서 <b>평균 ${gradeTxt()}${S.auto.sex ? " · " + S.auto.sex : ""}${S.auto.age === "60대 이상" ? " · 60대 이상" : ""}</b> 기준으로 <b>약 ${S.carry7}m</b>로 두고 계산했습니다.` +
-           `${S.auto.sex ? "" : " 성별을 안 알려주셔서 남성 기준으로 잡았습니다."} 실제 거리를 아시면 다시 답해 주세요 — <b>무게가 한 체급 달라질 수 있습니다.</b>` };
+      return { t: "rule", h: tr("cf.note.est.h"),
+        b: tr("cf.note.est.b", { grade: gradeTxt() + (S.auto.sex ? " · " + S.auto.sex : "") +
+             (S.auto.age === "60대 이상" ? tr("cf.note.est.age") : ""), m: S.carry7 }) +
+           (S.auto.sex ? "" : tr("cf.note.est.nosex")) + tr("cf.note.est.tail") };
     if (S.carry7Est === "환산")
-      return { t: "rule", h: "스크린 숫자를 캐리로 환산했습니다",
-        b: `스크린 화면 숫자는 대개 <b>토탈</b>입니다. 7번 런을 약 ${SCREEN_RUN_7I}m로 보고 <b>캐리 ${S.carry7}m</b>로 계산했습니다. 화면에 캐리가 따로 나온다면 그 숫자로 다시 답해 주시면 더 정확합니다.` };
+      return { t: "rule", h: tr("cf.note.conv.h"),
+        b: tr("cf.note.conv.b", { run: SCREEN_RUN_7I, m: S.carry7 }) };
     return null;
   }
   /* 구력 — 사장님 지시 2 감사에서 나온 것. 저장·표시만 되고 **어느 엔진도 읽지 않았다.**
@@ -427,9 +428,7 @@
   const isNovice = () => S.career === "lt3";
   function careerNote() {
     if (!isNovice()) return null;
-    return { t: "rule", h: "구력 3년 미만 — 순서부터 말씀드립니다",
-      b: "스윙이 아직 자리 잡는 중입니다. 지금은 <b>고가 커스텀보다 보급·중고로 시작하고 1~2년 뒤 다시 맞추는 편</b>이 훨씬 이득입니다. " +
-         "그래서 <b>관용성이 큰 쪽에 가점</b>했고, 아래 <b>중고로 찾을 만한 것</b>도 더 적극적으로 보여드립니다." };
+    return { t: "rule", h: tr("cf.note.novice.h"), b: tr("cf.note.novice.b") };
   }
 
   /* 진행 표시 문구 — '가봉/본봉' 같은 재단 용어 대신
@@ -437,69 +436,69 @@
   /* 내부 단계 이름 → 화면에 내보낼 말.
      'stage' 는 코드가 흐름을 구분하려고 쓰는 이름일 뿐이라 그대로 보여주면 안 된다. */
   const STAGE_LABEL = {
-    "선택": "어떤 클럽을 맞출까요", "확인": "지난 기록을 꺼내봐요", "공통": "골퍼님을 파악하는 중이에요",
-    "골프백": "맞춘 클럽을 모아뒀어요", "볼": "볼을 고르는 중이에요",
-    "브랜드": "선호하시는 브랜드를 적어뒀어요", "그립": "손에 맞는 그립을 고르는 중이에요",
-    "드라이버": "드라이버를 맞추는 중이에요", "아이언": "아이언을 맞추는 중이에요",
-    "웨지": "웨지를 맞추는 중이에요", "퍼터": "퍼터를 맞추는 중이에요", "결과": "결과",
+    "선택": tr("cf.stage.pick"), "확인": tr("cf.stage.confirm"), "공통": tr("cf.stage.common"),
+    "골프백": tr("cf.stage.bag"), "볼": tr("cf.stage.ball"),
+    "브랜드": tr("cf.stage.brand"), "그립": tr("cf.stage.grip"),
+    "드라이버": tr("cf.stage.driver"), "아이언": tr("cf.stage.iron"),
+    "웨지": tr("cf.stage.wedge"), "퍼터": tr("cf.stage.putter"), "결과": tr("cf.stage.result"),
   };
 
   /* 화면 eyebrow → 진행 문구. 없으면 group 으로 폴백한다(내부 이름이 새지 않게). */
   const NARRATION = {
-    "클럽 선택": "어떤 클럽을 맞출까요",
-    "내 골프백": "맞춘 클럽을 모아뒀어요",
-    "이미 알고 있는 것": "이미 아는 것부터 꺼냈어요",
-    "구력": "샵에 들어와 자리를 잡았어요",
-    "평균 타수 확인": "어떤 골퍼인지 듣고 있어요", "평균 타수": "어떤 골퍼인지 듣고 있어요",
-    "7번 아이언": "7번 아이언 거리를 재고 있어요",
-    "키 · 팔 길이": "길이와 라이각을 맞추는 중이에요",
-    "그립 사이즈": "손 크기를 재고 있어요",
-    "체력": "18홀 체력을 가늠하고 있어요",
-    "템포": "스윙 템포를 재고 있어요",
-    "몸 상태": "무리가 가지 않게 맞춥니다",
-    "주 플레이": "어디서 치시는지 보고 있어요",
-    "브랜드": "선호하시는 브랜드를 적어뒀어요",
-    "드라이버 캐리": "드라이버 비거리를 재고 있어요",
-    "드라이버 구질": "공이 어디로 휘는지 보고 있어요",
-    "탄도와 낙하": "스핀이 많은지 보고 있어요",
-    "페이스 자국 · 위아래": "어디에 맞는지 살펴봐요",
-    "페이스 자국 · 좌우": "타점을 살펴보는 중이에요",
-    "티 높이": "티 높이를 확인하고 있어요",
-    "지금 드라이버": "지금 쓰시는 클럽을 살펴봐요",
-    "지금 스펙": "지금 스펙을 적어두고 있어요",
-    "길이 · 편차": "길이를 재는 중이에요",
-    "공": "쓰시는 공도 함께 봅니다",
-    "예산": "예산에 맞는 것만 남깁니다",
-    "아이언 · 미스 경향": "아이언을 맞추는 중이에요",
-    "아이언 탄도": "탄도를 어떻게 낼지 보고 있어요",
-    "아이언 구질": "아이언 구질도 함께 봅니다",
-    "아이언 · 소재": "아이언 소재를 고르고 있어요",
-    "헤드 모양": "눈에 맞는 모양을 봐요",
-    "지금 아이언": "지금 아이언을 살펴봐요",
-    "세트 구성": "뺄 클럽이 있는지 봅니다",
-    "페이스 자국": "라이각을 보는 중이에요",
-    "디봇 방향": "디봇을 읽고 있어요",
-    "아이언 · 타감": "타감을 맞추는 중이에요",
-    "피칭 로프트": "웨지 간격을 계산하고 있어요",
-    "지금 쓰는 모델": "지금 쓰시는 클럽을 살펴봐요",
-    "스윙 타입": "바운스를 정하는 중이에요",
-    "미스 경향": "솔 모양을 다듬고 있어요",
-    "코스 잔디": "잔디 상태를 반영합니다",
-    "구성 · 벙커": "웨지 구성을 짜는 중이에요",
-    "웨지 샤프트": "웨지 샤프트를 고르고 있어요",
-    "스트로크 궤도": "퍼터 궤도를 보고 있어요",
-    "퍼팅 고민": "헤드 밸런스를 맞춰요",
-    "짧은 퍼트": "짧은 퍼트를 살펴봐요",
-    "생김새": "눈에 맞는 모양을 봐요",
-    "정렬선": "조준선을 정하는 중이에요",
-    "타감과 소리": "타감을 맞추는 중이에요",
-    "지금 퍼터 길이": "길이를 재는 중이에요",
-    "눈 위치": "셋업을 확인하고 있어요",
-    "그린 빠르기": "그린 빠르기를 반영합니다",
-    "손 위치": "로프트를 정하는 중이에요",
-    "퍼터 그립": "그립을 고르는 중이에요",
-    "그립 · 손과 환경": "손에 맞는 그립을 고르는 중이에요",
-    "그립 · 쥐는 힘과 타감": "그립 굵기를 맞추는 중이에요",
+    [tr("cf.eb.pick")]: tr("cf.nar.pick"),
+    [tr("cf.eb.bag")]: tr("cf.nar.bag"),
+    [tr("cf.eb.known")]: tr("cf.nar.known"),
+    [tr("cf.eb.career")]: tr("cf.nar.career"),
+    [tr("cf.eb.scoreconfirm")]: tr("cf.nar.score"), [tr("cf.eb.score")]: tr("cf.nar.score"),
+    [tr("cf.eb.carry7")]: tr("cf.nar.carry7"),
+    [tr("cf.eb.body")]: tr("cf.nar.body"),
+    [tr("cf.eb.glove")]: tr("cf.nar.glove"),
+    [tr("cf.eb.endur")]: tr("cf.nar.endur"),
+    [tr("cf.eb.tempo")]: tr("cf.nar.tempo"),
+    [tr("cf.eb.bodyissue")]: tr("cf.nar.bodyissue"),
+    [tr("cf.eb.venue")]: tr("cf.nar.venue"),
+    [tr("cf.eb.brand")]: tr("cf.nar.brand"),
+    [tr("cf.eb.d1")]: tr("cf.nar.d1"),
+    [tr("cf.eb.d2")]: tr("cf.nar.d2"),
+    [tr("cf.eb.d3")]: tr("cf.nar.d3"),
+    [tr("cf.eb.d4")]: tr("cf.nar.d4"),
+    [tr("cf.eb.d6")]: tr("cf.nar.d6"),
+    [tr("cf.eb.d5")]: tr("cf.nar.d5"),
+    [tr("cf.eb.d7")]: tr("cf.nar.d7"),
+    [tr("cf.eb.d8")]: tr("cf.nar.d8"),
+    [tr("cf.eb.d9")]: tr("cf.nar.d9"),
+    [tr("cf.eb.d10")]: tr("cf.nar.d10"),
+    [tr("cf.eb.budget")]: tr("cf.nar.budget"),
+    [tr("cf.eb.i1")]: tr("cf.nar.i1"),
+    [tr("cf.eb.i2")]: tr("cf.nar.i2"),
+    [tr("cf.eb.i3")]: tr("cf.nar.i3"),
+    [tr("cf.eb.i4")]: tr("cf.nar.i4"),
+    [tr("cf.eb.i5")]: tr("cf.nar.i5"),
+    [tr("cf.eb.i6")]: tr("cf.nar.i6"),
+    [tr("cf.eb.i7")]: tr("cf.nar.i7"),
+    [tr("cf.eb.i8")]: tr("cf.nar.i8"),
+    [tr("cf.eb.i9")]: tr("cf.nar.i9"),
+    [tr("cf.eb.i10")]: tr("cf.nar.i10"),
+    [tr("cf.eb.pwloft")]: tr("cf.nar.pwloft"),
+    [tr("cf.eb.i12")]: tr("cf.nar.i12"),
+    [tr("cf.eb.w2")]: tr("cf.nar.w2"),
+    [tr("cf.eb.w3")]: tr("cf.nar.w3"),
+    [tr("cf.eb.w4")]: tr("cf.nar.w4"),
+    [tr("cf.eb.w5")]: tr("cf.nar.w5"),
+    [tr("cf.eb.w6")]: tr("cf.nar.w6"),
+    [tr("cf.eb.u1")]: tr("cf.nar.u1"),
+    [tr("cf.eb.u2")]: tr("cf.nar.u2"),
+    [tr("cf.eb.u3")]: tr("cf.nar.u3"),
+    [tr("cf.eb.u4")]: tr("cf.nar.u4"),
+    [tr("cf.eb.u5")]: tr("cf.nar.u5"),
+    [tr("cf.eb.u6")]: tr("cf.nar.u6"),
+    [tr("cf.eb.u7")]: tr("cf.nar.u7"),
+    [tr("cf.eb.u8")]: tr("cf.nar.u8"),
+    [tr("cf.eb.u9")]: tr("cf.nar.u9"),
+    [tr("cf.eb.u10")]: tr("cf.nar.u10"),
+    [tr("cf.eb.u11")]: tr("cf.nar.u11"),
+    [tr("cf.eb.gripcond")]: tr("cf.nar.gripcond"),
+    [tr("cf.eb.gripfeel")]: tr("cf.nar.gripfeel"),
   };
 
   /* ───────── 화면 구성 ───────── */
@@ -515,7 +514,7 @@
       <div class="range-ends"><span>${min}${unit}</span><span>${max}${unit}</span></div>
     </div>`;
   }
-  const nextBtn = (dis = false, label = "다음") =>
+  const nextBtn = (dis = false, label = tr("cf.btn.next")) =>
     `<div class="btn-row"><button class="cf-btn" data-next ${dis ? "disabled" : ""}>${label}</button></div>`;
 
   /* 여러 개를 동시에 고를 수 있는 칩 (몸 상태·손 상태처럼 겹치는 항목) */
@@ -529,22 +528,22 @@
     return `<input class="cf-text" type="text" data-text="${key}" value="${(S[key] || "").replace(/"/g, "&quot;")}" placeholder="${ph}">`;
   }
   const CLUBS = {
-    driver: { ko: "드라이버", ico: "golfer", desc: "로프트 · 샤프트 · 헤드 · 길이" },
-    iron:   { ko: "아이언",   ico: "iron",   desc: "헤드 타입 · 샤프트 · 라이각 · 세트 구성" },
-    wedge:  { ko: "웨지",     ico: "wedge",  desc: "로프트 갭 · 바운스 · 그라인드" },
-    putter: { ko: "퍼터",     ico: "putter", desc: "밸런스 · 길이 · 로프트 · 헤드 무게" },
+    driver: { ko: tr("cf.club.driver"), ico: "golfer", desc: tr("cf.club.driver.d") },
+    iron:   { ko: tr("cf.club.iron"),   ico: "iron",   desc: tr("cf.club.iron.d") },
+    wedge:  { ko: tr("cf.club.wedge"),  ico: "wedge",  desc: tr("cf.club.wedge.d") },
+    putter: { ko: tr("cf.club.putter"), ico: "putter", desc: tr("cf.club.putter.d") },
     /* 볼은 클럽이 아니라 실루엣이 없다 — CSS 로 그린 공을 쓴다(아이콘 생성 스크립트 손대지 않음).
        2열 격자 아래에 가로 한 줄로 붙인다. */
-    ball:   { ko: "볼",       ico: "ball",   desc: "커버 · 컴프레션 · 스핀 — 모든 샷에 쓰는 유일한 장비", wide: true },
+    ball:   { ko: tr("cf.club.ball"),   ico: "ball",   desc: tr("cf.club.ball.d"), wide: true },
   };
 
   /* ───────── [1] 클럽 선택 ───────── */
   const PICK = { key: "pick", group: "선택", render: () => {
     const bag = readBag();
     return `
-      <div class="q-eyebrow">클럽 선택</div>
-      <div class="q-title">어떤 클럽을<br>맞춰볼까요?</div>
-      <div class="q-sub">하나씩 하셔도 됩니다. 맞춘 클럽은 AI 캐디가 그대로 씁니다.</div>
+      <div class="q-eyebrow">${tr("cf.eb.pick")}</div>
+      <div class="q-title">${tr("cf.pick.title")}</div>
+      <div class="q-sub">${tr("cf.pick.sub")}</div>
       <div class="q-body">
         ${bagStrip()}
         <div class="cf-club-grid">
@@ -552,7 +551,7 @@
           <button class="cf-club-tile${c.wide ? " wide" : ""}" data-club="${k}">
             <span class="cf-club-ico ico-${c.ico}"></span>
             <b>${c.ko}</b><small>${c.desc}</small>
-            ${bag[k] ? `<span class="cf-club-done">맞춤 완료</span>` : ""}
+            ${bag[k] ? `<span class="cf-club-done">${tr("cf.pick.done")}</span>` : ""}
           </button>`).join("")}
         </div>
       </div>`;
@@ -567,21 +566,21 @@
     if (!have.length)
       return `<div class="bag-strip empty">
         <span class="bag-strip-ic" aria-hidden="true">🎒</span>
-        <div class="bag-strip-t"><b>내 골프백</b>
-          <span>아직 비어 있어요. 피팅을 마치고 저장하면 여기에 담깁니다.</span></div>
+        <div class="bag-strip-t"><b>${tr("cf.bag.strip.t")}</b>
+          <span>${tr("cf.bag.strip.empty")}</span></div>
       </div>`;
     return `<button class="bag-strip" data-jump="bag">
         <span class="bag-strip-ic" aria-hidden="true">🎒</span>
-        <div class="bag-strip-t"><b>내 골프백</b>
-          <span>${have.map((k) => CLUBS[k].ko).join(" · ")} 저장됨</span></div>
-        <span class="bag-strip-go">열어보기 ›</span>
+        <div class="bag-strip-t"><b>${tr("cf.bag.strip.t")}</b>
+          <span>${tr("cf.bag.strip.saved", { list: have.map((k) => CLUBS[k].ko).join(" · ") })}</span></div>
+        <span class="bag-strip-go">${tr("cf.bag.strip.open")}</span>
       </button>`;
   }
   /* 저장 시각은 있을 때만 적는다 — 없는 걸 지어내지 않는다 */
   function bagWhen(ts) {
     if (!ts) return "";
     const d = new Date(ts);
-    return isNaN(d.getTime()) ? "" : `${d.getMonth() + 1}/${d.getDate()} 저장`;
+    return isNaN(d.getTime()) ? "" : tr("cf.bag.when", { md: (d.getMonth() + 1) + "/" + d.getDate() });
   }
   const BAG = { key: "bag", group: "골프백", render: () => {
     const bag = readBag();
@@ -593,44 +592,44 @@
       if (!c) return "";
       if (!d) return `<div class="bag-card empty">
           <div class="bag-head"><b>${c.ko}</b></div>
-          <div class="bag-none">아직 안 맞췄어요</div>
-          <button class="cf-btn ghost bag-btn" data-club="${k}">맞추러 가기</button>
+          <div class="bag-none">${tr("cf.bag.none")}</div>
+          <button class="cf-btn ghost bag-btn" data-club="${k}">${tr("cf.bag.go")}</button>
         </div>`;
       let body = "";
       if (k === "driver")
-        body = row("헤드", d.keep ? "지금 클럽 그대로 (교체 불필요)" : d.head) +
-               row("샤프트", d.shaft) + row("로프트", d.loft) + row("그립", d.grip);
+        body = row(tr("cf.k.head"), d.keep ? tr("cf.bag.keepdrv") : d.head) +
+               row(tr("cf.k.shaft"), d.shaft) + row(tr("cf.k.loft"), d.loft) + row(tr("cf.k.grip"), d.grip);
       else if (k === "iron")
-        body = row("헤드", d.head) + row("샤프트", d.shaft) +
-               row("소재 · 무게", d.mat && d.weight ? `${d.mat} · 약 ${d.weight}g` : null) +
-               row("라이각 · 길이", d.lie && d.len ? `${d.lie} · ${d.len}` : null) +
-               row("그립", d.grip);
+        body = row(tr("cf.k.head"), d.head) + row(tr("cf.k.shaft"), d.shaft) +
+               row(tr("cf.k.matw"), d.mat && d.weight ? tr("cf.bag.matw", { mat: d.mat, w: d.weight }) : null) +
+               row(tr("cf.k.lielen"), d.lie && d.len ? `${d.lie} · ${d.len}` : null) +
+               row(tr("cf.k.grip"), d.grip);
       else if (k === "wedge")
-        body = row("구성", (d.lofts || []).length ? d.lofts.map((x) => x + "°").join(" · ") : null) +
-               row("바운스", (d.bounces || []).length ? d.bounces.map((x) => x + "°").join(" · ") : null) +
-               row("모델", d.model) + row("그립", d.grip);
+        body = row(tr("cf.k.comp"), (d.lofts || []).length ? d.lofts.map((x) => x + "°").join(" · ") : null) +
+               row(tr("cf.k.bounce"), (d.bounces || []).length ? d.bounces.map((x) => x + "°").join(" · ") : null) +
+               row(tr("cf.k.model"), d.model) + row(tr("cf.k.grip"), d.grip);
       else if (k === "putter")
-        body = row("모델", d.model) + row("형상", d.shape) +
-               row("길이", d.len ? d.len + "″" : null) + row("그립", d.grip);
+        body = row(tr("cf.k.model"), d.model) + row(tr("cf.k.shape"), d.shape) +
+               row(tr("cf.k.len"), d.len ? d.len + "″" : null) + row(tr("cf.k.grip"), d.grip);
       else if (k === "ball")
-        body = row("종류", d.cat) + row("모델", d.model) + row("커버", d.cover);
+        body = row(tr("cf.k.kind"), d.cat) + row(tr("cf.k.model"), d.model) + row(tr("cf.k.cover"), d.cover);
       return `<div class="bag-card">
           <div class="bag-head"><b>${c.ko}</b><span>${bagWhen(d.ts)}</span></div>
           ${body}
           ${d.tldr && d.tldr.read ? `<div class="bag-why">${d.tldr.read}</div>` : ""}
-          <button class="cf-btn ghost bag-btn" data-club="${k}">다시 맞추기</button>
+          <button class="cf-btn ghost bag-btn" data-club="${k}">${tr("cf.bag.again")}</button>
         </div>`;
     };
     return `
-      <div class="q-eyebrow">내 골프백</div>
-      <div class="q-title">맞춘 클럽을<br>모아뒀어요</div>
+      <div class="q-eyebrow">${tr("cf.eb.bag")}</div>
+      <div class="q-title">${tr("cf.bag.title")}</div>
       <div class="q-sub">${have.length
-        ? `${have.length}개 맞추셨습니다. AI 캐디가 홀별 공략에서 이 클럽 기준으로 조언합니다.`
-        : "아직 저장된 클럽이 없습니다. 피팅을 마치고 <b>내 백에 저장</b>을 누르면 여기에 담깁니다."}</div>
+        ? tr("cf.bag.sub", { n: have.length })
+        : tr("cf.bag.sub.empty")}</div>
       <div class="q-body">${BAG_ORDER.map(card).join("")}
-        <div class="inline-note">이 정보는 <b>이 폰에만</b> 저장됩니다. 서버로 보내지 않습니다.</div>
+        <div class="inline-note">${tr("cf.bag.local")}</div>
       </div>
-      <div class="btn-row"><button class="cf-btn" data-jump="pick">클럽 선택으로 ←</button></div>`;
+      <div class="btn-row"><button class="cf-btn" data-jump="pick">${tr("cf.bag.topick")}</button></div>`;
   } };
 
   /* ───────── [2] 공통 프로필 ─────────
@@ -638,213 +637,210 @@
   const CONFIRM = { key: "confirm", group: "확인", render: () => {
     const p = loadFitProfile() || {};
     const row = (l, v) => `<div class="known-card"><div class="k-label">${l}</div><div class="k-val">${v}</div></div>`;
-    const careerTxt = { lt3: "3년 미만", y3_10: "3~10년", gt10: "10년 이상" }[p.career] || "-";
-    const endurTxt = { strong: "36홀 거뜬", fadeLate: "후반에 무너짐", weak: "18홀도 벅참" }[p.endur] || "-";
-    const venueTxt = { field: "필드 위주", screen: "스크린 위주", both: "반반" }[p.venue] || "-";
+    const careerTxt = { lt3: tr("cf.career.lt3"), y3_10: tr("cf.career.y3_10"), gt10: tr("cf.career.gt10") }[p.career] || "-";
+    const endurTxt = { strong: tr("cf.endur.s.strong"), fadeLate: tr("cf.endur.s.fade"), weak: tr("cf.endur.s.weak") }[p.endur] || "-";
+    const venueTxt = { field: tr("cf.venue.field"), screen: tr("cf.venue.screen"), both: tr("cf.venue.both.s") }[p.venue] || "-";
     return `
-      <div class="q-eyebrow">이미 알고 있는 것</div>
-      <div class="q-title">지난번에 알려주신<br>내용 그대로 갈까요?</div>
-      <div class="q-sub">바뀐 게 있으면 다시 답하실 수 있습니다.</div>
+      <div class="q-eyebrow">${tr("cf.eb.known")}</div>
+      <div class="q-title">${tr("cf.confirm.title")}</div>
+      <div class="q-sub">${tr("cf.confirm.sub")}</div>
       <div class="q-body">
-        ${row("구력 · 평균 타수", `${careerTxt} · ${p.scoreGrp === "100" ? "100타 이상" : (p.scoreGrp || "-") + "대"}`)}
-        ${row("7번 아이언 캐리", (p.carry7 || "-") + "m")}
-        ${row("키", (p.heightV || "-") + "cm" + (p.wristFloor ? ` · 손목–바닥 ${p.wristFloor}cm` : ""))}
-        ${row("체력 · 주 플레이", `${endurTxt} · ${venueTxt}`)}
+        ${row(tr("cf.confirm.k.career"), `${careerTxt} · ${p.scoreGrp === "100" ? tr("cf.grade.100") : tr("cf.grade.n", { n: p.scoreGrp || "-" })}`)}
+        ${row(tr("cf.confirm.k.carry7"), (p.carry7 || "-") + "m")}
+        ${row(tr("cf.confirm.k.height"), (p.heightV || "-") + "cm" + (p.wristFloor ? tr("cf.confirm.wrist", { v: p.wristFloor }) : ""))}
+        ${row(tr("cf.confirm.k.endur"), `${endurTxt} · ${venueTxt}`)}
       </div>
       <div class="btn-row">
-        <button class="cf-btn accent" data-useprofile>이대로 진행</button>
-        <button class="cf-btn ghost" data-redoprofile>다시 답할래요</button>
+        <button class="cf-btn accent" data-useprofile>${tr("cf.confirm.use")}</button>
+        <button class="cf-btn ghost" data-redoprofile>${tr("cf.confirm.redo")}</button>
       </div>`;
   } };
 
   const COMMON = [
     { key: "auto", group: "공통", render: () => `
-      <div class="q-eyebrow">이미 알고 있는 것</div>
-      <div class="q-title">이미 알고 있어요</div>
-      <div class="q-sub">동의 화면과 스코어 기록에서 가져왔습니다. 다시 묻지 않습니다.</div>
+      <div class="q-eyebrow">${tr("cf.eb.known")}</div>
+      <div class="q-title">${tr("cf.auto.title")}</div>
+      <div class="q-sub">${tr("cf.auto.sub")}</div>
       <div class="q-body">
-        <div class="known-card"><div class="k-label">연령대 · 성별</div>
-          <div class="k-val">${S.auto.age || "미입력"} · ${S.auto.sex || "미입력"}</div>
-          <div class="k-src">동의 화면 (선택 항목)</div></div>
-        <div class="known-card"><div class="k-label">평균 타수</div>
-          <div class="k-val">${S.auto.avg !== null ? S.auto.avg + "타" : "기록 없음 — 설문에서 여쭤봅니다"}</div>
-          <div class="k-src">최근 라운드 스코어 기록</div></div>
-        <div class="known-card"><div class="k-label">후반 패턴</div>
+        <div class="known-card"><div class="k-label">${tr("cf.auto.k.agesex")}</div>
+          <div class="k-val">${S.auto.age || tr("cf.auto.none")} · ${S.auto.sex || tr("cf.auto.none")}</div>
+          <div class="k-src">${tr("cf.auto.src.consent")}</div></div>
+        <div class="known-card"><div class="k-label">${tr("cf.auto.k.avg")}</div>
+          <div class="k-val">${S.auto.avg !== null ? tr("cf.auto.avg", { n: S.auto.avg }) : tr("cf.auto.avg.none")}</div>
+          <div class="k-src">${tr("cf.auto.src.score")}</div></div>
+        <div class="known-card"><div class="k-label">${tr("cf.auto.k.fade")}</div>
           <div class="k-val">${S.auto.fade !== null
-            ? "13~18홀 평균 " + (S.auto.fade >= 0 ? "+" : "") + S.auto.fade + "타"
-            : "홀별 기록 부족 — 설문으로 봅니다"}</div>
-          <div class="k-src">스코어 기록 자동 분석 — 체력 신호</div></div>
+            ? tr("cf.auto.fade", { v: (S.auto.fade >= 0 ? "+" : "") + S.auto.fade })
+            : tr("cf.auto.fade.none")}</div>
+          <div class="k-src">${tr("cf.auto.src.fade")}</div></div>
       </div>
-      <div class="btn-row"><button class="cf-btn" data-next>${CLUBS[S.club].ko} 피팅 시작</button></div>` },
+      <div class="btn-row"><button class="cf-btn" data-next>${tr("cf.auto.start", { club: CLUBS[S.club].ko })}</button></div>` },
 
     { key: "career", group: "공통", q: 1, render: () => `
-      <div class="q-eyebrow">구력</div>
-      <div class="q-title">골프, 얼마나 치셨어요?</div>
+      <div class="q-eyebrow">${tr("cf.eb.career")}</div>
+      <div class="q-title">${tr("cf.career.title")}</div>
       <div class="q-body">${chipList([
-        { v: "lt3", t: "3년 미만" }, { v: "y3_10", t: "3~10년" }, { v: "gt10", t: "10년 이상" }], "career")}</div>` },
+        { v: "lt3", t: tr("cf.career.lt3") }, { v: "y3_10", t: tr("cf.career.y3_10") },
+        { v: "gt10", t: tr("cf.career.gt10") }], "career")}</div>` },
 
     { key: "score", group: "공통", q: 2, render: () => S.auto.avg !== null ? `
-      <div class="q-eyebrow">평균 타수 확인</div>
-      <div class="q-title">기록 기준 평균 ${S.auto.avg}타 —<br>맞나요?</div>
-      <div class="q-sub">묻는 게 아니라 확인만 합니다.</div>
+      <div class="q-eyebrow">${tr("cf.eb.scoreconfirm")}</div>
+      <div class="q-title">${tr("cf.score.title.confirm", { n: S.auto.avg })}</div>
+      <div class="q-sub">${tr("cf.score.sub.confirm")}</div>
       <div class="q-body">
-        ${chipList([{ v: "ok", t: `맞아요 (${S.scoreGrp === "100" ? "100타 이상" : S.scoreGrp + "대"})` }, { v: "diff", t: "조금 달라요" }], "scoreConfirm", { auto: false })}
+        ${chipList([{ v: "ok", t: tr("cf.score.ok", { grade: S.scoreGrp === "100" ? tr("cf.grade.100") : tr("cf.grade.n", { n: S.scoreGrp }) }) }, { v: "diff", t: tr("cf.score.diff") }], "scoreConfirm", { auto: false })}
         <div id="cf-scorefix" style="display:${S.scoreConfirm === "diff" ? "block" : "none"}" class="sub-q">
-          <div class="q-eyebrow">실제 평균 타수대</div>
-          ${chipList([{ v: "80", t: "80대 이하" }, { v: "90", t: "90대" }, { v: "100", t: "100타 이상" }], "scoreGrp", { row: true, auto: false })}
+          <div class="q-eyebrow">${tr("cf.score.actual")}</div>
+          ${chipList([{ v: "80", t: tr("cf.grade.80") }, { v: "90", t: tr("cf.grade.90") }, { v: "100", t: tr("cf.grade.100") }], "scoreGrp", { row: true, auto: false })}
         </div>
       </div>${nextBtn(!canPassScore())}` : `
-      <div class="q-eyebrow">평균 타수</div>
-      <div class="q-title">평균 타수대는?</div>
-      <div class="q-sub">스코어 기록이 쌓이면 다음부터는 묻지 않습니다.</div>
+      <div class="q-eyebrow">${tr("cf.eb.score")}</div>
+      <div class="q-title">${tr("cf.score.title")}</div>
+      <div class="q-sub">${tr("cf.score.sub")}</div>
       <div class="q-body">${chipList([
-        { v: "80", t: "80대 이하" }, { v: "90", t: "90대" }, { v: "100", t: "100타 이상" }], "scoreGrp")}</div>` },
+        { v: "80", t: tr("cf.grade.80") }, { v: "90", t: tr("cf.grade.90") },
+        { v: "100", t: tr("cf.grade.100") }], "scoreGrp")}</div>` },
 
     /* 주 플레이 환경을 캐리 문항보다 **앞으로** 옮겼다.
        스크린 위주면 "그 거리를 어디서 봤는지"를 이어서 물어야 하는데,
        뒤에 있으면 물을 수가 없다(사장님 지시 3, 2026-07-30). */
     { key: "venue", group: "공통", q: 3, render: () => `
-      <div class="q-eyebrow">주 플레이</div>
-      <div class="q-title">주로 어디서 치세요?</div>
-      <div class="q-sub">스크린은 매트 위에서 치고 런이 계산으로 나옵니다 — 필드와 맞는 클럽이 달라요.</div>
+      <div class="q-eyebrow">${tr("cf.eb.venue")}</div>
+      <div class="q-title">${tr("cf.venue.title")}</div>
+      <div class="q-sub">${tr("cf.venue.sub")}</div>
       <div class="q-body">${chipList([
-        { v: "field", t: "필드 위주" },
-        { v: "screen", t: "스크린 위주", s: "매트·실내" },
-        { v: "both", t: "반반이에요" }], "venue")}</div>` },
+        { v: "field", t: tr("cf.venue.field") },
+        { v: "screen", t: tr("cf.venue.screen"), s: tr("cf.venue.screen.s") },
+        { v: "both", t: tr("cf.venue.both") }], "venue")}</div>` },
 
     { key: "carry7", group: "공통", q: 4, render: () => {
       const askSrc = S.venue === "screen" || S.venue === "both";
       return `
-      <div class="q-eyebrow">7번 아이언</div>
-      <div class="q-title">7번 아이언 캐리는?</div>
-      <div class="q-sub">런 빼고, 떨어지는 지점까지. <b>헤드스피드를 가장 정확히 알려주는 숫자</b>라 모든 클럽 계산의 출발점입니다.</div>
+      <div class="q-eyebrow">${tr("cf.eb.carry7")}</div>
+      <div class="q-title">${tr("cf.carry7.title")}</div>
+      <div class="q-sub">${tr("cf.carry7.sub")}</div>
       <div class="q-body">${slider("carry7V", 100, 190, 5, "m")}
-        ${chipList([{ v: "yes", t: "잘 모르겠어요", s: "평균 타수·성별·연령대로 추정해 드립니다" }],
+        ${chipList([{ v: "yes", t: tr("cf.carry7.dunno"), s: tr("cf.carry7.dunno.s") }],
           "carry7Unknown", { auto: false })}
         ${askSrc ? `<div class="sub-q">
-          <div class="q-eyebrow" style="margin-bottom:8px">그 거리, 어디서 보셨어요?</div>
-          <div class="q-sub" style="margin-bottom:10px">스크린 화면 숫자는 대개 <b>토탈</b>입니다.
-          피팅의 출발점은 <b>캐리</b>라, 여기가 어긋나면 그 위에 쌓은 계산이 전부 어긋납니다.</div>
+          <div class="q-eyebrow" style="margin-bottom:8px">${tr("cf.carry7.src.q")}</div>
+          <div class="q-sub" style="margin-bottom:10px">${tr("cf.carry7.src.sub")}</div>
           ${chipList([
-            { v: "screen", t: "스크린 화면 숫자" },
-            { v: "field", t: "필드 실측", s: "캐디·GPS·거리측정기" },
-            { v: "guess", t: "감으로" }], "carry7Src", { row: true, auto: false })}
+            { v: "screen", t: tr("cf.carry7.src.screen") },
+            { v: "field", t: tr("cf.carry7.src.field"), s: tr("cf.carry7.src.field.s") },
+            { v: "guess", t: tr("cf.carry7.src.guess") }], "carry7Src", { row: true, auto: false })}
           <div id="cf-kindbox" class="sub-q" style="display:${S.carry7Src === "screen" ? "block" : "none"}">
-            <div class="q-eyebrow" style="margin-bottom:8px">캐리였나요, 토탈이었나요?</div>
+            <div class="q-eyebrow" style="margin-bottom:8px">${tr("cf.carry7.kind.q")}</div>
             ${chipList([
-              { v: "carry", t: "캐리였어요" }, { v: "total", t: "토탈이었어요" },
-              { v: "unknown", t: "모르겠어요" }], "carry7Kind", { row: true, auto: false })}
+              { v: "carry", t: tr("cf.carry7.kind.carry") }, { v: "total", t: tr("cf.carry7.kind.total") },
+              { v: "unknown", t: tr("cf.carry7.kind.unknown") }], "carry7Kind", { row: true, auto: false })}
           </div>
         </div>` : ""}
-        <div class="inline-note">잘 모르시겠으면 <b>평균 타수 기준 대략값</b>으로 두셔도 됩니다 —
-        80대 약 155m · 90대 약 140m · 100타 이상 약 125m.</div>
+        <div class="inline-note">${tr("cf.carry7.hint")}</div>
       </div>${nextBtn()}`;
     } },
 
     { key: "body", group: "공통", q: 5, render: () => `
-      <div class="q-eyebrow">키 · 팔 길이</div>
-      <div class="q-title">길이와 라이각을<br>맞춰볼게요</div>
+      <div class="q-eyebrow">${tr("cf.eb.body")}</div>
+      <div class="q-title">${tr("cf.body.title")}</div>
       <div class="q-body">
-        <div class="q-eyebrow" style="margin-bottom:8px">키</div>
+        <div class="q-eyebrow" style="margin-bottom:8px">${tr("cf.body.height")}</div>
         ${slider("heightV", 145, 200, 1, "cm")}
         <div class="sub-q">
-          <div class="q-eyebrow" style="margin-bottom:8px">손목 – 바닥 거리 <span style="opacity:.6">(선택)</span></div>
-          <div class="q-sub" style="margin-bottom:10px">똑바로 서서 팔을 늘어뜨렸을 때 <b>손목 주름에서 바닥까지</b>.
-          길이·라이각의 진짜 기준은 키가 아니라 이 값입니다 — 키가 같아도 팔 길이는 다르거든요.</div>
+          <div class="q-eyebrow" style="margin-bottom:8px">${tr("cf.body.wrist")} <span style="opacity:.6">${tr("cf.opt.optional")}</span></div>
+          <div class="q-sub" style="margin-bottom:10px">${tr("cf.body.wrist.sub")}</div>
           ${slider("wristFloorV", 70, 100, 1, "cm")}
-          ${chipList([{ v: "skip", t: "재보지 않았어요 — 키로만 계산" }], "wristSkip", { auto: false })}
+          ${chipList([{ v: "skip", t: tr("cf.body.wrist.skip") }], "wristSkip", { auto: false })}
         </div>
       </div>${nextBtn()}` },
 
     { key: "glove", group: "공통", q: 6, render: () => `
-      <div class="q-eyebrow">그립 사이즈</div>
-      <div class="q-title">장갑 호수가<br>어떻게 되세요?</div>
-      <div class="q-sub">그립 굵기를 정하는 기준입니다. 굵기가 안 맞으면 손이 과하게 쓰이거나 릴리즈가 막힙니다.</div>
+      <div class="q-eyebrow">${tr("cf.eb.glove")}</div>
+      <div class="q-title">${tr("cf.glove.title")}</div>
+      <div class="q-sub">${tr("cf.glove.sub")}</div>
       <div class="q-body">
-        ${chipList(["18", "19", "20", "21", "22", "23", "24", "25", "26"].map((n) => ({ v: n, t: n + "호" }))
-          .concat([{ v: "unknown", t: "모름" }]), "gloveSize", { row: true, auto: false })}
+        ${chipList(["18", "19", "20", "21", "22", "23", "24", "25", "26"].map((n) => ({ v: n, t: tr("cf.glove.no", { n: n }) }))
+          .concat([{ v: "unknown", t: tr("cf.opt.unknown") }]), "gloveSize", { row: true, auto: false })}
         <div class="sub-q">
-          <div class="q-eyebrow" style="margin-bottom:8px">손 길이 <span style="opacity:.6">(선택 — 이게 더 정확합니다)</span></div>
-          <div class="q-sub" style="margin-bottom:10px"><b>가운뎃손가락 끝에서 손목 주름까지</b> 재보세요.
-          장갑 호수는 브랜드마다 기준이 달라서, 손 길이가 있으면 그쪽을 씁니다.</div>
+          <div class="q-eyebrow" style="margin-bottom:8px">${tr("cf.glove.hand")} <span style="opacity:.6">${tr("cf.glove.hand.opt")}</span></div>
+          <div class="q-sub" style="margin-bottom:10px">${tr("cf.glove.hand.sub")}</div>
           ${slider("handLenV", 15, 26, 0.5, "cm")}
-          ${chipList([{ v: "skip", t: "재보지 않았어요 — 호수로만 계산" }], "handSkip", { auto: false })}
+          ${chipList([{ v: "skip", t: tr("cf.glove.hand.skip") }], "handSkip", { auto: false })}
         </div>
       </div>${nextBtn(!S.gloveSize)}` },
 
     { key: "endur", group: "공통", q: 7, render: () => `
-      <div class="q-eyebrow">체력</div>
-      <div class="q-title">하루 36홀, 가능하세요?</div>
+      <div class="q-eyebrow">${tr("cf.eb.endur")}</div>
+      <div class="q-title">${tr("cf.endur.title")}</div>
       <div class="q-sub">${S.auto.fade !== null && S.auto.fade >= 3
-        ? `스코어 기록의 후반 +${S.auto.fade}타 패턴과 함께 봅니다.`
-        : "시타실 10구가 아니라 18홀 전체 기준으로 맞춥니다."}</div>
+        ? tr("cf.endur.sub.fade", { n: S.auto.fade })
+        : tr("cf.endur.sub")}</div>
       <div class="q-body">${chipList([
-        { v: "strong", t: "거뜬해요" },
-        { v: "fadeLate", t: "후반엔 무너져요", s: "13번 홀 넘어가면 스윙이 처짐" },
-        { v: "weak", t: "18홀도 벅차요" }], "endur")}</div>` },
+        { v: "strong", t: tr("cf.endur.strong") },
+        { v: "fadeLate", t: tr("cf.endur.fade"), s: tr("cf.endur.fade.s") },
+        { v: "weak", t: tr("cf.endur.weak") }], "endur")}</div>` },
 
     { key: "tempo", group: "공통", q: 8, render: () => `
-      <div class="q-eyebrow">템포</div>
-      <div class="q-title">스윙 템포는?</div>
-      <div class="q-sub">같은 스피드라도 전환이 급하면 샤프트가 더 버텨줘야 합니다.</div>
+      <div class="q-eyebrow">${tr("cf.eb.tempo")}</div>
+      <div class="q-title">${tr("cf.tempo.title")}</div>
+      <div class="q-sub">${tr("cf.tempo.sub")}</div>
       <div class="q-body">${chipList([
-        { v: "smooth", t: "부드러움", s: "천천히 올려서 툭" },
-        { v: "normal", t: "보통" },
-        { v: "fast", t: "빠름", s: "전환이 급하고 때리는 편" }], "tempo")}</div>` },
+        { v: "smooth", t: tr("cf.tempo.smooth"), s: tr("cf.tempo.smooth.s") },
+        { v: "normal", t: tr("cf.opt.normal") },
+        { v: "fast", t: tr("cf.tempo.fast"), s: tr("cf.tempo.fast.s") }], "tempo")}</div>` },
 
     { key: "bodyIssue", group: "공통", q: 9, render: () => `
-      <div class="q-eyebrow">몸 상태</div>
-      <div class="q-title">불편한 곳이 있으세요?</div>
-      <div class="q-sub">해당되는 것을 모두 골라주세요. 무게와 소재 추천이 달라집니다.</div>
+      <div class="q-eyebrow">${tr("cf.eb.bodyissue")}</div>
+      <div class="q-title">${tr("cf.bodyissue.title")}</div>
+      <div class="q-sub">${tr("cf.bodyissue.sub")}</div>
       <div class="q-body">${chipMulti([
-        { v: "wrist", t: "손목 · 팔꿈치가 아파요" },
-        { v: "back", t: "허리가 아파요" },
-        { v: "finger", t: "손가락 관절이 아파요" },
-        { v: "grip", t: "손 힘이 약해요" },
-        { v: "none", t: "해당 없음" }], "bodyIssue")}</div>${nextBtn()}` },
+        { v: "wrist", t: tr("cf.bodyissue.wrist") },
+        { v: "back", t: tr("cf.bodyissue.back") },
+        { v: "finger", t: tr("cf.bodyissue.finger") },
+        { v: "grip", t: tr("cf.bodyissue.grip") },
+        { v: "none", t: tr("cf.opt.none") }], "bodyIssue")}</div>${nextBtn()}` },
   ];
 
   /* ───────── [3] 선호 브랜드 ─────────
      ⚠️ 브랜드 문항을 선택 단계에 두었더니 대부분 질문 자체를 못 받고 지나가
         "선호 브랜드 우선 추천"이 작동하지 않았다(2026-07-27). 항상 받는 자리에 둔다. */
   const HEAD_BRANDS = {
-    driver: [{ v: "타이틀리스트", t: "타이틀리스트" }, { v: "테일러메이드", t: "테일러메이드" },
-      { v: "캘러웨이", t: "캘러웨이" }, { v: "핑", t: "핑" },
-      { v: "던롭", t: "젝시오·혼마 계열" }, { v: "any", t: "상관없어요" }],
-    iron: [{ v: "타이틀리스트", t: "타이틀리스트" }, { v: "핑", t: "핑" },
-      { v: "테일러메이드", t: "테일러메이드" }, { v: "캘러웨이", t: "캘러웨이" },
-      { v: "미즈노", t: "미즈노" }, { v: "던롭", t: "젝시오 계열" }, { v: "any", t: "상관없어요" }],
-    wedge: [{ v: "타이틀리스트", t: "타이틀리스트 (보키)" }, { v: "클리브랜드", t: "클리브랜드" },
-      { v: "핑", t: "핑" }, { v: "테일러메이드", t: "테일러메이드" },
-      { v: "캘러웨이", t: "캘러웨이" }, { v: "미즈노", t: "미즈노" }, { v: "any", t: "상관없어요" }],
-    putter: [{ v: "스카티카메론", t: "스카티카메론" }, { v: "오디세이", t: "오디세이" },
-      { v: "테일러메이드", t: "테일러메이드 (스파이더)" }, { v: "핑", t: "핑" }, { v: "any", t: "상관없어요" }],
+    driver: [{ v: "타이틀리스트", t: tr("cf.brand.titleist") }, { v: "테일러메이드", t: tr("cf.brand.taylormade") },
+      { v: "캘러웨이", t: tr("cf.brand.callaway") }, { v: "핑", t: tr("cf.brand.ping") },
+      { v: "던롭", t: tr("cf.brand.dunlop.d") }, { v: "any", t: tr("cf.any") }],
+    iron: [{ v: "타이틀리스트", t: tr("cf.brand.titleist") }, { v: "핑", t: tr("cf.brand.ping") },
+      { v: "테일러메이드", t: tr("cf.brand.taylormade") }, { v: "캘러웨이", t: tr("cf.brand.callaway") },
+      { v: "미즈노", t: tr("cf.brand.mizuno") }, { v: "던롭", t: tr("cf.brand.dunlop.i") }, { v: "any", t: tr("cf.any") }],
+    wedge: [{ v: "타이틀리스트", t: tr("cf.brand.titleist.v") }, { v: "클리브랜드", t: tr("cf.brand.cleveland") },
+      { v: "핑", t: tr("cf.brand.ping") }, { v: "테일러메이드", t: tr("cf.brand.taylormade") },
+      { v: "캘러웨이", t: tr("cf.brand.callaway") }, { v: "미즈노", t: tr("cf.brand.mizuno") }, { v: "any", t: tr("cf.any") }],
+    putter: [{ v: "스카티카메론", t: tr("cf.brand.cameron") }, { v: "오디세이", t: tr("cf.brand.odyssey") },
+      { v: "테일러메이드", t: tr("cf.brand.taylormade.s") }, { v: "핑", t: tr("cf.brand.ping") }, { v: "any", t: tr("cf.any") }],
   };
   const SHAFT_BRANDS = {
-    driver: [{ v: "후지쿠라", t: "후지쿠라" }, { v: "그라파이트디자인", t: "그라파이트디자인" },
-      { v: "미쓰비시", t: "미쓰비시" }, { v: "프로젝트X", t: "프로젝트X" },
-      { v: "UST마미야", t: "UST마미야" }, { v: "any", t: "상관없어요" }],
-    iron: [{ v: "니폰", t: "니폰 (N.S.PRO)" }, { v: "트루템퍼", t: "트루템퍼 (다이나믹골드)" },
-      { v: "KBS", t: "KBS" }, { v: "UST마미야", t: "UST마미야" },
-      { v: "후지쿠라", t: "후지쿠라" }, { v: "any", t: "상관없어요" }],
+    driver: [{ v: "후지쿠라", t: tr("cf.sb.fujikura") }, { v: "그라파이트디자인", t: tr("cf.sb.gd") },
+      { v: "미쓰비시", t: tr("cf.sb.mitsubishi") }, { v: "프로젝트X", t: tr("cf.sb.projectx") },
+      { v: "UST마미야", t: tr("cf.sb.ust") }, { v: "any", t: tr("cf.any") }],
+    iron: [{ v: "니폰", t: tr("cf.sb.nippon") }, { v: "트루템퍼", t: tr("cf.sb.truetemper") },
+      { v: "KBS", t: tr("cf.sb.kbs") }, { v: "UST마미야", t: tr("cf.sb.ust") },
+      { v: "후지쿠라", t: tr("cf.sb.fujikura") }, { v: "any", t: tr("cf.any") }],
   };
   const BRANDQ = { key: "brandq", group: "브랜드", q: 1, render: () => {
     const c = S.club, heads = HEAD_BRANDS[c], shafts = SHAFT_BRANDS[c];
     const hKey = c === "iron" ? "ironBrand" : c === "wedge" ? "wedgeBrand" : c === "putter" ? "putterBrand" : "brand";
     const sKey = c === "iron" ? "ironShaftBrand" : "shaftBrand";
     return `
-      <div class="q-eyebrow">브랜드</div>
-      <div class="q-title">선호하는 브랜드가<br>있으신가요?</div>
-      <div class="q-sub">있으면 <b>그 브랜드 안에서</b> 가장 잘 맞는 것을 1순위로 골라드립니다.
-      다른 브랜드에 더 맞는 게 있으면 대안으로 함께 보여드려요.</div>
+      <div class="q-eyebrow">${tr("cf.eb.brand")}</div>
+      <div class="q-title">${tr("cf.brandq.title")}</div>
+      <div class="q-sub">${tr("cf.brandq.sub")}</div>
       <div class="q-body">
-        <div class="q-eyebrow" style="margin-bottom:8px">${CLUBS[c].ko}(헤드) 브랜드</div>
+        <div class="q-eyebrow" style="margin-bottom:8px">${tr("cf.brandq.head", { club: CLUBS[c].ko })}</div>
         ${chipList(heads, hKey, { row: true, auto: false })}
         ${shafts ? `<div class="sub-q">
-          <div class="q-eyebrow" style="margin-bottom:8px">샤프트 브랜드</div>
+          <div class="q-eyebrow" style="margin-bottom:8px">${tr("cf.brandq.shaft")}</div>
           <div class="q-sub" style="margin-bottom:12px">${c === "iron"
-            ? "아이언 샤프트는 드라이버와 만드는 회사가 다릅니다."
-            : "클럽 브랜드와는 별개입니다."}</div>
+            ? tr("cf.brandq.shaft.iron")
+            : tr("cf.brandq.shaft.etc")}</div>
           ${chipList(shafts, sKey, { row: true, auto: false })}
         </div>` : ""}
       </div>${nextBtn(!(S[hKey] && (!shafts || S[sKey])))}`;
@@ -853,28 +849,28 @@
   /* ───────── [5] 그립 (드라이버·아이언·웨지 공통) ───────── */
   const GRIPQ = [
     { key: "gripCond", group: "그립", q: 1, render: () => `
-      <div class="q-eyebrow">그립 · 손과 환경</div>
-      <div class="q-title">손이나 라운드 환경,<br>해당되는 게 있나요?</div>
-      <div class="q-sub">모두 골라주세요. 재질과 경도가 여기서 갈립니다.</div>
+      <div class="q-eyebrow">${tr("cf.eb.gripcond")}</div>
+      <div class="q-title">${tr("cf.gripcond.title")}</div>
+      <div class="q-sub">${tr("cf.gripcond.sub")}</div>
       <div class="q-body">${chipMulti([
-        { v: "sweat", t: "손에 땀이 많아요" },
-        { v: "wet", t: "여름·비 오는 날에도 라운드해요" },
-        { v: "joint", t: "손가락·손목 관절이 아파요" },
-        { v: "nogl", t: "장갑을 안 껴요" },
-        { v: "none", t: "해당 없음" }], "gripCond")}</div>${nextBtn()}` },
+        { v: "sweat", t: tr("cf.gripcond.sweat") },
+        { v: "wet", t: tr("cf.gripcond.wet") },
+        { v: "joint", t: tr("cf.gripcond.joint") },
+        { v: "nogl", t: tr("cf.gripcond.nogl") },
+        { v: "none", t: tr("cf.opt.none") }], "gripCond")}</div>${nextBtn()}` },
 
     { key: "gripFeel", group: "그립", q: 2, render: () => `
-      <div class="q-eyebrow">그립 · 쥐는 힘과 타감</div>
-      <div class="q-title">그립을 어떻게<br>쥐는 편이세요?</div>
+      <div class="q-eyebrow">${tr("cf.eb.gripfeel")}</div>
+      <div class="q-title">${tr("cf.gripfeel.title")}</div>
       <div class="q-body">
         ${chipList([
-          { v: "tight", t: "꽉 쥐는 편" }, { v: "mid", t: "보통" },
-          { v: "soft", t: "부드럽게" }], "gripPress", { row: true, auto: false })}
+          { v: "tight", t: tr("cf.grippress.tight") }, { v: "mid", t: tr("cf.opt.normal") },
+          { v: "soft", t: tr("cf.grippress.soft") }], "gripPress", { row: true, auto: false })}
         <div class="sub-q">
-          <div class="q-eyebrow" style="margin-bottom:8px">손에 닿는 느낌은</div>
+          <div class="q-eyebrow" style="margin-bottom:8px">${tr("cf.gripfeel.q")}</div>
           ${chipList([
-            { v: "soft", t: "부드러운 고무" }, { v: "firm", t: "단단하고 또렷한" },
-            { v: "any", t: "상관없어요" }], "gripFeel", { row: true, auto: false })}
+            { v: "soft", t: tr("cf.gripfeel.soft") }, { v: "firm", t: tr("cf.gripfeel.firm") },
+            { v: "any", t: tr("cf.any") }], "gripFeel", { row: true, auto: false })}
         </div>
       </div>${nextBtn(!(S.gripPress && S.gripFeel))}` },
   ];
@@ -884,444 +880,435 @@
      실제 피팅이 보는 순서 — 스피드 → 어택앵글/스핀 → 궤도·페이스 → 정타 → 길이 — 로 다시 세웠다. */
   const QD = [
     { key: "d1", group: "드라이버", q: 1, render: () => `
-      <div class="q-eyebrow">드라이버 캐리</div>
-      <div class="q-title">드라이버 캐리는?</div>
-      <div class="q-sub">잘 맞은 공 말고, 평소 10번 중 6~7번 나오는 거리로.</div>
+      <div class="q-eyebrow">${tr("cf.eb.d1")}</div>
+      <div class="q-title">${tr("cf.d1.title")}</div>
+      <div class="q-sub">${tr("cf.d1.sub")}</div>
       <div class="q-body">${slider("carryD", 150, 280, 5, "m")}<div id="cf-rationote"></div></div>${nextBtn()}` },
 
     { key: "d2", group: "드라이버", q: 2, render: () => `
-      <div class="q-eyebrow">드라이버 구질</div>
-      <div class="q-title">공이 어디로 출발해서<br>어디로 휘나요?</div>
-      <div class="q-sub"><b>출발 방향은 스윙 궤도</b>, <b>휘는 방향은 페이스</b>가 만듭니다.
-      둘을 나눠 봐야 같은 '슬라이스'라도 처방이 달라집니다.</div>
+      <div class="q-eyebrow">${tr("cf.eb.d2")}</div>
+      <div class="q-title">${tr("cf.d2.title")}</div>
+      <div class="q-sub">${tr("cf.d2.sub")}</div>
       <div class="q-body">
-        <div class="q-eyebrow" style="margin-bottom:8px">① 처음 출발하는 방향</div>
+        <div class="q-eyebrow" style="margin-bottom:8px">${tr("cf.d2.q1")}</div>
         ${chipList([
-          { v: "left", t: "왼쪽으로" }, { v: "straight", t: "곧게" },
-          { v: "right", t: "오른쪽으로" }], "startDir", { row: true, auto: false })}
+          { v: "left", t: tr("cf.dir.left") }, { v: "straight", t: tr("cf.dir.straight") },
+          { v: "right", t: tr("cf.dir.right") }], "startDir", { row: true, auto: false })}
         <div class="sub-q">
-          <div class="q-eyebrow" style="margin-bottom:8px">② 날아가면서 휘는 방향</div>
+          <div class="q-eyebrow" style="margin-bottom:8px">${tr("cf.d2.q2")}</div>
           ${chipList([
-            { v: "left", t: "왼쪽으로 휘어요" }, { v: "none", t: "거의 안 휘어요" },
-            { v: "right", t: "오른쪽으로 휘어요" }], "curveDir", { row: true, auto: false })}
+            { v: "left", t: tr("cf.curve.left") }, { v: "none", t: tr("cf.curve.none") },
+            { v: "right", t: tr("cf.curve.right") }], "curveDir", { row: true, auto: false })}
         </div>
         <div id="cf-flightnote"></div>
       </div>${nextBtn(!(S.startDir && S.curveDir))}` },
 
     { key: "d3", group: "드라이버", q: 3, render: () => `
-      <div class="q-eyebrow">탄도와 낙하</div>
-      <div class="q-title">공이 어떻게<br>떨어지나요?</div>
-      <div class="q-sub">스핀이 많은지 적은지를 여기서 봅니다. 로프트를 정하는 핵심 정보예요.</div>
+      <div class="q-eyebrow">${tr("cf.eb.d3")}</div>
+      <div class="q-title">${tr("cf.d3.title")}</div>
+      <div class="q-sub">${tr("cf.d3.sub")}</div>
       <div class="q-body">${chipList([
-        { v: "low", t: "낮게 나가서 뚝 떨어져요", s: "런치가 부족한 신호" },
-        { v: "good", t: "쭉 뻗다가 부드럽게 떨어져요", s: "이상적" },
-        { v: "balloon", t: "붕 떠서 힘없이 떨어져요", s: "스핀 과다 신호" },
-        { v: "high", t: "너무 높이 뜨는데 거리가 안 나요" },
-        { v: "unknown", t: "잘 모르겠어요" }], "flight")}</div>` },
+        { v: "low", t: tr("cf.d3.low"), s: tr("cf.d3.low.s") },
+        { v: "good", t: tr("cf.d3.good"), s: tr("cf.d3.good.s") },
+        { v: "balloon", t: tr("cf.d3.balloon"), s: tr("cf.d3.balloon.s") },
+        { v: "high", t: tr("cf.d3.high") },
+        { v: "unknown", t: tr("cf.opt.dunno") }], "flight")}</div>` },
 
     { key: "d4", group: "드라이버", q: 4, render: () => `
-      <div class="q-eyebrow">페이스 자국 · 위아래</div>
-      <div class="q-title">페이스 어디쯤에<br>자국이 남나요?</div>
-      <div class="q-sub">헤드에 흰 가루나 파운데이션을 얇게 바르고 한 번 치면 바로 보입니다.
-      <b>위쪽에 맞을수록 스핀이 줄고 멀리 갑니다</b>(기어 효과).</div>
+      <div class="q-eyebrow">${tr("cf.eb.d4")}</div>
+      <div class="q-title">${tr("cf.d4.title")}</div>
+      <div class="q-sub">${tr("cf.d4.sub")}</div>
       <div class="q-body">${chipList([
-        { v: "high", t: "위쪽", s: "잘 맞고 계신 겁니다" },
-        { v: "mid", t: "가운데" },
-        { v: "low", t: "아래쪽", s: "스핀이 늘고 거리가 줄어요" },
-        { v: "unknown", t: "확인 안 해봤어요" }], "faceV")}</div>` },
+        { v: "high", t: tr("cf.d4.high"), s: tr("cf.d4.high.s") },
+        { v: "mid", t: tr("cf.opt.center") },
+        { v: "low", t: tr("cf.d4.low"), s: tr("cf.d4.low.s") },
+        { v: "unknown", t: tr("cf.opt.notchecked") }], "faceV")}</div>` },
 
     { key: "d5", group: "드라이버", q: 5, render: () => `
-      <div class="q-eyebrow">티 높이</div>
-      <div class="q-title">티를 얼마나<br>높게 꽂으세요?</div>
-      <div class="q-sub">티 높이는 <b>돈이 안 드는 유일한 피팅</b>입니다. 이것만 고쳐도 거리가 늘어나는 분이 많아요.</div>
+      <div class="q-eyebrow">${tr("cf.eb.d5")}</div>
+      <div class="q-title">${tr("cf.d5.title")}</div>
+      <div class="q-sub">${tr("cf.d5.sub")}</div>
       <div class="q-body">${chipList([
-        { v: "high", t: "공 절반 이상이 크라운 위로" },
-        { v: "mid", t: "공 윗부분이 크라운과 비슷" },
-        { v: "low", t: "낮게 꽂아요" },
-        { v: "vary", t: "그때그때 달라요" }], "teeHt")}</div>` },
+        { v: "high", t: tr("cf.d5.high") },
+        { v: "mid", t: tr("cf.d5.mid") },
+        { v: "low", t: tr("cf.d5.low") },
+        { v: "vary", t: tr("cf.d5.vary") }], "teeHt")}</div>` },
 
     { key: "d6", group: "드라이버", q: 6, render: () => `
-      <div class="q-eyebrow">페이스 자국 · 좌우</div>
-      <div class="q-title">좌우로는<br>어디에 맞나요?</div>
+      <div class="q-eyebrow">${tr("cf.eb.d6")}</div>
+      <div class="q-title">${tr("cf.d6.title")}</div>
       <div class="q-body">${chipList([
-        { v: "toe", t: "토우(끝) 쪽" },
-        { v: "center", t: "가운데" },
-        { v: "heel", t: "힐(안쪽) 쪽" },
-        { v: "vary", t: "들쭉날쭉해요", s: "길이를 줄이면 좋아집니다" },
-        { v: "unknown", t: "확인 안 해봤어요" }], "faceH")}</div>` },
+        { v: "toe", t: tr("cf.opt.toe") },
+        { v: "center", t: tr("cf.opt.center") },
+        { v: "heel", t: tr("cf.opt.heel") },
+        { v: "vary", t: tr("cf.d6.vary"), s: tr("cf.d6.vary.s") },
+        { v: "unknown", t: tr("cf.opt.notchecked") }], "faceH")}</div>` },
 
     { key: "d7", group: "드라이버", q: 7, render: () => `
-      <div class="q-eyebrow">지금 드라이버</div>
-      <div class="q-title">지금 드라이버,<br>뭐가 제일 아쉬워요?</div>
+      <div class="q-eyebrow">${tr("cf.eb.d7")}</div>
+      <div class="q-title">${tr("cf.d7.title")}</div>
       <div class="q-body">${chipList([
-        { v: "dist", t: "거리" }, { v: "dir", t: "방향" },
-        { v: "traj", t: "탄도 (안 떠요)" }, { v: "feel", t: "타감" },
-        { v: "consist", t: "일관성", s: "잘 맞을 때와 아닐 때 차이가 큼" },
-        { v: "none", t: "딱히 없어요, 그냥 궁금" }], "complaint")}</div>` },
+        { v: "dist", t: tr("cf.opt.dist") }, { v: "dir", t: tr("cf.opt.dir") },
+        { v: "traj", t: tr("cf.d7.traj") }, { v: "feel", t: tr("cf.opt.feel") },
+        { v: "consist", t: tr("cf.d7.consist"), s: tr("cf.d7.consist.s") },
+        { v: "none", t: tr("cf.opt.nocomplaint") }], "complaint")}</div>` },
 
     { key: "d8", group: "드라이버", q: 8, render: () => `
-      <div class="q-eyebrow">지금 스펙</div>
-      <div class="q-title">지금 쓰시는<br>드라이버 스펙은?</div>
-      <div class="q-sub">"그대로 쓰세요" 판정을 하려면 지금 것을 알아야 합니다.</div>
+      <div class="q-eyebrow">${tr("cf.eb.d8")}</div>
+      <div class="q-title">${tr("cf.d8.title")}</div>
+      <div class="q-sub">${tr("cf.d8.sub")}</div>
       <div class="q-body">
-        <div class="q-eyebrow" style="margin-bottom:8px">로프트</div>
+        <div class="q-eyebrow" style="margin-bottom:8px">${tr("cf.k.loft")}</div>
         ${chipList([
           { v: "8.5", t: "8.5°" }, { v: "9", t: "9°" }, { v: "9.5", t: "9.5°" },
-          { v: "10.5", t: "10.5°" }, { v: "12", t: "12° 이상" }, { v: "unknown", t: "모름" }],
+          { v: "10.5", t: "10.5°" }, { v: "12", t: tr("cf.d8.loft12") }, { v: "unknown", t: tr("cf.opt.unknown") }],
           "curLoft", { row: true, auto: false })}
         <div class="sub-q">
-          <div class="q-eyebrow" style="margin-bottom:8px">샤프트</div>
+          <div class="q-eyebrow" style="margin-bottom:8px">${tr("cf.k.shaft")}</div>
           ${chipList(Object.entries(CUR_SHAFT).map(([v, o]) => ({ v, t: o.label })), "curShaft", { row: true, auto: false })}
         </div>
       </div>${nextBtn(!(S.curLoft && S.curShaft))}` },
 
     { key: "d9", group: "드라이버", q: 9, render: () => `
-      <div class="q-eyebrow">길이 · 편차</div>
-      <div class="q-title">클럽 길이는<br>어떠세요?</div>
-      <div class="q-sub">요즘 표준 45.75″는 <b>대부분의 아마추어에게 깁니다.</b>
-      짧게 잡고 계시다면 그건 클럽이 길다는 몸의 신호예요.</div>
+      <div class="q-eyebrow">${tr("cf.eb.d9")}</div>
+      <div class="q-title">${tr("cf.d9.title")}</div>
+      <div class="q-sub">${tr("cf.d9.sub")}</div>
       <div class="q-body">
-        <div class="q-eyebrow" style="margin-bottom:8px">그립 끝을 남기고 짧게 잡으시나요?</div>
+        <div class="q-eyebrow" style="margin-bottom:8px">${tr("cf.d9.q1")}</div>
         ${chipList([
-          { v: "yes", t: "네, 짧게 잡아요" }, { v: "no", t: "아니요, 끝까지 잡아요" }],
+          { v: "yes", t: tr("cf.d9.yes") }, { v: "no", t: tr("cf.d9.no") }],
           "gripDown", { row: true, auto: false })}
         <div class="sub-q">
-          <div class="q-eyebrow" style="margin-bottom:8px">잘 맞을 때와 평소 거리 차이는</div>
+          <div class="q-eyebrow" style="margin-bottom:8px">${tr("cf.d9.q2")}</div>
           ${chipList([
-            { v: "small", t: "10m 안팎" }, { v: "mid", t: "20m쯤" },
-            { v: "big", t: "30m 이상", s: "정타가 병목입니다" }], "carryVar", { row: true, auto: false })}
+            { v: "small", t: tr("cf.d9.small") }, { v: "mid", t: tr("cf.d9.mid") },
+            { v: "big", t: tr("cf.d9.big"), s: tr("cf.d9.big.s") }], "carryVar", { row: true, auto: false })}
         </div>
       </div>${nextBtn(!(S.gripDown && S.carryVar))}` },
 
     { key: "d10", group: "드라이버", q: 10, render: () => `
-      <div class="q-eyebrow">공</div>
-      <div class="q-title">어떤 공을 쓰세요?</div>
-      <div class="q-sub">스핀 고민이라면 <b>클럽보다 공이 먼저</b>일 수 있습니다. 훨씬 싸게 해결되거든요.</div>
+      <div class="q-eyebrow">${tr("cf.eb.d10")}</div>
+      <div class="q-title">${tr("cf.d10.title")}</div>
+      <div class="q-sub">${tr("cf.d10.sub")}</div>
       <div class="q-body">${chipList([
-        { v: "urethane", t: "우레탄 프리미엄", s: "프로V1 · 크롬소프트 계열" },
-        { v: "distance", t: "거리용 2피스", s: "서라인 · 슈퍼뉴트론 계열" },
-        { v: "any", t: "아무거나 / 로스트볼" }], "ball")}</div>` },
+        { v: "urethane", t: tr("cf.ball.urethane"), s: tr("cf.d10.urethane.s") },
+        { v: "distance", t: tr("cf.ball.distance"), s: tr("cf.d10.distance.s") },
+        { v: "any", t: tr("cf.d10.any") }], "ball")}</div>` },
 
     { key: "d11", group: "드라이버", q: 11, render: () => `
-      <div class="q-eyebrow">예산</div>
-      <div class="q-title">샤프트 예산은?</div>
+      <div class="q-eyebrow">${tr("cf.eb.budget")}</div>
+      <div class="q-title">${tr("cf.budget.title")}</div>
       <div class="q-body">${chipList([
-        { v: "stock", t: "순정이면 충분", s: "추가 지출 없이" },
-        { v: "mid", t: "애프터마켓까지", s: "30~40만 원대" },
-        { v: "any", t: "상관없어요" }], "budget")}</div>` },
+        { v: "stock", t: tr("cf.budget.stock"), s: tr("cf.budget.stock.s") },
+        { v: "mid", t: tr("cf.budget.mid"), s: tr("cf.budget.mid.s") },
+        { v: "any", t: tr("cf.any") }], "budget")}</div>` },
   ];
 
   /* ───────── [4-I] 아이언 ───────── */
   const QI = [
     { key: "i1", group: "아이언", q: 1, render: () => `
-      <div class="q-eyebrow">아이언 · 미스 경향</div>
-      <div class="q-title">아이언이 빗맞을 때<br>주로 어떻게 되나요?</div>
+      <div class="q-eyebrow">${tr("cf.eb.i1")}</div>
+      <div class="q-title">${tr("cf.i1.title")}</div>
       <div class="q-body">${chipList([
-        { v: "thin", t: "얇게 맞아요", s: "공이 안 뜨고 낮게 날아감" },
-        { v: "fat", t: "뒤땅을 쳐요", s: "잔디를 먼저 파고듦" },
-        { v: "dir", t: "방향이 흔들려요", s: "좌우로 갈림" },
-        { v: "none", t: "특별한 경향은 없어요" }], "ironMiss")}</div>` },
+        { v: "thin", t: tr("cf.i1.thin"), s: tr("cf.i1.thin.s") },
+        { v: "fat", t: tr("cf.i1.fat"), s: tr("cf.i1.fat.s") },
+        { v: "dir", t: tr("cf.i1.dir"), s: tr("cf.i1.dir.s") },
+        { v: "none", t: tr("cf.i1.none") }], "ironMiss")}</div>` },
 
     { key: "i2", group: "아이언", q: 2, render: () => `
-      <div class="q-eyebrow">아이언 탄도</div>
-      <div class="q-title">아이언 탄도는<br>어떠세요?</div>
-      <div class="q-sub">드라이버와 따로 봅니다 — 킥포인트가 다르게 나옵니다.</div>
+      <div class="q-eyebrow">${tr("cf.eb.i2")}</div>
+      <div class="q-title">${tr("cf.i2.title")}</div>
+      <div class="q-sub">${tr("cf.i2.sub")}</div>
       <div class="q-body">${chipList([
-        { v: "low", t: "낮아요", s: "그린에 안 서고 굴러 나감" },
-        { v: "mid", t: "적당해요" },
-        { v: "high", t: "너무 떠요", s: "거리 손해" },
-        { v: "unknown", t: "잘 모르겠어요" }], "ironTraj")}</div>` },
+        { v: "low", t: tr("cf.i2.low"), s: tr("cf.i2.low.s") },
+        { v: "mid", t: tr("cf.i2.mid") },
+        { v: "high", t: tr("cf.i2.high"), s: tr("cf.i2.high.s") },
+        { v: "unknown", t: tr("cf.opt.dunno") }], "ironTraj")}</div>` },
 
     { key: "i3", group: "아이언", q: 3, render: () => `
-      <div class="q-eyebrow">아이언 구질</div>
-      <div class="q-title">아이언은 주로<br>어느 쪽으로 휘나요?</div>
+      <div class="q-eyebrow">${tr("cf.eb.i3")}</div>
+      <div class="q-title">${tr("cf.i3.title")}</div>
       <div class="q-body">${chipList([
-        { v: "slice", t: "오른쪽 (슬라이스)" },
-        { v: "straight", t: "거의 곧게" },
-        { v: "hook", t: "왼쪽 (훅)" }], "shapeI")}</div>` },
+        { v: "slice", t: tr("cf.shape.slice") },
+        { v: "straight", t: tr("cf.shape.straight") },
+        { v: "hook", t: tr("cf.shape.hook") }], "shapeI")}</div>` },
 
     { key: "i4", group: "아이언", q: 4, render: () => `
-      <div class="q-eyebrow">아이언 · 소재</div>
-      <div class="q-title">샤프트 소재,<br>정해두신 게 있나요?</div>
-      <div class="q-sub">모르시면 골라드립니다 — 체력·스피드·몸 상태로 판단해요.</div>
+      <div class="q-eyebrow">${tr("cf.eb.i4")}</div>
+      <div class="q-title">${tr("cf.i4.title")}</div>
+      <div class="q-sub">${tr("cf.i4.sub")}</div>
       <div class="q-body">${chipList([
-        { v: "unsure", t: "골라주세요", s: "체력·스피드 기준으로 판단" },
-        { v: "스틸", t: "스틸", s: "방향·거리가 일정한 대신 무거움" },
-        { v: "그라파이트", t: "그라파이트", s: "가벼워 후반까지 편함" }], "ironMat")}</div>` },
+        { v: "unsure", t: tr("cf.opt.chooseforme"), s: tr("cf.i4.unsure.s") },
+        { v: "스틸", t: tr("cf.mat.steel"), s: tr("cf.i4.steel.s") },
+        { v: "그라파이트", t: tr("cf.mat.graphite"), s: tr("cf.i4.graphite.s") }], "ironMat")}</div>` },
 
     { key: "i5", group: "아이언", q: 5, render: () => `
-      <div class="q-eyebrow">헤드 모양</div>
-      <div class="q-title">어드레스에서 어떤 모양이<br>눈에 편하세요?</div>
-      <div class="q-sub">헤드 타입을 정하는 실제 기준입니다. 평균 타수만으로 정하면 취향이 무시돼요.</div>
+      <div class="q-eyebrow">${tr("cf.eb.i5")}</div>
+      <div class="q-title">${tr("cf.i5.title")}</div>
+      <div class="q-sub">${tr("cf.i5.sub")}</div>
       <div class="q-body">${chipList([
-        { v: "classic", t: "얇고 깔끔한 것", s: "톱라인 얇고 오프셋 적음" },
-        { v: "mid", t: "보통" },
-        { v: "forgiving", t: "두툼하고 든든한 것", s: "빗맞아도 손해가 적음" },
-        { v: "unsure", t: "잘 모르겠어요", s: "실력에 맞게 골라주세요" }], "ironLook")}</div>` },
+        { v: "classic", t: tr("cf.i5.classic"), s: tr("cf.i5.classic.s") },
+        { v: "mid", t: tr("cf.opt.normal") },
+        { v: "forgiving", t: tr("cf.i5.forgiving"), s: tr("cf.i5.forgiving.s") },
+        { v: "unsure", t: tr("cf.opt.dunno"), s: tr("cf.i5.unsure.s") }], "ironLook")}</div>` },
 
     { key: "i6", group: "아이언", q: 6, render: () => `
-      <div class="q-eyebrow">지금 아이언</div>
-      <div class="q-title">지금 아이언,<br>뭐가 제일 아쉬워요?</div>
-      <div class="q-sub">"그대로 쓰세요" 판정의 근거입니다.</div>
+      <div class="q-eyebrow">${tr("cf.eb.i6")}</div>
+      <div class="q-title">${tr("cf.i6.title")}</div>
+      <div class="q-sub">${tr("cf.i6.sub")}</div>
       <div class="q-body">${chipList([
-        { v: "dist", t: "거리" }, { v: "dir", t: "방향" },
-        { v: "traj", t: "탄도" }, { v: "feel", t: "타감" },
-        { v: "forg", t: "빗맞을 때 손해가 큼" },
-        { v: "none", t: "딱히 없어요, 그냥 궁금" }], "ironComplaint")}</div>` },
+        { v: "dist", t: tr("cf.opt.dist") }, { v: "dir", t: tr("cf.opt.dir") },
+        { v: "traj", t: tr("cf.opt.traj") }, { v: "feel", t: tr("cf.opt.feel") },
+        { v: "forg", t: tr("cf.i6.forg") },
+        { v: "none", t: tr("cf.opt.nocomplaint") }], "ironComplaint")}</div>` },
 
     { key: "i7", group: "아이언", q: 7, render: () => `
-      <div class="q-eyebrow">세트 구성</div>
-      <div class="q-title">세트에서 가장 긴 아이언은<br>몇 번인가요?</div>
-      <div class="q-sub">긴 아이언을 억지로 들고 다니는 분이 많습니다. 뺄 게 있으면 빼는 것도 피팅입니다.</div>
+      <div class="q-eyebrow">${tr("cf.eb.i7")}</div>
+      <div class="q-title">${tr("cf.i7.title")}</div>
+      <div class="q-sub">${tr("cf.i7.sub")}</div>
       <div class="q-body">
         ${chipList([
-          { v: "3", t: "3번부터" }, { v: "4", t: "4번부터" },
-          { v: "5", t: "5번부터" }, { v: "6", t: "6번부터" },
-          { v: "unknown", t: "모름" }], "ironLongest", { row: true, auto: false })}
+          { v: "3", t: tr("cf.i7.from", { n: 3 }) }, { v: "4", t: tr("cf.i7.from", { n: 4 }) },
+          { v: "5", t: tr("cf.i7.from", { n: 5 }) }, { v: "6", t: tr("cf.i7.from", { n: 6 }) },
+          { v: "unknown", t: tr("cf.opt.unknown") }], "ironLongest", { row: true, auto: false })}
         <div class="sub-q">
-          <div class="q-eyebrow" style="margin-bottom:8px">그 클럽, 잘 맞으세요?</div>
+          <div class="q-eyebrow" style="margin-bottom:8px">${tr("cf.i7.q2")}</div>
           ${chipList([
-            { v: "ok", t: "잘 맞아요" },
-            { v: "no", t: "자신 없어요", s: "잘 안 뜨거나 안 맞음" }], "ironLongOk", { row: true, auto: false })}
+            { v: "ok", t: tr("cf.i7.ok") },
+            { v: "no", t: tr("cf.i7.no"), s: tr("cf.i7.no.s") }], "ironLongOk", { row: true, auto: false })}
         </div>
       </div>${nextBtn(!(S.ironLongest && S.ironLongOk))}` },
 
     { key: "i8", group: "아이언", q: 8, render: () => `
-      <div class="q-eyebrow">페이스 자국</div>
-      <div class="q-title">페이스 어디에<br>자국이 남나요?</div>
-      <div class="q-sub">라이각을 보는 가장 확실한 신호입니다. 헤드에 흰 가루를 얇게 바르고 한 번 쳐보세요.</div>
+      <div class="q-eyebrow">${tr("cf.eb.i8")}</div>
+      <div class="q-title">${tr("cf.i8.title")}</div>
+      <div class="q-sub">${tr("cf.i8.sub")}</div>
       <div class="q-body">${chipList([
-        { v: "toe", t: "토우(끝) 쪽" },
-        { v: "center", t: "가운데" },
-        { v: "heel", t: "힐(안쪽) 쪽" },
-        { v: "unknown", t: "확인 안 해봤어요" }], "ironBallMark")}</div>` },
+        { v: "toe", t: tr("cf.opt.toe") },
+        { v: "center", t: tr("cf.opt.center") },
+        { v: "heel", t: tr("cf.opt.heel") },
+        { v: "unknown", t: tr("cf.opt.notchecked") }], "ironBallMark")}</div>` },
 
     { key: "i9", group: "아이언", q: 9, render: () => `
-      <div class="q-eyebrow">디봇 방향</div>
-      <div class="q-title">디봇이 어느 쪽을<br>향하나요?</div>
-      <div class="q-sub">타깃 라인과 비교해서 봐주세요. 궤도와 라이각을 함께 읽습니다.</div>
+      <div class="q-eyebrow">${tr("cf.eb.i9")}</div>
+      <div class="q-title">${tr("cf.i9.title")}</div>
+      <div class="q-sub">${tr("cf.i9.sub")}</div>
       <div class="q-body">${chipList([
-        { v: "left", t: "타깃보다 왼쪽" },
-        { v: "straight", t: "곧게" },
-        { v: "right", t: "타깃보다 오른쪽" },
-        { v: "none", t: "디봇이 잘 안 생겨요" }], "ironDivot")}</div>` },
+        { v: "left", t: tr("cf.i9.left") },
+        { v: "straight", t: tr("cf.dir.straight") },
+        { v: "right", t: tr("cf.i9.right") },
+        { v: "none", t: tr("cf.i9.none") }], "ironDivot")}</div>` },
 
     { key: "i10", group: "아이언", q: 10, render: () => `
-      <div class="q-eyebrow">아이언 · 타감</div>
-      <div class="q-title">어떤 타감을<br>좋아하세요?</div>
+      <div class="q-eyebrow">${tr("cf.eb.i10")}</div>
+      <div class="q-title">${tr("cf.feel.title")}</div>
       <div class="q-body">${chipList([
-        { v: "soft", t: "부드러운 쪽", s: "손에 닿는 느낌이 포근한" },
-        { v: "solid", t: "단단한 쪽", s: "묵직하고 또렷한 타격감" },
-        { v: "light", t: "가벼운 쪽", s: "휘두르기 편한" },
-        { v: "any", t: "상관없어요" }], "ironFeel")}</div>` },
+        { v: "soft", t: tr("cf.i10.soft"), s: tr("cf.i10.soft.s") },
+        { v: "solid", t: tr("cf.i10.solid"), s: tr("cf.i10.solid.s") },
+        { v: "light", t: tr("cf.i10.light"), s: tr("cf.i10.light.s") },
+        { v: "any", t: tr("cf.any") }], "ironFeel")}</div>` },
 
     { key: "i11", group: "아이언", q: 11, render: () => `
-      <div class="q-eyebrow">피칭 로프트</div>
-      <div class="q-title">피칭웨지 로프트가<br>몇 도인가요?</div>
-      <div class="q-sub">클럽 헤드에 적혀 있어요. 모르시면 45°로 계산합니다 — 요즘 아이언의 표준값입니다.
-      아이언 로프트 세대(스트롱/전통) 판별과 웨지 간격 계산에 함께 씁니다.</div>
+      <div class="q-eyebrow">${tr("cf.eb.pwloft")}</div>
+      <div class="q-title">${tr("cf.pwloft.title")}</div>
+      <div class="q-sub">${tr("cf.i11.sub")}</div>
       <div class="q-body">${slider("pwLoft", 41, 48, 1, "°")}</div>${nextBtn()}` },
 
     { key: "i12", group: "아이언", q: 12, render: () => `
-      <div class="q-eyebrow">지금 쓰는 모델</div>
-      <div class="q-title">지금 아이언 모델을<br>아시나요?</div>
-      <div class="q-sub">선택 사항입니다. 적어주시면 "바꿀 필요 없습니다" 판정이 훨씬 정확해집니다.</div>
+      <div class="q-eyebrow">${tr("cf.eb.i12")}</div>
+      <div class="q-title">${tr("cf.i12.title")}</div>
+      <div class="q-sub">${tr("cf.i12.sub")}</div>
       <div class="q-body">
-        ${textBox("ironCurModel", "예) 타이틀리스트 T200 / 젝시오 12")}
-        <div class="inline-note">모르시면 비워두셔도 됩니다. 모르는 걸 추측해서 판정하지는 않습니다.</div>
+        ${textBox("ironCurModel", tr("cf.i12.ph"))}
+        <div class="inline-note">${tr("cf.i12.note")}</div>
       </div>${nextBtn()}` },
 
     { key: "i13", group: "아이언", q: 13, render: () => `
-      <div class="q-eyebrow">예산</div>
-      <div class="q-title">샤프트 예산은?</div>
+      <div class="q-eyebrow">${tr("cf.eb.budget")}</div>
+      <div class="q-title">${tr("cf.budget.title")}</div>
       <div class="q-body">${chipList([
-        { v: "stock", t: "순정이면 충분" },
-        { v: "mid", t: "애프터마켓까지" },
-        { v: "any", t: "상관없어요" }], "ironBudget")}</div>` },
+        { v: "stock", t: tr("cf.budget.stock") },
+        { v: "mid", t: tr("cf.budget.mid") },
+        { v: "any", t: tr("cf.any") }], "ironBudget")}</div>` },
   ];
 
   /* ───────── [4-W] 웨지 ───────── */
   const QW = [
     { key: "w1", group: "웨지", q: 1, render: () => `
-      <div class="q-eyebrow">피칭 로프트</div>
-      <div class="q-title">피칭웨지 로프트가<br>몇 도인가요?</div>
-      <div class="q-sub">클럽 헤드에 적혀 있어요. 모르시면 45°로 계산합니다.
-      <b>한 클럽당 4~6°</b>가 거리 공백이 안 생기는 간격입니다.</div>
+      <div class="q-eyebrow">${tr("cf.eb.pwloft")}</div>
+      <div class="q-title">${tr("cf.pwloft.title")}</div>
+      <div class="q-sub">${tr("cf.w1.sub")}</div>
       <div class="q-body">${slider("pwLoft", 41, 48, 1, "°")}</div>${nextBtn()}` },
 
     { key: "w2", group: "웨지", q: 2, render: () => `
-      <div class="q-eyebrow">스윙 타입</div>
-      <div class="q-title">어프로치할 때<br>잔디를 어떻게 치나요?</div>
-      <div class="q-sub">바운스(솔의 각도)를 정하는 가장 중요한 정보입니다.</div>
+      <div class="q-eyebrow">${tr("cf.eb.w2")}</div>
+      <div class="q-title">${tr("cf.w2.title")}</div>
+      <div class="q-sub">${tr("cf.w2.sub")}</div>
       <div class="q-body">${chipList([
-        { v: "dig", t: "깊게 파고들어요", s: "디봇이 크게 파임 — 디거" },
-        { v: "sweep", t: "얕게 쓸어 쳐요", s: "디봇이 거의 안 생김 — 스위퍼" },
-        { v: "mid", t: "중간이에요" }], "wedgeTurf")}</div>` },
+        { v: "dig", t: tr("cf.w2.dig"), s: tr("cf.w2.dig.s") },
+        { v: "sweep", t: tr("cf.w2.sweep"), s: tr("cf.w2.sweep.s") },
+        { v: "mid", t: tr("cf.w2.mid") }], "wedgeTurf")}</div>` },
 
     { key: "w3", group: "웨지", q: 3, render: () => `
-      <div class="q-eyebrow">미스 경향</div>
-      <div class="q-title">짧은 어프로치에서<br>실수는 어느 쪽인가요?</div>
+      <div class="q-eyebrow">${tr("cf.eb.w3")}</div>
+      <div class="q-title">${tr("cf.w3.title")}</div>
       <div class="q-body">${chipList([
-        { v: "fat", t: "뒤땅이 나요", s: "공 앞 잔디를 먼저 침" },
-        { v: "thin", t: "토핑이 나요", s: "공 윗부분을 때림" },
-        { v: "none", t: "괜찮은 편이에요" }], "wedgeMiss")}</div>` },
+        { v: "fat", t: tr("cf.w3.fat"), s: tr("cf.w3.fat.s") },
+        { v: "thin", t: tr("cf.w3.thin"), s: tr("cf.w3.thin.s") },
+        { v: "none", t: tr("cf.w3.none") }], "wedgeMiss")}</div>` },
 
     { key: "w4", group: "웨지", q: 4, render: () => `
-      <div class="q-eyebrow">코스 잔디</div>
-      <div class="q-title">주로 라운드하는 코스<br>잔디는 어떤가요?</div>
-      <div class="q-sub">같은 스윙이라도 잔디가 무르면 바운스가 더 필요합니다.</div>
+      <div class="q-eyebrow">${tr("cf.eb.w4")}</div>
+      <div class="q-title">${tr("cf.w4.title")}</div>
+      <div class="q-sub">${tr("cf.w4.sub")}</div>
       <div class="q-body">${chipList([
-        { v: "soft", t: "두툼하고 폭신해요", s: "공이 잔디 위에 떠 있음" },
-        { v: "mid", t: "보통이에요" },
-        { v: "tight", t: "타이트하고 딱딱해요", s: "맨땅에 가까움" },
-        { v: "unknown", t: "잘 모르겠어요" }], "wedgeGrass")}</div>` },
+        { v: "soft", t: tr("cf.w4.soft"), s: tr("cf.w4.soft.s") },
+        { v: "mid", t: tr("cf.w4.mid") },
+        { v: "tight", t: tr("cf.w4.tight"), s: tr("cf.w4.tight.s") },
+        { v: "unknown", t: tr("cf.opt.dunno") }], "wedgeGrass")}</div>` },
 
     { key: "w5", group: "웨지", q: 5, render: () => `
-      <div class="q-eyebrow">구성 · 벙커</div>
-      <div class="q-title">웨지를 몇 개<br>쓰시나요?</div>
+      <div class="q-eyebrow">${tr("cf.eb.w5")}</div>
+      <div class="q-title">${tr("cf.w5.title")}</div>
       <div class="q-body">
         ${chipList([
-          { v: "2", t: "2개" }, { v: "3", t: "3개" }, { v: "4", t: "4개" },
-          { v: "unknown", t: "모름" }], "wedgeCount", { row: true, auto: false })}
+          { v: "2", t: tr("cf.w5.cnt", { n: 2 }) }, { v: "3", t: tr("cf.w5.cnt", { n: 3 }) },
+          { v: "4", t: tr("cf.w5.cnt", { n: 4 }) },
+          { v: "unknown", t: tr("cf.opt.unknown") }], "wedgeCount", { row: true, auto: false })}
         <div class="sub-q">
-          <div class="q-eyebrow" style="margin-bottom:8px">벙커샷은 어떠세요?</div>
+          <div class="q-eyebrow" style="margin-bottom:8px">${tr("cf.w5.q2")}</div>
           ${chipList([
-            { v: "ok", t: "괜찮아요" },
-            { v: "no", t: "자신 없어요", s: "바운스를 더 씁니다" }], "wedgeBunker", { row: true, auto: false })}
+            { v: "ok", t: tr("cf.w5.ok") },
+            { v: "no", t: tr("cf.w5.no"), s: tr("cf.w5.no.s") }], "wedgeBunker", { row: true, auto: false })}
         </div>
       </div>${nextBtn(!(S.wedgeCount && S.wedgeBunker))}` },
 
     { key: "w6", group: "웨지", q: 6, render: () => `
-      <div class="q-eyebrow">웨지 샤프트</div>
-      <div class="q-title">웨지 샤프트는<br>어떻게 할까요?</div>
-      <div class="q-sub">웨지는 풀스윙보다 컨트롤이 많아 아이언보다 조금 무겁게 가는 것이 정석입니다.</div>
+      <div class="q-eyebrow">${tr("cf.eb.w6")}</div>
+      <div class="q-title">${tr("cf.w6.title")}</div>
+      <div class="q-sub">${tr("cf.w6.sub")}</div>
       <div class="q-body">${chipList([
-        { v: "same", t: "아이언과 같은 것으로" },
-        { v: "heavy", t: "웨지 전용 무거운 것으로" },
-        { v: "unsure", t: "골라주세요" }], "wedgeShaft")}</div>` },
+        { v: "same", t: tr("cf.w6.same") },
+        { v: "heavy", t: tr("cf.w6.heavy") },
+        { v: "unsure", t: tr("cf.opt.chooseforme") }], "wedgeShaft")}</div>` },
   ];
 
   /* ───────── [4-U] 퍼터 ───────── */
   const QU = [
     { key: "u1", group: "퍼터", q: 1, render: () => `
-      <div class="q-eyebrow">스트로크 궤도</div>
-      <div class="q-title">퍼팅할 때 헤드가<br>어떻게 움직이나요?</div>
-      <div class="q-sub">헤드 밸런스를 정하는 기준입니다. 잘 모르시겠으면 —
-      짧은 퍼트에서 <b>페이스가 열렸다 닫히는 느낌</b>이 있으면 아크,
-      계속 목표를 향해 있으면 직선에 가깝습니다.</div>
+      <div class="q-eyebrow">${tr("cf.eb.u1")}</div>
+      <div class="q-title">${tr("cf.u1.title")}</div>
+      <div class="q-sub">${tr("cf.u1.sub")}</div>
       <div class="q-body">${chipList([
-        { v: "straight", t: "곧게 왔다갔다", s: "직선에 가까운 궤도" },
-        { v: "slight", t: "살짝 안쪽으로", s: "약간의 아크" },
-        { v: "arc", t: "많이 둥글게", s: "아크가 큰 궤도" },
-        { v: "unknown", t: "잘 모르겠어요", s: "약간의 아크로 가정합니다" }], "puttStroke")}</div>` },
+        { v: "straight", t: tr("cf.u1.straight"), s: tr("cf.u1.straight.s") },
+        { v: "slight", t: tr("cf.u1.slight"), s: tr("cf.u1.slight.s") },
+        { v: "arc", t: tr("cf.u1.arc"), s: tr("cf.u1.arc.s") },
+        { v: "unknown", t: tr("cf.opt.dunno"), s: tr("cf.u1.unknown.s") }], "puttStroke")}</div>` },
 
     { key: "u2", group: "퍼터", q: 2, render: () => `
-      <div class="q-eyebrow">퍼팅 고민</div>
-      <div class="q-title">퍼팅에서<br>더 아쉬운 쪽은?</div>
+      <div class="q-eyebrow">${tr("cf.eb.u2")}</div>
+      <div class="q-title">${tr("cf.u2.title")}</div>
       <div class="q-body">${chipList([
-        { v: "dist", t: "거리감", s: "짧거나 길게 지나감" },
-        { v: "dir", t: "방향", s: "홀 옆으로 빗나감" },
-        { v: "both", t: "둘 다요" },
-        { v: "none", t: "딱히 없어요" }], "puttMiss")}</div>` },
+        { v: "dist", t: tr("cf.u2.dist"), s: tr("cf.u2.dist.s") },
+        { v: "dir", t: tr("cf.opt.dir"), s: tr("cf.u2.dir.s") },
+        { v: "both", t: tr("cf.u2.both") },
+        { v: "none", t: tr("cf.opt.nonespecial") }], "puttMiss")}</div>` },
 
     { key: "u3", group: "퍼터", q: 3, render: () => `
-      <div class="q-eyebrow">짧은 퍼트</div>
-      <div class="q-title">짧은 퍼트는 어느 쪽으로<br>빗나가나요?</div>
-      <div class="q-sub">1~2m 퍼트 기준입니다. 라이각·정렬·길이를 함께 읽습니다.</div>
+      <div class="q-eyebrow">${tr("cf.eb.u3")}</div>
+      <div class="q-title">${tr("cf.u3.title")}</div>
+      <div class="q-sub">${tr("cf.u3.sub")}</div>
       <div class="q-body">${chipList([
-        { v: "left", t: "왼쪽으로 (당겨요)" },
-        { v: "right", t: "오른쪽으로 (밀어요)" },
-        { v: "vary", t: "일정하지 않아요" },
-        { v: "none", t: "잘 안 놓쳐요" }], "puttShort")}</div>` },
+        { v: "left", t: tr("cf.u3.left") },
+        { v: "right", t: tr("cf.u3.right") },
+        { v: "vary", t: tr("cf.u3.vary") },
+        { v: "none", t: tr("cf.u3.none") }], "puttShort")}</div>` },
 
     { key: "u4", group: "퍼터", q: 4, render: () => `
-      <div class="q-eyebrow">생김새</div>
-      <div class="q-title">어떤 모양이<br>눈에 편하세요?</div>
-      <div class="q-sub">퍼터는 감각의 비중이 큽니다. 눈에 편한 게 실제로 잘 들어가요.</div>
+      <div class="q-eyebrow">${tr("cf.eb.u4")}</div>
+      <div class="q-title">${tr("cf.u4.title")}</div>
+      <div class="q-sub">${tr("cf.u4.sub")}</div>
       <div class="q-body">${chipList([
-        { v: "blade", t: "블레이드", s: "얇고 클래식한 모양" },
-        { v: "mallet", t: "말렛", s: "크고 묵직한 모양" },
-        { v: "any", t: "상관없어요" }], "puttLook")}</div>` },
+        { v: "blade", t: tr("cf.u4.blade"), s: tr("cf.u4.blade.s") },
+        { v: "mallet", t: tr("cf.u4.mallet"), s: tr("cf.u4.mallet.s") },
+        { v: "any", t: tr("cf.any") }], "puttLook")}</div>` },
 
     { key: "u5", group: "퍼터", q: 5, render: () => `
-      <div class="q-eyebrow">정렬선</div>
-      <div class="q-title">조준선은<br>있는 게 편하세요?</div>
-      <div class="q-sub">같은 말렛이라도 정렬선 유무로 전혀 다른 클럽이 됩니다.</div>
+      <div class="q-eyebrow">${tr("cf.eb.u5")}</div>
+      <div class="q-title">${tr("cf.u5.title")}</div>
+      <div class="q-sub">${tr("cf.u5.sub")}</div>
       <div class="q-body">${chipList([
-        { v: "line", t: "긴 조준선이 있어야 편해요" },
-        { v: "none", t: "선이 없는 게 편해요", s: "선이 있으면 오히려 신경 쓰임" },
-        { v: "any", t: "상관없어요" }], "puttLine")}</div>` },
+        { v: "line", t: tr("cf.u5.line") },
+        { v: "none", t: tr("cf.u5.none"), s: tr("cf.u5.none.s") },
+        { v: "any", t: tr("cf.any") }], "puttLine")}</div>` },
 
     { key: "u6", group: "퍼터", q: 6, render: () => `
-      <div class="q-eyebrow">타감과 소리</div>
-      <div class="q-title">어떤 타감을<br>좋아하세요?</div>
+      <div class="q-eyebrow">${tr("cf.eb.u6")}</div>
+      <div class="q-title">${tr("cf.feel.title")}</div>
       <div class="q-body">${chipList([
-        { v: "soft", t: "부드럽게 툭", s: "인서트 페이스" },
-        { v: "firm", t: "단단하고 또렷하게", s: "밀드 페이스" },
-        { v: "any", t: "상관없어요" }], "puttFeel")}</div>` },
+        { v: "soft", t: tr("cf.u6.soft"), s: tr("cf.u6.soft.s") },
+        { v: "firm", t: tr("cf.u6.firm"), s: tr("cf.u6.firm.s") },
+        { v: "any", t: tr("cf.any") }], "puttFeel")}</div>` },
 
     { key: "u7", group: "퍼터", q: 7, render: () => `
-      <div class="q-eyebrow">지금 퍼터 길이</div>
-      <div class="q-title">지금 퍼터는<br>몇 인치인가요?</div>
-      <div class="q-sub">샤프트나 그립 아래에 적혀 있기도 합니다.
-      <b>아마추어 다수가 너무 긴 퍼터를 씁니다</b> — 1인치 줄이는 게 가장 싸고 확실한 개선이에요.</div>
+      <div class="q-eyebrow">${tr("cf.eb.u7")}</div>
+      <div class="q-title">${tr("cf.u7.title")}</div>
+      <div class="q-sub">${tr("cf.u7.sub")}</div>
       <div class="q-body">
         ${chipList([
           { v: "32", t: "32″" }, { v: "33", t: "33″" }, { v: "34", t: "34″" },
-          { v: "35", t: "35″" }, { v: "unknown", t: "모름" }], "puttCurLen", { row: true, auto: false })}
+          { v: "35", t: "35″" }, { v: "unknown", t: tr("cf.opt.unknown") }], "puttCurLen", { row: true, auto: false })}
         <div class="sub-q">
-          <div class="q-eyebrow" style="margin-bottom:8px">길게 느껴지시나요?</div>
+          <div class="q-eyebrow" style="margin-bottom:8px">${tr("cf.u7.q2")}</div>
           ${chipList([
-            { v: "yes", t: "네, 길게 느껴져요", s: "손을 몸에서 띄우게 됨" },
-            { v: "no", t: "아니요, 편해요" }], "puttLong", { row: true, auto: false })}
+            { v: "yes", t: tr("cf.u7.yes"), s: tr("cf.u7.yes.s") },
+            { v: "no", t: tr("cf.u7.no") }], "puttLong", { row: true, auto: false })}
         </div>
       </div>${nextBtn(!(S.puttCurLen && S.puttLong))}` },
 
     { key: "u8", group: "퍼터", q: 8, render: () => `
-      <div class="q-eyebrow">눈 위치</div>
-      <div class="q-title">공을 눈 아래로<br>떨어뜨려 보세요</div>
-      <div class="q-sub">평소처럼 어드레스한 뒤, 눈 앞에서 공을 그냥 놓으면 어디에 떨어지나요?
-      길이와 라이각을 보는 가장 쉬운 자가진단입니다.</div>
+      <div class="q-eyebrow">${tr("cf.eb.u8")}</div>
+      <div class="q-title">${tr("cf.u8.title")}</div>
+      <div class="q-sub">${tr("cf.u8.sub")}</div>
       <div class="q-body">${chipList([
-        { v: "on", t: "공 바로 위에 떨어져요", s: "가장 이상적" },
-        { v: "inside", t: "공보다 안쪽(발 쪽)", s: "퍼터가 길거나 너무 서 있음" },
-        { v: "outside", t: "공보다 바깥쪽", s: "너무 멀리 서 있음" },
-        { v: "unknown", t: "안 해봤어요" }], "puttEye")}</div>` },
+        { v: "on", t: tr("cf.u8.on"), s: tr("cf.u8.on.s") },
+        { v: "inside", t: tr("cf.u8.inside"), s: tr("cf.u8.inside.s") },
+        { v: "outside", t: tr("cf.u8.outside"), s: tr("cf.u8.outside.s") },
+        { v: "unknown", t: tr("cf.u8.unknown") }], "puttEye")}</div>` },
 
     { key: "u9", group: "퍼터", q: 9, render: () => `
-      <div class="q-eyebrow">그린 빠르기</div>
-      <div class="q-title">주로 치는 그린은<br>빠른 편인가요?</div>
-      <div class="q-sub">한국 코스는 잔디 종류에 따라 편차가 큽니다.
-      <b>느린 그린에 가벼운 헤드를 쓰면 거리감이 안 맞습니다.</b></div>
+      <div class="q-eyebrow">${tr("cf.eb.u9")}</div>
+      <div class="q-title">${tr("cf.u9.title")}</div>
+      <div class="q-sub">${tr("cf.u9.sub")}</div>
       <div class="q-body">${chipList([
-        { v: "slow", t: "느린 편", s: "한국잔디·관리 보통" },
-        { v: "mid", t: "보통" },
-        { v: "fast", t: "빠른 편", s: "벤트그래스·잘 관리된 곳" },
-        { v: "unknown", t: "잘 모르겠어요" }], "greenSpeed")}</div>` },
+        { v: "slow", t: tr("cf.gs.slow"), s: tr("cf.u9.slow.s") },
+        { v: "mid", t: tr("cf.opt.normal") },
+        { v: "fast", t: tr("cf.gs.fast"), s: tr("cf.u9.fast.s") },
+        { v: "unknown", t: tr("cf.opt.dunno") }], "greenSpeed")}</div>` },
 
     { key: "u10", group: "퍼터", q: 10, render: () => `
-      <div class="q-eyebrow">손 위치</div>
-      <div class="q-title">어드레스에서 손은<br>어디에 있나요?</div>
-      <div class="q-sub">손이 공보다 앞에 있으면 로프트가 죽습니다 — 그만큼 로프트가 더 있는 퍼터가 맞아요.</div>
+      <div class="q-eyebrow">${tr("cf.eb.u10")}</div>
+      <div class="q-title">${tr("cf.u10.title")}</div>
+      <div class="q-sub">${tr("cf.u10.sub")}</div>
       <div class="q-body">${chipList([
-        { v: "forward", t: "공보다 앞(타깃 쪽)" },
-        { v: "level", t: "공과 나란히" },
-        { v: "back", t: "공보다 뒤" },
-        { v: "unknown", t: "잘 모르겠어요" }], "puttHands")}</div>` },
+        { v: "forward", t: tr("cf.u10.forward") },
+        { v: "level", t: tr("cf.u10.level") },
+        { v: "back", t: tr("cf.u10.back") },
+        { v: "unknown", t: tr("cf.opt.dunno") }], "puttHands")}</div>` },
 
     { key: "u11", group: "퍼터", q: 11, render: () => `
-      <div class="q-eyebrow">퍼터 그립</div>
-      <div class="q-title">퍼터 그립은<br>어떤 게 좋으세요?</div>
+      <div class="q-eyebrow">${tr("cf.eb.u11")}</div>
+      <div class="q-title">${tr("cf.u11.title")}</div>
       <div class="q-body">
         ${chipList([
-          { v: "pistol", t: "얇은 피스톨", s: "손끝 감각" },
-          { v: "over", t: "두꺼운 오버사이즈", s: "손을 덜 쓰게" },
-          { v: "any", t: "상관없어요" }], "puttGrip", { row: true, auto: false })}
+          { v: "pistol", t: tr("cf.u11.pistol"), s: tr("cf.u11.pistol.s") },
+          { v: "over", t: tr("cf.u11.over"), s: tr("cf.u11.over.s") },
+          { v: "any", t: tr("cf.any") }], "puttGrip", { row: true, auto: false })}
         <div class="sub-q">
-          <div class="q-eyebrow" style="margin-bottom:8px">짧은 퍼트에서 손이 굳거나 떨리시나요?</div>
+          <div class="q-eyebrow" style="margin-bottom:8px">${tr("cf.u11.q2")}</div>
           ${chipList([
-            { v: "yes", t: "네, 그런 편이에요" },
-            { v: "no", t: "아니요" }], "puttYips", { row: true, auto: false })}
+            { v: "yes", t: tr("cf.u11.yes") },
+            { v: "no", t: tr("cf.u11.no") }], "puttYips", { row: true, auto: false })}
         </div>
       </div>${nextBtn(!(S.puttGrip && S.puttYips))}` },
   ];
@@ -1331,77 +1318,77 @@
      그린 주변에서 서느냐 구르느냐는 스윙보다 **커버 소재**가 정한다. */
   const QB = [
     { key: "b1", group: "볼", q: 1, render: () => `
-      <div class="q-eyebrow">지금 쓰는 볼</div>
-      <div class="q-title">지금은 어떤 공을<br>쓰세요?</div>
-      <div class="q-sub">지금 것이 이미 맞으면 <b>바꾸지 마시라고</b> 말씀드리려고 여쭙습니다.</div>
+      <div class="q-eyebrow">${tr("cf.eb.b1")}</div>
+      <div class="q-title">${tr("cf.b1.title")}</div>
+      <div class="q-sub">${tr("cf.b1.sub")}</div>
       <div class="q-body">${chipList([
-        { v: "urethane", t: "우레탄 프리미엄", s: "프로V1 · TP5 · 크롬소프트 계열" },
-        { v: "mid", t: "3피스 중가", s: "투어리스폰스 · ERC 계열" },
-        { v: "distance", t: "거리용 2피스", s: "슈퍼소프트 · AD333 계열" },
-        { v: "any", t: "아무거나 · 로스트볼" },
-        { v: "unknown", t: "잘 모르겠어요" }], "ball")}</div>` },
+        { v: "urethane", t: tr("cf.ball.urethane"), s: tr("cf.b1.urethane.s") },
+        { v: "mid", t: tr("cf.b1.mid"), s: tr("cf.b1.mid.s") },
+        { v: "distance", t: tr("cf.ball.distance"), s: tr("cf.b1.distance.s") },
+        { v: "any", t: tr("cf.b1.any") },
+        { v: "unknown", t: tr("cf.opt.dunno") }], "ball")}</div>` },
 
     { key: "b2", group: "볼", q: 2, render: () => `
-      <div class="q-eyebrow">분실</div>
-      <div class="q-title">한 라운드에 공을<br>몇 개나 잃어버리세요?</div>
-      <div class="q-sub">솔직하게 답해 주세요. 이게 <b>추천 가격대</b>를 정합니다.</div>
+      <div class="q-eyebrow">${tr("cf.eb.b2")}</div>
+      <div class="q-title">${tr("cf.b2.title")}</div>
+      <div class="q-sub">${tr("cf.b2.sub")}</div>
       <div class="q-body">${chipList([
-        { v: "few", t: "0~1개" },
-        { v: "some", t: "2~3개" },
-        { v: "many", t: "4개 이상", s: "공보다 먼저 볼 게 있습니다" }], "ballLost")}</div>` },
+        { v: "few", t: tr("cf.b2.few") },
+        { v: "some", t: tr("cf.b2.some") },
+        { v: "many", t: tr("cf.b2.many"), s: tr("cf.b2.many.s") }], "ballLost")}</div>` },
 
     { key: "b3", group: "볼", q: 3, render: () => `
-      <div class="q-eyebrow">그린 주변</div>
-      <div class="q-title">그린 주변에서<br>제일 아쉬운 건?</div>
-      <div class="q-sub">볼 피팅에서 <b>가장 중요한 질문</b>입니다. 커버 소재가 여기서 갈립니다.</div>
+      <div class="q-eyebrow">${tr("cf.eb.b3")}</div>
+      <div class="q-title">${tr("cf.b3.title")}</div>
+      <div class="q-sub">${tr("cf.b3.sub")}</div>
       <div class="q-body">${chipList([
-        { v: "roll", t: "어프로치가 안 서고 굴러가요", s: "핀 옆에 떨어져도 지나감" },
-        { v: "control", t: "거리·방향이 안 맞아요" },
-        { v: "none", t: "딱히 없어요" }], "ballShort")}</div>` },
+        { v: "roll", t: tr("cf.b3.roll"), s: tr("cf.b3.roll.s") },
+        { v: "control", t: tr("cf.b3.control") },
+        { v: "none", t: tr("cf.opt.nonespecial") }], "ballShort")}</div>` },
 
     /* 드라이버를 이미 맞췄으면 구질을 다시 묻지 않는다 — 그때 판정한 값을 그대로 쓴다 */
     { key: "b4", group: "볼", q: 4, render: () => {
       const known = bagShape();
       return known ? `
-        <div class="q-eyebrow">구질</div>
-        <div class="q-title">드라이버 구질은<br>이렇게 봤었죠</div>
-        <div class="q-sub">드라이버 피팅에서 판정한 값입니다. 다시 여쭙지 않습니다.</div>
+        <div class="q-eyebrow">${tr("cf.eb.b4")}</div>
+        <div class="q-title">${tr("cf.b4.title.known")}</div>
+        <div class="q-sub">${tr("cf.b4.sub.known")}</div>
         <div class="q-body"><div class="known-card">
-          <div class="k-label">구질 판정</div><div class="k-val">${known}</div>
-          <div class="k-src">드라이버 피팅 결과</div></div>
+          <div class="k-label">${tr("cf.b4.k")}</div><div class="k-val">${known}</div>
+          <div class="k-src">${tr("cf.b4.src")}</div></div>
         </div>${nextBtn()}` : `
-        <div class="q-eyebrow">구질</div>
-        <div class="q-title">공은 주로<br>어느 쪽으로 휘나요?</div>
-        <div class="q-sub">사이드스핀도 스핀입니다 — 많이 휘면 스핀이 적은 공이 휘는 폭을 줄여줍니다.</div>
+        <div class="q-eyebrow">${tr("cf.eb.b4")}</div>
+        <div class="q-title">${tr("cf.b4.title")}</div>
+        <div class="q-sub">${tr("cf.b4.sub")}</div>
         <div class="q-body">${chipList([
-          { v: "slice", t: "오른쪽 (슬라이스)" },
-          { v: "straight", t: "거의 곧게" },
-          { v: "hook", t: "왼쪽 (훅)" }], "ballShape")}</div>`;
+          { v: "slice", t: tr("cf.shape.slice") },
+          { v: "straight", t: tr("cf.shape.straight") },
+          { v: "hook", t: tr("cf.shape.hook") }], "ballShape")}</div>`;
     } },
 
     { key: "b5", group: "볼", q: 5, render: () => `
-      <div class="q-eyebrow">타감</div>
-      <div class="q-title">치는 느낌은<br>어떤 게 좋으세요?</div>
-      <div class="q-sub">퍼팅에서 특히 크게 느껴집니다. 감각은 취향이 아니라 거리감의 재료예요.</div>
+      <div class="q-eyebrow">${tr("cf.eb.b5")}</div>
+      <div class="q-title">${tr("cf.b5.title")}</div>
+      <div class="q-sub">${tr("cf.b5.sub")}</div>
       <div class="q-body">${chipList([
-        { v: "soft", t: "부드러운 쪽", s: "퍼팅에서 툭 하고 눌리는 느낌" },
-        { v: "firm", t: "단단하고 또렷한 쪽" },
-        { v: "any", t: "상관없어요" }], "ballFeel")}</div>` },
+        { v: "soft", t: tr("cf.i10.soft"), s: tr("cf.b5.soft.s") },
+        { v: "firm", t: tr("cf.b5.firm") },
+        { v: "any", t: tr("cf.any") }], "ballFeel")}</div>` },
 
     { key: "b6", group: "볼", q: 6, render: () => `
-      <div class="q-eyebrow">계절</div>
-      <div class="q-title">겨울·이른 봄에도<br>자주 라운드하세요?</div>
-      <div class="q-sub">공은 <b>추우면 더 단단해져</b> 잘 안 눌립니다. 그만큼 거리도 줄어요.</div>
+      <div class="q-eyebrow">${tr("cf.eb.b6")}</div>
+      <div class="q-title">${tr("cf.b6.title")}</div>
+      <div class="q-sub">${tr("cf.b6.sub")}</div>
       <div class="q-body">${chipList([
-        { v: "yes", t: "네, 겨울에도 나가요" },
-        { v: "no", t: "아니요, 따뜻할 때만" }], "ballCold")}</div>` },
+        { v: "yes", t: tr("cf.b6.yes") },
+        { v: "no", t: tr("cf.b6.no") }], "ballCold")}</div>` },
 
     { key: "b7", group: "볼", q: 7, render: () => `
-      <div class="q-eyebrow">시인성</div>
-      <div class="q-title">공을 찾기 힘든 적이<br>많으세요?</div>
+      <div class="q-eyebrow">${tr("cf.eb.b7")}</div>
+      <div class="q-title">${tr("cf.b7.title")}</div>
       <div class="q-body">${chipList([
-        { v: "often", t: "자주 있어요", s: "컬러볼도 함께 보여드립니다" },
-        { v: "rare", t: "별로 없어요" }], "ballFind")}</div>` },
+        { v: "often", t: tr("cf.b7.often"), s: tr("cf.b7.often.s") },
+        { v: "rare", t: tr("cf.b7.rare") }], "ballFind")}</div>` },
   ];
 
   /* 드라이버 피팅에서 판정한 구질 — 볼 문항에서 다시 묻지 않으려고 백에서 꺼낸다 */
@@ -1467,47 +1454,47 @@
     let size = null, sizeNote = "";
     if (S.handLen) {
       size = (GRIP_SIZE.find((g) => S.handLen < g.max) || GRIP_SIZE[1]).size;
-      why.push(`손 길이 ${S.handLen}cm → <b>${size}</b> (제조사 공표 사이징표 기준)`);
+      why.push(tr("cf.grip.why.hand", { cm: S.handLen, size: size }));
     } else if (S.gloveSize && S.gloveSize !== "unknown") {
       sizeNote = GLOVE_HINT[S.gloveSize] || "스탠다드";
       size = sizeNote.split("~")[0];
-      why.push(`장갑 ${S.gloveSize}호 → <b>${sizeNote}</b> 구간. 호수 기준은 브랜드마다 달라 범위로만 봅니다`);
+      why.push(tr("cf.grip.why.glove", { n: S.gloveSize, hint: sizeNote }));
     } else {
       size = "스탠다드";
-      why.push("손 크기 정보가 없어 <b>스탠다드</b>를 기본으로 두었습니다");
+      why.push(tr("cf.grip.why.nosize"));
     }
     // 관절·손 힘 → 한 단계 굵게 (쥐는 힘이 덜 듦)
     const UP = { "언더사이즈": "스탠다드", "스탠다드": "미드사이즈", "미드사이즈": "점보", "점보": "점보" };
     if (has("joint") || has("grip") || (S.bodyIssue || []).includes("finger")) {
       size = UP[size] || size;
-      why.push("손가락 관절·악력을 고려해 <b>한 단계 굵게</b> — 굵을수록 쥐는 힘이 덜 듭니다");
+      why.push(tr("cf.grip.why.thicker"));
     }
 
     // ② 테이퍼 — 훅·손 과활성이면 하부가 두꺼운 것
     const hooking = S.curveDir === "left" || S.shapeI === "hook";
     const slicing = S.curveDir === "right" || S.shapeI === "slice";
     let taper = "표준";
-    if (hooking) { taper = "리듀스드"; why.push("왼쪽으로 휘는 경향 — <b>하부가 두꺼운 리듀스드 테이퍼</b>가 손 동작을 줄여 페이스가 덜 닫힙니다"); }
-    if (slicing) why.push("오른쪽으로 휘는 경향 — 굵게 가면 릴리즈가 더 막히므로 <b>굵기를 올리지 않았습니다</b>");
+    if (hooking) { taper = "리듀스드"; why.push(tr("cf.grip.why.hook")); }
+    if (slicing) why.push(tr("cf.grip.why.slice"));
 
     // ③ 재질 — 땀·우천이면 코드
     let tex = "러버";
     if (has("sweat") && has("wet")) tex = "풀코드";
     else if (has("sweat") || has("wet")) tex = "하프코드";
-    if (has("nogl")) { tex = "러버"; why.push("장갑을 안 끼시면 코드는 손에 거칩니다 — <b>택키한 러버</b>로 골랐습니다"); }
-    else if (tex !== "러버") why.push(`땀·우천 조건 — <b>${tex}</b>는 젖어도 미끄러지지 않습니다`);
+    if (has("nogl")) { tex = "러버"; why.push(tr("cf.grip.why.nogl")); }
+    else if (tex !== "러버") why.push(tr("cf.grip.why.tex", { tex: tex }));
 
     // ④ 경도
     let firm = "표준";
     if (has("joint") || S.gripPress === "tight" || S.gripFeel === "soft") firm = "소프트";
     if (S.gripFeel === "firm" && !has("joint")) firm = "펌";
-    if (S.gripPress === "tight") why.push("꽉 쥐는 편 — <b>소프트</b>가 손과 팔의 긴장을 덜어줍니다");
+    if (S.gripPress === "tight") why.push(tr("cf.grip.why.tight"));
 
     // ⑤ 무게 — 후반 체력 저하는 무거운 그립(카운터밸런스)이 헤드 체감을 낮춘다
     const tired = S.endur === "fadeLate" || S.endur === "weak" ||
                   (S.auto.fade !== null && S.auto.fade >= 3);
     const heavy = tired;
-    if (heavy) why.push("후반에 스윙이 처지는 신호 — <b>무거운 그립(카운터밸런스)</b>이 헤드 체감 무게를 낮춰 후반 스윙을 지켜줍니다");
+    if (heavy) why.push(tr("cf.grip.why.heavy"));
 
     // ⑥ 후보 채점
     const pick = GRIPS.map((g) => {
@@ -1523,7 +1510,8 @@
     return {
       size, sizeNote, tex, firm, taper, heavy, why,
       model: `${pick.b} ${pick.m}`,
-      spec: `${size} · ${pick.tex} · ${pick.firm} · 약 ${pick.w}g${taper === "리듀스드" ? " · 하부 두꺼움" : ""}`,
+      spec: tr("cf.grip.spec", { size: size, tex: pick.tex, firm: pick.firm, w: pick.w }) +
+            (taper === "리듀스드" ? tr("cf.grip.spec.reduced") : ""),
       measure: !S.handLen,
     };
   }
@@ -1553,19 +1541,19 @@
   function driverLoft() {
     const c7 = S.carry7;
     let L = c7 < 130 ? 12 : c7 < 145 ? 11 : c7 < 160 ? 10.5 : c7 < 172 ? 9.5 : 9;
-    const why = [`7번 캐리 ${c7}m로 본 스피드 → 기본 ${L}°`];
-    if (S.flight === "low") { L += 1; why.push("낮게 나가 뚝 떨어짐 — 런치를 확보하려 <b>+1°</b>"); }
-    if (S.flight === "balloon") { L -= 1; why.push("붕 떠서 힘없이 떨어짐(스핀 과다) — <b>−1°</b>"); }
-    if (S.flight === "high") { L -= 1.5; why.push("높이 뜨는데 거리 손해 — <b>−1.5°</b>"); }
-    if (S.faceV === "low") { L += 0.5; why.push("페이스 아래쪽 타격 — 스핀이 늘어나는 자리라 <b>+0.5°</b> (티 높이부터 고치는 게 먼저입니다)"); }
-    if (S.faceV === "high") { L -= 0.5; why.push("페이스 위쪽 타격 — 기어 효과로 이미 스핀이 낮습니다"); }
-    if (S.curveDir === "right") { L += 0.5; why.push("우측으로 휘는 경향 — <b>로프트가 높을수록 사이드스핀 비율이 줄어듭니다</b>"); }
-    if (S.endur === "weak" || S.auto.age === "60대 이상") { L += 0.5; why.push("스피드 여유가 크지 않아 런치를 조금 더 확보"); }
+    const why = [tr("cf.loft.why.base", { m: c7, deg: L })];
+    if (S.flight === "low") { L += 1; why.push(tr("cf.loft.why.low")); }
+    if (S.flight === "balloon") { L -= 1; why.push(tr("cf.loft.why.balloon")); }
+    if (S.flight === "high") { L -= 1.5; why.push(tr("cf.loft.why.high")); }
+    if (S.faceV === "low") { L += 0.5; why.push(tr("cf.loft.why.facelow")); }
+    if (S.faceV === "high") { L -= 0.5; why.push(tr("cf.loft.why.facehigh")); }
+    if (S.curveDir === "right") { L += 0.5; why.push(tr("cf.loft.why.curveright")); }
+    if (S.endur === "weak" || S.auto.age === "60대 이상") { L += 0.5; why.push(tr("cf.loft.why.weak")); }
     /* 상급자 보정(사장님 지적 2026-07-30) — 정타 관리가 되는 골퍼는 스핀 손실이 적어
        같은 스피드라도 로프트를 반 클릭 낮춰 강한 탄도로 가는 것이 실제 피팅 관행이다.
        단, 탄도가 낮다는 신호(flight low·페이스 하단 타격)가 있으면 건드리지 않는다. */
     if (S.scoreGrp === "80" && S.flight !== "low" && S.faceV !== "low") {
-      L -= 0.5; why.push("평균 80대 이하 — 정타 관리가 되는 골퍼라 <b>−0.5°</b> 낮춰 강한 탄도 세팅");
+      L -= 0.5; why.push(tr("cf.loft.why.low80"));
     }
     L = Math.max(8.5, Math.min(12, Math.round(L * 2) / 2));
     return { loft: L, why };
@@ -1575,11 +1563,9 @@
      표준 45.75″는 대부분의 아마추어에게 길다. 정타 일관성이 병목이면 짧게가 정답. */
   function driverLength() {
     const scatter = S.faceH === "vary" || S.carryVar === "big" || S.gripDown === "yes";
-    if (scatter) return { len: "44.75 ~ 45.25″",
-      why: "정타가 흔들리는 신호가 있습니다. <b>짧게 잡으면 스피드는 거의 안 줄고 정타율이 확실히 오릅니다</b> — 평균 거리는 오히려 늘어납니다." };
-    if (S.faceH === "center" && S.carry7 < 140) return { len: "45.5 ~ 45.75″",
-      why: "정타가 안정적이고 스피드 여유가 있는 편이 아니라, 표준 길이로 헤드스피드를 확보하는 쪽이 낫습니다." };
-    return { len: "45.25 ~ 45.5″", why: "표준보다 살짝 짧은 구간 — 정타율과 스피드의 균형점입니다." };
+    if (scatter) return { len: "44.75 ~ 45.25″", why: tr("cf.len.why.scatter") };
+    if (S.faceH === "center" && S.carry7 < 140) return { len: "45.5 ~ 45.75″", why: tr("cf.len.why.std") };
+    return { len: "45.25 ~ 45.5″", why: tr("cf.len.why.mid") };
   }
 
   function engine() {
@@ -1595,29 +1581,30 @@
     // 비율 검증 (거짓말 탐지기 겸 정타율 신호)
     const ratio = S.carryD / S.carry7;
     let lowSmash = false;
-    if (ratio > 1.68) notes.push({ t: "warn", h: "드라이버 수치는 참고만", b: `7번 대비 드라이버가 깁니다(×${ratio.toFixed(2)}). 헤드스피드 추정은 <b>7번 캐리 기준</b>으로만 계산했습니다.` });
-    if (ratio < 1.50) { lowSmash = true; notes.push({ t: "warn", h: "정타율이 병목입니다", b: `7번 대비 드라이버가 짧습니다(×${ratio.toFixed(2)}). 스피드보다 <b>가운데 맞히는 것</b>이 먼저 — 관용성 헤드와 짧은 길이에 가점했습니다.` }); }
+    if (ratio > 1.68) notes.push({ t: "warn", h: tr("cf.note.ratiohi.h"), b: tr("cf.note.ratiohi.b", { r: ratio.toFixed(2) }) });
+    if (ratio < 1.50) { lowSmash = true; notes.push({ t: "warn", h: tr("cf.note.ratiolo.h"), b: tr("cf.note.ratiolo.b", { r: ratio.toFixed(2) }) }); }
 
     if (S.tempo === "fast") fxT = shiftUp(fxT);
     const fadeSig = S.auto.fade !== null && S.auto.fade >= 3;
     const tired = S.endur === "fadeLate" || S.endur === "weak" || fadeSig;
     if (tired) {
       wLo -= 8; wHi -= 8; fxT = shiftUp(fxT);
-      notes.push({ t: "rule", h: "후반 체력 보정 발동", b: `${fadeSig ? `스코어 기록의 후반 +${S.auto.fade}타 패턴` : "36홀 응답"} → <b>무게 한 체급 ↓, 강도 한 단계 ↑</b>. 시타실 10구가 아니라 18홀 전체 기준입니다.` });
+      notes.push({ t: "rule", h: tr("cf.note.tired.h"),
+        b: tr("cf.note.tired.b", { src: fadeSig ? tr("cf.note.tired.src.rec", { n: S.auto.fade }) : tr("cf.note.tired.src.q") }) });
     }
     if (S.endur === "weak") { wLo -= 4; wHi -= 4; }
     if ((S.bodyIssue || []).includes("wrist") || (S.bodyIssue || []).includes("back")) {
       wLo -= 4; wHi -= 4;
-      notes.push({ t: "rule", h: "몸 상태 반영", b: "손목·허리 부담을 말씀하셔서 <b>무게 밴드를 낮췄습니다.</b> 무거운 샤프트가 스윙을 잡아주는 건 몸이 버틸 때 얘기입니다." });
+      notes.push({ t: "rule", h: tr("cf.note.body.h"), b: tr("cf.note.body.b") });
     }
 
     // 티 높이 처방 — 돈이 안 드는 유일한 피팅
     if (S.faceV === "low" || S.teeHt === "low")
-      notes.push({ t: "rule", h: "먼저 해볼 것 — 티 높이", b: "페이스 아래쪽에 맞으면 <b>스핀이 늘고 런치가 낮아져</b> 거리를 잃습니다. <b>공 절반이 크라운 위로 올라오게</b> 꽂고 공 위치를 왼발 뒤꿈치 안쪽으로 옮겨 보세요. 클럽을 바꾸기 전에 이것부터입니다." });
+      notes.push({ t: "rule", h: tr("cf.note.tee.h"), b: tr("cf.note.tee.b") });
     if (S.teeHt === "vary")
-      tips.push("티 높이가 그때그때 다르면 탄도도 그때그때 달라집니다. <b>티에 표시를 해두고 같은 높이로</b> 꽂아 보세요.");
+      tips.push(tr("cf.tip.teevary"));
     if (S.flight === "balloon" && S.ball === "urethane")
-      notes.push({ t: "rule", h: "클럽보다 공이 먼저", b: "스핀이 많은 신호인데 <b>우레탄 프리미엄 볼</b>을 쓰고 계십니다. 드라이버 스핀은 공이 만드는 몫이 큽니다 — 거리용 공으로 한 라운드만 바꿔 보세요. 훨씬 싸게 해결될 수 있습니다." });
+      notes.push({ t: "rule", h: tr("cf.note.ballfirst.h"), b: tr("cf.note.ballfirst.b") });
 
     // 샤프트 채점
     let pool = SHAFTS_ACTIVE;
@@ -1626,25 +1613,25 @@
     const cur = CUR_SHAFT[S.curShaft] || CUR_SHAFT.unknown;
     const shafts = pool.map((s) => {
       let p = 0; const why = [];
-      if (s.w >= wLo && s.w <= wHi) { p += 40; why.push(`무게 ${s.w}g — 체력·몸 상태를 반영한 밴드(${wLo}~${wHi}g) 안`); }
+      if (s.w >= wLo && s.w <= wHi) { p += 40; why.push(tr("cf.sw.band", { w: s.w, lo: wLo, hi: wHi })); }
       else p += Math.max(0, 40 - 4 * (s.w < wLo ? wLo - s.w : s.w - wHi));
       const fi = FLEX.indexOf(s.fx), tI = fxT.map((f) => FLEX.indexOf(f));
-      if (tI.includes(fi)) { p += 35; why.push(`플렉스 ${s.fx} — 목표 강도 일치`); }
+      if (tI.includes(fi)) { p += 35; why.push(tr("cf.sw.flex", { fx: s.fx })); }
       else if (tI.some((t) => Math.abs(t - fi) === 1)) p += (S.tempo === "smooth" && tI.every((t) => fi < t)) ? 25 : 12;
       // 토크 — 페이스가 열려 맞으면 잘 돌아오는(고토크) 쪽, 닫혀 맞으면 안 돌아오는(저토크) 쪽
-      if (fl.tq === "high" && s.tq >= 3.8) { p += 12; why.push(`토크 ${s.tq}° — 페이스가 열려 맞는 경향(${fl.n})에서 헤드 턴을 도와줍니다`); }
-      if (fl.tq === "low" && s.tq <= 3.2) { p += 12; why.push(`토크 ${s.tq}° — 페이스가 닫혀 맞는 경향(${fl.n}) 억제`); }
+      if (fl.tq === "high" && s.tq >= 3.8) { p += 12; why.push(tr("cf.sw.tqhigh", { tq: s.tq, n: fl.n })); }
+      if (fl.tq === "low" && s.tq <= 3.2) { p += 12; why.push(tr("cf.sw.tqlow", { tq: s.tq, n: fl.n })); }
       // 킥포인트 — 런치·스핀 신호로 정한다
-      if ((S.flight === "low" || S.flight === "unknown" && S.complaint === "traj") && (s.k === "중고" || s.k === "고")) { p += 10; why.push(`킥 ${s.k} — 낮은 탄도를 끌어올립니다`); }
-      if ((S.flight === "balloon" || S.flight === "high") && (s.k === "낮음" || s.k === "중저")) { p += 12; why.push(`킥 ${s.k} — 뜨는 탄도와 스핀을 눌러줍니다`); }
-      if (S.complaint === "dist" && s.w <= (wLo + wHi) / 2) { p += 6; why.push("밴드 내 가벼운 쪽 — 스피드 확보"); }
-      if (S.complaint === "dir" && s.tq <= 3.4) { p += 8; why.push("저토크 — 방향 안정"); }
-      if (S.complaint === "consist" && s.tq <= 3.6) { p += 8; why.push("저토크 — 스윙마다 편차를 줄여줍니다"); }
+      if ((S.flight === "low" || S.flight === "unknown" && S.complaint === "traj") && (s.k === "중고" || s.k === "고")) { p += 10; why.push(tr("cf.sw.kicklow", { k: s.k })); }
+      if ((S.flight === "balloon" || S.flight === "high") && (s.k === "낮음" || s.k === "중저")) { p += 12; why.push(tr("cf.sw.kickhigh", { k: s.k })); }
+      if (S.complaint === "dist" && s.w <= (wLo + wHi) / 2) { p += 6; why.push(tr("cf.sw.light")); }
+      if (S.complaint === "dir" && s.tq <= 3.4) { p += 8; why.push(tr("cf.sw.dir")); }
+      if (S.complaint === "consist" && s.tq <= 3.6) { p += 8; why.push(tr("cf.sw.consist")); }
       /* 상급자 성향(사장님 지적 2026-07-30) — 80대 이하는 벤투스류 저킥·저토크의
          안정형 프로파일을 선호하고 실제로도 그 편이 맞는다. 탄도를 띄워야 하는
          신호(flight low)가 있으면 이 가점은 주지 않는다. */
       if (S.scoreGrp === "80" && S.flight !== "low") {
-        if (s.k === "낮음" || s.k === "중저") { p += 8; why.push("상급자 세팅 — 탄도를 눌러주는 안정형 킥"); }
+        if (s.k === "낮음" || s.k === "중저") { p += 8; why.push(tr("cf.sw.adv")); }
         if (s.tq !== null && s.tq !== undefined && s.tq <= 3.4) p += 4;
       }
       if (cur.w && Math.abs(s.w - cur.w) > 10) p -= 15;   // 안전장치: 10g 점프 감점
@@ -1658,33 +1645,32 @@
        브랜드를 내밀면 v150 "브랜드 무시" 사고와 똑같아 보이므로 이유를 꼭 적는다. */
     if (S.brand && S.brand !== "any" && HEADS.some((h) => h.br === S.brand) &&
         !drvPool.some((h) => h.br === S.brand))
-      notes.push({ t: "rule", h: "선호 브랜드에 상급자용 헤드가 없습니다",
-        b: `${S.brand}의 표 안 라인업은 관용성(초심자·중급) 위주라 <b>평균 80대 이하 기준에서는 후보에서 뺐습니다.</b> 실력에 맞는 다른 브랜드로 추천드립니다 — 실제 피팅샵도 이렇게 안내합니다.` });
+      notes.push({ t: "rule", h: tr("cf.note.gate.head.h"), b: tr("cf.note.gate.b", { brand: S.brand }) });
     const heads = drvPool.map((h) => {
       let p = h.forg * 8; const why = [];
       if (h.fit.includes(S.scoreGrp)) p += 15;
-      if (fl.bias === "draw" && h.draw) { p += 28; why.push(`드로 바이어스 — 페이스가 열려 맞는 ${fl.n} 교정`); }
+      if (fl.bias === "draw" && h.draw) { p += 28; why.push(tr("cf.hw.draw", { n: fl.n })); }
       if (fl.bias !== "draw" && h.draw) p -= 15;
       if (S.scoreGrp === "80") {
-        if (h.forg <= 3) { p += 18; why.push("조정형 — 구질 세팅 가능"); }
+        if (h.forg <= 3) { p += 18; why.push(tr("cf.hw.adjust")); }
         /* 저스핀의 값어치는 **런**에서 나온다. 스크린은 런이 시뮬레이션이라
            캐리를 깎아가며 스핀을 줄일 이유가 필드보다 작다 → 가점을 절반으로. */
         if (h.spin === "저" && S.carry7 >= 163) {
           const g = S.venue === "screen" ? 7 : 14;
           p += g;
           why.push(S.venue === "screen"
-            ? "저스핀 — 다만 스크린은 런이 계산으로 나와 이득이 작아 가점을 절반만"
-            : "저스핀 — 고속 스윙 런 확보");
+            ? tr("cf.hw.lowspin.screen")
+            : tr("cf.hw.lowspin"));
         }
-      } else if (h.forg >= 4) { p += 20; why.push(`관용성 ${h.forg}/5 — 미스에 관대`); }
-      if ((S.flight === "balloon" || S.flight === "high") && h.spin === "저") { p += 14; why.push("저스핀 헤드 — 뜨는 탄도·스핀 과다를 눌러줍니다"); }
-      if (S.flight === "low" && (h.spin === "중고" || h.spin === "중")) { p += 8; why.push("런치를 확보하는 헤드"); }
-      if (lowSmash && h.forg >= 4) { p += 10; why.push("정타율 신호 → 관용성 가점"); }
-      if (S.faceH === "vary" && h.forg >= 4) { p += 8; why.push("타점이 흩어지는 편 — 관용성이 실거리를 지켜줍니다"); }
-      if (S.venue === "screen" && h.forg >= 4) { p += 4; why.push("스크린 위주 — 매트에서도 손해가 적은 관용성"); }
+      } else if (h.forg >= 4) { p += 20; why.push(tr("cf.hw.forg", { f: h.forg })); }
+      if ((S.flight === "balloon" || S.flight === "high") && h.spin === "저") { p += 14; why.push(tr("cf.hw.lowspin.head")); }
+      if (S.flight === "low" && (h.spin === "중고" || h.spin === "중")) { p += 8; why.push(tr("cf.hw.launch")); }
+      if (lowSmash && h.forg >= 4) { p += 10; why.push(tr("cf.hw.smash")); }
+      if (S.faceH === "vary" && h.forg >= 4) { p += 8; why.push(tr("cf.hw.vary")); }
+      if (S.venue === "screen" && h.forg >= 4) { p += 4; why.push(tr("cf.screen.forg")); }
       /* 구력 3년 미만 — 스윙이 아직 완성 전이라 미스 범위가 넓다. 관용성이 곧 평균 거리다. */
-      if (isNovice() && h.forg >= 4) { p += 8; why.push("구력 3년 미만 — 아직 스윙이 자리 잡는 중이라 관용성에 가점"); }
-      if (h.light && S.carry7 < 140) { p += 12; why.push("경량 — 스피드 보전"); }
+      if (isNovice() && h.forg >= 4) { p += 8; why.push(tr("cf.novice.forg")); }
+      if (h.light && S.carry7 < 140) { p += 12; why.push(tr("cf.hw.light")); }
       if (h.light && S.carry7 >= 160) p -= 12;
       return { ...h, p, why };
     }).sort((a, b) => b.p - a.p);
@@ -1706,24 +1692,26 @@
 
     // 로프트만 어긋난 경우 — 클럽을 사지 말고 조정하라고 말해준다
     if (!keep && curL !== null && !loftOk && cur.w !== null && cur.w >= wLo - 3 && cur.w <= wHi + 3)
-      notes.push({ t: "rule", h: "새로 사기 전에 — 로프트 조정", b: `샤프트는 이미 맞습니다. 로프트만 ${curL}° → <b>${lf.loft}°</b> 쪽으로 옮기면 됩니다. 요즘 드라이버는 대부분 <b>호젤로 ±1~2° 조정</b>이 되니, 샵에서 돌려보고 결정하세요.` });
+      notes.push({ t: "rule", h: tr("cf.note.loftadj.h"), b: tr("cf.note.loftadj.b", { cur: curL, rec: lf.loft }) });
 
     // 점프 경고
     const top = shaftPick.main;
     if (!keep && cur.w && top && Math.abs(top.w - cur.w) > 10)
-      notes.push({ t: "warn", h: "무게 점프 주의", b: `현재 ${cur.w}g대 → 추천 ${top.w}g. <b>한 번에 10g 이상 이동은 위험</b> — 중간 체급을 경유하거나 시타 필수.` });
+      notes.push({ t: "warn", h: tr("cf.note.jump.h"), b: tr("cf.note.jump.b", { cur: cur.w, rec: top.w }) });
 
     const grip = gripEngine();
 
     // 팁
-    tips.push(`구질 판정 — <b>${fl.n}</b>. 출발이 ${S.startDir === "left" ? "왼쪽" : S.startDir === "right" ? "오른쪽" : "곧게"}이므로 스윙 궤도는 <b>${fl.path}</b>, 휘는 방향으로 보면 페이스는 궤도에 대해 <b>${fl.face}</b> 상태입니다.`);
+    tips.push(tr("cf.tip.flight", { n: fl.n,
+      dir: S.startDir === "left" ? tr("cf.w.left") : S.startDir === "right" ? tr("cf.w.right") : tr("cf.w.straight"),
+      path: fl.path, face: fl.face }));
     if (fl.path === "아웃-인")
-      tips.push("클럽으로 완화는 되지만 <b>근본은 궤도</b>입니다. 드로 바이어스 헤드는 보조 수단으로 보세요.");
+      tips.push(tr("cf.tip.outin"));
     if (S.faceV === "high")
-      tips.push("페이스 위쪽에 맞고 계십니다 — <b>잘 치고 계신 겁니다.</b> 기어 효과로 스핀이 줄고 런치가 올라가 실제로 가장 멀리 갑니다.");
+      tips.push(tr("cf.tip.facehigh"));
     if (S.venue === "screen")
-      tips.push("스크린 위주라면 런이 계산으로 나옵니다. <b>캐리 기준으로만</b> 스펙을 맞추는 게 맞습니다.");
-    if (S.budget === "stock") tips.push("예산 순정 — 순정 라인 내에서만 골랐습니다.");
+      tips.push(tr("cf.tip.screen"));
+    if (S.budget === "stock") tips.push(tr("cf.tip.stock"));
 
     const out = { wLo, wHi, fxT, notes, tips, shafts: shafts.slice(0, 2),
       shaftPick, headPick, mainHead, altHead, keep, cur, grip, fl, lf, ln,
@@ -1762,16 +1750,16 @@
       const soft = tired || S.carry7 < 140 || S.auto.age === "60대 이상" ||
                    issues.includes("wrist") || issues.includes("back");
       mat = soft ? "그라파이트" : "스틸";
-      notes.push({ h: "소재는 이렇게 정했어요",
+      notes.push({ h: tr("cf.iron.mat.h"),
         b: mat === "그라파이트"
           ? (issues.includes("wrist") || issues.includes("back")
-             ? "손목·허리 부담을 말씀하셔서 <b>가벼운 그라파이트</b>로 골랐습니다. 스틸이 잡아주는 건 몸이 버틸 때 얘기입니다." +
+             ? tr("cf.iron.mat.graph.body") +
                (S.venue === "screen" && issues.includes("wrist")
-                 ? " 게다가 스크린 위주라고 하셨는데, <b>매트 충격은 잔디보다 손목에 큽니다</b> — 그라파이트로 가야 할 이유가 하나 더 있습니다." : "")
-             : "후반 체력·스윙 스피드를 보면 <b>가벼운 그라파이트</b>가 18홀 내내 스윙을 지켜줍니다.")
-          : "지금 스피드라면 <b>스틸</b>이 방향 안정과 거리 일관성에서 유리합니다." +
+                 ? tr("cf.iron.mat.graph.screen") : "")
+             : tr("cf.iron.mat.graph.tired"))
+          : tr("cf.iron.mat.steel") +
             (S.venue === "screen" && issues.includes("wrist")
-              ? " 다만 <b>매트 충격은 잔디보다 손목에 큽니다</b> — 손목이 불편하시면 시타에서 그라파이트도 함께 잡아보세요." : "") });
+              ? tr("cf.iron.mat.steel.screen") : "") });
     }
     let target = mat === "스틸" ? steelTarget : graphTarget;
     if (tired) fxT = shiftUp(fxT);
@@ -1785,31 +1773,31 @@
        스윙이 아직 매달 바뀌는 시기라 오늘 남은 자국이 다음 달에도 같은 자리라는 보장이 없다.
        ⚠️ 미스 경향(슬라이스 등)은 초보도 정확히 안다 — 그건 깎지 않는다. 여기만 깎는다. */
     const selfW = isNovice() ? 0.5 : 1;
-    if (S.ironBallMark === "toe") { lieAdj += 1.5 * selfW; lieWhy.push("자국이 <b>토우 쪽</b> — 라이가 플랫해서 힐이 들린 상태입니다"); }
-    if (S.ironBallMark === "heel") { lieAdj -= 1.5 * selfW; lieWhy.push("자국이 <b>힐 쪽</b> — 라이가 업라이트해서 토우가 들린 상태입니다"); }
-    if (S.ironDivot === "left" && S.ironBallMark !== "toe") { lieAdj += 0.5 * selfW; lieWhy.push("디봇이 타깃보다 왼쪽 — 업라이트 쪽 신호와 함께 봅니다"); }
-    if (S.ironDivot === "right" && S.ironBallMark !== "heel") { lieAdj -= 0.5 * selfW; lieWhy.push("디봇이 타깃보다 오른쪽"); }
+    if (S.ironBallMark === "toe") { lieAdj += 1.5 * selfW; lieWhy.push(tr("cf.lie.toe")); }
+    if (S.ironBallMark === "heel") { lieAdj -= 1.5 * selfW; lieWhy.push(tr("cf.lie.heel")); }
+    if (S.ironDivot === "left" && S.ironBallMark !== "toe") { lieAdj += 0.5 * selfW; lieWhy.push(tr("cf.lie.divotleft")); }
+    if (S.ironDivot === "right" && S.ironBallMark !== "heel") { lieAdj -= 0.5 * selfW; lieWhy.push(tr("cf.lie.divotright")); }
     if (isNovice() && (S.ironBallMark && S.ironBallMark !== "unknown" || S.ironDivot && S.ironDivot !== "none"))
-      lieWhy.push("구력 3년 미만이라 <b>자가진단 신호는 절반만</b> 반영했습니다 — 스윙이 자리 잡는 중이면 자국 위치도 함께 움직입니다");
+      lieWhy.push(tr("cf.lie.novice"));
     // 정적 측정 — 손목-바닥이 있으면 그쪽을 쓰고, 없으면 키로만 대략 본다
     const h = S.heightV || 172, wf = S.wristFloor;
     if (wf) {
       const expect = h * 0.4867;                       // 키 대비 통상 손목-바닥 비율
       const d = wf - expect;
-      if (d <= -3) { lieAdj += 1; lieWhy.push(`키 ${h}cm에 손목–바닥 ${wf}cm — <b>팔이 짧은 편</b>이라 업라이트 쪽입니다`); }
-      else if (d >= 3) { lieAdj -= 1; lieWhy.push(`키 ${h}cm에 손목–바닥 ${wf}cm — <b>팔이 긴 편</b>이라 플랫 쪽입니다`); }
-      else lieWhy.push(`키 ${h}cm · 손목–바닥 ${wf}cm — 정적 기준으로는 표준 범위`);
+      if (d <= -3) { lieAdj += 1; lieWhy.push(tr("cf.lie.short", { h: h, wf: wf })); }
+      else if (d >= 3) { lieAdj -= 1; lieWhy.push(tr("cf.lie.long", { h: h, wf: wf })); }
+      else lieWhy.push(tr("cf.lie.mid", { h: h, wf: wf }));
     } else {
-      if (h >= 185) { lieAdj += 1; lieWhy.push(`키 ${h}cm — 업라이트 쪽 검토 대상`); }
-      else if (h <= 162) { lieAdj -= 1; lieWhy.push(`키 ${h}cm — 플랫 쪽 검토 대상`); }
-      else lieWhy.push(`키 ${h}cm — 표준 라이각 범위`);
+      if (h >= 185) { lieAdj += 1; lieWhy.push(tr("cf.lie.tall", { h: h })); }
+      else if (h <= 162) { lieAdj -= 1; lieWhy.push(tr("cf.lie.small", { h: h })); }
+      else lieWhy.push(tr("cf.lie.stdh", { h: h }));
     }
-    const lieDir = lieAdj >= 0.5 ? `업라이트 ${Math.min(3, Math.round(lieAdj * 2) / 2)}° 쪽`
-                 : lieAdj <= -0.5 ? `플랫 ${Math.min(3, Math.round(-lieAdj * 2) / 2)}° 쪽` : "표준";
+    const lieDir = lieAdj >= 0.5 ? tr("cf.lie.upright", { deg: Math.min(3, Math.round(lieAdj * 2) / 2) })
+                 : lieAdj <= -0.5 ? tr("cf.lie.flat", { deg: Math.min(3, Math.round(-lieAdj * 2) / 2) }) : tr("cf.opt.std");
     const lieConfident = S.ironBallMark && S.ironBallMark !== "unknown";
 
     // ── 길이 — 손목-바닥 기준. 표준은 키가 아니라 이 값에서 나온다
-    let lenAdj = "표준";
+    let lenAdj = tr("cf.opt.std");
     if (wf) {
       if (wf >= 92) lenAdj = "+0.25 ~ +0.5″";
       else if (wf <= 78) lenAdj = "−0.25 ~ −0.5″";
@@ -1824,18 +1812,18 @@
       let p = 0; const why = [];
       if (s.mat !== mat) p -= 30;
       const gap = Math.abs(s.w - target);
-      if (gap <= 6) { p += 40; why.push(`약 ${s.w}g — 목표 무게(약 ${target}g)에 가장 근접`); }
+      if (gap <= 6) { p += 40; why.push(tr("cf.isw.w", { w: s.w, t: target })); }
       else p += Math.max(0, 40 - gap * 2.2);
       const fi = FLEX.indexOf(s.fx), tI = fxT.map((f) => FLEX.indexOf(f));
-      if (tI.includes(fi)) { p += 30; why.push(`플렉스 ${s.fx} — 목표 강도 일치`); }
+      if (tI.includes(fi)) { p += 30; why.push(tr("cf.sw.flex", { fx: s.fx })); }
       else if (tI.some((t) => Math.abs(t - fi) === 1)) p += 12;
-      if (S.ironTraj === "low" && (s.k === "고" || s.k === "중고")) { p += 12; why.push(`킥 ${s.k} — 낮은 탄도를 끌어올려 그린에 세웁니다`); }
-      if (S.ironTraj === "high" && (s.k === "낮음" || s.k === "중저")) { p += 12; why.push(`킥 ${s.k} — 뜨는 탄도를 눌러 거리 손실을 막습니다`); }
-      if (S.ironMiss === "thin" && s.k === "고") { p += 10; why.push("높은 킥 — 얇게 맞는 미스에서 탄도 확보"); }
-      if (S.ironMiss === "fat" && (s.k === "낮음" || s.k === "중저")) { p += 10; why.push("낮은 킥 — 뒤땅 경향에서 헤드가 덜 처짐"); }
-      if (S.ironFeel === "soft" && s.feel === "부드럽다") { p += 12; why.push("부드러운 타감 선호에 맞음"); }
-      if (S.ironFeel === "solid" && (s.feel === "단단하다" || s.feel === "묵직하다")) { p += 12; why.push("단단한 타감 선호에 맞음"); }
-      if (S.ironFeel === "light" && s.feel === "가볍다") { p += 12; why.push("가벼운 쪽 선호에 맞음"); }
+      if (S.ironTraj === "low" && (s.k === "고" || s.k === "중고")) { p += 12; why.push(tr("cf.isw.kicklow", { k: s.k })); }
+      if (S.ironTraj === "high" && (s.k === "낮음" || s.k === "중저")) { p += 12; why.push(tr("cf.isw.kickhigh", { k: s.k })); }
+      if (S.ironMiss === "thin" && s.k === "고") { p += 10; why.push(tr("cf.isw.thin")); }
+      if (S.ironMiss === "fat" && (s.k === "낮음" || s.k === "중저")) { p += 10; why.push(tr("cf.isw.fat")); }
+      if (S.ironFeel === "soft" && s.feel === "부드럽다") { p += 12; why.push(tr("cf.feel.soft.ok")); }
+      if (S.ironFeel === "solid" && (s.feel === "단단하다" || s.feel === "묵직하다")) { p += 12; why.push(tr("cf.feel.firm.ok")); }
+      if (S.ironFeel === "light" && s.feel === "가볍다") { p += 12; why.push(tr("cf.feel.light.ok")); }
       return { ...s, p, why };
     }).sort((a, b) => b.p - a.p);
 
@@ -1852,35 +1840,33 @@
                    : S.scoreGrp === "100" ? IRON_HEADS.filter((hd) => hd.forg >= 3)
                    : IRON_HEADS;
     if (S.scoreGrp === "80")
-      notes.push({ h: "상급자 기준으로 후보를 추렸습니다",
-        b: "평균 80대 이하시라 <b>초심자용 맥스 관용성 헤드는 후보에서 뺐습니다.</b> 뒤땅·방향 고민은 상급자용 캐비티·중공 안에서 해결합니다 — 실제 피팅샵과 같은 방식입니다." });
+      notes.push({ h: tr("cf.note.advgate.h"), b: tr("cf.note.advgate.b") });
     // 브랜드 선호와 게이트가 부딪히면 게이트가 이긴다 — 대신 이유를 꼭 적는다 (드라이버와 동일)
     if (S.ironBrand && S.ironBrand !== "any" && IRON_HEADS.some((h) => h.br === S.ironBrand) &&
         !ironPool.some((h) => h.br === S.ironBrand))
-      notes.push({ h: "선호 브랜드에 상급자용 아이언이 없습니다",
-        b: `${S.ironBrand}의 표 안 라인업은 관용성(초심자·중급) 위주라 <b>평균 80대 이하 기준에서는 후보에서 뺐습니다.</b> 실력에 맞는 다른 브랜드로 추천드립니다 — 실제 피팅샵도 이렇게 안내합니다.` });
+      notes.push({ h: tr("cf.note.gate.iron.h"), b: tr("cf.note.gate.b", { brand: S.ironBrand }) });
     const heads = ironPool.map((hd) => {
       let p = hd.forg * 7; const why = [];
-      if (hd.fit.includes(S.scoreGrp || "90")) { p += 22; why.push(`평균 ${S.auto.avg || (S.scoreGrp + "대")}타 구간에 맞는 난이도`); }
-      if (look === "classic") { p += (5 - hd.forg) * 7; if (hd.off === "적음") { p += 14; why.push("얇은 톱라인·적은 오프셋 — 원하시는 생김새"); } }
-      if (look === "forgiving") { p += hd.forg * 7; if (hd.off === "많음") { p += 10; why.push("두툼한 헤드·넉넉한 오프셋 — 원하시는 생김새"); } }
-      if (S.ironComplaint === "forg" && hd.forg >= 4) { p += 16; why.push(`관용성 ${hd.forg}/5 — 빗맞을 때 손해가 가장 적은 쪽`); }
-      if (S.ironMiss === "thin" && hd.forg >= 4) { p += 14; why.push(`관용성 ${hd.forg}/5 — 얇게 맞아도 거리 손실이 적음`); }
-      if (S.ironMiss === "dir" && hd.off === "많음") { p += 12; why.push("오프셋 많음 — 페이스가 늦게 열려 방향 안정"); }
-      if (S.shapeI === "slice" && hd.off === "많음") { p += 12; why.push("오프셋 많음 — 슬라이스 완화"); }
-      if (S.shapeI === "hook" && hd.off === "적음") { p += 10; why.push("오프셋 적음 — 훅 억제"); }
-      if (S.ironTraj === "low" && hd.forg >= 4) { p += 8; why.push("중공·맥스 계열 — 낮은 탄도를 띄워줍니다"); }
-      if (hd.light && (tired || S.carry7 < 140)) { p += 10; why.push("경량 설계 — 후반까지 스윙 유지"); }
+      if (hd.fit.includes(S.scoreGrp || "90")) { p += 22; why.push(tr("cf.ihw.fit", { g: S.auto.avg || tr("cf.grade.n", { n: S.scoreGrp }) })); }
+      if (look === "classic") { p += (5 - hd.forg) * 7; if (hd.off === "적음") { p += 14; why.push(tr("cf.ihw.classic")); } }
+      if (look === "forgiving") { p += hd.forg * 7; if (hd.off === "많음") { p += 10; why.push(tr("cf.ihw.forgiving")); } }
+      if (S.ironComplaint === "forg" && hd.forg >= 4) { p += 16; why.push(tr("cf.ihw.forg", { f: hd.forg })); }
+      if (S.ironMiss === "thin" && hd.forg >= 4) { p += 14; why.push(tr("cf.ihw.thin", { f: hd.forg })); }
+      if (S.ironMiss === "dir" && hd.off === "많음") { p += 12; why.push(tr("cf.ihw.offdir")); }
+      if (S.shapeI === "slice" && hd.off === "많음") { p += 12; why.push(tr("cf.ihw.offslice")); }
+      if (S.shapeI === "hook" && hd.off === "적음") { p += 10; why.push(tr("cf.ihw.offhook")); }
+      if (S.ironTraj === "low" && hd.forg >= 4) { p += 8; why.push(tr("cf.ihw.traj")); }
+      if (hd.light && (tired || S.carry7 < 140)) { p += 10; why.push(tr("cf.ihw.light")); }
       /* 스크린 위주 — 매트는 솔이 미끄러져 뒤땅을 덮어준다.
          그래서 "미스가 별로 없다"는 답이 필드 기준으로는 과대평가일 수 있어 관용성을 더 본다. */
       if (S.venue === "screen" && hd.forg >= 4) {
         const bump = S.ironMiss === "none" ? 10 : 4;
         p += bump;
         why.push(S.ironMiss === "none"
-          ? "스크린 위주 — 매트가 덮어주는 뒤땅을 감안해 필드 기준으로 관용성에 가점"
-          : "스크린 위주 — 매트에서도 손해가 적은 관용성");
+          ? tr("cf.screen.mat")
+          : tr("cf.screen.forg"));
       }
-      if (isNovice() && hd.forg >= 4) { p += 8; why.push("구력 3년 미만 — 아직 스윙이 자리 잡는 중이라 관용성에 가점"); }
+      if (isNovice() && hd.forg >= 4) { p += 8; why.push(tr("cf.novice.forg")); }
       return { ...hd, p, why };
     }).sort((a, b) => b.p - a.p);
 
@@ -1889,23 +1875,23 @@
     const longest = Number(S.ironLongest);
     if (S.ironLongOk === "no" && longest && longest <= 5) {
       const swap = [];
-      for (let n = longest; n <= (S.carry7 < 140 ? 6 : 5); n++) swap.push(n + "번");
-      setAdvice = { drop: swap, b: `<b>${swap.join(" · ")} 아이언은 빼고 유틸리티(하이브리드)로 바꾸세요.</b> 자신 없는 클럽을 들고 다니는 것보다, 같은 거리를 쉽게 띄우는 클럽 하나가 스코어에 훨씬 낫습니다. 클럽을 더 사시라는 뜻이 아니라 <b>바꾸시라는</b> 뜻입니다.` };
+      for (let n = longest; n <= (S.carry7 < 140 ? 6 : 5); n++) swap.push(tr("cf.iron.no", { n: n }));
+      setAdvice = { drop: swap, b: tr("cf.iron.set.drop", { list: swap.join(" · ") }) };
     } else if (S.ironLongOk === "ok" && longest && longest >= 6) {
-      setAdvice = { drop: [], b: `${longest}번부터 쓰고 계시고 잘 맞으신다면 지금 구성이 맞습니다. 굳이 긴 아이언을 늘릴 이유가 없습니다.` };
+      setAdvice = { drop: [], b: tr("cf.iron.set.keep", { n: longest }) };
     }
 
     // ── 로프트 세대 — 스트롱 로프트면 웨지 간격이 벌어진다
     if (S.pwLoft && S.pwLoft <= 43)
-      tips.push(`피칭 ${S.pwLoft}° — <b>스트롱 로프트</b>입니다. 거리는 늘지만 피칭 아래 간격이 벌어지니 <b>웨지를 하나 더</b> 고려하세요.`);
+      tips.push(tr("cf.iron.strongloft", { deg: S.pwLoft }));
 
     // ── 유지 판정
     const keepish = S.ironComplaint === "none" || S.ironComplaint === "feel";
     if (keepish && S.ironCurModel)
-      notes.push({ h: "바꿀 이유가 뚜렷하지 않습니다", b: `지금 <b>${S.ironCurModel}</b>에 특별히 아쉬운 점이 없다고 하셨습니다. 아래는 참고용이고, <b>먼저 라이각과 길이만 맞춰보시길</b> 권합니다. 훨씬 싸고 효과가 큽니다.` });
+      notes.push({ h: tr("cf.iron.keep.h"), b: tr("cf.iron.keep.b", { model: S.ironCurModel }) });
 
     if (mat === "스틸" && S.ironMat === "그라파이트")
-      notes.push({ h: "선택하신 소재를 따랐어요", b: "그라파이트로 골랐습니다. 다만 스틸보다 <b>거리 편차가 커질 수</b> 있어 시타에서 꼭 확인해 보세요." });
+      notes.push({ h: tr("cf.iron.matpick.h"), b: tr("cf.iron.matpick.b") });
 
     const out = {
       mat, target, fxT, notes, tips, setAdvice,
@@ -1940,16 +1926,16 @@
 
     // 바운스 — 디거는 높게, 스위퍼는 낮게. 잔디가 무르면 더 높게, 타이트하면 낮게
     let base = S.wedgeTurf === "dig" ? 12 : S.wedgeTurf === "sweep" ? 8 : 10;
-    const why = [`스윙 타입 ${S.wedgeTurf === "dig" ? "디거(깊게 파고듦)" : S.wedgeTurf === "sweep" ? "스위퍼(얕게 쓸어침)" : "중간"} → 기본 ${base}°`];
-    if (S.wedgeMiss === "fat") { base += 2; why.push("뒤땅 경향 — 바운스를 <b>+2°</b> (솔이 튕겨 나와 실수를 덮어줍니다)"); }
-    if (S.wedgeMiss === "thin") { base -= 1; why.push("토핑 경향 — 바운스를 <b>−1°</b> (솔이 두꺼우면 리딩에지가 떠서 더 얇게 맞습니다)"); }
-    if (S.wedgeGrass === "soft") { base += 2; why.push("잔디가 두툼함 — <b>+2°</b>"); }
-    if (S.wedgeGrass === "tight") { base -= 2; why.push("타이트하고 딱딱함 — <b>−2°</b> (바운스가 크면 튕겨서 토핑이 납니다)"); }
-    if (S.venue === "screen") why.push("스크린 위주라면 매트에서는 바운스 차이가 잘 안 느껴집니다 — <b>필드 기준</b>으로 맞췄습니다");
+    const why = [tr("cf.wedge.why.base", { type: S.wedgeTurf === "dig" ? tr("cf.wedge.digger") : S.wedgeTurf === "sweep" ? tr("cf.wedge.sweeper") : tr("cf.wedge.midtype"), deg: base })];
+    if (S.wedgeMiss === "fat") { base += 2; why.push(tr("cf.wedge.why.fat")); }
+    if (S.wedgeMiss === "thin") { base -= 1; why.push(tr("cf.wedge.why.thin")); }
+    if (S.wedgeGrass === "soft") { base += 2; why.push(tr("cf.wedge.why.soft")); }
+    if (S.wedgeGrass === "tight") { base -= 2; why.push(tr("cf.wedge.why.tight")); }
+    if (S.venue === "screen") why.push(tr("cf.wedge.why.screen"));
 
-    const grind = S.wedgeTurf === "dig" ? "넓은 솔(와이드) — 파고들어도 튕겨 나옴"
-                : S.wedgeTurf === "sweep" ? "좁은 솔(내로우) — 얕게 쓸어 치기 좋음"
-                : "중간 솔 — 두루 무난";
+    const grind = S.wedgeTurf === "dig" ? tr("cf.wedge.grind.wide")
+                : S.wedgeTurf === "sweep" ? tr("cf.wedge.grind.narrow")
+                : tr("cf.wedge.grind.mid");
 
     const specs = lofts.map((lo, i) => {
       // 갭웨지 쪽은 풀스윙이 많아 바운스를 조금 낮추고, 로브·샌드는 높인다
@@ -1957,26 +1943,25 @@
       if (S.wedgeBunker === "no" && i === lofts.length - 1) b += 2;
       b = Math.max(4, Math.min(14, b));
       return { loft: lo, bounce: b,
-        use: i === 0 ? "풀스윙 갭 메우기" : i === lofts.length - 1 ? "그린 주변 띄우기·벙커" : "어프로치 주력" };
+        use: i === 0 ? tr("cf.wedge.use.gap") : i === lofts.length - 1 ? tr("cf.wedge.use.lob") : tr("cf.wedge.use.main") };
     });
-    if (S.wedgeBunker === "no") why.push("벙커에 자신 없다고 하셔서 <b>가장 로프트가 큰 웨지의 바운스를 더 올렸습니다</b> — 모래를 파고들지 않고 미끄러집니다");
+    if (S.wedgeBunker === "no") why.push(tr("cf.wedge.why.bunker"));
 
     // 샤프트 — 웨지는 아이언보다 조금 무겁게 가는 것이 정석
     const band = speedBand(S.carry7);
     const ironW = Math.round((band.w[0] + band.w[1]) / 2 + 48);
     const shaft = S.wedgeShaft === "same"
-      ? { t: "아이언과 동일", b: `아이언 샤프트를 그대로 쓰면 감각이 이어집니다. 약 ${ironW}g 전후.` }
+      ? { t: tr("cf.wedge.shaft.same"), b: tr("cf.wedge.shaft.same.b", { w: ironW }) }
       : S.wedgeShaft === "heavy"
-      ? { t: `웨지 전용 · 약 ${ironW + 10}g`, b: "웨지는 풀스윙보다 컨트롤 샷이 많아 <b>아이언보다 5~15g 무겁게</b> 가면 손이 덜 쓰이고 거리가 일정해집니다." }
-      : { t: `약 ${ironW + 10}g 권장`, b: "아이언보다 <b>10g쯤 무거운</b> 쪽을 권합니다. 웨지는 스피드보다 일정함이 중요한 클럽입니다." };
+      ? { t: tr("cf.wedge.shaft.heavy", { w: ironW + 10 }), b: tr("cf.wedge.shaft.heavy.b") }
+      : { t: tr("cf.wedge.shaft.rec", { w: ironW + 10 }), b: tr("cf.wedge.shaft.rec.b") };
 
     const out = {
       pw, cnt, specs, grind, why, shaft,
       pick: pickTiers(WEDGES_ACTIVE.map((w) => ({ ...w, p: w.br === S.wedgeBrand ? 10 : 0 }))
                       .sort((a, b) => b.p - a.p), S.wedgeBrand, "br", null, null),
       grip: gripEngine(),
-      note: `피칭(${pw}°)과 로브(58°) 사이 ${span}°를 ${cnt}개로 나눴습니다. ` +
-            `한 클럽당 ${step}° — 거리 공백이 생기지 않는 간격입니다.`,
+      note: tr("cf.wedge.note", { pw: pw, span: span, cnt: cnt, step: step }),
     };
     out.tldr = tldrWedge(out);
     return out;
@@ -1989,19 +1974,19 @@
     const arc = (!S.puttStroke || S.puttStroke === "unknown") ? "slight" : S.puttStroke;
     const notes = [], tips = [];
     if (S.puttStroke === "unknown")
-      notes.push({ h: "궤도는 이렇게 가정했어요", b: "잘 모르겠다고 하셔서 <b>약간의 아크</b>로 두었습니다. 아마추어에게 가장 흔하고, 약토우행 미드말렛은 어느 궤도에서도 크게 어긋나지 않습니다." });
+      notes.push({ h: tr("cf.putt.arc.h"), b: tr("cf.putt.arc.b") });
 
     const scored = PUTTERS_ACTIVE.map((p) => {
       let s = 0; const why = [];
-      if (p.arc === arc) { s += 40; why.push(`${arc === "straight" ? "직선" : arc === "arc" ? "아크가 큰" : "약간 아크"} 스트로크에 맞는 ${p.bal}`); }
+      if (p.arc === arc) { s += 40; why.push(tr("cf.pw.arc", { arc: arc === "straight" ? tr("cf.arc.straight") : arc === "arc" ? tr("cf.arc.big") : tr("cf.arc.slight"), bal: p.bal })); }
       else if ((arc === "slight" && p.arc !== "straight") || (p.arc === "slight")) s += 18;
-      if ((S.puttMiss === "dir" || S.puttMiss === "both") && p.shape !== "블레이드") { s += 16; why.push("말렛 계열 — 관성이 커서 방향이 덜 틀어짐"); }
-      if ((S.puttMiss === "dist" || S.puttMiss === "both") && p.shape === "블레이드") { s += 10; why.push("블레이드 — 거리감을 손끝으로 읽기 좋음"); }
-      if (S.puttShort === "vary" && p.shape !== "블레이드") { s += 12; why.push("짧은 퍼트가 일정하지 않음 — 관성이 큰 헤드가 방향을 지켜줍니다"); }
-      if (S.puttLook === "blade" && p.shape === "블레이드") { s += 14; why.push("선호하시는 생김새"); }
-      if (S.puttLook === "mallet" && p.shape !== "블레이드") { s += 14; why.push("선호하시는 생김새"); }
-      if (S.puttLine === "line" && p.shape !== "블레이드") { s += 10; why.push("긴 조준선을 넣기 좋은 형상"); }
-      if (S.puttLine === "none" && p.shape === "블레이드") { s += 8; why.push("조준선 없는 깔끔한 상판"); }
+      if ((S.puttMiss === "dir" || S.puttMiss === "both") && p.shape !== "블레이드") { s += 16; why.push(tr("cf.pw.mallet")); }
+      if ((S.puttMiss === "dist" || S.puttMiss === "both") && p.shape === "블레이드") { s += 10; why.push(tr("cf.pw.blade")); }
+      if (S.puttShort === "vary" && p.shape !== "블레이드") { s += 12; why.push(tr("cf.pw.vary")); }
+      if (S.puttLook === "blade" && p.shape === "블레이드") { s += 14; why.push(tr("cf.pw.look")); }
+      if (S.puttLook === "mallet" && p.shape !== "블레이드") { s += 14; why.push(tr("cf.pw.look")); }
+      if (S.puttLine === "line" && p.shape !== "블레이드") { s += 10; why.push(tr("cf.pw.line")); }
+      if (S.puttLine === "none" && p.shape === "블레이드") { s += 8; why.push(tr("cf.pw.noline")); }
       return { ...p, p: s, why };
     }).sort((a, b) => b.p - a.p);
 
@@ -2009,58 +1994,58 @@
     const h = S.heightV || 172, wf = S.wristFloor;
     let len = wf ? (wf >= 92 ? 35 : wf >= 86 ? 34.5 : wf >= 80 ? 34 : 33.5)
                  : (h >= 183 ? 35 : h >= 173 ? 34.5 : h >= 165 ? 34 : h >= 157 ? 33.5 : 33);
-    const lenWhy = [wf ? `손목–바닥 ${wf}cm 기준 ${len}″` : `키 ${h}cm 기준 ${len}″ (손목–바닥을 재면 더 정확합니다)`];
-    if (S.puttEye === "inside") { len -= 1; lenWhy.push("공을 떨어뜨렸을 때 <b>안쪽(발 쪽)</b>에 떨어진다면 퍼터가 길어 손이 몸에서 떨어진 상태입니다 — <b>1인치 짧게</b>"); }
-    if (S.puttEye === "outside") { len += 0.5; lenWhy.push("공보다 바깥쪽에 떨어진다면 너무 멀리 서 있습니다 — 자세를 먼저 보고, 길이는 +0.5″만"); }
-    if (S.puttLong === "yes" && S.puttEye !== "inside") { len -= 0.5; lenWhy.push("길게 느껴진다고 하셔서 <b>0.5인치</b> 더 줄였습니다"); }
+    const lenWhy = [wf ? tr("cf.putt.len.wf", { wf: wf, len: len }) : tr("cf.putt.len.h", { h: h, len: len })];
+    if (S.puttEye === "inside") { len -= 1; lenWhy.push(tr("cf.putt.len.inside")); }
+    if (S.puttEye === "outside") { len += 0.5; lenWhy.push(tr("cf.putt.len.outside")); }
+    if (S.puttLong === "yes" && S.puttEye !== "inside") { len -= 0.5; lenWhy.push(tr("cf.putt.len.long")); }
     len = Math.max(32, Math.min(35, len));
     const curLen = S.puttCurLen && S.puttCurLen !== "unknown" ? Number(S.puttCurLen) : null;
     if (curLen && curLen - len >= 1)
-      notes.push({ h: "새로 사기 전에 — 길이부터", b: `지금 ${curLen}″를 쓰시는데 계산상 <b>${len}″</b>가 맞습니다. <b>퍼터를 자르는 건 몇만 원이면 됩니다.</b> 새 퍼터를 사기 전에 이것부터 해보세요. 다만 자르면 헤드가 가볍게 느껴지니 그립을 조금 무거운 것으로 함께 보세요.` });
+      notes.push({ h: tr("cf.putt.cut.h"), b: tr("cf.putt.cut.b", { cur: curLen, rec: len }) });
 
     // ── 헤드 무게 — 그린 빠르기가 정한다 (미국식 기준을 그대로 쓰면 한국에서 안 맞음)
-    const hw = S.greenSpeed === "slow" ? { t: "무거운 헤드 (약 355g 이상)", b: "느린 그린에서는 <b>무거운 헤드</b>가 짧은 퍼트를 덜 남깁니다. 손으로 때리지 않아도 굴러가거든요." }
-             : S.greenSpeed === "fast" ? { t: "가벼운~표준 헤드 (약 340g 전후)", b: "빠른 그린에서 무거운 헤드는 계속 지나칩니다. <b>가벼운 쪽</b>이 거리감을 잡기 쉽습니다." }
-             : { t: "표준 헤드 (약 350g)", b: "그린 편차가 크면 표준 무게가 가장 무난합니다." };
+    const hw = S.greenSpeed === "slow" ? { t: tr("cf.putt.hw.heavy"), b: tr("cf.putt.hw.heavy.b") }
+             : S.greenSpeed === "fast" ? { t: tr("cf.putt.hw.light"), b: tr("cf.putt.hw.light.b") }
+             : { t: tr("cf.putt.hw.std"), b: tr("cf.putt.hw.std.b") };
 
     // ── 로프트 — 손 위치(포워드 프레스)가 정한다
-    const loft = S.puttHands === "forward" ? { t: "3.5 ~ 4°", b: "손이 공보다 앞에 있으면 임팩트에서 로프트가 죽습니다. <b>정적 로프트가 더 있는 퍼터</b>라야 공이 뜨지 않고 바로 구릅니다." }
-               : S.puttHands === "back" ? { t: "1.5 ~ 2°", b: "손이 뒤에 있으면 로프트가 더해집니다 — <b>낮은 로프트</b>가 공을 띄우지 않습니다." }
-               : { t: "2.5 ~ 3°", b: "표준 범위입니다. 공이 처음에 통통 튄다면 로프트를 조금 올려 보세요." };
+    const loft = S.puttHands === "forward" ? { t: "3.5 ~ 4°", b: tr("cf.putt.loft.fwd") }
+               : S.puttHands === "back" ? { t: "1.5 ~ 2°", b: tr("cf.putt.loft.back") }
+               : { t: "2.5 ~ 3°", b: tr("cf.putt.loft.std") };
 
     // ── 페이스 — 타감 선호 × 그린 빠르기
-    const face = S.puttFeel === "firm" ? "밀드 페이스 — 단단하고 또렷한 소리"
-               : S.puttFeel === "soft" ? "인서트 페이스 — 부드럽게 툭"
-               : (S.greenSpeed === "slow" ? "밀드 페이스 — 느린 그린에서는 단단한 쪽이 굴림이 좋습니다"
-                                          : "인서트 페이스 — 무난한 선택");
+    const face = S.puttFeel === "firm" ? tr("cf.putt.face.milled")
+               : S.puttFeel === "soft" ? tr("cf.putt.face.insert")
+               : (S.greenSpeed === "slow" ? tr("cf.putt.face.milled.slow")
+                                          : tr("cf.putt.face.insert.any"));
 
     // ── 그립
     let pg = PUTTER_GRIPS[0];
     if (S.puttGrip === "over") pg = PUTTER_GRIPS[1];
     if (S.puttYips === "yes" || (S.puttMiss === "dir" && S.puttShort === "vary")) pg = PUTTER_GRIPS[2];
     if (S.puttYips === "yes")
-      tips.push("짧은 퍼트에서 손이 굳는다면 <b>오버사이즈 + 카운터밸런스</b>가 손 개입을 줄여줍니다. 그래도 안 되면 암락·롱퍼터도 방법이지만, 그건 데이터가 부족해 저희가 단정해 드리지 않습니다.");
+      tips.push(tr("cf.putt.tip.yips"));
 
     // ── 짧은 퍼트 미스 방향 → 정렬·라이각
     if (S.puttShort === "left")
-      tips.push("짧은 퍼트를 <b>왼쪽으로 당기신다</b>면 조준이 이미 왼쪽을 보고 있거나 라이각이 업라이트할 수 있습니다. 퍼터를 바닥에 놓고 <b>토우가 들리는지</b> 확인해 보세요.");
+      tips.push(tr("cf.putt.tip.left"));
     if (S.puttShort === "right")
-      tips.push("짧은 퍼트를 <b>오른쪽으로 미신다</b>면 라이각이 플랫해서 힐이 들렸을 수 있습니다. 솔이 지면과 평행한지 확인해 보세요.");
+      tips.push(tr("cf.putt.tip.right"));
     if (S.puttLine === "none")
-      tips.push("조준선이 없는 게 편하시다면, 대신 <b>공의 로고선</b>을 목표에 맞춰 놓는 방식이 잘 맞습니다.");
+      tips.push(tr("cf.putt.tip.noline"));
     if (S.greenSpeed === "unknown")
-      tips.push("그린 빠르기를 모르시겠다면, 라운드 때 <b>10m 퍼트가 홀을 얼마나 지나치는지</b>만 봐두셔도 다음에 훨씬 정확해집니다.");
+      tips.push(tr("cf.putt.tip.speed"));
 
     const out = {
       arc, len, lenWhy, notes, tips, hw, loft, face, curLen,
       grip: pg,
       pick: pickTiers(scored, S.putterBrand, "br", null, null),
-      lie: "라이각은 셋업에서 퍼터 솔이 지면과 평행해지는지로 확인하세요. 토우나 힐이 들리면 그만큼 시작 방향이 틀어집니다.",
+      lie: tr("cf.putt.lie"),
       note: arc === "straight"
-        ? "직선에 가까운 스트로크에는 <b>페이스밸런스</b> 퍼터가 맞습니다. 헤드가 스스로 열리고 닫히지 않아 스트로크를 방해하지 않습니다."
+        ? tr("cf.putt.note.straight")
         : arc === "arc"
-        ? "아크가 큰 스트로크에는 <b>토우행</b> 퍼터가 맞습니다. 헤드가 자연스럽게 열렸다 닫히며 궤도를 따라옵니다."
-        : "약간의 아크에는 <b>약토우행 미드말렛</b>이 무난합니다. 관용성과 궤도 궁합을 함께 가져갑니다.",
+        ? tr("cf.putt.note.arc")
+        : tr("cf.putt.note.slight"),
     };
     out.tldr = tldrPutt(out);
     return out;
@@ -2082,57 +2067,56 @@
 
     // ① 컴프레션 성향 — 스피드가 정한다
     let feel = S.carry7 < 130 ? "소프트" : S.carry7 < 160 ? "미드" : "펌";
-    why.push(`${carry7Txt()}로 본 스피드 → 컴프레션 <b>${feel}</b> 성향. 공은 눌려야 반발하는데, 스피드에 비해 단단하면 그냥 튕기기만 합니다`);
+    why.push(tr("cf.ball.why.feel", { carry: carry7Txt(), feel: feel }));
     if (S.ballCold === "yes") {
       feel = feel === "펌" ? "미드" : "소프트";
-      why.push(`겨울 라운드가 잦으시면 <b>한 단계 무른 쪽</b>이 맞습니다 — 공은 추우면 더 단단해져 잘 안 눌립니다`);
+      why.push(tr("cf.ball.why.cold"));
     }
-    if (S.ballFeel === "soft" && feel === "펌") { feel = "미드"; why.push("부드러운 타감을 원하셔서 한 단계 무른 쪽으로 맞췄습니다"); }
-    if (S.ballFeel === "firm" && feel === "소프트") { feel = "미드"; why.push("단단한 타감을 원하셔서 한 단계 올렸습니다"); }
+    if (S.ballFeel === "soft" && feel === "펌") { feel = "미드"; why.push(tr("cf.ball.why.softer")); }
+    if (S.ballFeel === "firm" && feel === "소프트") { feel = "미드"; why.push(tr("cf.ball.why.firmer")); }
 
     // ② 커버 — 볼 피팅의 핵심 축
     let cover = "아이오노머", coverWhy;
     if (S.ballShort === "roll") {
       cover = "우레탄";
-      coverWhy = "그린 주변에서 <b>안 서고 굴러간다</b>고 하셨습니다. 숏게임 스핀은 스윙보다 <b>커버가 만듭니다</b> — 우레탄 커버는 페이스 그루브를 물고 늘어져 브레이크를 겁니다. 여기가 볼 피팅에서 가장 크게 달라지는 자리입니다.";
+      coverWhy = tr("cf.ball.cover.roll");
     } else if (S.ballShort === "control") {
       cover = "우레탄";
-      coverWhy = "거리·방향이 안 맞는다면 <b>공마다 다른 걸 쓰고 계신 것</b>이 원인인 경우가 많습니다. 우레탄 계열 하나를 정해두시면 기준이 생깁니다.";
+      coverWhy = tr("cf.ball.cover.control");
     } else if (S.scoreGrp === "100") {
       cover = "아이오노머";
-      coverWhy = "그린 주변에 큰 불만이 없으시고 평균 100타 이상이시면, <b>우레탄 값이 아직 점수로 돌아오지 않습니다.</b> 직진성·내구성이 좋은 아이오노머가 지금은 이득입니다.";
+      coverWhy = tr("cf.ball.cover.iono");
     } else {
       cover = "우레탄";
-      coverWhy = "그린 주변에 큰 불만은 없으시지만, 지금 실력대에서는 <b>우레탄이 어프로치에서 한 클럽 값</b>을 합니다.";
+      coverWhy = tr("cf.ball.cover.ure");
     }
     why.push(coverWhy);
 
     // ③ 사이드스핀
-    if (bendy) why.push(`${shapeSaved ? `드라이버 판정 <b>${shapeSaved}</b>` : "많이 휘는 구질"} — <b>사이드스핀이 적은 쪽</b>에 가점했습니다. 사이드스핀도 스핀이라, 스핀이 적으면 휘는 폭 자체가 줄어듭니다`);
+    if (bendy) why.push(tr("cf.ball.why.bendy", { src: shapeSaved ? tr("cf.ball.why.bendy.drv", { n: shapeSaved }) : tr("cf.ball.why.bendy.self") }));
 
     // ④ 가격 현실 — 예산을 따로 묻지 않고 분실 개수로 대신한다
     let budgetCap = 3;
     if (S.ballLost === "many") {
       budgetCap = 1;
-      notes.push({ h: "지금은 공보다 먼저 볼 게 있습니다",
-        b: "한 라운드에 <b>4개 이상</b> 잃으신다면, 프리미엄 볼 한 더즌이 두 라운드에 사라집니다. 지금은 <b>OB를 줄이는 게 먼저</b>고, 공은 값이 편한 것으로 충분합니다. 분실이 2개 아래로 내려오면 그때 우레탄으로 올리세요 — 그게 순서입니다." });
+      notes.push({ h: tr("cf.ball.lost.h"), b: tr("cf.ball.lost.b") });
     } else if (S.ballLost === "some") budgetCap = 2;
 
     // 스코어링
     const want = { 소프트: 0, 미드: 1, 펌: 2 }[feel];
     const scored = BALLS.map((b) => {
       let p = 0; const w = [];
-      if (b.cover === cover) { p += 40; w.push(`${b.cover} 커버 — ${cover === "우레탄" ? "숏게임 스핀을 만드는 소재" : "직진성과 내구성이 좋은 소재"}`); }
+      if (b.cover === cover) { p += 40; w.push(tr("cf.bw.cover", { cover: b.cover, why: cover === "우레탄" ? tr("cf.ball.cover.ure.s") : tr("cf.ball.cover.iono.s") })); }
       else p -= 20;
       const fd = Math.abs(({ 소프트: 0, 미드: 1, 펌: 2 })[b.feel] - want);
       p += fd === 0 ? 26 : fd === 1 ? 12 : 0;
-      if (fd === 0) w.push(`컴프레션 ${b.feel} 성향 — 지금 스피드가 눌러 쓸 수 있는 쪽`);
-      if (S.ballShort === "roll" && b.spinShort === "높음") { p += 18; w.push("숏게임 스핀이 큰 쪽 — 그린에서 브레이크가 걸립니다"); }
-      if (bendy && b.spinSide === "낮음") { p += 16; w.push("사이드스핀이 적은 쪽 — 휘는 폭이 줄어듭니다"); }
+      if (fd === 0) w.push(tr("cf.bw.feel", { feel: b.feel }));
+      if (S.ballShort === "roll" && b.spinShort === "높음") { p += 18; w.push(tr("cf.bw.spinshort")); }
+      if (bendy && b.spinSide === "낮음") { p += 16; w.push(tr("cf.bw.spinside")); }
       if (bendy && b.spinShort === "높음") p -= 6;
-      if (S.ballFeel === "soft" && b.feel === "소프트") { p += 8; w.push("부드러운 타감 선호에 맞음"); }
-      if (S.ballFeel === "firm" && b.feel === "펌") { p += 8; w.push("단단한 타감 선호에 맞음"); }
-      if (S.ballFind === "often" && b.color) { p += 10; w.push("컬러볼이 있는 라인 — 찾기 쉽습니다"); }
+      if (S.ballFeel === "soft" && b.feel === "소프트") { p += 8; w.push(tr("cf.feel.soft.ok")); }
+      if (S.ballFeel === "firm" && b.feel === "펌") { p += 8; w.push(tr("cf.feel.firm.ok")); }
+      if (S.ballFind === "often" && b.color) { p += 10; w.push(tr("cf.bw.color")); }
       if (b.pr > budgetCap) p -= 22;
       return { ...b, p, why: w };
     }).sort((a, b) => b.p - a.p);
@@ -2144,78 +2128,77 @@
     const recCat = cover === "우레탄" ? (budgetCap >= 3 ? "urethane" : "mid") : "distance";
     const keep = S.ballShort === "none" && curCat === recCat;
     if (keep)
-      notes.push({ h: "지금 공, 그대로 쓰세요",
-        b: "지금 쓰시는 종류가 이미 맞고 그린 주변에도 불만이 없다고 하셨습니다. <b>바꿔서 얻을 게 없습니다.</b> 같은 공을 계속 쓰시는 것 자체가 거리감의 기준이 됩니다." });
+      notes.push({ h: tr("cf.ball.keep.h"), b: tr("cf.ball.keep.b") });
     if (curCat === "any")
-      tips.push("로스트볼을 섞어 쓰시면 <b>공마다 거리가 다릅니다.</b> 비싼 걸 쓰시라는 게 아니라 <b>같은 걸 쓰시라는</b> 뜻입니다 — 이것만으로 거리감이 정리됩니다.");
+      tips.push(tr("cf.ball.tip.any"));
     if (S.venue === "screen")
-      tips.push("스크린에서는 <b>매장 공용볼</b>을 쓰게 되어 내 공을 못 씁니다. 그래서 스크린 위주일수록 필드에 나갔을 때 공이 낯설어요 — 맞는 공 하나를 정해두는 값어치가 오히려 큽니다.");
+      tips.push(tr("cf.ball.tip.screen"));
     if (S.ballCold === "yes")
-      tips.push("겨울엔 <b>공을 주머니에 넣어 두었다가</b> 티잉 그라운드에서 꺼내 쓰면 체감이 다릅니다. 언 공은 거리도 타감도 손해예요.");
+      tips.push(tr("cf.ball.tip.cold"));
 
     const out = { cover, feel, cat: BALL_CAT[recCat], recCat, keep, notes, tips, why, pick,
                   bendy, shapeSaved, budgetCap };
     out.tldr = tldrBall(out);
     return out;
   }
-  const BALL_CAT = { urethane: "우레탄 프리미엄", mid: "우레탄 중가", distance: "아이오노머 2피스" };
+  const BALL_CAT = { urethane: tr("cf.ball.urethane"), mid: tr("cf.ball.cat.mid"), distance: tr("cf.ball.cat.dist") };
 
   function tldrBall(r) {
     const p = r.pick.main;
-    const bits = [`${carry7Txt()}의 ${speedTxt(S.carry7)} 스피드`];
-    if (S.ballShort === "roll") bits.push("그린 주변에서 <b>공이 안 서는</b> 것이 고민");
-    else if (S.ballShort === "control") bits.push("어프로치 <b>거리·방향이 들쭉날쭉</b>한 편");
-    if (r.bendy) bits.push(r.shapeSaved ? `드라이버가 <b>${r.shapeSaved}</b>로 휘는` : "공이 <b>많이 휘는</b> 편");
-    if (S.ballLost === "many") bits.push("한 라운드에 <b>공을 4개 이상</b> 잃는");
+    const bits = [tr("cf.tldr.speed", { carry: carry7Txt(), sp: speedTxt(S.carry7) })];
+    if (S.ballShort === "roll") bits.push(tr("cf.tldr.ball.roll"));
+    else if (S.ballShort === "control") bits.push(tr("cf.tldr.ball.control"));
+    if (r.bendy) bits.push(r.shapeSaved ? tr("cf.tldr.ball.bendy.drv", { n: r.shapeSaved }) : tr("cf.tldr.ball.bendy"));
+    if (S.ballLost === "many") bits.push(tr("cf.tldr.ball.lost"));
     let act;
-    if (S.ballLost === "many") act = "<b>공보다 OB를 줄이는 게 먼저입니다.</b> 지금은 값 편한 공으로 충분해요.";
-    else if (S.ball === "any") act = "<b>한 가지 공으로 통일하는 것부터</b> 해보세요. 비싼 걸 쓰라는 게 아니라 같은 걸 쓰시라는 뜻입니다.";
-    else if (r.keep) act = "<b>지금 공 그대로</b> 쓰세요. 같은 공을 계속 쓰는 것 자체가 거리감의 기준이 됩니다.";
-    else act = "<b>딱 한 더즌만 사서 세 라운드</b> 써보세요. 그린 주변에서 먼저 차이가 납니다.";
+    if (S.ballLost === "many") act = tr("cf.tldr.ball.act.lost");
+    else if (S.ball === "any") act = tr("cf.tldr.ball.act.any");
+    else if (r.keep) act = tr("cf.tldr.ball.act.keep");
+    else act = tr("cf.tldr.ball.act");
     return {
-      read: `골퍼님은 ${bits.join(", ")}인 골퍼로 확인됩니다.`,
+      read: tr("cf.tldr.read", { bits: bits.join(", ") }),
       fix: r.keep
-        ? `그래서 <b>지금 쓰시는 ${r.cat} 계열 그대로</b>가 맞습니다 — 바꿔서 얻을 게 없습니다.`
-        : `그래서 <b>${r.cover} 커버</b>에 <b>컴프레션 ${r.feel} 성향</b>인 <b>${p.br} ${p.m}</b>을 추천합니다.`,
+        ? tr("cf.tldr.ball.fix.keep", { cat: r.cat })
+        : tr("cf.tldr.ball.fix", { cover: r.cover, feel: r.feel, model: p.br + " " + p.m }),
       act,
     };
   }
 
   function renderBall() {
     const r = ballEngine(), p = r.pick;
-    const spec = (b) => `${b.pieces}피스 · ${b.cover} 커버 · 컴프레션 ${b.feel} 성향${b.color ? " · 컬러 있음" : ""}`;
+    const spec = (b) => tr("cf.ball.spec", { pieces: b.pieces, cover: b.cover, feel: b.feel }) +
+      (b.color ? tr("cf.ball.spec.color") : "");
     return `
-      <div class="q-eyebrow">볼 판정</div>
-      <div class="verdict"><span class="v-stamp${r.keep ? " keep" : ""}">${r.keep ? "그대로 유지" : "맞춤 완료"}</span>
-        <div class="v-label">볼</div>
-        <div class="v-main">${r.cover} · 컴프레션 ${r.feel} 성향</div>
-        <div class="v-sub">클럽 14개는 골라 쓰지만 <b>공은 모든 샷에 씁니다.</b>
-          그래서 프로들이 장비 중 공을 가장 신중하게 고릅니다 — 그리고 <b>가장 싸게 결과가 바뀌는 피팅</b>이기도 합니다.</div>
+      <div class="q-eyebrow">${tr("cf.res.ball")}</div>
+      <div class="verdict"><span class="v-stamp${r.keep ? " keep" : ""}">${r.keep ? tr("cf.stamp.keep") : tr("cf.stamp.done")}</span>
+        <div class="v-label">${tr("cf.club.ball")}</div>
+        <div class="v-main">${tr("cf.ball.main", { cover: r.cover, feel: r.feel })}</div>
+        <div class="v-sub">${tr("cf.ball.vsub")}</div>
       </div>
       ${tldrBlock(r.tldr)}
       ${noteHtml(r.notes)}
       ${pickStrip([
-        { k: "1순위", v: `${p.main.br} ${p.main.m}`, s: spec(p.main) },
-        { k: "커버", v: r.cover, s: r.cover === "우레탄" ? "숏게임 스핀을 만드는 소재" : "직진성·내구성이 좋은 소재" },
-        { k: "컴프레션", v: `${r.feel} 성향`, s: "제조사가 수치를 공표하지 않아 성향으로만 적습니다" },
+        { k: tr("cf.k.top"), v: `${p.main.br} ${p.main.m}`, s: spec(p.main) },
+        { k: tr("cf.k.cover"), v: r.cover, s: r.cover === "우레탄" ? tr("cf.ball.cover.ure.s") : tr("cf.ball.cover.iono.s2") },
+        { k: tr("cf.k.compression"), v: tr("cf.ball.feeltxt", { feel: r.feel }), s: tr("cf.ball.compression.note") },
       ])}
       ${venueBlock()}
-      ${fold("어떻게 이렇게 판정했나", `<div class="cf-read"><div class="cf-read-h">볼을 이렇게 골랐습니다</div>` +
+      ${fold(tr("cf.fold.how"), `<div class="cf-read"><div class="cf-read-h">${tr("cf.ball.readh")}</div>` +
         r.why.map((w) => `<div class="cf-read-row"><div class="cf-read-b">${w}</div></div>`).join("") +
-        `</div>`, "커버 · 컴프레션 · 사이드스핀")}
-      ${fold("다른 후보도 보기",
-        `${resCard("볼 1순위", `${p.main.br} ${p.main.m}`, spec(p.main),
-           p.main.why.length ? p.main.why : ["지금 조건에 가장 가깝습니다"], false, p.main)}
-         ${p.alt ? altLead("공") + resCard(p.alt.br, `${p.alt.br} ${p.alt.m}`, spec(p.alt), p.alt.why, true, p.alt) : ""}
-         ${olderCard("공", p.older, p.older ? spec(p.older) : "", p.olderBetter)}
-         ${tipHtml(r.tips)}`, "대안 · 참고")}
+        `</div>`, tr("cf.fold.ball.sub"))}
+      ${fold(tr("cf.fold.alt"),
+        `${resCard(tr("cf.card.ball1"), `${p.main.br} ${p.main.m}`, spec(p.main),
+           p.main.why.length ? p.main.why : [tr("cf.why.closest")], false, p.main)}
+         ${p.alt ? altLead(tr("cf.w.ball")) + resCard(p.alt.br, `${p.alt.br} ${p.alt.m}`, spec(p.alt), p.alt.why, true, p.alt) : ""}
+         ${olderCard(tr("cf.w.ball"), p.older, p.older ? spec(p.older) : "", p.olderBetter)}
+         ${tipHtml(r.tips)}`, tr("cf.fold.alt.sub"))}
       ${cautionBlock([
-        "<b>컴프레션 수치는 적지 않습니다.</b> 제조사가 공표하지 않는 값이라 여기서 숫자를 적으면 그건 지어낸 숫자가 됩니다. 피스 수와 커버 소재만 공표값 그대로 적었습니다.",
-        "공은 <b>한 더즌 써보고 판단</b>하세요. 특히 그린 주변과 퍼팅 타감에서 먼저 차이가 납니다 — 드라이버 거리로는 잘 안 느껴집니다.",
-        "저희는 어떤 브랜드와도 관계가 없습니다. 그래서 <b>'지금 공 그대로 쓰세요'</b>라고 말할 수 있습니다.",
+        tr("cf.ball.caution1"),
+        tr("cf.ball.caution2"),
+        tr("cf.ball.caution3"),
       ])}
       ${saveRow("ball")}
-      <div class="cf-foot">※ 볼 스펙은 초기 데이터 — 피스 수·커버는 제조사 공표값, 타감·스핀은 성향 표기입니다.</div>`;
+      <div class="cf-foot">${tr("cf.foot.ball")}</div>`;
   }
 
   function label(v) { return { slice: "슬라이스", fade: "페이드", straight: "스트레이트", draw: "드로", hook: "훅" }[v] || "-"; }
@@ -2299,7 +2282,7 @@
     const t = [];
     // 가격대는 제조사 스펙표에 없다(실측분은 pr=null). 모르는 걸 적지 않는다.
     if (has(x.pr) && PRICE_LABEL[x.pr]) t.push(`<span class="r-tag">${PRICE_LABEL[x.pr]}</span>`);
-    if (x.st === "old") t.push(`<span class="r-tag old">단종 · 중고로 구함</span>`);
+    if (x.st === "old") t.push(`<span class="r-tag old">${tr("cf.tag.old")}</span>`);
     return t.length ? `<div class="r-tags">${t.join("")}</div>` : "";
   }
   function resCard(kind, name, spec, whys, alt, x) {
@@ -2311,25 +2294,23 @@
   }
   /* 다른 브랜드 제안 문구 — 밀어붙이지 않고 권하는 말투 */
   function altLead(what) {
-    return `<div class="alt-lead">이 ${what}도 골퍼님께 잘 맞을 것 같아요</div>`;
+    return `<div class="alt-lead">${tr("cf.altlead", { what: what })}</div>`;
   }
   /* 2차 제안 — 단종까지 포함하면 더 잘 맞는 게 있을 때만 내민다.
      한국은 중고 시장이 커서, 지난 모델이 값도 싸고 더 맞는 경우가 실제로 많다. */
   function olderCard(what, x, specTxt, better) {
     if (!x) return "";
     return `<div class="alt-lead">${better
-        ? `단종까지 보면 — <b>더 잘 맞는</b> ${what}가 있습니다`
-        : `단종까지 보면 — 성능은 비슷하고 <b>값은 내려가는</b> ${what}입니다`}</div>` +
-      resCard("중고로 찾을 만한 것", `${x.b || x.br || ""} ${x.m}`.trim(),
-        specTxt, (x.why && x.why.length ? x.why : ["지금 조건에 더 가깝습니다"]), true, x) +
-      `<div class="inline-note">지난 모델이라 <b>새 제품은 구하기 어렵습니다.</b>
-        중고로 보실 때는 샤프트 스펙(무게·플렉스)이 표기와 같은지 꼭 확인하세요 —
-        같은 이름이라도 다른 스펙이 끼워져 있는 매물이 흔합니다.</div>`;
+        ? tr("cf.older.better", { what: what })
+        : tr("cf.older.cheap", { what: what })}</div>` +
+      resCard(tr("cf.card.used"), `${x.b || x.br || ""} ${x.m}`.trim(),
+        specTxt, (x.why && x.why.length ? x.why : [tr("cf.why.closer")]), true, x) +
+      `<div class="inline-note">${tr("cf.older.note")}</div>`;
   }
   function brandLine(pick) {
-    if (!pick.wanted) return "브랜드 상관없이 1순위";
-    return pick.matched ? `${pick.wanted} 안에서 1순위`
-      : `${pick.wanted}에는 맞는 게 없어 전체 1순위로 골랐어요`;
+    if (!pick.wanted) return tr("cf.brandline.any");
+    return pick.matched ? tr("cf.brandline.in", { brand: pick.wanted })
+      : tr("cf.brandline.none", { brand: pick.wanted });
   }
 
   /* 제조사가 공개하지 않는 값(킥포인트·타감 등)은 비어 있다.
@@ -2341,7 +2322,7 @@
   function shaftSpec(s) {
     return [s.b, has(s.w) ? `${s.w}g` : null, s.fx]
       .filter(Boolean)
-      .concat(part("토크", s.tq, "°"), part("킥", s.k), s.velo ? ["벨로코어"] : [])
+      .concat(part(tr("cf.k.torque"), s.tq, "°"), part(tr("cf.k.kick"), s.k), s.velo ? ["벨로코어"] : [])
       .join(" · ");
   }
 
@@ -2367,15 +2348,15 @@
       <div class="cf-story-h">${title}</div>
       ${paras.filter(Boolean).map((p) => `<p>${p}</p>`).join("")}</div>`;
   }
-  const speedTxt = (c7) => c7 < 130 ? "느린 편" : c7 < 145 ? "보통보다 조금 아래" : c7 < 160 ? "보통~빠른 편" : c7 < 172 ? "빠른 편" : "아주 빠른 편";
-  const gradeTxt = () => S.scoreGrp === "80" ? "80대 이하" : S.scoreGrp === "100" ? "100타 이상" : "90대";
+  const speedTxt = (c7) => c7 < 130 ? tr("cf.sp.1") : c7 < 145 ? tr("cf.sp.2") : c7 < 160 ? tr("cf.sp.3") : c7 < 172 ? tr("cf.sp.4") : tr("cf.sp.5");
+  const gradeTxt = () => S.scoreGrp === "80" ? tr("cf.grade.80") : S.scoreGrp === "100" ? tr("cf.grade.100") : tr("cf.grade.90");
   /* 후반 체력 신호 — 엔진 세 곳이 같은 조건을 쓰므로 요약에서도 같은 판단을 써야 말이 어긋나지 않는다 */
   function tiredSignal() {
     return S.endur === "fadeLate" || S.endur === "weak" ||
            (S.auto.fade !== null && S.auto.fade >= 3);
   }
   /* 7번 캐리를 추정으로 채웠으면 요약에도 그렇게 밝힌다 — 단정하지 않는다(절대 원칙 2) */
-  const carry7Txt = () => `<b>7번 ${S.carry7}m</b>${S.carry7Est ? "<i>(추정)</i>" : ""}`;
+  const carry7Txt = () => tr("cf.carry7txt", { m: S.carry7 }) + (S.carry7Est ? tr("cf.carry7txt.est") : "");
 
   /* ═══════════════════════════════════════════════════════════════
      세 문장 요약 — "이런 스윙의 골퍼 → 그래서 이 클럽 → 오늘은 이것부터"
@@ -2384,92 +2365,98 @@
   function tldrDriver(r) {
     const fl = r.fl, sp = r.shaftPick.main, hd = r.headPick.main;
     const ratio = S.carryD / S.carry7;
-    const bits = [`${carry7Txt()}의 ${speedTxt(S.carry7)} 스피드`,
-                  `<b>${fl.n}</b> 구질(${fl.path} 궤도 · 페이스 ${fl.face})`];
+    const bits = [tr("cf.tldr.speed", { carry: carry7Txt(), sp: speedTxt(S.carry7) }),
+                  tr("cf.tldr.drv.shape", { n: fl.n, path: fl.path, face: fl.face })];
     // 손해가 가장 큰 신호 하나만 더 붙인다 — 세 개를 넘기면 요약이 아니게 된다
-    if (ratio < 1.50) bits.push("드라이버에서 스피드를 못 받는 <b>정타 병목</b>");
-    else if (S.flight === "balloon") bits.push("공이 붕 뜨는 <b>스핀 과다</b>");
-    else if (S.flight === "high") bits.push("높이에 힘을 쓰는 <b>과한 탄도</b>");
-    else if (S.flight === "low") bits.push("뻗기 전에 떨어지는 <b>런치 부족</b>");
-    else if (tiredSignal()) bits.push("후반에 스윙이 처지는 <b>체력 신호</b>");
+    if (ratio < 1.50) bits.push(tr("cf.tldr.drv.smash"));
+    else if (S.flight === "balloon") bits.push(tr("cf.tldr.drv.balloon"));
+    else if (S.flight === "high") bits.push(tr("cf.tldr.drv.high"));
+    else if (S.flight === "low") bits.push(tr("cf.tldr.drv.low"));
+    else if (tiredSignal()) bits.push(tr("cf.tldr.tired"));
     const curL = S.curLoft && S.curLoft !== "unknown" ? Number(S.curLoft) : null;
     let act;
     if (S.faceV === "low" || S.teeHt === "low")
-      act = "<b>티부터 높이세요</b> — 공 절반이 크라운 위로. 돈 한 푼 안 들이고 거리가 늡니다.";
+      act = tr("cf.tldr.drv.act.tee");
     else if (S.faceH === "vary" || S.carryVar === "big")
-      act = "<b>길이를 0.5~1인치 줄여보세요.</b> 스피드는 거의 안 줄고 정타가 붙습니다.";
+      act = tr("cf.tldr.drv.act.len");
     else if (curL !== null && Math.abs(curL - r.lf.loft) > 0.5)
-      act = `<b>로프트를 ${curL}° → ${r.lf.loft}° 쪽으로</b> 돌려보세요. 호젤 조정이면 새로 살 필요가 없습니다.`;
+      act = tr("cf.tldr.drv.act.loft", { cur: curL, rec: r.lf.loft });
     else if (S.flight === "balloon" && S.ball === "urethane")
-      act = "<b>공부터 바꿔보세요</b> — 한 라운드만 거리용으로. 드라이버 스핀은 공이 만드는 몫이 큽니다.";
+      act = tr("cf.tldr.drv.act.ball");
     else if (S.teeHt === "vary")
-      act = "<b>티 높이를 매번 같게</b> 꽂아보세요. 높이가 들쭉날쭉하면 탄도도 들쭉날쭉해집니다.";
-    else act = "시타에서 <b>이 조합부터</b> 잡아보세요. 비교 대상이 있어야 좋아진 걸 알 수 있습니다.";
+      act = tr("cf.tldr.drv.act.teevary");
+    else act = tr("cf.tldr.drv.act");
     return {
-      read: `골퍼님은 ${bits.join(", ")}인 골퍼로 확인됩니다.`,
+      read: tr("cf.tldr.read", { bits: bits.join(", ") }),
       fix: r.keep
-        ? "그래서 <b>지금 클럽 그대로</b> 쓰시면 됩니다 — 무게·강도·로프트가 이미 맞습니다."
-        : `그래서 이를 상쇄할 <b>${hd.br} ${hd.m}</b> 헤드(${hd.draw ? "드로 바이어스" : "관용성 " + hd.forg + "/5"}) · <b>${sp.m} ${sp.sp}</b> 샤프트 · <b>${r.grip.model}</b> 그립을 로프트 <b>${r.lf.loft}°</b>로 추천합니다.`,
+        ? tr("cf.tldr.drv.fix.keep")
+        : tr("cf.tldr.drv.fix", { head: hd.br + " " + hd.m,
+            hspec: hd.draw ? tr("cf.spec.draw") : tr("cf.spec.forg", { f: hd.forg }),
+            shaft: sp.m + " " + sp.sp, grip: r.grip.model, loft: r.lf.loft }),
       act,
     };
   }
   function tldrIron(r) {
     const sp = r.shaftPick.main, hd = r.headPick.main;
-    const bits = [`${carry7Txt()}의 ${speedTxt(S.carry7)} 스피드`];
-    const miss = { thin: "얇게 맞는 미스", fat: "뒤땅 미스", dir: "좌우로 갈리는 미스" }[S.ironMiss];
+    const bits = [tr("cf.tldr.speed", { carry: carry7Txt(), sp: speedTxt(S.carry7) })];
+    const miss = { thin: tr("cf.tldr.iron.thin"), fat: tr("cf.tldr.iron.fat"), dir: tr("cf.tldr.iron.dir") }[S.ironMiss];
     if (miss) bits.push(`<b>${miss}</b>`);
-    if (S.ironTraj === "low") bits.push("그린에 안 서는 <b>낮은 탄도</b>");
-    else if (S.ironTraj === "high") bits.push("거리를 잃는 <b>과한 탄도</b>");
-    else if (!miss && tiredSignal()) bits.push("후반에 스윙이 처지는 <b>체력 신호</b>");
+    if (S.ironTraj === "low") bits.push(tr("cf.tldr.iron.low"));
+    else if (S.ironTraj === "high") bits.push(tr("cf.tldr.iron.high"));
+    else if (!miss && tiredSignal()) bits.push(tr("cf.tldr.tired"));
     let act;
     if (r.setAdvice && r.setAdvice.drop.length)
-      act = `<b>${r.setAdvice.drop.join(" · ")}은 빼고 유틸리티로</b> 바꾸세요. 클럽을 더 사시란 게 아니라 바꾸시란 뜻입니다.`;
+      act = tr("cf.tldr.iron.act.set", { list: r.setAdvice.drop.join(" · ") });
     else if (r.keepish)
-      act = "<b>새로 사기 전에 라이각과 길이만</b> 맞춰보세요. 몇만 원이면 되고 효과는 새 클럽보다 클 수 있습니다.";
+      act = tr("cf.tldr.iron.act.keep");
     else if (!r.lieConfident)
-      act = "<b>페이스에 흰 가루를 얇게 바르고 한 번 쳐보세요.</b> 자국 위치만 알면 라이각이 훨씬 정확해집니다.";
-    else act = "샵에서 <b>라이각부터</b> 맞춰보세요. 방향이 먼저 좋아집니다.";
+      act = tr("cf.tldr.iron.act.mark");
+    else act = tr("cf.tldr.iron.act");
     return {
-      read: `골퍼님은 ${bits.join(", ")}인 골퍼로 확인됩니다.`,
-      fix: `그래서 이를 상쇄할 <b>${hd.br} ${hd.m}</b>(${hd.type}) 헤드 · <b>${sp.m} ${sp.sp}</b> 샤프트(${r.mat} 약 ${r.target}g) · <b>${r.grip.model}</b> 그립을 라이각 <b>${r.lie}</b>로 추천합니다.`,
+      read: tr("cf.tldr.read", { bits: bits.join(", ") }),
+      fix: tr("cf.tldr.iron.fix", { head: hd.br + " " + hd.m, type: hd.type,
+        shaft: sp.m + " " + sp.sp, mat: r.mat, w: r.target, grip: r.grip.model, lie: r.lie }),
       act,
     };
   }
   function tldrWedge(r) {
-    const bits = [`피칭 <b>${r.pw}°</b>${r.pw <= 43 ? "의 스트롱 로프트" : ""}`];
-    const turf = { dig: "깊게 파고드는 <b>디거</b>", sweep: "얕게 쓸어치는 <b>스위퍼</b>", mid: "중간 타입" }[S.wedgeTurf];
+    const bits = [tr("cf.tldr.wedge.pw", { deg: r.pw }) + (r.pw <= 43 ? tr("cf.tldr.wedge.strong") : "")];
+    const turf = { dig: tr("cf.tldr.wedge.dig"), sweep: tr("cf.tldr.wedge.sweep"), mid: tr("cf.tldr.wedge.mid") }[S.wedgeTurf];
     if (turf) bits.push(turf);
-    if (S.wedgeMiss === "fat") bits.push("<b>뒤땅</b>이 잦은 편");
-    else if (S.wedgeMiss === "thin") bits.push("<b>토핑</b>이 잦은 편");
-    else if (S.wedgeBunker === "no") bits.push("<b>벙커가 부담</b>인 편");
+    if (S.wedgeMiss === "fat") bits.push(tr("cf.tldr.wedge.fat"));
+    else if (S.wedgeMiss === "thin") bits.push(tr("cf.tldr.wedge.thin"));
+    else if (S.wedgeBunker === "no") bits.push(tr("cf.tldr.wedge.bunker"));
     const act = S.wedgeBunker === "no"
-      ? "<b>가장 로프트가 큰 웨지의 바운스부터</b> 올려보세요. 벙커는 바운스가 실력을 대신해 줍니다."
-      : "<b>한 자루만 먼저</b> 바꿔서 잔디에 맞는지 보세요. 세 자루를 한 번에 바꾸면 뭐가 달라졌는지 알 수 없습니다.";
+      ? tr("cf.tldr.wedge.act.bunker")
+      : tr("cf.tldr.wedge.act");
     return {
-      read: `골퍼님은 ${bits.join(", ")}인 골퍼로 확인됩니다.`,
-      fix: `그래서 <b>${r.specs.map((s) => s.loft + "°").join(" · ")}</b> 구성에 바운스 <b>${r.specs.map((s) => s.bounce + "°").join(" · ")}</b>, ${r.grind.split(" — ")[0]}로 맞췄습니다. 모델은 <b>${r.pick.main.br} ${r.pick.main.m}</b>.`,
+      read: tr("cf.tldr.read", { bits: bits.join(", ") }),
+      fix: tr("cf.tldr.wedge.fix", { lofts: r.specs.map((s) => s.loft + "°").join(" · "),
+        bounces: r.specs.map((s) => s.bounce + "°").join(" · "), grind: r.grind.split(" — ")[0],
+        model: r.pick.main.br + " " + r.pick.main.m }),
       act,
     };
   }
   function tldrPutt(r) {
     const p = r.pick.main;
-    const bits = [{ straight: "<b>직선에 가까운</b> 스트로크", slight: "<b>약간의 아크</b> 스트로크",
-                    arc: "<b>아크가 큰</b> 스트로크" }[r.arc]];
-    const miss = { dist: "<b>거리감</b>이 고민", dir: "<b>방향</b>이 고민", both: "<b>거리감과 방향</b> 둘 다 고민" }[S.puttMiss];
+    const bits = [{ straight: tr("cf.tldr.putt.straight"), slight: tr("cf.tldr.putt.slight"),
+                    arc: tr("cf.tldr.putt.arc") }[r.arc]];
+    const miss = { dist: tr("cf.tldr.putt.dist"), dir: tr("cf.tldr.putt.dir"), both: tr("cf.tldr.putt.both") }[S.puttMiss];
     if (miss) bits.push(miss);
-    if (S.greenSpeed === "slow") bits.push("주로 <b>느린 그린</b>에서 치는");
-    else if (S.greenSpeed === "fast") bits.push("주로 <b>빠른 그린</b>에서 치는");
+    if (S.greenSpeed === "slow") bits.push(tr("cf.tldr.putt.slow"));
+    else if (S.greenSpeed === "fast") bits.push(tr("cf.tldr.putt.fast"));
     let act;
     if (r.curLen && r.curLen - r.len >= 1)
-      act = `<b>지금 퍼터를 ${r.len}″로 잘라보세요.</b> 몇만 원이면 되고, 새 퍼터를 사기 전에 이것부터입니다.`;
+      act = tr("cf.tldr.putt.act.cut", { len: r.len });
     else if (S.puttEye === "inside")
-      act = "<b>눈이 공보다 안쪽</b>에 있습니다. 길이를 줄이거나 조금 더 가까이 서보세요.";
+      act = tr("cf.tldr.putt.act.eye");
     else if (S.puttYips === "yes")
-      act = "<b>그립을 오버사이즈로</b> 바꿔보세요. 손 개입을 의지로 참는 것보다 훨씬 확실합니다.";
-    else act = "매장에서 <b>이 형상부터</b> 몇 번 굴려보세요. 퍼터는 눈에 편한 게 실제로 잘 들어갑니다.";
+      act = tr("cf.tldr.putt.act.grip");
+    else act = tr("cf.tldr.putt.act");
     return {
-      read: `골퍼님은 ${bits.filter(Boolean).join(", ")}인 골퍼로 확인됩니다.`,
-      fix: `그래서 <b>${p.br} ${p.m}</b>(${p.shape} · ${p.bal})를 <b>${r.len}″</b> 길이, ${r.hw.t}, 로프트 ${r.loft.t}, <b>${r.grip.m}</b> 그립으로 추천합니다.`,
+      read: tr("cf.tldr.read", { bits: bits.filter(Boolean).join(", ") }),
+      fix: tr("cf.tldr.putt.fix", { model: p.br + " " + p.m, shape: p.shape, bal: p.bal,
+        len: r.len, hw: r.hw.t, loft: r.loft.t, grip: r.grip.m }),
       act,
     };
   }
@@ -2478,70 +2465,80 @@
   function explainDriver(r) {
     const fl = r.fl, sp = r.shaftPick.main, hd = r.headPick.main;
     const c7 = S.carry7, ratio = (S.carryD / c7);
-    const flightTxt = { low: "낮게 나가서 뚝 떨어진다", good: "쭉 뻗다가 부드럽게 떨어진다",
-      balloon: "붕 떠서 힘없이 떨어진다", high: "너무 높이 뜨는데 거리가 안 난다", unknown: "잘 모르겠다" }[S.flight] || "-";
+    const flightTxt = { low: tr("cf.flighttxt.low"), good: tr("cf.flighttxt.good"),
+      balloon: tr("cf.flighttxt.balloon"), high: tr("cf.flighttxt.high"), unknown: tr("cf.flighttxt.unknown") }[S.flight] || "-";
 
     // ① 진단
-    const read = readBlock("골퍼님의 스윙, 이렇게 읽었습니다", [
-      { k: "스피드", v: `7번 캐리 ${c7}m — ${speedTxt(c7)} (약 ${r.mph}mph 추정)`,
-        b: "드라이버 거리는 잘 맞은 한 방에 좌우돼서 스피드 지표로 부정확합니다. 7번 아이언 캐리가 훨씬 정직해요." },
-      { k: "정타율", v: `드라이버 ${S.carryD}m ÷ 7번 ${c7}m = ×${ratio.toFixed(2)}`,
-        b: ratio < 1.50 ? "<b>1.50 아래</b>입니다. 스피드가 있는데 드라이버에서 그만큼을 못 받고 있다는 뜻 — 병목은 힘이 아니라 <b>가운데 맞히기</b>입니다."
-          : ratio > 1.68 ? "1.68 위로 드문 조합입니다. 드라이버 수치는 참고만 하고 <b>7번 기준</b>으로 계산했습니다."
-          : "정상 범위입니다. 스피드가 드라이버까지 잘 전달되고 있습니다." },
-      { k: "궤도와 페이스", v: `${fl.n} — 궤도 ${fl.path} · 페이스는 궤도 대비 ${fl.face}`,
-        b: `공이 <b>${S.startDir === "left" ? "왼쪽" : S.startDir === "right" ? "오른쪽" : "곧게"}</b>으로 출발한다는 건 스윙 궤도가 그 방향이라는 뜻이고, 거기서 <b>${S.curveDir === "right" ? "오른쪽으로 휜다" : S.curveDir === "left" ? "왼쪽으로 휜다" : "안 휜다"}</b>는 건 페이스가 그 궤도에 대해 ${fl.face} 상태라는 뜻입니다. 두 정보를 나눠 받는 이유가 이겁니다.` },
-      { k: "런치와 스핀", v: flightTxt,
-        b: S.flight === "balloon" ? "이건 <b>스핀 과다</b>의 전형적인 모습입니다. 높이는 나오는데 앞으로 못 가고 서버립니다."
-          : S.flight === "low" ? "런치가 부족합니다. 스핀도 같이 부족하면 공이 그냥 떨어집니다 — 로프트를 올려야 하는 자리입니다."
-          : S.flight === "high" ? "뜨는 데 힘을 다 쓰고 있습니다. 로프트와 스핀을 함께 낮춰야 합니다."
-          : "런치는 큰 문제가 없어 보입니다." },
-      S.faceV && S.faceV !== "unknown" ? { k: "타점 (위아래)",
-        v: S.faceV === "high" ? "페이스 위쪽" : S.faceV === "low" ? "페이스 아래쪽" : "가운데",
-        b: S.faceV === "high" ? "<b>칭찬드립니다.</b> 위쪽 타격은 기어 효과로 스핀이 줄고 런치가 올라갑니다 — 실제로 가장 멀리 가는 자리예요."
-          : S.faceV === "low" ? "아래쪽은 <b>스핀이 늘고 볼스피드가 떨어지는</b> 자리입니다. 여기가 지금 가장 큰 손실 지점입니다."
-          : "무난합니다." } : null,
-      S.faceH && S.faceH !== "unknown" ? { k: "타점 (좌우)",
-        v: { toe: "토우 쪽", heel: "힐 쪽", center: "가운데", vary: "들쭉날쭉" }[S.faceH],
-        b: S.faceH === "vary" ? "타점이 흩어지면 <b>거리가 아니라 편차</b>가 문제가 됩니다. 길이를 줄이는 게 가장 확실한 답입니다."
-          : S.faceH === "heel" ? "힐 쪽은 기어 효과로 <b>오른쪽으로 휘는</b> 성분이 더해집니다. 슬라이스의 절반은 여기서 오기도 합니다."
-          : S.faceH === "toe" ? "토우 쪽은 <b>왼쪽으로 감기는</b> 성분이 더해집니다." : "가장 좋은 자리입니다." } : null,
-      { k: "체력", v: { strong: "36홀 거뜬", fadeLate: "후반에 무너짐", weak: "18홀도 벅참" }[S.endur] || "-",
-        b: S.endur === "strong" ? "체력 보정 없이 원래 밴드로 계산했습니다."
-          : "<b>시타실 10구가 아니라 18홀 전체</b>가 기준입니다. 후반에 못 휘두를 무게는 처음부터 맞는 무게가 아닙니다 — 그래서 무게를 한 체급 내리고 강도를 한 단계 올렸습니다." },
+    const read = readBlock(tr("cf.rd.drv.h"), [
+      { k: tr("cf.k.speed"), v: tr("cf.rd.drv.speed.v", { m: c7, sp: speedTxt(c7), mph: r.mph }),
+        b: tr("cf.rd.drv.speed.b") },
+      { k: tr("cf.k.smash"), v: tr("cf.rd.drv.smash.v", { d: S.carryD, m: c7, r: ratio.toFixed(2) }),
+        b: ratio < 1.50 ? tr("cf.rd.drv.smash.lo")
+          : ratio > 1.68 ? tr("cf.rd.drv.smash.hi")
+          : tr("cf.rd.drv.smash.ok") },
+      { k: tr("cf.k.pathface"), v: tr("cf.rd.drv.path.v", { n: fl.n, path: fl.path, face: fl.face }),
+        b: tr("cf.rd.drv.path.b", {
+          start: S.startDir === "left" ? tr("cf.w.left") : S.startDir === "right" ? tr("cf.w.right") : tr("cf.w.straight"),
+          curve: S.curveDir === "right" ? tr("cf.w.bendright") : S.curveDir === "left" ? tr("cf.w.bendleft") : tr("cf.w.bendnone"),
+          face: fl.face }) },
+      { k: tr("cf.k.launch"), v: flightTxt,
+        b: S.flight === "balloon" ? tr("cf.rd.drv.launch.balloon")
+          : S.flight === "low" ? tr("cf.rd.drv.launch.low")
+          : S.flight === "high" ? tr("cf.rd.drv.launch.high")
+          : tr("cf.rd.drv.launch.ok") },
+      S.faceV && S.faceV !== "unknown" ? { k: tr("cf.k.facev"),
+        v: S.faceV === "high" ? tr("cf.rd.drv.facev.high") : S.faceV === "low" ? tr("cf.rd.drv.facev.low") : tr("cf.opt.center"),
+        b: S.faceV === "high" ? tr("cf.rd.drv.facev.high.b")
+          : S.faceV === "low" ? tr("cf.rd.drv.facev.low.b")
+          : tr("cf.rd.ok") } : null,
+      S.faceH && S.faceH !== "unknown" ? { k: tr("cf.k.faceh"),
+        v: { toe: tr("cf.rd.drv.faceh.toe"), heel: tr("cf.rd.drv.faceh.heel"), center: tr("cf.opt.center"), vary: tr("cf.rd.drv.faceh.vary") }[S.faceH],
+        b: S.faceH === "vary" ? tr("cf.rd.drv.faceh.vary.b")
+          : S.faceH === "heel" ? tr("cf.rd.drv.faceh.heel.b")
+          : S.faceH === "toe" ? tr("cf.rd.drv.faceh.toe.b") : tr("cf.rd.drv.faceh.center.b") } : null,
+      { k: tr("cf.k.endur"), v: { strong: tr("cf.endur.s.strong"), fadeLate: tr("cf.endur.s.fade"), weak: tr("cf.endur.s.weak") }[S.endur] || "-",
+        b: S.endur === "strong" ? tr("cf.rd.drv.endur.strong")
+          : tr("cf.rd.drv.endur.tired") },
     ]);
 
     // ② 기준 → ③ 연결 → ④ 기대
-    const why = story("그래서 이 조합입니다", [
-      `<b>로프트 ${r.lf.loft}°</b> — ${r.lf.why.join(". ")}. 로프트는 드라이버 거리에서 <b>가장 큰 변수</b>인데, 대부분 스펙 표에서 맨 뒤로 밀립니다. 여기서는 맨 앞에 둡니다.`,
-      `<b>${sp.m} ${sp.sp}</b> — 무게 ${sp.w}g는 계산 밴드 ${r.wLo}~${r.wHi}g 안이고, 플렉스 ${sp.fx}는 ${S.tempo === "fast" ? "전환이 급한 템포를 감안해 한 단계 올린" : "지금 스피드에 맞는"} 강도입니다.`
-        + (has(sp.tq) ? ` 토크 ${sp.tq}°는 ${fl.tq === "high" ? "페이스가 열려 맞는 지금 경향에서 <b>헤드가 제때 돌아오도록</b> 도와주는 쪽" : fl.tq === "low" ? "페이스가 닫혀 맞는 경향을 <b>덜 감기게</b> 눌러주는 쪽" : "중립적인 쪽"}입니다.` : "")
-        + (has(sp.k) ? ` 킥 ${sp.k}는 ${S.flight === "balloon" || S.flight === "high" ? "지금의 <b>과한 런치와 스핀을 눌러주는</b>" : S.flight === "low" ? "부족한 <b>런치를 끌어올리는</b>" : "탄도를 유지하는"} 성격입니다.` : ""),
-      `<b>${hd.br} ${hd.m}</b> — 관용성 ${hd.forg}/5, 스핀 ${hd.spin}${hd.draw ? ", 드로 바이어스" : ", 뉴트럴"}. ${hd.draw ? `페이스가 열려 맞는 ${fl.n} 경향을 헤드 무게 배치로 <b>물리적으로 상쇄</b>합니다 — 스윙을 안 바꿔도 공이 덜 휩니다.` : `구질을 억지로 건드리지 않고 <b>타점이 흔들려도 거리를 지켜주는</b> 쪽으로 골랐습니다.`} 평균 ${gradeTxt()} 구간에서 ${hd.forg >= 4 ? "관용성이 곧 평균 거리입니다 — 잘 맞은 한 방보다 <b>안 맞은 공의 손해를 줄이는 것</b>이 스코어에 훨씬 큽니다." : "조정 기능으로 구질을 직접 세팅할 수 있는 쪽이 낫습니다."}`,
-      `<b>길이 ${r.ln.len}</b> — ${r.ln.why}`,
-      `<b>그립 ${r.grip.model}</b> — ${r.grip.why.join(". ")}.`,
+    const why = story(tr("cf.story.why"), [
+      tr("cf.ex.drv.loft", { deg: r.lf.loft, why: r.lf.why.join(". ") }),
+      tr("cf.ex.drv.shaft", { model: sp.m + " " + sp.sp, w: sp.w, lo: r.wLo, hi: r.wHi, fx: sp.fx,
+        tempo: S.tempo === "fast" ? tr("cf.ex.drv.tempo.fast") : tr("cf.ex.drv.tempo.now") })
+        + (has(sp.tq) ? tr("cf.ex.drv.torque", { tq: sp.tq,
+            role: fl.tq === "high" ? tr("cf.ex.drv.torque.hi") : fl.tq === "low" ? tr("cf.ex.drv.torque.lo") : tr("cf.ex.drv.torque.mid") }) : "")
+        + (has(sp.k) ? tr("cf.ex.drv.kick", { k: sp.k,
+            role: S.flight === "balloon" || S.flight === "high" ? tr("cf.ex.drv.kick.down") : S.flight === "low" ? tr("cf.ex.drv.kick.up") : tr("cf.ex.drv.kick.keep") }) : ""),
+      tr("cf.ex.drv.head", { model: hd.br + " " + hd.m, forg: hd.forg, spin: hd.spin,
+        bias: hd.draw ? tr("cf.ex.drv.head.drawtag") : tr("cf.ex.drv.head.neutraltag"),
+        role: hd.draw ? tr("cf.ex.drv.head.draw", { n: fl.n }) : tr("cf.ex.drv.head.neutral"),
+        grade: gradeTxt(),
+        tail: hd.forg >= 4 ? tr("cf.ex.drv.head.forg") : tr("cf.ex.drv.head.adj") }),
+      tr("cf.ex.len", { len: r.ln.len, why: r.ln.why }),
+      tr("cf.ex.grip", { model: r.grip.model, why: r.grip.why.join(". ") }),
     ]);
 
-    const expect = story("바꾸면 이렇게 달라집니다", [
+    const expect = story(tr("cf.story.expect"), [
       r.keep
-        ? "지금 클럽이 이미 밴드 안이라 <b>바꿔서 얻을 게 거의 없습니다.</b> 이 판정을 그대로 믿으셔도 됩니다."
+        ? tr("cf.ex.drv.exp.keep")
         : (S.flight === "balloon" || S.flight === "high")
-          ? "스핀이 줄면 공이 <b>앞으로 더 갑니다.</b> 높이가 낮아 보여도 캐리와 런이 함께 늘어 총거리가 올라갑니다. 지금은 높이에 힘을 쓰고 있습니다."
+          ? tr("cf.ex.drv.exp.spin")
         : S.flight === "low"
-          ? "런치가 올라가면 <b>체공이 길어져 캐리가 늘어납니다.</b> 지금은 공이 뻗기도 전에 떨어지고 있습니다."
-        : "밴드 안의 무게·강도로 맞추면 <b>스윙마다의 편차</b>가 먼저 줄어듭니다. 최고 거리보다 평균 거리가 올라갑니다.",
+          ? tr("cf.ex.drv.exp.launch")
+        : tr("cf.ex.drv.exp.band"),
       (S.faceV === "low" || S.teeHt === "low")
-        ? "<b>그리고 이건 오늘 당장, 돈 안 들이고 됩니다</b> — 티를 올려서 공 절반이 크라운 위로 나오게 꽂아 보세요. 타점이 위로 올라가면 스핀이 줄고 볼스피드가 붙습니다. 클럽 바꾸는 것보다 이게 먼저입니다."
+        ? tr("cf.ex.drv.exp.tee")
         : null,
       (S.faceH === "vary" || S.carryVar === "big")
-        ? "길이를 0.5~1인치 줄이면 <b>헤드스피드는 거의 안 줄고</b> 정타율이 확실히 오릅니다. 스피드 1~2mph 잃고 정타를 얻으면 평균 거리는 오히려 늘어납니다."
+        ? tr("cf.ex.drv.exp.len")
         : null,
     ], "good");
 
     const caution = cautionBlock([
-      "이 추천은 <b>설문을 근거로 한 계산</b>입니다. 실제 피팅은 런치모니터로 볼스피드·스핀·어택앵글을 재서 확정합니다. 저희는 <b>후보를 좁혀드리는 것</b>까지가 역할입니다.",
-      r.cur.w ? `무게는 <b>한 번에 10g 이상 옮기지 마세요.</b> 지금 ${r.cur.w}g대를 쓰고 계신데, 급하게 바꾸면 스윙 타이밍이 먼저 무너집니다.` : "지금 샤프트를 모르신다면 <b>바꾸기 전에 먼저 확인</b>하세요. 비교 대상이 있어야 좋아졌는지 알 수 있습니다.",
-      "<b>시타 없이 사지 마세요.</b> 그리고 저희는 어떤 브랜드와도 관계가 없습니다 — 팔아서 남는 게 없으니 '그대로 쓰세요'라고 말할 수 있는 겁니다.",
+      tr("cf.caution.calc"),
+      r.cur.w ? tr("cf.caution.jump", { w: r.cur.w }) : tr("cf.caution.noshaft"),
+      tr("cf.caution.test"),
     ]);
 
     return { read, detail: why + expect, caution };
@@ -2550,51 +2547,57 @@
   /* ── 아이언 설명 ─────────────────────────────────────────────── */
   function explainIron(r) {
     const sp = r.shaftPick.main, hd = r.headPick.main;
-    const read = readBlock("골퍼님의 아이언, 이렇게 읽었습니다", [
-      { k: "스피드", v: `7번 캐리 ${S.carry7}m — ${speedTxt(S.carry7)}`,
-        b: `이 숫자로 샤프트 무게 목표(약 ${r.target}g)와 강도(${r.fxT.join("/")})가 나옵니다.` },
-      { k: "임팩트", v: { thin: "얇게 맞음", fat: "뒤땅", dir: "방향이 흔들림", none: "특별한 경향 없음" }[S.ironMiss] || "-",
-        b: S.ironMiss === "thin" ? "얇게 맞으면 공이 안 뜹니다. <b>높은 킥 + 관용성 큰 헤드</b>가 이 미스에서 거리를 지켜줍니다."
-          : S.ironMiss === "fat" ? "뒤땅은 헤드가 먼저 떨어지는 겁니다. <b>낮은 킥</b>이 임팩트에서 헤드가 덜 처지게 합니다."
-          : S.ironMiss === "dir" ? "좌우로 갈리면 <b>오프셋</b>으로 페이스가 늦게 열리게 잡아줍니다." : "무난합니다." },
-      { k: "탄도", v: { low: "낮음 — 그린에 안 섬", mid: "적당", high: "너무 뜸", unknown: "모름" }[S.ironTraj] || "-",
-        b: S.ironTraj === "low" ? "아이언은 <b>그린에 세우는 게 목적</b>입니다. 안 서면 거리가 맞아도 결과가 안 남습니다 — 킥이 높은 샤프트로 띄웁니다."
-          : S.ironTraj === "high" ? "너무 뜨면 바람에 약하고 거리를 잃습니다 — 킥을 낮춰 눌러줍니다." : "적정합니다." },
-      { k: "구질", v: { slice: "오른쪽(슬라이스)", straight: "거의 곧게", hook: "왼쪽(훅)" }[S.shapeI] || "-",
-        b: S.shapeI === "slice" ? "오프셋이 <b>많은</b> 헤드가 페이스를 제때 닫아줍니다."
-          : S.shapeI === "hook" ? "오프셋이 <b>적은</b> 헤드가 과하게 감기는 걸 막아줍니다." : "구질 보정은 필요 없습니다." },
-      { k: "라이각 근거", v: r.lie,
-        b: r.lieConfident ? "<b>볼자국</b>이라는 실측 근거가 있어 방향이 분명합니다." : "볼자국을 못 보셔서 <b>키·팔 길이(정적 기준)</b>로만 봤습니다 — 정확도가 낮습니다." },
-      { k: "몸 상태", v: (S.bodyIssue || []).includes("none") || !(S.bodyIssue || []).length ? "특이사항 없음" : "불편한 곳 있음",
+    const read = readBlock(tr("cf.rd.iron.h"), [
+      { k: tr("cf.k.speed"), v: tr("cf.rd.iron.speed.v", { m: S.carry7, sp: speedTxt(S.carry7) }),
+        b: tr("cf.rd.iron.speed.b", { w: r.target, fx: r.fxT.join("/") }) },
+      { k: tr("cf.k.impact"), v: { thin: tr("cf.rd.iron.thin"), fat: tr("cf.rd.iron.fat"), dir: tr("cf.rd.iron.dir"), none: tr("cf.rd.iron.nonemiss") }[S.ironMiss] || "-",
+        b: S.ironMiss === "thin" ? tr("cf.rd.iron.thin.b")
+          : S.ironMiss === "fat" ? tr("cf.rd.iron.fat.b")
+          : S.ironMiss === "dir" ? tr("cf.rd.iron.dir.b") : tr("cf.rd.ok") },
+      { k: tr("cf.k.traj"), v: { low: tr("cf.rd.iron.traj.low"), mid: tr("cf.rd.iron.traj.mid"), high: tr("cf.rd.iron.traj.high"), unknown: tr("cf.opt.unknown") }[S.ironTraj] || "-",
+        b: S.ironTraj === "low" ? tr("cf.rd.iron.traj.low.b")
+          : S.ironTraj === "high" ? tr("cf.rd.iron.traj.high.b") : tr("cf.rd.iron.traj.ok") },
+      { k: tr("cf.k.flight"), v: { slice: tr("cf.rd.shape.slice"), straight: tr("cf.rd.shape.straight"), hook: tr("cf.rd.shape.hook") }[S.shapeI] || "-",
+        b: S.shapeI === "slice" ? tr("cf.rd.iron.slice.b")
+          : S.shapeI === "hook" ? tr("cf.rd.iron.hook.b") : tr("cf.rd.iron.shape.ok") },
+      { k: tr("cf.k.liesrc"), v: r.lie,
+        b: r.lieConfident ? tr("cf.rd.iron.lie.sure") : tr("cf.rd.iron.lie.unsure") },
+      { k: tr("cf.k.bodyissue"), v: (S.bodyIssue || []).includes("none") || !(S.bodyIssue || []).length ? tr("cf.rd.iron.body.none") : tr("cf.rd.iron.body.some"),
         b: (S.bodyIssue || []).some((x) => x === "wrist" || x === "back")
-          ? "<b>무게를 낮췄습니다.</b> 무거운 스틸이 방향을 잡아주는 건 몸이 버틸 때 얘기입니다." : "무게 보정 없이 계산했습니다." },
+          ? tr("cf.rd.iron.body.down") : tr("cf.rd.iron.body.keep") },
     ]);
 
-    const why = story("그래서 이 조합입니다", [
-      `<b>${r.mat} · 약 ${r.target}g</b> — ${r.mat === "스틸" ? "스틸은 무겁지만 <b>스윙마다의 편차가 작습니다.</b> 아이언은 거리를 맞히는 클럽이라 일관성이 최우선입니다." : "그라파이트는 <b>가벼워서 후반까지 스윙이 유지됩니다.</b> 18홀 뒤쪽 여섯 홀에서 무너지면 앞의 열두 홀이 의미가 없습니다."}`,
-      `<b>${sp.m} ${sp.sp}</b> — 약 ${sp.w}g로 목표에 가장 가깝습니다.` + (has(sp.k) ? ` 킥 ${sp.k}는 ${S.ironTraj === "low" ? "부족한 탄도를 <b>끌어올리는</b>" : S.ironTraj === "high" ? "과한 탄도를 <b>눌러주는</b>" : "지금 탄도를 유지하는"} 성격입니다.` : "") + (has(sp.feel) ? ` 타감은 ${sp.feel} 쪽이라 ${S.ironFeel === "any" || !S.ironFeel ? "무난합니다." : "선호하신 느낌과 맞습니다."}` : ""),
-      `<b>${hd.br} ${hd.m}</b> — ${hd.type}, 관용성 ${hd.forg}/5, 오프셋 ${hd.off}. ${S.ironLook === "classic" ? "얇고 깔끔한 걸 원하셔서 <b>취향을 먼저</b> 반영했습니다. 다만 얇을수록 빗맞을 때 손해가 커집니다 — 그건 감수하시는 대가입니다." : S.ironLook === "forgiving" ? "두툼하고 든든한 걸 원하셔서 <b>관용성이 큰 쪽</b>으로 골랐습니다. 어드레스에서 마음이 편한 게 실제로 스윙을 좋게 만듭니다." : `평균 ${gradeTxt()} 구간에서 무리 없는 난이도로 골랐습니다.`}`,
-      `<b>라이각 ${r.lie} · 길이 ${r.lenAdj}</b> — ${r.lieWhy.join(". ")}.`,
-      r.setAdvice ? `<b>세트 구성</b> — ${r.setAdvice.b}` : null,
-      `<b>그립 ${r.grip.model}</b> — ${r.grip.why.join(". ")}.`,
+    const why = story(tr("cf.story.why"), [
+      tr("cf.ex.iron.mat", { mat: r.mat, w: r.target,
+        b: r.mat === "스틸" ? tr("cf.ex.iron.mat.steel") : tr("cf.ex.iron.mat.graph") }),
+      tr("cf.ex.iron.shaft", { model: sp.m + " " + sp.sp, w: sp.w })
+        + (has(sp.k) ? tr("cf.ex.iron.kick", { k: sp.k,
+            role: S.ironTraj === "low" ? tr("cf.ex.iron.kick.up") : S.ironTraj === "high" ? tr("cf.ex.iron.kick.down") : tr("cf.ex.iron.kick.keep") }) : "")
+        + (has(sp.feel) ? tr("cf.ex.iron.feel", { feel: sp.feel,
+            tail: S.ironFeel === "any" || !S.ironFeel ? tr("cf.ex.iron.feel.any") : tr("cf.ex.iron.feel.match") }) : ""),
+      tr("cf.ex.iron.head", { model: hd.br + " " + hd.m, type: hd.type, forg: hd.forg, off: hd.off,
+        b: S.ironLook === "classic" ? tr("cf.ex.iron.head.classic") : S.ironLook === "forgiving" ? tr("cf.ex.iron.head.forgiving") : tr("cf.ex.iron.head.grade", { grade: gradeTxt() }) }),
+      tr("cf.ex.iron.lie", { lie: r.lie, len: r.lenAdj, why: r.lieWhy.join(". ") }),
+      r.setAdvice ? tr("cf.ex.iron.set", { b: r.setAdvice.b }) : null,
+      tr("cf.ex.grip", { model: r.grip.model, why: r.grip.why.join(". ") }),
     ]);
 
-    const expect = story("바꾸면 이렇게 달라집니다", [
-      S.ironTraj === "low" ? "탄도가 올라가면 <b>공이 그린에 섭니다.</b> 지금은 온그린을 시켜도 굴러 나가고 있을 가능성이 큽니다 — 스코어에 바로 반영되는 변화입니다."
-        : S.ironMiss === "thin" ? "관용성이 큰 헤드로 가면 <b>빗맞은 공의 거리 손실</b>이 줄어듭니다. 잘 맞은 공보다 이쪽이 스코어를 만듭니다."
-        : "무게와 강도가 맞으면 <b>번호별 거리 간격</b>이 일정해집니다. 7번이 몇 미터인지 믿을 수 있게 되는 게 아이언 피팅의 진짜 목적입니다.",
+    const expect = story(tr("cf.story.expect"), [
+      S.ironTraj === "low" ? tr("cf.ex.iron.exp.traj")
+        : S.ironMiss === "thin" ? tr("cf.ex.iron.exp.thin")
+        : tr("cf.ex.iron.exp.band"),
       r.lieConfident
-        ? "라이각을 맞추면 <b>방향이 먼저 좋아집니다.</b> 1° 어긋나면 150m에서 좌우로 몇 미터가 밀립니다 — 스윙이 아니라 클럽이 만든 오차입니다."
-        : "<b>다음에 연습장 가시면 페이스에 흰 가루를 얇게 바르고 한 번 쳐보세요.</b> 자국이 어디 남는지 한 장 찍어두시면 라이각을 훨씬 정확히 잡아드릴 수 있습니다.",
+        ? tr("cf.ex.iron.exp.lie")
+        : tr("cf.ex.iron.exp.mark"),
       r.setAdvice && r.setAdvice.drop.length
-        ? "그리고 <b>안 맞는 긴 아이언을 빼는 것</b>만으로 홀당 반 타는 줄어듭니다. 자신 없는 클럽을 백에 넣어두면 결국 그 클럽을 잡아야 하는 상황이 옵니다."
+        ? tr("cf.ex.iron.exp.set")
         : null,
     ], "good");
 
     const caution = cautionBlock([
-      "<b>라이각은 여기서 확정하지 않습니다.</b> 정확한 값은 샵에서 임팩트 테이프를 붙이고 몇 번 쳐봐야 나옵니다. 저희는 방향과 대략의 폭만 말씀드립니다 — 틀릴 수 있는 숫자를 단정해서 알려드리지 않는 게 원칙입니다.",
-      r.keepish ? `지금 <b>${S.ironCurModel}</b>에 특별한 불만이 없다고 하셨습니다. 그렇다면 <b>새로 사기 전에 라이각과 길이만 맞춰보세요.</b> 몇만 원이면 되고, 효과는 새 클럽보다 클 수 있습니다.` : null,
-      "스펙 수치는 제조사 공표값 기준이지만 개체·번수별 오차가 있습니다. 반드시 시타에서 확인하세요.",
+      tr("cf.caution.lie"),
+      r.keepish ? tr("cf.caution.iron.keep", { model: S.ironCurModel }) : null,
+      tr("cf.caution.spec"),
     ]);
 
     return { read, detail: why + expect, caution };
@@ -2602,41 +2605,41 @@
 
   /* ── 웨지 설명 ───────────────────────────────────────────────── */
   function explainWedge(r) {
-    const read = readBlock("골퍼님의 어프로치, 이렇게 읽었습니다", [
-      { k: "피칭 로프트", v: `${r.pw}°`,
-        b: r.pw <= 43 ? "<b>스트롱 로프트</b>입니다. 요즘 아이언은 거리를 위해 로프트를 세우는데, 그만큼 피칭 아래로 <b>거리 공백</b>이 생깁니다. 이게 웨지 개수를 정하는 출발점입니다."
-          : "표준에 가깝습니다. 피칭과 로브 사이를 균등하게 나누면 됩니다." },
-      { k: "잔디 치는 방식", v: { dig: "디거 — 깊게 파고듦", sweep: "스위퍼 — 얕게 쓸어침", mid: "중간" }[S.wedgeTurf] || "-",
-        b: S.wedgeTurf === "dig" ? "파고드는 스윙에는 <b>바운스가 커야</b> 합니다. 솔이 땅에 박히지 않고 튕겨 나와야 뒤땅이 안 납니다."
-          : S.wedgeTurf === "sweep" ? "쓸어 치는 스윙에 바운스가 크면 <b>솔이 먼저 튕겨</b> 토핑이 납니다. 낮은 바운스가 맞습니다."
-          : "중간 바운스가 두루 무난합니다." },
-      { k: "코스 잔디", v: { soft: "두툼하고 폭신함", mid: "보통", tight: "타이트하고 딱딱함", unknown: "모름" }[S.wedgeGrass] || "-",
-        b: S.wedgeGrass === "tight" ? "딱딱한 라이에서 바운스가 크면 <b>리딩에지가 떠서</b> 공 윗부분을 때립니다 — 바운스를 낮췄습니다."
-          : S.wedgeGrass === "soft" ? "무른 잔디에서는 헤드가 더 파고들어서 <b>바운스를 더</b> 줘야 합니다." : "표준으로 계산했습니다." },
-      { k: "미스 경향", v: { fat: "뒤땅", thin: "토핑", none: "괜찮은 편" }[S.wedgeMiss] || "-",
-        b: S.wedgeMiss === "fat" ? "바운스가 <b>실수를 덮어줍니다.</b> 조금 뒤에 맞아도 솔이 미끄러져 공을 건져냅니다." : S.wedgeMiss === "thin" ? "바운스를 낮춰 리딩에지를 지면에 가깝게 둡니다." : "보정 폭을 작게 잡았습니다." },
-      { k: "벙커", v: S.wedgeBunker === "no" ? "자신 없음" : "괜찮음",
-        b: S.wedgeBunker === "no" ? "벙커는 <b>바운스가 실력을 대신해 줍니다.</b> 모래를 파고들지 않고 미끄러지게 만드는 게 전부라, 가장 로프트가 큰 웨지의 바운스를 더 올렸습니다." : "표준으로 두었습니다." },
+    const read = readBlock(tr("cf.rd.wedge.h"), [
+      { k: tr("cf.eb.pwloft"), v: `${r.pw}°`,
+        b: r.pw <= 43 ? tr("cf.rd.wedge.strong")
+          : tr("cf.rd.wedge.std") },
+      { k: tr("cf.k.turf"), v: { dig: tr("cf.rd.wedge.dig"), sweep: tr("cf.rd.wedge.sweep"), mid: tr("cf.w2.mid.s") }[S.wedgeTurf] || "-",
+        b: S.wedgeTurf === "dig" ? tr("cf.rd.wedge.dig.b")
+          : S.wedgeTurf === "sweep" ? tr("cf.rd.wedge.sweep.b")
+          : tr("cf.rd.wedge.mid.b") },
+      { k: tr("cf.eb.w4"), v: { soft: tr("cf.rd.wedge.grass.soft"), mid: tr("cf.opt.normal"), tight: tr("cf.rd.wedge.grass.tight"), unknown: tr("cf.opt.unknown") }[S.wedgeGrass] || "-",
+        b: S.wedgeGrass === "tight" ? tr("cf.rd.wedge.grass.tight.b")
+          : S.wedgeGrass === "soft" ? tr("cf.rd.wedge.grass.soft.b") : tr("cf.rd.wedge.grass.std") },
+      { k: tr("cf.eb.w3"), v: { fat: tr("cf.rd.wedge.miss.fat"), thin: tr("cf.rd.wedge.miss.thin"), none: tr("cf.rd.wedge.miss.none") }[S.wedgeMiss] || "-",
+        b: S.wedgeMiss === "fat" ? tr("cf.rd.wedge.miss.fat.b") : S.wedgeMiss === "thin" ? tr("cf.rd.wedge.miss.thin.b") : tr("cf.rd.wedge.miss.none.b") },
+      { k: tr("cf.k.bunker"), v: S.wedgeBunker === "no" ? tr("cf.rd.wedge.bunker.no") : tr("cf.rd.wedge.bunker.ok"),
+        b: S.wedgeBunker === "no" ? tr("cf.rd.wedge.bunker.no.b") : tr("cf.rd.wedge.bunker.ok.b") },
     ]);
 
-    const why = story("그래서 이 구성입니다", [
-      `<b>${r.specs.map((s) => s.loft + "°").join(" · ")}</b> — ${r.note} 웨지는 <b>거리 공백을 없애는 게 전부</b>입니다. 간격이 8° 벌어지면 그 사이 거리는 스윙 크기로 억지로 맞춰야 하고, 그게 어프로치가 흔들리는 가장 흔한 이유입니다.`,
-      `<b>바운스 ${r.specs.map((s) => s.bounce + "°").join(" · ")}</b> — ${r.why.join(". ")}. 바운스는 골퍼가 가장 모르고 지나가는 스펙인데, 어프로치 실수의 상당 부분이 <b>스윙이 아니라 바운스</b> 문제입니다.`,
-      `<b>${r.grind}</b> — 솔의 모양입니다. 같은 바운스라도 솔이 넓으면 파고들지 않고, 좁으면 잔디를 얇게 지나갑니다.`,
-      `<b>샤프트 — ${r.shaft.t}</b> ${r.shaft.b}`,
-      `<b>${r.pick.main.br} ${r.pick.main.m}</b> — ${brandLine(r.pick)}. 웨지는 브랜드별 성능 차이보다 <b>로프트·바운스·그라인드 조합</b>이 훨씬 중요합니다. 그래서 모델은 선호를 그대로 따랐습니다.`,
+    const why = story(tr("cf.story.why.set"), [
+      tr("cf.ex.wedge.lofts", { lofts: r.specs.map((s) => s.loft + "°").join(" · "), note: r.note }),
+      tr("cf.ex.wedge.bounce", { bounces: r.specs.map((s) => s.bounce + "°").join(" · "), why: r.why.join(". ") }),
+      tr("cf.ex.wedge.grind", { grind: r.grind }),
+      tr("cf.ex.wedge.shaft", { t: r.shaft.t, b: r.shaft.b }),
+      tr("cf.ex.wedge.model", { model: r.pick.main.br + " " + r.pick.main.m, line: brandLine(r.pick) }),
     ]);
 
-    const expect = story("바꾸면 이렇게 달라집니다", [
-      "간격이 맞으면 <b>풀스윙으로 칠 수 있는 거리가 늘어납니다.</b> 어중간한 거리를 손 감각으로 조절하지 않아도 되는 게 어프로치에서 가장 큰 차이입니다.",
-      S.wedgeMiss === "fat" ? "바운스가 맞으면 <b>뒤땅이 미스가 아니게 됩니다.</b> 조금 뒤에 맞아도 솔이 미끄러져 공이 나갑니다 — 실수의 폭이 줄어드는 게 아니라 실수가 결과로 안 이어지는 겁니다." : null,
-      S.wedgeBunker === "no" ? "벙커는 <b>클럽으로 해결되는 몇 안 되는 영역</b>입니다. 바운스가 충분하면 모래를 얕게 치고 나가는 게 훨씬 쉬워집니다." : null,
+    const expect = story(tr("cf.story.expect"), [
+      tr("cf.ex.wedge.exp.gap"),
+      S.wedgeMiss === "fat" ? tr("cf.ex.wedge.exp.fat") : null,
+      S.wedgeBunker === "no" ? tr("cf.ex.wedge.exp.bunker") : null,
     ], "good");
 
     const caution = cautionBlock([
-      "로프트와 간격은 <b>계산으로 정확히 나오지만</b>, 바운스는 코스와 잔디 상태에 따라 체감이 달라집니다. 한 자루를 먼저 바꿔 보고 판단하세요.",
-      S.venue === "screen" ? "스크린 위주라고 하셨는데, <b>매트 위에서는 바운스 차이가 거의 안 느껴집니다.</b> 이 추천은 필드 기준이고, 매트에서 편하다고 바운스를 낮추면 필드 잔디에서 뒤땅이 됩니다." : null,
-      "웨지는 소모품입니다. 그루브가 닳으면 스핀이 눈에 띄게 줄어요 — 라운드 수가 많으시면 2~3년 주기로 보시는 게 맞습니다.",
+      tr("cf.caution.wedge.bounce"),
+      S.venue === "screen" ? tr("cf.caution.wedge.screen") : null,
+      tr("cf.caution.wedge.wear"),
     ]);
 
     return { read, detail: why + expect, caution };
@@ -2645,48 +2648,48 @@
   /* ── 퍼터 설명 ───────────────────────────────────────────────── */
   function explainPutt(r) {
     const p = r.pick.main;
-    const read = readBlock("골퍼님의 퍼팅, 이렇게 읽었습니다", [
-      { k: "스트로크 궤도", v: { straight: "직선에 가까움", slight: "약간의 아크", arc: "아크가 큰 궤도" }[r.arc],
-        b: "퍼터 피팅에서 <b>가장 먼저 정해지는 축</b>입니다. 궤도와 헤드 밸런스가 안 맞으면 스트로크 내내 헤드를 손으로 붙잡고 있어야 합니다." },
-      { k: "고민", v: { dist: "거리감", dir: "방향", both: "둘 다", none: "딱히 없음" }[S.puttMiss] || "-",
-        b: S.puttMiss === "dir" ? "방향이 문제면 <b>관성(MOI)이 큰 헤드</b>가 답입니다. 살짝 빗맞아도 헤드가 덜 틀어집니다."
-          : S.puttMiss === "dist" ? "거리감은 <b>손끝 피드백</b>에서 나옵니다. 헤드 무게와 페이스 재질이 여기에 직접 관여합니다." : "무난합니다." },
-      { k: "짧은 퍼트", v: { left: "왼쪽으로 당김", right: "오른쪽으로 밀림", vary: "일정하지 않음", none: "잘 안 놓침" }[S.puttShort] || "-",
-        b: S.puttShort === "left" ? "당기는 건 <b>조준이 이미 왼쪽</b>이거나 라이각이 업라이트할 때 나옵니다 — 스윙 탓만 하기 전에 클럽부터 보세요."
-          : S.puttShort === "right" ? "미는 건 라이각이 <b>플랫해서 힐이 들렸을</b> 때 흔합니다." : "" },
-      { k: "그린 빠르기", v: { slow: "느린 편", mid: "보통", fast: "빠른 편", unknown: "모름" }[S.greenSpeed] || "-",
-        b: S.greenSpeed === "slow" ? "<b>이게 한국에서 특히 중요합니다.</b> 미국식 추천은 빠른 그린을 전제로 하는데, 느린 그린에 가벼운 헤드를 쓰면 계속 짧게 남습니다."
-          : S.greenSpeed === "fast" ? "빠른 그린에서 무거운 헤드는 계속 지나칩니다." : "표준으로 잡았습니다." },
-      S.puttEye && S.puttEye !== "unknown" ? { k: "눈 위치",
-        v: { on: "공 바로 위", inside: "공보다 안쪽", outside: "공보다 바깥쪽" }[S.puttEye],
-        b: S.puttEye === "inside" ? "안쪽에 떨어지면 <b>퍼터가 길다</b>는 뜻입니다. 손이 몸에서 떨어지면 궤도가 스스로 흔들립니다." : S.puttEye === "on" ? "가장 이상적인 자리입니다." : "너무 멀리 서 계십니다." } : null,
-      { k: "손 위치", v: { forward: "공보다 앞", level: "공과 나란히", back: "공보다 뒤", unknown: "모름" }[S.puttHands] || "-",
-        b: S.puttHands === "forward" ? "손이 앞에 있으면 임팩트에서 <b>로프트가 죽습니다.</b> 공이 잠깐 눌렸다 튀어서 초반 구름이 불안정해집니다 — 정적 로프트가 더 필요한 이유입니다." : "" },
+    const read = readBlock(tr("cf.rd.putt.h"), [
+      { k: tr("cf.eb.u1"), v: { straight: tr("cf.rd.putt.arc.straight"), slight: tr("cf.rd.putt.arc.slight"), arc: tr("cf.rd.putt.arc.big") }[r.arc],
+        b: tr("cf.rd.putt.arc.b") },
+      { k: tr("cf.k.worry"), v: { dist: tr("cf.u2.dist"), dir: tr("cf.opt.dir"), both: tr("cf.rd.putt.both"), none: tr("cf.rd.putt.nonemiss") }[S.puttMiss] || "-",
+        b: S.puttMiss === "dir" ? tr("cf.rd.putt.dir.b")
+          : S.puttMiss === "dist" ? tr("cf.rd.putt.dist.b") : tr("cf.rd.ok") },
+      { k: tr("cf.eb.u3"), v: { left: tr("cf.rd.putt.short.left"), right: tr("cf.rd.putt.short.right"), vary: tr("cf.rd.putt.short.vary"), none: tr("cf.rd.putt.short.none") }[S.puttShort] || "-",
+        b: S.puttShort === "left" ? tr("cf.rd.putt.short.left.b")
+          : S.puttShort === "right" ? tr("cf.rd.putt.short.right.b") : "" },
+      { k: tr("cf.eb.u9"), v: { slow: tr("cf.gs.slow"), mid: tr("cf.opt.normal"), fast: tr("cf.gs.fast"), unknown: tr("cf.opt.unknown") }[S.greenSpeed] || "-",
+        b: S.greenSpeed === "slow" ? tr("cf.rd.putt.green.slow")
+          : S.greenSpeed === "fast" ? tr("cf.rd.putt.green.fast") : tr("cf.rd.putt.green.std") },
+      S.puttEye && S.puttEye !== "unknown" ? { k: tr("cf.eb.u8"),
+        v: { on: tr("cf.rd.putt.eye.on"), inside: tr("cf.rd.putt.eye.inside"), outside: tr("cf.rd.putt.eye.outside") }[S.puttEye],
+        b: S.puttEye === "inside" ? tr("cf.rd.putt.eye.inside.b") : S.puttEye === "on" ? tr("cf.rd.putt.eye.on.b") : tr("cf.rd.putt.eye.outside.b") } : null,
+      { k: tr("cf.eb.u10"), v: { forward: tr("cf.rd.putt.hands.fwd"), level: tr("cf.rd.putt.hands.level"), back: tr("cf.rd.putt.hands.back"), unknown: tr("cf.opt.unknown") }[S.puttHands] || "-",
+        b: S.puttHands === "forward" ? tr("cf.rd.putt.hands.fwd.b") : "" },
     ]);
 
-    const why = story("그래서 이 조합입니다", [
-      `<b>${p.br} ${p.m} — ${p.shape} · ${p.bal}</b> ${r.note}`,
-      `<b>길이 ${r.len}″</b> — ${r.lenWhy.join(". ")}. 퍼터 길이는 <b>가장 저평가된 스펙</b>입니다. 길면 손이 몸에서 떨어지고, 그러면 팔로 궤도를 만들게 되어 매번 달라집니다.`,
-      `<b>헤드 무게 — ${r.hw.t}</b> ${r.hw.b}`,
-      `<b>로프트 ${r.loft.t}</b> — ${r.loft.b}`,
-      `<b>${r.face}</b> — 페이스 재질은 소리와 손 감각을 바꾸고, 그게 그대로 <b>거리감</b>이 됩니다. 퍼팅에서 감각은 취향이 아니라 성능입니다.`,
-      `<b>그립 — ${r.grip.m}</b> (${r.grip.spec}) ${r.grip.why}.`,
-      S.puttLine === "line" ? "정렬선이 있는 쪽으로 골랐습니다 — 조준을 눈이 아니라 <b>선에 맡기는</b> 방식이 잘 맞으십니다." : S.puttLine === "none" ? "정렬선이 없는 깔끔한 상판으로 골랐습니다. 선이 오히려 신경 쓰이는 분들이 실제로 많습니다." : null,
+    const why = story(tr("cf.story.why"), [
+      tr("cf.ex.putt.model", { model: p.br + " " + p.m, shape: p.shape, bal: p.bal, note: r.note }),
+      tr("cf.ex.putt.len", { len: r.len, why: r.lenWhy.join(". ") }),
+      tr("cf.ex.putt.hw", { t: r.hw.t, b: r.hw.b }),
+      tr("cf.ex.putt.loft", { t: r.loft.t, b: r.loft.b }),
+      tr("cf.ex.putt.face", { face: r.face }),
+      tr("cf.ex.putt.grip", { m: r.grip.m, spec: r.grip.spec, why: r.grip.why }),
+      S.puttLine === "line" ? tr("cf.ex.putt.line") : S.puttLine === "none" ? tr("cf.ex.putt.noline") : null,
     ]);
 
-    const expect = story("바꾸면 이렇게 달라집니다", [
+    const expect = story(tr("cf.story.expect"), [
       r.curLen && r.curLen - r.len >= 1
-        ? `<b>길이만 줄여도 달라집니다.</b> 지금 ${r.curLen}″에서 ${r.len}″로 자르는 건 몇만 원이면 되고, 눈이 공 위로 오면 조준이 먼저 정확해집니다. 새 퍼터를 사기 전에 이것부터 해보세요.`
-        : "궤도와 밸런스가 맞으면 <b>헤드를 붙잡지 않아도 됩니다.</b> 손을 덜 쓰게 되는 게 퍼팅에서 가장 큰 변화입니다.",
-      S.greenSpeed === "slow" ? "느린 그린에 맞는 무게로 가면 <b>짧게 남기는 퍼트</b>가 확 줄어듭니다. 홀에 못 미치는 퍼트는 절대 안 들어갑니다." : null,
-      S.puttYips === "yes" ? "손이 굳는 증상은 <b>그립으로 상당 부분 눌러집니다.</b> 오버사이즈는 손목의 미세한 개입을 물리적으로 줄여줍니다 — 의지로 참는 것보다 훨씬 확실합니다." : null,
+        ? tr("cf.ex.putt.exp.cut", { cur: r.curLen, rec: r.len })
+        : tr("cf.ex.putt.exp.bal"),
+      S.greenSpeed === "slow" ? tr("cf.ex.putt.exp.slow") : null,
+      S.puttYips === "yes" ? tr("cf.ex.putt.exp.yips") : null,
     ], "good");
 
     const caution = cautionBlock([
-      "<b>퍼터는 감각의 비중이 가장 큰 클럽입니다.</b> 계산으로 맞아도 눈에 안 편하면 안 들어갑니다. 이 결과는 <b>매장에서 무엇을 집어볼지</b> 좁혀드리는 용도로 쓰세요.",
-      "라이각은 셋업에서 솔이 지면과 평행한지로 확인하세요. 토우나 힐이 들리면 그만큼 시작 방향이 틀어집니다.",
-      S.puttStroke === "unknown" ? "궤도를 모르겠다고 하셔서 <b>약간의 아크</b>로 가정했습니다. 매장에서 몇 번 굴려보고 페이스가 열렸다 닫히는 느낌이 크면 토우행 쪽으로 다시 보세요." : null,
-      S.venue === "screen" && S.greenSpeed === "unknown" ? "스크린 위주라고 하셨습니다. <b>스크린 퍼팅 매트의 감각은 필드 그린과 다릅니다</b> — 그린 빠르기는 '보통'으로 가정했으니, 필드에서 한 번 확인해 보세요." : null,
+      tr("cf.caution.putt.feel"),
+      tr("cf.caution.putt.lie"),
+      S.puttStroke === "unknown" ? tr("cf.caution.putt.arc") : null,
+      S.venue === "screen" && S.greenSpeed === "unknown" ? tr("cf.caution.putt.screen") : null,
     ]);
 
     return { read, detail: why + expect, caution };
@@ -2698,16 +2701,14 @@
   }
   function tipHtml(tips) {
     if (!tips || !tips.length) return "";
-    return `<div class="section-h">이것부터 해보세요</div>` +
+    return `<div class="section-h">${tr("cf.sec.tips")}</div>` +
       tips.map((t) => `<div class="tip-line">· ${t}</div>`).join("");
   }
   /* 그립 결과 — 드라이버·아이언·웨지가 같은 모양으로 쓴다 */
   function gripHtml(g) {
-    return `<div class="section-h">그립 <span class="cnt">${g.size}</span></div>` +
-      resCard("그립", g.model, g.spec, g.why.slice(0, 4)) +
-      (g.measure ? `<div class="inline-note"><b>손 길이를 재보시면 정확해집니다</b> —
-        가운뎃손가락 끝에서 손목 주름까지 재서 다시 답해 주세요.
-        장갑 호수는 브랜드마다 기준이 달라 범위로만 잡았습니다.</div>` : "");
+    return `<div class="section-h">${tr("cf.k.grip")} <span class="cnt">${g.size}</span></div>` +
+      resCard(tr("cf.k.grip"), g.model, g.spec, g.why.slice(0, 4)) +
+      (g.measure ? `<div class="inline-note">${tr("cf.grip.measure")}</div>` : "");
   }
   /* ═══════════════════════════════════════════════════════════════
      결과를 짧게 — 3문장 요약 + 접이식 상세 (사장님 지시 2026-07-30)
@@ -2718,9 +2719,9 @@
   function tldrBlock(t) {
     if (!t || !t.read) return "";
     return `<div class="cf-tldr">
-      <div class="cf-tldr-r"><span>진단</span><p>${t.read}</p></div>
-      ${t.fix ? `<div class="cf-tldr-r"><span>처방</span><p>${t.fix}</p></div>` : ""}
-      ${t.act ? `<div class="cf-tldr-r act"><span>먼저</span><p>${t.act}</p></div>` : ""}
+      <div class="cf-tldr-r"><span>${tr("cf.tldr.k.read")}</span><p>${t.read}</p></div>
+      ${t.fix ? `<div class="cf-tldr-r"><span>${tr("cf.tldr.k.fix")}</span><p>${t.fix}</p></div>` : ""}
+      ${t.act ? `<div class="cf-tldr-r act"><span>${tr("cf.tldr.k.act")}</span><p>${t.act}</p></div>` : ""}
     </div>`;
   }
   /* 1순위만 한 줄씩 — 대안·단종은 접힌 쪽으로 내린다 */
@@ -2752,9 +2753,9 @@
     if (!ps.length) return "";
     const rest = ps.slice(1).map((p) => `<p>${p}</p>`).join("");
     return `<div class="cf-story warn">
-      <div class="cf-story-h">다만, 이건 꼭 짚어드립니다</div>
+      <div class="cf-story-h">${tr("cf.caution.h")}</div>
       <p>${ps[0]}</p>
-      ${rest ? fold(`남은 주의사항 ${ps.length - 1}가지`, rest) : ""}
+      ${rest ? fold(tr("cf.caution.more", { n: ps.length - 1 }), rest) : ""}
     </div>`;
   }
 
@@ -2765,163 +2766,159 @@
     const on = [];
     if (S.carry7Src === "screen")
       on.push(S.carry7Kind === "carry"
-        ? "스크린 화면의 <b>캐리</b> 숫자를 그대로 사용"
-        : `스크린 화면 숫자를 <b>토탈로 보고 런을 빼</b> 캐리 ${S.carry7}m로 환산`);
+        ? tr("cf.sr.carry")
+        : tr("cf.sr.total", { m: S.carry7 }));
     if (S.club === "driver")
-      on.push("런이 시뮬레이션이라 <b>저스핀 가점을 절반으로</b> 낮추고 캐리 기준으로 맞춤");
+      on.push(tr("cf.sr.driver"));
     if (S.club === "iron") {
-      on.push("매트가 덮어주는 뒤땅을 감안해 <b>관용성 가점을 올림</b>");
+      on.push(tr("cf.sr.iron"));
       if ((S.bodyIssue || []).includes("wrist"))
-        on.push("매트 충격은 잔디보다 손목에 커서 <b>그라파이트 쪽에 가점</b>");
+        on.push(tr("cf.sr.iron.wrist"));
     }
     if (S.club === "wedge")
-      on.push("바운스는 <b>필드 잔디 기준</b>으로 계산 (매트 감각으로 낮추면 필드에서 뒤땅)");
+      on.push(tr("cf.sr.wedge"));
     if (S.club === "putter" && S.greenSpeed === "unknown")
-      on.push("그린 빠르기를 <b>보통</b>으로 가정");
+      on.push(tr("cf.sr.putter"));
     return on;
   }
   function venueBlock() {
     if (S.venue !== "screen") return "";      // 반반(both)은 규칙만 걸고 이 글은 생략한다
     const on = screenRules();
     return `<div class="cf-story">
-      <div class="cf-story-h">스크린 위주 골퍼님께</div>
-      <p>스크린과 필드는 세 가지가 다르고, 그 셋이 전부 클럽 스펙으로 이어집니다.</p>
-      <p><b>① 매트에서 칩니다.</b> 매트는 솔이 미끄러져 <b>뒤땅을 덮어줍니다</b> —
-        스크린에서 "미스가 별로 없다"는 감각은 필드 기준으로는 과대평가일 수 있습니다.
-        그리고 매트 충격은 잔디보다 손목·팔꿈치에 큽니다.</p>
-      <p><b>② 런이 계산으로 나옵니다.</b> 센서는 캐리를 재고 런은 시뮬레이션입니다.
-        <b>캐리가 곧 점수</b>라, 캐리를 깎아가며 스핀을 줄이는 선택의 값어치가 필드보다 작습니다.</p>
-      <p><b>③ 거리 숫자의 출처가 다릅니다.</b> 화면 숫자는 대개 <b>토탈</b>인데
-        피팅의 출발점은 <b>캐리</b>입니다. 여기가 어긋나면 그 위에 쌓은 계산이 전부 어긋납니다.</p>
-      ${on.length ? `<p><b>그래서 이번 판정에서는</b> — ${on.join(" · ")}.</p>` : ""}
+      <div class="cf-story-h">${tr("cf.venue.h")}</div>
+      <p>${tr("cf.venue.p0")}</p>
+      <p>${tr("cf.venue.p1")}</p>
+      <p>${tr("cf.venue.p2")}</p>
+      <p>${tr("cf.venue.p3")}</p>
+      ${on.length ? `<p>${tr("cf.venue.applied", { list: on.join(" · ") })}</p>` : ""}
     </div>`;
   }
 
   const saveRow = (what) => `
       <div class="btn-row" style="margin-top:16px">
-        <button class="cf-btn accent" data-savebag="${what}">내 백에 저장 — AI 캐디가 씁니다</button>
+        <button class="cf-btn accent" data-savebag="${what}">${tr("cf.save.btn")}</button>
       </div>
-      <div id="cf-bag-saved" class="inline-note" style="display:none"><b>저장 완료</b> — 이제 홀별 공략에서 이 클럽 기준으로 조언합니다.
-        <div class="btn-row" style="margin-top:10px"><button class="cf-btn ghost" data-jump="bag">골프백 열어보기 →</button></div></div>
-      <div class="btn-row"><button class="cf-btn" data-jump="pick">다른 클럽도 맞춰보기 →</button></div>
-      <div class="restart-row"><button class="cf-btn ghost" data-restart>처음부터 다시</button></div>`;
+      <div id="cf-bag-saved" class="inline-note" style="display:none">${tr("cf.save.done")}
+        <div class="btn-row" style="margin-top:10px"><button class="cf-btn ghost" data-jump="bag">${tr("cf.save.openbag")}</button></div></div>
+      <div class="btn-row"><button class="cf-btn" data-jump="pick">${tr("cf.save.another")}</button></div>
+      <div class="restart-row"><button class="cf-btn ghost" data-restart>${tr("cf.save.restart")}</button></div>`;
 
   /* ───────── 결과 렌더 (드라이버) ───────── */
   function renderResult() {
     const r = engine(), ex = explainDriver(r);
-    const brandTxt = (S.brand && S.brand !== "any") ? S.brand : "전체 브랜드";
+    const brandTxt = (S.brand && S.brand !== "any") ? S.brand : tr("cf.brand.all");
     const verdict = r.keep
-      ? `<div class="verdict"><span class="v-stamp keep">그대로 유지</span>
-          <div class="v-label">피팅 판정</div>
-          <div class="v-main">지금 클럽, 그대로 쓰세요</div>
-          <div class="v-sub">현재 ${r.cur.label}(${r.cur.w}g·${r.cur.fx})가 계산 밴드(${r.wLo}~${r.wHi}g · ${r.fxT.join("/")}) 안이고 로프트도 맞습니다.<br><b>바꿔도 2타 못 법니다.</b> 그 예산은 레슨이나 그린피가 낫습니다.</div>
+      ? `<div class="verdict"><span class="v-stamp keep">${tr("cf.stamp.keep")}</span>
+          <div class="v-label">${tr("cf.v.label")}</div>
+          <div class="v-main">${tr("cf.v.keep.main")}</div>
+          <div class="v-sub">${tr("cf.v.keep.sub", { label: r.cur.label, w: r.cur.w, fx: r.cur.fx, lo: r.wLo, hi: r.wHi, band: r.fxT.join("/") })}</div>
         </div>`
-      : `<div class="verdict"><span class="v-stamp">교체 검토</span>
-          <div class="v-label">피팅 판정</div>
-          <div class="v-main">맞춰볼 여지가 있습니다</div>
-          <div class="v-sub">캐리 ${S.carry7}m → 약 ${r.mph}mph 추정 → 기준 <b>${r.wLo}~${r.wHi}g · ${r.fxT.join("/")}</b></div>
+      : `<div class="verdict"><span class="v-stamp">${tr("cf.stamp.review")}</span>
+          <div class="v-label">${tr("cf.v.label")}</div>
+          <div class="v-main">${tr("cf.v.review.main")}</div>
+          <div class="v-sub">${tr("cf.v.review.sub", { m: S.carry7, mph: r.mph, lo: r.wLo, hi: r.wHi, band: r.fxT.join("/") })}</div>
         </div>`;
 
     const sp = r.shaftPick, hp = r.headPick;
     const shaftHtml =
-      resCard("샤프트 1순위", `${sp.main.m} ${sp.main.sp}`, shaftSpec(sp.main), sp.main.why, false, sp.main) +
-      (sp.alt ? altLead("샤프트") + resCard(`${sp.alt.b}`, `${sp.alt.m} ${sp.alt.sp}`,
+      resCard(tr("cf.card.shaft1"), `${sp.main.m} ${sp.main.sp}`, shaftSpec(sp.main), sp.main.why, false, sp.main) +
+      (sp.alt ? altLead(tr("cf.k.shaft")) + resCard(`${sp.alt.b}`, `${sp.alt.m} ${sp.alt.sp}`,
         shaftSpec(sp.alt), sp.alt.why, true, sp.alt) : "") +
-      olderCard("샤프트", sp.older, sp.older ? shaftSpec(sp.older) : "", sp.olderBetter);
-    const headSpec = (h) => `관용성 ${h.forg}/5 · 스핀 ${h.spin} · ${h.draw ? "드로 바이어스" : "뉴트럴"}`;
+      olderCard(tr("cf.k.shaft"), sp.older, sp.older ? shaftSpec(sp.older) : "", sp.olderBetter);
+    const headSpec = (h) => tr("cf.spec.head", { forg: h.forg, spin: h.spin,
+      bias: h.draw ? tr("cf.spec.draw") : tr("cf.spec.neutral") });
     const headHtml =
-      resCard("헤드 1순위", `${hp.main.br} ${hp.main.m}`, headSpec(hp.main),
-        hp.main.why.length ? hp.main.why : ["선호 브랜드 안에서 최적"], false, hp.main) +
-      (hp.alt ? altLead("헤드") + resCard(`${hp.alt.br}`, `${hp.alt.br} ${hp.alt.m}`,
-        headSpec(hp.alt), hp.alt.why.length ? hp.alt.why : ["다른 브랜드 중 최고점"], true, hp.alt) : "") +
-      olderCard("헤드", hp.older, hp.older ? headSpec(hp.older) : "", hp.olderBetter);
+      resCard(tr("cf.card.head1"), `${hp.main.br} ${hp.main.m}`, headSpec(hp.main),
+        hp.main.why.length ? hp.main.why : [tr("cf.why.bestinbrand")], false, hp.main) +
+      (hp.alt ? altLead(tr("cf.k.head")) + resCard(`${hp.alt.br}`, `${hp.alt.br} ${hp.alt.m}`,
+        headSpec(hp.alt), hp.alt.why.length ? hp.alt.why : [tr("cf.why.bestother")], true, hp.alt) : "") +
+      olderCard(tr("cf.k.head"), hp.older, hp.older ? headSpec(hp.older) : "", hp.olderBetter);
 
     return `
-      <div class="q-eyebrow">드라이버 판정 · ${brandTxt} 우선</div>
+      <div class="q-eyebrow">${tr("cf.res.driver", { brand: brandTxt })}</div>
       ${verdict}
       ${tldrBlock(r.tldr)}
       ${noteHtml(r.notes)}
       ${pickStrip([
-        { k: "로프트", v: `${r.lf.loft}°`, s: "호젤로 ±1~2° 조정 가능" },
-        { k: "길이", v: r.ln.len, s: "표준 45.75″ 기준" },
-        { k: "헤드", v: `${hp.main.br} ${hp.main.m}`, s: headSpec(hp.main) },
-        { k: "샤프트", v: `${sp.main.m} ${sp.main.sp}`, s: shaftSpec(sp.main) },
-        { k: "그립", v: r.grip.model, s: r.grip.spec },
+        { k: tr("cf.k.loft"), v: `${r.lf.loft}°`, s: tr("cf.s.hosel") },
+        { k: tr("cf.k.len"), v: r.ln.len, s: tr("cf.s.stdlen") },
+        { k: tr("cf.k.head"), v: `${hp.main.br} ${hp.main.m}`, s: headSpec(hp.main) },
+        { k: tr("cf.k.shaft"), v: `${sp.main.m} ${sp.main.sp}`, s: shaftSpec(sp.main) },
+        { k: tr("cf.k.grip"), v: r.grip.model, s: r.grip.spec },
       ])}
       ${venueBlock()}
-      ${fold("어떻게 이렇게 판정했나", ex.read, "스윙을 읽은 근거")}
-      ${fold("자세한 추천과 다른 브랜드 대안",
-        `<div class="section-h">로프트 <span class="cnt">거리에 가장 큰 변수</span></div>
-         ${resCard("로프트", `${r.lf.loft}°`, "호젤 조정으로 ±1~2° 움직일 수 있습니다", r.lf.why)}
-         <div class="section-h">길이</div>
-         ${resCard("길이", r.ln.len, "표준 45.75″ 기준", [r.ln.why])}
-         <div class="section-h">샤프트 <span class="cnt">${brandLine(sp)}</span></div>
+      ${fold(tr("cf.fold.how"), ex.read, tr("cf.fold.how.drv"))}
+      ${fold(tr("cf.fold.detail"),
+        `<div class="section-h">${tr("cf.k.loft")} <span class="cnt">${tr("cf.sec.loft.cnt")}</span></div>
+         ${resCard(tr("cf.k.loft"), `${r.lf.loft}°`, tr("cf.s.hosel2"), r.lf.why)}
+         <div class="section-h">${tr("cf.k.len")}</div>
+         ${resCard(tr("cf.k.len"), r.ln.len, tr("cf.s.stdlen"), [r.ln.why])}
+         <div class="section-h">${tr("cf.k.shaft")} <span class="cnt">${brandLine(sp)}</span></div>
          ${shaftHtml}
-         <div class="section-h">헤드 <span class="cnt">${brandLine(hp)}</span></div>
+         <div class="section-h">${tr("cf.k.head")} <span class="cnt">${brandLine(hp)}</span></div>
          ${headHtml}
          ${gripHtml(r.grip)}
          ${ex.detail}
-         ${tipHtml(r.tips)}`, "왜 이 조합인지 · 대안 · 단종까지")}
+         ${tipHtml(r.tips)}`, tr("cf.fold.detail.sub"))}
       ${ex.caution}
       ${saveRow("driver")}
-      <div class="cf-foot">※ 스펙 수치는 초기 데이터 — 시타 없이 구매하지 마세요. 추천은 판매와 무관합니다.</div>`;
+      <div class="cf-foot">${tr("cf.foot.driver")}</div>`;
   }
 
   /* ───────── 결과 렌더 (아이언) ───────── */
   function renderIron() {
     const r = ironEngine(), ex = explainIron(r);
     const sp = r.shaftPick, hp = r.headPick;
-    const headSpec = (h) => `${h.type} · 관용성 ${h.forg}/5 · 오프셋 ${h.off}`;
+    const headSpec = (h) => tr("cf.spec.ironhead", { type: h.type, forg: h.forg, off: h.off });
     return `
-      <div class="q-eyebrow">아이언 판정</div>
-      <div class="verdict"><span class="v-stamp${r.keepish ? " keep" : ""}">${r.keepish ? "먼저 조정" : "맞춤 완료"}</span>
-        <div class="v-label">아이언</div>
-        <div class="v-main">${r.mat} · 약 ${r.target}g · ${r.fxT.join("/")}</div>
-        <div class="v-sub">7번 캐리 ${S.carry7}m와 체력·몸 상태를 함께 반영한 목표 스펙입니다.</div>
+      <div class="q-eyebrow">${tr("cf.res.iron")}</div>
+      <div class="verdict"><span class="v-stamp${r.keepish ? " keep" : ""}">${r.keepish ? tr("cf.stamp.adjfirst") : tr("cf.stamp.done")}</span>
+        <div class="v-label">${tr("cf.club.iron")}</div>
+        <div class="v-main">${tr("cf.iron.main", { mat: r.mat, w: r.target, fx: r.fxT.join("/") })}</div>
+        <div class="v-sub">${tr("cf.iron.vsub", { m: S.carry7 })}</div>
       </div>
       ${tldrBlock(r.tldr)}
       ${noteHtml(r.notes)}
       ${pickStrip([
-        { k: "헤드", v: `${hp.main.br} ${hp.main.m}`, s: headSpec(hp.main) },
-        { k: "샤프트", v: `${sp.main.m} ${sp.main.sp}`,
-          s: [sp.main.mat, has(sp.main.w) ? `약 ${sp.main.w}g` : null, sp.main.fx].filter(Boolean).join(" · ") },
-        { k: "라이각 · 길이", v: `${r.lie} · ${r.lenAdj}`,
-          s: r.lieConfident ? "볼자국 근거 있음" : "정적 기준만 — 샵 확인 권장" },
-        { k: "그립", v: r.grip.model, s: r.grip.spec },
+        { k: tr("cf.k.head"), v: `${hp.main.br} ${hp.main.m}`, s: headSpec(hp.main) },
+        { k: tr("cf.k.shaft"), v: `${sp.main.m} ${sp.main.sp}`,
+          s: [sp.main.mat, has(sp.main.w) ? tr("cf.s.about", { w: sp.main.w }) : null, sp.main.fx].filter(Boolean).join(" · ") },
+        { k: tr("cf.k.lielen"), v: `${r.lie} · ${r.lenAdj}`,
+          s: r.lieConfident ? tr("cf.s.lie.sure") : tr("cf.s.lie.unsure") },
+        { k: tr("cf.k.grip"), v: r.grip.model, s: r.grip.spec },
       ])}
-      ${r.setAdvice && r.setAdvice.drop.length ? `<div class="warn-card"><b>세트 구성</b> — ${r.setAdvice.b}</div>` : ""}
+      ${r.setAdvice && r.setAdvice.drop.length ? `<div class="warn-card"><b>${tr("cf.k.set")}</b> — ${r.setAdvice.b}</div>` : ""}
       ${venueBlock()}
-      ${fold("어떻게 이렇게 판정했나", ex.read, "아이언을 읽은 근거")}
-      ${fold("자세한 추천과 다른 브랜드 대안",
-        `<div class="section-h">샤프트 <span class="cnt">${brandLine(sp)}</span></div>
-         ${resCard("샤프트 1순위", `${sp.main.m} ${sp.main.sp}`,
-           [sp.main.b, sp.main.mat, `약 ${sp.main.w}g`, sp.main.fx]
-             .concat(part("킥", sp.main.k), has(sp.main.feel) ? [sp.main.feel] : [])
+      ${fold(tr("cf.fold.how"), ex.read, tr("cf.fold.how.iron"))}
+      ${fold(tr("cf.fold.detail"),
+        `<div class="section-h">${tr("cf.k.shaft")} <span class="cnt">${brandLine(sp)}</span></div>
+         ${resCard(tr("cf.card.shaft1"), `${sp.main.m} ${sp.main.sp}`,
+           [sp.main.b, sp.main.mat, tr("cf.s.about", { w: sp.main.w }), sp.main.fx]
+             .concat(part(tr("cf.k.kick"), sp.main.k), has(sp.main.feel) ? [sp.main.feel] : [])
              .filter(Boolean).join(" · "), sp.main.why, false, sp.main)}
-         ${sp.alt ? altLead("샤프트") + resCard(sp.alt.b, `${sp.alt.m} ${sp.alt.sp}`,
-           `${sp.alt.mat} · 약 ${sp.alt.w}g · ${sp.alt.fx}`, sp.alt.why, true, sp.alt) : ""}
-         ${olderCard("샤프트", sp.older, sp.older ? `${sp.older.mat} · 약 ${sp.older.w}g · ${sp.older.fx}` : "", sp.olderBetter)}
-         <div class="section-h">헤드 <span class="cnt">${brandLine(hp)}</span></div>
-         ${resCard("헤드 1순위", `${hp.main.br} ${hp.main.m}`, headSpec(hp.main),
-           hp.main.why.length ? hp.main.why : ["선호 브랜드 안에서 최적"], false, hp.main)}
-         ${hp.alt ? altLead("헤드") + resCard(hp.alt.br, `${hp.alt.br} ${hp.alt.m}`,
+         ${sp.alt ? altLead(tr("cf.k.shaft")) + resCard(sp.alt.b, `${sp.alt.m} ${sp.alt.sp}`,
+           `${sp.alt.mat} · ${tr("cf.s.about", { w: sp.alt.w })} · ${sp.alt.fx}`, sp.alt.why, true, sp.alt) : ""}
+         ${olderCard(tr("cf.k.shaft"), sp.older, sp.older ? `${sp.older.mat} · ${tr("cf.s.about", { w: sp.older.w })} · ${sp.older.fx}` : "", sp.olderBetter)}
+         <div class="section-h">${tr("cf.k.head")} <span class="cnt">${brandLine(hp)}</span></div>
+         ${resCard(tr("cf.card.head1"), `${hp.main.br} ${hp.main.m}`, headSpec(hp.main),
+           hp.main.why.length ? hp.main.why : [tr("cf.why.bestinbrand")], false, hp.main)}
+         ${hp.alt ? altLead(tr("cf.k.head")) + resCard(hp.alt.br, `${hp.alt.br} ${hp.alt.m}`,
            headSpec(hp.alt), hp.alt.why, true, hp.alt) : ""}
-         ${olderCard("헤드", hp.older, hp.older ? headSpec(hp.older) : "", hp.olderBetter)}
-         <div class="section-h">라이각 · 길이 <span class="cnt">${r.lieConfident ? "볼자국 근거 있음" : "정적 기준만"}</span></div>
-         ${resCard("라이각", r.lie, `길이 ${r.lenAdj}`, r.lieWhy)}
-         <div class="warn-card"><b>라이각은 여기서 확정하지 않습니다</b> —
+         ${olderCard(tr("cf.k.head"), hp.older, hp.older ? headSpec(hp.older) : "", hp.olderBetter)}
+         <div class="section-h">${tr("cf.k.lielen")} <span class="cnt">${r.lieConfident ? tr("cf.s.lie.sure") : tr("cf.s.lie.staticonly")}</span></div>
+         ${resCard(tr("cf.k.lie"), r.lie, tr("cf.s.len", { len: r.lenAdj }), r.lieWhy)}
+         <div class="warn-card"><b>${tr("cf.lie.warn.h")}</b> —
            ${r.lieConfident
-             ? "볼자국까지 보고 <b>방향과 대략의 폭</b>을 잡은 것입니다."
-             : "볼자국을 확인 못 하셔서 <b>정적 기준(키·팔 길이)</b>으로만 봤습니다."}
-           정확한 값은 <b>샵에서 임팩트 테이프를 붙이고 몇 번 쳐봐야</b> 나옵니다.
-           틀릴 수 있는 숫자를 단정해서 알려드리지 않습니다.</div>
-         ${r.setAdvice ? `<div class="section-h">세트 구성</div><div class="warn-card">${r.setAdvice.b}</div>` : ""}
+             ? tr("cf.lie.warn.sure")
+             : tr("cf.lie.warn.unsure")}
+           ${tr("cf.lie.warn.tail")}</div>
+         ${r.setAdvice ? `<div class="section-h">${tr("cf.k.set")}</div><div class="warn-card">${r.setAdvice.b}</div>` : ""}
          ${gripHtml(r.grip)}
          ${ex.detail}
-         ${tipHtml(r.tips)}`, "왜 이 조합인지 · 대안 · 단종까지")}
+         ${tipHtml(r.tips)}`, tr("cf.fold.detail.sub"))}
       ${ex.caution}
       ${saveRow("iron")}
-      <div class="cf-foot">※ 스펙 수치는 초기 데이터 — 시타 없이 구매하지 마세요.</div>`;
+      <div class="cf-foot">${tr("cf.foot.iron")}</div>`;
   }
 
   /* ───────── 결과 렌더 (웨지) ───────── */
@@ -2929,39 +2926,39 @@
     const r = wedgeEngine(), ex = explainWedge(r);
     const p = r.pick;
     return `
-      <div class="q-eyebrow">웨지 판정</div>
-      <div class="verdict"><span class="v-stamp">맞춤 완료</span>
-        <div class="v-label">웨지 구성</div>
+      <div class="q-eyebrow">${tr("cf.res.wedge")}</div>
+      <div class="verdict"><span class="v-stamp">${tr("cf.stamp.done")}</span>
+        <div class="v-label">${tr("cf.wedge.vlabel")}</div>
         <div class="v-main">${r.specs.map((s) => s.loft + "°").join(" · ")}</div>
         <div class="v-sub">${r.note}</div>
       </div>
       ${tldrBlock(r.tldr)}
       ${pickStrip([
-        { k: "구성", v: r.specs.map((s) => s.loft + "°").join(" · "), s: `${r.cnt}자루 — 거리 공백 없는 간격` },
-        { k: "바운스", v: r.specs.map((s) => s.bounce + "°").join(" · "), s: r.grind },
-        { k: "모델", v: `${p.main.br} ${p.main.m}`, s: brandLine(p) },
-        { k: "샤프트", v: r.shaft.t, s: "" },
-        { k: "그립", v: r.grip.model, s: r.grip.spec },
+        { k: tr("cf.k.comp"), v: r.specs.map((s) => s.loft + "°").join(" · "), s: tr("cf.s.wedgecnt", { n: r.cnt }) },
+        { k: tr("cf.k.bounce"), v: r.specs.map((s) => s.bounce + "°").join(" · "), s: r.grind },
+        { k: tr("cf.k.model"), v: `${p.main.br} ${p.main.m}`, s: brandLine(p) },
+        { k: tr("cf.k.shaft"), v: r.shaft.t, s: "" },
+        { k: tr("cf.k.grip"), v: r.grip.model, s: r.grip.spec },
       ])}
       ${venueBlock()}
-      ${fold("어떻게 이렇게 판정했나", ex.read, "어프로치를 읽은 근거")}
-      ${fold("자세한 추천과 다른 브랜드 대안",
-        `<div class="section-h">클럽별 스펙</div>
-         ${r.specs.map((s) => resCard(`${s.loft}°`, `로프트 ${s.loft}° · 바운스 ${s.bounce}°`,
+      ${fold(tr("cf.fold.how"), ex.read, tr("cf.fold.how.wedge"))}
+      ${fold(tr("cf.fold.detail"),
+        `<div class="section-h">${tr("cf.sec.perclub")}</div>
+         ${r.specs.map((s) => resCard(`${s.loft}°`, tr("cf.wedge.card", { loft: s.loft, bounce: s.bounce }),
            `${r.grind} · ${s.use}`, [])).join("")}
-         <div class="section-h">바운스를 이렇게 정했어요</div>
+         <div class="section-h">${tr("cf.sec.bouncewhy")}</div>
          ${r.why.map((w) => `<div class="tip-line">· ${w}</div>`).join("")}
-         <div class="section-h">샤프트</div>
-         ${resCard("샤프트", r.shaft.t, "", [r.shaft.b])}
-         <div class="section-h">모델 <span class="cnt">${brandLine(p)}</span></div>
-         ${resCard("웨지 1순위", `${p.main.br} ${p.main.m}`, "", ["선호·조건에 맞는 라인업"], false, p.main)}
-         ${p.alt ? altLead("웨지") + resCard(p.alt.br, `${p.alt.br} ${p.alt.m}`, "", [], true, p.alt) : ""}
-         ${olderCard("웨지", p.older, "", p.olderBetter)}
+         <div class="section-h">${tr("cf.k.shaft")}</div>
+         ${resCard(tr("cf.k.shaft"), r.shaft.t, "", [r.shaft.b])}
+         <div class="section-h">${tr("cf.k.model")} <span class="cnt">${brandLine(p)}</span></div>
+         ${resCard(tr("cf.card.wedge1"), `${p.main.br} ${p.main.m}`, "", [tr("cf.why.lineup")], false, p.main)}
+         ${p.alt ? altLead(tr("cf.club.wedge")) + resCard(p.alt.br, `${p.alt.br} ${p.alt.m}`, "", [], true, p.alt) : ""}
+         ${olderCard(tr("cf.club.wedge"), p.older, "", p.olderBetter)}
          ${gripHtml(r.grip)}
-         ${ex.detail}`, "왜 이 구성인지 · 대안 · 단종까지")}
+         ${ex.detail}`, tr("cf.fold.detail.sub.set"))}
       ${ex.caution}
       ${saveRow("wedge")}
-      <div class="cf-foot">※ 로프트·바운스는 계산으로 나오지만, 잔디 상태는 코스마다 다릅니다.</div>`;
+      <div class="cf-foot">${tr("cf.foot.wedge")}</div>`;
   }
 
   /* ───────── 결과 렌더 (퍼터) ───────── */
@@ -2970,44 +2967,44 @@
     const p = r.pick;
     const pSpec = (x) => `${x.shape} · ${x.bal}`;
     return `
-      <div class="q-eyebrow">퍼터 판정</div>
-      <div class="verdict"><span class="v-stamp">맞춤 완료</span>
-        <div class="v-label">퍼터</div>
+      <div class="q-eyebrow">${tr("cf.res.putter")}</div>
+      <div class="verdict"><span class="v-stamp">${tr("cf.stamp.done")}</span>
+        <div class="v-label">${tr("cf.club.putter")}</div>
         <div class="v-main">${p.main.shape} · ${p.main.bal} · ${r.len}″</div>
         <div class="v-sub">${r.note}</div>
       </div>
       ${tldrBlock(r.tldr)}
       ${noteHtml(r.notes)}
       ${pickStrip([
-        { k: "모델", v: `${p.main.br} ${p.main.m}`, s: pSpec(p.main) },
-        { k: "길이", v: `${r.len}″`, s: r.curLen ? `지금 ${r.curLen}″` : "" },
-        { k: "헤드 무게", v: r.hw.t, s: "그린 빠르기 기준" },
-        { k: "로프트", v: r.loft.t, s: "" },
-        { k: "그립", v: r.grip.m, s: r.grip.spec },
+        { k: tr("cf.k.model"), v: `${p.main.br} ${p.main.m}`, s: pSpec(p.main) },
+        { k: tr("cf.k.len"), v: `${r.len}″`, s: r.curLen ? tr("cf.s.curlen", { len: r.curLen }) : "" },
+        { k: tr("cf.k.hw"), v: r.hw.t, s: tr("cf.s.greenspeed") },
+        { k: tr("cf.k.loft"), v: r.loft.t, s: "" },
+        { k: tr("cf.k.grip"), v: r.grip.m, s: r.grip.spec },
       ])}
       ${venueBlock()}
-      ${fold("어떻게 이렇게 판정했나", ex.read, "퍼팅을 읽은 근거")}
-      ${fold("자세한 추천과 다른 브랜드 대안",
-        `<div class="section-h">모델 <span class="cnt">${brandLine(p)}</span></div>
-         ${resCard("퍼터 1순위", `${p.main.br} ${p.main.m}`, pSpec(p.main), p.main.why, false, p.main)}
-         ${p.alt ? altLead("퍼터") + resCard(p.alt.br, `${p.alt.br} ${p.alt.m}`, pSpec(p.alt), p.alt.why, true, p.alt) : ""}
-         ${olderCard("퍼터", p.older, p.older ? pSpec(p.older) : "", p.olderBetter)}
-         <div class="section-h">길이</div>
-         ${resCard("길이", `${r.len}″`, r.curLen ? `지금 ${r.curLen}″` : "", r.lenWhy)}
-         <div class="section-h">헤드 무게 <span class="cnt">그린 빠르기 기준</span></div>
-         ${resCard("헤드 무게", r.hw.t, "", [r.hw.b])}
-         <div class="section-h">로프트</div>
-         ${resCard("로프트", r.loft.t, "", [r.loft.b])}
-         <div class="section-h">페이스 · 그립</div>
-         ${resCard("페이스", r.face, "", [])}
-         ${resCard("그립", r.grip.m, r.grip.spec, [r.grip.why])}
-         <div class="section-h">라이각</div>
+      ${fold(tr("cf.fold.how"), ex.read, tr("cf.fold.how.putt"))}
+      ${fold(tr("cf.fold.detail"),
+        `<div class="section-h">${tr("cf.k.model")} <span class="cnt">${brandLine(p)}</span></div>
+         ${resCard(tr("cf.card.putt1"), `${p.main.br} ${p.main.m}`, pSpec(p.main), p.main.why, false, p.main)}
+         ${p.alt ? altLead(tr("cf.club.putter")) + resCard(p.alt.br, `${p.alt.br} ${p.alt.m}`, pSpec(p.alt), p.alt.why, true, p.alt) : ""}
+         ${olderCard(tr("cf.club.putter"), p.older, p.older ? pSpec(p.older) : "", p.olderBetter)}
+         <div class="section-h">${tr("cf.k.len")}</div>
+         ${resCard(tr("cf.k.len"), `${r.len}″`, r.curLen ? tr("cf.s.curlen", { len: r.curLen }) : "", r.lenWhy)}
+         <div class="section-h">${tr("cf.k.hw")} <span class="cnt">${tr("cf.s.greenspeed")}</span></div>
+         ${resCard(tr("cf.k.hw"), r.hw.t, "", [r.hw.b])}
+         <div class="section-h">${tr("cf.k.loft")}</div>
+         ${resCard(tr("cf.k.loft"), r.loft.t, "", [r.loft.b])}
+         <div class="section-h">${tr("cf.sec.facegrip")}</div>
+         ${resCard(tr("cf.k.face"), r.face, "", [])}
+         ${resCard(tr("cf.k.grip"), r.grip.m, r.grip.spec, [r.grip.why])}
+         <div class="section-h">${tr("cf.k.lie")}</div>
          <div class="tip-line">· ${r.lie}</div>
          ${ex.detail}
-         ${tipHtml(r.tips)}`, "왜 이 조합인지 · 대안 · 단종까지")}
+         ${tipHtml(r.tips)}`, tr("cf.fold.detail.sub"))}
       ${ex.caution}
       ${saveRow("putter")}
-      <div class="cf-foot">※ 퍼터는 감각의 비중이 큽니다. 이 결과는 출발점으로만 쓰세요.</div>`;
+      <div class="cf-foot">${tr("cf.foot.putter")}</div>`;
   }
 
   /* ───────── 네비게이션 ───────── */
@@ -3038,14 +3035,14 @@
     idx = Math.max(0, Math.min(i, SCREENS.length - 1));
     const sc = SCREENS[idx];
     if (!sc) return;                                      // 화면 목록이 비어 있으면 아무것도 하지 않는다
-    scrEl().innerHTML = (idx > 0 ? `<button class="cf-back" data-back>← 이전</button>` : "") + sc.render();
+    scrEl().innerHTML = (idx > 0 ? `<button class="cf-back" data-back>${tr("cf.btn.back")}</button>` : "") + sc.render();
     const stage = $$("#cf-stage"), step = $$("#cf-step");
     // 진행 표시는 내부 단계 이름이 아니라 "지금 무슨 일이 일어나는지"를 말한다.
     const eye = (scrEl().querySelector(".q-eyebrow") || {}).textContent || "";
-    stage.textContent = NARRATION[eye.trim()] || STAGE_LABEL[sc.group] || "피팅 중";
+    stage.textContent = NARRATION[eye.trim()] || STAGE_LABEL[sc.group] || tr("cf.stage.default");
     // 문항 번호는 클럽 전체에서 몇 번째인지로 센다 (블록마다 1부터 다시 세면 끝이 안 보인다)
     let t = 0;
-    if (RESULT_KEYS.includes(sc.key)) { step.textContent = "홀인!"; t = 1; }
+    if (RESULT_KEYS.includes(sc.key)) { step.textContent = tr("cf.step.holein"); t = 1; }
     else if (sc.q) {
       const n = SCREENS.slice(0, idx + 1).filter((s) => s.q).length;
       step.textContent = `${n} / ${TOTAL_Q}`;
@@ -3222,8 +3219,7 @@
           const box2 = $$("#cf-flightnote");
           if (box2 && S.startDir && S.curveDir) {
             const f = flightRead();
-            box2.innerHTML = `<div class="inline-note"><b>${f.n}</b>으로 읽었습니다 —
-              스윙 궤도는 <b>${f.path}</b>, 페이스는 궤도에 대해 <b>${f.face}</b>.</div>`;
+            box2.innerHTML = `<div class="inline-note">${tr("cf.flightnote", { n: f.n, path: f.path, face: f.face })}</div>`;
           }
           return;
         }
@@ -3271,8 +3267,8 @@
           const box = $$("#cf-rationote");
           if (box) {
             const r = S.carryD / S.carry7;
-            box.innerHTML = r > 1.68 ? `<div class="inline-note"><b>흠, 잠깐요</b> — 7번 ${S.carry7}m에 드라이버 ${S.carryD}m(×${r.toFixed(2)})는 드문 조합입니다. 정타 기준으로 다시 한번?</div>`
-              : (r < 1.50 && S.carryD > 0) ? `<div class="inline-note"><b>정타율 신호</b> — 7번 대비 드라이버가 짧네요. 스피드보다 가운데 맞히는 게 먼저입니다.</div>` : "";
+            box.innerHTML = r > 1.68 ? `<div class="inline-note">${tr("cf.rationote.hi", { m: S.carry7, d: S.carryD, r: r.toFixed(2) })}</div>`
+              : (r < 1.50 && S.carryD > 0) ? `<div class="inline-note">${tr("cf.rationote.lo")}</div>` : "";
           }
         }
         return;

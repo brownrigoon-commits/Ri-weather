@@ -2486,16 +2486,38 @@ body, .view, .cf-screen, .card, .sheet { word-break: keep-all; overflow-wrap: br
    ⚠️ 블러는 한 번 뺐던 이력이 있다 — iOS 에서 아래 내용이 통째로 바뀌면(화면 전환)
    블러 스냅샷이 옛 화면으로 굳는 문제였다. 그래서 이번엔 화면을 바꿀 때
    js/app.js 의 nudgeFloatBlur() 가 버튼을 한 번 흔들어 다시 그리게 한다. */
+/* 2026-07-31 3차 — 사장님이 보내주신 동영상 플레이어 버튼처럼(글래스모피즘).
+   애플이 미디어 컨트롤·제어센터에 쓰는 '간유리' 방식이고, 재료가 다섯 가지다:
+
+     ① 어두운 반투명 면      — 흰 아이콘이 어떤 배경 위에서도 읽힌다
+     ② 뒤 배경 블러 + 채도↑  — 비치는 것이 '글자'가 아니라 '흐린 그림'이 된다
+     ③ 얇고 밝은 테두리      — 유리 가장자리에 빛이 걸린 선
+     ④ **안쪽 하이라이트**   — 위는 밝게, 아래는 어둡게. 유리에 '두께'가 생긴다
+     ⑤ 겹친 바깥 그림자      — 가까운 그림자 + 멀리 퍼지는 그림자로 떠 있게
+
+   전에는 ①이 흰색이고 ④가 아예 없어서, 블러는 걸렸는데도 평평한 원으로 보였다.
+   ④가 이 느낌의 핵심이다. */
+/* 핵심은 '채워진 원'이 아니라 **렌즈**라는 것이다.
+   가운데는 거의 맑아서 뒤 글자·사진이 통과하고, 가장자리로 갈수록 진해지면서
+   유리의 두께가 보인다. 그래서 배경은 단색이 아니라 **방사형 그라데이션**이고,
+   안쪽 링(0 0 0 1px)이 유리테를 그린다.
+   사장님이 네 가지 시안 중 '2 살짝'을 고르셨다(2026-07-31, 사진 위에서 대조). */
 .float-btn {
-  /* 2026-07-31 2차 — "블러를 조금만 더, 뒤쪽 이미지가 더 잘 보이게".
-     흰 면을 옅게(0.55→0.38) 만들어 뒤가 더 비치게 하고, 대신 블러를 올려(7→14px)
-     비치는 것이 '글자'가 아니라 '흐린 그림'으로 읽히게 한다. */
-  background: rgba(255, 255, 255, 0.38);
-  backdrop-filter: blur(14px) saturate(1.4);
-  -webkit-backdrop-filter: blur(14px) saturate(1.4);
-  border: 1px solid rgba(255, 255, 255, 0.45);
-  color: var(--text);
-  box-shadow: 0 2px 8px rgba(25, 31, 40, 0.08), 0 8px 24px rgba(25, 31, 40, 0.08);
+  width: 52px; height: 52px;                       /* 시안에서 고르신 크기 */
+  background: radial-gradient(circle at 50% 40%,
+    rgba(255, 255, 255, 0.10) 0%,                  /* 가운데 — 빛이 맺힌 자리 */
+    rgba(18, 23, 30, 0.12) 46%,                    /* 중간 — 거의 맑아 뒤가 통과 */
+    rgba(8, 12, 18, 0.46) 100%);                   /* 가장자리 — 유리 두께 */
+  backdrop-filter: blur(11px) saturate(1.6);
+  -webkit-backdrop-filter: blur(11px) saturate(1.6);
+  border: 0;                                       /* 테두리는 아래 inset 링이 그린다 */
+  color: #fff;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.30),     /* 유리테 */
+    inset 0 1.5px 1px rgba(255, 255, 255, 0.55),   /* 위쪽 빛 반사 */
+    inset 0 -3px 6px rgba(0, 0, 0, 0.32),          /* 아래쪽 그늘 */
+    0 3px 8px rgba(8, 11, 16, 0.26),               /* 가까운 그림자 */
+    0 14px 32px rgba(8, 11, 16, 0.24);             /* 퍼지는 그림자 */
   opacity: 1;
   font-size: 22px;
   line-height: 1;
@@ -2503,21 +2525,38 @@ body, .view, .cf-screen, .card, .sheet { word-break: keep-all; overflow-wrap: br
 .float-btn:hover { opacity: 1; }
 .float-btn:active {
   transform: scale(0.92);
-  background: rgba(237, 239, 242, 0.85);   /* 누른 건 확실히 보이게 */
+  /* 누른 건 확실히 — 잠깐 진해진다 */
+  background: radial-gradient(circle at 50% 40%,
+    rgba(255, 255, 255, 0.10) 0%, rgba(18, 23, 30, 0.30) 46%, rgba(8, 12, 18, 0.66) 100%);
   opacity: 1;
 }
-.float-btn svg { width: 20px; height: 20px; fill: currentColor; }
-/* 공유는 주된 행동이라 브랜드색을 유지하되, 같은 정도로 비치게 한다 */
-.app-share-btn {
-  background: rgba(11, 158, 54, 0.60);     /* --primary #0b9e36 — 흰 아이콘이 읽히는 하한 */
-  border-color: rgba(255, 255, 255, 0.35);
-  color: #fff;
+/* 아이콘은 어떤 배경 위에서도 읽혀야 한다 — 유리가 맑아진 만큼 그림자를 준다 */
+.float-btn svg {
+  width: 22px; height: 22px; fill: currentColor;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.55));
 }
-.app-share-btn:active { background: rgba(8, 125, 42, 0.92); }
-/* 블러를 못 쓰는 브라우저에서는 그냥 진하게 — 글자 위에서 안 보이는 일은 없어야 한다 */
+/* 공유는 주된 행동이라 브랜드색을 입히되, 렌즈 구조는 그대로 쓴다 */
+.app-share-btn {
+  background: radial-gradient(circle at 50% 40%,
+    rgba(120, 255, 170, 0.22) 0%,
+    rgba(9, 120, 42, 0.46) 48%,
+    rgba(5, 70, 26, 0.72) 100%);                   /* --primary #0b9e36 계열 */
+}
+.app-share-btn:active {
+  background: radial-gradient(circle at 50% 40%,
+    rgba(120, 255, 170, 0.22) 0%, rgba(9, 120, 42, 0.66) 48%, rgba(5, 70, 26, 0.88) 100%);
+}
+/* 블러를 못 쓰는 브라우저에서는 통과가 안 되므로 진하게 — 글자 위에서 안 보이는 일은 없어야 한다 */
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  .float-btn { background: rgba(255, 255, 255, 0.92); }
-  .app-share-btn { background: rgba(11, 158, 54, 0.92); }
+  .float-btn {
+    background: rgba(18, 23, 30, 0.86);
+    box-shadow:
+      inset 0 0 0 1px rgba(255, 255, 255, 0.28),
+      inset 0 1.5px 1px rgba(255, 255, 255, 0.4),
+      0 3px 8px rgba(8, 11, 16, 0.26),
+      0 14px 32px rgba(8, 11, 16, 0.24);
+  }
+  .app-share-btn { background: rgba(9, 120, 42, 0.9); }
 }
 
 /* 백업 실패 안내 — 눈에 띄어야 한다 (백업된 줄 알고 앱을 지우는 사고 방지) */

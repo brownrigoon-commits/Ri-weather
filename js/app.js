@@ -1216,10 +1216,11 @@ function renderDetail(d, air) {
   if (air && air.current) {
     const [g10, c10] = pmGrade(air.current.pm10, false);
     const [g25, c25] = pmGrade(air.current.pm2_5, true);
-    $("#m-vis-sub").innerHTML =
-      `미세먼지 <b class="${c10}">${g10}</b> (${Math.round(air.current.pm10)}) · 초미세 <b class="${c25}">${g25}</b> (${Math.round(air.current.pm2_5)})`;
+    $("#m-vis-sub").innerHTML = tr("app.m.vis.sub", {
+      c10: c10, g10: g10, pm10: Math.round(air.current.pm10),
+      c25: c25, g25: g25, pm25: Math.round(air.current.pm2_5) });
   } else {
-    $("#m-vis-sub").textContent = "미세먼지 정보를 불러오지 못했습니다";
+    $("#m-vis-sub").textContent = tr("app.m.vis.fail");
   }
 
   updatePrecipChip(cur.precipitation ?? 0);
@@ -1309,14 +1310,14 @@ function placeCourseDot(lat, lon) {
     interactive: false, zIndexOffset: 500,
   }).addTo(map);
   precipChipMarker = L.marker([lat, lon], {
-    icon: L.divIcon({ className: "", html: `<div class="precip-chip" id="precip-chip">강수량<br><b>-</b> mm/h</div>`, iconSize: [0, 0] }),
+    icon: L.divIcon({ className: "", html: `<div class="precip-chip" id="precip-chip">${tr("app.map.chip", { mm: "-" })}</div>`, iconSize: [0, 0] }),
     interactive: false, zIndexOffset: 600,
   }).addTo(map);
 }
 
 function updatePrecipChip(mmh) {
   const el = document.getElementById("precip-chip");
-  if (el) el.innerHTML = `강수량<br><b>${mmh}</b> mm/h`;
+  if (el) el.innerHTML = tr("app.map.chip", { mm: mmh });
 }
 
 /* 코스 변경 시 지도 상태 초기화 */
@@ -1343,7 +1344,7 @@ async function initRadar() {
   } catch {
     rvLoading = false;
     if (mapMode === "rv")
-      $("#radar-updated").textContent = "실황 레이더를 불러오지 못했습니다 — 실황 탭을 다시 눌러주세요";
+      $("#radar-updated").textContent = tr("app.map.rv.fail");
     return;
   } finally {
     rvLoading = false;
@@ -1415,13 +1416,13 @@ function grain(x, y, k) {
 const gridCache = new Map(); // 같은 지점 재방문 시 API 재호출 방지
 
 async function buildForecastFrames(detailData) {
-  $("#radar-updated").textContent = "예보 지도 생성 중...";
+  $("#radar-updated").textContent = tr("app.map.fc.building");
   // 한도가 풀렸을 수 있으니 매번 원래 상태로 되돌려 놓고 시작한다.
   // 사용자가 직접 실황 탭을 고른 경우는 건드리지 않고, 막혀서 자동으로 넘어갔던 때만 되돌린다.
   const fcBtn0 = document.querySelector('.mode-btn[data-mode="fc"]');
   if (fcBtn0 && fcBtn0.disabled) {
     fcBtn0.disabled = false;
-    fcBtn0.innerHTML = '강수 예보 <small>모레까지</small>';
+    fcBtn0.innerHTML = tr("app.map.fc.btn");
   }
   if (mapAutoRv) { mapAutoRv = false; setMode("fc"); }
   const GRID = makeGrid(currentCourse.lat, currentCourse.lon); // 골프장 중심 격자
@@ -1441,14 +1442,14 @@ async function buildForecastFrames(detailData) {
       const fcBtn = document.querySelector('.mode-btn[data-mode="fc"]');
       if (fcBtn && quota) {
         fcBtn.disabled = true;
-        fcBtn.innerHTML = '강수 예보 <small>잠시 후 이용</small>';
+        fcBtn.innerHTML = tr("app.map.fc.btn.wait");
       }
       if (isKRCourse()) {
         mapAutoRv = true;
         setMode("rv");
       } else {
         $("#radar-updated").textContent =
-          quota ? "예보 지도는 잠시 후 다시 이용할 수 있어요" : "예보 지도는 잠시 후 다시 시도됩니다";
+          quota ? tr("app.map.fc.quota") : tr("app.map.fc.retry");
       }
       return;
     }
@@ -1579,7 +1580,7 @@ function positionKmaView() {
   // 영상 밖이면 아예 감춘다 — 틀린 위치를 보여주느니 안 보여준다
   dot.hidden = !(p.x >= 0 && p.x <= 500 && p.y >= 0 && p.y <= 520);
   const zb = $("#kma-zoom-btn");
-  if (zb) zb.textContent = kmaZoomed ? "전국 보기" : "🔍 내 골프장 확대";
+  if (zb) zb.textContent = kmaZoomed ? tr("app.kma.zoom.out") : tr("app.kma.zoom.in");
   // 시각 띠: 영상 상단 제목부(0,0~340,26)만 확대해 항상 보이게 — 프레임별 시각이 그대로 읽힌다
   const tb = document.querySelector(".kma-timebar"), ti = $("#kma-time-img");
   if (tb && ti) {
@@ -1610,7 +1611,7 @@ function loadKmaRadar() {
   let i = 0;
   const tryNext = () => {
     if (i >= cands.length) {
-      $("#radar-updated").textContent = "기상청 연결 실패 — 잠시 후 다시 열어주세요";
+      $("#radar-updated").textContent = tr("app.kma.fail");
       return;
     }
     const tm = cands[i++];
@@ -1621,7 +1622,8 @@ function loadKmaRadar() {
       if (tImg) tImg.src = probe.src;
       kmaRadarLoadedTm = cands[0];
       positionKmaView();
-      $("#radar-updated").textContent = "기상청 " + tm.slice(8, 10) + ":" + tm.slice(10, 12) + " 발표";
+      $("#radar-updated").textContent =
+        tr("app.kma.updated", { t: tm.slice(8, 10) + ":" + tm.slice(10, 12) });
     };
     probe.onerror = tryNext;
     probe.src = "https://www.weather.go.kr/w/repositary/image/rdr/img/qpr_" + tm + ".gif";
@@ -1639,8 +1641,8 @@ function setMode(m) {
   const kr = isKRCourse();
   const rvBtn = $("#rv-mode-btn");
   if (rvBtn) rvBtn.innerHTML = kr
-    ? "레이더·예측 <small>기상청 2시간</small>"
-    : "실황 레이더 <small>2시간</small>";
+    ? tr("app.map.rv.btn.kr")
+    : tr("app.map.rv.btn");
   const kmaWrap = $("#kma-radar-wrap");
   const mapWrap = document.querySelector(".radar-card .map-wrap");
   const controls = document.querySelector(".radar-card .radar-controls");
@@ -1659,25 +1661,25 @@ function setMode(m) {
     }
     if (fcOverlay && !map.hasLayer(fcOverlay)) fcOverlay.addTo(map);
     slider.max = fcFrames.length - 1;
-    $("#radar-t0").textContent = "지금";
-    $("#radar-tmid").textContent = "내일";
-    $("#radar-t1").textContent = DAY_NAMES[dayOffsetFrom(fcFrames[0].time, fcFrames[fcFrames.length - 1].time)] || "모레";
-    $("#radar-updated").textContent = "1시간 간격 · " + fcFrames.length + "시간";
+    $("#radar-t0").textContent = tr("app.now");
+    $("#radar-tmid").textContent = tr("app.radar.tomorrow");
+    $("#radar-t1").textContent = DAY_NAMES[dayOffsetFrom(fcFrames[0].time, fcFrames[fcFrames.length - 1].time)] || DAY_NAMES[2];
+    $("#radar-updated").textContent = tr("app.radar.step", { n: fcFrames.length });
     showFcFrame(fcActive >= 0 ? fcActive : 0);
   } else {
     if (fcOverlay && map.hasLayer(fcOverlay)) map.removeLayer(fcOverlay);
     clearStripHighlight();
     if (!rvFrames.length) {
       $("#radar-time").textContent = "--:--";
-      $("#radar-updated").textContent = "레이더 로딩 중...";
+      $("#radar-updated").textContent = tr("app.radar.loading");
       return;
     }
     slider.max = rvFrames.length - 1;
     $("#radar-t0").textContent = fmtHM(rvFrames[0].time);
-    $("#radar-tmid").textContent = "지금";
+    $("#radar-tmid").textContent = tr("app.now");
     $("#radar-t1").textContent = fmtHM(rvFrames[rvFrames.length - 1].time);
     const lastPast = rvFrames.reduce((acc, f, i) => (f.isNowcast ? acc : i), 0);
-    $("#radar-updated").textContent = "업데이트 " + fmtHM(rvFrames[lastPast].time);
+    $("#radar-updated").textContent = tr("app.radar.updated", { t: fmtHM(rvFrames[lastPast].time) });
     showRvFrame(rvActive >= 0 ? rvActive : lastPast);
   }
 }
@@ -1696,7 +1698,7 @@ function showRvFrame(i) {
   setSliderUI(i, rvFrames.length - 1);
   $("#radar-time").textContent = fmtHM(rvFrames[i].time);
   const badge = $("#radar-badge");
-  badge.textContent = rvFrames[i].isNowcast ? "예측" : "과거";
+  badge.textContent = rvFrames[i].isNowcast ? tr("app.radar.badge.nowcast") : tr("app.radar.badge.past");
   badge.className = "badge " + (rvFrames[i].isNowcast ? "future" : "past");
 }
 
@@ -1714,9 +1716,10 @@ function showFcFrame(k) {
 
   const dOff = dayOffsetFrom(fcFrames[0].time, f.time);
   $("#radar-time").textContent =
-    (k === 0 ? "지금" : `${DAY_NAMES[dOff] || ""}(${WEEKDAYS[f.time.getDay()]}) ${f.time.getHours()}시`);
+    (k === 0 ? tr("app.now") : tr("app.radar.fc.time", {
+      day: DAY_NAMES[dOff] || "", dow: WEEKDAYS[f.time.getDay()], h: f.time.getHours() }));
   const badge = $("#radar-badge");
-  badge.textContent = `예보 · ${f.time.getMonth() + 1}/${f.time.getDate()}`;
+  badge.textContent = tr("app.radar.badge.fc", { md: (f.time.getMonth() + 1) + "/" + f.time.getDate() });
   badge.className = "badge future";
 
   // 골프장 지점 강수량 칩 + 하단 강수 타임라인 동기화
@@ -1920,7 +1923,7 @@ async function openCourseView() {
   pushView("course");
   refreshProfileCard();   // 연령·성별·구력 중 미입력 항목만 노출
   $("#course-title").textContent = course.name;
-  $("#course-status").textContent = "코스 데이터 불러오는 중...";
+  $("#course-status").textContent = tr("app.course.loading");
   $("#hole-list-card").hidden = true;
   $("#hole-detail-card").hidden = true;
   $("#course-note").hidden = true;
@@ -1930,7 +1933,7 @@ async function openCourseView() {
     clearCourseLayers();
     setTimeout(() => courseMap.invalidateSize(), 60);
   } else {
-    $("#course-status").textContent = "코스 지도를 불러오지 못했습니다";
+    $("#course-status").textContent = tr("app.course.map.fail");
   }
 
   // 공식 홀맵 이미지가 있는 구장: 홈페이지 홀맵 그대로 표시 + AI 캐디
@@ -1953,7 +1956,7 @@ async function openCourseView() {
       courseCache.set(key, data);
     } catch {
       $("#course-status").textContent = "";
-      $("#course-note").textContent = "코스 데이터 서버가 혼잡합니다. 잠시 후 다시 열어주세요.";
+      $("#course-note").textContent = tr("app.course.busy");
       $("#course-note").hidden = false;
       return;
     }
@@ -1997,11 +2000,10 @@ async function openCourseView() {
 
   if (!courseHoles.length) {
     // 공식 자료가 없는 구장 — 추정 정보는 만들지 않고 위성 전경만 보여준다
-    $("#course-status").textContent = "위성 전경";
+    $("#course-status").textContent = tr("app.course.satellite");
     $("#hole-list-card").hidden = true;
     $("#hole-detail-card").hidden = true;
-    $("#course-note").innerHTML =
-      "이 골프장은 <b>홀별 공략을 준비 중</b>입니다.<br>공식 홀 자료가 확보되는 대로 추가됩니다. 아래는 위성 전경입니다.";
+    $("#course-note").innerHTML = tr("app.course.prep");
     $("#course-note").hidden = false;
     // 코스 전체가 보이도록 지도 맞춤 (OSM 코스 도형이 있으면 그 범위로)
     setTimeout(() => {
@@ -2035,7 +2037,7 @@ async function openCourseView() {
     courseLayers.push(mk.addTo(courseMap));
   });
   courseMap.fitBounds(allBounds.pad(0.08));
-  $("#course-status").textContent = courseHoles.length + "개 홀 등록됨";
+  $("#course-status").textContent = tr("app.course.holecount", { n: courseHoles.length });
   // (위성 추정 홀 배치는 폐지 — HOLES_DB는 비어 있고, 여기는 OSM 공개 홀 데이터만 사용)
 
   const grid = $("#hole-grid");
@@ -2045,7 +2047,7 @@ async function openCourseView() {
     if (!h.par) h.par = h.len < 230 ? 3 : h.len < 430 ? 4 : 5;
     const b = document.createElement("button");
     b.className = "hole-btn";
-    b.innerHTML = `${h.ref}<small>파${h.par}</small>`;
+    b.innerHTML = `${h.ref}<small>${tr("app.hole.par", { par: h.par })}</small>`;
     b.addEventListener("click", () => selectHole(i, true));
     grid.appendChild(b);
   });
@@ -2071,10 +2073,11 @@ async function openCourseView() {
     // ⚠ 이 구장은 홀 라인이 공개 지도 자료라 파·거리가 추정치다.
     //   샷별 AI 캐디는 파를 기준으로 항목을 나누므로 여기서 제공하면 전제부터 틀린다.
     setCaddieAvailable(false);
-    $("#hole-detail-title").textContent = `${h.ref}번홀 공략` + (h.name ? ` · ${h.name}` : "");
+    $("#hole-detail-title").textContent = tr("app.hole.title", { no: h.ref }) +
+      (h.name ? tr("app.hole.title.name", { name: h.name }) : "");
     $("#hole-strategy").hidden = false;
     $("#hole-strategy").textContent = buildHoleStrategy(h, bunkers, waters) +
-      (h.tip ? "\n\n💡 코스 공략 포인트: " + h.tip : "");
+      (h.tip ? tr("app.hole.tip", { tip: h.tip }) : "");
     $("#hole-video").hidden = false;
     $("#hole-video").href = "https://www.youtube.com/results?search_query=" +
       encodeURIComponent(`${course.name} ${h.ref}번홀 공략`);
@@ -2101,26 +2104,25 @@ function renderImgCourse(course, db) {
   db.courses.forEach((c) => {
     const label = document.createElement("div");
     label.className = "hole-course-label";
-    label.textContent = c.name + " 코스";
+    label.textContent = tr("app.hole.course.label", { name: c.name });
     grid.appendChild(label);
     c.holes.forEach((h) => {
       const i = flat.length;
       flat.push({ ...h, cname: c.name });
       const b = document.createElement("button");
       b.className = "hole-btn";
-      b.innerHTML = `${h.no}<small>파${h.par}</small>`;
+      b.innerHTML = `${h.no}<small>${tr("app.hole.par", { par: h.par })}</small>`;
       b.addEventListener("click", () => sel(i, true));
       grid.appendChild(b);
     });
   });
-  $("#hole-list-card").querySelector(".card-title").innerHTML =
-    `<span class="ic">⛳</span> 홀 선택`;
+  $("#hole-list-card").querySelector(".card-title").innerHTML = tr("app.hole.pick");
   $("#hole-list-card").hidden = false;
 
   function sel(i, byUser) {
     const h = flat[i];
     grid.querySelectorAll(".hole-btn").forEach((b, j) => b.classList.toggle("active", j === i));
-    $("#hole-detail-title").textContent = `${h.cname} ${h.no}번홀 공략`;
+    $("#hole-detail-title").textContent = tr("app.hole.title.course", { cname: h.cname, no: h.no });
     const img = $("#hole-img");
     if (h.img) {
       img.src = h.img;
@@ -2148,7 +2150,7 @@ function renderImgCourse(course, db) {
       vp.removeAttribute("poster");
       vw.hidden = true;
     }
-    $("#hole-img-src").textContent = "홀맵 출처: " + db.source;
+    $("#hole-img-src").textContent = tr("app.hole.imgsrc", { src: db.source });
     $("#hole-img-src").hidden = false;
     if (h.green) {
       $("#hole-green-img").src = h.green;
@@ -2158,19 +2160,23 @@ function renderImgCourse(course, db) {
     }
     let infoHtml = "";
     if (h.dist) {
-      const row = (g, a) => `<b>${g}그린</b> 백 ${a[0]} · 레귤러 ${a[1]} · 프론트 ${a[2]} · 레이디 ${a[3]}m`;
-      infoHtml += `<b>📏 티별 거리</b><br>${row("L", h.dist.L)}<br>${row("R", h.dist.R)}<br><br>`;
+      const row = (g, a) => tr("app.hole.dist.row",
+        { g: g, back: a[0], reg: a[1], front: a[2], lady: a[3] });
+      infoHtml += tr("app.hole.dist.title") + `${row("L", h.dist.L)}<br>${row("R", h.dist.R)}<br><br>`;
     } else if (h.tees) {
       const elev = h.elev
-        ? ` <span class="hole-elev">· 티→그린 ${h.elev > 0 ? "오르막 +" : "내리막 "}${h.elev}m</span>`
+        ? tr("app.hole.elev", {
+            dir: h.elev > 0 ? tr("app.hole.elev.up") : tr("app.hole.elev.down"), m: h.elev })
         : "";
-      infoHtml += `<b>📏 티별 거리</b><br>${h.tees.map((t) => `${t.name} ${t.m}`).join(" · ")}m${elev}<br><br>`;
+      infoHtml += tr("app.hole.dist.title") +
+        `${h.tees.map((t) => `${t.name} ${t.m}`).join(" · ")}m${elev}<br><br>`;
     } else if (h.len) {
-      infoHtml += `<b>📏 전장</b> ${h.len}m${h.hdcp ? " · 핸디캡 " + h.hdcp : ""}<br><br>`;
+      infoHtml += tr("app.hole.len", { len: h.len }) +
+        (h.hdcp ? tr("app.hole.hdcp", { hdcp: h.hdcp }) : "") + "<br><br>";
     }
     if (h.tip) {
       const safeTip = h.tip.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-      infoHtml += "<b>⛳ 공식 코스공략 TIP</b><br>" + safeTip;
+      infoHtml += tr("app.hole.tip.title") + safeTip;
     }
     if (infoHtml) {
       $("#hole-strategy").hidden = false;
@@ -2314,7 +2320,7 @@ async function renderHoleCanvas(h, cacheKey) {
     if (token !== holeCanvasToken) return;
     cv.hidden = false; loading.hidden = true;
   } catch (e) {
-    if (token === holeCanvasToken) { loading.textContent = "위성 이미지를 불러오지 못했습니다"; }
+    if (token === holeCanvasToken) { loading.textContent = tr("app.hole.canvas.fail"); }
   }
 }
 
@@ -2560,7 +2566,7 @@ function renderCaddieCards(cards, out, autoPlay) {
     play.type = "button";
     play.className = "cad-play cad-voice";
     play.textContent = "🔊";
-    play.setAttribute("aria-label", c.label + " 공략 다시 듣기");
+    play.setAttribute("aria-label", tr("app.cad.replay", { label: c.label }));
     play.addEventListener("click", () => {
       if (speakingBtn === play) { stopCaddieVoice(); return; }
       speakCaddie(c.text, play);
@@ -2575,7 +2581,10 @@ function renderCaddieCards(cards, out, autoPlay) {
     const open = document.createElement("button");
     open.type = "button";
     open.className = "cad-open";
-    const paintOpen = () => { open.textContent = (canSpeak() ? "▶ " : "") + c.label + " 공략 " + (canSpeak() ? "듣기" : "보기"); };
+    const paintOpen = () => {
+      open.textContent = canSpeak() ? tr("app.cad.open.listen", { label: c.label })
+                                    : tr("app.cad.open.read", { label: c.label });
+    };
     paintOpen();
     const reveal = (speak) => {
       p.hidden = false;
@@ -2608,7 +2617,7 @@ function renderCaddieCards(cards, out, autoPlay) {
   const all = document.createElement("button");
   all.type = "button";
   all.className = "cad-all cad-voice";
-  all.textContent = "▶ 전체 듣기";
+  all.textContent = tr("app.cad.all");
   all.hidden = !canSpeak();
   all.addEventListener("click", () => {
     if (speakingBtn === all) { stopCaddieVoice(); return; }
@@ -2619,7 +2628,7 @@ function renderCaddieCards(cards, out, autoPlay) {
   mute.type = "button";
   mute.className = "cad-mute";
   mute.hidden = !voiceReady;
-  const paintMute = () => { mute.textContent = voiceOn() ? "🔕 음성 끄기" : "🔔 음성 켜기"; };
+  const paintMute = () => { mute.textContent = voiceOn() ? tr("app.cad.mute.off") : tr("app.cad.mute.on"); };
   paintMute();
   mute.addEventListener("click", () => {
     if (voiceOn()) { localStorage.setItem(VOICE_OFF_KEY, "1"); stopCaddieVoice(); }
@@ -2645,10 +2654,8 @@ function renderCaddieCards(cards, out, autoPlay) {
     const tip = document.createElement("p");
     tip.className = "cad-voice-tip";
     const ios = /iPad|iPhone|iPod/.test(navigator.userAgent);
-    tip.innerHTML = "🎧 지금은 기기 기본 음성이라 딱딱하게 들립니다. " +
-      (ios
-        ? "<b>설정 › 손쉬운 사용 › 콘텐츠 말하기 › 음성 › 한국어</b> 에서 고품질 음성을 받으면 훨씬 자연스러워집니다."
-        : "<b>설정 › 시스템 › 언어 및 입력 › 음성 출력</b> 에서 한국어 고품질 음성을 받으면 훨씬 자연스러워집니다.");
+    tip.innerHTML = tr("app.cad.voicetip") +
+      (ios ? tr("app.cad.voicetip.ios") : tr("app.cad.voicetip.aos"));
     out.appendChild(tip);
   }
 
@@ -2668,8 +2675,7 @@ function setCaddieAvailable(ok) {
   if (ok) {
     out.hidden = true;
   } else {
-    out.innerHTML = '<div class="cad-prep">🛠 이 구장의 <b>캐디 공략을 준비중</b>입니다.' +
-      '<span>공식 홀 자료가 확보되는 대로 제공됩니다. 위 위성 홀 그림으로 방향을 확인하세요.</span></div>';
+    out.innerHTML = tr("app.cad.prep");
     out.hidden = false;
   }
 }
@@ -2834,12 +2840,12 @@ async function runAiCaddieInner() {
   const hh = aiHoleCtx && aiHoleCtx.imgHole;
   if (!hh) return;                       // 공식 홀 자료가 없는 구장은 버튼 자체가 없다
   stopCaddieVoice();
-  btn.disabled = true; btn.textContent = "🤖 캐디가 이 홀을 보는 중...";
+  btn.disabled = true; btn.textContent = tr("app.cad.btn.loading");
 
   const finish = (cards) => {
     // 티샷은 바로 펼쳐서 읽어주고(누른 곳이 티박스다), 세컨샷부터는 그 지점에서 눌러 연다
     renderCaddieCards(cards, out, true);
-    btn.disabled = false; btn.textContent = "🎧 AI 캐디 공략 듣기";
+    btn.disabled = false; btn.textContent = tr("app.cad.btn");
   };
 
   const key = caddieKey(hh, aiHoleCtx.courseName);
@@ -2925,9 +2931,9 @@ async function runAiCaddieInner() {
     caddieCache.set(key, cards);
     finish(cards);
   } catch (e) {
-    out.innerHTML = '<div class="cad-card"><p class="cad-text">AI 캐디 연결에 실패했습니다. 잠시 후 다시 시도해 주세요.</p></div>';
+    out.innerHTML = tr("app.cad.err");
     out.hidden = false;
-    btn.disabled = false; btn.textContent = "🎧 AI 캐디 공략 듣기";
+    btn.disabled = false; btn.textContent = tr("app.cad.btn");
   }
 }
 $("#ai-strategy-btn").addEventListener("click", aiCaddie);
@@ -2971,8 +2977,8 @@ $("#ai-strategy-btn").addEventListener("click", aiCaddie);
   let toastTimer = null;
   btn.addEventListener("click", async () => {
     const data = {
-      title: "투어리스트",
-      text: "골프장 날씨·홀별 코스공략·AI캐디까지 한 번에 — 투어리스트",
+      title: tr("app.brand"),
+      text: tr("app.share.text"),
       url: APP_URL,
     };
     try {
@@ -3248,8 +3254,8 @@ document.addEventListener("visibilitychange", () => {
 async function openFoodView() {
   const course = currentCourse;
   if (viewStack[viewStack.length - 1] !== "food") pushView("food");
-  $("#food-title").textContent = "주변맛집";
-  $("#food-desc").textContent = `${course.name} 주변 식당`;
+  $("#food-title").textContent = tr("app.food.title");
+  $("#food-desc").textContent = tr("app.food.desc", { course: course.name });
   const listEl = $("#food-list");
   listEl.innerHTML = "";
   $("#food-note").hidden = true;
@@ -3264,27 +3270,20 @@ async function openFoodView() {
   // 이제는 찾기 → 평가 → 사진까지 다 끝내고 **한 번에** 추천순으로 보여준다.
   // 그동안 무엇을 하고 있는지는 대기 화면이 단계별로 말해준다.
   if (getKakaoKey()) {
-    const w = WAIT.open("food", { msgs: [`${course.name} 근방 맛집을 찾고 있어요`] });
+    const findMsg = tr("app.food.wait.find", { course: course.name });
+    const w = WAIT.open("food", { msgs: [findMsg] });
     try {
-      w.say(`${course.name} 근방 맛집을 찾고 있어요`, 12);
+      w.say(findMsg, 12);
       const list = await fetchKakaoFood(course);
       if (!alive()) { w.close(); return; }
 
       if (list.length) {
-        w.say(`맛집 ${list.length}곳을 찾았어요<br>먹어본 사람들 평을 확인하고 있어요`, 34);
+        w.say(tr("app.food.wait.rate", { n: list.length }), 34);
         try { await attachFoodRatings(list); } catch (_) { /* 평점 없어도 목록은 보여준다 */ }
         if (!alive()) { w.close(); return; }
 
         // 오래 걸리는 구간 — 무슨 발품을 팔고 있는지 문구를 계속 바꿔가며 알려준다
-        const STEPS = [
-          "가게를 하나씩 들여다보고 있어요",
-          "어떤 음식을 내는지 사진을 모으는 중이에요",
-          "메뉴판을 펼쳐 보고 있어요",
-          "가게 안이 어떤 분위기인지 살펴봐요",
-          "별점과 리뷰 수를 맞춰보고 있어요",
-          "사진이 없는 곳은 걸러내고 있어요",
-          "보기 좋게 줄 세우고 있어요",
-        ];
+        const STEPS = tr("app.food.steps").split(",");
         w.say(STEPS[0], 46);
         let shown = [];
         try {
@@ -3298,12 +3297,12 @@ async function openFoodView() {
         // 사진이 한 곳도 없으면 목록을 비우는 대신 이유를 밝힌다 (백엔드 장애일 수 있다)
         if (!shown.length) {
           listEl.innerHTML =
-            '<p class="food-osm-empty">사진을 불러오지 못했습니다.<br>잠시 후 다시 열어 주세요.</p>';
+            `<p class="food-osm-empty">${tr("app.food.photo.fail")}</p>`;
           w.close();
           return;
         }
 
-        w.say("추천순으로 정리하고 있어요", 92);
+        w.say(tr("app.food.wait.sort"), 92);
         FOOD_VIEW.sort = "reco";
         FOOD_VIEW.cat = "전체";
         renderFoodList(shown, region, true);
@@ -3323,10 +3322,10 @@ async function openFoodView() {
   } catch {
     listEl.innerHTML = "";
     const note = $("#food-note");
-    note.innerHTML = "식당 데이터 서버가 혼잡합니다.<br>";
+    note.innerHTML = tr("app.food.busy");
     const b = document.createElement("button");
     b.className = "retry-btn";
-    b.textContent = "다시 시도";
+    b.textContent = tr("app.retry");
     b.addEventListener("click", () => openFoodView());
     note.appendChild(b);
     note.hidden = false;
@@ -3500,7 +3499,7 @@ function renderFoodList(list, region, fromKakao) {
   if (!list.length) {
     const p = document.createElement("p");
     p.className = "food-osm-empty";
-    p.textContent = "주변 5km 안에 등록된 식당을 찾지 못했습니다.";
+    p.textContent = tr("app.food.empty");
     listEl.appendChild(p);
     return;
   }
@@ -3512,7 +3511,9 @@ function renderFoodList(list, region, fromKakao) {
   if (fromKakao) {
     const bar = document.createElement("div");
     bar.className = "food-filter";
-    const sorts = hasRatings ? [["reco", "⭐ 추천순"], ["dist", "📍 거리순"]] : [["dist", "📍 거리순"]];
+    const sorts = hasRatings
+      ? [["reco", tr("app.food.sort.reco")], ["dist", tr("app.food.sort.dist")]]
+      : [["dist", tr("app.food.sort.dist")]];
     bar.innerHTML =
       `<div class="ff-row">` +
       sorts.map(([k, t]) =>
@@ -3543,16 +3544,16 @@ function renderFoodList(list, region, fromKakao) {
   const sub = document.createElement("p");
   sub.className = "food-osm-sub";
   sub.textContent = !fromKakao
-    ? "가까운 순 (지도 등록 기준) · 이름을 누르면 상세가 열립니다"
+    ? tr("app.food.sub.osm")
     : (FOOD_VIEW.sort === "reco"
-        ? "카카오맵 평점·리뷰 기준 추천순 · 이름을 누르면 사진·전화·길안내"
-        : "가까운 순 · 이름을 누르면 사진·전화·길안내가 열립니다");
+        ? tr("app.food.sub.reco")
+        : tr("app.food.sub.dist"));
   listEl.appendChild(sub);
 
   if (!shown.length) {
     const p = document.createElement("p");
     p.className = "food-osm-empty";
-    p.textContent = "이 종류의 식당이 주변에 없습니다.";
+    p.textContent = tr("app.food.cat.empty");
     listEl.appendChild(p);
     return;
   }
@@ -3599,10 +3600,10 @@ function renderFoodList(list, region, fromKakao) {
         <div class="fi-photos" hidden></div>
         <div class="fi-meta">📍 ${it.addr || ""}</div>
         <div class="fi-actions">
-          ${tel ? `<a class="fa-btn fa-tel" href="tel:${tel}">📞 전화</a>` : ""}
-          <a class="fa-btn fa-kakao" href="kakaomap://route?ep=${it.lat},${it.lon}&by=CAR">카카오내비</a>
-          <a class="fa-btn fa-tmap" href="tmap://route?goalname=${encodeURIComponent(it.name)}&goaly=${it.lat}&goalx=${it.lon}">T맵</a>
-          <a class="fa-btn fa-naver" href="https://m.search.naver.com/search.naver?query=${encodeURIComponent((region ? region + " " : "") + it.name)}" target="_blank" rel="noopener"><b>N</b>리뷰</a>
+          ${tel ? `<a class="fa-btn fa-tel" href="tel:${tel}">${tr("app.food.tel")}</a>` : ""}
+          <a class="fa-btn fa-kakao" href="kakaomap://route?ep=${it.lat},${it.lon}&by=CAR">${tr("app.dist.nav.kakao")}</a>
+          <a class="fa-btn fa-tmap" href="tmap://route?goalname=${encodeURIComponent(it.name)}&goaly=${it.lat}&goalx=${it.lon}">${tr("app.dist.nav.tmap")}</a>
+          <a class="fa-btn fa-naver" href="https://m.search.naver.com/search.naver?query=${encodeURIComponent((region ? region + " " : "") + it.name)}" target="_blank" rel="noopener">${tr("app.food.naver.short")}</a>
         </div>`;
       div._it = it;
       loadFoodPhotos(it, div.querySelector(".fi-photos"));
@@ -3628,14 +3629,14 @@ function renderFoodList(list, region, fromKakao) {
       </div>
       <div class="fi-detail">
         <div class="fi-photos" hidden></div>
-        <div class="fi-addr">${it.addr ? "📍 " + it.addr + " " : ""}<span class="fi-addr-dist">· 골프장에서 ${km}</span></div>
-        ${tel ? `<a class="fi-phone" href="tel:${tel}">📞 ${it.phone} <span>영업확인</span></a>` : ""}
+        <div class="fi-addr">${it.addr ? "📍 " + it.addr + " " : ""}<span class="fi-addr-dist">${tr("app.food.fromcourse", { km: km })}</span></div>
+        ${tel ? `<a class="fi-phone" href="tel:${tel}">${tr("app.food.phone", { phone: it.phone })}</a>` : ""}
         <div class="fi-links">
-          <a class="kakaonavi" href="kakaomap://route?ep=${it.lat},${it.lon}&by=CAR">🚗 카카오내비</a>
-          <a class="tmapnavi" href="tmap://route?goalname=${encodeURIComponent(it.name)}&goaly=${it.lat}&goalx=${it.lon}">🚗 T맵</a>
+          <a class="kakaonavi" href="kakaomap://route?ep=${it.lat},${it.lon}&by=CAR">${tr("app.food.nav.kakao")}</a>
+          <a class="tmapnavi" href="tmap://route?goalname=${encodeURIComponent(it.name)}&goaly=${it.lat}&goalx=${it.lon}">${tr("app.food.nav.tmap")}</a>
         </div>
         <a class="fi-naver" href="https://m.search.naver.com/search.naver?query=${encodeURIComponent((region ? region + " " : "") + it.name)}"
-           target="_blank" rel="noopener"><b>N</b> 네이버 평점·리뷰로 검증하기</a>
+           target="_blank" rel="noopener">${tr("app.food.naver")}</a>
       </div>`;
     /* 사진 원칙: '그 가게' 사진임이 보장될 때만 앱 안에 표시한다.
        ① 백엔드가 연결돼 있으면 — 카카오 플레이스(가게 ID 기반) 등록 사진을 가져와 표시.
@@ -3644,7 +3645,7 @@ function renderFoodList(list, region, fromKakao) {
     const photos = div.querySelector(".fi-photos");
     const placeBtn = () => {
       photos.innerHTML = it.url
-        ? `<a class="fi-place-btn" href="${it.url}" target="_blank" rel="noopener">📷 실제 매장 사진·메뉴 보기 <small>카카오맵 등록 사진</small></a>`
+        ? `<a class="fi-place-btn" href="${it.url}" target="_blank" rel="noopener">${tr("app.food.placebtn")}</a>`
         : "";
     };
     let loaded = false;
@@ -3655,7 +3656,7 @@ function renderFoodList(list, region, fromKakao) {
       photos.hidden = false;
       const pid = ((it.url || "").match(/\/(\d+)\/?$/) || [])[1];
       if (!window.RIW_BACKEND || !pid) { placeBtn(); return; }
-      photos.innerHTML = '<div class="fi-photo-loading">사진 불러오는 중...</div>';
+      photos.innerHTML = `<div class="fi-photo-loading">${tr("app.food.photo.loading")}</div>`;
       try {
         const LS = "riweather.placeph5." + pid;
         let list = null;
@@ -3773,9 +3774,9 @@ function setupCourseSelects() {
     const sel = $(selId), inp = $(inpId);
     if (names.length >= 2) {
       sel.innerHTML =
-        '<option value="">코스 선택 ▾</option>' +
+        `<option value="">${tr("app.score.course.pick")}</option>` +
         names.map((n) => `<option value="${n}">${n}</option>`).join("") +
-        '<option value="__direct">직접 입력...</option>';
+        `<option value="__direct">${tr("app.score.course.direct")}</option>`;
       sel.hidden = false; inp.hidden = true;
       if (names.length === 2) { sel.value = names[idx]; inp.value = names[idx]; } // 18홀: 자동 입력
       sel.onchange = () => {
@@ -3816,7 +3817,7 @@ function resetScoreForm() {
   editingId = null;
   photoThumb = null;
   parsedPars = null;
-  $("#sf-title").textContent = "라운딩 기록 추가";
+  $("#sf-title").textContent = tr("app.score.form.add");
   $("#sf-date").value = new Date().toISOString().slice(0, 10);
   $("#sf-time").value = ""; $("#sf-time-unknown").checked = false; $("#sf-time").disabled = false;
   $("#sf-course").value = currentCourse ? currentCourse.name : "";
@@ -3849,15 +3850,13 @@ $("#sf-time-unknown").addEventListener("change", (e) => {
 function refreshAiKeyBtn() {
   const btn = $("#ai-key-btn");
   const personal = !!localStorage.getItem(GEM_KEY);
-  btn.textContent = personal ? "🔑 정밀 인식 ON (내 키)" : "🔑 정밀 인식 ON";
+  btn.textContent = personal ? tr("app.score.aikey.mine") : tr("app.score.aikey");
   btn.style.color = "var(--primary)";
   btn.style.borderColor = "var(--primary)";
 }
 $("#ai-key-btn").addEventListener("click", () => {
   const cur = localStorage.getItem(GEM_KEY) || "";
-  const v = prompt(
-    "정밀 AI 인식은 기본으로 켜져 있습니다 (공용 무료 한도 사용).\n\n본인 전용 키를 쓰려면 여기에 입력하세요:\n1) aistudio.google.com/apikey 접속\n2) 구글 로그인 → 'API 키 만들기'\n3) 키 복사 후 붙여넣기\n\n(비우고 확인하면 공용 키로 돌아갑니다)",
-    cur);
+  const v = prompt(tr("app.score.aikey.prompt"), cur);
   if (v === null) return;
   const t = v.trim();
   if (t) localStorage.setItem(GEM_KEY, t);
@@ -3898,7 +3897,8 @@ function updateHoleSum() {
   const sum = (a) => a.reduce((s, x) => s + (x || 0), 0);
   const f = sum(v.slice(0, 9)), b = sum(v.slice(9));
   $("#sf-score").value = 72 + f + b;
-  $("#hg-sum").textContent = `전반 ${36 + f} · 후반 ${36 + b} · 합계 ${72 + f + b}타`;
+  $("#hg-sum").textContent =
+    tr("app.score.holesum", { f: 36 + f, b: 36 + b, t: 72 + f + b });
 }
 
 /* ---------- 스코어보드 사진 AI 인식 ---------- */
@@ -3997,24 +3997,24 @@ async function geminiRecognize(dataUrl) {
 /* 정밀 AI 결과를 폼에 적용 */
 function applyGeminiResult(g) {
   const filled = [];
-  if (g.date && /^\d{4}-\d{2}-\d{2}$/.test(g.date)) { $("#sf-date").value = g.date; filled.push("날짜"); }
+  if (g.date && /^\d{4}-\d{2}-\d{2}$/.test(g.date)) { $("#sf-date").value = g.date; filled.push(tr("app.ocr.f.date")); }
   if (g.teeTime && /^\d{1,2}:\d{2}$/.test(g.teeTime)) {
     $("#sf-time").value = g.teeTime.padStart(5, "0");
     $("#sf-time-unknown").checked = false; $("#sf-time").disabled = false;
-    filled.push("티업시간");
+    filled.push(tr("app.ocr.f.teetime"));
   }
   if (g.club) {
     const hit = searchGolfDB(g.club);
     $("#sf-course").value = hit.length ? (hit[0].k || hit[0].n) : g.club;
-    filled.push("골프장");
+    filled.push(tr("app.ocr.f.club"));
   }
   if (g.front) $("#sf-front").value = g.front;
   if (g.back) $("#sf-back").value = g.back;
-  if (g.front || g.back) filled.push("코스");
-  if (g.tee) { $("#sf-tee").value = g.tee; filled.push("티"); }
+  if (g.front || g.back) filled.push(tr("app.ocr.f.course"));
+  if (g.tee) { $("#sf-tee").value = g.tee; filled.push(tr("app.ocr.f.tee")); }
   if (Array.isArray(g.companions) && g.companions.length) {
     g.companions.slice(0, 4).forEach((n, i) => { $("#sf-f" + (i + 1)).value = String(n); });
-    filled.push("동반자");
+    filled.push(tr("app.ocr.f.friends"));
   }
   if (Array.isArray(g.pars) && g.pars.length >= 9) {
     parsedPars = g.pars.slice(0, 18).filter((p) => p >= 3 && p <= 6);
@@ -4032,10 +4032,10 @@ function applyGeminiResult(g) {
       holeInputs.forEach((h, i) => { h.value = i < p.holes.length && typeof p.holes[i] === "number" ? p.holes[i] : ""; });
       $("#holes-grid").hidden = false;
       if (p.holes.length >= 18) updateHoleSum();
-      else { $("#sf-score").value = p.total; $("#hg-sum").textContent = `${p.holes.length}홀 인식 · 합계 ${p.total}타`; }
-      filled.push("홀별 스코어");
+      else { $("#sf-score").value = p.total; $("#hg-sum").textContent = tr("app.score.holesum.part", { n: p.holes.length, t: p.total }); }
+      filled.push(tr("app.ocr.f.holes"));
     }
-    if (p.total) { $("#sf-score").value = p.total; filled.push("총타수 " + p.total); }
+    if (p.total) { $("#sf-score").value = p.total; filled.push(tr("app.ocr.f.total", { n: p.total })); }
   }
   syncCourseSelectUI();
   return { filled, cartPlayers };
@@ -4044,11 +4044,11 @@ function applyGeminiResult(g) {
 /* 여러 명 인식 시 본인 선택 칩 (기본·정밀 인식 공용) */
 function renderCartChips(cartPlayers) {
   const chips = $("#ocr-chips");
-  chips.innerHTML = '<span class="chip-label">인식된 플레이어 (본인 선택 시 나머지는 동반자로 입력)</span>';
+  chips.innerHTML = `<span class="chip-label">${tr("app.ocr.chip.players")}</span>`;
   cartPlayers.forEach((p) => {
     const b = document.createElement("button");
     b.type = "button"; b.className = "ocr-chip";
-    b.textContent = `${p.name} · ${p.total}타`;
+    b.textContent = tr("app.ocr.chip.player", { name: p.name, total: p.total });
     b.addEventListener("click", () => {
       holeInputs.forEach((h, i) => {
         h.value = i < p.holes.length && p.holes[i] != null ? p.holes[i] : "";
@@ -4056,7 +4056,8 @@ function renderCartChips(cartPlayers) {
       $("#holes-grid").hidden = false;
       $("#sf-score").value = p.total;
       const nFilled = p.holes.filter((v) => v != null).length;
-      $("#hg-sum").textContent = nFilled < 18 ? `${nFilled}홀 인식 · 합계 ${p.total}타` : "";
+      $("#hg-sum").textContent = nFilled < 18
+        ? tr("app.score.holesum.part", { n: nFilled, t: p.total }) : "";
       [1, 2, 3, 4].forEach((i) => { $("#sf-f" + i).value = ""; });
       cartPlayers.filter((x) => x !== p).slice(0, 4)
         .forEach((x, i) => { $("#sf-f" + (i + 1)).value = x.name; });
@@ -4185,7 +4186,7 @@ function autofillFromOcr(text) {
   }
   if (dm) {
     $("#sf-date").value = `${dm[1]}-${dm[2].padStart(2, "0")}-${dm[3].padStart(2, "0")}`;
-    filled.push("날짜");
+    filled.push(tr("app.ocr.f.date"));
   }
   // 티업시간: 날짜와 같은/인접 줄의 시간만 우선 인정 (상태바 시계 오인 방지)
   let tm = null;
@@ -4204,7 +4205,7 @@ function autofillFromOcr(text) {
   if (tm) {
     $("#sf-time").value = `${tm[1].padStart(2, "0")}:${tm[2]}`;
     $("#sf-time-unknown").checked = false; $("#sf-time").disabled = false;
-    filled.push("티업시간");
+    filled.push(tr("app.ocr.f.teetime"));
   }
 
   // ---- 카트 태블릿(스마트스코어) 사진 감지: "4/8 5/3 3/7..." 파 행이 있으면 표 형식 파싱 ----
@@ -4247,10 +4248,10 @@ function autofillFromOcr(text) {
       // 코스명: 파 행 위쪽의 "힐 ^" / "스프링^" 헤더
       for (let i = Math.max(0, parLineIdx - 3); i <= parLineIdx; i++) {
         const h = textLines[i].match(/^\s*([가-힣]{1,5})[\s.…]*[\^▲]/);
-        if (h) { $("#sf-front").value = h[1]; filled.push("코스(" + h[1] + ")"); break; }
+        if (h) { $("#sf-front").value = h[1]; filled.push(tr("app.ocr.f.course.name", { name: h[1] })); break; }
       }
       if (pars.length >= 5) parsedPars = pars.slice(0, 9); // 스코어판 PAR 줄 표시용
-      filled.push(`카트 스코어보드 · ${players.length}명 인식`);
+      filled.push(tr("app.ocr.f.cart", { n: players.length }));
       return { filled, candidates: [], cartPlayers: players };
     }
   }
@@ -4268,7 +4269,7 @@ function autofillFromOcr(text) {
     if (!hn.includes(nq) && !nq.includes(stripSuffix(hn))) continue; // 발음 유사 등 약한 매칭 거부
     matchedClub = hit[0];
     $("#sf-course").value = matchedClub.k || matchedClub.n;
-    filled.push("골프장");
+    filled.push(tr("app.ocr.f.club"));
     break;
   }
 
@@ -4289,7 +4290,7 @@ function autofillFromOcr(text) {
     .sort((a, b) => a[0] - b[0]).map(([, n]) => n);
   if (seen.length >= 2) {
     $("#sf-front").value = seen[0]; $("#sf-back").value = seen[1];
-    filled.push("코스");
+    filled.push(tr("app.ocr.f.course"));
   } else {
     // ② "남, 동" / "East, West" / "망무봉 OUT, 망무봉 IN" 형태의 줄에서 직접 추출
     const BAD = /^(putt|gir|fwhit|par|hole|tee|white|red|blue|black|total)$/i;
@@ -4299,7 +4300,7 @@ function autofillFromOcr(text) {
     if (cm && !BAD.test(cm[1].trim()) && !BAD.test(cm[2].trim()) &&
         !/^\d+$/.test(cm[1]) && !/^\d+$/.test(cm[2])) {
       $("#sf-front").value = cm[1].trim(); $("#sf-back").value = cm[2].trim();
-      filled.push("코스");
+      filled.push(tr("app.ocr.f.course"));
     }
   }
 
@@ -4314,7 +4315,7 @@ function autofillFromOcr(text) {
     });
     if (names.every(Boolean) && !toks.every((t) => knownSet.has(t))) {
       names.slice(0, 4).forEach((t, i) => { $("#sf-f" + (i + 1)).value = t; });
-      filled.push("동반자");
+      filled.push(tr("app.ocr.f.friends"));
       break;
     }
   }
@@ -4324,7 +4325,7 @@ function autofillFromOcr(text) {
   if (teeM) {
     const teeMap = { white: "화이트", red: "레드", blue: "블루", black: "블랙", gold: "골드", yellow: "옐로우", lady: "레이디" };
     $("#sf-tee").value = teeMap[teeM[1].toLowerCase()] || "";
-    filled.push("티");
+    filled.push(tr("app.ocr.f.tee"));
   }
 
   // 홀별 점수 줄 → 홀 그리드 자동 입력
@@ -4378,7 +4379,7 @@ function autofillFromOcr(text) {
       $("#holes-grid").hidden = false;
       updateHoleSum(); // 총타수까지 자동 계산
       holesFilled = true;
-      filled.push("홀별 스코어·총타수 " + $("#sf-score").value);
+      filled.push(tr("app.ocr.f.holes.total", { n: $("#sf-score").value }));
     }
   } else if (rows.length === 1 && rows[0].verified) {
     // 9홀 라운드 (후반 없음)
@@ -4386,9 +4387,9 @@ function autofillFromOcr(text) {
     const t9 = 36 + rows[0].nine.reduce((s, v) => s + v, 0);
     $("#holes-grid").hidden = false;
     $("#sf-score").value = t9;
-    $("#hg-sum").textContent = `9홀 라운드 · 합계 ${t9}타`;
+    $("#hg-sum").textContent = tr("app.score.holesum.9", { t: t9 });
     holesFilled = true;
-    filled.push("9홀 스코어 " + t9);
+    filled.push(tr("app.ocr.f.9holes", { n: t9 }));
   }
 
   // 총타수: ①홀별 인식 완료 시 그 값 ②전·후반 합계 교차검증 ③후보 제시
@@ -4403,7 +4404,7 @@ function autofillFromOcr(text) {
         if (totals.has(s)) { best = s; break; } // 예: 39+35=74가 사진에 함께 있으면 확정
       }
     }
-    if (best) { $("#sf-score").value = best; filled.push("총타수 " + best); }
+    if (best) { $("#sf-score").value = best; filled.push(tr("app.ocr.f.total", { n: best })); }
   }
   const candidates = best ? [] :
     [...new Set(nums.filter((n) => n >= 60 && n <= 130))].sort((a, b) => a - b).slice(0, 6);
@@ -4431,23 +4432,23 @@ $("#sf-photo").addEventListener("change", async (e) => {
 
     // ① 정밀 AI(비전) 인식 — 기본 제공 (개인 키 설정 시 개인 키 우선)
     if (getGemKey()) {
-      st.textContent = "🤖 정밀 AI가 사진을 분석 중... (2~5초)";
+      st.textContent = tr("app.ocr.gem.working");
       try {
         const g = await geminiRecognize(photoThumb);
         if (g) {
           const { filled, cartPlayers } = applyGeminiResult(g);
           if (cartPlayers && cartPlayers.length) {
-            st.textContent = "✅ 정밀 AI 인식 완료 — 아래에서 본인 이름을 탭하세요";
+            st.textContent = tr("app.ocr.gem.cart");
             renderCartChips(cartPlayers);
           } else if (filled.length) {
-            st.textContent = `✅ 정밀 AI 자동 입력: ${filled.join(" · ")} — 확인 후 저장하세요`;
+            st.textContent = tr("app.ocr.gem.filled", { list: filled.join(" · ") });
           } else {
-            st.textContent = "정밀 AI가 스코어보드를 찾지 못했어요 — 직접 입력해 주세요";
+            st.textContent = tr("app.ocr.gem.none");
           }
           return; // 정밀 인식 성공 시 기본 인식 생략
         }
       } catch (e) {
-        st.textContent = "정밀 AI 연결 실패 — 기본 인식으로 전환합니다";
+        st.textContent = tr("app.ocr.gem.fail");
       }
     }
 
@@ -4464,12 +4465,12 @@ $("#sf-photo").addEventListener("change", async (e) => {
       };
       let mergedText = "";
       for (let i = 0; i < vars.length; i++) {
-        st.textContent = `🤖 AI가 스코어보드를 읽는 중... (${i + 1}/4)`;
+        st.textContent = tr("app.ocr.reading", { i: i + 1 });
         const { data } = await worker.recognize(vars[i]);
         mergedText += "\n" + cardRegion(data.text);
       }
       // 상단 띠(동반자·날짜·시간) 정밀 재인식 — 결과를 앞쪽에 배치해 우선 사용
-      st.textContent = "🤖 AI가 스코어보드를 읽는 중... (4/4)";
+      st.textContent = tr("app.ocr.reading", { i: 4 });
       try {
         for (const sv of topStripVariants(img)) {
           const { data } = await worker.recognize(sv);
@@ -4484,31 +4485,31 @@ $("#sf-photo").addEventListener("change", async (e) => {
       syncCourseSelectUI();
       if (cartPlayers && cartPlayers.length) {
         // 카트 태블릿: 여러 명 중 본인 선택
-        st.textContent = "✅ 카트 스코어보드 인식 — 아래에서 본인 이름을 탭하세요";
+        st.textContent = tr("app.ocr.cart");
         renderCartChips(cartPlayers);
       } else if (filled.length) {
-        st.textContent = `✅ AI 자동 입력: ${filled.join(" · ")} — 확인 후 틀린 부분만 고쳐주세요`;
+        st.textContent = tr("app.ocr.filled", { list: filled.join(" · ") });
       } else {
-        st.textContent = "자동 인식이 어려운 사진이에요 — 직접 입력해 주세요 (사진은 기록에 첨부됩니다)";
+        st.textContent = tr("app.ocr.none");
       }
       const rawBtn = document.createElement("button");
-      rawBtn.type = "button"; rawBtn.className = "ocr-raw-btn"; rawBtn.textContent = "🔍 인식 원문";
+      rawBtn.type = "button"; rawBtn.className = "ocr-raw-btn"; rawBtn.textContent = tr("app.ocr.raw");
       rawBtn.addEventListener("click", () => $("#ocr-raw").classList.toggle("show"));
       st.appendChild(rawBtn);
       if (candidates.length) {
-        st.textContent += " / 총타수는 아래에서 탭하세요";
+        st.textContent += tr("app.ocr.pick.total");
         const chips = $("#ocr-chips");
-        chips.innerHTML = '<span class="chip-label">인식된 총타수 후보</span>';
+        chips.innerHTML = `<span class="chip-label">${tr("app.ocr.chip.totals")}</span>`;
         candidates.forEach((n) => {
           const b = document.createElement("button");
-          b.type = "button"; b.className = "ocr-chip"; b.textContent = n + "타";
+          b.type = "button"; b.className = "ocr-chip"; b.textContent = tr("app.ocr.chip.total", { n: n });
           b.addEventListener("click", () => { $("#sf-score").value = n; });
           chips.appendChild(b);
         });
         chips.hidden = false;
       }
     } catch {
-      st.textContent = "AI 인식 실패 — 직접 입력해 주세요 (사진은 기록에 첨부됩니다)";
+      st.textContent = tr("app.ocr.fail");
     }
   };
   img.src = url;
@@ -4521,7 +4522,7 @@ $("#score-form").addEventListener("submit", async (e) => {
 });
 async function saveScoreRecord() {
   const btn = $("#sf-save-btn");
-  btn.disabled = true; btn.textContent = "저장 중...";
+  btn.disabled = true; btn.textContent = tr("app.score.saving");
   const rec = {
     id: editingId || Date.now(),
     date: $("#sf-date").value,
@@ -4575,9 +4576,9 @@ async function saveScoreRecord() {
     if (editingId) list = loadScores().map((x) => (x.id === editingId ? rec : x));
     else { list = loadScores(); list.unshift(rec); }
     saveScores(list);
-    alert("저장 공간이 부족해 사진 없이 저장했습니다.");
+    alert(tr("app.score.save.nophoto"));
   }
-  btn.disabled = false; btn.textContent = "저장 (그날 날씨 자동 기록)";
+  btn.disabled = false; btn.textContent = tr("app.score.save");
   resetScoreForm(); // 첨부 사진·입력값 정리
   $("#score-form").hidden = true;
   renderScores();
@@ -4610,7 +4611,7 @@ function renderStats(all) {
   ["전체", ...years].forEach((y) => {
     const b = document.createElement("button");
     b.className = "year-tab" + (selectedYear === y ? " active" : "");
-    b.textContent = y === "전체" ? "전체" : y + "년";
+    b.textContent = y === "전체" ? tr("app.score.year.all") : tr("app.score.year", { y: y });
     b.addEventListener("click", () => { selectedYear = y; renderScores(); });
     tabs.appendChild(b);
   });
@@ -4618,20 +4619,26 @@ function renderStats(all) {
   const filtered = selectedYear === "전체" ? all : all.filter((r) => r.date.startsWith(selectedYear));
   const st = calcStats(filtered);
   $("#st-avg").textContent = st ? st.avg : "-";
-  $("#st-rounds").textContent = st ? `${selectedYear === "전체" ? "전체" : selectedYear + "년"} ${st.n}라운드` : "";
+  $("#st-rounds").textContent = st
+    ? tr("app.score.rounds", {
+        y: selectedYear === "전체" ? tr("app.score.year.all") : tr("app.score.year", { y: selectedYear }),
+        n: st.n })
+    : "";
   $("#st-handi").textContent = st ? st.handi : "-";
 
   const goal = localStorage.getItem(GOAL_KEY);
-  $("#st-goal").textContent = goal ?? "설정";
-  $("#st-gap").textContent = goal && st ? `현재와 ${Math.round((st.handi - goal) * 10) / 10}타 차이` : "탭해서 설정";
+  $("#st-goal").textContent = goal ?? tr("app.score.goal.set");
+  $("#st-gap").textContent = goal && st
+    ? tr("app.score.goal.gap", { n: Math.round((st.handi - goal) * 10) / 10 })
+    : tr("app.score.goal.tap");
   return filtered;
 }
 $("#goal-box").addEventListener("click", () => {
   const cur = localStorage.getItem(GOAL_KEY) || "";
-  const v = prompt("최종 목표 핸디를 입력하세요 (예: 3)", cur);
+  const v = prompt(tr("app.score.goal.prompt"), cur);
   if (v === null) return;
   const n = parseFloat(v);
-  if (isNaN(n) || n < 0 || n > 54) { alert("0~54 사이 숫자로 입력해 주세요."); return; }
+  if (isNaN(n) || n < 0 || n > 54) { alert(tr("app.score.goal.range")); return; }
   localStorage.setItem(GOAL_KEY, String(n));
   renderScores();
 });
@@ -4652,7 +4659,8 @@ async function shareScoreCard(r) {
   x.fillText(r.course, W / 2, 110);
   x.fillStyle = "#8b95a1";
   x.font = "400 26px -apple-system, sans-serif";
-  const sub = r.date + (r.teeTime ? " · " + r.teeTime + " 티업" : "") + (r.tee ? " · " + r.tee + "티" : "");
+  const sub = r.date + (r.teeTime ? tr("app.card.teetime", { t: r.teeTime }) : "") +
+    (r.tee ? tr("app.card.tee", { tee: r.tee }) : "");
   x.fillText(sub, W / 2, 155);
   if (r.front || r.back) {
     x.fillText((r.front || "전반") + " · " + (r.back || "후반"), W / 2, 192);
@@ -4664,7 +4672,7 @@ async function shareScoreCard(r) {
   x.fillText(String(r.score), W / 2, 400);
   x.font = "400 34px -apple-system, sans-serif";
   x.fillStyle = "#0b9e36";
-  x.fillText("타", W / 2 + 130, 395);
+  x.fillText(tr("app.card.stroke"), W / 2 + 130, 395);
 
   // 홀별 표 (라벨 | 1~9홀 | 합계 — 겹침 없는 고정 칼럼)
   let y = 470;
@@ -4703,13 +4711,14 @@ async function shareScoreCard(r) {
   if (r.wx) {
     x.fillStyle = "#4e5968";
     x.font = "400 26px -apple-system, sans-serif";
-    x.fillText(`${wmoDesc(r.wx.code)} · ${r.wx.tmin}~${r.wx.tmax}° · 비 ${r.wx.rain}mm · 바람 ${r.wx.wind}m/s`, W / 2, y + 30);
+    x.fillText(tr("app.card.wx", { desc: wmoDesc(r.wx.code), tmin: r.wx.tmin, tmax: r.wx.tmax,
+      rain: r.wx.rain, wind: r.wx.wind }), W / 2, y + 30);
     y += 70;
   }
   if (r.friends) {
     x.fillStyle = "#8b95a1";
     x.font = "400 24px -apple-system, sans-serif";
-    x.fillText("함께한 사람 · " + r.friends, W / 2, y + 30, W - 100);
+    x.fillText(tr("app.card.friends", { friends: r.friends }), W / 2, y + 30, W - 100);
     y += 52;
   }
   if (r.memo) {
@@ -4728,14 +4737,14 @@ async function shareScoreCard(r) {
   // 워터마크
   x.fillStyle = "#0b9e36";
   x.font = "700 26px -apple-system, sans-serif";
-  x.fillText("⛳ 투어리스트", W / 2, H - 50);
+  x.fillText(tr("app.card.watermark"), W / 2, H - 50);
 
   return new Promise((resolve) => {
     cv.toBlob(async (blob) => {
       const file = new File([blob], `score-${r.date}.png`, { type: "image/png" });
       try {
         if (navigator.canShare && navigator.canShare({ files: [file] })) {
-          await navigator.share({ files: [file], title: `${r.course} ${r.score}타` });
+          await navigator.share({ files: [file], title: tr("app.card.share.title", { course: r.course, score: r.score }) });
           resolve(true); return;
         }
       } catch { /* 공유 취소 등 */ }
@@ -4795,42 +4804,42 @@ function renderScores() {
            <span>${wmoIcon(r.wx.code)} ${wmoDesc(r.wx.code)}</span>
            <span>🌡 ${r.wx.tmin}~${r.wx.tmax}°</span>
            <span>🌧 ${r.wx.rain}mm</span>
-           <span>🌬 최대 ${r.wx.wind}m/s</span>
+           <span>${tr("app.si.wind", { wind: r.wx.wind })}</span>
          </div>` : "";
     div.innerHTML = `
       <div class="si-top">
         <div>
           <div class="si-course">${r.course}</div>
-          <div class="si-date">${r.date}${r.teeTime ? " · ⛳ " + r.teeTime + " 티업" : ""}${r.tee ? " · " + r.tee + "티" : ""}</div>
+          <div class="si-date">${r.date}${r.teeTime ? tr("app.si.teetime", { t: r.teeTime }) : ""}${r.tee ? tr("app.card.tee", { tee: r.tee }) : ""}</div>
         </div>
-        ${r.holes ? "" : `<div class="si-score">${r.score}<small>타</small></div>`}
+        ${r.holes ? "" : `<div class="si-score">${r.score}<small>${tr("app.card.stroke")}</small></div>`}
       </div>
       ${r.friends ? `<div class="si-friends">👥 ${r.friends}</div>` : ""}
       ${r.memo ? `<div class="si-memo">"${r.memo}"</div>` : ""}
       ${r.holes ? scorecardHtml(r) : ""}
       ${wx}
-      ${r.photo ? `<img class="si-photo" src="${r.photo}" alt="스코어보드">` : ""}
+      ${r.photo ? `<img class="si-photo" src="${r.photo}" alt="${tr("app.si.photo.alt")}">` : ""}
       <div class="si-actions">
-        <button class="si-edit2">✏️ 수정</button>
-        <button class="si-share">📤 공유·저장</button>
-        ${r.photo ? '<button class="si-photo-toggle">📷 사진</button>' : ""}
-        <button class="si-del2">🗑 삭제</button>
+        <button class="si-edit2">${tr("app.si.edit")}</button>
+        <button class="si-share">${tr("app.si.share")}</button>
+        ${r.photo ? `<button class="si-photo-toggle">${tr("app.si.photo")}</button>` : ""}
+        <button class="si-del2">${tr("app.si.del")}</button>
       </div>`;
     div.querySelector(".si-share").addEventListener("click", () => shareScoreCard(r));
     div.querySelector(".si-del2").addEventListener("click", () => {
-      if (!confirm(`${r.date} ${r.course} 기록을 삭제할까요?`)) return;
+      if (!confirm(tr("app.si.del.ask", { date: r.date, course: r.course }))) return;
       saveScores(loadScores().filter((x) => x.id !== r.id));
       renderScores();
     });
     const pt = div.querySelector(".si-photo-toggle");
     if (pt) pt.addEventListener("click", () => {
       const open = div.classList.toggle("show-photo");
-      pt.textContent = open ? "📷 사진 접기" : "📷 사진 보기";
+      pt.textContent = open ? tr("app.si.photo.close") : tr("app.si.photo.open");
     });
     div.querySelector(".si-edit2").addEventListener("click", () => {
       resetScoreForm();
       editingId = r.id;
-      $("#sf-title").textContent = "기록 수정";
+      $("#sf-title").textContent = tr("app.score.form.edit");
       $("#sf-date").value = r.date;
       if (r.teeTime) { $("#sf-time").value = r.teeTime; }
       else { $("#sf-time-unknown").checked = true; $("#sf-time").disabled = true; }
@@ -5013,8 +5022,8 @@ $("#doc-sheet").addEventListener("click", (e) => {
     // (화면 위쪽 항목을 강조해도 스크롤 밖이면 안 보이므로 여기에 띄운다)
     if (!b.age.checked || !b.tos.checked) {
       const miss = [];
-      if (!b.age.checked) miss.push("만 14세 이상 확인");
-      if (!b.tos.checked) miss.push("서비스 이용약관 동의");
+      if (!b.age.checked) miss.push(tr("app.consent.miss.age"));
+      if (!b.tos.checked) miss.push(tr("app.consent.miss.tos"));
       let warn = $("#c-warn");
       if (!warn) {
         warn = document.createElement("div");
@@ -5022,7 +5031,7 @@ $("#doc-sheet").addEventListener("click", (e) => {
         warn.className = "consent-warn";
         $("#c-start").parentNode.insertBefore(warn, $("#c-start"));
       }
-      warn.textContent = `필수 항목을 체크해 주세요 — ${miss.join(", ")}`;
+      warn.textContent = tr("app.consent.miss", { list: miss.join(", ") });
       [b.age, b.tos].forEach((x) => {
         if (x.checked) return;
         const li = x.closest("li");
@@ -5136,20 +5145,20 @@ $("#doc-sheet").addEventListener("click", (e) => {
       ta.value = url; document.body.appendChild(ta); ta.select();
       document.execCommand("copy"); ta.remove();
     }
-    $("#guide-copy").textContent = "✅ 복사됐어요 — 브라우저에 붙여넣으세요";
-    setTimeout(() => { $("#guide-copy").textContent = "🔗 주소 복사하기"; }, 2500);
+    $("#guide-copy").textContent = tr("app.install.copied");
+    setTimeout(() => { $("#guide-copy").textContent = tr("app.install.copy"); }, 2500);
   });
 
   /* ---- 기기별 동작 ---- */
   function handleClick() {
     if (inApp) {
       openSheet(
-        "브라우저로 열어주세요",
-        "지금은 카카오톡 같은 앱 <b>안에서</b> 보고 있어서 홈 화면 추가가 되지 않습니다.",
+        tr("app.install.inapp.title"),
+        tr("app.install.inapp.desc"),
         [
-          `화면 오른쪽 아래 ${ICO("⋯")} 또는 ${ICO("⋮")} 버튼을 누르세요`,
-          "<b>‘다른 브라우저로 열기’</b>(사파리·크롬)를 선택하세요",
-          "열린 화면에서 <b>홈 화면에 추가</b>를 다시 누르면 됩니다",
+          tr("app.install.inapp.s1", { a: ICO("⋯"), b: ICO("⋮") }),
+          tr("app.install.inapp.s2"),
+          tr("app.install.inapp.s3"),
         ],
         true
       );
@@ -5157,12 +5166,12 @@ $("#doc-sheet").addEventListener("click", (e) => {
     }
     if (iosOtherBrowser) {
       openSheet(
-        "사파리로 열어야 추가돼요",
-        "아이폰은 <b>사파리(Safari)</b>에서만 홈 화면 추가가 가능합니다.",
+        tr("app.install.safari.title"),
+        tr("app.install.safari.desc"),
         [
-          "아래 <b>주소 복사하기</b>를 누르세요",
-          "<b>사파리</b>를 열고 주소창에 붙여넣어 이동하세요",
-          "사파리에서 <b>홈 화면에 추가</b>를 다시 누르면 됩니다",
+          tr("app.install.safari.s1"),
+          tr("app.install.safari.s2"),
+          tr("app.install.safari.s3"),
         ],
         true
       );
@@ -5170,14 +5179,14 @@ $("#doc-sheet").addEventListener("click", (e) => {
     }
     if (isIOS) {
       openSheet(
-        "아이폰 홈 화면에 추가",
-        "3초면 끝납니다. 앱처럼 아이콘으로 바로 열려요.",
+        tr("app.install.ios.title"),
+        tr("app.install.ios.desc"),
         [
           isIPad
-            ? `화면 <b>오른쪽 위</b>의 공유 버튼 ${ICO("⬆︎")} 을 누르세요`
-            : `화면 <b>아래쪽 가운데</b> 공유 버튼 ${ICO("⬆︎")} 을 누르세요`,
-          "목록을 위로 넘겨 <b>‘홈 화면에 추가’</b>를 누르세요",
-          "오른쪽 위 <b>‘추가’</b>를 누르면 끝!",
+            ? tr("app.install.ios.s1.pad", { ico: ICO("⬆︎") })
+            : tr("app.install.ios.s1", { ico: ICO("⬆︎") }),
+          tr("app.install.ios.s2"),
+          tr("app.install.ios.s3"),
         ],
         false
       );
@@ -5193,12 +5202,12 @@ $("#doc-sheet").addEventListener("click", (e) => {
       return;
     }
     openSheet(
-      "홈 화면에 추가",
-      "브라우저 메뉴에서 한 번만 눌러주면 됩니다.",
+      tr("app.install.etc.title"),
+      tr("app.install.etc.desc"),
       [
-        `브라우저 <b>메뉴</b> ${ICO("⋮")} 를 누르세요`,
-        "<b>‘홈 화면에 추가’</b> 또는 <b>‘앱 설치’</b>를 누르세요",
-        "<b>‘추가’</b>를 누르면 끝!",
+        tr("app.install.etc.s1", { ico: ICO("⋮") }),
+        tr("app.install.etc.s2"),
+        tr("app.install.etc.s3"),
       ],
       false
     );
@@ -5209,14 +5218,14 @@ $("#doc-sheet").addEventListener("click", (e) => {
     if (installed()) { cta.hidden = true; return; }
     if (snoozed()) { cta.hidden = true; return; }
     if (inApp) {
-      $("#install-title").textContent = "홈 화면에 추가";
-      $("#install-sub").textContent = "브라우저로 열면 앱처럼 쓸 수 있어요";
+      $("#install-title").textContent = tr("app.install.cta.title");
+      $("#install-sub").textContent = tr("app.install.cta.inapp");
     } else if (isIOS) {
-      $("#install-title").textContent = "홈 화면에 추가";
-      $("#install-sub").textContent = "아이폰에서 3초면 끝나요";
+      $("#install-title").textContent = tr("app.install.cta.title");
+      $("#install-sub").textContent = tr("app.install.cta.ios");
     } else if (isAndroid) {
-      $("#install-title").textContent = "홈 화면에 추가";
-      $("#install-sub").textContent = "앱처럼 바로 열려요";
+      $("#install-title").textContent = tr("app.install.cta.title");
+      $("#install-sub").textContent = tr("app.install.cta.aos");
     } else if (!window.__installPrompt) {
       cta.hidden = true; return;               // PC는 설치 가능할 때만 노출
     }
@@ -5279,9 +5288,9 @@ const BACKUP = (() => {
       const j = await r.json();
       if (j && j.ok) { s.hash = h; s.last = Date.now(); s.err = null; put(s); refreshUI(); return true; }
       // 서버가 응답은 했는데 저장은 안 된 경우 — 백엔드가 옛 버전이면 여기로 온다
-      s.err = (j && j.err) ? String(j.err) : "서버가 백업을 저장하지 못했습니다";
+      s.err = (j && j.err) ? String(j.err) : tr("app.bk.err.server");
     } catch (_) {
-      s.err = "서버에 연결하지 못했습니다";
+      s.err = tr("app.bk.err.net");
     }
     put(s); refreshUI();
     return false;
@@ -5308,36 +5317,36 @@ const BACKUP = (() => {
     s.on = true; put(s);
     refreshUI();
     const btn = $("#bk-enable");
-    if (btn) { btn.disabled = true; btn.textContent = "백업 확인 중..."; }
+    if (btn) { btn.disabled = true; btn.textContent = tr("app.bk.checking"); }
     // ⚠️ 첫 백업이 실제로 저장됐는지 확인하고 나서 '켜짐'이라고 말한다.
     //    (2026-07-27: 백엔드에 백업 기능이 배포되지 않았는데도 '켜짐 · 첫 백업 대기 중'만
     //     계속 떠서, 사용자는 백업된 줄 알고 앱을 지웠다가 기록을 잃었다.)
     const ok = await send(true);
-    if (btn) { btn.disabled = false; btn.textContent = "백업 켜기"; }
+    if (btn) { btn.disabled = false; btn.textContent = tr("app.bk.enable"); }
     if (!ok) { const t = st(); t.on = false; put(t); refreshUI(); }
   }
 
   async function restore(codeRaw) {
     const code = String(codeRaw || "").replace(/[^0-9]/g, "");
     const msg = $("#bk-restore-msg");
-    if (code.length < 10) { msg.textContent = "코드 12자리를 입력해 주세요."; return; }
-    msg.textContent = "서버에서 기록을 찾는 중...";
+    if (code.length < 10) { msg.textContent = tr("app.bk.code.short"); return; }
+    msg.textContent = tr("app.bk.searching");
     let j = null;
     try {
       const r = await fetchT(window.RIW_BACKEND + "?fn=restore&code=" + code, null, 15000);
       j = await r.json();
     } catch (_) {}
     if (!j) {
-      msg.textContent = "서버에 연결하지 못했습니다. 잠시 후 다시 시도해 주세요.";
+      msg.textContent = tr("app.bk.restore.net");
       return;
     }
     // 백엔드가 restore 를 모르면 기본 응답(service)만 돌아온다 → 코드 탓으로 돌리면 안 된다
     if (j.service && !("data" in j) && !("err" in j)) {
-      msg.textContent = "서버에 복구 기능이 아직 준비되지 않았습니다. 코드 문제가 아니니 관리자에게 알려주세요.";
+      msg.textContent = tr("app.bk.restore.na");
       return;
     }
     if (!j.ok || !j.data) {
-      msg.textContent = "이 코드로 저장된 기록이 없습니다. 코드를 다시 확인해 주세요.";
+      msg.textContent = tr("app.bk.restore.none");
       return;
     }
     const d = j.data;
@@ -5356,7 +5365,7 @@ const BACKUP = (() => {
     const s = st(); s.code = code; s.on = true; s.hash = null; put(s);
     renderHome();
     refreshUI();
-    msg.textContent = `✅ 복구 완료 — 즐겨찾기 ${cur.length}곳 · 스코어 ${sc.length}건`;
+    msg.textContent = tr("app.bk.restore.ok", { courses: cur.length, scores: sc.length });
   }
 
   function refreshUI() {
@@ -5365,20 +5374,19 @@ const BACKUP = (() => {
     if (!codeEl) return;
     if (s.on && s.code && s.last) {
       codeEl.textContent = fmt(s.code);
-      stateEl.textContent = "자동 백업 켜짐 · 마지막 백업 " +
-        new Date(s.last).toLocaleString("ko-KR", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
+      stateEl.textContent = tr("app.bk.state.on", {
+        t: new Date(s.last).toLocaleString("ko-KR", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }) });
       stateEl.classList.remove("bk-bad");
       $("#bk-enable").hidden = true;
       $("#bk-code-wrap").hidden = false;
     } else if (s.err) {
       // 실패를 감추지 않는다 — 백업된 줄 알고 앱을 지우는 것이 가장 큰 사고다
-      stateEl.textContent = "⚠️ 백업 실패 — " + s.err +
-        "\n아직 아무것도 저장되지 않았습니다. 지금 앱을 지우면 기록이 사라집니다.";
+      stateEl.textContent = tr("app.bk.state.err", { err: s.err });
       stateEl.classList.add("bk-bad");
       $("#bk-enable").hidden = false;
       $("#bk-code-wrap").hidden = true;
     } else {
-      stateEl.textContent = "백업이 꺼져 있습니다 — 앱을 지우면 기록이 사라집니다";
+      stateEl.textContent = tr("app.bk.state.off");
       stateEl.classList.remove("bk-bad");
       $("#bk-enable").hidden = false;
       $("#bk-code-wrap").hidden = true;
@@ -5402,8 +5410,8 @@ $("#backup-sheet")?.addEventListener("click", (e) => { if (e.target === $("#back
 $("#bk-copy")?.addEventListener("click", async () => {
   const t = $("#bk-code").textContent;
   try { await navigator.clipboard.writeText(t); } catch (_) {}
-  $("#bk-copy").textContent = "✅ 복사됨";
-  setTimeout(() => { $("#bk-copy").textContent = "복사"; }, 2000);
+  $("#bk-copy").textContent = tr("app.bk.copied");
+  setTimeout(() => { $("#bk-copy").textContent = tr("app.bk.copy"); }, 2000);
 });
 $("#bk-restore-btn")?.addEventListener("click", () => BACKUP.restore($("#bk-restore-input").value));
 
@@ -5413,8 +5421,9 @@ $("#bk-restore-btn")?.addEventListener("click", () => BACKUP.restore($("#bk-rest
    ⚠️ 이름·연락처는 받지 않는다. 함께 가는 건 앱 버전·기기 종류·현재 화면뿐이고,
       그 사실을 시트 안에 그대로 적어 이용자가 보고 보내게 한다. */
 const SCREEN_KO = {
-  home: "홈", hub: "골프장 메뉴", detail: "날씨", course: "코스 공략",
-  food: "맛집", score: "스코어", stay: "숙소", booking: "부킹", clubfit: "클럽 피팅",
+  home: tr("app.screen.home"), hub: tr("app.screen.hub"), detail: tr("app.screen.detail"),
+  course: tr("app.screen.course"), food: tr("app.screen.food"), score: tr("app.screen.score"),
+  stay: tr("app.screen.stay"), booking: tr("app.screen.booking"), clubfit: tr("app.screen.clubfit"),
 };
 const FB_UI = (() => {
   let cat = "", stars = 0, sending = false;
@@ -5445,16 +5454,15 @@ const FB_UI = (() => {
     el("fb-count").textContent = "0";
     msg("");
     const send = el("fb-send");
-    if (send) { send.disabled = false; send.textContent = "보내기"; }
+    if (send) { send.disabled = false; send.textContent = tr("app.fb.send"); }
 
-    const dev = /iPhone|iPad|iPod/i.test(navigator.userAgent) ? "아이폰"
-      : /Android/i.test(navigator.userAgent) ? "안드로이드" : "PC";
-    const scr = SCREEN_KO[window.__curView] || "홈";
+    const dev = /iPhone|iPad|iPod/i.test(navigator.userAgent) ? tr("app.fb.dev.ios")
+      : /Android/i.test(navigator.userAgent) ? tr("app.fb.dev.aos") : tr("app.fb.dev.pc");
+    const scr = SCREEN_KO[window.__curView] || tr("app.screen.home");
     const waiting = typeof FEEDBACK !== "undefined" ? FEEDBACK.pending() : 0;
     el("fb-note").innerHTML =
-      `함께 보내지는 정보: <b>앱 ${APP_VER} · ${dev} · 방금 있던 화면(${scr})</b><br>` +
-      "이름·전화번호·위치는 보내지 않습니다. 내용에도 개인정보는 적지 말아 주세요." +
-      (waiting ? `<br><b>보내지 못한 의견 ${waiting}건</b>이 남아 있어 함께 다시 보냅니다.` : "");
+      tr("app.fb.note", { ver: APP_VER, dev: dev, screen: scr }) +
+      (waiting ? tr("app.fb.note.waiting", { n: waiting }) : "");
 
     el("fb-sheet").hidden = false;
     if (typeof FEEDBACK !== "undefined") FEEDBACK.flush();   // 밀린 것 먼저 정리
@@ -5465,12 +5473,12 @@ const FB_UI = (() => {
   async function submit() {
     if (sending) return;
     const text = (el("fb-text").value || "").trim();
-    if (!cat) { msg("어떤 이야기인지 위에서 하나 골라 주세요.", "bad"); return; }
-    if (text.length < 5) { msg("내용을 조금만 더 적어 주세요. (5자 이상)", "bad"); return; }
+    if (!cat) { msg(tr("app.fb.need.cat"), "bad"); return; }
+    if (text.length < 5) { msg(tr("app.fb.need.text"), "bad"); return; }
 
     sending = true;
     const btn = el("fb-send");
-    btn.disabled = true; btn.textContent = "보내는 중...";
+    btn.disabled = true; btn.textContent = tr("app.fb.sending");
     msg("");
 
     const res = await FEEDBACK.send({
@@ -5478,27 +5486,27 @@ const FB_UI = (() => {
     });
 
     sending = false;
-    btn.disabled = false; btn.textContent = "보내기";
+    btn.disabled = false; btn.textContent = tr("app.fb.send");
 
     if (res.ok) {
-      msg("고맙습니다! 잘 받았습니다.\n다음 업데이트에 반영할게요.", "ok");
+      msg(tr("app.fb.ok"), "ok");
       el("fb-text").value = "";
       el("fb-count").textContent = "0";
       setTimeout(() => { if (!el("fb-sheet").hidden) close(); }, 1800);
       return;
     }
     if (res.limit) {
-      msg("오늘은 여기까지 받겠습니다. (하루 5건)\n내일 또 알려주세요 — 이미 보내주신 건 잘 보관돼 있습니다.", "bad");
+      msg(tr("app.fb.limit"), "bad");
       return;
     }
     if (res.queued) {
       // 서버에 못 닿았을 뿐 내용은 폰에 남아 있다 — 사라졌다고 오해하지 않게 분명히 말한다
-      msg("지금 서버에 연결되지 않아 폰에 보관했습니다.\n인터넷이 되면 자동으로 보내집니다. (앱을 지우지만 마세요)", "bad");
+      msg(tr("app.fb.queued"), "bad");
       el("fb-text").value = "";
       el("fb-count").textContent = "0";
       return;
     }
-    msg(res.err ? "보내지 못했습니다 — " + res.err : "보내지 못했습니다. 잠시 후 다시 시도해 주세요.", "bad");
+    msg(res.err ? tr("app.fb.fail.err", { err: res.err }) : tr("app.fb.fail"), "bad");
   }
 
   document.addEventListener("click", (e) => {
@@ -5529,7 +5537,7 @@ document.querySelector(".beta-badge")?.addEventListener("click", () => FB_UI.ope
 
 /* ---------- 시작 ---------- */
 document.querySelector(".beta-badge").textContent = "BETA " + APP_VER;
-document.querySelector(".beta-badge").title = "눌러서 베타 의견 보내기";
+document.querySelector(".beta-badge").title = tr("app.beta.title");
 { const cv = document.getElementById("consent-ver"); if (cv) cv.textContent = APP_VER; }
 
 /* 버전이 올라갔으면 무엇이 바뀌었는지 잠깐 알려준다 */
