@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>일본 구장 수집 검수</title>
+<!--
+  일본 구장 수집 검수용 미리보기 (2026-08-01 신설)
+
+  왜 앱이 아니라 별도 페이지인가:
+    두 창(한국 유튜브 / 일본 수집)이 같은 폴더를 쓰는 동안 js/app.js·index.html 을
+    건드리면 서로의 작업이 딸려 간다(docs/일본_6메뉴_데이터_설계.md §8).
+    앱 배선 전에도 **모은 자료가 맞는지는 지금 확인해야** 하므로 검수 창을 따로 둔다.
+
+  보는 법: 로컬 서버를 띄우고  http://localhost:8734/tools/jp/preview_jp.html
+  앞으로 구장을 더 모을 때마다 여기서 먼저 눈으로 본 뒤 본수집한다.
+-->
+<style>
+  :root{ --bg:#f5f6f8; --card:#fff; --line:#e6e8ec; --text:#191f28; --dim:#6b7684; --faint:#8b95a1;
+         --primary:#0b9e36; --warn:#d94a4a; --radius:16px; --shadow:0 1px 3px rgba(0,0,0,.06),0 6px 18px rgba(0,0,0,.04); }
+  @media (prefers-color-scheme: dark){
+    :root{ --bg:#15171c; --card:#1e2128; --line:#2c313a; --text:#eef1f5; --dim:#9aa5b1; --faint:#78828d;
+           --shadow:0 1px 3px rgba(0,0,0,.4); } }
+  *{box-sizing:border-box}
+  body{margin:0;padding:0 0 60px;background:var(--bg);color:var(--text);
+       font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;letter-spacing:-.02em}
+  .wrap{max-width:960px;margin:0 auto;padding:20px 16px}
+  h1{font-size:22px;font-weight:800;margin:4px 0 2px}
+  .sub{font-size:13px;color:var(--faint);margin:0 0 16px;line-height:1.6}
+  .tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+  .tab{padding:9px 14px;border-radius:999px;border:1px solid var(--line);background:var(--card);
+       color:var(--dim);font:inherit;font-size:13px;font-weight:700;cursor:pointer}
+  .tab.on{background:var(--primary);border-color:var(--primary);color:#fff}
+  .meta{background:var(--card);border-radius:var(--radius);padding:14px 16px;box-shadow:var(--shadow);margin-bottom:14px;
+        font-size:13px;line-height:1.75}
+  .meta b{font-weight:700}
+  .meta a{color:var(--primary)}
+  .badge{display:inline-block;padding:2px 9px;border-radius:999px;background:var(--bg);border:1px solid var(--line);
+         font-size:11.5px;font-weight:700;color:var(--dim);margin-left:6px}
+  .badge.warn{background:rgba(217,74,74,.12);border-color:transparent;color:var(--warn)}
+  h2{font-size:16px;font-weight:800;margin:22px 0 10px;padding-left:2px}
+  .holes{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px}
+  .hole{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;display:flex;flex-direction:column}
+  .hole img{width:100%;display:block;background:#fff;aspect-ratio:3/4;object-fit:contain}
+  .hole .noimg{aspect-ratio:3/4;display:flex;align-items:center;justify-content:center;color:var(--faint);font-size:13px;background:var(--bg)}
+  .hd{display:flex;align-items:baseline;gap:8px;padding:10px 12px 4px}
+  .hd .no{font-size:18px;font-weight:800}
+  .hd .par{font-size:13px;color:var(--dim);font-weight:700}
+  .hd .hdcp{margin-left:auto;font-size:11.5px;color:var(--faint)}
+  .tees{display:flex;flex-wrap:wrap;gap:5px;padding:2px 12px 12px}
+  .tee{display:flex;align-items:center;gap:4px;font-size:12px;color:var(--dim);
+       background:var(--bg);border-radius:8px;padding:3px 7px}
+  .dot{width:9px;height:9px;border-radius:50%;flex:none;border:1px solid rgba(0,0,0,.15)}
+  .tee b{font-weight:700;color:var(--text);font-variant-numeric:tabular-nums}
+  .note{margin-top:18px;font-size:12px;color:var(--faint);line-height:1.7}
+  .err{background:rgba(217,74,74,.12);color:var(--warn);padding:14px 16px;border-radius:var(--radius);font-size:14px;font-weight:600}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>일본 구장 수집 검수</h1>
+  <p class="sub">모은 자료가 <b>공식 사이트와 같은지</b> 눈으로 대조하는 화면입니다.
+     각 구장의 ‘공식 페이지 열기’를 눌러 홀맵·파·야드를 비교해 주세요.<br>
+     앱 화면이 아니라 검수 전용입니다 — 앱 배선은 한국 유튜브 작업이 끝난 뒤에 합니다.</p>
+  <div class="tabs" id="tabs"></div>
+  <div id="body"></div>
+  <p class="note" id="foot"></p>
+</div>
+
+<script src="../../js/holeimgdb_jp.js"></script>
+<script>
+"use strict";
+var DB = (typeof HOLEIMG_DB_JP !== "undefined") ? HOLEIMG_DB_JP : null;
+var TEE_COLOR = { Blue:"#2f6ef0", White:"#ffffff", Green:"#2ea06a", Red:"#e04b4b",
+                  Gold:"#d4a017", Black:"#333333", Silver:"#b8bec7" };
+var $ = function (id) { return document.getElementById(id); };
+var esc = function (s) { return String(s == null ? "" : s)
+  .replace(/[&<>"']/g, function (c) { return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]; }); };
+
+function render(name) {
+  var d = DB[name];
+  var unit = d.unit === "yd" ? "야드" : "미터";
+  var totalHoles = d.courses.reduce(function (a, c) { return a + c.holes.length; }, 0);
+  var imgs = 0, seen = {};
+  d.courses.forEach(function (c) { c.holes.forEach(function (h) { if (h.img) { imgs++; seen[h.img] = 1; } }); });
+  var dupWarn = imgs !== Object.keys(seen).length
+    ? '<span class="badge warn">같은 그림이 여러 홀에 붙어 있습니다</span>' : "";
+
+  var html = '<div class="meta">' +
+    "<div><b>" + esc(name) + "</b>" +
+    '<span class="badge">' + totalHoles + "홀 · " + d.courses.length + "개 코스</span>" +
+    '<span class="badge">거리 단위 ' + unit + "</span>" +
+    (d.green ? '<span class="badge">' + esc(d.green) + "그린 기준 (그린 " + (d.greens || 2) + "개)</span>"
+             : '<span class="badge">그린 1개</span>') + dupWarn + "</div>" +
+    "<div>출처: " + esc(d.source) + " · 그림 " + imgs + "장</div>" +
+    '<div><a href="' + esc(d.sourceUrl) + '" target="_blank" rel="noopener">공식 페이지 열기 ↗</a>' +
+    " — 이 화면의 숫자·그림과 대조해 주세요</div></div>";
+
+  d.courses.forEach(function (c) {
+    html += "<h2>" + esc(c.name) + " 코스 <span class=\"badge\">" + c.holes.length + "홀</span></h2>";
+    html += '<div class="holes">';
+    c.holes.forEach(function (h) {
+      html += '<div class="hole">' +
+        (h.img ? '<img loading="lazy" src="../../' + esc(h.img) + '" alt="">'
+               : '<div class="noimg">홀맵 없음</div>') +
+        '<div class="hd"><span class="no">' + h.no + "번</span>" +
+        '<span class="par">PAR ' + h.par + "</span>" +
+        (h.hdcp ? '<span class="hdcp">HDCP ' + h.hdcp + "</span>" : "") + "</div>" +
+        '<div class="tees">' +
+        (h.tees || []).map(function (t) {
+          var col = TEE_COLOR[t.name] || "#999";
+          return '<span class="tee"><i class="dot" style="background:' + col + '"></i>' +
+                 esc(t.name) + " <b>" + t.y + "</b></span>";
+        }).join("") + "</div></div>";
+    });
+    html += "</div>";
+  });
+  $("body").innerHTML = html;
+}
+
+if (!DB || !Object.keys(DB).length) {
+  $("body").innerHTML = '<div class="err">아직 수집된 일본 구장이 없습니다.<br>' +
+    'python tools/jp/accordia_collect.py --sample 3 → python tools/jp/build_holeimgdb_jp.py 를 먼저 실행하세요.</div>';
+} else {
+  var names = Object.keys(DB);
+  $("tabs").innerHTML = names.map(function (n, i) {
+    return '<button class="tab' + (i ? "" : " on") + '" data-n="' + esc(n) + '">' + esc(n) + "</button>";
+  }).join("");
+  $("tabs").addEventListener("click", function (e) {
+    var b = e.target.closest(".tab");
+    if (!b) return;
+    Array.prototype.forEach.call(this.querySelectorAll(".tab"), function (x) { x.classList.toggle("on", x === b); });
+    render(b.dataset.n);
+  });
+  render(names[0]);
+  var holes = names.reduce(function (a, n) {
+    return a + DB[n].courses.reduce(function (b, c) { return b + c.holes.length; }, 0); }, 0);
+  $("foot").textContent = "수집된 구장 " + names.length + "곳 · 총 " + holes + "홀 · " +
+    "거리는 모두 야드입니다(일본 구장 표지판과 같은 단위 — 미터로 환산하지 않습니다).";
+}
+</script>
+</body>
+</html>
