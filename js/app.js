@@ -4,8 +4,8 @@
  * ========================================================= */
 "use strict";
 
-const APP_VER = "v186"; // 배포 버전 (홈 화면 배지에 표시)
-const APP_NOTE = "관리자 로그인"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
+const APP_VER = "v187"; // 배포 버전 (홈 화면 배지에 표시)
+const APP_NOTE = "구장 공략 영상"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
 const STORAGE_KEY = "riweather.courses.v1";
 
 /* 나중에 필요할 때 불러오는 파일 목록 (2026-07-31 신설).
@@ -1938,6 +1938,8 @@ async function openCourseView() {
   $("#hole-list-card").hidden = true;
   $("#hole-detail-card").hidden = true;
   $("#course-note").hidden = true;
+  // 공략 영상은 홀맵 유무와 상관없이 붙는다 — 홀맵을 못 구한 구장에서 이 화면이 비지 않게 한다
+  renderCourseVideos(course);
   // 지도 라이브러리가 없어도(구버전 캐시 등) 홀맵·공략은 계속 보이게 한다
   if (typeof L !== "undefined") {
     ensureCourseMap(course.lat, course.lon);
@@ -2099,6 +2101,83 @@ async function openCourseView() {
     if (byUser) $("#hole-detail-card").scrollIntoView({ behavior: "smooth", block: "start" });
   }
   selectHole(0);
+}
+
+/* ---------- 구장 공략 영상 (유튜브) ----------
+ *
+ * 사장님 지시(2026-08-01): "홀맵이 있건 없건 그 구장 공략 영상을 골프존처럼 깔끔하게,
+ * 영향력 있는 순서로 밑에 하나하나 나열해 달라."
+ *
+ * ⚠️ 조회수는 유튜브 정책상 30일 이상 보관 금지(Non-Authorized Data).
+ *    그래서 수집 기준일(COURSE_VIDEOS_AT)을 화면에 함께 찍는다. 2주마다 재수집할 것.
+ * ⚠️ 조회수·좋아요를 섞은 자체 점수를 화면에 쓰지 않는다(정책 III.E.4.h).
+ *    정렬은 수집 단계에서 조회수 그대로 끝내 두었다.
+ * ⚠️ 처음부터 iframe 을 여러 개 심으면 화면이 무거워지고 데이터도 많이 쓴다.
+ *    썸네일만 깔고 **누른 것만** 재생기로 바꾼다(유튜브 권장 방식이기도 하다).
+ */
+function courseVideosFor(course) {
+  if (typeof COURSE_VIDEOS === "undefined" || !course) return [];
+  const direct = COURSE_VIDEOS[course.name];
+  if (direct) return direct;
+  // 이름 표기가 달라도 찾도록 — 부킹 번호표와 같은 핵심어 매칭
+  const k = typeof bkCore === "function" ? bkCore(course.name) : "";
+  if (!k) return [];
+  for (const n in COURSE_VIDEOS) {
+    if (typeof bkCore === "function" && bkCore(n) === k) return COURSE_VIDEOS[n];
+  }
+  return [];
+}
+
+const cvViews = (n) => n >= 10000 ? Math.round(n / 1000) + "천회"
+                     : n > 0 ? n.toLocaleString("ko-KR") + "회" : "";
+
+function renderCourseVideos(course) {
+  const card = $("#course-videos-card"), list = $("#cv-list"), more = $("#cv-more");
+  if (!card) return;
+  const vids = courseVideosFor(course);
+  // 없으면 카드를 통째로 감춘다 — 빈 목록을 보여주느니 없는 게 낫다.
+  // 대신 검색 링크는 홀 카드에 이미 있다(없는 걸 있는 척하지 않는다).
+  card.hidden = !vids.length;
+  // 비었으면 목록도 비운다. 안 비우면 앞 구장에서 **재생 중이던 iframe 이 숨은 채로 살아남아
+  // 소리가 계속 난다**(2026-08-01 확인). 화면에 안 보인다고 없어진 게 아니다.
+  if (!vids.length) { list.innerHTML = ""; $("#cv-sub").textContent = ""; return; }
+
+  const at = typeof COURSE_VIDEOS_AT !== "undefined" ? COURSE_VIDEOS_AT : "";
+  // 기준일은 반드시 화면에 남긴다 — 조회수 30일 보관 규정 때문이다(설계 §4)
+  $("#cv-sub").textContent = tr("ui.course.videos.sub", { n: vids.length })
+    + (at ? tr("ui.course.videos.at", { at }) : "");
+  list.innerHTML = vids.map((v) => `
+    <div class="cv-item" data-vid="${v.videoId}">
+      <div class="cv-thumb">
+        <!-- loading="lazy" 를 쓰지 않는다 — 한 구장에 많아야 10편이고,
+             화면이 가려진 상태에서는 lazy 가 영영 안 뜨는 경우가 있다(2026-08-01 겪음) -->
+        <img src="https://i.ytimg.com/vi/${v.videoId}/hqdefault.jpg" alt="">
+        <span class="cv-play" aria-hidden="true"></span>
+      </div>
+      <div class="cv-meta">
+        <b>${v.title}</b>
+        <small>${v.channel}${v.views ? " · " + cvViews(v.views) : ""}</small>
+      </div>
+    </div>`).join("");
+
+  // 누르면 그 자리에서 재생 — 이미 재생 중인 것은 그대로 둔다
+  list.querySelectorAll(".cv-item").forEach((el) => {
+    el.addEventListener("click", () => {
+      if (el.querySelector("iframe")) return;
+      const id = el.dataset.vid;
+      const box = el.querySelector(".cv-thumb");
+      box.innerHTML =
+        `<iframe src="https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0"
+           title="공략 영상" frameborder="0" allow="accelerometer; autoplay; encrypted-media; picture-in-picture"
+           allowfullscreen></iframe>`;
+      if (typeof STATS !== "undefined") STATS.hit("feature", "coursevideo_play");
+    });
+  });
+
+  // 출처 표기 — 유튜브 약관상 원본으로 가는 길을 열어둔다
+  more.href = "https://www.youtube.com/results?search_query=" +
+              encodeURIComponent(course.name + " 코스공략");
+  more.textContent = "▶ 유튜브에서 더 보기";
 }
 
 /* ---------- 공식 홀맵 이미지 모드 (홈페이지 홀맵 그대로 + AI 캐디) ---------- */

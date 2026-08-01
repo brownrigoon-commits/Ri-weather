@@ -1,5 +1,5 @@
 ﻿/* 투어리스트(구 골프라이프) 서비스 워커 — 앱 뼈대는 캐시, 날씨 데이터는 항상 네트워크 */
-const CACHE = "riweather-v186";
+const CACHE = "riweather-v187";
 const CORE = [
   "./",
   "./index.html",
@@ -25,6 +25,7 @@ const CORE = [
   "./js/golfdb.js",
   "./js/holesdb.js",
   "./js/holeimgdb.js",
+  "./js/coursevideos.js",
   "./manifest.webmanifest",
   "./icons/icon-192.png",
   "./icons/icon-512.png",

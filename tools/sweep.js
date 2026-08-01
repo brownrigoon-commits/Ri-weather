@@ -19,6 +19,7 @@
     "js/weatherfx.js": ["WXFX"],
     "js/stay.js": ["openStayView", "fetchKakaoStay", "stayKind", "bookingLinks", "stayCache", "STAY_VIEW"],
     "js/booking.js": ["openBookingView", "golfpangUrl", "golfmonUrl", "bookingLinkCards", "BOOKING_VIEW"],
+    "js/coursevideos.js": ["COURSE_VIDEOS", "COURSE_VIDEOS_AT"],
     "js/bookingids.js": ["BOOKING_IDS"],
     "js/spirit.js": ["openSpiritView", "SPIRIT_VIEW", "todayQuote", "renderQuoteCard"],
     "js/spiritdb.js": ["SPIRIT_DB", "QUOTES_DB"],
@@ -779,6 +780,59 @@
       spView.hidden = wasHidden;
     }
   } catch (e) { add("골프 정신 검사 예외", "spirit", e.message); }
+
+  /* ── 3-12. 구장 공략 영상 — 정렬·기준일·표기 ────────────────────
+     이 화면은 남의 플랫폼 데이터를 쓰므로 규칙을 어기면 서비스가 막힐 수 있다.
+     · 조회수는 30일 이상 보관 금지 → 기준일(COURSE_VIDEOS_AT)이 최신이어야 한다
+     · 정렬은 조회수 그대로 (자체 점수를 화면에 쓰지 않는다)
+     · 영상이 없으면 카드를 감춘다 — 빈 목록을 보여주지 않는다 */
+  try {
+    const names = Object.keys(COURSE_VIDEOS);
+    if (!names.length) add("공략 영상이 한 편도 없음", "coursevideos", "수집 스크립트 확인");
+    // 기준일 — 30일이 넘으면 유튜브 정책 위반이다
+    const age = (Date.now() - new Date(COURSE_VIDEOS_AT + "T00:00:00+09:00")) / 864e5;
+    if (!(age >= 0)) add("영상 기준일 형식 오류", "COURSE_VIDEOS_AT", String(COURSE_VIDEOS_AT));
+    else if (age > 30) add("영상 조회수가 30일보다 오래됨(유튜브 정책 위반)", "COURSE_VIDEOS_AT",
+                           COURSE_VIDEOS_AT + " · " + Math.round(age) + "일 전 — 재수집 필요");
+    else if (age > 14) add("영상 조회수 갱신 주기(2주)를 넘김", "COURSE_VIDEOS_AT", Math.round(age) + "일 전");
+    names.forEach((n) => {
+      const vs = COURSE_VIDEOS[n];
+      for (let i = 1; i < vs.length; i++) {
+        if (vs[i - 1].views < vs[i].views) add("영상이 조회수 순이 아님", n, vs[i - 1].views + " < " + vs[i].views);
+      }
+      // 구장 이름이 아닌 키가 섞이면 **남의 구장 영상을 가로챈 것**이다.
+      // "솔모로CC 파인코스공략" 이 '파인코스' 라는 이름에 붙은 적이 있다(2026-08-01).
+      if (/^(골프장|론볼장|시작|주차장|클럽하우스)$/.test(n) ||
+          (/코스$/.test(n) && !/(CC|GC|클럽|컨트리|골프|리조트|밸리|힐|파크)/i.test(n.replace(/코스/g, ""))))
+        add("구장 이름이 아닌 키에 영상이 붙음", n, "수집기 is_club_name 확인");
+      vs.forEach((v) => {
+        if (!/^[\w-]{11}$/.test(v.videoId)) add("영상 ID 형식 오류", n, String(v.videoId));
+        if (!v.title || /undefined|null/.test(v.title)) add("영상 제목이 비었음", n, String(v.title));
+      });
+    });
+    // 실제로 그려보고, 영상 없는 구장에서 카드가 사라지는지
+    const keep = currentCourse;
+    currentCourse = { name: names[0], lat: 37, lon: 127 };
+    renderCourseVideos(currentCourse);
+    const card = document.querySelector("#course-videos-card");
+    if (card && card.hidden) add("영상이 있는데 카드가 안 뜸", names[0], "");
+    const items = document.querySelectorAll(".cv-item").length;
+    if (items !== COURSE_VIDEOS[names[0]].length)
+      add("영상 개수가 화면과 다름", names[0], items + " ≠ " + COURSE_VIDEOS[names[0]].length);
+    const sub = (document.querySelector("#cv-sub") || {}).textContent || "";
+    if (sub.indexOf(COURSE_VIDEOS_AT) < 0) add("화면에 기준일이 없음(유튜브 표시 규칙)", "cv-sub", sub);
+    // 영상 없는 구장으로 넘어갈 때: 카드만 감추고 내용을 남기면
+    // **재생 중이던 영상이 숨은 채로 계속 소리를 낸다**(2026-08-01 실제로 났던 버그)
+    const it = document.querySelector("#cv-list .cv-item");
+    if (it) it.click();                                  // 한 편 재생시켜 놓고
+    renderCourseVideos({ name: "없는골프장XYZ", lat: 37, lon: 127 });
+    if (card && !card.hidden) add("영상이 없는데 빈 카드가 뜸", "없는골프장XYZ", "");
+    if (document.querySelectorAll("#cv-list iframe").length)
+      add("영상 없는 구장인데 재생 중인 영상이 남음(소리 계속 남)", "cv-list", "renderCourseVideos 비우기 확인");
+    if (document.querySelectorAll("#cv-list .cv-item").length)
+      add("영상 없는 구장인데 앞 구장 목록이 남음", "cv-list", "renderCourseVideos 비우기 확인");
+    currentCourse = keep;
+  } catch (e) { add("공략 영상 검사 예외", "coursevideos", e.message); }
 
   /* ── 4. 브랜드 잔재 점검 ─────────────────────────────────────── */
   const html = document.body.innerText;
