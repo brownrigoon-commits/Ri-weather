@@ -30,6 +30,7 @@ SOURCE_SITES = {
     "東京建物": "tatemono-resort.com",
     "多摩興産": "tfn-style.com",
     "PGM": "pacificgolf.co.jp",
+    "じゃらん": "golf-jalan.net",       # 등뼈 층 (2026-08-01, 설계 §2-1)
 }
 PAR_RANGE = (3, 5)
 

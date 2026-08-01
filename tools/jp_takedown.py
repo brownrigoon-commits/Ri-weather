@@ -36,6 +36,9 @@ SOURCES = {
     "tatemono":  {"mark": "東京建物",     "name": "도쿄건물 리조트", "site": "tatemono-resort.com"},
     "tama":      {"mark": "多摩興産",     "name": "다마흥산",       "site": "tfn-style.com"},
     "pgm":       {"mark": "PGM",          "name": "PGM(수치 전용)",  "site": "pacificgolf.co.jp"},
+    # 2026-08-01 추가 — 홀맵 '등뼈' 층(235px, 사실상 전 구장. docs/일본_6메뉴_데이터_설계.md §2-1).
+    # 리크루트 계열이라 통지가 오면 じゃらん분만 내리고 아코디아 등 고화질 층은 남긴다.
+    "jalan":     {"mark": "じゃらん",     "name": "쟈란골프(리크루트)", "site": "golf-jalan.net"},
 }
 
 
