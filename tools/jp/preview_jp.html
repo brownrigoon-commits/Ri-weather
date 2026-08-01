@@ -123,16 +123,16 @@ if (!DB || !Object.keys(DB).length) {
   $("body").innerHTML = '<div class="err">아직 수집된 일본 구장이 없습니다.<br>' +
     'python tools/jp/accordia_collect.py --sample 3 → python tools/jp/build_holeimgdb_jp.py 를 먼저 실행하세요.</div>';
 } else {
-  var names = Object.keys(DB);
-  $("tabs").innerHTML = names.map(function (n, i) {
-    return '<button class="tab' + (i ? "" : " on") + '" data-n="' + esc(n) + '">' + esc(n) + "</button>";
-  }).join("");
-  $("tabs").addEventListener("click", function (e) {
-    var b = e.target.closest(".tab");
-    if (!b) return;
-    Array.prototype.forEach.call(this.querySelectorAll(".tab"), function (x) { x.classList.toggle("on", x === b); });
-    render(b.dataset.n);
-  });
+  var names = Object.keys(DB).sort();
+  // 구장이 100곳을 넘어가면 탭만으로는 못 찾는다 — 고르는 상자로 바꾼다
+  $("tabs").innerHTML =
+    '<select id="pick" style="padding:10px 12px;border-radius:10px;border:1px solid var(--line);' +
+    'background:var(--card);color:var(--text);font:inherit;font-size:14px;max-width:100%">' +
+    names.map(function (n, i) {
+      return '<option value="' + esc(n) + '"' + (i ? "" : " selected") + ">" + esc(n) + "</option>";
+    }).join("") + "</select>" +
+    '<span style="font-size:12.5px;color:var(--faint);align-self:center">' + names.length + "곳</span>";
+  document.getElementById("pick").addEventListener("change", function () { render(this.value); });
   render(names[0]);
   var holes = names.reduce(function (a, n) {
     return a + DB[n].courses.reduce(function (b, c) { return b + c.holes.length; }, 0); }, 0);

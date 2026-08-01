@@ -154,6 +154,31 @@ def series_of(urls):
     return out
 
 
+def qualifying_series(cands):
+    """홀맵일 법한 시리즈를 **전부** 돌려준다 (한 구장에 East/West/Center 처럼 여러 벌).
+
+    2026-08-01 실측: 青梅ゴルフ倶楽부는 course-east-{}map.jpg / -west- / -center- 로
+    9홀씩 세 벌이다. 하나만 고르면 27홀 중 9홀만 등록된다.
+    """
+    out = []
+    for key, holes in cands.items():
+        nums = sorted(holes)
+        full = [k for k in (9, 18, 27) if set(range(1, k + 1)) <= set(nums)]
+        if not full:
+            continue
+        base = os.path.basename(key)
+        if PHOTOY.search(base) and not MAPPY.search(base):
+            continue                                   # 사진·배너 시리즈는 홀맵이 아니다
+        n = max(full)
+        out.append({"key": key, "base": base, "n": n,
+                    "holes": {k: v for k, v in holes.items() if k <= n},
+                    "mapish": bool(MAPPY.search(base))})
+    # 같은 페이지에 map 계열과 img(사진) 계열이 나란히 있으면 map 계열만 쓴다
+    if any(s["mapish"] for s in out):
+        out = [s for s in out if s["mapish"]]
+    return out
+
+
 def pick_series(cands):
     """홀맵일 가능성이 가장 높은 시리즈 하나 → (키, {홀:url}, 사유) / 못 고르면 (None,None,사유)"""
     scored = []
