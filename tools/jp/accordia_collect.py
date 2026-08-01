@@ -64,123 +64,111 @@ def strip_tags(s):
     return re.sub(r"\s+", " ", re.sub(r"(?s)<[^>]+>", " ", s).replace("&nbsp;", " ")).strip()
 
 
-# 코스 이름 표기는 자리마다 다르다 (2026-08-01 실측):
-#   · ホール詳細 구획 → <h4 class="a-heading -lv4">筑波 OUT</h4>
-#   · ヤーデージ 구획 → 짧은 텍스트 노드 >OUT< >西< 등
-# 어느 한쪽만 보면 다른 쪽 표가 엉뚱한 이름을 받는다(실제로 겪음 — h4 만 봤더니
-# 정상이던 castlehill 까지 전부 'IN' 이 됐다). **둘을 합쳐** 위치 기준으로 잡고,
-# 그래도 이름이 겹치면 등록을 거절한다(자유 형식 이름 16곳 — 탭형 템플릿, 오퍼스 숙제).
-CNAME_TOKEN = r">\s*(東|西|南|北|中|OUT|IN|アウト|イン)\s*<"
+# 코스 이름은 ホール詳細 구획의 <h4 class="a-heading -lv4">筑波 OUT</h4> 하나로 통일돼 있다.
+# (ヤーデージ 구획의 >OUT< 같은 짧은 토큰은 쓰지 않는다 — 자유 형식 이름 구장에는 아예 없다)
 CNAME_H4 = r'<h4 class="a-heading -lv4[^"]*"[^>]*>\s*([^<]{1,30}?)\s*</h4>'
+CARD = r'(?is)<table class="m-table__heading">(?:(?!</table>).)*?</table>'
+IMG = r"courseLayout/(\d+)_(\d+)\.jpg(?!\.webp)"
 
 
 def parse_layout(html):
-    """레이아웃 페이지 → (구장코드, [ {name, imgCourse, holes:[{no,par,hdcp,tees}]} ])
+    """레이아웃 페이지 → (구장코드, [ {name, holes:[{no,par,hdcp,tees,imgIdx}]} ], 그린수)
 
-    수치는 `m-table__main` 표에서 읽는다 — HOLE·PAR·티별 야드·HDCP 가 한 표에 다 있다.
+    🔴 **국소 짝짓기** — 홀 카드와 그림은 문서에서 바로 붙어 나온다:
+           H4(코스이름) → CARD(HOLE:1 PAR 4, 티값) → IMG(1_1) → CARD(HOLE:2) → IMG(1_2) …
+       이 붙어 있는 짝만 쓰면 코스·홀·그림이 어긋날 자리가 없다.
 
-    🔴 코스 이름과 그림 번호를 **인덱스로 추측하지 않는다.**
-       27홀 구장(土浦)은 세 코스가 모두 1~9번홀이라, 홀 번호로 이름을 정하면
-       세 코스가 전부 'OUT' 이 되어 **그림이 서로를 덮어쓴다**(2026-08-01 실제로 겪음).
-       페이지를 보면 순서가 이렇다:
-           …NAME:西 → 표 → 그림 1_1…  NAME:南 → 표 → 그림 2_1…  NAME:東 → 표 → 그림 3_1…
-       그래서 **'그 위치 바로 앞에 있는 이름'** 으로 짝을 짓는다. 이름이 없으면 등록하지 않는다.
+       처음엔 요약표(ヤーデージ)에서 수치를 읽고 이름은 '표 앞의 마커'로 붙였는데,
+       **요약표는 h4 마커보다 뒤에 있어서** 모든 표가 마지막 코스 이름을 받았다
+       (castlehill 이 OUT·IN 둘 다 'IN' 이 되는 회귀). 표 위치로 이름을 찾지 않는다.
+
+       HDCP 만 요약표에 있으므로, **홀 번호와 파 배열이 똑같은 표**를 찾아 붙인다
+       (위치가 아니라 내용으로 맞춘다 — 못 찾으면 HDCP 없이 둔다).
     """
     body = re.sub(r"(?is)<(script|style|noscript)[^>]*>.*?</\1>", " ", html)
     codes = sorted(set(re.findall(r"images/course/(\d+)/", html)))
     code = codes[0] if codes else None
 
-    names = sorted([(m.start(), m.group(1)) for m in re.finditer(CNAME_TOKEN, body)] +
-                   [(m.start(), m.group(1)) for m in re.finditer(CNAME_H4, body)])
+    # ── 1. 문서 순서로 이벤트 모으기 ──────────────────────────────
+    ev = []
+    for m in re.finditer(CNAME_H4, body):
+        ev.append((m.start(), "H4", m.group(1)))
+    for m in re.finditer(IMG, body):
+        ev.append((m.start(), "IMG", (int(m.group(1)), int(m.group(2)))))
+    for m in re.finditer(CARD, body):
+        t = m.group(0)
+        no = re.search(r"HOLE:(\d+)", t)
+        par = re.search(r"PAR&nbsp;\s*(\d+)|PAR\s*(\d+)", t)
+        tees = re.findall(r'__tee__top">([^<]+)</span>\s*<span class="m-table__tee__bottom">([^<]*)<', t)
+        if no:
+            ev.append((m.start(), "CARD", (int(no.group(1)),
+                                           int(par.group(1) or par.group(2)) if par else None, tees)))
+    ev.sort(key=lambda x: x[0])
 
-    def name_before(pos):
-        got = [n for p, n in names if p < pos]
-        return got[-1] if got else None
+    # ── 2. 붙어 있는 CARD→IMG 짝만 채택 ───────────────────────────
+    sections, cur, greens_seen = [], None, 1
+    for i, (pos, kind, val) in enumerate(ev):
+        if kind == "H4":
+            cur = {"name": val.strip(), "holes": []}
+            sections.append(cur)
+            continue
+        if kind != "CARD" or cur is None:
+            continue
+        if i + 1 >= len(ev) or ev[i + 1][1] != "IMG":
+            continue                                  # 그림이 안 붙은 카드(요약 구획) 는 버린다
+        no, par, tees = val
+        imgc, imgn = ev[i + 1][2]
 
-    # 그림: 코스번호별 첫 등장 위치 → 그 앞의 이름
-    img_first = {}
-    for m in re.finditer(r"courseLayout/(\d+)_(\d+)\.jpg(?!\.webp)", body):
-        c = int(m.group(1))
-        img_first.setdefault(c, m.start())
-    name_of_imgcourse = {c: name_before(p) for c, p in img_first.items()}
+        # 2그린 구장은 카드에 티가 두 벌 들어온다(Blue White Green Red Blue White Green Red).
+        # 이름이 되풀이되는 지점에서 끊어 **먼저 나오는 그린(A)** 만 쓴다.
+        names_seen, per_green = [], len(tees)
+        for k, (tn, _) in enumerate(tees):
+            if tn in names_seen:
+                per_green = k
+                break
+            names_seen.append(tn)
+        if per_green and len(tees) % per_green == 0:
+            greens_seen = max(greens_seen, len(tees) // per_green)
+        first = tees[:per_green] if per_green else tees
 
-    sections = []
+        h = {"no": no, "par": par, "imgIdx": (imgc, imgn),
+             "tees": [{"name": tn.replace(" Tee", "").strip(), "y": int(re.sub(r"[^\d]", "", tv))}
+                      for tn, tv in first if re.sub(r"[^\d]", "", tv)]}
+        cur["holes"].append(h)
+
+    sections = [s for s in sections if s["holes"]]
+
+    # ── 3. HDCP 를 '내용이 같은' 요약표에서 가져오기 ────────────────
+    tables = []
     for m in re.finditer(r'(?is)<table class="m-table__main".*?</table>', body):
-        tbl = m.group(0)
         rows = []
-        for tr in re.findall(r"(?is)<tr.*?</tr>", tbl):
+        for tr in re.findall(r"(?is)<tr.*?</tr>", m.group(0)):
             cells = [strip_tags(c) for c in re.findall(r"(?is)<t[hd][^>]*>(.*?)</t[hd]>", tr)]
             if cells:
                 rows.append(cells)
-        if not rows or not rows[0] or rows[0][0].upper() != "HOLE":
+        if not rows or rows[0][0].upper() != "HOLE":
             continue
-        holes = []
+        nums = []
         for v in rows[0][1:]:
             if v.isdigit():
-                holes.append(int(v))
+                nums.append(int(v))
             else:
-                break                                   # '計' 부터는 합계 칸
-        if not holes:
+                break
+        d = {r[0].strip(): r[1:1 + len(nums)] for r in rows[1:]}
+        if "PAR" not in d or "HDCP" not in d:
             continue
-        # 🔴 2그린 구장은 **같은 이름의 티 행이 두 벌** 들어온다.
-        #    표 안에 `Aグリーン` / `Bグリーン` 표시행이 두 벌을 나눈다.
-        #    이걸 모르고 이름으로 덮어쓰면 A그린이라고 적어 놓고 B그린 거리를 담게 된다
-        #    (2026-08-01 土浦 에서 실제로 그랬다 — 홀맵 그림의 범례와 대조해 잡았다).
-        #    등록은 **A그린(주 그린) 기준**, 몇 그린인지도 함께 기록한다.
-        data, greens, cur = {}, [], None
-        for r in rows[1:]:
-            lab = r[0].strip()
-            g = re.match(r"^([AB])グリーン$", lab)
-            if g:
-                cur = g.group(1)
-                if cur not in greens:
-                    greens.append(cur)
-                continue
-            key = (cur, lab) if lab.lower().endswith("tee") else (None, lab)
-            if key not in data:                      # 먼저 나온 값을 지킨다
-                data[key] = r[1:1 + len(holes)]
-        if (None, "PAR") not in data:
-            continue
-        main = greens[0] if greens else None         # A그린(= 먼저 나오는 그린)
-        tee_keys = [k for k in data if k[1].lower().endswith("tee") and k[0] == main]
-        out = []
-        for i, no in enumerate(holes):
-            def num(key, idx=i):
-                try:
-                    return int(re.sub(r"[^\d]", "", data[key][idx]))
-                except Exception:
-                    return None
-            h = {"no": no, "par": num((None, "PAR"))}
-            hd = num((None, "HDCP")) if (None, "HDCP") in data else None
-            if hd:
-                h["hdcp"] = hd
-            tees = [{"name": k[1].replace(" Tee", "").strip(), "y": num(k)}
-                    for k in tee_keys if num(k)]
-            if tees:
-                h["tees"] = tees
-            out.append(h)
-        sections.append({"name": name_before(m.start()), "holes": out, "green": main,
-                         "greens": len(greens),
-                         "_holekey": tuple(x["no"] for x in out),
-                         "_park": tuple(x["par"] for x in out)})
+        pars = [int(x) if x.isdigit() else None for x in d["PAR"]]
+        hd = [int(re.sub(r"[^\d]", "", x)) if re.sub(r"[^\d]", "", x) else None for x in d["HDCP"]]
+        tables.append((tuple(nums), tuple(pars), hd))
 
-    # 같은 코스가 페이지에 여러 번 나온다(홀상세·ヤーデージ). 이름+홀번호+파가 같으면 한 코스다.
-    uniq = []
     for s in sections:
-        if not any(u["name"] == s["name"] and u["_holekey"] == s["_holekey"]
-                   and u["_park"] == s["_park"] for u in uniq):
-            uniq.append(s)
-    sections = uniq
-
-    # 이름 ↔ 그림 코스번호 짝짓기 (추측 금지 — 못 지으면 그림 없이 둔다)
-    for s in sections:
-        s["imgCourse"] = next((c for c, n in name_of_imgcourse.items() if n and n == s["name"]), None)
-        s.pop("_holekey", None)
-        s.pop("_park", None)
-    greens = max([s.get("greens", 0) for s in sections] or [0])
-    for s in sections:
-        s.pop("greens", None)
-    return code, sections, greens
+        key = (tuple(h["no"] for h in s["holes"]), tuple(h["par"] for h in s["holes"]))
+        cands = [t for t in tables if (t[0], t[1]) == key]
+        if len(cands) == 1:                            # 딱 하나일 때만 — 애매하면 안 붙인다
+            for h, v in zip(s["holes"], cands[0][2]):
+                if v:
+                    h["hdcp"] = v
+    return code, sections, greens_seen
 
 
 # ── 그림 ─────────────────────────────────────────────────────────
@@ -207,7 +195,7 @@ def save_image(url, dest):
 
 
 # ── 구장 한 곳 ───────────────────────────────────────────────────
-def collect_one(c, resolver, blocked_gids, blocked_paths, dry=False):
+def collect_one(c, resolver, blocked_gids, blocked_paths, dry=False, reuse=False):
     tag = f"{c['pref']}/{c['slug']}"
     key = f"{c['pref']}_{c['slug']}"
 
@@ -244,22 +232,26 @@ def collect_one(c, resolver, blocked_gids, blocked_paths, dry=False):
     got = miss = 0
     used = set()
     for s in sections:
-        ic = s.get("imgCourse")
-        for hi, h in enumerate(s["holes"], start=1):
-            if not ic:
-                miss += 1
-                continue
-            fn = re.sub(r"[^\w]", "", s["name"]) + f"{h['no']}.jpg"   # "筑波 OUT" → 筑波OUT1.jpg (공백·기호 제거)
+        for h in s["holes"]:
+            ic, inum = h.pop("imgIdx")          # 카드 바로 뒤에 붙어 있던 그 그림
+            fn = re.sub(r"[^\w]", "", s["name"]) + f"{h['no']}.jpg"   # "筑波 OUT" → 筑波OUT1.jpg
             rel = f"{imgdir}/{fn}"
             if rel in used:                      # 절대 일어나면 안 되는 일 — 일어나면 멈춘다
                 return {"skip": f"그림 파일명이 겹침({rel}) — 자료가 섞입니다"}
             used.add(rel)
-            url = f"{HOST}/images/course/{ccode}/courseLayout/{ic}_{hi}.jpg"
+            url = f"{HOST}/images/course/{ccode}/courseLayout/{ic}_{inum}.jpg"
             if dry:
                 h["img"] = rel
                 got += 1
                 continue
-            ok, note = save_image(url, os.path.join(ROOT, rel))
+            dest = os.path.join(ROOT, rel)
+            # 이미 받아 둔 그림 재사용 — 같은 URL 규칙이라 내용이 같다.
+            # (표본을 다시 받아 바이트로 대조해 확인한 뒤에만 쓰는 선택지다)
+            if reuse and os.path.exists(dest) and os.path.getsize(dest) > 3000:
+                h["img"] = rel
+                got += 1
+                continue
+            ok, note = save_image(url, dest)
             if ok:
                 h["img"] = rel
                 got += 1
@@ -276,7 +268,7 @@ def collect_one(c, resolver, blocked_gids, blocked_paths, dry=False):
         # 2그린 구장은 **A그린(주 그린) 거리**만 담는다. 어느 그린인지 반드시 적는다 —
         # 화면에 A라고 써놓고 B거리를 보여주면 캐디가 통째로 틀린다.
         "greens": greens or 1,
-        "green": (sections[0].get("green") if greens else None),
+        "green": ("A" if greens and greens >= 2 else None),   # 아코디아 표기는 Aグリーン/Bグリーン
         "collectedAt": str(date.today()),
         "origName": c["name"],             # 출처 표기 이름 (golfdb 이름과 다를 수 있다)
         "courses": sections,
@@ -298,6 +290,8 @@ def main():
     ap.add_argument("--only", action="append", default=[])
     ap.add_argument("--all", action="store_true")
     ap.add_argument("--dry", action="store_true")
+    ap.add_argument("--reuse-img", action="store_true",
+                    help="이미 받아 둔 그림은 다시 받지 않는다(표본 대조로 안전 확인 후 사용)")
     a = ap.parse_args()
 
     print("■ robots.txt 확인")
@@ -346,7 +340,7 @@ def main():
     for i, c in enumerate(targets, 1):
         print(f"\n[{i}/{len(targets)}] {c['name']}  ({c['pref']}/{c['slug']})")
         try:
-            r = collect_one(c, resolver, gids, paths, a.dry)
+            r = collect_one(c, resolver, gids, paths, a.dry, a.reuse_img)
         except Blocked as e:
             print(f"  🔴 {e}")
             print("  → 우회하지 않고 중단합니다. docs/일본_6메뉴_데이터_설계.md §2-3 에 기록하세요.")
