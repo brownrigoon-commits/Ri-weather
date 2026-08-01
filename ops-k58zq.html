@@ -254,6 +254,19 @@
 
 <script>
 "use strict";
+
+/* 카카오톡 인앱 브라우저로 열리면 기기 기본 브라우저로 넘긴다.
+   ⚠️ 2026-07-31 사장님 폰에서 '확인 중…' 에서 멈췄다. 원인은 인앱 브라우저다 —
+   백엔드(Apps Script /exec)는 googleusercontent.com 으로 302 로 넘기는데,
+   카톡 브라우저는 이 교차 도메인 이동을 막거나 응답을 물고 있는 일이 있다.
+   fetch 가 성공도 실패도 하지 않으니 화면은 영원히 '확인 중…' 이 된다.
+   index.html 에는 이 코드가 있었는데 관리자 화면에만 빠져 있었다. */
+(function () {
+  if (/KAKAOTALK/i.test(navigator.userAgent)) {
+    location.href = "kakaotalk://web/openExternal?url=" + encodeURIComponent(location.href);
+  }
+})();
+
 /* 백엔드 주소는 앱과 같은 것을 쓴다. 여기 적힌 주소만으로는 아무 데이터도 볼 수 없다
    — 모든 조회에 비밀번호가 필요하다. */
 var BACKEND = "https://script.google.com/macros/s/AKfycbzVkab8qBwUdukg_O9FtYjwHvTygc9Riyh3tEOD0z-bALNZxbO9ksRNPLM9y1mOWv9q4A/exec";
@@ -337,9 +350,22 @@ function paintFb() {
   }).join("");
 }
 
-function get(fn) {
+/* ⚠️ 반드시 시간 제한을 건다. 없으면 응답이 안 올 때 성공도 실패도 하지 않아
+   화면이 '확인 중…' 에서 영원히 멈춘다(2026-07-31 사장님 폰에서 실제로 겪음).
+   침묵은 성공이 아니다 — 안 되면 안 된다고 화면에 적어야 다시 시도라도 한다.
+   Apps Script 는 처음 깨울 때 10초 넘게 걸리기도 해서 넉넉히 25초로 둔다. */
+function get(fn, ms) {
   var url = BACKEND + "?fn=" + fn + "&pw=" + encodeURIComponent(pw) + "&t=" + Date.now();
-  return fetch(url).then(function (r) { return r.json(); });
+  var ctl = window.AbortController ? new AbortController() : null;
+  var timer = setTimeout(function () { if (ctl) ctl.abort(); }, ms || 25000);
+  return fetch(url, ctl ? { signal: ctl.signal } : undefined)
+    .then(function (r) { return r.json(); })
+    .catch(function (e) {
+      if (e && e.name === "AbortError") throw new Error("서버가 응답하지 않습니다 (25초). 잠시 뒤 다시 시도해 주세요.");
+      throw new Error("연결하지 못했습니다 — 다른 브라우저(사파리·크롬)로 열어 보세요.");
+    })
+    .then(function (j) { clearTimeout(timer); return j; },
+          function (e) { clearTimeout(timer); throw e; });
 }
 
 /* ── 기기 목록 — 우리 테스트 기록 빼기 ─────────────────────────────
@@ -411,7 +437,10 @@ $("cids").addEventListener("click", function (e) {
 
 function load() {
   $("sub").textContent = "불러오는 중…";
-  loadCids();                        // 기기 목록은 따로 — 느려도 통계 표시를 막지 않는다
+  /* ⚠️ 기기 목록(fn=cids)은 여기서 부르지 않는다.
+     기록 2만 줄을 훑는 무거운 조회라, 로그인 판정과 같이 돌리면 요청 3개가 경쟁해
+     들어가는 것 자체가 느려진다(2026-07-31 폰에서 멈춘 원인 중 하나).
+     로그인이 끝난 뒤 enter() 에서 따로 부른다. */
   return Promise.all([get("summary"), get("fblist")]).then(function (res) {
     var s = res[0] || {}, f = res[1] || {};
     if (s.err) throw new Error(s.err);
@@ -495,6 +524,7 @@ function enter() {
     } catch (e) {}
     $("gate").hidden = true;
     $("main").hidden = false;
+    loadCids();                       // 무거운 조회는 들어온 뒤에 — 로그인을 막지 않는다
   }).catch(function (e) {
     $("gate-err").textContent = /비밀번호/.test(e.message) ? "비밀번호가 틀립니다."
       : "불러오지 못했습니다 — " + e.message;
@@ -505,7 +535,8 @@ $("go").addEventListener("click", enter);
 $("pw").addEventListener("keydown", function (e) { if (e.key === "Enter") enter(); });
 $("reload").addEventListener("click", function () {
   var b = $("reload"); b.disabled = true; b.textContent = "불러오는 중…";
-  load().catch(function (e) { alert("불러오지 못했습니다 — " + e.message); })
+  load().then(function () { loadCids(); })
+    .catch(function (e) { alert("불러오지 못했습니다 — " + e.message); })
     .then(function () { b.disabled = false; b.textContent = "새로고침"; });
 });
 $("fb-filters").addEventListener("click", function (e) {
@@ -573,10 +604,24 @@ $("pw-new2").addEventListener("keydown", function (e) { if (e.key === "Enter") c
   try { saved = localStorage.getItem(PWKEY) || sessionStorage.getItem(PWKEY) || ""; } catch (e) {}
   if (!saved) return;
   pw = saved;
-  load().then(function () { $("gate").hidden = true; $("main").hidden = false; })
-    .catch(function () {
-      try { localStorage.removeItem(PWKEY); sessionStorage.removeItem(PWKEY); } catch (e) {}
-    });
+  $("gate-err").textContent = "불러오는 중…";
+  load().then(function () {
+    $("gate-err").textContent = "";
+    $("gate").hidden = true; $("main").hidden = false;
+    loadCids();
+  }).catch(function (e) {
+    /* ⚠️ 저장된 비밀번호를 지우는 건 **비밀번호가 틀렸을 때만** 이다.
+       예전에는 어떤 실패든 지워서, 지하철에서 잠깐 끊기기만 해도 로그아웃됐다.
+       연결 문제면 그대로 두고 무슨 일인지 화면에 적는다(2026-07-31). */
+    var msg = (e && e.message) || "";
+    if (/비밀번호/.test(msg)) {
+      try { localStorage.removeItem(PWKEY); sessionStorage.removeItem(PWKEY); } catch (_) {}
+      $("gate-err").textContent = "비밀번호가 바뀌었습니다. 다시 입력해 주세요.";
+    } else {
+      $("gate-err").textContent = msg || "불러오지 못했습니다.";
+    }
+    $("pw").value = "";
+  });
 })();
 </script>
 </body>
