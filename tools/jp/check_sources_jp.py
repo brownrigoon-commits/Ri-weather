@@ -123,9 +123,13 @@ def check():
                 if vals and any(v is None for v in vals):
                     problems.append(f"{who} {h.get('no')}번홀: 티 거리가 비었습니다")
                 elif len(vals) >= 2 and vals != sorted(vals, reverse=True):
-                    problems.append(f"{who} {h.get('no')}번홀: 티 거리가 내림차순이 아닙니다 "
-                                    f"{[(t['name'], t.get('y') or t.get('m')) for t in tees]} — "
-                                    f"뒤 티가 더 짧으면 표를 잘못 읽은 것입니다")
+                    # 🔴 차단이 아니라 '주의'다 (2026-08-01 실측으로 강등).
+                    #    広陵CC 는 공식 사이트 자체가 Green 295 < Red 355 로 적는다 —
+                    #    Green 티가 최전방(시니어) 티인 구장이 실존한다. 티 색과 길이의
+                    #    순서는 보편 규칙이 아니었다. 다만 파싱 오류의 냄새일 수도 있으니
+                    #    본수집 뒤 표본 대조는 계속한다(원문 카드와 글자 대조로 확인).
+                    notes.append(f"{who} {h.get('no')}번홀: 티 순서가 내림차순 아님(실데이터일 수 있음) "
+                                 f"{[(t['name'], t.get('y') or t.get('m')) for t in tees]}")
                 img = h.get("img")
                 if not img:
                     notes.append(f"{who} {h.get('no')}번홀: 그림 없음")

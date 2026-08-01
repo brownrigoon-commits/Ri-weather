@@ -105,10 +105,8 @@ def main():
         lambda d: (d.update(greens=2), d.update(green=None))[0],
         "어느 그린 거리인지"))
 
-    ok.append(sabotage(
-        "티 거리가 내림차순이 아님 (표를 잘못 읽음)",
-        lambda d: d["courses"][0]["holes"][0]["tees"].reverse(),
-        "내림차순이 아닙니다"))
+    # (제거됨 2026-08-01) '티 내림차순' 은 차단 규칙에서 '주의'로 강등 —
+    # 広陵CC 공식 사이트가 Green < Red 를 실제로 적는다. 실데이터를 막으면 안 된다.
 
     ok.append(sabotage(
         "파 값이 이상함",

@@ -190,12 +190,18 @@ MIN_IMAGE_BYTES = 10_000
 
 
 def looks_like_image(headers, body):
-    """→ (참/거짓, 사유)"""
+    """→ (참/거짓, 사유)
+
+    판정 기준은 **실제 바이트(매직넘버)** 다. Content-Type 은 참고만 한다 —
+    아코디아 일부 구장 서버가 정상 JPEG 를 application/octet-stream 으로 보내는 바람에
+    Content-Type 만 보고 1,026홀을 통째로 거절한 일이 있었다(2026-08-01 본수집).
+    반대로 www 호스트 함정(200 인데 HTML)은 매직넘버 검사가 그대로 잡는다.
+    """
     ct = (headers.get("Content-Type") or "").lower()
-    if "image" not in ct:
-        return False, f"Content-Type 이 이미지가 아님({ct or '없음'})"
-    if len(body) < MIN_IMAGE_BYTES:
-        return False, f"너무 작음({len(body)}B) — 오류 페이지일 수 있음"
+    if "text/html" in ct:
+        return False, f"HTML 페이지가 옴({ct}) — 오류 페이지 함정"
     if not any(body.startswith(m) for m in MAGIC):
-        return False, f"이미지 형식이 아님(첫 바이트 {body[:4].hex()})"
+        return False, f"이미지 형식이 아님(첫 바이트 {body[:4].hex()}, Content-Type {ct or '없음'})"
+    if len(body) < MIN_IMAGE_BYTES:
+        return False, f"너무 작음({len(body)}B) — 배지 아이콘이나 빈 그림일 수 있음"
     return True, ""

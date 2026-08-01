@@ -64,7 +64,14 @@ def strip_tags(s):
     return re.sub(r"\s+", " ", re.sub(r"(?s)<[^>]+>", " ", s).replace("&nbsp;", " ")).strip()
 
 
-CNAME = r">\s*(東|西|南|北|中|OUT|IN|アウト|イン)\s*<"
+# 코스 이름 표기는 자리마다 다르다 (2026-08-01 실측):
+#   · ホール詳細 구획 → <h4 class="a-heading -lv4">筑波 OUT</h4>
+#   · ヤーデージ 구획 → 짧은 텍스트 노드 >OUT< >西< 등
+# 어느 한쪽만 보면 다른 쪽 표가 엉뚱한 이름을 받는다(실제로 겪음 — h4 만 봤더니
+# 정상이던 castlehill 까지 전부 'IN' 이 됐다). **둘을 합쳐** 위치 기준으로 잡고,
+# 그래도 이름이 겹치면 등록을 거절한다(자유 형식 이름 16곳 — 탭형 템플릿, 오퍼스 숙제).
+CNAME_TOKEN = r">\s*(東|西|南|北|中|OUT|IN|アウト|イン)\s*<"
+CNAME_H4 = r'<h4 class="a-heading -lv4[^"]*"[^>]*>\s*([^<]{1,30}?)\s*</h4>'
 
 
 def parse_layout(html):
@@ -83,7 +90,8 @@ def parse_layout(html):
     codes = sorted(set(re.findall(r"images/course/(\d+)/", html)))
     code = codes[0] if codes else None
 
-    names = [(m.start(), m.group(1)) for m in re.finditer(CNAME, body)]
+    names = sorted([(m.start(), m.group(1)) for m in re.finditer(CNAME_TOKEN, body)] +
+                   [(m.start(), m.group(1)) for m in re.finditer(CNAME_H4, body)])
 
     def name_before(pos):
         got = [n for p, n in names if p < pos]
@@ -241,7 +249,7 @@ def collect_one(c, resolver, blocked_gids, blocked_paths, dry=False):
             if not ic:
                 miss += 1
                 continue
-            fn = f"{s['name']}{h['no']}.jpg".replace("/", "_")
+            fn = re.sub(r"[^\w]", "", s["name"]) + f"{h['no']}.jpg"   # "筑波 OUT" → 筑波OUT1.jpg (공백·기호 제거)
             rel = f"{imgdir}/{fn}"
             if rel in used:                      # 절대 일어나면 안 되는 일 — 일어나면 멈춘다
                 return {"skip": f"그림 파일명이 겹침({rel}) — 자료가 섞입니다"}
