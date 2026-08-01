@@ -49,11 +49,22 @@ def pars_from(text, n):
 
 
 def save(url, dest):
+    """→ 저장된 상대경로 or None. SVG 는 그대로 두고, 래스터만 줄인다."""
     code, hdr, raw = fetch(url, binary=True)
     if code != 200 or not isinstance(raw, bytes):
-        return False
+        return None
+    # 벡터(SVG) — PGM 계열 구장이 이 형식이다. 매직넘버가 없어 예전엔 통째로 버려졌다.
+    # 확대해도 안 깨지므로 손대지 않고 그대로 담는다(용량도 작다).
+    head = raw[:400].lstrip()
+    if url.lower().split("?")[0].endswith(".svg") or head.startswith((b"<?xml", b"<svg")):
+        if b"<svg" not in raw[:4000] or len(raw) < 800:
+            return None
+        dest = os.path.splitext(dest)[0] + ".svg"
+        os.makedirs(os.path.dirname(dest), exist_ok=True)
+        open(dest, "wb").write(raw)
+        return dest
     if not any(raw.startswith(m) for m in MAGIC) or len(raw) < MIN_IMG:
-        return False
+        return None
     try:
         from PIL import Image
         im = Image.open(io.BytesIO(raw)).convert("RGB")
@@ -62,9 +73,9 @@ def save(url, dest):
             im = im.resize((int(im.width * r), int(im.height * r)), Image.LANCZOS)
         os.makedirs(os.path.dirname(dest), exist_ok=True)
         im.save(dest, "JPEG", quality=JPEG_Q, optimize=True)
-        return True
+        return dest
     except Exception:
-        return False
+        return None
 
 
 def already():
@@ -81,9 +92,22 @@ def already():
     return out
 
 
+# OSM 의 website 태그가 늘 '공식 사이트'인 것은 아니다 — 애그리게이터를 적어 둔 곳이 있다.
+# 특히 ShotNavi·GDO·ALBA 는 우리가 접근하지 않기로 한 출처다(설계 §2-3).
+# 이걸 그대로 담으면 '공식이라 적고 남의 자료를 담는' 꼴이 된다(2026-08-01 관문이 잡음).
+NOT_OFFICIAL = ("shotnavi", "golfdigest.co.jp", "alba.co.jp", "golf-jalan.net",
+                "gora.golf.rakuten", "accordiagolf.com", "jalan.net", "rakuten.co.jp",
+                "gdo.co.jp", "golfnetwork", "facebook.com", "instagram.com")
+
+
 def build_one(rec, collect, ex):
     g = rec["golfdb"]
-    if g in ex:
+    site = (rec.get("site") or "").lower()
+    if any(x in site for x in NOT_OFFICIAL):
+        return {"golfdb": g, "skip": "공식 사이트가 아님(애그리게이터·접근 금지 출처)"}
+    # 화질 사다리 — 공식 홈페이지(고화질)는 じゃらん(235px)을 **덮어쓴다**.
+    # 체인(아코디아 등)이 이미 등록한 곳은 건드리지 않는다(같은 급이거나 더 좋다).
+    if g in ex and "じゃらん" not in ex[g]:
         return {"golfdb": g, "skip": f"이미 등록됨({ex[g][:18]})"}
     if rec.get("error"):
         return {"golfdb": g, "skip": "사이트 접속 실패"}
@@ -129,8 +153,10 @@ def build_one(rec, collect, ex):
         base = 0 if sec["series"]["n"] > 9 else (len(out_sect) * 9)
         for no in sorted(sec["series"]["holes"]):
             rel = f"{imgdir}/{re.sub(r'[^A-Za-z0-9]', '', sec['name'])}{no}.jpg"
-            if not save(sec["series"]["holes"][no], os.path.join(ROOT, rel)):
+            saved = save(sec["series"]["holes"][no], os.path.join(ROOT, rel))
+            if not saved:
                 continue
+            rel = os.path.relpath(saved, ROOT).replace("\\", "/")   # SVG 면 확장자가 바뀐다
             h = {"no": no + base, "img": rel}
             if sec["pars"]:
                 h["par"] = sec["pars"][no - 1]
@@ -138,11 +164,15 @@ def build_one(rec, collect, ex):
             got += 1
         if len(holes) != sec["series"]["n"]:
             return {"golfdb": g, "skip": f"그림을 다 받지 못함({len(holes)}/{sec['series']['n']})"}
-        if sec["series"]["n"] > 9:            # 18홀 한 벌은 OUT/IN 으로 나눈다
+        if sec["series"]["n"] > 9:
+            # 18홀 한 벌은 OUT/IN 으로 나눈다. 다만 **36홀 구장은 두 벌**이라
+            # 그냥 OUT/IN 을 붙이면 ['OUT','IN','OUT','IN'] 로 겹친다(2026-08-01 관문이 잡음).
+            # 벌이 둘 이상이면 코스 이름을 앞에 붙여 구분한다.
+            pre = (sec["name"] + " ") if len(sections) > 1 else ""
             for nm2, rng in (("OUT", range(1, 10)), ("IN", range(10, 19))):
                 hs = [h for h in holes if h["no"] in rng]
                 if hs:
-                    out_sect.append({"name": nm2, "holes": hs})
+                    out_sect.append({"name": pre + nm2, "holes": hs})
         else:
             out_sect.append({"name": sec["name"], "holes": holes})
 
@@ -156,6 +186,17 @@ def build_one(rec, collect, ex):
     os.makedirs(d, exist_ok=True)
     json.dump(parsed, open(os.path.join(d, "parsed.json"), "w", encoding="utf-8"),
               ensure_ascii=False, indent=1)
+    # 같은 구장의 じゃらん 등록분은 치운다 — 두 벌이 남으면 조립기가 중복으로 멈춘다
+    for other in os.listdir(HP_JP):
+        if not other.startswith("jalan_"):
+            continue
+        f = os.path.join(HP_JP, other, "parsed.json")
+        try:
+            if json.load(open(f, encoding="utf-8")).get("course") == g:
+                import shutil
+                shutil.rmtree(os.path.join(HP_JP, other), ignore_errors=True)
+        except Exception:
+            pass
     return {"golfdb": g, "ok": True, "holes": got,
             "pars": sum(1 for s in out_sect for h in s["holes"] if h.get("par"))}
 

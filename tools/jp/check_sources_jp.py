@@ -38,7 +38,10 @@ SOURCE_SITES = {
 }
 AGGREGATORS = ("accordiagolf.com", "golf-jalan.net", "gora.golf.rakuten", "pacificgolf.co.jp",
                "golfdigest.co.jp", "alba.co.jp", "shotnavi")
-PAR_RANGE = (3, 5)
+# 파는 3~7 까지 인정한다. 처음엔 3~5 로 뒀는데 皐月ゴルフ倶楽部佐野コース 7번홀이
+# **964야드 파7**(공식 스코어카드에도 그렇게 적혀 있다)이라 막혔다.
+# 파6·파7 홀은 일본에 실존한다 — 내 가정이 아니라 원문이 기준이다(2026-08-01).
+PAR_RANGE = (3, 7)
 
 
 def check():
@@ -158,6 +161,11 @@ def check():
                     continue
                 head = open(p, "rb").read(8)
                 size = os.path.getsize(p)
+                if img.lower().endswith(".svg"):
+                    # 벡터 홀맵(PGM 계열) — 매직넘버가 없으므로 내용으로 확인한다
+                    if b"<svg" not in open(p, "rb").read(4000):
+                        problems.append(f"{who} {h.get('no')}번홀: SVG 가 아닙니다 — {img}")
+                    continue
                 if not any(head.startswith(m) for m in MAGIC):
                     problems.append(f"{who} {h.get('no')}번홀: 그림이 아닙니다(첫 바이트 {head[:4].hex()}) — "
                                     f"오류 페이지를 받아 저장했을 수 있습니다: {img}")
