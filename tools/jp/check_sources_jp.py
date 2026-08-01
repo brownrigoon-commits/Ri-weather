@@ -31,7 +31,13 @@ SOURCE_SITES = {
     "多摩興産": "tfn-style.com",
     "PGM": "pacificgolf.co.jp",
     "じゃらん": "golf-jalan.net",       # 등뼈 층 (2026-08-01, 설계 §2-1)
+    # 구장 공식 홈페이지 — 주소가 구장마다 달라 도메인을 고정할 수 없다.
+    # 대신 '애그리게이터 주소가 아닐 것'을 확인한다(공식이라 적고 남의 사이트를 담는 것 방지).
+    # ⚠️ 표기가 '公式ホームページ' 인 이유는 jp_takedown.py 주석 참고 (아코디아와 겹치면 안 된다)
+    "公式ホームページ": None,
 }
+AGGREGATORS = ("accordiagolf.com", "golf-jalan.net", "gora.golf.rakuten", "pacificgolf.co.jp",
+               "golfdigest.co.jp", "alba.co.jp", "shotnavi")
 PAR_RANGE = (3, 5)
 
 
@@ -61,6 +67,14 @@ def check():
         if not mark:
             problems.append(f"{who}: 출처 표기에 아는 이름이 없습니다 (source={src!r}) — "
                             f"tools/jp_takedown.py 가 이 자료를 못 내립니다")
+        elif SOURCE_SITES[mark] is None:
+            # 공식 홈페이지분 — 도메인이 구장마다 달라 고정 검사가 불가능하다.
+            # '공식이라 적고 실제로는 애그리게이터에서 가져온 것'만 막는다.
+            bad = next((a for a in AGGREGATORS if a in url), None)
+            if bad:
+                problems.append(f"{who}: 공식 홈페이지라고 적혀 있는데 주소는 {bad} 입니다 — {url}")
+            elif not url.startswith("http"):
+                problems.append(f"{who}: 출처 주소가 없습니다")
         elif SOURCE_SITES[mark] not in url:
             problems.append(f"{who}: 출처({mark})와 주소가 맞지 않습니다 — {url}")
 
@@ -116,7 +130,11 @@ def check():
                 problems.append(f"{who}/{c.get('name')}: 홀 번호가 이상합니다 {nos}")
             for h in holes:
                 par = h.get("par")
-                if not isinstance(par, int) or not (PAR_RANGE[0] <= par <= PAR_RANGE[1]):
+                # 파가 없는 것은 '틀린 것'이 아니라 '아직 모르는 것'이다.
+                # 홀맵만 있어도 화면은 성립하므로 막지 않고, 숫자는 나중에 다른 출처로 채운다.
+                if par is None:
+                    notes.append(f"{who}/{c.get('name')} {h.get('no')}번홀: 파 없음(그림만)")
+                elif not isinstance(par, int) or not (PAR_RANGE[0] <= par <= PAR_RANGE[1]):
                     problems.append(f"{who}/{c.get('name')} {h.get('no')}번홀: par 가 이상합니다 ({par})")
                 tees = h.get("tees") or []
                 vals = [t.get("y") or t.get("m") for t in tees]

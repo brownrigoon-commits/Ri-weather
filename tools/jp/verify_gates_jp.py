@@ -91,6 +91,12 @@ def main():
         "못 내립니다"))
 
     ok.append(sabotage(
+        "공식이라 적고 실제로는 애그리게이터에서 가져옴",
+        lambda d: (d.update(source="어느구장 公式ホームページ"),
+                   d.update(sourceUrl="https://golf-jalan.net/gc00001/detail/"))[0],
+        "공식 홈페이지라고 적혀 있는데"))
+
+    ok.append(sabotage(
         "출처와 주소가 안 맞음",
         lambda d: d.update(sourceUrl="https://example.com/whatever"),
         "출처(アコーディア)와 주소가 맞지 않습니다"))

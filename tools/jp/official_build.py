@@ -146,7 +146,9 @@ def build_one(rec, collect, ex):
         else:
             out_sect.append({"name": sec["name"], "holes": holes})
 
-    parsed = {"course": g, "source": f"{rec['osm']} 公式サイト",
+    # ⚠️ '公式サイト' 로 쓰면 아코디아 출처와 겹쳐 내리기 스위치가 엉뚱한 자료를 잡는다
+    #    (tools/jp_takedown.py 주석 참고). 표기는 반드시 '公式ホームページ'.
+    parsed = {"course": g, "source": f"{rec['osm']} 公式ホームページ",
               "sourceUrl": sections[0]["page"], "country": "JP", "unit": "yd",
               "greens": 1, "green": None, "collectedAt": str(date.today()),
               "origName": rec["osm"], "courses": out_sect}
