@@ -153,9 +153,42 @@ def bump():
         s.replace(f"riweather-v{cur}", f"riweather-v{nxt}"))
     return cur, nxt
 
+def manifest():
+    """이번 배포에 실제로 실려 나가는 파일 목록 (HEAD 대비 스테이징된 것)."""
+    out = git("diff", "--cached", "--name-status", check=False).stdout.strip()
+    return [l.split("\t", 1) for l in out.splitlines() if "\t" in l]
+
+
+def show_manifest(rows):
+    """무엇이 나가는지 **눈에 보이게** 한다.
+
+    ⚠️ 2026-08-01: 한 PC 에서 창 두 개로 작업하다, 한 창이 배포하면서 다른 창이
+       편집 중이던 파일까지 딸려 나가는 사고가 **하루에 두 번** 났다.
+       stage() 는 폴더를 통째로 담기 때문에(파일 누락 사고를 막으려고 그렇게 만들었다)
+       같은 작업트리의 남의 변경을 구분할 방법이 없다 — git 도 구분하지 못한다.
+       그래서 최소한 **배포 전에 목록을 보여주고, 커밋에도 남긴다.**
+       근본 해결은 창마다 작업 폴더를 분리하는 것: `git worktree add ../golf-b`
+    """
+    src = [p for st, p in rows if re.match(r"^(js|css|tools)/|^index\.html$|^ops-", p)]
+    print(f"\n■ 이번 배포에 실리는 파일 {len(rows)}개" +
+          (f" (그중 코드 {len(src)}개)" if src else ""))
+    for st, p in rows[:40]:
+        print(f"   {st}  {p}")
+    if len(rows) > 40:
+        print(f"   … 외 {len(rows) - 40}개")
+    if len(src) > 12:
+        print("\n⚠️ 코드 파일이 많습니다. 다른 창에서 작업 중인 파일이 섞이지 않았는지 확인하세요.")
+        print("   (창을 두 개 쓰신다면 git worktree 로 폴더를 나누는 것이 근본 해결입니다)")
+    print()
+
+
 write_status()
 stage()
-git("commit", "-m", f"{msg}\n\nCo-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>", check=False)
+_rows = manifest()
+show_manifest(_rows)
+_files = "\n".join(f"  {st} {p}" for st, p in _rows)
+git("commit", "-m", f"{msg}\n\n배포 파일 {len(_rows)}개:\n{_files}\n\n"
+    "Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>", check=False)
 
 for attempt in range(1, 4):
     ok, stuck = rebase_with_autofix()          # 상대 PC 작업 먼저 받기(충돌 자동해결)
@@ -163,8 +196,11 @@ for attempt in range(1, 4):
         print("✖ 자동 해결 못 한 충돌:", ", ".join(stuck)); sys.exit(1)
     old, new = bump()                          # 받은 최신 버전 기준으로 +1
     stage()
+    rows = manifest()
+    files = "\n".join(f"  {st} {p}" for st, p in rows)
     git("commit", "--amend", "-m",
-        f"{msg} (v{new})\n\nCo-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>")
+        f"{msg} (v{new})\n\n배포 파일 {len(rows)}개:\n{files}\n\n"
+        "Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>")
     p = git("push", "origin", "main", check=False)
     if p.returncode == 0:
         print(f"버전: v{old} → v{new}")
