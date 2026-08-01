@@ -353,15 +353,20 @@ function paintFb() {
 /* ⚠️ 반드시 시간 제한을 건다. 없으면 응답이 안 올 때 성공도 실패도 하지 않아
    화면이 '확인 중…' 에서 영원히 멈춘다(2026-07-31 사장님 폰에서 실제로 겪음).
    침묵은 성공이 아니다 — 안 되면 안 된다고 화면에 적어야 다시 시도라도 한다.
-   Apps Script 는 처음 깨울 때 10초 넘게 걸리기도 해서 넉넉히 25초로 둔다. */
+
+   제한은 45초다. 25초로 했다가 다음 날 바로 걸렸다(2026-08-01 사장님 PC):
+   실행 기록을 보면 스크립트는 0.3~4초에 끝나는데, 구글의 접수 창구(/exec 라우팅)가
+   느린 날에는 도착까지만 10~15초를 먹는다. 요청이 두 개면 25초를 넘길 수 있다. */
 function get(fn, ms) {
+  ms = ms || 45000;
   var url = BACKEND + "?fn=" + fn + "&pw=" + encodeURIComponent(pw) + "&t=" + Date.now();
   var ctl = window.AbortController ? new AbortController() : null;
-  var timer = setTimeout(function () { if (ctl) ctl.abort(); }, ms || 25000);
+  var timer = setTimeout(function () { if (ctl) ctl.abort(); }, ms);
   return fetch(url, ctl ? { signal: ctl.signal } : undefined)
     .then(function (r) { return r.json(); })
     .catch(function (e) {
-      if (e && e.name === "AbortError") throw new Error("서버가 응답하지 않습니다 (25초). 잠시 뒤 다시 시도해 주세요.");
+      if (e && e.name === "AbortError")
+        throw new Error("서버가 응답하지 않습니다 (" + Math.round(ms / 1000) + "초). 잠시 뒤 다시 시도해 주세요.");
       throw new Error("연결하지 못했습니다 — 다른 브라우저(사파리·크롬)로 열어 보세요.");
     })
     .then(function (j) { clearTimeout(timer); return j; },
@@ -437,12 +442,12 @@ $("cids").addEventListener("click", function (e) {
 
 function load() {
   $("sub").textContent = "불러오는 중…";
-  /* ⚠️ 기기 목록(fn=cids)은 여기서 부르지 않는다.
-     기록 2만 줄을 훑는 무거운 조회라, 로그인 판정과 같이 돌리면 요청 3개가 경쟁해
-     들어가는 것 자체가 느려진다(2026-07-31 폰에서 멈춘 원인 중 하나).
-     로그인이 끝난 뒤 enter() 에서 따로 부른다. */
-  return Promise.all([get("summary"), get("fblist")]).then(function (res) {
-    var s = res[0] || {}, f = res[1] || {};
+  /* ⚠️ 로그인 판정은 summary **하나만** 부른다.
+     기기 목록(fn=cids)과 의견 목록(fn=fblist)은 로그인이 끝난 뒤 따로 —
+     구글 접수 창구가 느린 날에는 요청 하나에 10초 넘게 걸려서(2026-08-01 실측),
+     여러 개를 같이 보내면 들어가는 것 자체가 제한시간을 넘긴다. */
+  return get("summary").then(function (s) {
+    s = s || {};
     if (s.err) throw new Error(s.err);
     /* 백엔드가 옛 버전이면 없는 항목이 온다.
        ⚠️ 이때 0 을 보여주면 '오늘 아무도 안 왔다'로 읽힌다 — 모르는 것은 모른다고 쓴다. */
@@ -478,12 +483,6 @@ function load() {
     bars("ages", s.ages);
     bars("genders", s.genders);
 
-    fbRows = (f && f.rows) || [];
-    paintFb();
-    // 옛 백엔드는 fblist 를 몰라서 기본 응답(service)만 준다 → '의견 0건'으로 오해하지 않게
-    if (f && !f.rows && f.service) $("fb-list").innerHTML =
-      '<p class="empty">백엔드를 다시 배포하면 여기에 의견이 쌓입니다.</p>';
-
     var now = new Date();
     /* 뺀 것을 반드시 적는다 — 조용히 빼면 숫자가 왜 줄었는지 알 수 없다 (2026-07-31) */
     var ex = s.excluded, exTxt = "";
@@ -511,31 +510,59 @@ function load() {
   });
 }
 
+/* 의견 목록 — 로그인 뒤에 따로 불러온다. 실패해도 통계 화면은 그대로 살아 있어야 한다. */
+function loadFb() {
+  return get("fblist").then(function (f) {
+    fbRows = (f && f.rows) || [];
+    paintFb();
+    // 옛 백엔드는 fblist 를 몰라서 기본 응답(service)만 준다 → '의견 0건'으로 오해하지 않게
+    if (f && !f.rows && f.service) $("fb-list").innerHTML =
+      '<p class="empty">백엔드를 다시 배포하면 여기에 의견이 쌓입니다.</p>';
+  }).catch(function () {
+    $("fb-list").innerHTML = '<p class="empty">의견을 불러오지 못했습니다 — 새로고침을 눌러 주세요.</p>';
+  });
+}
+
+function afterLogin() {
+  $("gate").hidden = true;
+  $("main").hidden = false;
+  loadFb();                           // 무거운 조회들은 들어온 뒤에 — 로그인을 막지 않는다
+  loadCids();
+}
+
 function enter() {
   pw = $("pw").value.trim();
   if (!pw) { $("gate-err").textContent = "비밀번호를 입력해 주세요."; return; }
-  $("gate-err").textContent = "확인 중…";
-  load().then(function () {
-    /* '로그인 유지'를 켜면 이 기기(localStorage)에 저장 — 사장님이 수시로 여는 용도.
-       끄면 이 탭(sessionStorage)에만 — 남의 기기에서 잠깐 볼 때. (2026-07-31) */
-    try {
-      if ($("keep").checked) { localStorage.setItem(PWKEY, pw); sessionStorage.removeItem(PWKEY); }
-      else { sessionStorage.setItem(PWKEY, pw); localStorage.removeItem(PWKEY); }
-    } catch (e) {}
-    $("gate").hidden = true;
-    $("main").hidden = false;
-    loadCids();                       // 무거운 조회는 들어온 뒤에 — 로그인을 막지 않는다
-  }).catch(function (e) {
-    $("gate-err").textContent = /비밀번호/.test(e.message) ? "비밀번호가 틀립니다."
-      : "불러오지 못했습니다 — " + e.message;
-  });
+  attempt(1);
+  /* 연결이 늦어 실패하면 한 번은 스스로 다시 해 본다 — 구글이 느린 날에는
+     두 번째가 대개 붙는다(2026-08-01 실측: 스크립트는 멀쩡, 접수 창구만 느림).
+     비밀번호가 틀린 것은 다시 해 봐야 똑같으니 바로 알려준다. */
+  function attempt(n) {
+    $("gate-err").textContent = n === 1 ? "확인 중…"
+      : "구글 서버가 느립니다 — 한 번 더 시도합니다…";
+    load().then(function () {
+      /* '로그인 유지'를 켜면 이 기기(localStorage)에 저장 — 사장님이 수시로 여는 용도.
+         끄면 이 탭(sessionStorage)에만 — 남의 기기에서 잠깐 볼 때. (2026-07-31) */
+      try {
+        if ($("keep").checked) { localStorage.setItem(PWKEY, pw); sessionStorage.removeItem(PWKEY); }
+        else { sessionStorage.setItem(PWKEY, pw); localStorage.removeItem(PWKEY); }
+      } catch (e) {}
+      $("gate-err").textContent = "";
+      afterLogin();
+    }).catch(function (e) {
+      var m = (e && e.message) || "";
+      if (/비밀번호/.test(m)) { $("gate-err").textContent = "비밀번호가 틀립니다."; return; }
+      if (n < 2) return attempt(n + 1);
+      $("gate-err").textContent = "불러오지 못했습니다 — " + m;
+    });
+  }
 }
 
 $("go").addEventListener("click", enter);
 $("pw").addEventListener("keydown", function (e) { if (e.key === "Enter") enter(); });
 $("reload").addEventListener("click", function () {
   var b = $("reload"); b.disabled = true; b.textContent = "불러오는 중…";
-  load().then(function () { loadCids(); })
+  load().then(function () { loadFb(); loadCids(); })
     .catch(function (e) { alert("불러오지 못했습니다 — " + e.message); })
     .then(function () { b.disabled = false; b.textContent = "새로고침"; });
 });
@@ -607,8 +634,7 @@ $("pw-new2").addEventListener("keydown", function (e) { if (e.key === "Enter") c
   $("gate-err").textContent = "불러오는 중…";
   load().then(function () {
     $("gate-err").textContent = "";
-    $("gate").hidden = true; $("main").hidden = false;
-    loadCids();
+    afterLogin();
   }).catch(function (e) {
     /* ⚠️ 저장된 비밀번호를 지우는 건 **비밀번호가 틀렸을 때만** 이다.
        예전에는 어떤 실패든 지워서, 지하철에서 잠깐 끊기기만 해도 로그아웃됐다.

@@ -24,7 +24,7 @@ const ok = (cond, what, detail) => {
     let msg = "";
     for (let i = 0; i < 60; i++) {
       msg = await p.textContent("#gate-err");
-      if (msg && msg !== "확인 중…") break;
+      if (msg && msg !== "확인 중…" && !/한 번 더/.test(msg)) break;   // 재시도 중이면 계속 기다린다
       await p.waitForTimeout(500);
     }
     const secs = ((Date.now() - t0) / 1000).toFixed(1);
@@ -54,7 +54,7 @@ const ok = (cond, what, detail) => {
     let msg = "";
     for (let i = 0; i < 80; i++) {
       msg = await p.textContent("#gate-err");
-      if (msg && msg !== "확인 중…") break;
+      if (msg && msg !== "확인 중…" && !/한 번 더/.test(msg)) break;   // 재시도 중이면 계속 기다린다
       await p.waitForTimeout(500);
     }
     const secs = ((Date.now() - t0) / 1000).toFixed(1);
