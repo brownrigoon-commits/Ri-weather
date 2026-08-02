@@ -60,6 +60,21 @@ def main():
     rows = json.load(open(SRC, encoding="utf-8"))
     reg = registered()
 
+    # 🔴 거리가 통째로 틀리면 한 곳씩 빼는 것으로는 못 막는다 — 아예 조립을 멈춘다.
+    #    2026-08-02: 배치가 좌표를 ÷3600 하는 바람에 6,297곳 거리가 전부 틀렸다
+    #    (최대 14,339km). 한 곳씩 걸러내면 '값이 이상해 뺀 숙소 6,297곳' 이라 찍고
+    #    빈 파일을 만들어 놓고는 '조립 완료' 라고 말했을 것이다.
+    all_km = [h.get("km") for r in rows for h in (r.get("h") or [])
+              if isinstance(h.get("km"), (int, float))]
+    if all_km:
+        over = sum(1 for k in all_km if k > KM_MAX)
+        if over > len(all_km) * 0.3:
+            print(f"✖ 거리가 말이 안 됩니다 — {len(all_km):,}곳 중 {over:,}곳이 {KM_MAX:g}km 를 넘습니다"
+                  f" (최대 {max(all_km):,.1f}km)")
+            print("   좌표 단위를 잘못 읽었을 가능성이 큽니다(datumType=1 이면 응답은 '도' 입니다).")
+            print("   한 곳씩 걸러내지 않고 여기서 멈춥니다 — 빈 파일을 만들어 두면 더 나쁩니다.")
+            return 1
+
     db, drop_course, drop_hotel, empty = {}, 0, 0, 0
     for r in rows:
         name = r.get("n")

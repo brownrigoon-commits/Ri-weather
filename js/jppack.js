@@ -316,8 +316,11 @@ const JPPACK = {
         name: b.hotelName || "",
         kind: "호텔",                            // 라쿠텐은 유형을 안 준다 — 칩을 안 달므로 표시용일 뿐
         addr: (b.address1 || "") + (b.address2 || ""),
-        lat: b.latitude != null ? b.latitude / 3600 : null,
-        lon: b.longitude != null ? b.longitude / 3600 : null,
+        // 🔴 datumType=1 을 보내면 응답 좌표는 **이미 '도'** 다. ÷3600 하면 안 된다.
+        //    (문서 예시가 일본측지계·초 단위라 헷갈린다. 2026-08-02 배치가 이걸 틀려
+        //     거리가 최대 14,339km 로 나왔다 — 도쿄역으로 실측해 확인했다.)
+        lat: b.latitude != null ? b.latitude : null,
+        lon: b.longitude != null ? b.longitude : null,
         dist: Math.round((km[b.hotelNo] != null ? km[b.hotelNo] : 0) * 1000),
         rating: b.reviewAverage || 0,
         reviews: b.reviewCount || 0,

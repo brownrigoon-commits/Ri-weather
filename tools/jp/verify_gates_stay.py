@@ -12,6 +12,8 @@
    3. 거리가 999km             → 조립기가 빼야 한다 (거리 계산이 틀린 것)
    4. 한 구장 20곳             → 12곳으로 잘라야 한다
    5. 앱이 한글 별칭을 못 풀 때 → 도달 관문이 잡아야 한다 (§2-9-2 사고를 숙박에서 재현)
+   6. **거리가 통째로 틀림**       → 조립을 멈춰야 한다 (한 곳씩 빼면 빈 파일이 나온다)
+      2026-08-02 실제 사고: 좌표를 ÷3600 해서 6,297곳 거리가 전부 틀렸다(최대 14,339km).
 
 ⚠️ 진짜 자료(js/staydb_jp.js·_scan/stay_batch.json)가 이미 있으면 백업하고 반드시 되돌린다.
 
@@ -94,6 +96,15 @@ def main():
             print(f"  {'✅' if good else '🔴'} {label}")
             ok += 1 if good else 0
 
+        # ── 고장6: 거리가 통째로 틀리면 조립을 멈추는가 ──
+        # (한 곳씩 걸러내면 빈 파일을 만들어 놓고 '조립 완료' 라고 말한다 — 그게 더 나쁘다)
+        allbad = [{"n": names[0], "h": [{"no": 5000 + i, "km": 14339.3} for i in range(10)]}]
+        json.dump(allbad, open(SRC, "w", encoding="utf-8"), ensure_ascii=False)
+        code, out = run([sys.executable, BUILD])
+        stopped = code != 0 and "거리가 말이 안" in out
+        print(f"  {'✅' if stopped else '🔴'} 거리가 통째로 틀리면 조립을 멈추나")
+        ok += 1 if stopped else 0
+
         # ── 고장5: 앱이 별칭을 못 풀면 도달 관문이 잡는가 ──
         pack = os.path.join(ROOT, "js", "jppack.js")
         pb = tempfile.mktemp(suffix=".js")
@@ -118,8 +129,8 @@ def main():
         if OUT not in backups and os.path.exists(OUT):
             os.remove(OUT)
 
-    print(f"\n{'✅' if ok == 5 else '🔴'} 고장 {ok}/5 건을 잡았습니다 · 원본 복구 완료")
-    return 0 if ok == 5 else 1
+    print(f"\n{'✅' if ok == 6 else '🔴'} 고장 {ok}/6 건을 잡았습니다 · 원본 복구 완료")
+    return 0 if ok == 6 else 1
 
 
 if __name__ == "__main__":
