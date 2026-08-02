@@ -51,12 +51,46 @@ const JPPACK = {
     await Promise.all(jobs);
   },
 
+  /* 🔴 화면이 부르는 이름 → 자료가 쓰는 이름
+     검색으로 들어오면 course.name 이 **한글 별칭**이다("G8후지 CC").
+     그런데 우리 자료는 전부 일본어 원문("G8富士カントリークラブ")으로 키를 잡는다.
+     golfdb 의 일본 구장 2,014곳 중 **1,911곳**이 별칭과 원문이 다르다 —
+     맞춰 주지 않으면 화면은 거의 전부 "홀별 공략 준비 중" 이 된다.
+
+     ⚠️ 이건 배포본을 **검색창부터 눌러 보고** 잡았다. 프로그램으로 원문 이름을 넣어
+        열면 멀쩡히 보이기 때문에, 그 방식으로만 확인하면 끝까지 모른다.
+
+     ⚠️ 별칭 하나에 원문이 **여럿일 수 있다.** golfdb 에 '스소노 CC' 가 두 곳이다
+        (裾野カンツリー倶楽部 / 裾野カントリークラブ). 하나로 덮으면 나머지는 영영 안 보인다 —
+        실제로 그렇게 한 곳이 사라졌고 관문(check_applink_jp)이 찾아냈다.
+        그래서 후보를 모두 들고 있다가 자료가 있는 쪽을 쓴다. */
+  _alias: null,
+  origNames: function (name) {
+    if (typeof GOLF_DB === "undefined") return [name];
+    if (!this._alias) {
+      this._alias = {};
+      for (const g of GOLF_DB) {
+        if (g.c !== "JP" || !g.k || g.k === g.n) continue;
+        (this._alias[g.k] = this._alias[g.k] || []).push(g.n);
+      }
+    }
+    return [name].concat(this._alias[name] || []);
+  },
+
+  _pick: function (db, name) {
+    if (!db) return null;
+    for (const n of this.origNames(name)) {
+      if (db[n]) return db[n];
+    }
+    return null;
+  },
+
   imgdb: function (name) {
-    return (typeof HOLEIMG_DB_JP !== "undefined" && HOLEIMG_DB_JP[name]) || null;
+    return typeof HOLEIMG_DB_JP === "undefined" ? null : this._pick(HOLEIMG_DB_JP, name);
   },
 
   stats: function (name) {
-    return (typeof HOLESTATS_JP !== "undefined" && HOLESTATS_JP[name]) || null;
+    return typeof HOLESTATS_JP === "undefined" ? null : this._pick(HOLESTATS_JP, name);
   },
 
   /* 🔴 우리 문장에는 '공식' 딱지를 붙이지 않는다.
@@ -72,7 +106,7 @@ const JPPACK = {
      할 말이 없는 홀은 빈 문자열이고, 그러면 이 줄을 아예 그리지 않는다. */
   text: function (name, holeIdx) {
     if (typeof HOLETEXT_JP === "undefined") return "";
-    const list = HOLETEXT_JP[name];
+    const list = this._pick(HOLETEXT_JP, name);
     const it = list && list[holeIdx];
     if (!it) return "";
     return (this._ja() ? it.j : it.k) || "";
