@@ -828,6 +828,17 @@
       add("영상 개수가 화면과 다름", names[0], items + " ≠ " + COURSE_VIDEOS[names[0]].length);
     const sub = (document.querySelector("#cv-sub") || {}).textContent || "";
     if (sub.indexOf(COURSE_VIDEOS_AT) < 0) add("화면에 기준일이 없음(유튜브 표시 규칙)", "cv-sub", sub);
+    // 이름이 비슷한 **다른 자리**에 영상이 붙으면 안 된다.
+    //   폰에 저장된 지역 "파주"(파주 시내)에 원더클럽 파주CC 영상이 붙었다(2026-08-02).
+    if (typeof GOLF_DB !== "undefined") {
+      const pj = GOLF_DB.find((x) => x.n === "파주CC");
+      if (pj) {
+        const 지역 = courseVideosFor({ name: "파주", addr: "경기도 파주시", lat: 37.7599, lon: 126.78 });
+        if (지역.length) add("지역 이름에 남의 구장 영상이 붙음", "파주", 지역.length + "편");
+        const 구장 = courseVideosFor({ name: "파주CC", addr: "", lat: pj.lat, lon: pj.lon });
+        if (!구장.length) add("진짜 구장인데 영상이 안 붙음", "파주CC", "좌표 확인 규칙이 과함");
+      }
+    }
     // 영상 없는 구장으로 넘어갈 때: 카드만 감추고 내용을 남기면
     // **재생 중이던 영상이 숨은 채로 계속 소리를 낸다**(2026-08-01 실제로 났던 버그)
     const it = document.querySelector("#cv-list .cv-item");

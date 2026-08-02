@@ -44,6 +44,7 @@ I18N.add("ko", {
   "app.course.holecount": "{n}개 홀 등록됨",
   "app.course.loading": "코스 데이터 불러오는 중...",
   "app.course.map.fail": "코스 지도를 불러오지 못했습니다",
+  "app.course.notgolf": "이 위치에서 <b>골프장을 찾지 못했습니다</b>.<br>지역이 저장된 것 같습니다. 골프장 이름으로 검색해 다시 추가해 주세요.",
   "app.course.prep": "이 골프장은 <b>홀별 공략을 준비 중</b>입니다.<br>공식 홀 자료가 확보되는 대로 추가됩니다. 아래는 위성 전경입니다.",
   "app.course.satellite": "위성 전경",
   "app.day.names": "오늘,내일,모레,3일 후",

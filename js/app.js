@@ -4,8 +4,8 @@
  * ========================================================= */
 "use strict";
 
-const APP_VER = "v189"; // 배포 버전 (홈 화면 배지에 표시)
-const APP_NOTE = "공략 영상 카드를 우리 자료 아래로 이동"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
+const APP_VER = "v190"; // 배포 버전 (홈 화면 배지에 표시)
+const APP_NOTE = "지역을 구장으로 오인하던 문제 · 영상 1회 클릭 재생"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
 const STORAGE_KEY = "riweather.courses.v1";
 
 /* 나중에 필요할 때 불러오는 파일 목록 (2026-07-31 신설).
@@ -2016,7 +2016,25 @@ async function openCourseView() {
     $("#course-status").textContent = tr("app.course.satellite");
     $("#hole-list-card").hidden = true;
     $("#hole-detail-card").hidden = true;
-    $("#course-note").innerHTML = tr("app.course.prep");
+    // 저장된 게 골프장이 아니라 **지역**인지 가린다.
+    //   폰에 저장된 "파주"(파주 시내)가 골프장처럼 안내돼, 위성사진이 시내를
+    //   비추는데 화면은 골프장이라고 말했다(2026-08-02).
+    // ⚠️ OSM 골프 지형 유무로 판정하면 안 된다 — 세부 태그가 없는 구장이 많아
+    //    진짜 골프장(파주CC)까지 "골프장 아님" 이 된다. 실제로 겪었다.
+    //    ① 지역 검색으로 담은 것(주소가 있다) ② 골프장DB에도 근처에 없다
+    //    ③ OSM 골프 지형도 없다 — 셋이 모두 맞을 때만 지역으로 본다.
+    const nearDb = typeof GOLF_DB !== "undefined" && GOLF_DB.some(
+      (g) => cvDistKm(course.lat, course.lon, g.lat, g.lon) <= 1.5);
+    const noGolf = !!course.addr && !nearDb && !ways.length;
+    if (noGolf) {
+      $("#course-note").innerHTML = tr("app.course.notgolf");
+      if (prepNote) {
+        prepNote.innerHTML = tr("app.course.notgolf");
+        prepNote.hidden = false;
+      }
+    } else {
+      $("#course-note").innerHTML = tr("app.course.prep");
+    }
     $("#course-note").hidden = false;
     // 코스 전체가 보이도록 지도 맞춤 (OSM 코스 도형이 있으면 그 범위로)
     setTimeout(() => {
@@ -2115,15 +2133,37 @@ async function openCourseView() {
  * ⚠️ 처음부터 iframe 을 여러 개 심으면 화면이 무거워지고 데이터도 많이 쓴다.
  *    썸네일만 깔고 **누른 것만** 재생기로 바꾼다(유튜브 권장 방식이기도 하다).
  */
+/* 두 좌표 사이 거리(km) — 같은 구장인지 판정하는 데만 쓴다 */
+function cvDistKm(a, b, c, d) {
+  const R = 6371, r = Math.PI / 180;
+  const dx = (c - a) * r, dy = (d - b) * r;
+  const h = Math.sin(dx / 2) ** 2 +
+            Math.cos(a * r) * Math.cos(c * r) * Math.sin(dy / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(h));
+}
+
+/* 이름이 가리키는 구장이 **정말 이 자리**인지 확인한다.
+   ⚠️ 이름만 믿었더니, 폰에 저장된 지역 "파주"(파주 시내)에 원더클럽 파주CC 영상이
+      붙었다(2026-08-02). 지도는 시내를 비추는데 화면엔 골프장 공략 영상이 뜨는,
+      신뢰가 깨지는 상황이었다. 확인할 수 없으면 **안 붙인다.** */
+function cvSamePlace(course, dbName) {
+  if (!course || !course.lat || typeof GOLF_DB === "undefined") return false;
+  const g = GOLF_DB.find((x) => x.n === dbName || x.k === dbName);
+  if (!g) return false;
+  return cvDistKm(course.lat, course.lon, g.lat, g.lon) <= 3;
+}
+
 function courseVideosFor(course) {
   if (typeof COURSE_VIDEOS === "undefined" || !course) return [];
+  // 이름이 그대로 같으면 그 자체로 강한 근거다
   const direct = COURSE_VIDEOS[course.name];
   if (direct) return direct;
-  // 이름 표기가 달라도 찾도록 — 부킹 번호표와 같은 핵심어 매칭
+  // 표기가 달라도 찾도록 — 다만 핵심어가 같아도 **좌표까지 맞아야** 붙인다
   const k = typeof bkCore === "function" ? bkCore(course.name) : "";
   if (!k) return [];
   for (const n in COURSE_VIDEOS) {
-    if (typeof bkCore === "function" && bkCore(n) === k) return COURSE_VIDEOS[n];
+    if (typeof bkCore === "function" && bkCore(n) === k && cvSamePlace(course, n))
+      return COURSE_VIDEOS[n];
   }
   return [];
 }
@@ -2166,10 +2206,26 @@ function renderCourseVideos(course) {
       if (el.querySelector("iframe")) return;
       const id = el.dataset.vid;
       const box = el.querySelector(".cv-thumb");
-      box.innerHTML =
-        `<iframe src="https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0"
-           title="공략 영상" frameborder="0" allow="accelerometer; autoplay; encrypted-media; picture-in-picture"
-           allowfullscreen></iframe>`;
+      // ⚠️ playsinline 이 없으면 아이폰이 인라인 자동재생을 막아서
+      //    **한 번 더 눌러야** 재생된다(2026-08-02 사장님 폰에서 확인).
+      //    iframe 을 클릭 처리 안에서 바로 만들어야 '사용자가 누른 것' 으로 인정된다.
+      const ifr = document.createElement("iframe");
+      ifr.src = `https://www.youtube-nocookie.com/embed/${id}` +
+                "?autoplay=1&playsinline=1&rel=0&enablejsapi=1";
+      ifr.title = "공략 영상";
+      ifr.allow = "accelerometer; autoplay; encrypted-media; picture-in-picture; fullscreen";
+      ifr.setAttribute("allowfullscreen", "");
+      ifr.setAttribute("playsinline", "");
+      ifr.frameBorder = "0";
+      // 그래도 멈춰 있으면 한 번 더 밀어준다(유튜브 iframe API 명령)
+      ifr.addEventListener("load", () => {
+        try {
+          ifr.contentWindow.postMessage(
+            '{"event":"command","func":"playVideo","args":[]}', "*");
+        } catch (e) { /* 다른 출처라 막히면 무시 — 이미 재생 중인 경우다 */ }
+      });
+      box.innerHTML = "";
+      box.appendChild(ifr);
       if (typeof STATS !== "undefined") STATS.hit("feature", "coursevideo_play");
     });
   });
