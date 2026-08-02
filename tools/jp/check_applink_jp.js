@@ -34,9 +34,15 @@ for (const f of files) {
     process.exit(1);
   }
 }
+// staydb_jp.js 는 배치가 끝나야 생긴다 — 없으면 그 항목만 건너뛴다(관문 자체는 돌아야 한다)
+const STAY_FILE = "js/staydb_jp.js";
+const hasStay = fs.existsSync(path.join(ROOT, STAY_FILE));
+
 // I18N 은 jppack 이 언어 판정에 쓴다 — 최소한만 흉내낸다
-const src = "var I18N = { lang: 'ko' };\n" + files.map(load).join("\n") +
-            "\n;return { GOLF_DB, JPPACK, HOLEIMG_DB_JP, HOLESTATS_JP, HOLETEXT_JP };";
+const src = "var I18N = { lang: 'ko' };\n" +
+            files.map(load).join("\n") +
+            (hasStay ? "\n" + load(STAY_FILE) : "\nvar STAYDB_JP = null;") +
+            "\n;return { GOLF_DB, JPPACK, HOLEIMG_DB_JP, HOLESTATS_JP, HOLETEXT_JP, STAYDB_JP };";
 let env;
 try {
   env = new Function(src)();
@@ -44,7 +50,7 @@ try {
   console.log("✖ 앱 파일을 불러오지 못했습니다 —", e.message);
   process.exit(1);
 }
-const { GOLF_DB, JPPACK, HOLEIMG_DB_JP, HOLESTATS_JP, HOLETEXT_JP } = env;
+const { GOLF_DB, JPPACK, HOLEIMG_DB_JP, HOLESTATS_JP, HOLETEXT_JP, STAYDB_JP } = env;
 
 // 화면이 쓰는 이름 = 검색 결과가 만드는 이름 (k 가 있으면 k, 없으면 n)
 const jp = GOLF_DB.filter((g) => g.c === "JP");
@@ -57,6 +63,10 @@ const PACKS = [
   ["통계",     HOLESTATS_JP,  (n) => JPPACK.stats(n)],
   ["한줄공략", HOLETEXT_JP,   (n) => JPPACK.text(n, 0) !== "" || !!JPPACK._pick(HOLETEXT_JP, n)],
 ];
+// 숙박도 같은 관문에 태운다 — 별칭 사고(§2-9-2)를 숙박에서 다시 겪지 않기 위해서다.
+// 자료를 아무리 잘 모아도 앱이 그 이름으로 못 찾으면 화면은 비어 있다.
+if (STAYDB_JP) PACKS.push(["숙박", STAYDB_JP, (n) => JPPACK.stay(n)]);
+else console.log("   (숙박: js/staydb_jp.js 가 아직 없어 건너뜁니다 — 배치 후 생깁니다)");
 
 const problems = [];
 for (const [label, db, get] of PACKS) {
@@ -77,6 +87,21 @@ for (const [label, db, get] of PACKS) {
   if (orphan.length)
     problems.push(`${label}: 아무 구장에서도 닿지 않는 자료 ${orphan.length}곳 ` +
                   `(예: ${orphan.slice(0, 3).join(", ")})`);
+}
+
+// 3-1) 숙박 값 관문 — 번호가 정수인가, 거리가 링 설계로 나올 수 있는 값인가
+if (STAYDB_JP) {
+  const bad = [];
+  for (const [name, list] of Object.entries(STAYDB_JP)) {
+    if (list.length > 12) bad.push(`${name}: 숙소 ${list.length}곳 (12곳 넘음)`);
+    for (const [no, km] of list) {
+      if (!Number.isInteger(no) || no <= 0) bad.push(`${name}: 숙소번호 ${no} 가 양의 정수가 아님`);
+      // 3km 반경 + 9km 링 = 이론 최대 12km. 넘으면 거리 계산이 틀린 것이다
+      if (typeof km !== "number" || km < 0 || km > 12)
+        bad.push(`${name}: 거리 ${km}km 가 0~12km 밖 (거리 계산이 틀렸다)`);
+    }
+  }
+  if (bad.length) problems.push(...bad.slice(0, 6).map((s) => "숙박 값: " + s));
 }
 
 // 3) 홀맵이 없으면 통계·공략은 화면에 붙을 자리가 없다

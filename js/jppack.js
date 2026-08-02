@@ -94,6 +94,12 @@ const JPPACK = {
     return typeof HOLESTATS_JP === "undefined" ? null : this._pick(HOLESTATS_JP, name);
   },
 
+  /* 구장 주변 숙소 번호·거리 — [[hotelNo, km], …] 또는 null.
+     여기 담긴 것은 **변하지 않는 사실**뿐이다. 가격·평점·빈방은 stay.js 가 그때그때 받는다. */
+  stay: function (name) {
+    return typeof STAYDB_JP === "undefined" ? null : this._pick(STAYDB_JP, name);
+  },
+
   /* 🔴 우리 문장에는 '공식' 딱지를 붙이지 않는다.
      이 줄은 구장이 쓴 글이 아니라 じゃらん 공개 통계와 사실 토큰에서 우리가 끌어낸 요약이다.
      '⛳ 공식 코스공략 TIP' 아래에 넣었더니 구장이 하지도 않은 말이 공식이 됐다 —
