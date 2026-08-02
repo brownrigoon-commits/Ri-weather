@@ -27,7 +27,11 @@ async function fetchBookingWeek(course) {
   url.search = new URLSearchParams({
     latitude: course.lat, longitude: course.lon,
     daily: "weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max",
-    timezone: "Asia/Seoul", forecast_days: String(BOOKING_DAYS),
+    // 구장 나라에 맞는 시간대 — 일본은 KST 와 같은 UTC+9 라 값이 바뀌지 않지만,
+    // 우연에 기대지 않고 명시한다(설계 §1). 헬퍼는 app.js 의 tzForCoord.
+    timezone: typeof tzForCoord === "function"
+      ? tzForCoord(course.lat, course.lon) : "Asia/Seoul",
+    forecast_days: String(BOOKING_DAYS),
   });
   const d = await fetchJSON(url, { retries: 2, delay: 1200 });
   try { localStorage.setItem(ck, JSON.stringify({ t: Date.now(), d: d })); } catch (_) {}

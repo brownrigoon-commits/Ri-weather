@@ -161,6 +161,35 @@ async function fetchJSON(url, { retries = 2, delay = 1200 } = {}) {
 }
 
 const FC_LS = "riweather.fc.";
+/* 좌표가 어느 나라 시간대인가 — 날씨 API 에 넘길 값 (설계 §1)
+ *
+ * 왜 좌표로 보나: fetchForecast·fetchAir 는 lat/lon 만 받는다. 구장 객체가 없다.
+ *
+ * 🔴 왜 timezone=auto 를 안 쓰나 — 두 호출의 **시각 문자열이 맞아떨어져야** 한다.
+ *    app.js:1473 이 `grid[0].hourly.time.indexOf(startIso)` 로 상세 예보의 시각을
+ *    격자 예보에서 찾는다. 격자는 여러 구장을 한 번에 묻는 호출이라 시간대가 하나뿐이고,
+ *    auto 로 두면 구장마다 달라져 이 대조가 깨진다(비구름 애니메이션이 죽는다).
+ *    그래서 격자는 Asia/Seoul 로 고정하고, 여기서는 **같은 offset 인 나라만** 갈라준다.
+ *
+ * 일본(JST)은 한국(KST)과 똑같이 UTC+9 라 값이 바뀌지 않는다 —
+ * 그래도 명시하는 이유는 **우연에 기대지 않기 위해서**다(해외진출_설계 D4).
+ * 중국(UTC+8)은 offset 이 달라 격자 대조가 깨지므로 지금은 건드리지 않는다.
+ *
+ * ⚠️ 경계 상자로 가르려다 실패했다 — 한국(위도 33~39·경도 124~132)이 일본을 감싸는
+ *    어떤 상자에도 들어간다. 대마도·규슈가 한국 동해안과 경도가 겹치기 때문이다.
+ *    그래서 **golfdb 에서 그 좌표의 구장을 찾아 나라를 읽는다** — 정확하고 흔들리지 않는다.
+ */
+let _tzIdx = null;
+function tzForCoord(lat, lon) {
+  if (typeof GOLF_DB === "undefined") return "Asia/Seoul";
+  if (!_tzIdx) {
+    _tzIdx = {};
+    for (const g of GOLF_DB) _tzIdx[g.lat.toFixed(3) + "," + g.lon.toFixed(3)] = g.c;
+  }
+  const c = _tzIdx[Number(lat).toFixed(3) + "," + Number(lon).toFixed(3)];
+  return c === "JP" ? "Asia/Tokyo" : "Asia/Seoul";
+}
+
 async function fetchForecast(lat, lon) {
   // 같은 골프장을 오갈 때마다 새로 받지 않는다 — 15분이면 예보는 바뀌지 않는다
   const ck = FC_LS + lat.toFixed(3) + "," + lon.toFixed(3);
@@ -175,7 +204,7 @@ async function fetchForecast(lat, lon) {
     hourly: "temperature_2m,precipitation_probability,precipitation,weather_code,relative_humidity_2m,dew_point_2m,wind_speed_10m,wind_direction_10m,wind_gusts_10m,visibility",
     daily: "temperature_2m_max,temperature_2m_min,precipitation_sum,weather_code",
     wind_speed_unit: "ms",
-    timezone: "Asia/Seoul",
+    timezone: tzForCoord(lat, lon),
     forecast_days: "3",
   });
   const d = await fetchJSON(url, { retries: 2, delay: 1500 });
@@ -188,7 +217,7 @@ async function fetchAir(lat, lon) {
   url.search = new URLSearchParams({
     latitude: lat, longitude: lon,
     current: "pm10,pm2_5",
-    timezone: "Asia/Seoul",
+    timezone: tzForCoord(lat, lon),
   });
   return fetchJSON(url, { retries: 1 });
 }
@@ -241,6 +270,12 @@ async function fetchPrecipGrid(GRID) {
       latitude: lats.slice(i, i + chunkSize).join(","),
       longitude: lons.slice(i, i + chunkSize).join(","),
       hourly: "precipitation",
+      // 🔴 여기만 일부러 고정한다. 격자는 좌표 수백 개를 한 번에 묻는 호출이라
+      //    시간대가 하나뿐이고, app.js 의 비구름 코드가 상세 예보의 시각 문자열을
+      //    이 응답에서 indexOf 로 찾는다(`grid[0].hourly.time.indexOf(startIso)`).
+      //    구장마다 시간대가 달라지면 그 대조가 -1 이 되어 비구름이 죽는다.
+      //    일본은 KST 와 같은 UTC+9 라 이대로도 시각이 정확히 맞는다.
+      //    ⚠️ 중국(UTC+8)을 붙일 때는 이 구조부터 다시 봐야 한다.
       timezone: "Asia/Seoul",
       forecast_days: "3",
     });
@@ -497,7 +532,7 @@ async function fetchHomeWeather(courses) {
       latitude: lat, longitude: lon,
       current: "temperature_2m,weather_code,is_day",
       daily: "temperature_2m_max,temperature_2m_min",
-      timezone: "Asia/Seoul",
+      timezone: tzForCoord(lat, lon),
       forecast_days: "1",
     });
     return u;
@@ -4865,7 +4900,7 @@ async function saveScoreRecord() {
       url.search = new URLSearchParams({
         latitude: currentCourse.lat, longitude: currentCourse.lon,
         daily: "temperature_2m_max,temperature_2m_min,precipitation_sum,wind_speed_10m_max,weather_code",
-        wind_speed_unit: "ms", timezone: "Asia/Seoul",
+        wind_speed_unit: "ms", timezone: tzForCoord(currentCourse.lat, currentCourse.lon),
         start_date: rec.date, end_date: rec.date,
       });
       const d = await fetchJSON(url, { retries: 1 });
