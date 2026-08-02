@@ -325,3 +325,66 @@ class Budget:
         self.used += 1
         self._save()
         return True
+
+
+# ────────────────────────────────────────────────────────────────────────────
+# 통계 ↔ 홀맵 자리 맞추기 — **한 곳에서만 한다**
+# ────────────────────────────────────────────────────────────────────────────
+
+def load_aligned():
+    """홀맵과 통계를 짝지어, 홀맵 순서에 맞춰 정렬된 구장 목록을 돌려준다.
+
+    → (rows, info)
+       rows[i] = {course, source, sourceUrl, collectedAt, pars, holes, facts, map}
+                 map = 홀맵 쪽 홀 배열(파·티·hdcp·그림) — 같은 순서
+       info    = {"skipped":n, "reordered":n, "unaligned":n}
+
+    🔴 왜 함수로 뽑았나
+       조립기와 문장 생성기가 **각자** 자리를 맞추면, 한쪽 규칙만 바뀌었을 때
+       같은 홀에 다른 자료가 붙는다. 2026-08-02 에 이름 다듬는 규칙이 도구마다 달라
+       44곳의 통계가 조용히 빠진 일이 있었다 — 자리 맞추기는 그보다 더 조용히 틀린다
+       (숫자는 보이는데 **엉뚱한 홀의 숫자**다). 그래서 한 곳에서만 한다.
+    """
+    reg, maps = {}, {}
+    for d in os.listdir(HP_JP):
+        f = os.path.join(HP_JP, d, "parsed.json")
+        if not os.path.exists(f):
+            continue
+        try:
+            j = json.load(open(f, encoding="utf-8"))
+        except Exception:
+            continue
+        flat = [dict(h, cname=c.get("name", "")) for c in j["courses"] for h in c["holes"]]
+        reg[j["course"]] = [h.get("par") for h in flat]
+        maps[j["course"]] = flat
+
+    stats_dir = os.path.join(HP_JP, "_stats")
+    rows = {"skipped": 0, "reordered": 0, "unaligned": 0}
+    out = []
+    if not os.path.isdir(stats_dir):
+        return out, rows
+    for fn in sorted(f for f in os.listdir(stats_dir) if f.endswith(".json")):
+        try:
+            d = json.load(open(os.path.join(stats_dir, fn), encoding="utf-8"))
+        except Exception:
+            continue
+        # 같은 폴더에 도구가 쓰는 파일이 섞인다 — **이름이 아니라 형태**로 가른다
+        if not (isinstance(d, dict) and "course" in d and "holes" in d):
+            continue
+        if d["course"] not in reg:
+            rows["skipped"] += 1
+            continue
+        theirs = reg[d["course"]]
+        if any(a is not None for a in theirs) and theirs != d["pars"]:
+            idx = align_stats(theirs, d["pars"])
+            if idx is None:
+                rows["unaligned"] += 1
+                continue          # 엉뚱한 홀에 붙느니 없는 게 낫다
+            d["pars"] = [d["pars"][i] for i in idx]
+            d["holes"] = [d["holes"][i] for i in idx]
+            if d.get("facts"):
+                d["facts"] = [d["facts"][i] for i in idx]
+            rows["reordered"] += 1
+        d["map"] = maps[d["course"]]
+        out.append(d)
+    return out, rows

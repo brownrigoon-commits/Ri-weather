@@ -59,6 +59,14 @@ const JPPACK = {
     return (typeof HOLESTATS_JP !== "undefined" && HOLESTATS_JP[name]) || null;
   },
 
+  /* 🔴 우리 문장에는 '공식' 딱지를 붙이지 않는다.
+     이 줄은 구장이 쓴 글이 아니라 じゃらん 공개 통계와 사실 토큰에서 우리가 끌어낸 요약이다.
+     '⛳ 공식 코스공략 TIP' 아래에 넣었더니 구장이 하지도 않은 말이 공식이 됐다 —
+     배선 검증에서 화면을 보고 잡았다. 출처를 속이는 것은 틀린 숫자보다 나쁘다. */
+  textLabel: function () {
+    return this._ja() ? "📊 記録から見たこのホール<br>" : "📊 기록으로 본 이 홀<br>";
+  },
+
   /* 홀별 한 줄 공략 — 지어낸 문장이 아니라 통계·사실 토큰에서 끌어낸 말이다
      (tools/jp/gen_hole_text.py, 관문 check_holetext_jp.py 가 자료로 되짚는다).
      할 말이 없는 홀은 빈 문자열이고, 그러면 이 줄을 아예 그리지 않는다. */

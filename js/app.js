@@ -2383,9 +2383,10 @@ function renderImgCourse(course, db) {
       // 홀별 한 줄 공략 — 공식 TIP 이 없는 일본 구장에서 이 자리를 채운다.
       // 지어낸 문장이 아니라 통계·사실 토큰에서 끌어낸 말이다(tools/jp/gen_hole_text.py).
       // 공식 TIP 이 있으면 그쪽이 이긴다 — 구장이 직접 쓴 글이 우리 요약보다 낫다.
+      // 🔴 딱지는 '공식 TIP' 이 아니라 JPPACK.textLabel() 이다 — 구장이 한 말이 아니다.
       const line = JPPACK.text(course.name, i);
       if (line && !tipText) {
-        infoHtml += tr("app.hole.tip.title") +
+        infoHtml += JPPACK.textLabel() +
           line.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
       }
       // 홀별 실전 통계 — 스코어대는 내 평균 타수에 맞춰 처음부터 열린다(§2-8-1)
