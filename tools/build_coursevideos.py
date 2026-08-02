@@ -169,11 +169,50 @@ def pick_course(title, index, min_len=2):
     hits = [(k, n) for k, n in index.items() if len(k) >= min_len and k in runs]
     if not hits:
         return None
+
     # 가장 긴 이름이 이긴다 — "신라" 와 "경주신라" 가 함께 걸리면 후자가 맞다
     hits.sort(key=lambda x: -len(x[0]))
     if len(hits) > 1 and len(hits[0][0]) == len(hits[1][0]):
         return None                       # 같은 길이로 둘 이상 = 판단 불가 → 버린다
     return hits[0][1]
+
+
+# ── 설명문으로 찾기 (제목이 안 될 때) ──────────────────────────
+# 맵가이더는 설명문에 **구장 주소**를 적어 둔다. 이게 제목보다 확실한 단서다.
+#     아도니스 cc : 경기 포천시 신북면 포천로 2499
+#     덕유산 CC   : 전북 무주군 …
+# 주소의 시·군 이름을 이름 앞에 붙여 다시 맞춰 보면 등록명과 짝이 맞는다.
+#     '덕유산 CC' + '무주'   → 무주덕유산CC
+#     '에스파크 CC' + '밀양' → 밀양에스파크컨트리클럽
+SIDO = r"(서울|부산|대구|인천|광주|대전|울산|세종|경기|강원|충북|충남|전북|전남|경북|경남|제주)"
+DESC_ADDR = re.compile(r"^(.{2,30}?)\s*[:：]\s*(" + SIDO + r"[^\n]{4,60})$", re.M)
+
+
+def pick_by_desc(desc, index):
+    """설명문의 '<이름> : <주소>' 줄로 구장을 특정한다. 애매하면 역시 버린다."""
+    m = DESC_ADDR.search(desc or "")
+    if not m:
+        return None
+    nm, addr = m.group(1).strip(), m.group(2)
+    regions = re.findall(r"([가-힣]{2,6})(?:특별자치도|특별시|광역시|시|군|구)\b", addr)
+    tries = [nm] + [f"{r} {nm}" for r in regions] + [f"{nm} {r}" for r in regions]
+    # ① 제목과 똑같은 규칙으로 한 번
+    found = {c for c in (pick_course(t, index) for t in tries) if c}
+    # ② 설명문의 그 줄은 '제목' 이 아니라 **구장 이름 그 자체**다.
+    #    그러니 등록명과 통째로 같은지도 본다 — '소노펠리체CC 델피노' 처럼
+    #    코스 이름까지 붙은 등록명은 이 경로로만 맞는다.
+    for t in tries:
+        n = index.get(core(t))
+        if n:
+            found.add(n)
+    if len(found) != 1:
+        return None
+    got = found.pop()
+    # 마지막 확인 — 찾아낸 등록명이 설명문의 이름과 실제로 겹치는가?
+    #   "골프클럽Q CC : 경기 안성시…" 가 안성CC 로 갈 뻔했다(2026-08-01).
+    #   '골프클럽' 이 사업자 표시로 잘려 나가면서 지역명 '안성' 만 남은 탓이다.
+    a, b = core(nm), core(got)
+    return got if (a and b and (a in b or b in a)) else None
 
 
 # ── RSS 수집 ─────────────────────────────────────────────────
@@ -235,6 +274,8 @@ def from_api(ch, key):
                 "videoId": v["id"], "title": sn.get("title", ""), "channel": ch["name"],
                 "views": int(st.get("viewCount", 0)), "likes": int(st.get("likeCount", 0)),
                 "publishedAt": sn.get("publishedAt", "")[:10],
+                # 설명문은 저장물에 넣지 않는다(용량). 매칭에만 쓰고 버린다.
+                "_desc": sn.get("description", ""),
             })
     return out
 
@@ -287,9 +328,14 @@ def main():
         except Exception as e:
             print(f"  {ch['name']}: 실패 — {str(e)[:80]}")
 
-    by_course, dropped = {}, 0
+    by_course, dropped, by_desc = {}, 0, 0
     for v in vids:
         c = pick_course(v["title"], index)
+        if not c:                          # 제목이 안 되면 설명문의 주소로 한 번 더
+            c = pick_by_desc(v.pop("_desc", ""), index)
+            if c:
+                by_desc += 1
+        v.pop("_desc", None)               # 저장물에는 설명문을 남기지 않는다
         if not c:
             dropped += 1
             continue
@@ -300,7 +346,8 @@ def main():
         by_course[c].sort(key=lambda v: (-v["views"], -v["likes"]))
 
     total = sum(len(v) for v in by_course.values())
-    print(f"매칭: {len(by_course)}개 구장 · 영상 {total}편 (구장 못 찾아 버림 {dropped}편)")
+    print(f"매칭: {len(by_course)}개 구장 · 영상 {total}편 "
+          f"(그중 설명문 주소로 찾은 것 {by_desc}편 · 구장 못 찾아 버림 {dropped}편)")
     for c in sorted(by_course, key=lambda c: -len(by_course[c]))[:8]:
         print(f"   {c}: {len(by_course[c])}편 (최다 {by_course[c][0]['views']:,}회)")
 
