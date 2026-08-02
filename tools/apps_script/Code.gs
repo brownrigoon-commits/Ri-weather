@@ -14,7 +14,8 @@
    tools/verify_deploy.py 가 이 값을 서버에서 읽어와 로컬과 대조한다.
    두 번이나 "코드는 고쳤는데 배포를 안 해서" 기능이 죽어 있었다:
      · 기록 백업·복구 (2026-07-27)  · 숙소 객실사진 우선 (2026-07-28) */
-var BACKEND_VER = "2026-07-31d";   // b: 메일 제목 개명 / c: 비밀번호 변경(fn=setpw) / d: 개발기기 제외·지역군
+var BACKEND_VER = "2026-08-02a";   // b: 메일 제목 개명 / c: 비밀번호 변경(fn=setpw) / d: 개발기기 제외·지역군
+                                   // 2026-08-02a: 우리 기록 자동 제외(규칙) + 오늘/누적 나누어 보기
 
 /* 관리자 비밀번호 — 스크립트 속성 ADMIN_PW 가 정본이다.
    (코드에 적으면 저장소를 공개로 돌리는 순간 그대로 노출된다)
@@ -99,48 +100,167 @@ function sheet_() {
   return sh;
 }
 
-/* ---------- 개발·테스트 기록 제외 (2026-07-31 사장님 지시) ----------
+/* ---------- 우리 기록 빼기 — 실제 이용자 것만 남긴다 (2026-08-02 사장님 지시) --------
  *
- * "우리가 테스트로 들어가서 본 내용은 통계에서 빼 달라 — 헷갈린다."
+ * "내 폰이랑 개발 PC로 우리가 눌러 본 건 다 빼고, 써보라고 준 사람들 것만 보여 달라."
  *
- * ⚠️ **기록을 지우지 않는다.** 집계에서만 뺀다.
- *    지워 버리면 잘못 뺀 걸 알아차렸을 때 되돌릴 방법이 없다.
- *    스크립트 속성 DEV_CIDS(기기ID 목록)에 넣고 빼는 것이 전부이고,
- *    관리자 화면에서 버튼으로 켜고 끌 수 있으니 콘솔을 열 일은 없다.
+ * 예전에는 기기를 하나씩 손으로 [안 셈] 눌러야 했다. 목록이 150대인데 그럴 수는 없다.
+ * 그래서 **우리 자국이 분명한 것만** 자동으로 뺀다.
  *
- * 앞으로 쌓이는 것은 앱이 막는다(js/stats.js — localhost, `?dev=1`).
- * 여기서 빼는 것은 그 장치가 없던 때(v170 이전)에 이미 쌓인 기록이다.
+ * ⚠️ 세 가지를 지킨다.
+ *   1) 기록을 지우지 않는다 — 집계에서만 뺀다. 잘못 뺐으면 되돌릴 수 있어야 한다.
+ *   2) 조용히 빼지 않는다 — 몇 대를 왜 뺐는지 화면에 그대로 적는다.
+ *   3) 애매하면 빼지 않는다 — '확인 필요'로 두고 사장님이 정한다.
+ *      진짜 이용자를 잘못 빼면 베타를 하는 의미가 없어진다. 잡음이 조금 남는 편이 낫다.
+ *
+ * ⛔ 여기 없는 규칙과 그 이유 (2026-08-02 설계 검토에서 코드 근거로 기각된 것들)
+ *   · "본 앱 버전 수가 많으면 개발 기기" → **틀렸다.** 두 가지 이유로 그렇다.
+ *       ① visit 기록의 버전 칸은 **항상 비어 있다**. index.html 이 stats.js 를 app.js 보다
+ *          먼저 싣기 때문에 첫 hit("visit") 시점에는 APP_VER 이 아직 없다.
+ *       ② js/app.js 의 서비스워커가 새 버전을 만나면 **스스로 location.reload()** 한다.
+ *          즉 '본 버전 수'는 이용자의 성실함이 아니라 **우리가 배포한 횟수**의 함수다.
+ *          하루 13번 배포한 주에는 열성 이용자일수록 숫자가 커진다 — 앱이 시킨 행동으로
+ *          이용자를 벌주는 규칙이 된다.
+ *   · "golfdb.js 에 없는 골프장을 봤으면 가짜" → **틀렸다.** 자유로CC 는 golfdb.js 에 없고
+ *     js/app.js 의 EXTRA_CLUBS 에 있는 **진짜 구장**이다. 이용자는 검색으로 아무 이름이나 열 수도 있다.
+ *   · "하루만 쓰고 사라진 기기는 테스트" → **자동 제외는 안 한다.** 한 번 열어보고 안 돌아온
+ *     진짜 베타 이용자와 모양이 똑같다. 이걸 지우면 재방문율이 거짓으로 올라간다(자기기만).
+ *     아래 B2 로 '확인 필요'에만 올린다.
  */
-var DEV_PROP = "DEV_CIDS";
+var DEV_PROP = "DEV_CIDS";      // 사람이 [안 셈] 을 누른 기기
+var KEEP_PROP = "KEEP_CIDS";    // 사람이 [이건 진짜 사용자] 로 되돌린 기기
+var LIST_MAX = 400;             // 스크립트 속성 한 칸이 9KB — 12자 기기ID 400개면 약 6KB
+var ROW_WINDOW = 20000;         // 한 번에 읽는 최근 기록 수
 
-function devCids_() {
+/* 검사하려고 지어낸 가짜 골프장 — 앱으로는 도달할 수 없는 이름이다.
+   저장소 전체에 grep 0건으로 확인했다(골프장 DB·홀맵·영상 어디에도 없다).
+   ⚠️ '테스트' 부분일치로 넓히지 말 것 — 이용자는 검색으로 아무 이름이나 열 수 있다. */
+var FAKE_COURSES = { "테스트CC": 1, "테스트미등록GC": 1, "가나CC(폭우)": 1, "테스트CC(폭우)": 1 };
+
+/* 앱에 ?dev=1 · 헤드리스 표시 장치가 붙기 전 시절. 이 날짜까지의 하루살이 기기는
+   '확인 필요'로 올린다(자동 제외는 안 한다). 앞으로 오는 이용자는 여기 걸리지 않는다. */
+var NOISE_UNTIL = "2026-08-01";
+
+function readList_(prop) {
   try {
-    var v = PropertiesService.getScriptProperties().getProperty(DEV_PROP);
+    var v = PropertiesService.getScriptProperties().getProperty(prop);
     var a = v ? JSON.parse(v) : [];
     return Object.prototype.toString.call(a) === "[object Array]" ? a : [];
   } catch (e) { return []; }
 }
 
-function devMark_(cid, on) {
-  cid = String(cid || "").slice(0, 20);
-  if (!cid) return json_({ ok: false, err: "기기ID가 없습니다" });
-  var list = devCids_(), i = list.indexOf(cid);
-  if (on && i < 0) list.push(cid);
-  if (!on && i >= 0) list.splice(i, 1);
-  PropertiesService.getScriptProperties().setProperty(DEV_PROP, JSON.stringify(list.slice(0, 200)));
-  return json_({ ok: true, n: list.length });
+function listMap_(prop) {
+  var m = {};
+  readList_(prop).forEach(function (c) { m[c] = 1; });
+  return m;
 }
 
-/* 손대지 않아도 늘 빼는 것 — 우리 검사 스크립트가 남긴 기록.
-   (fb 시트의 `verify-pc` 2건이 여기 걸린다) */
-function autoDev_(cid) { return /^(verify|test|dev)[-_]/i.test(String(cid || "")); }
+/* 목록에 넣고 빼기. 한 기기는 DEV_CIDS·KEEP_CIDS 중 **한 곳에만** 있는다 —
+   그래야 "마지막에 누른 것이 이긴다"가 되어 우선순위 다툼이 생기지 않는다.
+   ⚠️ 예전 devMark_ 는 slice(0,200) 으로 넘치는 것을 조용히 잘라 놓고 ok:true 를 줬다.
+      목록이 차면 뺐다고 믿은 기기가 계속 세어진다. 조용히 자르지 말고 분명히 거절한다. */
+function listMark_(prop, cids, on) {
+  var other = prop === DEV_PROP ? KEEP_PROP : DEV_PROP;
+  var list = readList_(prop), oth = readList_(other), changed = 0;
+  if (Object.prototype.toString.call(cids) !== "[object Array]") cids = [cids];
+  for (var k = 0; k < cids.length; k++) {
+    var c = String(cids[k] || "").slice(0, 24);
+    if (!c) continue;
+    var i = list.indexOf(c), j = oth.indexOf(c);
+    if (on) {
+      if (i < 0) { list.push(c); changed++; }
+      if (j >= 0) oth.splice(j, 1);
+    } else if (i >= 0) { list.splice(i, 1); changed++; }
+  }
+  if (!changed && !cids.length) return json_({ ok: false, err: "기기ID가 없습니다" });
+  if (list.length > LIST_MAX)
+    return json_({ ok: false, err: "목록이 가득 찼습니다(" + LIST_MAX + "대). 규칙으로 빼 주세요." });
+  var pr = PropertiesService.getScriptProperties();
+  pr.setProperty(prop, JSON.stringify(list));
+  pr.setProperty(other, JSON.stringify(oth));
+  return json_({ ok: true, n: list.length, changed: changed });
+}
 
-/* 검사하려고 지어낸 가짜 골프장. 실제 등록 구장 231곳에 '테스트'가 든 이름은 없다
-   — 인기 골프장 3위에 '테스트CC 35건'이 올라와 있었다. */
+/* 손댈 수 없이 늘 빠지는 것 — 우리 검사 스크립트가 남긴 기록.
+   ⚠️ 'dev' 접두사는 여기서 뺐다. ?dev=1 로 붙는 표시라 되돌릴 수 있어야 하기 때문이다(A1). */
+function alwaysDev_(cid) { return /^(verify|test)[-_]/i.test(String(cid || "")); }
+
+/* 행 하나에 든 골프장 이름이 가짜인가 (기기 판정이 아니라 그 줄만 빼는 용도) */
 function isTestName_(name) { return /테스트/.test(String(name || "")); }
 
-/* 이 기록을 집계에서 뺄 것인가 */
-function skipCid_(cid, devMap) { return !!(devMap[cid] || autoDev_(cid)); }
+/* ---------- 한국 시각 ----------
+   한국은 1988년 이후 서머타임이 없다 → UTC+9 고정. 2만 번의 formatDate 호출을
+   정수 계산으로 바꾼다(45초 제한에 걸린 이력이 있어 이건 그냥 이득이다). */
+var KST = 9 * 3600000, DAY_MS = 86400000;
+function kday_(t) { return new Date(t + KST).toISOString().slice(0, 10); }   // "2026-08-02"
+function khour_(t) { return Math.floor(((t + KST) % DAY_MS) / 3600000); }    // 0~23
+
+/* ---------- 기기 한 대에 대한 판정 ----------
+ *
+ * 우선순위 — 위에서부터 처음 맞는 것으로 끝난다.
+ *   1. verify-/test- 로 시작        → 늘 빠짐 (되돌릴 수 없음)
+ *   2. KEEP_CIDS 에 있다            → 센다 (모든 자동 규칙을 이긴다)
+ *   3. DEV_CIDS 에 있다             → 뺀다 (사람이 직접 누른 것)
+ *   4. 자동 규칙에 걸렸고 보호신호가 없다 → 뺀다
+ *   5. 자동 규칙에 걸렸지만 보호신호가 있다 → **세면서** '확인 필요'로 올린다
+ *   6. 그 외                         → 센다
+ */
+
+/* 보호신호 — 하나라도 있으면 자동으로 빼지 않는다. 사람이 직접 보고 정할 일이다. */
+function vetoOf_(o) {
+  if (o.profile) return "연령·성별을 입력한 기기";   // 우리 검사 스크립트는 이 값을 채우지 않는다
+  if (o.fb) return "직접 의견을 남긴 기기";
+  if (o.dayCount >= 3) return "사흘 이상 다시 온 기기";
+  return "";
+}
+
+/* 자동 규칙 — 우리 자국이 분명한 것만 */
+function autoRuleOf_(o) {
+  // A1 — 앱이 스스로 붙인 표시. dev-wd- 는 자동화 브라우저(헤드리스), dev- 는 ?dev=1
+  if (/^dev-wd-/.test(o.cid)) return { rule: "A1", why: "자동화 브라우저로 보고된 기기(헤드리스)" };
+  if (/^dev-/.test(o.cid)) return { rule: "A1", why: "?dev=1 로 직접 표시한 기기" };
+
+  // A2 — 앱으로는 갈 수 없는 이름을 봤다
+  if (o.fake) return { rule: "A2", why: "없는 골프장 '" + o.fake + "' 를 봄 — 앱으로는 갈 수 없는 이름" };
+
+  /* A3 — 사람 손으로는 나올 수 없는 간격. 중복 전송을 걷어낸 뒤에 센다(scan_ 의 dedup 참고).
+     ⚠️ 이 규칙은 **손가락 한 번에 기록이 한 건**이라는 전제 위에 서 있다.
+        (2026-08-02 확인: js/app.js·booking.js·clubfit.js·spirit.js 의 STATS.hit 호출은
+         전부 각각 다른 클릭 핸들러 안에 있고, 화면을 그릴 때 저절로 부르는 곳은 없다)
+        앞으로 '화면을 열면 자동으로 기록되는' 계측을 추가하면 이 전제가 깨지고,
+        진짜 이용자가 A3 에 걸리기 시작한다. 그런 계측을 넣을 때는 이 규칙을 같이 손볼 것. */
+  if (o.fastPairs >= 3)
+    return { rule: "A3", why: "0.4초 안에 연달아 누른 기록 " + o.fastPairs + "번 — 사람 손으로는 나올 수 없음" };
+
+  // A4 — 클럽 피팅 4종을 10분 안에 전부 시작. tools/sweep.js 가 정확히 이 순회를 한다
+  if (o.clubfitSweep) return { rule: "A4", why: "클럽 피팅 4종을 10분 안에 모두 시작함 — 검사 스크립트의 자국" };
+
+  return null;
+}
+
+function verdictOf_(o, devMap, keepMap) {
+  if (alwaysDev_(o.cid))
+    return { skip: true, state: "always", rule: "X1", why: "검사 스크립트 — 늘 빠짐" };
+  if (keepMap[o.cid])
+    return { skip: false, state: "keep", rule: "", why: "진짜 사용자로 되돌려 둠" };
+  if (devMap[o.cid])
+    return { skip: true, state: "manual", rule: "manual", why: "직접 [안 셈] 으로 표시함" };
+
+  var hit = autoRuleOf_(o);
+  if (hit) {
+    var veto = vetoOf_(o);
+    if (!veto) return { skip: true, state: "auto", rule: hit.rule, why: hit.why };
+    return { skip: false, state: "candidate", rule: hit.rule, why: hit.why, veto: veto };
+  }
+
+  /* B2 — 장치가 붙기 전(8/1 이전)에 하루만 쓰고 사라진 기기.
+     한 번 열어보고 안 온 진짜 이용자와 모양이 같으므로 **세면서** 확인만 요청한다. */
+  if (o.dayCount === 1 && o.visits <= 3 && o.firstDay <= NOISE_UNTIL)
+    return { skip: false, state: "candidate", rule: "B2",
+             why: o.firstDay.slice(5).replace("-", "월 ") + "일 하루만 쓰고 사라진 기기" };
+
+  return { skip: false, state: "on", rule: "", why: "" };
+}
 
 /* ---------- 베타 피드백 ---------- */
 var FB_CATS = { "오류": 1, "불편": 1, "아이디어": 1, "칭찬": 1 };
@@ -239,11 +359,17 @@ function fbList_() {
   if (last < 2) return json_({ rows: [], total: 0 });
   var from = Math.max(2, last - 199);
   var v = sh.getRange(from, 1, last - from + 1, 8).getValues();
-  // 우리 검사로 넣은 의견은 목록에서도 뺀다 (fb 시트의 `verify-pc` 2건)
-  var devMap = {};
-  devCids_().forEach(function (c) { devMap[c] = 1; });
+  /* 우리 검사로 넣은 의견은 목록에서도 뺀다 (fb 시트의 `verify-pc` 2건).
+     ⚠️ 여기서는 통계처럼 무거운 판정(scan_)을 돌리지 않는다 — 의견 목록은 가볍게 떠야 한다.
+        기기ID만으로 알 수 있는 것(검사용 접두사·직접 표시)만 본다. 되돌려 둔 기기는 남긴다. */
+  var devMap = listMap_(DEV_PROP), keepMap = listMap_(KEEP_PROP);
+  var hide = function (c) {
+    if (alwaysDev_(c)) return true;
+    if (keepMap[c]) return false;
+    return !!devMap[c] || /^dev-/.test(c);
+  };
   var rows = v.filter(function (r) {
-    return !skipCid_(String(r[1] || ""), devMap);
+    return !hide(String(r[1] || ""));
   }).map(function (r) {
     return {
       t: new Date(r[0]).getTime(), cid: String(r[1] || ""), cat: String(r[2] || ""),
@@ -315,11 +441,15 @@ function doPost(e) {
     if (body.fn === "feedback") return fbSave_(body);
     // 비밀번호 변경은 POST 로만 받는다 — GET 이면 주소창·서버 로그에 새 비밀번호가 남는다
     if (body.fn === "setpw") return setPw_(body.pw, body.newPw);
-    // 개발·테스트 기기 표시 (관리자만)
-    if (body.fn === "devcid") {
+    /* 기기 표시 (관리자만) — 한 대씩(cid)도, 여러 대 묶음(cids)도 받는다.
+         devcid  = [안 셈]           → 집계에서 뺀다
+         keepcid = [이건 진짜 사용자] → 자동 규칙을 무시하고 센다
+       옛 화면은 {cid} 하나만 보내므로 그 형태도 그대로 받는다. */
+    if (body.fn === "devcid" || body.fn === "keepcid") {
       var g = pwGate_(body.pw);
       if (!g.ok) return json_({ ok: false, err: g.err });
-      return devMark_(body.cid, !!body.on);
+      var list = body.cids || [body.cid];
+      return listMark_(body.fn === "devcid" ? DEV_PROP : KEEP_PROP, list, !!body.on);
     }
     var rows = body.rows || [];
     if (!rows.length || rows.length > 100) return json_({ ok: false });
@@ -618,146 +748,328 @@ function placeMeta_(ids) {
   }
   return json_(out);
 }
-
-/* 기기별 목록 — 관리자 화면에서 '이건 우리 테스트' 를 골라내라고 주는 자료.
+/* ---------- 시트 한 번 읽어 기기별로 정리하기 ----------
  *
- * 기기ID(cid)만 보고는 누구인지 알 수 없다. 그래서 판단할 근거를 같이 준다:
- *   · 본 앱 버전 수 — 개발 기기의 가장 뚜렷한 자국이다.
- *     진짜 이용자는 배포된 버전을 한두 개 본다. v150~v175 를 다 본 기기는 우리다.
- *   · 접속 수 / 처음·마지막 / 기기 종류 / 대표로 본 골프장
- * 자동 판정은 하지 않는다 — 헤비 이용자를 개발자로 오해해 지워 버리면 되돌릴 수 없다.
+ * 통계(summary_)와 기기 목록(cidList_)이 **같은 판정**을 써야 한다.
+ * 두 곳에 규칙을 따로 적으면 "화면에는 뺐다고 나오는데 숫자는 그대로"가 된다.
+ * 그래서 읽기·판정을 여기 한 곳에 모은다.
  */
-function cidList_() {
-  var sh = sheet_();
-  var last = sh.getLastRow();
-  if (last < 2) return json_({ ok: true, rows: [] });
-  var from = Math.max(2, last - 20000);
-  var v = sh.getRange(from, 1, last - from + 1, 9).getValues();
-  var m = {};
-  v.forEach(function (r) {
-    var cid = String(r[1] || "");
-    if (!cid) return;
-    var o = m[cid];
-    if (!o) o = m[cid] = { cid: cid, n: 0, visits: 0, first: 0, last: 0,
-                           dev: "", vers: {}, course: "" };
-    o.n++;
-    if (r[2] === "visit") o.visits++;
-    var t = new Date(r[0]).getTime();
-    if (!o.first || t < o.first) o.first = t;
-    if (t > o.last) o.last = t;
-    if (r[5]) o.dev = String(r[5]);
-    if (r[4]) o.vers[String(r[4])] = 1;
-    if (r[2] === "course" && r[3] && !o.course) o.course = String(r[3]);
-  });
-  var devMap = {};
-  devCids_().forEach(function (c) { devMap[c] = 1; });
-  var rows = Object.keys(m).map(function (k) {
-    var o = m[k];
-    o.vers = Object.keys(o.vers).length;
-    o.auto = autoDev_(k);            // 손댈 수 없는 자동 제외(검사 스크립트)
-    o.off = !!devMap[k] || o.auto;   // 지금 빠져 있나
-    return o;
-  }).sort(function (a, b) { return b.n - a.n; }).slice(0, 150);
-  return json_({ ok: true, rows: rows });
+
+/* 클럽 피팅 4종을 10분 안에 다 시작했나 (검사 스크립트 sweep.js 의 자국).
+   4종이 다 든 가장 짧은 구간을 찾아 그 폭을 본다 — 아침에 드라이버, 저녁에 퍼터를
+   시작한 진짜 이용자가 걸리지 않게 하려면 '같은 날'만으로는 모자라다. */
+function clubfitSweep_(list) {
+  if (!list || list.length < 4) return false;
+  list.sort(function (a, b) { return a.t - b.t; });
+  var have = {}, cnt = 0, i = 0;
+  for (var j = 0; j < list.length; j++) {
+    if (!have[list[j].c]) cnt++;
+    have[list[j].c] = (have[list[j].c] || 0) + 1;
+    while (cnt === 4) {
+      if (list[j].t - list[i].t <= 600000) return true;   // 10분
+      have[list[i].c]--;
+      if (!have[list[i].c]) cnt--;
+      i++;
+    }
+  }
+  return false;
 }
 
-/* 통계 요약 — 관리자 화면용
- *
- * 집계 기준을 여기 적어 둔다(관리자 화면에도 같은 문구를 띄운다):
- *   · 방문(hits)   = visit 이벤트 수 — 같은 사람이 여러 번 열면 여러 번 센다
- *   · 사용자(users)= 그 날 방문한 서로 다른 기기 수
- *   · 연령·성별    = '맞춤 정보 제공'에 동의한 이용자만 → 전체와 수가 다른 게 정상
- *   · 지역         = 이용자가 조회한 골프장의 시/도. 이용자의 실제 위치가 아니다.
- */
-function summary_() {
-  var sh = sheet_();
-  var last = sh.getLastRow();
-  var empty = { days: [], courses: [], features: [], devices: [], ages: [], genders: [],
-                regions: [], total: 0, uniq: 0, back7: null, today: { hits: 0, users: 0 },
-                fbTotal: 0, fbToday: 0, ver: BACKEND_VER };
-  if (last < 2) return json_(empty);
-  var from = Math.max(2, last - 20000);              // 최근 2만 건
+/* 오래된 기록 몇 줄에 글자가 깨진 값(�)이 남아 있다. 세어 봐야 '50�' 가 화면에 뜰 뿐이다. */
+function okv_(x) { return x && String(x).indexOf("�") < 0; }
+
+function scan_() {
+  var sh = sheet_(), last = sh.getLastRow();
+  var out = { cids: {}, rows: [], total: Math.max(0, last - 1), dupes: 0,
+              windowFull: true, lastAt: 0 };
+  if (last < 2) return out;
+  var from = Math.max(2, last - ROW_WINDOW);
+  out.windowFull = (from <= 2);
   var v = sh.getRange(from, 1, last - from + 1, 9).getValues();
-  var days = {}, courses = {}, feats = {}, devs = {}, ages = {}, gens = {}, regs = {};
-  var uniq = {}, seen = {}, cidDays = {};
-  var today = Utilities.formatDate(new Date(), "Asia/Seoul", "MM-dd");
-  var cut7 = Date.now() - 7 * 86400000;
-  /* 아주 오래된 기록 몇 줄에 글자가 깨진 값(�)이 남아 있다.
-     세어 봐야 '50�' 같은 항목이 화면에 뜰 뿐이라 집계에서 뺀다.
-     (2026-07-31 기준 2,556건 중 2건 — 새로 들어오는 기록에는 없다) */
-  var okv = function (x) { return x && String(x).indexOf("�") < 0; };
-  /* 개발·테스트 기기는 통째로 건너뛴다 — 방문·기기·연령까지 전부 (2026-07-31) */
-  var devMap = {};
-  devCids_().forEach(function (c) { devMap[c] = 1; });
-  var exRows = 0, exCids = {}, exTest = 0;
-  v.forEach(function (r) {
-    var when = new Date(r[0]);
-    var d = Utilities.formatDate(when, "Asia/Seoul", "MM-dd");
-    var cid = r[1], ev = r[2], name = r[3];
-    if (skipCid_(cid, devMap)) { exRows++; exCids[cid] = 1; return; }
-    if (ev === "course" && isTestName_(name)) { exTest++; return; }
+
+  // 의견을 남긴 기기 — 사람이 직접 글을 쓴 증거라 보호신호로 쓴다
+  var fbCids = {};
+  try {
+    var fs = fbSheet_(), fl = fs.getLastRow();
+    if (fl >= 2) {
+      var ff = Math.max(2, fl - 300);
+      fs.getRange(ff, 2, fl - ff + 1, 1).getValues().forEach(function (r) {
+        var c = String(r[0] || ""); if (c) fbCids[c] = 1;
+      });
+    }
+  } catch (e) {}
+
+  /* ⚠️ 중복 전송을 먼저 걷어낸다. 이걸 안 하면 아래 A3(0.4초 규칙)가 진짜 이용자를 잡는다.
+     js/stats.js 는 4초마다 모아 보내는데, 그 fetch 가 날아가는 중에 화면이 꺼지면
+     sendBeacon 이 **아직 안 비워진 같은 큐**를 한 번 더 보낸다. 기록 시각(t)은 누른 순간에
+     찍히므로 두 행의 시각이 밀리초까지 똑같아진다 = 간격 0ms. 통신이 나쁜 폰일수록 자주 난다. */
+  var seen = {}, verByDay = {};
+  for (var i = 0; i < v.length; i++) {
+    var r = v[i];
+    var t = new Date(r[0]).getTime();
+    if (!t) continue;
+    var cid = String(r[1] || ""); if (!cid) continue;
+    var ev = String(r[2] || ""), name = String(r[3] || ""), ver = String(r[4] || "");
+    var key = cid + "|" + t + "|" + ev + "|" + name;
+    if (seen[key]) { out.dupes++; continue; }
+    seen[key] = 1;
+
+    var d = kday_(t);
+    if (t > out.lastAt) out.lastAt = t;
+    if (ver) { if (!verByDay[d]) verByDay[d] = {}; verByDay[d][ver] = 1; }
+
+    var o = out.cids[cid];
+    if (!o) {
+      o = out.cids[cid] = { cid: cid, n: 0, visits: 0, first: t, last: t, dev: "",
+                            course: "", fake: "", profile: false, fb: !!fbCids[cid],
+                            _days: {}, _vers: {}, _acts: [], _cf: [] };
+    }
+    o.n++;
+    if (ev === "visit") o.visits++;
+    else o._acts.push(t);                       // A3 은 visit 을 빼고 본다(새 버전 자동 새로고침 때문)
+    if (t < o.first) o.first = t;
+    if (t > o.last) o.last = t;
+    o._days[d] = 1;
+    if (r[5]) o.dev = String(r[5]);
+    if (ver) o._vers[ver] = 1;
+    if (okv_(r[6]) || (okv_(r[7]) && r[7] !== "선택 안 함")) o.profile = true;
+    if (ev === "course" && name) {
+      if (!o.course) o.course = name;
+      if (!o.fake && FAKE_COURSES[name]) o.fake = name;   // ⚠️ 대표구장이 아니라 **전부** 훑어야 한다
+    }
+    if (ev === "feature") {
+      var m = /^clubfit_start_(driver|iron|wedge|putter)$/.exec(name);
+      if (m) o._cf.push({ t: t, c: m[1] });
+    }
+    out.rows.push([t, d, cid, ev, name, r[5], r[6], r[7], r[8]]);
+  }
+
+  var devMap = listMap_(DEV_PROP), keepMap = listMap_(KEEP_PROP);
+  var vdays = Object.keys(verByDay).sort();
+  Object.keys(out.cids).forEach(function (k) {
+    var o = out.cids[k];
+    var ds = Object.keys(o._days).sort();
+    o.dayCount = ds.length;
+    o.firstDay = ds[0];
+    o.lastDay = ds[ds.length - 1];
+    o.vers = Object.keys(o._vers).length;
+
+    o._acts.sort(function (a, b) { return a - b; });
+    var fp = 0;
+    for (var j = 1; j < o._acts.length; j++) if (o._acts[j] - o._acts[j - 1] < 400) fp++;
+    // 5건은 있어야 '연달아'를 말할 수 있다 — 두세 건에서 나온 우연은 근거가 못 된다
+    o.fastPairs = o._acts.length >= 5 ? fp : 0;
+    o.clubfitSweep = clubfitSweep_(o._cf);
+
+    /* '본 버전 N개'만으로는 아무것도 알 수 없다 — 그 사이 우리가 몇 개를 내보냈는지 같이 봐야 한다.
+       (하루 13번 배포한 주에는 열성 이용자도 숫자가 커진다) */
+    var outv = 0;
+    for (var q = 0; q < vdays.length; q++)
+      if (vdays[q] >= o.firstDay && vdays[q] <= o.lastDay) outv++;
+    o.versOut = 0;
+    var seenV = {};
+    for (var q2 = 0; q2 < vdays.length; q2++) {
+      if (vdays[q2] < o.firstDay || vdays[q2] > o.lastDay) continue;
+      Object.keys(verByDay[vdays[q2]]).forEach(function (x) { seenV[x] = 1; });
+    }
+    o.versOut = Object.keys(seenV).length;
+
+    delete o._days; delete o._vers; delete o._acts; delete o._cf;
+    o.v = verdictOf_(o, devMap, keepMap);
+  });
+  return out;
+}
+
+/* ---------- 기기 목록 — '이건 우리 테스트' 를 골라내는 자리 ----------
+ *
+ * 이제 대부분은 서버가 알아서 판정한다. 사람이 할 일은
+ *   · 자동 판정이 틀렸을 때 되돌리는 것([이건 진짜 사용자])
+ *   · '확인 필요'로 올라온 것을 한 번에 빼는 것
+ * 둘뿐이다.
+ *
+ * ⚠️ 예전에는 상위 150대만 내려보냈다. 기기가 419대인데 269대는 버튼이 **아예 없었다**.
+ *    빠져 있거나 확인이 필요한 기기는 전부 보내고, 정상적으로 세는 기기만 상위 150대로 줄인다.
+ */
+function cidList_() {
+  var sc = scan_();
+  var keys = Object.keys(sc.cids);
+  if (!keys.length) return json_({ ok: true, rows: [], totalCids: 0, shown: 0 });
+
+  var pick = [], rest = [];
+  keys.forEach(function (k) {
+    var o = sc.cids[k];
+    (o.v.state === "on" ? rest : pick).push(o);
+  });
+  var byN = function (a, b) { return b.n - a.n; };
+  pick.sort(byN); rest.sort(byN);
+  var rows = pick.slice(0, 500).concat(rest.slice(0, 150)).map(function (o) {
+    return {
+      cid: o.cid, n: o.n, visits: o.visits, first: o.first, last: o.last,
+      dev: o.dev, vers: o.vers, versOut: o.versOut, course: o.course,
+      days: o.dayCount,
+      state: o.v.state,            // always | manual | auto | candidate | keep | on
+      rule: o.v.rule || "",
+      why: o.v.why || "",
+      veto: o.v.veto || "",
+      off: !!o.v.skip,             // 옛 화면 호환 — 지금 빠져 있나
+      auto: o.v.state === "always", //   〃      손댈 수 없는 것인가
+    };
+  });
+  return json_({ ok: true, rows: rows, totalCids: keys.length, shown: rows.length });
+}
+
+/* ---------- 통계 요약 — 관리자 화면용 ----------
+ *
+ * 집계 기준(관리자 화면에도 같은 문구를 띄운다):
+ *   · 방문(hits)   = visit 기록 수 — 같은 사람이 여러 번 열면 여러 번 센다
+ *   · 사람 수(users) = 그 날 방문한 서로 다른 기기 수
+ *   · 연령·성별    = '맞춤 정보 제공'에 동의한 이용자만 → 전체와 수가 다른 게 정상
+ *   · 지역         = 이용자가 조회한 골프장의 지역군. 이용자의 실제 위치가 아니다.
+ *
+ * 최상위 = 누적, today{} 안 = 오늘(한국 시각 00:00~24:00).
+ * 최상위 키의 의미는 예전과 하나도 바꾸지 않았다 — 옛 화면도 그대로 돈다.
+ */
+function newAgg_() {
+  return { hits: 0, users: {}, courses: {}, feats: {}, devs: {}, ages: {}, gens: {},
+           regs: {}, courseSet: {} };
+}
+
+function feed_(a, r) {
+  var ev = r[3], name = r[4];
+  if (ev === "visit") { a.hits++; a.users[r[2]] = 1; }
+  if (ev === "course" && name) { a.courses[name] = (a.courses[name] || 0) + 1; a.courseSet[name] = 1; }
+  if (ev === "feature" && name) a.feats[name] = (a.feats[name] || 0) + 1;
+  if (okv_(r[5])) a.devs[r[5]] = (a.devs[r[5]] || 0) + 1;
+  if (okv_(r[6])) a.ages[r[6]] = (a.ages[r[6]] || 0) + 1;
+  if (okv_(r[7]) && r[7] !== "선택 안 함") a.gens[r[7]] = (a.gens[r[7]] || 0) + 1;
+  if (okv_(r[8])) a.regs[r[8]] = (a.regs[r[8]] || 0) + 1;
+}
+
+function top_(o, n) {
+  return Object.keys(o).map(function (k) { return [k, o[k]]; })
+    .sort(function (a, b) { return b[1] - a[1]; }).slice(0, n);
+}
+
+function summary_() {
+  var sc = scan_();
+  var nowMs = Date.now(), todayKey = kday_(nowMs);
+  var all = newAgg_(), day = newAgg_();
+  var days = {}, uniqDay = {}, seenCid = {}, cidDays = {}, firstDayOf = {};
+  var hours = []; for (var h = 0; h < 24; h++) hours.push(0);
+  var cut7 = nowMs - 7 * DAY_MS;
+  var exRows = 0, exCids = {}, exTest = 0, byRule = {};
+  var dExRows = 0, dExCids = {}, dExTest = 0;
+  var counted = 0;
+
+  sc.rows.forEach(function (r) {
+    var t = r[0], d = r[1], cid = r[2], ev = r[3], name = r[4];
+    var vd = sc.cids[cid].v;
+    var isToday = (d === todayKey);
+    if (vd.skip) {
+      exRows++; exCids[cid] = 1;
+      byRule[vd.rule] = (byRule[vd.rule] || 0) + 1;
+      if (isToday) { dExRows++; dExCids[cid] = 1; }
+      return;
+    }
+    if (ev === "course" && isTestName_(name)) { exTest++; if (isToday) dExTest++; return; }
+    counted++;
+
+    feed_(all, r);
     if (ev === "visit") {
       days[d] = (days[d] || 0) + 1;
-      uniq[d + "|" + cid] = 1;
-      seen[cid] = 1;
-      // 최근 7일 안에서 '서로 다른 날' 방문 수 — 재방문율 계산용
-      if (when.getTime() >= cut7 && cid) {
-        if (!cidDays[cid]) cidDays[cid] = {};
-        cidDays[cid][d] = 1;
-      }
+      uniqDay[d + "|" + cid] = 1;
+      seenCid[cid] = 1;
+      if (t >= cut7) { if (!cidDays[cid]) cidDays[cid] = {}; cidDays[cid][d] = 1; }
     }
-    if (ev === "course" && name) courses[name] = (courses[name] || 0) + 1;
-    if (ev === "feature" && name) feats[name] = (feats[name] || 0) + 1;
-    if (okv(r[5])) devs[r[5]] = (devs[r[5]] || 0) + 1;
-    if (okv(r[6])) ages[r[6]] = (ages[r[6]] || 0) + 1;
-    if (okv(r[7]) && r[7] !== "선택 안 함") gens[r[7]] = (gens[r[7]] || 0) + 1;
-    if (okv(r[8])) regs[r[8]] = (regs[r[8]] || 0) + 1;
-  });
-  var uniqDays = {};
-  Object.keys(uniq).forEach(function (k) { var d = k.split("|")[0]; uniqDays[d] = (uniqDays[d] || 0) + 1; });
+    if (!firstDayOf[cid] || d < firstDayOf[cid]) firstDayOf[cid] = d;
 
-  // 7일 재방문율 = 최근 7일에 방문한 기기 중 '이틀 이상' 방문한 비율.
-  // 표본이 너무 작으면(5명 미만) 숫자가 요동쳐 오해를 부르니 아예 주지 않는다.
+    if (isToday) {
+      feed_(day, r);
+      if (ev === "visit") hours[khour_(t)]++;
+    }
+  });
+
+  var uniqDays = {};
+  Object.keys(uniqDay).forEach(function (k) {
+    var d = k.split("|")[0]; uniqDays[d] = (uniqDays[d] || 0) + 1;
+  });
+
+  // 7일 재방문율 — 표본이 5명 미만이면 요동쳐 오해를 부르니 아예 주지 않는다
   var base = Object.keys(cidDays), rep = 0;
   base.forEach(function (c) { if (Object.keys(cidDays[c]).length >= 2) rep++; });
   var back7 = base.length >= 5 ? Math.round((rep / base.length) * 100) : null;
 
-  var top = function (o, n) {
-    return Object.keys(o).map(function (k) { return [k, o[k]]; })
-      .sort(function (a, b) { return b[1] - a[1]; }).slice(0, n);
-  };
+  // 오늘 처음 온 사람 — 창(최근 2만 건) 안에서만 알 수 있다. 창이 꽉 찼으면 숫자를 감춘다
+  var newUsers = 0;
+  Object.keys(day.users).forEach(function (c) { if (firstDayOf[c] === todayKey) newUsers++; });
 
-  // 피드백 건수 (오늘 / 전체)
+  // '확인이 필요합니다' 묶음 — 세고 있지만 사장님이 한 번 봐 주셔야 하는 기기
+  var cand = { n: 0, byRule: {}, cids: [] };
+  Object.keys(sc.cids).forEach(function (k) {
+    var vd = sc.cids[k].v;
+    if (vd.state !== "candidate") return;
+    cand.n++;
+    cand.byRule[vd.rule] = (cand.byRule[vd.rule] || 0) + 1;
+  });
+
+  // 피드백 건수 (오늘 / 전체) — 뺀 기기의 의견은 세지 않는다
   var fbTotal = 0, fbToday = 0;
   try {
     var fs = fbSheet_(), fl = fs.getLastRow();
     if (fl >= 2) {
-      // 우리 검사로 넣은 의견은 빼고 센다 — 시각뿐 아니라 기기ID(2번째 칸)도 읽는다
       var ff = Math.max(2, fl - 300);
       fs.getRange(ff, 1, fl - ff + 1, 2).getValues().forEach(function (r) {
-        if (skipCid_(String(r[1] || ""), devMap)) return;
+        var c = String(r[1] || "");
+        var o = sc.cids[c];
+        if (alwaysDev_(c) || (o && o.v.skip)) return;
         fbTotal++;
-        if (Utilities.formatDate(new Date(r[0]), "Asia/Seoul", "MM-dd") === today) fbToday++;
+        var ft = new Date(r[0]).getTime();
+        if (ft && kday_(ft) === todayKey) fbToday++;
       });
-      // 300건 넘게 쌓이면 그 앞쪽은 세지 못하므로 더해 준다(제외 대상은 초기 2건뿐이라 무시 가능)
+      // 300건이 넘으면 그 앞쪽은 세지 못하므로 더해 준다(제외 대상은 초기 몇 건뿐)
       if (fl - 1 > 300) fbTotal += (fl - 1 - 300);
     }
   } catch (e) {}
 
   return json_({
     ver: BACKEND_VER,
-    total: last - 1,
-    // 집계에서 뺀 것 — 화면에 그대로 적어 준다. 조용히 빼면 숫자가 줄어든 이유를 알 수 없다.
-    excluded: { devices: Object.keys(exCids).length, rows: exRows, test: exTest },
-    uniq: Object.keys(seen).length,
+    scope: "day+all",            // ★ 이 키가 있으면 화면이 '오늘/누적 나누어 보기'를 켠다
+    tz: "Asia/Seoul",
+    asOf: nowMs,
+    todayKey: todayKey,
+    lastAt: sc.lastAt,
+
+    // ── 누적 ──
+    total: sc.total,             // 시트에 있는 원본 줄 수 (뺀 것 포함)
+    counted: counted,            // 실제로 집계에 들어간 줄 수
+    windowFull: sc.windowFull,   // false 면 '누적'은 최근 2만 건 기준이다
+    uniq: Object.keys(seenCid).length,
     back7: back7,
-    today: { hits: days[today] || 0, users: uniqDays[today] || 0 },
+    excluded: {
+      devices: Object.keys(exCids).length, rows: exRows, test: exTest,
+      dupes: sc.dupes, byRule: byRule,
+    },
+    candidates: { n: cand.n, byRule: cand.byRule },
     fbTotal: fbTotal, fbToday: fbToday,
     days: Object.keys(days).sort().slice(-30).map(function (d) {
       return { d: d, hits: days[d], users: uniqDays[d] || 0 };
     }),
-    courses: top(courses, 20), features: top(feats, 14),
-    devices: top(devs, 5), ages: top(ages, 8), genders: top(gens, 3),
-    regions: top(regs, 12),
+    courses: top_(all.courses, 20), features: top_(all.feats, 14),
+    devices: top_(all.devs, 5), ages: top_(all.ages, 8), genders: top_(all.gens, 3),
+    regions: top_(all.regs, 12),
+
+    // ── 오늘 (한국 시각) ──
+    today: {
+      hits: day.hits,
+      users: Object.keys(day.users).length,
+      newUsers: newUsers,
+      newUsersExact: sc.windowFull,
+      courseCount: Object.keys(day.courseSet).length,
+      hours: hours,
+      excluded: { devices: Object.keys(dExCids).length, rows: dExRows, test: dExTest },
+      courses: top_(day.courses, 20), features: top_(day.feats, 14),
+      devices: top_(day.devs, 5), ages: top_(day.ages, 8), genders: top_(day.gens, 3),
+      regions: top_(day.regs, 12),
+    },
   });
 }

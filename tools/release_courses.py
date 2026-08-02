@@ -84,6 +84,17 @@ if brand_bad:
     sys.exit(1)
 print("브랜드명 검사 OK: 사용자 화면에 옛 이름 없음")
 
+# 통계 전송 주소가 배포 주소와 맞는지 (2026-08-02 신설 — 틀리면 통계가 '조용히' 멎는다)
+from check_stats_host import violations as host_violations
+host_bad, _host_note = host_violations(ROOT)
+if host_bad:
+    print(f"✖ 통계 전송 주소가 배포 주소와 다릅니다 {len(host_bad)}건 — 배포를 멈춥니다")
+    for s in host_bad[:20]:
+        print("   -", s)
+    print("  js/stats.js 의 PROD_HOSTS 를 tools/verify_deploy.py 의 BASE 와 맞추세요.")
+    sys.exit(1)
+print("통계 전송 주소 검사 OK: 앱이 배포 주소를 정확히 알고 있음")
+
 # 골프장DB 한국 항목이 그대로인지 (2026-07-31 신설 — 이름·좌표가 조인 키다)
 from check_golfdb_kr import violations as kr_violations
 kr_bad, _kr_note = kr_violations(ROOT)

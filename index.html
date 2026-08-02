@@ -37,7 +37,20 @@
             .then(function (ks) { return Promise.all(ks.map(function (k) { return caches.delete(k); })); }));
         }
         if (m[1] === "hard") {
+          /* ⚠️ '우리 기기' 표시만은 살려 둔다. 안 그러면 ?reset=hard 를 쓸 때마다
+             개발 PC 가 새 기기로 다시 태어나 통계에 잡음이 계속 늘어난다
+             — 7/28 하루에 새 기기 120대가 쌓인 것과 정확히 같은 원리다.
+             (진짜 이용자의 기기ID는 살리지 않는다. dev- 로 시작하는 것만) */
+          var _dev = null, _cid = null;
+          try {
+            _dev = localStorage.getItem("riweather.dev");
+            _cid = localStorage.getItem("riweather.cid");
+          } catch (e) {}
           try { localStorage.clear(); } catch (e) {}
+          try {
+            if (_dev) localStorage.setItem("riweather.dev", _dev);
+            if (_cid && /^dev-/.test(_cid)) localStorage.setItem("riweather.cid", _cid);
+          } catch (e) {}
         } else {
           // 임시 캐시성 데이터만 정리 (맛집 캐시 등)
           try {

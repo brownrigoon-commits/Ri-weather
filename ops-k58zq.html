@@ -118,6 +118,32 @@
       font-weight:700; background:var(--primary); color:#fff; vertical-align:1px}
   .auto{display:inline-block; margin-left:6px; font-size:10.5px; color:var(--faint); font-weight:600}
 
+  /* ── 오늘 / 전체 누적 전환 ──
+     폰에서 아래로 한참 내려가도 '지금 뭘 보고 있는지'를 놓치지 않게 위에 붙여 둔다.
+     구역 제목에도 '오늘/전체' 를 같이 박는다 — 스크롤 중에 헷갈리면 숫자를 오해한다. */
+  .modebar{position:sticky; top:0; z-index:5; display:grid; grid-template-columns:1fr 1fr;
+           gap:8px; padding:10px 0 12px; background:var(--bg)}
+  .mode{min-height:44px; padding:11px; font-size:14.5px; font-weight:700; border-radius:12px;
+        border:1px solid var(--line); background:var(--card); color:var(--dim)}
+  .mode.on{background:var(--primary); border-color:var(--primary); color:#fff}
+  .mode:disabled{opacity:.45}
+  .scope{display:inline-block; margin-left:5px; padding:1px 7px; border-radius:6px;
+         font-size:11px; font-weight:700; background:var(--bar); color:var(--dim); vertical-align:2px}
+  .divider{margin:24px 0 12px; padding-top:16px; border-top:1px solid var(--line);
+           font-size:11.5px; color:var(--faint); text-align:center}
+  .day .b.future{opacity:.35}
+
+  /* 기기 목록 묶음 */
+  .grp{border-top:1px solid var(--line); padding:13px 0 4px}
+  .grp:first-child{border-top:none; padding-top:4px}
+  .gh{display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap}
+  .gt{font-size:13.5px; font-weight:800}
+  .gd{font-size:11.5px; color:var(--faint); margin-top:3px; line-height:1.55}
+  .fold{font-size:12.5px; color:var(--primary); font-weight:700; background:none;
+        border:none; padding:8px 0; text-align:left}
+  .why{font-size:11.5px; color:var(--dim); margin-top:3px; line-height:1.5}
+  .veto{color:var(--good); font-weight:600}
+
   .foot{margin-top:22px; font-size:11.5px; color:var(--faint); line-height:1.7; text-align:center}
   .warnbox{background:rgba(217,74,74,.1); color:var(--warn); border-radius:12px; padding:12px 14px;
            font-size:13px; line-height:1.6; font-weight:600; margin-bottom:14px}
@@ -149,62 +175,84 @@
 
     <div id="stale"></div>
 
-    <div class="cards">
-      <div class="card"><div class="k">오늘 방문</div><div class="v" id="c-today">–</div><div class="n" id="c-today-n"></div></div>
-      <div class="card"><div class="k">누적 사용자</div><div class="v" id="c-uniq">–</div><div class="n">앱을 한 번이라도 연 기기 수</div></div>
-      <div class="card"><div class="k">7일 재방문율</div><div class="v" id="c-back">–</div><div class="n" id="c-back-n">최근 7일 중 이틀 이상 온 비율</div></div>
-      <div class="card"><div class="k">베타 의견</div><div class="v" id="c-fb">–</div><div class="n" id="c-fb-n"></div></div>
+    <div class="modebar" id="modebar">
+      <button class="mode on" data-mode="day" id="m-day">오늘</button>
+      <button class="mode" data-mode="all" id="m-all">전체 누적</button>
     </div>
+    <div id="modenote"></div>
 
-    <section>
-      <h3>날짜별 방문</h3>
-      <p class="hint">최근 30일. 진한 막대 = 그날 온 사람 수(기기), 옅은 막대 = 앱을 연 횟수.</p>
+    <div class="cards" id="cards"></div>
+
+    <section id="sec-empty" hidden>
+      <h3>오늘 기록이 아직 없습니다</h3>
+      <p class="hint" id="empty-note"></p>
+      <button class="btn sub" id="go-all">전체 누적 보기</button>
+    </section>
+
+    <section id="sec-hours" hidden>
+      <h3>오늘 시간대별 방문</h3>
+      <p class="hint">한국 시각 기준. 아직 오지 않은 시간은 옅게 둡니다 — 비어 있는 것이 아닙니다.</p>
+      <div class="days" id="hours"></div>
+    </section>
+
+    <section id="sec-days">
+      <h3>최근 30일 방문 추이</h3>
+      <p class="hint">진한 막대 = 그날 온 사람 수(기기), 옅은 막대 = 앱을 연 횟수.
+        이 그림은 <b>오늘·전체 어느 쪽을 보든 그대로</b>입니다.</p>
       <div class="days" id="days"></div>
       <div class="legend"><span><b style="background:var(--primary)"></b>사람 수</span><span><b style="background:var(--bar)"></b>연 횟수</span></div>
     </section>
 
-    <section>
-      <h3>어떤 메뉴를 썼나</h3>
+    <section class="rank">
+      <h3>어떤 메뉴를 썼나 <span class="scope"></span></h3>
       <p class="hint">골프장 안에서 누른 메뉴와 기능. 많이 눌린 순.</p>
       <div class="rows" id="features"></div>
     </section>
 
-    <section>
-      <h3>어느 지역 골프장을 봤나</h3>
+    <section class="rank">
+      <h3>어느 지역 골프장을 봤나 <span class="scope"></span></h3>
       <p class="hint">이용자가 조회한 <b>골프장이 있는 지역</b>입니다. 경기·강원은 <b>경기북부·경기남부·강원영동</b>처럼
         지역군으로 나눠 보여 줍니다(파주 골프장을 봤으면 ‘경기북부’).<br>
         이용자가 있는 위치가 아닙니다 — 앱은 <b>위치 좌표를 서버로 보내거나 저장하지 않습니다</b>.</p>
       <div class="rows" id="regions"></div>
     </section>
 
-    <section>
-      <h3>인기 골프장</h3>
+    <section class="rank">
+      <h3>인기 골프장 <span class="scope"></span></h3>
       <p class="hint">조회수 상위 20곳.</p>
       <div class="rows" id="courses"></div>
     </section>
 
-    <section>
-      <h3>기기</h3>
+    <section class="rank">
+      <h3>기기 <span class="scope"></span></h3>
+      <p class="hint">기기 <b>대수</b>가 아니라 그 기기에서 온 <b>기록 건수</b>입니다.</p>
       <div class="rows" id="devices"></div>
     </section>
 
-    <section>
-      <h3>연령대</h3>
+    <section class="rank">
+      <h3>연령대 <span class="scope"></span></h3>
       <p class="hint">‘맞춤 정보 제공’에 동의한 이용자만 집계됩니다 — 전체 사용자 수와 다른 것이 정상입니다.</p>
       <div class="rows" id="ages"></div>
     </section>
 
-    <section>
-      <h3>성별</h3>
+    <section class="rank">
+      <h3>성별 <span class="scope"></span></h3>
       <p class="hint">위와 같이 동의한 이용자만.</p>
       <div class="rows" id="genders"></div>
     </section>
 
+    <p class="divider">아래는 기간과 상관없이 <b>항상 전체 기준</b>입니다</p>
+
     <section>
       <h3>기기 목록 — 우리 테스트 빼기</h3>
-      <p class="hint">‘안 셈’으로 바꾸면 그 기기의 기록이 <b>위의 모든 통계에서 빠집니다</b>.
-        기록을 지우는 게 아니라 세지 않는 것이라 언제든 되돌릴 수 있습니다.<br>
-        고르는 요령 — <b>본 버전 수</b>가 많을수록 개발 기기입니다. 진짜 이용자는 한두 개만 봅니다.</p>
+      <p class="hint">우리 자국이 <b>분명한 기기는 서버가 알아서 뺍니다.</b> 왜 뺐는지 아래에 한 줄로 적혀 있고,
+        틀렸으면 [이건 진짜 사용자]로 되돌릴 수 있습니다.<br>
+        기록을 지우는 게 아니라 <b>세지 않는 것</b>이라 언제든 되돌아옵니다.</p>
+      <div style="margin:0 0 14px">
+        <button class="btn sub" id="mark-me">이 기기는 우리 것 — 계속 빼기</button>
+        <p class="hint" style="margin:6px 0 0">지금 보고 계신 폰·PC를 통계에서 뺍니다.
+          앞으로 이 기기에서 앱을 열어도 계속 빠집니다. <b>브라우저마다 한 번씩</b> 눌러 주세요.</p>
+      </div>
       <div id="cids"><p class="empty">불러오는 중…</p></div>
     </section>
 
@@ -314,7 +362,7 @@ function bars(id, list, mapName) {
   }).join("");
 }
 
-function paintDays(days) {
+function paintDays(days, todayKey) {
   var box = $("days");
   if (!days || !days.length) { box.innerHTML = '<p class="empty">아직 데이터가 없습니다.</p>'; return; }
   var max = 1;
@@ -322,9 +370,29 @@ function paintDays(days) {
   box.innerHTML = days.map(function (d) {
     var h = Math.round(((d.hits || 0) / max) * 100);
     var u = Math.round(((d.users || 0) / max) * 100);
+    var isToday = todayKey && d.d === todayKey;
     return '<div class="day" title="' + esc(d.d) + ' · ' + (d.users || 0) + '명 / ' + (d.hits || 0) + '회">' +
            '<div class="b" style="height:' + Math.max(2, h) + '%"><i style="height:' + Math.max(2, u ? (u / (h || 1)) * 100 : 0) + '%"></i></div>' +
-           '<div class="d">' + esc(String(d.d).slice(-5)) + '</div></div>';
+           '<div class="d"' + (isToday ? ' style="font-weight:800;color:var(--primary)"' : '') + '>' +
+           esc(String(d.d).slice(-5)) + '</div></div>';
+  }).join("");
+}
+
+/* 오늘 시간대별 방문 — 0~23시.
+   ⚠️ 아직 오지 않은 시간을 그냥 0으로 그리면 "저녁에 왜 아무도 안 왔지" 로 읽힌다.
+      서버가 알려준 집계 시각(asOf) 뒤의 막대는 옅게 해서 '아직'임을 보이게 한다. */
+function paintHours(hours, asOf) {
+  var box = $("hours");
+  var max = 1;
+  hours.forEach(function (v) { max = Math.max(max, v || 0); });
+  var nowH = 23;
+  if (asOf) nowH = Math.floor((((asOf + 9 * 3600000) % 86400000) + 86400000) % 86400000 / 3600000);
+  box.innerHTML = hours.map(function (v, i) {
+    var h = Math.round(((v || 0) / max) * 100);
+    return '<div class="day" title="' + i + '시 · ' + (v || 0) + '회">' +
+           '<div class="b' + (i > nowH ? " future" : "") + '" style="height:' + Math.max(2, h) + '%">' +
+           '<i style="height:100%"></i></div>' +
+           '<div class="d">' + (i % 3 === 0 ? i : "") + '</div></div>';
   }).join("");
 }
 
@@ -385,28 +453,88 @@ function when(t) {
   return (d.getMonth() + 1) + "/" + d.getDate();
 }
 
+/* ── 기기 목록 ─────────────────────────────────────────────────────
+   이제 판정은 서버가 한다. 여기서는 **왜 그렇게 판정했는지** 보여주고,
+   틀렸을 때 되돌릴 길과, 무더기를 한 번에 처리할 길을 준다.
+
+   묶음 순서가 곧 사장님이 볼 순서다 — 손댈 것이 있는 묶음을 위로 올린다. */
+var CIDS = [];
+
+var GROUPS = [
+  { st: "candidate", t: "확인이 필요합니다", act: "dev", bulk: "전부 안 셈",
+    d: "우리 것 같지만 확실하지 않아 <b>지금은 세고 있습니다</b>. 맞으면 한 번에 빼세요." },
+  { st: "auto", t: "자동으로 뺀 기기", act: "keep", bulk: "전부 되돌리기",
+    d: "우리 자국이 분명해 서버가 뺐습니다. 사유가 틀렸으면 되돌리세요." },
+  { st: "manual", t: "직접 뺀 기기", act: "keep", bulk: "전부 되돌리기",
+    d: "[안 셈]을 눌러 두신 기기입니다." },
+  { st: "keep", t: "진짜 사용자로 되돌린 기기", act: "dev", bulk: "",
+    d: "자동 규칙을 무시하고 셉니다." },
+  { st: "always", t: "검사 스크립트", act: "", bulk: "",
+    d: "우리 검사 도구가 남긴 기록입니다. 늘 빠지고 되돌릴 수 없습니다." },
+  { st: "on", t: "세고 있는 기기", act: "dev", bulk: "", fold: true,
+    d: "통계에 그대로 들어가는 기기입니다." },
+];
+
+function cidRow(r, act) {
+  var mine = r.cid === myCid ? '<span class="me">이 기기</span>' : "";
+  var meta = [
+    r.dev || "?",
+    "접속 " + (r.visits || 0) + "회",
+    "기록 " + (r.n || 0) + "건",
+    (r.days || 1) + "일 동안",
+    when(r.first) + "~" + when(r.last),
+  ];
+  /* '본 버전 38개' 만 적으면 열심히 쓴 이용자로 오해하기 쉽다.
+     그 사이 우리가 몇 개를 내보냈는지 같이 적어야 뜻이 산다. */
+  if (r.versOut) meta.push("그 사이 나간 버전 " + r.versOut + "개 중 " + (r.vers || 0) + "개 봄");
+  else if (r.vers) meta.push("본 버전 " + r.vers + "개");
+  if (r.course) meta.push(r.course);
+  var why = r.why
+    ? '<div class="why">' + esc(r.why) +
+      (r.veto ? ' <span class="veto">— ' + esc(r.veto) + ' 이라 빼지 않았습니다</span>' : "") + "</div>"
+    : "";
+  var btn = act
+    ? '<button class="btn sub" data-act="' + act + '" data-cid="' + esc(r.cid) + '">' +
+      (act === "keep" ? "이건 진짜 사용자" : "안 셈") + "</button>"
+    : "";
+  return '<div class="cid' + (r.off ? " off" : "") + '">' +
+    '<div class="who"><div class="id">' + esc(r.cid) + mine + "</div>" +
+    '<div class="mt">' + esc(meta.join(" · ")) + "</div>" + why + "</div>" + btn + "</div>";
+}
+
+/* 옛 백엔드는 state·why 를 모른다 — 예전 모습 그대로 그린다(빈 화면보다 낫다) */
+function paintCidsOld(rows) {
+  $("cids").innerHTML =
+    '<p class="empty">백엔드를 다시 배포하면 자동 판정과 묶음 처리가 켜집니다.</p>' +
+    rows.map(function (r) {
+      return cidRow(r, r.auto ? "" : (r.off ? "keep" : "dev"));
+    }).join("");
+}
+
+var folded = {};
 function paintCids(rows) {
   var box = $("cids");
   if (!rows || !rows.length) { box.innerHTML = '<p class="empty">아직 기록이 없습니다.</p>'; return; }
-  box.innerHTML = rows.map(function (r) {
-    var mine = r.cid === myCid ? '<span class="me">이 기기</span>' : "";
-    var auto = r.auto ? '<span class="auto">검사용 — 늘 빠짐</span>' : "";
-    var meta = [
-      r.dev || "?",
-      "접속 " + (r.visits || 0) + "회",
-      "기록 " + (r.n || 0) + "건",
-      "본 버전 " + (r.vers || 0) + "개",
-      when(r.first) + "~" + when(r.last),
-    ];
-    if (r.course) meta.push(esc(r.course));
-    return '<div class="cid' + (r.off ? " off" : "") + '">' +
-      '<div class="who"><div class="id">' + esc(r.cid) + mine + auto + "</div>" +
-      '<div class="mt">' + meta.join(" · ") + "</div></div>" +
-      (r.auto ? "" :
-        '<button class="btn sub" data-cid="' + esc(r.cid) + '" data-on="' + (r.off ? "0" : "1") + '">' +
-        (r.off ? "다시 셈" : "안 셈") + "</button>") +
-      "</div>";
-  }).join("");
+  if (!rows[0].state) return paintCidsOld(rows);
+
+  var out = [];
+  GROUPS.forEach(function (g) {
+    var list = rows.filter(function (r) { return r.state === g.st; });
+    if (!list.length) return;
+    var hide = g.fold && !folded[g.st];
+    out.push('<div class="grp"><div class="gh"><div>' +
+      '<div class="gt">' + g.t + " (" + list.length + "대)</div>" +
+      '<div class="gd">' + g.d + "</div></div>" +
+      (g.bulk && list.length > 1
+        ? '<button class="btn sub" data-bulk="' + g.act + '" data-st="' + g.st + '">' + g.bulk + "</button>"
+        : "") +
+      "</div>" +
+      (hide
+        ? '<button class="fold" data-fold="' + g.st + '">▸ ' + list.length + "대 펼쳐 보기</button>"
+        : '<div class="items">' + list.map(function (r) { return cidRow(r, g.act); }).join("") + "</div>") +
+      "</div>");
+  });
+  box.innerHTML = out.join("");
 }
 
 function loadCids() {
@@ -417,27 +545,224 @@ function loadCids() {
       $("cids").innerHTML = '<p class="empty">백엔드를 다시 배포하면 여기에 기기 목록이 나옵니다.</p>';
       return;
     }
-    paintCids(j.rows);
+    CIDS = j.rows;
+    paintCids(CIDS);
   }).catch(function (e) {
     $("cids").innerHTML = '<p class="empty">불러오지 못했습니다 — ' + esc(e.message) + "</p>";
   });
 }
 
-$("cids").addEventListener("click", function (e) {
-  var b = e.target.closest("button[data-cid]");
-  if (!b) return;
-  var on = b.dataset.on === "1";      // 지금 세고 있으면 → 빼기
-  b.disabled = true; b.textContent = "…";
-  fetch(BACKEND, {
+/* 기기 표시 바꾸기 — 한 대든 여러 대든 같은 길로 보낸다.
+   act "dev" = 빼기 · "keep" = 되돌리기 */
+function markCids(act, cids) {
+  return fetch(BACKEND, {
     method: "POST", headers: { "Content-Type": "text/plain" },
-    body: JSON.stringify({ fn: "devcid", pw: pw, cid: b.dataset.cid, on: on }),
+    body: JSON.stringify({ fn: act === "keep" ? "keepcid" : "devcid", pw: pw, cids: cids, on: true }),
   }).then(function (r) { return r.json(); }).then(function (j) {
     if (!j || !j.ok) throw new Error((j && j.err) || "바꾸지 못했습니다");
-    return load();                    // 통계까지 다시 계산해 바로 반영한다
-  }).catch(function (err) {
+    return load().then(loadCids);      // 통계까지 다시 계산해 바로 반영한다
+  });
+}
+
+$("cids").addEventListener("click", function (e) {
+  var f = e.target.closest("button[data-fold]");
+  if (f) { folded[f.dataset.fold] = 1; paintCids(CIDS); return; }
+
+  var bulk = e.target.closest("button[data-bulk]");
+  if (bulk) {
+    var st = bulk.dataset.st, act = bulk.dataset.bulk;
+    var list = CIDS.filter(function (r) { return r.state === st; }).map(function (r) { return r.cid; });
+    if (!list.length) return;
+    var msg = act === "keep"
+      ? list.length + "대를 다시 통계에 넣습니다."
+      : list.length + "대를 통계에서 뺍니다.";
+    if (!confirm(msg + "\n\n기록을 지우는 것이 아니라 세지 않는 것이라 언제든 되돌릴 수 있습니다.")) return;
+    bulk.disabled = true; bulk.textContent = "바꾸는 중…";
+    markCids(act, list).catch(function (err) {
+      bulk.disabled = false;
+      alert("바꾸지 못했습니다 — " + err.message);
+    });
+    return;
+  }
+
+  var b = e.target.closest("button[data-cid]");
+  if (!b) return;
+  b.disabled = true; b.textContent = "…";
+  markCids(b.dataset.act, [b.dataset.cid]).catch(function (err) {
     b.disabled = false;
     alert("바꾸지 못했습니다 — " + err.message);
   });
+});
+
+/* [이 기기는 우리 것] — 주소창에 ?dev=1 을 칠 필요가 없게.
+   관리자 화면은 앱과 같은 주소라서 앱이 만든 기기ID를 그대로 읽고 쓸 수 있다.
+   지금까지 쌓인 것은 서버 목록으로 빼고, 앞으로 쌓일 것은 앱 표시로 막는다 — 둘 다 해야 한다. */
+$("mark-me").addEventListener("click", function () {
+  var b = this, old = "";
+  try { old = localStorage.getItem("riweather.cid") || ""; } catch (e) {}
+  if (!old) {
+    alert("이 기기는 아직 앱을 연 적이 없습니다.\n앱을 한 번 열어 본 뒤에 다시 눌러 주세요.");
+    return;
+  }
+  b.disabled = true; b.textContent = "등록하는 중…";
+  /* ⚠️ 서버에 보낼 기기ID는 **표시를 새기기 전에** 정해 둔다.
+     지금까지 쌓인 기록은 옛 이름(dev- 없는 것)으로 들어 있기 때문이다.
+     서버 호출이 실패해 다시 누르면 이미 이름이 바뀐 뒤라, 그대로 보내면
+     기록이 하나도 없는 새 이름을 빼게 된다 — 그래서 둘 다 보낸다. */
+  var bare = old.replace(/^dev-(wd-)?/, "");
+  var both = bare === old ? [old, "dev-" + old] : [bare, old];
+  try {
+    localStorage.setItem("riweather.dev", "1");     // 앞으로는 아예 보내지 않는다
+    localStorage.removeItem("riweather.statq");     // 보내려고 모아 둔 것도 버린다
+    if (!/^dev-/.test(old)) localStorage.setItem("riweather.cid", "dev-" + old);
+  } catch (e) {}
+  markCids("dev", both).then(function () {          // 지금까지 쌓인 것은 서버에서 뺀다
+    b.textContent = "이 기기는 이제 빠집니다";
+    myCid = "dev-" + bare;
+  }).catch(function (err) {
+    b.disabled = false; b.textContent = "이 기기는 우리 것 — 계속 빼기";
+    alert("등록하지 못했습니다 — " + err.message + "\n(앞으로 쌓이는 것은 이미 막혔습니다)");
+  });
+});
+
+/* ── 오늘 / 전체 누적 ───────────────────────────────────────────────
+   숫자를 두 벌 한꺼번에 받아 두고 **화면만** 갈아끼운다.
+   버튼을 누를 때마다 서버에 다시 묻지 않는 이유: 구글 접수 창구가 느린 날에는
+   요청 하나가 도착까지만 10~15초를 먹는다(2026-08-01 실측). 그만큼 기다리게 할 수 없다. */
+var SUM = null;
+var MODE = "day";      // 열 때는 늘 '오늘' — 기억해 두면 어제 본 화면을 오늘로 착각한다
+
+function num(x) { return (x === null || x === undefined ? 0 : x).toLocaleString(); }
+
+/* 한국 시각으로 읽는다 — 서버가 주는 날짜도 한국 기준이라 여기서 어긋나면 안 된다 */
+function kst(ms) {
+  var d = new Date(ms + 9 * 3600000);
+  return (d.getUTCMonth() + 1) + "월 " + d.getUTCDate() + "일 " +
+    String(d.getUTCHours()).padStart(2, "0") + ":" + String(d.getUTCMinutes()).padStart(2, "0");
+}
+
+/* 값이 없는 것과 0 은 다르다.
+   0 은 사실이므로 '0명' 이라고 쓴다. 모르는 것만 '집계 전' 이다.
+   이걸 섞으면 새벽마다 '집계 전' 이 뜨거나, 옛 백엔드에서 '오늘 아무도 안 왔다' 가 뜬다. */
+function card(k, v, unit, note) {
+  var big = (v === null || v === undefined)
+    ? "<small>집계 전</small>"
+    : esc(String(num(v))) + "<small>" + unit + "</small>";
+  return '<div class="card"><div class="k">' + esc(k) + '</div><div class="v">' + big +
+    '</div><div class="n">' + note + "</div></div>";
+}
+
+function avg7() {
+  var d = (SUM.days || []).slice(-7);
+  if (!d.length) return null;
+  var sum = 0;
+  d.forEach(function (x) { sum += (x.users || 0); });
+  return Math.round(sum / d.length);
+}
+
+function paintCards() {
+  var s = SUM, t = s.today || {}, out = [];
+  if (MODE === "day") {
+    out.push(card("오늘 온 사람", t.users, "명", "앱을 연 횟수 " + num(t.hits) + "회"));
+    out.push(t.newUsers === undefined
+      ? card("오늘 처음 온 사람", null, "", "백엔드를 다시 배포하면 표시됩니다")
+      : t.newUsersExact === false
+        ? card("오늘 처음 온 사람", null, "", "기록이 2만 건을 넘어 정확히 셀 수 없습니다")
+        : card("오늘 처음 온 사람", t.newUsers, "명", "앱을 오늘 처음 연 기기 수"));
+    out.push(t.courseCount === undefined
+      ? card("오늘 본 골프장", null, "", "백엔드를 다시 배포하면 표시됩니다")
+      : card("오늘 본 골프장", t.courseCount, "곳",
+             (t.courses && t.courses.length) ? "가장 많이 · " + esc(t.courses[0][0]) : "아직 없습니다"));
+    out.push(card("오늘 받은 의견", s.fbToday, "건", "누적 " + num(s.fbTotal) + "건"));
+  } else {
+    out.push(card("누적 사용자", s.uniq, "명",
+      "앱을 한 번이라도 연 기기 수" + (s.windowFull === false ? " (최근 2만 건 기준)" : "")));
+    out.push(s.back7 === null || s.back7 === undefined
+      ? card("7일 재방문율", null, "", "최근 7일 사용자가 5명이 넘어야 표시합니다")
+      : card("7일 재방문율", s.back7, "%", "최근 7일 중 이틀 이상 온 비율"));
+    out.push(card("하루 평균 방문", avg7(), "명", "최근 7일 평균 사람 수"));
+    out.push(card("누적 의견", s.fbTotal, "건", "오늘 " + num(s.fbToday) + "건"));
+  }
+  $("cards").innerHTML = out.join("");
+}
+
+/* 뺀 것을 반드시 적는다 — 조용히 빼면 숫자가 왜 줄었는지 알 수 없다 (2026-07-31) */
+function paintSub() {
+  var s = SUM, split = !!s.scope;
+  var ex = (MODE === "day" && split) ? ((s.today || {}).excluded) : s.excluded;
+  var bits = [];
+  if (ex) {
+    if (ex.rows) bits.push("우리 기기 " + num(ex.devices) + "대 " + num(ex.rows) + "건");
+    if (ex.test) bits.push("테스트 골프장 " + num(ex.test) + "건");
+    if (ex.dupes) bits.push("중복 전송 " + num(ex.dupes) + "건");
+  }
+  var head = (MODE === "day" && split)
+    ? "오늘 " + (s.todayKey ? String(s.todayKey).slice(5).replace("-", "/") : "")
+    : "시트 " + num(s.total) + "건" +
+      (s.counted === undefined ? "" : " · 집계 " + num(s.counted) + "건");
+  var now = new Date();
+  $("sub").textContent = head + (bits.length ? " · 뺀 것 " + bits.join(" + ") : "") + " · " +
+    String(now.getHours()).padStart(2, "0") + ":" + String(now.getMinutes()).padStart(2, "0") + " 기준";
+}
+
+/* 오늘 아직 아무도 안 온 새벽에 '아직 데이터가 없습니다' 를 여섯 번 반복하면 고장으로 보인다.
+   순위 구역을 통째로 접고, 대신 언제까지 기록이 있었는지 한 줄로 알려준다. */
+function emptyNote() {
+  var s = SUM, out = [];
+  if (s.lastAt) out.push("마지막 기록 " + kst(s.lastAt));
+  var past = (s.days || []).filter(function (x) { return x.d !== s.todayKey; });
+  if (past.length) {
+    var y = past[past.length - 1];
+    out.push("직전 기록일(" + String(y.d).slice(-5) + ") " + num(y.users) + "명 · " + num(y.hits) + "회");
+  }
+  return out.length ? esc(out.join(" · ")) : "아직 아무 기록도 없습니다.";
+}
+
+function paintAll() {
+  var s = SUM;
+  if (!s) return;
+  var split = !!s.scope;                       // ⚠️ 판번호가 아니라 '항목이 왔는가'로 판단한다
+  var src = (MODE === "day" && split) ? (s.today || {}) : s;
+  var word = MODE === "day" ? "오늘" : "전체";
+
+  $("m-day").classList.toggle("on", MODE === "day");
+  $("m-all").classList.toggle("on", MODE === "all");
+  Array.prototype.forEach.call(document.querySelectorAll(".scope"), function (e) {
+    e.textContent = split ? word : "전체";
+  });
+
+  paintCards();
+  paintDays(s.days, s.todayKey);
+
+  var hasHours = MODE === "day" && split && src.hours && src.hours.length === 24;
+  $("sec-hours").hidden = !hasHours;
+  if (hasHours) paintHours(src.hours, s.asOf);
+
+  var blank = MODE === "day" && split && !src.hits &&
+              !(src.courses && src.courses.length) && !(src.features && src.features.length);
+  Array.prototype.forEach.call(document.querySelectorAll("section.rank"), function (e) { e.hidden = blank; });
+  $("sec-empty").hidden = !blank;
+  if (blank) { $("empty-note").innerHTML = emptyNote(); }
+  else {
+    bars("features", src.features, label);
+    bars("regions", src.regions);
+    bars("courses", src.courses);
+    bars("devices", src.devices);
+    bars("ages", src.ages);
+    bars("genders", src.genders);
+  }
+  paintSub();
+}
+
+$("modebar").addEventListener("click", function (e) {
+  var b = e.target.closest("button[data-mode]");
+  if (!b || b.disabled || b.dataset.mode === MODE) return;
+  MODE = b.dataset.mode;
+  paintAll();
+  window.scrollTo(0, 0);
+});
+$("go-all").addEventListener("click", function () {
+  MODE = "all"; paintAll(); window.scrollTo(0, 0);
 });
 
 function load() {
@@ -449,51 +774,22 @@ function load() {
   return get("summary").then(function (s) {
     s = s || {};
     if (s.err) throw new Error(s.err);
-    /* 백엔드가 옛 버전이면 없는 항목이 온다.
-       ⚠️ 이때 0 을 보여주면 '오늘 아무도 안 왔다'로 읽힌다 — 모르는 것은 모른다고 쓴다. */
-    if (!s.today) {
-      $("c-today").innerHTML = '<small>집계 전</small>';
-      $("c-today-n").textContent = "백엔드 재배포 후 표시됩니다";
-    } else {
-      $("c-today").innerHTML = (s.today.users || 0) + '<small>명</small>';
-      $("c-today-n").textContent = "앱을 연 횟수 " + (s.today.hits || 0) + "회";
-    }
-    $("c-uniq").innerHTML = (s.uniq || 0) + '<small>명</small>';
-    if (s.uniq === undefined) $("c-uniq").innerHTML = '<small>집계 전</small>';
-    if (s.back7 === null || s.back7 === undefined) {
-      $("c-back").innerHTML = '<small>집계 전</small>';
-      $("c-back-n").textContent = "최근 7일 사용자가 5명이 넘어야 표시합니다";
-    } else {
-      $("c-back").innerHTML = s.back7 + '<small>%</small>';
-      $("c-back-n").textContent = "최근 7일 중 이틀 이상 온 비율";
-    }
-    if (s.fbTotal === undefined) {
-      $("c-fb").innerHTML = '<small>준비 전</small>';
-      $("c-fb-n").textContent = "백엔드 재배포 후 집계됩니다";
-    } else {
-      $("c-fb").innerHTML = s.fbTotal + '<small>건</small>';
-      $("c-fb-n").textContent = "오늘 " + (s.fbToday || 0) + "건";
-    }
+    SUM = s;
 
-    paintDays(s.days);
-    bars("features", s.features, label);
-    bars("regions", s.regions);
-    bars("courses", s.courses);
-    bars("devices", s.devices);
-    bars("ages", s.ages);
-    bars("genders", s.genders);
+    /* '오늘/전체 나누어 보기'는 백엔드 2026-08-02a 부터다.
+       옛 배포에 대고 누르면 아무 일도 안 일어나 영문을 알 수 없으니
+       아예 눌리지 않게 막고 이유를 적는다(비밀번호 바꾸기와 같은 처리). */
+    var split = !!s.scope;
+    $("m-day").disabled = !split;
+    $("m-all").disabled = !split;
+    if (!split) MODE = "all";
+    $("modenote").innerHTML = split ? "" :
+      '<div class="warnbox">‘오늘 / 전체 누적 나누어 보기’는 <b>백엔드를 다시 배포해야</b> 켜집니다.<br>' +
+      'Apps Script → <b>배포 → 배포 관리 → ✏️ → 새 버전</b> (판번호 <b>2026-08-02a</b> 이상)<br>' +
+      '그때까지는 지금까지처럼 <b>전체 누적</b>만 보여 드립니다.</div>';
 
-    var now = new Date();
-    /* 뺀 것을 반드시 적는다 — 조용히 빼면 숫자가 왜 줄었는지 알 수 없다 (2026-07-31) */
-    var ex = s.excluded, exTxt = "";
-    if (ex && (ex.rows || ex.test)) {
-      var bits = [];
-      if (ex.rows) bits.push("테스트 기기 " + ex.devices + "대 " + ex.rows.toLocaleString() + "건");
-      if (ex.test) bits.push("테스트 골프장 " + ex.test.toLocaleString() + "건");
-      exTxt = " · 뺀 것 " + bits.join(" + ");
-    }
-    $("sub").textContent = "기록 " + (s.total || 0).toLocaleString() + "건" + exTxt + " · " +
-      String(now.getHours()).padStart(2, "0") + ":" + String(now.getMinutes()).padStart(2, "0") + " 기준";
+    paintAll();
+
     $("bever").textContent = "백엔드 " + (s.ver || "?");
     backendVer = s.ver || "";
     /* 비밀번호 바꾸기는 백엔드 2026-07-31c 부터 있다. 옛 배포에 대고 누르면

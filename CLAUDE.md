@@ -129,6 +129,15 @@ python tools/sync.py --status
 | `tools/crop_map_only.py` | 홀맵 표준 크롭 |
 | `tools/collect_v2_selenium.py` | 크롬 렌더링 수집기 (SPA 대응) |
 | `tools/export_status_excel.py` | 골프장DB 현황 엑셀 |
+| `tools/verify_ops_stats.js` | 관리자 통계 **판정 로직** 검사 (누굴 빼고 누굴 세나) |
+| `tools/verify_ops_view.js` | 관리자 화면 검사 (오늘/누적 전환·기기목록, 가짜 백엔드) |
+| `tools/verify_stats_guard.js` | 앱이 **우리 접속을 안 보내는지** 검사 (배포주소 흉내) |
+| `tools/appsscript_sandbox.js` | Apps Script 백엔드를 PC 에서 돌리는 껍데기 |
+
+> **통계에서 우리 기록을 빼는 규칙은 `tools/apps_script/Code.gs` 한 곳에만 있습니다.**
+> 고쳤으면 `node tools/verify_ops_stats.js` 를 반드시 돌리세요. 그리고 **'본 앱 버전 수'를
+> 개발 기기 판정에 쓰지 마세요** — 그 숫자는 이용자의 성실함이 아니라 우리 배포 횟수를 따라 커집니다
+> (근거는 `HANDOFF.md` 2026-08-02 절).
 
 ### Ri_Stock 전용 도구 (골프앱과 섞이지 않습니다)
 

@@ -16,43 +16,89 @@
 window.RIW_BACKEND = "https://script.google.com/macros/s/AKfycbzVkab8qBwUdukg_O9FtYjwHvTygc9Riyh3tEOD0z-bALNZxbO9ksRNPLM9y1mOWv9q4A/exec";
 
 const STATS = (() => {
-  /* 개발용 접속은 통계에 넣지 않는다.
-     우리가 하루에도 수십 번 열어보는 미리보기가 그대로 쌓여서,
-     2026-07-31 기준 PC 접속 1,559건 중 상당수가 개발자 자신이었다.
-     베타 100명의 진짜 사용 패턴을 보려면 이 잡음을 먼저 걷어내야 한다.
+  /* ── 우리 접속은 통계에 넣지 않는다 (2026-08-02 개편) ─────────────────
+     우리가 하루에도 수십 번 열어 보는 것이 그대로 쌓여서, 2026-07-31 기준
+     PC 접속 1,559건 중 상당수가 개발자 자신이었다. 베타 이용자의 진짜 사용
+     패턴을 보려면 이 잡음을 먼저 걷어내야 한다.
 
-     막는 경로가 둘이다:
-       ① 로컬 미리보기(localhost) — 자동
-       ② 배포본을 우리가 열어 보는 경우 — 주소 뒤에 **?dev=1** 을 한 번 붙이면
-          그 기기는 계속 빠진다(`?dev=0` 으로 해제). 관리자 화면에도 버튼이 있다.
-          ⚠️ ①만 있던 때는 github.io 로 우리가 확인한 것이 전부 쌓였다.
+     원칙 — **사실이면 아예 보내지 않고, 추측이면 표시해서 보낸다.**
+       ① 우리 배포 주소가 아니다   → 사실 → 안 보냄
+       ② ?dev=1 로 직접 표시했다   → 사실 → 안 보냄
+       ③ 자동화 브라우저 같다      → 추측 → 기기ID에 dev-wd- 를 붙여 **보낸다**
+     ③을 여기서 버리지 않는 이유: 틀렸을 때 되돌릴 기록 자체가 없어진다.
+     보내 두면 서버가 자동으로 빼고, 화면의 '뺀 것'에 세어지고, 되돌릴 수 있다.
+
+     ⚠️ 예전 방식(localhost 만 금지)은 file:// · 192.168.x.x(폰으로 내 PC 열기) ·
+        터널 주소가 전부 통과했다. 7/28 하루에 새 기기 120대가 쌓인 것이 그 결과다.
+        그래서 방향을 뒤집어 **우리 주소일 때만 보낸다**.
+        ⚠️ 배포 주소를 옮기면 PROD_HOSTS 를 반드시 같이 고칠 것. 안 고치면 통계가
+           조용히 멎는다 — tools/check_stats_host.py 가 배포를 막아 준다.
 
      ⚠️ 베타 의견(FEEDBACK)은 이용자가 스스로 누른 것이라 여기서 막지 않는다.
         (우리가 검사로 보낸 의견은 서버가 기기ID로 걸러 낸다) */
-  const DEV_KEY = "riweather.dev";
-  try {
-    const m = /[?&]dev=([01])/.exec(location.search);
-    if (m) {
-      if (m[1] === "1") localStorage.setItem(DEV_KEY, "1");
-      else localStorage.removeItem(DEV_KEY);
-    }
-  } catch (_) {}
-  let devDevice = false;
-  try { devDevice = localStorage.getItem(DEV_KEY) === "1"; } catch (_) {}
-  const IS_DEV = devDevice ||
-    /^(localhost|127\.0\.0\.1|0\.0\.0\.0|\[::1\])$/.test(location.hostname);
-  const STATS_URL = IS_DEV ? "" : window.RIW_BACKEND;
-
   const CID_KEY = "riweather.cid";
+  const DEV_KEY = "riweather.dev";
   const QUEUE_KEY = "riweather.statq";
   const FORBIDDEN = /lat|lon|coord|위도|경도|gps/i;   // 좌표성 데이터 방어벽
 
-  function cid() {
-    let v = localStorage.getItem(CID_KEY);
-    if (!v) {
-      v = Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4);
-      localStorage.setItem(CID_KEY, v);
+  const ls = {
+    get(k) { try { return localStorage.getItem(k); } catch (_) { return null; } },
+    set(k, v) { try { localStorage.setItem(k, v); } catch (_) {} },
+    del(k) { try { localStorage.removeItem(k); } catch (_) {} },
+  };
+  const rawCid = () => ls.get(CID_KEY) || "";
+  const rnd = () => Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4);
+
+  // ① 우리 배포 주소에서만 보낸다
+  const PROD_HOSTS = ["brownrigoon-commits.github.io"];
+  const onProd = location.protocol === "https:" &&
+                 PROD_HOSTS.indexOf(location.hostname) >= 0 &&
+                 location.pathname.indexOf("/Ri-weather/") === 0;
+
+  /* ② ?dev=1 — 표시를 저장소와 **기기ID 양쪽에** 남긴다.
+     저장소(riweather.dev)는 브라우저 정리·?reset=hard 로 사라지지만
+     dev- 로 시작하는 기기ID 는 서버가 알아본다. 한쪽이 지워져도 다른 쪽이 남는다. */
+  try {
+    const m = /[?&]dev=([01])/.exec(location.search);
+    if (m) {
+      const cur = rawCid();
+      if (m[1] === "1") {
+        ls.set(DEV_KEY, "1");
+        ls.del(QUEUE_KEY);                       // 표시 전에 모아 둔 것도 보내지 않는다
+        if (!/^dev-/.test(cur)) ls.set(CID_KEY, "dev-" + (cur || rnd()));
+      } else {
+        ls.del(DEV_KEY);
+        if (/^dev-(wd-)?/.test(cur)) ls.set(CID_KEY, cur.replace(/^dev-(wd-)?/, ""));
+      }
     }
+  } catch (_) {}
+  /* ⚠️ dev-wd- 는 '우리 기기'가 아니라 '자동화 추측'이라 여기서 빼야 한다.
+        (?!wd-) 를 빼면 아래 ③의 '보내되 표시한다'가 통째로 무력해진다. */
+  const devDevice = ls.get(DEV_KEY) === "1" || /^dev-(?!wd-)/.test(rawCid());
+
+  /* ③ 자동화 브라우저(헤드리스). 검사 스크립트는 실행할 때마다 저장소가 비어 있어
+     매번 새 기기로 잡힌다 — 7/28 무더기의 정체가 이것이다.
+     ⚠️ 반드시 `=== true` 로 본다. `!== false` 로 쓰면 이 속성이 없는 옛 사파리·
+        안드로이드 웹뷰·카톡 인앱 브라우저가 통째로 빠져 진짜 이용자를 잃는다. */
+  let robot = false;
+  try {
+    robot = navigator.webdriver === true || /HeadlessChrome|PhantomJS/i.test(navigator.userAgent);
+  } catch (_) {}
+  if (robot && !/^dev-wd-/.test(rawCid())) {
+    ls.set(CID_KEY, "dev-wd-" + (rawCid().replace(/^dev-/, "") || rnd()));
+    ls.del(QUEUE_KEY);                           // 표시 전 큐는 옛 기기ID를 달고 있다
+  }
+
+  /* 왜 껐는지 남긴다 — 콘솔에서 바로 보이고 검사 스크립트가 이 값을 확인한다.
+     '조용히 빼지 않는다'를 수집 단계에도 적용한 것. */
+  const OFF = !onProd ? "not-prod" : devDevice ? "dev-device" : "";
+  window.RIW_STATS_OFF = OFF;
+  window.RIW_STATS_MARK = robot ? "wd" : "";
+  const STATS_URL = OFF ? "" : window.RIW_BACKEND;
+
+  function cid() {
+    let v = rawCid();
+    if (!v) { v = rnd(); ls.set(CID_KEY, v); }
     return v;
   }
 
