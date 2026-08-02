@@ -180,6 +180,15 @@ def bump():
     s = open(sw, encoding="utf-8").read()
     open(sw, "w", encoding="utf-8", newline="\n").write(
         s.replace(f"riweather-v{cur}", f"riweather-v{nxt}"))
+    # 관리자 화면에도 같은 판번호를 박는다 — 사장님이 "지금 보는 게 최신인가"를 한눈에 알도록.
+    # (2026-08-02: 새 화면을 배포했는데 브라우저에 옛 것이 남아 두 번 헛걸음했다)
+    # 표시가 없는 파일이면 아무 일도 하지 않는다 — 다른 창과 부딪히지 않게.
+    ops = os.path.join(ROOT, "ops-k58zq.html")
+    if os.path.exists(ops):
+        o = open(ops, encoding="utf-8").read()
+        o2 = re.sub(r'(id="opsver">화면 )v\d+(<)', rf'\g<1>v{nxt}\g<2>', o)
+        if o2 != o:
+            open(ops, "w", encoding="utf-8", newline="\n").write(o2)
     return cur, nxt
 
 def manifest():
