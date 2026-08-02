@@ -382,15 +382,26 @@ function renderStayList(list, course) {
       <div class="fi-actions stay-book">${it.jp ? jpStayBook(it) : bookBtn(it)}</div>`;
     el.appendChild(card);
     if (it.jp) {
-      // 라쿠텐이 준 사진 한 장을 그대로 쓴다 (한국 경로의 사진 백엔드는 일본 숙소를 모른다)
+      /* 라쿠텐이 준 사진을 그대로 쓴다 — **건물과 객실 두 장**이다.
+         (한국 경로의 사진 백엔드는 일본 숙소를 모른다)
+         전에는 건물 한 장만 그려서 숙소마다 사진이 하나뿐이었다. */
       const box = card.querySelector(".fi-photos");
-      if (it.photo && box) {
-        const img = document.createElement("img");
-        img.src = it.photo;
-        img.alt = it.name;
-        img.loading = "lazy";
-        img.addEventListener("error", () => { box.hidden = true; });
-        box.appendChild(img);
+      const pics = (it.photos && it.photos.length) ? it.photos : (it.photo ? [it.photo] : []);
+      if (pics.length && box) {
+        pics.forEach((src, i) => {
+          const img = document.createElement("img");
+          img.src = src;
+          img.alt = it.name;
+          img.loading = "lazy";
+          img.addEventListener("click", () => {
+            // app.js 가 나중에 실릴 수 있어 있는지 보고 부른다(이 파일 459줄과 같은 방식)
+            if (typeof openLightbox === "function")
+              openLightbox(pics.map((u) => ({ t: u, u: u })), i);
+          });
+          // 한 장이 깨져도 나머지는 남긴다 — 통째로 감추면 멀쩡한 사진까지 사라진다
+          img.addEventListener("error", () => img.remove());
+          box.appendChild(img);
+        });
       } else if (box) box.hidden = true;
     } else {
       // 사진은 맛집과 같은 백엔드(가게 ID 기반 공식 사진첩)를 그대로 쓴다

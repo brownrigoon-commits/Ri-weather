@@ -317,6 +317,11 @@ const JPPACK = {
         phone: p.nationalPhoneNumber || "",
         mapUri: p.googleMapsUri || "",
         // 사진은 '주소'만 들고 있다가 **눌렀을 때** 받는다 — 사진 호출은 건당 과금이다.
+        /* 사진 이름은 **검색 응답에 이미 딸려 온다 — 공짜다.**
+           돈이 드는 것은 그림을 실제로 내려받을 때뿐이다(사진 SKU).
+           그래서 이름은 있는 대로 다 담아 두고, 화면에 보이는 것만 받는다.
+           전에는 첫 장만 담아 두어 '写真(10)' 이라 써 놓고 1장밖에 못 보여줬다. */
+        photoNames: (p.photos || []).slice(0, 10).map((x) => x.name).filter(Boolean),
         photoName: (p.photos && p.photos[0] && p.photos[0].name) || "",
         photoCount: (p.photos || []).length,
         attrib: (p.photos && p.photos[0] && p.photos[0].authorAttributions &&
@@ -373,7 +378,11 @@ const JPPACK = {
         rating: b.reviewAverage || 0,
         reviews: b.reviewCount || 0,
         price: b.hotelMinCharge || 0,            // ¥ — 원화로 바꾸지 않는다
-        photo: b.hotelImageUrl || "",
+        /* 라쿠텐은 사진을 **두 장** 준다 — 건물(hotelImageUrl)과 객실(roomImageUrl).
+           건물 한 장만 쓰고 있어서 숙소마다 사진이 하나뿐이었다(2026-08-03 사장님 지적).
+           hotelMapImageUrl 도 오지만 그건 지도 그림이라 사진 자리에 넣지 않는다. */
+        photos: [b.hotelImageUrl, b.roomImageUrl].filter(Boolean),
+        photo: b.hotelImageUrl || "",            // 예전 이름 — 쓰던 자리가 남아 있을 수 있다
         link: b.hotelInformationUrl || "",
         phone: b.telephoneNo || "",
       };

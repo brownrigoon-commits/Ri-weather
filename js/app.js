@@ -4,7 +4,7 @@
  * ========================================================= */
 "use strict";
 
-const APP_VER = "v217"; // 배포 버전 (홈 화면 배지에 표시)
+const APP_VER = "v218"; // 배포 버전 (홈 화면 배지에 표시)
 const APP_NOTE = "관리자"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
 const STORAGE_KEY = "riweather.courses.v1";
 
@@ -3847,28 +3847,48 @@ function jpFoodActions(it) {
   if (it.mapUri)
     h += `<a class="fa-btn fa-naver" href="${it.mapUri}" target="_blank" rel="noopener">${
       ja ? "店舗ページ" : "가게 정보"}</a>`;
-  if (it.photoName)
-    h += `<button type="button" class="fa-btn fa-naver jp-photo">${
-      ja ? `📷 写真 (${it.photoCount})` : `📷 사진 (${it.photoCount})`}</button>`;
+  /* 사진 버튼은 없앴다 — 사진은 카드 안에 바로 깔린다(bindJpFoodPhoto).
+     버튼이 다섯 개면 폰 화면(375px)에서 한 칸이 58px 로 눌려 글자가 잘린다.
+     실측: 経路案内 78px · Yahoo!カーナビ 95px · 店舗ページ 69px 가 필요했다. */
   return h;
 }
 
-/* 사진은 **누를 때** 받는다 — Places 사진은 호출 건당 과금이라, 목록을 열기만 해도
-   10곳치가 나가면 낭비다(설계 §3-1 비용 통제 ②). 한 번 받으면 그 카드에서는 다시 안 받는다. */
+/* 일본 맛집 사진 — 한국 화면과 똑같이 **카드 안에 바로** 깔린다.
+ *
+ * 전에는 '📷 写真(10)' 버튼을 눌러야 나왔고, 그것도 1장뿐이었다.
+ * 게다가 버튼 다섯 개가 한 줄에 눌려 「写真 (」 로 잘려 있어서
+ * 누를 수 있다는 것조차 보이지 않았다(2026-08-03 사장님 지적).
+ *
+ * 비용은 이렇게 지킨다 — Places 는 **사진 이름은 공짜로** 준다(검색 응답에 딸려 온다).
+ * 돈이 드는 것은 **그림을 실제로 내려받을 때**뿐이다.
+ *   ① 화면에 들어온 카드만 받는다(IntersectionObserver). 안 내려보면 안 받는다.
+ *   ② 카드당 3장까지만 깐다. 나머지는 눌러서 크게 볼 때 받는다.
+ *   ③ 한 번 받은 카드는 다시 안 받는다.
+ * 목록을 열자마자 20곳 × 10장을 받으면 한 번에 200번 과금이다. 그 짓을 하지 않는다.
+ */
+const JP_FOOD_THUMBS = 3;
 function bindJpFoodPhoto(it, div) {
-  const btn = div.querySelector(".jp-photo");
   const box = div.querySelector(".fi-photos");
-  if (!btn || !box) return;
-  btn.addEventListener("click", () => {
-    if (btn.dataset.done) { box.hidden = !box.hidden; return; }
-    btn.dataset.done = "1";
-    const img = document.createElement("img");
-    img.src = JPPACK.photoUrl(it.photoName, 400);
-    img.alt = it.name;
-    img.addEventListener("click", () =>
-      openLightbox([{ t: img.src, u: JPPACK.photoUrl(it.photoName, 1200) }], 0));
-    img.addEventListener("error", () => { box.hidden = true; btn.remove(); });
-    box.appendChild(img);
+  const names = (it.photoNames && it.photoNames.length)
+    ? it.photoNames : (it.photoName ? [it.photoName] : []);
+  const btn = div.querySelector(".jp-photo");
+  if (btn) btn.remove();                    // 이제 버튼 없이 바로 보여준다
+  if (!box || !names.length) return;
+
+  let done = false;
+  const fill = () => {
+    if (done) return;
+    done = true;
+    names.slice(0, JP_FOOD_THUMBS).forEach((nm, i) => {
+      const img = document.createElement("img");
+      img.src = JPPACK.photoUrl(nm, 400);
+      img.alt = it.name;
+      img.loading = "lazy";
+      img.addEventListener("click", () => openLightbox(
+        names.map((n) => ({ t: JPPACK.photoUrl(n, 400), u: JPPACK.photoUrl(n, 1200) })), i));
+      img.addEventListener("error", () => img.remove());
+      box.appendChild(img);
+    });
     if (it.attrib) {
       const a = document.createElement("div");
       a.className = "fi-meta";
@@ -3876,7 +3896,13 @@ function bindJpFoodPhoto(it, div) {
       box.appendChild(a);
     }
     box.hidden = false;
-  });
+  };
+
+  if (typeof IntersectionObserver !== "function") { fill(); return; }
+  const io = new IntersectionObserver((es) => {
+    if (es.some((e) => e.isIntersecting)) { fill(); io.disconnect(); }
+  }, { rootMargin: "200px" });               // 조금 못 미쳐도 미리 받아 둔다
+  io.observe(div);
 }
 
 function renderFoodList(list, region, fromKakao) {
