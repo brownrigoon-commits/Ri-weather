@@ -839,6 +839,22 @@
         if (!구장.length) add("진짜 구장인데 영상이 안 붙음", "파주CC", "좌표 확인 규칙이 과함");
       }
     }
+    // 한 번만 눌러도 재생되는가 — 아이폰은 **음소거로 시작해야** 자동재생을 허용한다.
+    //   mute=1 이 빠지면 멈춘 채로 떠서 사용자가 한 번 더 눌러야 한다(2026-08-02 겪음).
+    {
+      const it0 = document.querySelector("#cv-list .cv-item");
+      if (it0) {
+        it0.click();
+        const f0 = it0.querySelector("iframe");
+        if (!f0) add("영상을 눌러도 재생기가 안 만들어짐", "cv-item", "");
+        else {
+          const q = new URL(f0.src).searchParams;
+          ["autoplay", "mute", "playsinline"].forEach((k) => {
+            if (q.get(k) !== "1") add("영상 재생 설정 빠짐(한 번 더 눌러야 함)", k, String(q.get(k)));
+          });
+        }
+      }
+    }
     // 영상 없는 구장으로 넘어갈 때: 카드만 감추고 내용을 남기면
     // **재생 중이던 영상이 숨은 채로 계속 소리를 낸다**(2026-08-01 실제로 났던 버그)
     const it = document.querySelector("#cv-list .cv-item");

@@ -21,7 +21,7 @@ css = css.replace(/url\(\s*["']?\.\.\/[^"')]+["']?\s*\)/g, 'none');
 const clubfit = fs.readFileSync(R + 'js/clubfit.js', 'utf8');
 const loading = fs.readFileSync(R + 'js/loading.js', 'utf8');
 
-const page = `<title>골프라이프 — 클럽 피팅 미리보기</title>
+const page = `<title>투어리스트 — 클럽 피팅 미리보기</title>
 <style>
 ${css}
 /* ── 데모 껍데기 — 앱 화면은 손대지 않고 바깥만 감싼다 ───────────── */

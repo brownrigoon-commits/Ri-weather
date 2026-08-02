@@ -4,8 +4,8 @@
  * ========================================================= */
 "use strict";
 
-const APP_VER = "v191"; // 배포 버전 (홈 화면 배지에 표시)
-const APP_NOTE = "공략 영상 확대"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
+const APP_VER = "v192"; // 배포 버전 (홈 화면 배지에 표시)
+const APP_NOTE = "영상 한번 클릭 재생 · 앱이름 잔재 정리 · 백업 재시도"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
 const STORAGE_KEY = "riweather.courses.v1";
 
 /* 나중에 필요할 때 불러오는 파일 목록 (2026-07-31 신설).
@@ -2206,23 +2206,38 @@ function renderCourseVideos(course) {
       if (el.querySelector("iframe")) return;
       const id = el.dataset.vid;
       const box = el.querySelector(".cv-thumb");
-      // ⚠️ playsinline 이 없으면 아이폰이 인라인 자동재생을 막아서
-      //    **한 번 더 눌러야** 재생된다(2026-08-02 사장님 폰에서 확인).
-      //    iframe 을 클릭 처리 안에서 바로 만들어야 '사용자가 누른 것' 으로 인정된다.
+      /* 한 번만 눌러도 재생되게 하는 방법 — 아이폰이 문제다.
+         iOS 는 **소리 있는 자동재생을 무조건 막는다.** autoplay·playsinline 을 다 붙여도
+         멈춘 채로 떠서 사용자가 유튜브 재생 버튼을 한 번 더 눌러야 했다(2026-08-02 확인).
+         뚫는 방법은 하나뿐이다 — **음소거로 시작**하면 자동재생이 허용된다.
+         그래서 mute=1 로 띄우고, 곧바로 소리를 켠다(사용자가 방금 눌렀으므로 허용된다).
+         혹시 소리 켜기가 막히면 영상은 재생되고 소리만 꺼진 상태라, 유튜브 스피커
+         아이콘으로 켤 수 있다 — 아무것도 안 되던 지금보다 낫다. */
       const ifr = document.createElement("iframe");
       ifr.src = `https://www.youtube-nocookie.com/embed/${id}` +
-                "?autoplay=1&playsinline=1&rel=0&enablejsapi=1";
+                "?autoplay=1&mute=1&playsinline=1&rel=0&enablejsapi=1" +
+                "&origin=" + encodeURIComponent(location.origin);
       ifr.title = "공략 영상";
-      ifr.allow = "accelerometer; autoplay; encrypted-media; picture-in-picture; fullscreen";
+      ifr.allow = "autoplay; encrypted-media; picture-in-picture; fullscreen";
       ifr.setAttribute("allowfullscreen", "");
       ifr.setAttribute("playsinline", "");
       ifr.frameBorder = "0";
-      // 그래도 멈춰 있으면 한 번 더 밀어준다(유튜브 iframe API 명령)
-      ifr.addEventListener("load", () => {
+      const cmd = (func, args) => {
         try {
           ifr.contentWindow.postMessage(
-            '{"event":"command","func":"playVideo","args":[]}', "*");
-        } catch (e) { /* 다른 출처라 막히면 무시 — 이미 재생 중인 경우다 */ }
+            JSON.stringify({ event: "command", func, args: args || [] }), "*");
+        } catch (e) { /* 아직 준비 전이면 다음 시도에서 들어간다 */ }
+      };
+      ifr.addEventListener("load", () => {
+        // 먼저 수신 등록을 해야 플레이어가 우리 명령을 받고 상태도 돌려준다
+        try {
+          ifr.contentWindow.postMessage(
+            JSON.stringify({ event: "listening", id: id }), "*");
+        } catch (e) { /* 무시 */ }
+        // 플레이어가 준비되는 시점이 제각각이라 잠깐 동안 여러 번 밀어준다
+        [0, 150, 400, 800, 1500, 2500].forEach((ms) => setTimeout(() => {
+          cmd("unMute"); cmd("setVolume", [100]); cmd("playVideo");
+        }, ms));
       });
       box.innerHTML = "";
       box.appendChild(ifr);
@@ -5428,16 +5443,25 @@ const BACKUP = (() => {
     const body = JSON.stringify({ fn: "backup", code: s.code, data });
     const h = hash(body);
     if (!force && s.hash === h) return true;             // 달라진 게 없으면 보내지 않음
-    try {
-      // Apps Script 는 preflight 를 못 받으므로 text/plain 단순 요청으로
-      const r = await fetchT(window.RIW_BACKEND, { method: "POST", headers: { "Content-Type": "text/plain" }, body }, 15000);
-      const j = await r.json();
-      if (j && j.ok) { s.hash = h; s.last = Date.now(); s.err = null; put(s); refreshUI(); return true; }
-      // 서버가 응답은 했는데 저장은 안 된 경우 — 백엔드가 옛 버전이면 여기로 온다
-      s.err = (j && j.err) ? String(j.err) : tr("app.bk.err.server");
-    } catch (_) {
-      s.err = tr("app.bk.err.net");
+    /* ⚠️ 구글(Apps Script)이 가끔 JSON 대신 HTML 오류 페이지를 돌려준다.
+       한 번 실패했다고 그냥 넘기면 그날 기록이 백업 안 된 채로 남는다.
+       기록을 잃은 적이 있는 기능이라(2026-07-27) **세 번까지 다시 시도한다.** */
+    let lastErr = null;
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      try {
+        // Apps Script 는 preflight 를 못 받으므로 text/plain 단순 요청으로
+        const r = await fetchT(window.RIW_BACKEND, { method: "POST", headers: { "Content-Type": "text/plain" }, body }, 15000);
+        const txt = await r.text();
+        const j = txt.trim().startsWith("{") ? JSON.parse(txt) : null;
+        if (j && j.ok) { s.hash = h; s.last = Date.now(); s.err = null; put(s); refreshUI(); return true; }
+        // 서버가 응답은 했는데 저장은 안 된 경우 — 백엔드가 옛 버전이면 여기로 온다
+        lastErr = (j && j.err) ? String(j.err) : tr("app.bk.err.server");
+      } catch (_) {
+        lastErr = tr("app.bk.err.net");
+      }
+      if (attempt < 3) await new Promise((res) => setTimeout(res, attempt * 900));
     }
+    s.err = lastErr;
     put(s); refreshUI();
     return false;
   }
@@ -5478,10 +5502,16 @@ const BACKUP = (() => {
     if (code.length < 10) { msg.textContent = tr("app.bk.code.short"); return; }
     msg.textContent = tr("app.bk.searching");
     let j = null;
-    try {
-      const r = await fetchT(window.RIW_BACKEND + "?fn=restore&code=" + code, null, 15000);
-      j = await r.json();
-    } catch (_) {}
+    // 저장과 같은 이유로 여기도 다시 시도한다 — 한 번 실패했다고 "기록 없음" 이라
+    // 말하면, 있는 기록을 없다고 하는 셈이라 제일 나쁘다.
+    for (let attempt = 1; attempt <= 3 && !j; attempt++) {
+      try {
+        const r = await fetchT(window.RIW_BACKEND + "?fn=restore&code=" + code, null, 15000);
+        const txt = await r.text();
+        j = txt.trim().startsWith("{") ? JSON.parse(txt) : null;
+      } catch (_) { j = null; }
+      if (!j && attempt < 3) await new Promise((res) => setTimeout(res, attempt * 900));
+    }
     if (!j) {
       msg.textContent = tr("app.bk.restore.net");
       return;
