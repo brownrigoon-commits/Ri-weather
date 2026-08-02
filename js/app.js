@@ -4,8 +4,8 @@
  * ========================================================= */
 "use strict";
 
-const APP_VER = "v207"; // 배포 버전 (홈 화면 배지에 표시)
-const APP_NOTE = "관리자 새로고침이 화면 파일까지 받게"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
+const APP_VER = "v208"; // 배포 버전 (홈 화면 배지에 표시)
+const APP_NOTE = "캐디 AI를 lite 우선으로"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
 const STORAGE_KEY = "riweather.courses.v1";
 
 /* 나중에 필요할 때 불러오는 파일 목록 (2026-07-31 신설).
@@ -4245,7 +4245,10 @@ async function geminiGenerate(parts, temperature = 0.3, opts = {}) {
   if (!key) throw new Error("no key");
   const cfg = { temperature };
   if (opts.maxTokens) cfg.maxOutputTokens = opts.maxTokens;
-  const models = ["gemini-flash-latest", "gemini-flash-lite-latest"];
+  // lite 를 앞에 둔다(2026-08-02) — 번역 배치가 flash 하루 한도를 먹어 캐디가 같이
+  // 막힌 사고가 있었다. lite 는 한도가 따로고, 캐디 멘트 품질은 lite 로 충분한 것을
+  // 일본어 번역 268문장으로 확인했다(투어리스트_3 창 실측). flash 는 예비로 남긴다.
+  const models = ["gemini-flash-lite-latest", "gemini-flash-latest"];
   let lastErr = null;
   for (const model of models) {
     // 1차: 생각 줄이기 포함 / 2차: 거부당하면 그 항목만 빼고 재시도
