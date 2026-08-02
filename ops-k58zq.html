@@ -248,11 +248,7 @@
       <p class="hint">우리 자국이 <b>분명한 기기는 서버가 알아서 뺍니다.</b> 왜 뺐는지 아래에 한 줄로 적혀 있고,
         틀렸으면 [이건 진짜 사용자]로 되돌릴 수 있습니다.<br>
         기록을 지우는 게 아니라 <b>세지 않는 것</b>이라 언제든 되돌아옵니다.</p>
-      <div style="margin:0 0 14px">
-        <button class="btn sub" id="mark-me">이 기기는 우리 것 — 계속 빼기</button>
-        <p class="hint" style="margin:6px 0 0">지금 보고 계신 폰·PC를 통계에서 뺍니다.
-          앞으로 이 기기에서 앱을 열어도 계속 빠집니다. <b>브라우저마다 한 번씩</b> 눌러 주세요.</p>
-      </div>
+      <div style="margin:0 0 14px" id="mark-me-box"></div>
       <div id="cids"><p class="empty">불러오는 중…</p></div>
     </section>
 
@@ -652,35 +648,85 @@ $("cids").addEventListener("click", function (e) {
   });
 });
 
-/* [이 기기는 우리 것] — 주소창에 ?dev=1 을 칠 필요가 없게.
+/* ── [이 기기는 우리 것] — 주소창에 ?dev=1 을 칠 필요가 없게 ─────────────
    관리자 화면은 앱과 같은 주소라서 앱이 만든 기기ID를 그대로 읽고 쓸 수 있다.
-   지금까지 쌓인 것은 서버 목록으로 빼고, 앞으로 쌓일 것은 앱 표시로 막는다 — 둘 다 해야 한다. */
-$("mark-me").addEventListener("click", function () {
-  var b = this, old = "";
-  try { old = localStorage.getItem("riweather.cid") || ""; } catch (e) {}
-  if (!old) {
-    alert("이 기기는 아직 앱을 연 적이 없습니다.\n앱을 한 번 열어 본 뒤에 다시 눌러 주세요.");
+   지금까지 쌓인 것은 서버 목록으로 빼고, 앞으로 쌓일 것은 앱 표시로 막는다 — 둘 다 해야 한다.
+
+   한 번 누른 기기에서는 버튼을 다시 보여주지 않는다(사장님 지시 8/2).
+   기기 스스로가 표시(riweather.dev)를 갖고 있으니 열 때마다 그걸 보고 그린다.
+   실수로 눌렀을 때를 위해 작은 [되돌리기]만 남긴다. */
+function mineMarked() {
+  try {
+    return localStorage.getItem("riweather.dev") === "1" ||
+           /^dev-/.test(localStorage.getItem("riweather.cid") || "");
+  } catch (e) { return false; }
+}
+
+function paintMarkMe() {
+  var box = $("mark-me-box");
+  if (mineMarked()) {
+    box.innerHTML =
+      '<p class="hint" style="margin:0">✅ <b>이 기기는 우리 것으로 표시되어 있습니다</b> — 통계에서 빠집니다.' +
+      ' <button class="fold" id="unmark-me" style="padding:0 0 0 6px">되돌리기</button></p>';
     return;
   }
-  b.disabled = true; b.textContent = "등록하는 중…";
-  /* ⚠️ 서버에 보낼 기기ID는 **표시를 새기기 전에** 정해 둔다.
-     지금까지 쌓인 기록은 옛 이름(dev- 없는 것)으로 들어 있기 때문이다.
-     서버 호출이 실패해 다시 누르면 이미 이름이 바뀐 뒤라, 그대로 보내면
-     기록이 하나도 없는 새 이름을 빼게 된다 — 그래서 둘 다 보낸다. */
-  var bare = old.replace(/^dev-(wd-)?/, "");
-  var both = bare === old ? [old, "dev-" + old] : [bare, old];
-  try {
-    localStorage.setItem("riweather.dev", "1");     // 앞으로는 아예 보내지 않는다
-    localStorage.removeItem("riweather.statq");     // 보내려고 모아 둔 것도 버린다
-    if (!/^dev-/.test(old)) localStorage.setItem("riweather.cid", "dev-" + old);
-  } catch (e) {}
-  markCids("dev", both).then(function () {          // 지금까지 쌓인 것은 서버에서 뺀다
-    b.textContent = "이 기기는 이제 빠집니다";
-    myCid = "dev-" + bare;
-  }).catch(function (err) {
-    b.disabled = false; b.textContent = "이 기기는 우리 것 — 계속 빼기";
-    alert("등록하지 못했습니다 — " + err.message + "\n(앞으로 쌓이는 것은 이미 막혔습니다)");
-  });
+  box.innerHTML =
+    '<button class="btn sub" id="mark-me">이 기기는 우리 것 — 계속 빼기</button>' +
+    '<p class="hint" style="margin:6px 0 0">지금 보고 계신 폰·PC를 통계에서 뺍니다.' +
+    ' 앞으로 이 기기에서 앱을 열어도 계속 빠집니다. <b>브라우저마다 한 번씩</b> 눌러 주세요.</p>';
+}
+
+$("mark-me-box").addEventListener("click", function (e) {
+  if (e.target.closest("#mark-me")) {
+    var b = e.target.closest("#mark-me"), old = "";
+    try { old = localStorage.getItem("riweather.cid") || ""; } catch (err) {}
+    if (!old) {
+      alert("이 기기는 아직 앱을 연 적이 없습니다.\n앱을 한 번 열어 본 뒤에 다시 눌러 주세요.");
+      return;
+    }
+    b.disabled = true; b.textContent = "등록하는 중…";
+    /* ⚠️ 서버에 보낼 기기ID는 **표시를 새기기 전에** 정해 둔다.
+       지금까지 쌓인 기록은 옛 이름(dev- 없는 것)으로 들어 있기 때문이다.
+       서버 호출이 실패해 다시 누르면 이미 이름이 바뀐 뒤라, 그대로 보내면
+       기록이 하나도 없는 새 이름을 빼게 된다 — 그래서 둘 다 보낸다. */
+    var bare = old.replace(/^dev-(wd-)?/, "");
+    var both = bare === old ? [old, "dev-" + old] : [bare, old];
+    try {
+      localStorage.setItem("riweather.dev", "1");     // 앞으로는 아예 보내지 않는다
+      localStorage.removeItem("riweather.statq");     // 보내려고 모아 둔 것도 버린다
+      if (!/^dev-/.test(old)) localStorage.setItem("riweather.cid", "dev-" + old);
+    } catch (err) {}
+    markCids("dev", both).then(function () {          // 지금까지 쌓인 것은 서버에서 뺀다
+      myCid = "dev-" + bare;
+      paintMarkMe();                                  // 버튼 대신 '표시됨' 안내로 바뀐다
+    }).catch(function (err) {
+      /* 서버 등록은 실패했지만 이 기기의 표시는 이미 붙었다 — 앞으로 쌓일 것은 막혔고,
+         과거 기록만 아직 목록에 안 들어간 상태다. 버튼을 되살려 다시 시도할 수 있게 한다. */
+      try { localStorage.removeItem("riweather.dev"); } catch (_) {}
+      try { if (!/^dev-/.test(old)) localStorage.setItem("riweather.cid", old); } catch (_) {}
+      paintMarkMe();
+      alert("등록하지 못했습니다 — " + err.message + "\n잠시 뒤 다시 눌러 주세요.");
+    });
+    return;
+  }
+
+  if (e.target.closest("#unmark-me")) {
+    if (!confirm("이 기기를 다시 통계에 넣습니다.")) return;
+    var cur = "";
+    try { cur = localStorage.getItem("riweather.cid") || ""; } catch (err) {}
+    var bare2 = cur.replace(/^dev-(wd-)?/, "");
+    try {
+      localStorage.removeItem("riweather.dev");
+      if (bare2 && bare2 !== cur) localStorage.setItem("riweather.cid", bare2);
+    } catch (err) {}
+    paintMarkMe();
+    // 지금까지 것도 다시 세도록 서버에서도 되돌린다 (실패해도 이 기기 표시는 이미 풀렸다)
+    markCids("keep", bare2 ? [bare2, "dev-" + bare2] : [cur]).then(function () {
+      myCid = bare2 || cur;
+    }).catch(function (err) {
+      alert("서버 되돌리기는 실패했습니다 — " + err.message + "\n기기 목록에서 [이건 진짜 사용자]를 눌러 주세요.");
+    });
+  }
 });
 
 /* ── 오늘 / 전체 누적 ───────────────────────────────────────────────
@@ -899,6 +945,7 @@ function loadFb() {
 function afterLogin() {
   $("gate").hidden = true;
   $("main").hidden = false;
+  paintMarkMe();                      // 이미 표시된 기기면 버튼 대신 '표시됨' 안내가 뜬다
   loadFb();                           // 무거운 조회들은 들어온 뒤에 — 로그인을 막지 않는다
   loadCids();
 }

@@ -255,23 +255,50 @@ async function openOps(browser, summary, cids) {
     await ctx.close();
   }
 
-  // ── 5. [이 기기는 우리 것] — 앞으로도 계속 빠지는가 ──────────────
+  // ── 5. [이 기기는 우리 것] — 앞으로도 계속 빠지고, 버튼은 다시 안 나온다 ──
   {
     console.log("\n■ 5. 이 기기 영구 제외");
     const { ctx, page } = await openOps(browser, newSummary(false));
     await page.evaluate(() => localStorage.setItem("riweather.cid", "myphone123"));
     await page.waitForFunction(() => document.querySelectorAll("#cids .grp").length > 0);
     await page.click("#mark-me");
-    await page.waitForFunction(() => /이제 빠집니다/.test(document.querySelector("#mark-me").textContent),
+    await page.waitForFunction(() => /표시되어 있습니다/.test(document.querySelector("#mark-me-box").textContent),
                                { timeout: 8000 });
     const after = await page.evaluate(() => ({
       dev: localStorage.getItem("riweather.dev"),
       cid: localStorage.getItem("riweather.cid"),
       q: localStorage.getItem("riweather.statq"),
+      btn: !!document.querySelector("#mark-me"),
     }));
     ok(after.dev === "1", "앱이 앞으로 이 기기 기록을 보내지 않도록 표시한다", JSON.stringify(after));
     ok(after.cid === "dev-myphone123", "기기ID에도 표시를 새긴다(저장소가 지워져도 서버가 알아본다)", after.cid);
     ok(!after.q, "보내려고 모아 둔 것도 버린다", String(after.q));
+    ok(!after.btn, "누른 즉시 버튼이 '표시됨' 안내로 바뀐다");
+
+    /* 사장님 지시(8/2): 한 번 누른 기기에서는 다음부터 버튼이 나오지 않아야 한다 */
+    await page.reload({ waitUntil: "domcontentloaded" });
+    await page.fill("#pw", "아무거나12345678");
+    await page.click("#go");
+    await page.waitForSelector("#main:not([hidden])", { timeout: 15000 });
+    const again = await page.evaluate(() => ({
+      btn: !!document.querySelector("#mark-me"),
+      note: /표시되어 있습니다/.test(document.querySelector("#mark-me-box").textContent),
+      undo: !!document.querySelector("#unmark-me"),
+    }));
+    ok(!again.btn, "다시 열어도 버튼이 나오지 않는다", JSON.stringify(again));
+    ok(again.note, "대신 '표시되어 있습니다' 안내가 떠 있다");
+    ok(again.undo, "실수했을 때를 위한 [되돌리기]가 있다");
+
+    // [되돌리기] — 표시가 풀리고 버튼이 돌아온다
+    page.on("dialog", (d) => d.accept());
+    await page.click("#unmark-me");
+    await page.waitForFunction(() => !!document.querySelector("#mark-me"), { timeout: 8000 });
+    const undone = await page.evaluate(() => ({
+      dev: localStorage.getItem("riweather.dev"),
+      cid: localStorage.getItem("riweather.cid"),
+    }));
+    ok(undone.dev === null && undone.cid === "myphone123",
+       "[되돌리기]가 표시를 풀고 기기ID를 원래대로 되돌린다", JSON.stringify(undone));
     await ctx.close();
   }
 
