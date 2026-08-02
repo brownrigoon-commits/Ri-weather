@@ -251,6 +251,18 @@ async function openOps(browser, summary, cids) {
     const foldBtn = await page.$('#cids button[data-fold="on"]');
     ok(!!foldBtn, "세고 있는 기기는 접어 둔다(목록이 길어지지 않게)");
 
+    /* '오늘 온 기기만 보기' — "오늘 이 숫자를 누가 만들었나" 를 바로 본다 */
+    await page.click('#cids button[data-listopen="0"]');
+    await page.waitForFunction(() => !!document.querySelector('#cids button[data-listopen="today"]'));
+    await page.click('#cids button[data-listopen="today"]');
+    await page.waitForFunction(() => /오늘.*기록이 있는 기기/.test(document.querySelector("#cids").textContent));
+    const tRows = await page.$$eval("#cids .cid .id", (es) => es.map((e) => e.textContent));
+    ok(tRows.length === 1 && /realuser01/.test(tRows[0]),
+       "오늘 기록이 있는 기기만 추려서 보여준다", JSON.stringify(tRows));
+    ok(/오늘 옴/.test(await page.$eval("#cids", (e) => e.textContent)), "그 줄에 '오늘 옴' 표가 붙는다");
+    await page.click('#cids button[data-listopen="1"]');
+    await page.waitForFunction(() => document.querySelectorAll("#cids .cid").length > 1);
+
     const bulkHit = await reallyClickable(page, '#cids button[data-bulk="dev"]');
     ok(bulkHit.ok, "'전부 안 셈' 버튼이 실제 좌표에서 눌린다", bulkHit.why);
 
