@@ -111,7 +111,7 @@ def main():
         shutil.copyfile(pack, pb)
         try:
             s = open(pack, encoding="utf-8").read()
-            broken = s.replace("return [name].concat(this._alias[name] || []);", "return [name];")
+            broken = s.replace("return [name].concat(cands);", "return [name];")
             open(pack, "w", encoding="utf-8", newline="\n").write(broken)
             code, out = run(["node", GATE])
             caught = code != 0 and "닿지 않" in out

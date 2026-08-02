@@ -4,7 +4,7 @@
  * ========================================================= */
 "use strict";
 
-const APP_VER = "v214"; // 배포 버전 (홈 화면 배지에 표시)
+const APP_VER = "v215"; // 배포 버전 (홈 화면 배지에 표시)
 const APP_NOTE = "관리자"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
 const STORAGE_KEY = "riweather.courses.v1";
 
@@ -1990,7 +1990,7 @@ async function openCourseView() {
   if (typeof JPPACK !== "undefined") await JPPACK.need(course);
   if (currentCourse !== course || viewStack[viewStack.length - 1] !== "course") return;
   const imgdb = (typeof HOLEIMG_DB !== "undefined" && HOLEIMG_DB[course.name])
-    || (typeof JPPACK !== "undefined" && JPPACK.imgdb(course.name)) || null;
+    || (typeof JPPACK !== "undefined" && JPPACK.imgdb(course)) || null;
   const prepNote = $("#course-prep-note");
   if (prepNote) prepNote.hidden = !!imgdb;
   if (imgdb) { renderImgCourse(course, imgdb); return; }
@@ -2419,7 +2419,7 @@ function renderImgCourse(course, db) {
       // 지어낸 문장이 아니라 통계·사실 토큰에서 끌어낸 말이다(tools/jp/gen_hole_text.py).
       // 공식 TIP 이 있으면 그쪽이 이긴다 — 구장이 직접 쓴 글이 우리 요약보다 낫다.
       // 🔴 딱지는 '공식 TIP' 이 아니라 JPPACK.textLabel() 이다 — 구장이 한 말이 아니다.
-      const line = JPPACK.text(course.name, i);
+      const line = JPPACK.text(course, i);
       if (line && !tipText) {
         infoHtml += JPPACK.textLabel() +
           line.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");

@@ -25,7 +25,7 @@
 import json, os, sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from jp_common import HP_JP, ROOT
+from jp_common import HP_JP, ROOT, load_golfdb_jp
 
 SRC = os.path.join(HP_JP, "_scan", "stay_batch.json")
 OUT = os.path.join(ROOT, "js", "staydb_jp.js")
@@ -34,18 +34,15 @@ KM_MAX = 12.0                 # 9km 링 + 3km 반경 = 이론 최대 12km
 
 
 def registered():
-    """홀맵이 있는 구장 이름 — 여기 없으면 화면에 붙을 자리가 없다."""
-    out = set()
-    if not os.path.isdir(HP_JP):
-        return out
-    for d in os.listdir(HP_JP):
-        f = os.path.join(HP_JP, d, "parsed.json")
-        if os.path.exists(f):
-            try:
-                out.add(json.load(open(f, encoding="utf-8"))["course"])
-            except Exception:
-                pass
-    return out
+    """golfdb 의 일본 구장 이름 전체 — 숙박이 붙을 수 있는 자리.
+
+    🔴 예전엔 '홀맵이 있는 구장' 을 기준으로 삼았다. 그건 설계 §0-1 위반이다.
+       홀맵은 **코스공략만의 사정**이고, 숙박·맛집·부킹·날씨는 이용자가 검색으로
+       여는 **모든 구장**에서 나와야 한다. 그 잘못으로 2,014곳 중 1,370곳(68%)이
+       숙박 '못 찾음' 으로 떴다. 2차 배치로 채운 뒤에도 이 함수가 그대로여서
+       조립 단계에서 1,366곳을 다시 버렸다 — 같은 실수를 두 번 한 셈이다.
+    """
+    return {g["n"] for g in load_golfdb_jp()}
 
 
 def js_str(s):
@@ -114,9 +111,13 @@ def main():
     tot = sum(len(v) for v in db.values())
     near = sum(1 for v in db.values() for _, km in v if km <= 3)
     print(f"staydb_jp.js 조립 완료: {len(db)}구장 · 숙소 {tot:,}곳 · {kb}KB")
+    # 🔴 커버리지 보고 — 설계 §0-1 의 기준은 golfdb 전 구장이다.
+    #    '몇 곳 담았나' 만 찍으면 얼마나 빠졌는지 안 보인다.
+    print(f"   · **커버리지: golfdb 일본 {len(reg):,}곳 중 {len(db):,}곳"
+          f" ({len(db)/max(len(reg),1)*100:.1f}%)**")
     print(f"   · 3km 안 숙소 {near:,}곳 / 전체 {tot:,}곳")
     if drop_course:
-        print(f"   · 홀맵이 없어 제외한 구장 {drop_course}곳")
+        print(f"   · golfdb 에 없는 이름이라 제외 {drop_course}곳")
     if drop_hotel:
         print(f"   · 값이 이상해 뺀 숙소 {drop_hotel}곳 (번호가 정수가 아니거나 거리가 0~{KM_MAX:g}km 밖)")
     if empty:

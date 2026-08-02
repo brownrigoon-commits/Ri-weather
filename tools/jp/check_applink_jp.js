@@ -54,7 +54,10 @@ const { GOLF_DB, JPPACK, HOLEIMG_DB_JP, HOLESTATS_JP, HOLETEXT_JP, STAYDB_JP } =
 
 // 화면이 쓰는 이름 = 검색 결과가 만드는 이름 (k 가 있으면 k, 없으면 n)
 const jp = GOLF_DB.filter((g) => g.c === "JP");
-const shown = jp.map((g) => g.k || g.n);
+// 앱은 검색 결과에서 이름과 **좌표를 함께** 들고 화면을 연다.
+// 별칭이 겹치는 구장(조요 CC = 城陽/常陽, 400km 거리)은 좌표가 있어야 갈린다 —
+// 관문도 같은 것을 넘겨야 앱과 같은 판정을 한다.
+const shown = jp.map((g) => ({ name: g.k || g.n, lat: g.lat, lon: g.lon }));
 const aliasDiff = jp.filter((g) => g.k && g.k !== g.n).length;
 console.log(`■ golfdb 일본 구장 ${jp.length}곳 · 화면이름이 원문과 다른 곳 ${aliasDiff}곳`);
 
@@ -77,7 +80,8 @@ for (const [label, db, get] of PACKS) {
     if (!get(name)) continue;
     hit++;
     // 어떤 키에 닿았는지 — 고아 자료를 세려면 필요하다
-    for (const c of JPPACK.origNames(name)) if (db[c]) { reached.add(c); break; }
+    for (const c of JPPACK.origNames(name.name, name.lat, name.lon))
+      if (db[c]) { reached.add(c); break; }
   }
   console.log(`   ${label.padEnd(8)} 자료 ${String(total).padStart(4)}곳 · ` +
               `화면에서 닿음 ${String(hit).padStart(4)}곳`);

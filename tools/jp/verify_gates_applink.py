@@ -42,7 +42,7 @@ def hint(out, *words):
 
 def no_alias(src):
     """origNames 가 별칭을 안 푼다 = 배포 직후 그 상태"""
-    return src.replace("return [name].concat(this._alias[name] || []);",
+    return src.replace("return [name].concat(cands);",
                        "return [name];")
 
 

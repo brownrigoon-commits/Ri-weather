@@ -65,40 +65,66 @@ const JPPACK = {
      ⚠️ 별칭 하나에 원문이 **여럿일 수 있다.** golfdb 에 '스소노 CC' 가 두 곳이다
         (裾野カンツリー倶楽部 / 裾野カントリークラブ). 하나로 덮으면 나머지는 영영 안 보인다 —
         실제로 그렇게 한 곳이 사라졌고 관문(check_applink_jp)이 찾아냈다.
-        그래서 후보를 모두 들고 있다가 자료가 있는 쪽을 쓴다. */
+        그래서 후보를 모두 들고 있다가 자료가 있는 쪽을 쓴다.
+
+     🔴 별칭이 겹치면 **좌표로 가른다.** 이름만으로는 못 가르는 짝이 실제로 있다:
+        '조요 CC' = 城陽カントリー倶楽部(교토) + 常陽カントリー倶楽部(이바라키) — **400km 거리**
+        '베니 CC' = ベニーカントリークラブ + ベニーカントリー倶楽部
+        '카모 GC' = 加茂ゴルフクラブ + 加茂ゴルフ倶楽部
+        먼저 나온 쪽을 그냥 쓰면 교토 구장에 이바라키 숙소가 뜬다. 그건 틀린 정보다.
+        그래서 화면이 들고 있는 좌표로 **가장 가까운 golfdb 레코드**를 고른다.
+        (관문 check_applink 이 '닿지 않는 자료 8곳' 으로 이 문제를 잡아 줬다) */
   _alias: null,
-  origNames: function (name) {
+  _coord: null,
+  origNames: function (name, lat, lon) {
     if (typeof GOLF_DB === "undefined") return [name];
     if (!this._alias) {
       this._alias = {};
+      this._coord = {};
       for (const g of GOLF_DB) {
-        if (g.c !== "JP" || !g.k || g.k === g.n) continue;
+        if (g.c !== "JP") continue;
+        this._coord[g.n] = [g.lat, g.lon];
+        if (!g.k || g.k === g.n) continue;
         (this._alias[g.k] = this._alias[g.k] || []).push(g.n);
       }
     }
-    return [name].concat(this._alias[name] || []);
+    const cands = (this._alias[name] || []).slice();
+    if (cands.length > 1 && lat != null && lon != null) {
+      const self = this;
+      cands.sort(function (a, b) {
+        const p = self._coord[a], q = self._coord[b];
+        if (!p || !q) return 0;
+        const d = (c) => (c[0] - lat) * (c[0] - lat) + (c[1] - lon) * (c[1] - lon);
+        return d(p) - d(q);
+      });
+    }
+    return [name].concat(cands);
   },
 
-  _pick: function (db, name) {
+  /* course 객체(좌표 포함) 또는 이름 문자열 둘 다 받는다 */
+  _pick: function (db, c) {
     if (!db) return null;
-    for (const n of this.origNames(name)) {
+    const name = typeof c === "string" ? c : (c && c.name);
+    const lat = typeof c === "object" && c ? c.lat : null;
+    const lon = typeof c === "object" && c ? c.lon : null;
+    for (const n of this.origNames(name, lat, lon)) {
       if (db[n]) return db[n];
     }
     return null;
   },
 
-  imgdb: function (name) {
-    return typeof HOLEIMG_DB_JP === "undefined" ? null : this._pick(HOLEIMG_DB_JP, name);
+  imgdb: function (c) {
+    return typeof HOLEIMG_DB_JP === "undefined" ? null : this._pick(HOLEIMG_DB_JP, c);
   },
 
-  stats: function (name) {
-    return typeof HOLESTATS_JP === "undefined" ? null : this._pick(HOLESTATS_JP, name);
+  stats: function (c) {
+    return typeof HOLESTATS_JP === "undefined" ? null : this._pick(HOLESTATS_JP, c);
   },
 
   /* 구장 주변 숙소 번호·거리 — [[hotelNo, km], …] 또는 null.
      여기 담긴 것은 **변하지 않는 사실**뿐이다. 가격·평점·빈방은 stay.js 가 그때그때 받는다. */
-  stay: function (name) {
-    return typeof STAYDB_JP === "undefined" ? null : this._pick(STAYDB_JP, name);
+  stay: function (c) {
+    return typeof STAYDB_JP === "undefined" ? null : this._pick(STAYDB_JP, c);
   },
 
   /* 🔴 우리 문장에는 '공식' 딱지를 붙이지 않는다.
@@ -112,9 +138,9 @@ const JPPACK = {
   /* 홀별 한 줄 공략 — 지어낸 문장이 아니라 통계·사실 토큰에서 끌어낸 말이다
      (tools/jp/gen_hole_text.py, 관문 check_holetext_jp.py 가 자료로 되짚는다).
      할 말이 없는 홀은 빈 문자열이고, 그러면 이 줄을 아예 그리지 않는다. */
-  text: function (name, holeIdx) {
+  text: function (c, holeIdx) {
     if (typeof HOLETEXT_JP === "undefined") return "";
-    const list = this._pick(HOLETEXT_JP, name);
+    const list = this._pick(HOLETEXT_JP, c);
     const it = list && list[holeIdx];
     if (!it) return "";
     return (this._ja() ? it.j : it.k) || "";
@@ -316,7 +342,7 @@ const JPPACK = {
   RK_AFF: "5641d0a5.c0069b50.5641d0a6.4fd95789",
 
   stayList: async function (course) {
-    const rows = this.stay(course.name);
+    const rows = this.stay(course);
     if (!rows || !rows.length) return [];
     const km = {};                              // 숙소번호 → 구장에서의 거리
     rows.forEach(function (r) { km[r[0]] = r[1]; });
