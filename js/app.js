@@ -3480,6 +3480,34 @@ async function openFoodView() {
   const region = (course.addr || "").split(" ").slice(0, 2).join(" ");
   const alive = () => currentCourse === course && viewStack[viewStack.length - 1] === "food";
 
+  // 🔴 일본 구장은 Google Places 로 간다 (설계 §3).
+  //    카카오는 한국 POI 라 일본에서 사실상 빈 목록이고, OSM 은 사진·평점이 없다.
+  //    아래 한국 경로(카카오→OSM)는 **한 줄도 건드리지 않는다** — KR 무변경 원칙.
+  if (course.c === "JP" && typeof JPPACK !== "undefined") {
+    const w = WAIT.open("food", { msgs: [tr("app.food.wait.find", { course: course.name })] });
+    try {
+      const list = await JPPACK.food(course);
+      if (!alive()) { w.close(); return; }
+      FOOD_VIEW.sort = "reco";
+      FOOD_VIEW.cat = "전체";
+      renderFoodList(list, region, true);
+      staggerIn(listEl);
+    } catch (e) {
+      // 있는 척하지 않는다 — 왜 못 보여주는지 밝히고 다시 시도할 길을 준다
+      listEl.innerHTML = "";
+      const note = $("#food-note");
+      note.innerHTML = tr("app.food.busy");
+      const b = document.createElement("button");
+      b.className = "retry-btn";
+      b.textContent = tr("app.retry");
+      b.addEventListener("click", () => openFoodView());
+      note.appendChild(b);
+      note.hidden = false;
+    }
+    w.close();
+    return;
+  }
+
   // 1순위: 카카오맵 등록 맛집 (평점·사진 제공)
   //
   // 예전에는 거리순으로 먼저 보여준 뒤 평점이 도착하면 추천순으로 다시 정렬했는데,
@@ -3710,6 +3738,49 @@ async function attachPhotos(list, kind, onProgress) {
   return withPhoto;
 }
 
+/* 일본 맛집 카드의 단추 — 카카오내비·티맵·네이버는 일본에서 무의미하다(D4).
+   구글맵 길찾기와 가게 페이지로 바꾼다. 전화번호는 Places 기본 응답에 없어서 빼둔다
+   (전화까지 받으려면 필드마스크를 늘려야 하고 그만큼 과금 등급이 올라간다 — 설계 §3-2). */
+function jpFoodActions(it) {
+  const nav = `https://www.google.com/maps/dir/?api=1&destination=${it.lat},${it.lon}`;
+  const ja = typeof I18N !== "undefined" && I18N.lang === "ja";
+  let h = `<a class="fa-btn fa-kakao" href="${nav}" target="_blank" rel="noopener">${
+    ja ? "🧭 経路案内" : "🧭 길찾기"}</a>`;
+  if (it.mapUri)
+    h += `<a class="fa-btn fa-naver" href="${it.mapUri}" target="_blank" rel="noopener">${
+      ja ? "店舗ページ" : "가게 정보"}</a>`;
+  if (it.photoName)
+    h += `<button type="button" class="fa-btn fa-tmap jp-photo">${
+      ja ? `📷 写真 (${it.photoCount})` : `📷 사진 (${it.photoCount})`}</button>`;
+  return h;
+}
+
+/* 사진은 **누를 때** 받는다 — Places 사진은 호출 건당 과금이라, 목록을 열기만 해도
+   10곳치가 나가면 낭비다(설계 §3-1 비용 통제 ②). 한 번 받으면 그 카드에서는 다시 안 받는다. */
+function bindJpFoodPhoto(it, div) {
+  const btn = div.querySelector(".jp-photo");
+  const box = div.querySelector(".fi-photos");
+  if (!btn || !box) return;
+  btn.addEventListener("click", () => {
+    if (btn.dataset.done) { box.hidden = !box.hidden; return; }
+    btn.dataset.done = "1";
+    const img = document.createElement("img");
+    img.src = JPPACK.photoUrl(it.photoName, 400);
+    img.alt = it.name;
+    img.addEventListener("click", () =>
+      openLightbox([{ t: img.src, u: JPPACK.photoUrl(it.photoName, 1200) }], 0));
+    img.addEventListener("error", () => { box.hidden = true; btn.remove(); });
+    box.appendChild(img);
+    if (it.attrib) {
+      const a = document.createElement("div");
+      a.className = "fi-meta";
+      a.textContent = "📷 " + it.attrib;      // 사진 제공자 표기 (Places 요구사항)
+      box.appendChild(a);
+    }
+    box.hidden = false;
+  });
+}
+
 function renderFoodList(list, region, fromKakao) {
   const listEl = $("#food-list");
   listEl.innerHTML = "";
@@ -3724,6 +3795,13 @@ function renderFoodList(list, region, fromKakao) {
   const hasRatings = list.some((it) => (it.rating || 0) > 0);
   if (FOOD_VIEW.sort === "reco" && !hasRatings) FOOD_VIEW.sort = "dist";
 
+  // 🔴 일본 목록은 분류 칩을 달지 않는다.
+  //    FOOD_CATS 는 한식·고기·회해물 같은 **한국 음식 분류**라 '스시/초밥집'·'이탈리아 음식점'
+  //    같은 구글 분류에는 하나도 안 걸린다. 그대로 두면 칩을 누르는 순간 목록이 텅 빈다
+  //    (조립 검증에서 잡았다). 없는 기능을 있는 척하느니 안 보여주는 편이 낫다.
+  const isJP = list.some((it) => it.jp);
+  if (isJP) FOOD_VIEW.cat = "전체";
+
   // 정렬·종류 선택 칩
   if (fromKakao) {
     const bar = document.createElement("div");
@@ -3735,10 +3813,11 @@ function renderFoodList(list, region, fromKakao) {
       `<div class="ff-row">` +
       sorts.map(([k, t]) =>
         `<button class="ff-chip${FOOD_VIEW.sort === k ? " on" : ""}" data-sort="${k}">${t}</button>`).join("") +
-      `</div><div class="ff-row">` +
+      `</div>` +
+      (isJP ? "" : `<div class="ff-row">` +
       FOOD_CATS.map(([name]) =>
         `<button class="ff-chip sm${FOOD_VIEW.cat === name ? " on" : ""}" data-cat="${name}">${name}</button>`).join("") +
-      `</div>`;
+      `</div>`);
     bar.addEventListener("click", (e) => {
       const b = e.target.closest(".ff-chip");
       if (!b) return;
@@ -3760,11 +3839,14 @@ function renderFoodList(list, region, fromKakao) {
 
   const sub = document.createElement("p");
   sub.className = "food-osm-sub";
-  sub.textContent = !fromKakao
-    ? tr("app.food.sub.osm")
-    : (FOOD_VIEW.sort === "reco"
-        ? tr("app.food.sub.reco")
-        : tr("app.food.sub.dist"));
+  // 🔴 일본 목록에 "카카오맵 평점 기준" 이라고 적으면 거짓말이다 — 구글 자료다.
+  sub.textContent = isJP
+    ? (typeof JPPACK !== "undefined" ? JPPACK.foodSub(FOOD_VIEW.sort) : "")
+    : !fromKakao
+      ? tr("app.food.sub.osm")
+      : (FOOD_VIEW.sort === "reco"
+          ? tr("app.food.sub.reco")
+          : tr("app.food.sub.dist"));
   listEl.appendChild(sub);
 
   if (!shown.length) {
@@ -3817,15 +3899,25 @@ function renderFoodList(list, region, fromKakao) {
         <div class="fi-photos" hidden></div>
         <div class="fi-meta">📍 ${it.addr || ""}</div>
         <div class="fi-actions">
+          ${it.jp ? jpFoodActions(it) : `
           ${tel ? `<a class="fa-btn fa-tel" href="tel:${tel}">${tr("app.food.tel")}</a>` : ""}
           <a class="fa-btn fa-kakao" href="kakaomap://route?ep=${it.lat},${it.lon}&by=CAR">${tr("app.dist.nav.kakao")}</a>
           <a class="fa-btn fa-tmap" href="tmap://route?goalname=${encodeURIComponent(it.name)}&goaly=${it.lat}&goalx=${it.lon}">${tr("app.dist.nav.tmap")}</a>
-          <a class="fa-btn fa-naver" href="https://m.search.naver.com/search.naver?query=${encodeURIComponent((region ? region + " " : "") + it.name)}" target="_blank" rel="noopener">${tr("app.food.naver.short")}</a>
+          <a class="fa-btn fa-naver" href="https://m.search.naver.com/search.naver?query=${encodeURIComponent((region ? region + " " : "") + it.name)}" target="_blank" rel="noopener">${tr("app.food.naver.short")}</a>`}
         </div>`;
       div._it = it;
-      loadFoodPhotos(it, div.querySelector(".fi-photos"));
+      if (it.jp) bindJpFoodPhoto(it, div);
+      else loadFoodPhotos(it, div.querySelector(".fi-photos"));
       listEl.appendChild(div);
     });
+    // 출처 표기 — 어디서 온 자료인지 밝힌다
+    if (shown.some((it) => it.jp) && typeof JPPACK !== "undefined") {
+      const c = document.createElement("p");
+      c.className = "food-osm-sub";
+      c.style.marginTop = "10px";
+      c.textContent = JPPACK.foodCredit();
+      listEl.appendChild(c);
+    }
     return;
   }
 

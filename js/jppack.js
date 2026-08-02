@@ -10,6 +10,7 @@
  *   2. 홀별 실전 통계 카드 그리기 (스코어대 5벌 중 하나)
  *   3. 내 평균 타수에 맞는 스코어대 **자동 선택** (설계문서 §2-8-1)
  *   4. 한국 구장 TIP 의 일본어 오버레이 (lang=ja 일 때만)
+ *   5. 일본 구장 주변 맛집 (Google Places New — 설계 §3)
  *
  * ⚠️ 못 받아도 화면이 비지 않게 한다 — 통계는 '있으면 더 좋은 것'이지 성립 조건이 아니다.
  *    받기 실패는 조용히 넘어가고 홀맵만 보여준다.
@@ -199,5 +200,93 @@ const JPPACK = {
            '" data-band="' + i + '">' + name + "</button>";
     });
     return b + "</div>";
+  },
+
+  /* ───────── 일본 구장 주변 맛집 (Google Places New · 설계 §3) ─────────
+     🔴 이 키는 브라우저에 노출되는 것이 전제다. 보호 장치는 비밀이 아니라
+        ① 리퍼러 제한 brownrigoon-commits.github.io/*  ② Places API 전용 제한 이다.
+        그래서 localhost 에서는 동작하지 않는다 — 검증은 반드시 배포본에서 한다.
+     🔴 결과를 저장하지 않는다. Places 약관상 place 정보는 캐시 금지다
+        (placeId 만 예외). 한국 경로의 localStorage 7일 캐시를 여기 끌어오지 말 것. */
+  PLACES_KEY_B64: "QUl6YVN5QW9SczJFRkFQQ3l1RVZPMnhhbWRWcmtkZWZsSVI3T3JR",
+  _pkey: function () {
+    try { return atob(this.PLACES_KEY_B64); } catch (_) { return ""; }
+  },
+
+  /* 필드마스크가 과금 등급을 정한다 — 함부로 늘리지 말 것(설계 §3-2). */
+  FIELDS: ["places.displayName", "places.rating", "places.userRatingCount",
+           "places.formattedAddress", "places.location", "places.photos",
+           "places.googleMapsUri", "places.primaryTypeDisplayName"].join(","),
+
+  _nearby: async function (lat, lon, radius) {
+    const r = await fetch("https://places.googleapis.com/v1/places:searchNearby", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Goog-Api-Key": this._pkey(),
+        "X-Goog-FieldMask": this.FIELDS,
+      },
+      body: JSON.stringify({
+        includedTypes: ["restaurant"],
+        maxResultCount: 10,                       // 비용 통제 — 늘리지 말 것
+        languageCode: typeof I18N !== "undefined" ? I18N.lang : "ko",
+        locationRestriction: { circle: {
+          center: { latitude: lat, longitude: lon }, radius: radius } },
+      }),
+    });
+    if (!r.ok) throw new Error("places HTTP " + r.status);
+    return (await r.json()).places || [];
+  },
+
+  /* → 맛집 화면이 그대로 먹는 정규형 목록. 실패하면 던진다(부르는 쪽이 안내한다). */
+  food: async function (course) {
+    let places = await this._nearby(course.lat, course.lon, 5000);
+    // 산속 구장은 5km 에 없을 수 있다. Places 는 반경 상한이 넉넉해 한 번 더 넓히면 된다
+    // (라쿠텐 숙박의 3km 하드리밋과 다르다 — 그래서 링을 깔 필요가 없다).
+    if (!places.length) places = await this._nearby(course.lat, course.lon, 10000);
+
+    const R = 6371000, rad = (x) => x * Math.PI / 180;
+    return places.map((p) => {
+      const la = p.location && p.location.latitude, lo = p.location && p.location.longitude;
+      const h = Math.sin(rad(la - course.lat) / 2) ** 2 +
+                Math.cos(rad(course.lat)) * Math.cos(rad(la)) *
+                Math.sin(rad(lo - course.lon) / 2) ** 2;
+      return {
+        jp: true,                                  // 카드가 내비 단추를 구글맵으로 바꾸는 표시
+        name: (p.displayName && p.displayName.text) || "",
+        cat: (p.primaryTypeDisplayName && p.primaryTypeDisplayName.text) || "",
+        addr: p.formattedAddress || "",
+        lat: la, lon: lo,
+        dist: Math.round(2 * R * Math.asin(Math.sqrt(h))),
+        rating: p.rating || 0,
+        reviews: p.userRatingCount || 0,
+        mapUri: p.googleMapsUri || "",
+        // 사진은 '주소'만 들고 있다가 **눌렀을 때** 받는다 — 사진 호출은 건당 과금이다.
+        photoName: (p.photos && p.photos[0] && p.photos[0].name) || "",
+        photoCount: (p.photos || []).length,
+        attrib: (p.photos && p.photos[0] && p.photos[0].authorAttributions &&
+                 p.photos[0].authorAttributions[0] &&
+                 p.photos[0].authorAttributions[0].displayName) || "",
+      };
+    }).filter((x) => x.name && x.lat != null);
+  },
+
+  photoUrl: function (name, px) {
+    return "https://places.googleapis.com/v1/" + name +
+           "/media?maxWidthPx=" + (px || 400) + "&key=" + encodeURIComponent(this._pkey());
+  },
+
+  /* 화면 아래에 붙일 출처 문구 — 표기 의무이자, 어디서 온 자료인지 밝히는 우리 원칙 */
+  foodCredit: function () {
+    return this._ja() ? "飲食店情報: Google" : "맛집 정보: Google";
+  },
+
+  /* 목록 위 안내문. 한국판 문구("카카오맵 평점 기준")를 그대로 쓰면 거짓말이 된다. */
+  foodSub: function (sort) {
+    if (this._ja())
+      return sort === "reco" ? "Google の評価・口コミ数による おすすめ順"
+                             : "ゴルフ場からの距離順";
+    return sort === "reco" ? "구글 평점·리뷰 수 기준 추천순 · 사진은 눌렀을 때 받아옵니다"
+                           : "골프장에서 가까운 순";
   },
 };
