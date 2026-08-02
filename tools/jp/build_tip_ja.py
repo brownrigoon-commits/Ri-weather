@@ -99,7 +99,9 @@ PROMPT = """다음은 한국 골프장의 홀별 공략 안내다. 일본인 골
 # 호출 수를 1/10 로 줄이므로, 하루 500회면 5,000문장을 옮길 수 있다.
 MODEL = "gemini-flash-lite-latest"
 BATCH = 10
-BUDGET_FILE = os.path.join(HP_JP, "_stats", "gemini_budget.json")
+# ⚠️ _stats 안에 두지 않는다 — 그 폴더는 '구장 통계' 만 있는 곳이고,
+#    관문이 폴더를 통째로 훑기 때문에 도구 상태 파일이 섞이면 구장으로 오해한다(8/2 실제로 그랬다).
+BUDGET_FILE = os.path.join(HP_JP, "_scan", "gemini_budget.json")
 
 
 BUDGET = None      # main() 에서 만든다

@@ -4,7 +4,7 @@
  * ========================================================= */
 "use strict";
 
-const APP_VER = "v209"; // 배포 버전 (홈 화면 배지에 표시)
+const APP_VER = "v210"; // 배포 버전 (홈 화면 배지에 표시)
 const APP_NOTE = "관리자"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
 const STORAGE_KEY = "riweather.courses.v1";
 
@@ -1950,7 +1950,12 @@ async function openCourseView() {
   }
 
   // 공식 홀맵 이미지가 있는 구장: 홈페이지 홀맵 그대로 표시 + AI 캐디
-  const imgdb = (typeof HOLEIMG_DB !== "undefined" && HOLEIMG_DB[course.name]) || null;
+  // 일본 구장 자료(홀맵 2.4MB·통계 2.6MB)는 여기서 처음 받는다 — 한국 이용자는 받지 않는다.
+  // ⚠️ await 를 빼면 첫 진입에서만 "준비중"으로 보이는 버그가 된다.
+  if (typeof JPPACK !== "undefined") await JPPACK.need(course);
+  if (currentCourse !== course || viewStack[viewStack.length - 1] !== "course") return;
+  const imgdb = (typeof HOLEIMG_DB !== "undefined" && HOLEIMG_DB[course.name])
+    || (typeof JPPACK !== "undefined" && JPPACK.imgdb(course.name)) || null;
   const prepNote = $("#course-prep-note");
   if (prepNote) prepNote.hidden = !!imgdb;
   if (imgdb) { renderImgCourse(course, imgdb); return; }
@@ -2252,6 +2257,22 @@ function renderCourseVideos(course) {
 }
 
 /* ---------- 공식 홀맵 이미지 모드 (홈페이지 홀맵 그대로 + AI 캐디) ---------- */
+/* 티별 거리를 사람이 읽을 문자열로.
+   🔴 일본 구장은 **야드**로 적는다 — 등록된 645곳 중 610곳이 그렇다(2026-08-02 실측).
+      한국 자료는 미터(t.m), 일본 자료는 야드(t.y) 로 들어온다.
+      · 야드를 그냥 숫자만 보여주면 한국 골퍼가 미터로 읽어 **클럽을 한 번호 잘못 잡는다**.
+      · 그렇다고 미터로만 바꿔 적으면 코스 현장의 야드 표지판과 어긋난다.
+      그래서 **원문 단위를 앞세우고 미터를 괄호로** 덧붙인다.
+   (이 함수가 없던 동안 화면에 "レギュラー undefined · T2 undefinedm" 이 나왔다 — 배선 검증에서 잡았다) */
+function teeText(tees) {
+  const yd = tees.some((t) => t.y !== undefined && t.y !== null);
+  if (!yd)   // 한국 구장 — 지금 화면 그대로 둔다(단위는 맨 뒤에 한 번)
+    return tees.map((t) => `${t.name} ${t.m}`).join(" · ") + "m";
+  return tees.map((t) => (t.y !== undefined && t.y !== null)
+    ? `${t.name} ${t.y}y(${Math.round(t.y * 0.9144)}m)`
+    : `${t.name} ${t.m}m`).join(" · ");
+}
+
 function renderImgCourse(course, db) {
   $("#course-map-card").hidden = true;
   $("#course-status").textContent = "";
@@ -2280,7 +2301,23 @@ function renderImgCourse(course, db) {
   $("#hole-list-card").querySelector(".card-title").innerHTML = tr("app.hole.pick");
   $("#hole-list-card").hidden = false;
 
+  // 스코어대 — 내 평균 타수로 정해 놓고, 이용자가 직접 고르면 그 선택이 이긴다
+  let holeBand = typeof JPPACK !== "undefined" ? JPPACK.autoBand() : 0;
+  let curHole = 0;
+  // 단추는 홀을 옮길 때마다 다시 그려지므로 개별 등록이 아니라 위임으로 듣는다
+  const strat = $("#hole-strategy");
+  if (strat && !strat.dataset.bandBound) {
+    strat.dataset.bandBound = "1";
+    strat.addEventListener("click", (e) => {
+      const b = e.target.closest(".jps-band-b");
+      if (!b || !strat.__onBand) return;
+      strat.__onBand(parseInt(b.dataset.band, 10));
+    });
+  }
+  if (strat) strat.__onBand = (n) => { holeBand = n; sel(curHole); };
+
   function sel(i, byUser) {
+    curHole = i;
     const h = flat[i];
     grid.querySelectorAll(".hole-btn").forEach((b, j) => b.classList.toggle("active", j === i));
     $("#hole-detail-title").textContent = tr("app.hole.title.course", { cname: h.cname, no: h.no });
@@ -2329,15 +2366,23 @@ function renderImgCourse(course, db) {
         ? tr("app.hole.elev", {
             dir: h.elev > 0 ? tr("app.hole.elev.up") : tr("app.hole.elev.down"), m: h.elev })
         : "";
-      infoHtml += tr("app.hole.dist.title") +
-        `${h.tees.map((t) => `${t.name} ${t.m}`).join(" · ")}m${elev}<br><br>`;
+      infoHtml += tr("app.hole.dist.title") + teeText(h.tees) + elev + "<br><br>";
     } else if (h.len) {
       infoHtml += tr("app.hole.len", { len: h.len }) +
         (h.hdcp ? tr("app.hole.hdcp", { hdcp: h.hdcp }) : "") + "<br><br>";
     }
-    if (h.tip) {
-      const safeTip = h.tip.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    // 일본어 화면에서는 한국 구장 TIP 의 일본어판을 얹는다. 없으면 한국어 원문 그대로 —
+    // 어색한 기계 번역을 지어내는 것보다 원문이 낫다(설계 D6).
+    const tipText = (typeof JPPACK !== "undefined" &&
+                     JPPACK.tipJa(course.name, h.cname, h.no)) || h.tip;
+    if (tipText) {
+      const safeTip = tipText.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
       infoHtml += tr("app.hole.tip.title") + safeTip;
+    }
+    // 홀별 실전 통계(일본) — 스코어대는 내 평균 타수에 맞춰 처음부터 열린다(§2-8-1)
+    if (typeof JPPACK !== "undefined") {
+      const stat = JPPACK.statHtml(course.name, i, holeBand);
+      if (stat) infoHtml += JPPACK.bandHtml(holeBand) + stat;
     }
     if (infoHtml) {
       $("#hole-strategy").hidden = false;
@@ -3042,7 +3087,9 @@ async function runAiCaddieInner() {
       `홀맵 그림은 없고 아래 수치 정보만 있습니다. 사진이 있는 것처럼 지형·벙커 위치를 지어내지 말고, 주어진 파·거리·고도차와 플레이어 구질만으로 조언하세요. ` + elevTxt;
     const facts =
       (hh.dist ? `티별 거리(m): L그린 백${hh.dist.L[0]}/레귤러${hh.dist.L[1]}/프론트${hh.dist.L[2]}/레이디${hh.dist.L[3]}, R그린 백${hh.dist.R[0]}/레귤러${hh.dist.R[1]}/프론트${hh.dist.R[2]}/레이디${hh.dist.R[3]}. ` :
-       hh.tees ? `티별 거리: ${hh.tees.map((t) => t.name + " " + t.m + "m").join(", ")}. ` :
+       // ⚠️ 일본 구장은 야드다 — teeText 이 단위를 붙여 준다.
+       //    여기서 단위를 빼면 캐디가 야드를 미터로 읽고 **한 클럽 짧게** 조언한다.
+       hh.tees ? `티별 거리: ${teeText(hh.tees)}. ` :
        hh.len ? `전장 ${hh.len}m${hh.hdcp ? ", 핸디캡 " + hh.hdcp : ""}. ` : "") +
       (hh.tip ? `골프장 공식 공략 TIP: "${hh.tip}" ` : "") +
       `플레이어: 구질 ${prof2.shape || "스트레이트"}, 드라이버 평균 ${prof2.dist || 200}m${playerTraits()}. ` +

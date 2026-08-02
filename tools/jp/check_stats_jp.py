@@ -49,17 +49,25 @@ def check():
     problems, notes = [], []
     if not os.path.isdir(STATS):
         return [], ["통계 자료가 아직 없습니다"], 0
-    files = sorted(f for f in os.listdir(STATS) if f.endswith(".json") and f != "tip_ja_cache.json")
     reg = registered_pars()
-
-    for fn in files:
-        who = fn[:-5]
+    files = []
+    for fn in sorted(f for f in os.listdir(STATS) if f.endswith(".json")):
+        # 🔴 이름으로 거르지 않는다. 이름 예외 목록은 늘어나기만 하고, 새 도구가 파일 하나를
+        #    떨어뜨릴 때마다 관문이 엉뚱한 소리를 한다(8/2 gemini_budget.json 이 '0홀 구장'이 됐다).
+        #    '구장 통계인가'는 **내용**으로 본다 — course 와 holes 가 있어야 구장이다.
+        #    그렇다고 조용히 넘기지도 않는다. 건너뛴 파일은 눈에 보이게 적는다.
         try:
             d = json.load(open(os.path.join(STATS, fn), encoding="utf-8"))
         except Exception as e:
-            problems.append(f"{who}: 읽을 수 없습니다 ({type(e).__name__})")
+            problems.append(f"{fn}: 읽을 수 없습니다 ({type(e).__name__})")
             continue
+        if not (isinstance(d, dict) and "course" in d and "holes" in d):
+            notes.append(f"{fn}: 구장 통계가 아니라 건너뜁니다 (도구가 쓰는 파일로 보입니다)")
+            continue
+        files.append((fn, d))
 
+    for fn, d in files:
+        who = fn[:-5]
         if SOURCE_MARK not in d.get("source", ""):
             problems.append(f"{who}: 출처 표기가 없습니다 — 내리기 스위치가 못 내립니다")
         holes = d.get("holes") or []
