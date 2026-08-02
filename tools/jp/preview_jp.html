@@ -25,6 +25,10 @@
   *{box-sizing:border-box}
   body{margin:0;padding:0 0 60px;background:var(--bg);color:var(--text);
        font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;letter-spacing:-.02em}
+  /* 일본어 화면은 일본 글꼴을 앞세운다 — Malgun Gothic 이 앞서면 한자가 한국식 자형으로 나온다
+     (해외진출_설계 D8 에 적힌 함정을 여기서 먼저 확인한다) */
+  html[lang="ja"] body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN",
+       "Yu Gothic UI","Meiryo",sans-serif;letter-spacing:0}
   .wrap{max-width:960px;margin:0 auto;padding:20px 16px}
   h1{font-size:22px;font-weight:800;margin:4px 0 2px}
   .sub{font-size:13px;color:var(--faint);margin:0 0 16px;line-height:1.6}
@@ -95,7 +99,39 @@ var TEE_COLOR = { Blue:"#2f6ef0", White:"#ffffff", Green:"#2ea06a", Red:"#e04b4b
 var BAND_KO = ["전체", "79타 이하", "80~99타", "100~119타", "120타~"];
 var FIELD_KO = ["난이도", "평균 스코어", "평균 퍼트", "버디율", "파온율", "FW 안착", "벙커율", "OB율"];
 var FIELD_SUF = ["", "타", "개", "%", "%", "%", "%", "%"];
+
+/* 일본어 화면 — 일본 이용자가 볼 그대로.
+   앱의 ja 언어팩(Phase 3)이 나오기 전에 **말투와 용어를 먼저 확인**하려는 것이다.
+   구장·코스·티 이름은 원래 일본어라 그대로 두면 된다. */
+var BAND_JA = ["全スコア", "～79", "80～99", "100～119", "120～"];
+var FIELD_JA = ["難易度", "平均スコア", "平均パット", "バーディ率", "パーオン率",
+                "FWキープ率", "バンカー率", "OB率"];
+var FIELD_SUF_JA = ["", "打", "", "%", "%", "%", "%", "%"];
+var UI = {
+  ko: { band: "스코어대", course: "코스", hole: "홀", noimg: "홀맵 없음",
+        nostat: "이 스코어대는 자료가 없습니다", nodata: "통계 없음",
+        unit: function (u) { return u === "yd" ? "야드" : "미터"; },
+        greenOf: function (g, n) { return g + "그린 기준 (그린 " + n + "개)"; },
+        green1: "그린 1개", src: "출처", imgs: "그림", open: "공식 페이지 열기 ↗",
+        cmp: " — 이 화면의 숫자·그림과 대조해 주세요",
+        basis: function (d) { return "· じゃらん " + d + " 기준"; },
+        rank: function (v, n) { return v + "위/" + n; } },
+  ja: { band: "スコア別", course: "コース", hole: "ホール", noimg: "コースレイアウトなし",
+        nostat: "このスコア帯のデータはありません", nodata: "データなし",
+        unit: function (u) { return u === "yd" ? "ヤード" : "メートル"; },
+        greenOf: function (g, n) { return g + "グリーン基準（グリーン" + n + "つ）"; },
+        green1: "グリーン1つ", src: "出典", imgs: "画像", open: "公式ページを開く ↗",
+        cmp: "",
+        basis: function (d) { return "· じゃらん " + d + " 時点"; },
+        rank: function (v, n) { return v + "位/" + n + "H中"; } },
+};
 var curBand = 0;
+var LANG = "ko";
+try { LANG = localStorage.getItem("jp_preview_lang") || "ko"; } catch (e) {}
+function L() { return UI[LANG]; }
+function FIELDS_L() { return LANG === "ja" ? FIELD_JA : FIELD_KO; }
+function SUF_L() { return LANG === "ja" ? FIELD_SUF_JA : FIELD_SUF; }
+function BANDS_L() { return LANG === "ja" ? BAND_JA : BAND_KO; }
 var $ = function (id) { return document.getElementById(id); };
 var esc = function (s) { return String(s == null ? "" : s)
   .replace(/[&<>"']/g, function (c) { return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]; }); };
@@ -103,23 +139,23 @@ var esc = function (s) { return String(s == null ? "" : s)
 /* 이 구장의 n번째 홀(문서 순서) 통계 카드 */
 function statCard(name, idx, nHoles) {
   var s = ST && ST[name];
-  if (!s) return '<div class="nostat">통계 없음</div>';
+  if (!s) return '<div class="nostat">' + L().nodata + "</div>";
   var v = s.h[idx] && s.h[idx][curBand];
-  if (!v) return '<div class="nostat">이 스코어대는 자료가 없습니다</div>';
-  var rows = "";
-  for (var i = 0; i < FIELD_KO.length; i++) {
+  if (!v) return '<div class="nostat">' + L().nostat + "</div>";
+  var rows = "", F = FIELDS_L(), SUF = SUF_L();
+  for (var i = 0; i < F.length; i++) {
     if (v[i] === null || v[i] === undefined) continue;   // 없는 값은 줄째로 뺀다
-    var val = (i === 0) ? (v[0] + "위/" + nHoles) : (v[i] + FIELD_SUF[i]);
+    var val = (i === 0) ? L().rank(v[0], nHoles) : (v[i] + SUF[i]);
     var hard = (i === 0 && v[0] <= 3) ? " hard" : "";
-    rows += '<div class="st' + hard + '"><span>' + FIELD_KO[i] + "</span><b>" + esc(val) + "</b></div>";
+    rows += '<div class="st' + hard + '"><span>' + F[i] + "</span><b>" + esc(val) + "</b></div>";
   }
   return rows ? '<div class="stats">' + rows + "</div>"
-              : '<div class="nostat">이 스코어대는 자료가 없습니다</div>';
+              : '<div class="nostat">' + L().nostat + "</div>";
 }
 
 function render(name) {
   var d = DB[name];
-  var unit = d.unit === "yd" ? "야드" : "미터";
+  var T = L();
   var totalHoles = d.courses.reduce(function (a, c) { return a + c.holes.length; }, 0);
   var imgs = 0, seen = {};
   d.courses.forEach(function (c) { c.holes.forEach(function (h) { if (h.img) { imgs++; seen[h.img] = 1; } }); });
@@ -128,32 +164,33 @@ function render(name) {
 
   var html = '<div class="meta">' +
     "<div><b>" + esc(name) + "</b>" +
-    '<span class="badge">' + totalHoles + "홀 · " + d.courses.length + "개 코스</span>" +
-    '<span class="badge">거리 단위 ' + unit + "</span>" +
-    (d.green ? '<span class="badge">' + esc(d.green) + "그린 기준 (그린 " + (d.greens || 2) + "개)</span>"
-             : '<span class="badge">그린 1개</span>') + dupWarn + "</div>" +
-    "<div>출처: " + esc(d.source) + " · 그림 " + imgs + "장</div>" +
-    '<div><a href="' + esc(d.sourceUrl) + '" target="_blank" rel="noopener">공식 페이지 열기 ↗</a>' +
-    " — 이 화면의 숫자·그림과 대조해 주세요</div></div>";
+    '<span class="badge">' + totalHoles + T.hole + " · " + d.courses.length + " " + T.course + "</span>" +
+    '<span class="badge">' + T.unit(d.unit) + "</span>" +
+    (d.green ? '<span class="badge">' + esc(T.greenOf(d.green, d.greens || 2)) + "</span>"
+             : '<span class="badge">' + T.green1 + "</span>") + dupWarn + "</div>" +
+    "<div>" + T.src + ": " + esc(d.source) + " · " + T.imgs + " " + imgs + "</div>" +
+    '<div><a href="' + esc(d.sourceUrl) + '" target="_blank" rel="noopener">' + T.open + "</a>" +
+    T.cmp + "</div></div>";
 
-  // 스코어대 고르기 — 앱에서는 이용자 프로필로 자동 선택된다
+  // 스코어대 고르기 — 앱에서는 이용자의 최근 평균 타수로 자동 선택된다
   var s = ST && ST[name];
-  html += '<div class="bandbar"><span class="lbl">스코어대</span>' +
-    BAND_KO.map(function (b, i) {
+  html += '<div class="bandbar"><span class="lbl">' + T.band + "</span>" +
+    BANDS_L().map(function (b, i) {
       return '<button class="band' + (i === curBand ? " on" : "") + '" data-b="' + i + '">' + b + "</button>";
     }).join("") +
-    (s ? '<span class="lbl">· じゃらん ' + esc(s.d) + " 기준</span>"
-       : '<span class="lbl">· 이 구장은 통계 없음</span>') + "</div>";
+    (s ? '<span class="lbl">' + esc(T.basis(s.d)) + "</span>"
+       : '<span class="lbl">· ' + T.nodata + "</span>") + "</div>";
 
   var idx = 0;
   d.courses.forEach(function (c) {
-    html += "<h2>" + esc(c.name) + " 코스 <span class=\"badge\">" + c.holes.length + "홀</span></h2>";
+    html += "<h2>" + esc(c.name) + " " + T.course +
+            ' <span class="badge">' + c.holes.length + T.hole + "</span></h2>";
     html += '<div class="holes">';
     c.holes.forEach(function (h) {
       html += '<div class="hole">' +
         (h.img ? '<img loading="lazy" src="../../' + esc(h.img) + '" alt="">'
-               : '<div class="noimg">홀맵 없음</div>') +
-        '<div class="hd"><span class="no">' + h.no + "번</span>" +
+               : '<div class="noimg">' + T.noimg + "</div>") +
+        '<div class="hd"><span class="no">' + (LANG === "ja" ? h.no + "H" : h.no + "번") + "</span>" +
         '<span class="par">PAR ' + h.par + "</span>" +
         (h.hdcp ? '<span class="hdcp">HDCP ' + h.hdcp + "</span>" : "") + "</div>" +
         '<div class="tees">' +
@@ -182,11 +219,33 @@ if (!DB || !Object.keys(DB).length) {
       return '<option value="' + esc(n) + '"' + (i ? "" : " selected") + ">" + esc(n) + "</option>";
     }).join("") + "</select>" +
     '<span style="font-size:12.5px;color:var(--faint);align-self:center">' + names.length + "곳</span>";
+  // 언어 전환 — 일본 이용자가 볼 화면을 그대로 확인하기 위한 것
+  var langBar = document.createElement("div");
+  langBar.style.cssText = "display:flex;gap:6px;margin-left:auto;align-self:center";
+  langBar.innerHTML = ["ko", "ja"].map(function (k) {
+    return '<button class="band' + (LANG === k ? " on" : "") + '" data-lang="' + k + '">' +
+           (k === "ko" ? "한국어" : "日本語") + "</button>";
+  }).join("");
+  $("tabs").style.cssText = "display:flex;gap:8px;flex-wrap:wrap;align-items:center";
+  $("tabs").appendChild(langBar);
+  langBar.addEventListener("click", function (e) {
+    var b = e.target.closest("[data-lang]");
+    if (!b) return;
+    LANG = b.dataset.lang;
+    try { localStorage.setItem("jp_preview_lang", LANG); } catch (err) {}
+    Array.prototype.forEach.call(langBar.querySelectorAll("[data-lang]"), function (x) {
+      x.classList.toggle("on", x.dataset.lang === LANG);
+    });
+    document.documentElement.lang = LANG;
+    render(document.getElementById("pick").value);
+  });
+  document.documentElement.lang = LANG;
+
   document.getElementById("pick").addEventListener("change", function () { render(this.value); });
   // 스코어대 버튼 (본문이 다시 그려져도 듣도록 위임)
   $("body").addEventListener("click", function (e) {
     var b = e.target.closest(".band");
-    if (!b) return;
+    if (!b || b.dataset.lang) return;
     curBand = +b.dataset.b;
     render(document.getElementById("pick").value);
   });
