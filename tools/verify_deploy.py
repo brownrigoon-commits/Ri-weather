@@ -56,7 +56,11 @@ def core_files():
     if not m:
         return []
     out = []
-    for u in re.findall(r'"([^"]+)"', m.group(1)):
+    # ⚠️ 주석을 먼저 걷어낸다. 목록 안 주석에 따옴표 친 우리말이 있으면 그것을
+    #    파일명으로 읽어, 멀쩡한 배포를 "서비스워커가 깨졌다"고 보고했다
+    #    (2026-08-02: 주석 속 "있으면 캐시" 로 오탐. release_courses.py 도 같은 문제였다).
+    body = re.sub(r"//[^\n]*", "", m.group(1))
+    for u in re.findall(r'"([^"]+)"', body):
         u = u[2:] if u.startswith("./") else u
         u = u or "index.html"                  # "./" 는 루트 = index.html
         if u not in out:                       # "./" 와 "./index.html" 이 겹친다
