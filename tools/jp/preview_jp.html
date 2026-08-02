@@ -54,6 +54,19 @@
   .dot{width:9px;height:9px;border-radius:50%;flex:none;border:1px solid rgba(0,0,0,.15)}
   .tee b{font-weight:700;color:var(--text);font-variant-numeric:tabular-nums}
   .note{margin-top:18px;font-size:12px;color:var(--faint);line-height:1.7}
+
+  /* 홀별 실전 통계 (じゃらん) — 스코어대별 5벌 */
+  .bandbar{display:flex;gap:6px;flex-wrap:wrap;margin:14px 0 2px;align-items:center}
+  .bandbar .lbl{font-size:12.5px;color:var(--faint);margin-right:2px}
+  .band{padding:7px 12px;border-radius:999px;border:1px solid var(--line);background:var(--card);
+        color:var(--dim);font:inherit;font-size:12.5px;font-weight:700;cursor:pointer}
+  .band.on{background:var(--primary);border-color:var(--primary);color:#fff}
+  .stats{border-top:1px solid var(--line);margin:8px 12px 12px;padding-top:8px;
+         display:grid;grid-template-columns:1fr 1fr;gap:3px 10px}
+  .st{display:flex;justify-content:space-between;font-size:11.5px;color:var(--faint)}
+  .st b{color:var(--text);font-weight:700;font-variant-numeric:tabular-nums}
+  .st.hard b{color:#d94a4a}
+  .nostat{font-size:11.5px;color:var(--faint);padding:6px 12px 12px}
   .err{background:rgba(217,74,74,.12);color:var(--warn);padding:14px 16px;border-radius:var(--radius);font-size:14px;font-weight:600}
 </style>
 </head>
@@ -69,14 +82,40 @@
 </div>
 
 <script src="../../js/holeimgdb_jp.js"></script>
+<script src="../../js/holestats_jp.js" onerror="window.__noStats=1"></script>
 <script>
 "use strict";
 var DB = (typeof HOLEIMG_DB_JP !== "undefined") ? HOLEIMG_DB_JP : null;
+var ST = (typeof HOLESTATS_JP !== "undefined") ? HOLESTATS_JP : null;
 var TEE_COLOR = { Blue:"#2f6ef0", White:"#ffffff", Green:"#2ea06a", Red:"#e04b4b",
                   Gold:"#d4a017", Black:"#333333", Silver:"#b8bec7" };
+
+/* 홀별 실전 통계 — スコア대 5벌. 이용자 실력대에 맞는 밴드를 골라 본다.
+   값이 null 이면 '자료 없음'이라 그 줄을 아예 뺀다(0 으로 보이면 거짓말이 된다). */
+var BAND_KO = ["전체", "79타 이하", "80~99타", "100~119타", "120타~"];
+var FIELD_KO = ["난이도", "평균 스코어", "평균 퍼트", "버디율", "파온율", "FW 안착", "벙커율", "OB율"];
+var FIELD_SUF = ["", "타", "개", "%", "%", "%", "%", "%"];
+var curBand = 0;
 var $ = function (id) { return document.getElementById(id); };
 var esc = function (s) { return String(s == null ? "" : s)
   .replace(/[&<>"']/g, function (c) { return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]; }); };
+
+/* 이 구장의 n번째 홀(문서 순서) 통계 카드 */
+function statCard(name, idx, nHoles) {
+  var s = ST && ST[name];
+  if (!s) return '<div class="nostat">통계 없음</div>';
+  var v = s.h[idx] && s.h[idx][curBand];
+  if (!v) return '<div class="nostat">이 스코어대는 자료가 없습니다</div>';
+  var rows = "";
+  for (var i = 0; i < FIELD_KO.length; i++) {
+    if (v[i] === null || v[i] === undefined) continue;   // 없는 값은 줄째로 뺀다
+    var val = (i === 0) ? (v[0] + "위/" + nHoles) : (v[i] + FIELD_SUF[i]);
+    var hard = (i === 0 && v[0] <= 3) ? " hard" : "";
+    rows += '<div class="st' + hard + '"><span>' + FIELD_KO[i] + "</span><b>" + esc(val) + "</b></div>";
+  }
+  return rows ? '<div class="stats">' + rows + "</div>"
+              : '<div class="nostat">이 스코어대는 자료가 없습니다</div>';
+}
 
 function render(name) {
   var d = DB[name];
@@ -97,6 +136,16 @@ function render(name) {
     '<div><a href="' + esc(d.sourceUrl) + '" target="_blank" rel="noopener">공식 페이지 열기 ↗</a>' +
     " — 이 화면의 숫자·그림과 대조해 주세요</div></div>";
 
+  // 스코어대 고르기 — 앱에서는 이용자 프로필로 자동 선택된다
+  var s = ST && ST[name];
+  html += '<div class="bandbar"><span class="lbl">스코어대</span>' +
+    BAND_KO.map(function (b, i) {
+      return '<button class="band' + (i === curBand ? " on" : "") + '" data-b="' + i + '">' + b + "</button>";
+    }).join("") +
+    (s ? '<span class="lbl">· じゃらん ' + esc(s.d) + " 기준</span>"
+       : '<span class="lbl">· 이 구장은 통계 없음</span>') + "</div>";
+
+  var idx = 0;
   d.courses.forEach(function (c) {
     html += "<h2>" + esc(c.name) + " 코스 <span class=\"badge\">" + c.holes.length + "홀</span></h2>";
     html += '<div class="holes">';
@@ -112,7 +161,8 @@ function render(name) {
           var col = TEE_COLOR[t.name] || "#999";
           return '<span class="tee"><i class="dot" style="background:' + col + '"></i>' +
                  esc(t.name) + " <b>" + t.y + "</b></span>";
-        }).join("") + "</div></div>";
+        }).join("") + "</div>" +
+        statCard(name, idx++, totalHoles) + "</div>";
     });
     html += "</div>";
   });
@@ -133,6 +183,13 @@ if (!DB || !Object.keys(DB).length) {
     }).join("") + "</select>" +
     '<span style="font-size:12.5px;color:var(--faint);align-self:center">' + names.length + "곳</span>";
   document.getElementById("pick").addEventListener("change", function () { render(this.value); });
+  // 스코어대 버튼 (본문이 다시 그려져도 듣도록 위임)
+  $("body").addEventListener("click", function (e) {
+    var b = e.target.closest(".band");
+    if (!b) return;
+    curBand = +b.dataset.b;
+    render(document.getElementById("pick").value);
+  });
   render(names[0]);
   var holes = names.reduce(function (a, n) {
     return a + DB[n].courses.reduce(function (b, c) { return b + c.holes.length; }, 0); }, 0);
