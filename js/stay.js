@@ -169,7 +169,12 @@ function lowPrice(rooms) {
   return ps.length ? Math.min(...ps) : 0;
 }
 // 숫자 자릿점은 표기 형식이라 "ko-KR" 그대로 둔다(문구가 아니다). 단위 글자만 문구로.
-const won = (n) => tr("stay.won", { n: n.toLocaleString("ko-KR") });
+// 🔴 일본 숙소는 **엔화**다. 원화로 바꿔 적으면 환율이 바뀌는 순간 거짓말이 되고,
+//    라쿠텐 화면(¥)과도 어긋난다. 통화를 받아 그대로 쓴다.
+//    (인자 없이 부르면 예전과 똑같이 동작한다 — 한국 화면 무변경)
+const won = (n, cur) => cur === "JPY"
+  ? "¥" + n.toLocaleString("ko-KR")
+  : tr("stay.won", { n: n.toLocaleString("ko-KR") });
 
 function stayQuery(it) {
   const region = stayRegion(it.addr);
@@ -271,6 +276,12 @@ function roomName(r) {
 }
 
 function roomLine(it) {
+  // 일본 숙소는 라쿠텐이 준 **최저 요금**(¥) 한 줄만 보여준다.
+  // 객실 목록·판매중 여부는 안 받는다(그건 라쿠텐 화면에서 보는 게 정확하다).
+  if (it.jp) {
+    if (!it.price) return "";                          // 모르면 아무 말도 안 한다
+    return `<div class="fi-room"><b>${tr("stay.room.from", { price: won(it.price, "JPY") })}</b></div>`;
+  }
   const rooms = onSaleRooms(it);
   if (rooms === null || !rooms.length) return "";      // 모르면 아무 말도 안 한다
   const p = lowPrice(rooms);
@@ -289,6 +300,12 @@ function renderStayList(list, course) {
 
   const hasRatings = list.some((it) => (it.rating || 0) > 0);
   if (STAY_VIEW.sort === "reco" && !hasRatings) STAY_VIEW.sort = "dist";
+
+  // 🔴 일본 목록은 유형 칩을 달지 않는다. 라쿠텐은 무인텔·모텔 같은 유형을 주지 않아
+  //    전부 '호텔' 로 들어오는데, 그러면 칩이 하나뿐이라 고를 것이 없다.
+  //    (맛집 분류 칩과 같은 이유 — 없는 기능을 있는 척하지 않는다)
+  const isJP = list.some((it) => it.jp);
+  if (isJP) STAY_VIEW.cat = "전체";
 
   /* 정렬·종류 칩 — 칩은 반드시 .ff-row(flex·wrap) 안에 넣는다.
      .food-filter 는 여백만 주는 껍데기라 여기에 바로 넣으면 줄바꿈이 깨진다. */
@@ -310,15 +327,19 @@ function renderStayList(list, course) {
   const sorts = [["dist", "📍 " + tr("stay.sort.dist")]];
   if (hasRatings) sorts.push(["reco", "⭐ " + tr("stay.sort.reco")]);
   mk(bar, sorts, STAY_VIEW.sort, (v) => { STAY_VIEW.sort = v; });
-  // 칩 순서는 STAY_ALLOW 를 따른다 — 목록에 들어온 순서대로 두면 갈 때마다 자리가 바뀐다
-  const have = new Set(list.map((x) => x.kind));
-  mk(bar, ["전체", ...STAY_ALLOW.filter((k) => have.has(k))].map((k) => [k, stayKindLabel(k)]),
-    STAY_VIEW.cat, (v) => { STAY_VIEW.cat = v; });
+  if (!isJP) {
+    // 칩 순서는 STAY_ALLOW 를 따른다 — 목록에 들어온 순서대로 두면 갈 때마다 자리가 바뀐다
+    const have = new Set(list.map((x) => x.kind));
+    mk(bar, ["전체", ...STAY_ALLOW.filter((k) => have.has(k))].map((k) => [k, stayKindLabel(k)]),
+      STAY_VIEW.cat, (v) => { STAY_VIEW.cat = v; });
+  }
   el.appendChild(bar);
 
   const note = document.createElement("p");
   note.className = "food-osm-sub";
-  note.innerHTML = tr("stay.note", { course: course.name });
+  note.innerHTML = isJP && typeof JPPACK !== "undefined"
+    ? JPPACK.stayNote()
+    : tr("stay.note", { course: course.name });
   el.appendChild(note);
 
   let arr = list.filter((x) => STAY_VIEW.cat === "전체" || x.kind === STAY_VIEW.cat);
@@ -352,17 +373,51 @@ function renderStayList(list, course) {
       <div class="fi-photos" data-pid="${it.id}"></div>
       <div class="fi-meta">📍 ${it.addr}</div>
       <div class="fi-actions">
+        ${it.jp ? jpStayActions(it) : `
         ${tel ? `<a class="fa-btn fa-tel" href="tel:${tel}">📞 ${tr("stay.act.tel")}</a>` : ""}
         <a class="fa-btn fa-kakao" href="kakaomap://route?ep=${it.lat},${it.lon}&by=CAR">${tr("stay.act.navi")}</a>
         <a class="fa-btn fa-tmap" href="tmap://route?goalname=${encodeURIComponent(it.name)}&goaly=${it.lat}&goalx=${it.lon}">${tr("stay.act.tmap")}</a>
-        <a class="fa-btn fa-naver" href="https://m.search.naver.com/search.naver?query=${encodeURIComponent(it.name)}" target="_blank" rel="noopener"><b>N</b>${tr("stay.act.review")}</a>
+        <a class="fa-btn fa-naver" href="https://m.search.naver.com/search.naver?query=${encodeURIComponent(it.name)}" target="_blank" rel="noopener"><b>N</b>${tr("stay.act.review")}</a>`}
       </div>
-      <div class="fi-actions stay-book">${bookBtn(it)}</div>`;
+      ${it.jp ? "" : `<div class="fi-actions stay-book">${bookBtn(it)}</div>`}`;
     el.appendChild(card);
-    // 사진은 맛집과 같은 백엔드(가게 ID 기반 공식 사진첩)를 그대로 쓴다
-    loadStayPhotos(it, card.querySelector(".fi-photos"));
+    if (it.jp) {
+      // 라쿠텐이 준 사진 한 장을 그대로 쓴다 (한국 경로의 사진 백엔드는 일본 숙소를 모른다)
+      const box = card.querySelector(".fi-photos");
+      if (it.photo && box) {
+        const img = document.createElement("img");
+        img.src = it.photo;
+        img.alt = it.name;
+        img.loading = "lazy";
+        img.addEventListener("error", () => { box.hidden = true; });
+        box.appendChild(img);
+      } else if (box) box.hidden = true;
+    } else {
+      // 사진은 맛집과 같은 백엔드(가게 ID 기반 공식 사진첩)를 그대로 쓴다
+      loadStayPhotos(it, card.querySelector(".fi-photos"));
+    }
   });
+  if (isJP && typeof JPPACK !== "undefined") {
+    const c = document.createElement("p");
+    c.className = "food-osm-sub";
+    c.style.marginTop = "10px";
+    c.textContent = JPPACK.stayCredit();
+    el.appendChild(c);
+  }
   if (typeof staggerIn === "function") staggerIn(el);
+}
+
+/* 일본 숙소 카드의 단추 — 카카오내비·티맵·네이버는 일본에서 무의미하다(D4).
+   예약은 라쿠텐 트래블 링크로 보낸다(응답에 제휴 ID 가 이미 들어 있다). */
+function jpStayActions(it) {
+  const ja = typeof I18N !== "undefined" && I18N.lang === "ja";
+  const tel = (it.phone || "").replace(/[^0-9+]/g, "");
+  let h = "";
+  if (tel) h += `<a class="fa-btn fa-tel" href="tel:${tel}">📞 ${ja ? "電話" : "전화"}</a>`;
+  h += `<a class="fa-btn fa-kakao" href="https://www.google.com/maps/dir/?api=1&destination=${it.lat},${it.lon}" target="_blank" rel="noopener">${ja ? "🧭 経路案内" : "🧭 길찾기"}</a>`;
+  if (it.link)
+    h += `<a class="fa-btn fa-naver" href="${it.link}" target="_blank" rel="noopener">${ja ? "楽天トラベルで予約" : "라쿠텐에서 예약"}</a>`;
+  return h;
 }
 
 /* 숙소 사진 — attachPhotos() 가 미리 받아 둔 it.photos 를 그린다.
@@ -396,6 +451,33 @@ async function runStaySearch(course) {
   document.querySelector("#stay-list").innerHTML = "";
 
   const alive = () => currentCourse === course && viewStack[viewStack.length - 1] === "stay";
+
+  // 🔴 일본 구장은 라쿠텐 트래블로 간다 (설계 §4).
+  //    카카오는 한국 POI 라 일본에서 빈 목록이 된다.
+  //    아래 한국 경로는 **한 줄도 건드리지 않는다** — KR 무변경 원칙.
+  if (course.c === "JP" && typeof JPPACK !== "undefined") {
+    const w = WAIT.open("stay", { msgs: [tr("stay.wait.search", { course: course.name })] });
+    try {
+      await JPPACK.need(course);                   // staydb_jp.js 지연 로드
+      const list = await JPPACK.stayList(course);
+      if (!alive()) { w.close(); return; }
+      if (!list.length) {
+        document.querySelector("#stay-list").innerHTML =
+          '<p class="food-osm-empty">' + JPPACK.stayEmpty() + "</p>";
+      } else {
+        STAY_VIEW.sort = "dist";
+        STAY_VIEW.cat = "전체";
+        renderStayList(list, course);
+      }
+    } catch (e) {
+      document.querySelector("#stay-list").innerHTML =
+        '<p class="food-osm-empty">' + tr("stay.err.load") + "</p>";
+    } finally {
+      w.close();
+    }
+    return;
+  }
+
   if (!getKakaoKey()) {
     document.querySelector("#stay-list").innerHTML =
       '<p class="food-osm-empty">' + tr("stay.err.nokey") + "</p>";

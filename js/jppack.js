@@ -45,6 +45,7 @@ const JPPACK = {
       jobs.push(this._load("holeimgdb_jp", () => typeof HOLEIMG_DB_JP !== "undefined"));
       jobs.push(this._load("holestats_jp", () => typeof HOLESTATS_JP !== "undefined"));
       jobs.push(this._load("holetext_jp", () => typeof HOLETEXT_JP !== "undefined"));
+      jobs.push(this._load("staydb_jp", () => typeof STAYDB_JP !== "undefined"));
     } else if (typeof I18N !== "undefined" && I18N.lang === "ja") {
       // 일본인이 한국 구장을 볼 때 — 한국 TIP 의 일본어판
       jobs.push(this._load("holeimgdb_ja", () => typeof HOLETIP_JA !== "undefined"));
@@ -285,6 +286,61 @@ const JPPACK = {
   /* 화면 아래에 붙일 출처 문구 — 표기 의무이자, 어디서 온 자료인지 밝히는 우리 원칙 */
   foodCredit: function () {
     return this._ja() ? "飲食店情報: Google" : "맛집 정보: Google";
+  },
+
+  /* ───────── 일본 구장 주변 숙소 (라쿠텐 트래블 · 설계 §4) ─────────
+     staydb_jp.js 에는 **변하지 않는 것**(숙소번호·거리)만 들어 있다.
+     가격·평점·빈방은 여기서 **그때그때** 받는다 — 굳혀 두면 그 순간부터 틀린 정보다. */
+  RK_APP: "c71d4b45-a56f-4367-8710-b35aef40c170",
+  RK_KEY: "pk_AP6RcMspirpJSNF43YfupzKp1QO7Ng5zVSYcsnD9asA",
+  RK_AFF: "5641d0a5.c0069b50.5641d0a6.4fd95789",
+
+  stayList: async function (course) {
+    const rows = this.stay(course.name);
+    if (!rows || !rows.length) return [];
+    const km = {};                              // 숙소번호 → 구장에서의 거리
+    rows.forEach(function (r) { km[r[0]] = r[1]; });
+    const url = "https://openapi.rakuten.co.jp/engine/api/Travel/SimpleHotelSearch/20260731"
+      + "?applicationId=" + this.RK_APP + "&accessKey=" + this.RK_KEY
+      + "&affiliateId=" + this.RK_AFF                 // 붙이면 응답 링크가 제휴 링크가 된다
+      + "&hotelNo=" + rows.map(function (r) { return r[0]; }).join(",")
+      + "&datumType=1&format=json";
+    const r = await fetch(url);
+    if (!r.ok) throw new Error("rakuten HTTP " + r.status);
+    const hotels = (await r.json()).hotels || [];
+    return hotels.map(function (h) {
+      const b = h.hotel[0].hotelBasicInfo || {};
+      return {
+        jp: true,
+        id: "rk" + b.hotelNo,
+        name: b.hotelName || "",
+        kind: "호텔",                            // 라쿠텐은 유형을 안 준다 — 칩을 안 달므로 표시용일 뿐
+        addr: (b.address1 || "") + (b.address2 || ""),
+        lat: b.latitude != null ? b.latitude / 3600 : null,
+        lon: b.longitude != null ? b.longitude / 3600 : null,
+        dist: Math.round((km[b.hotelNo] != null ? km[b.hotelNo] : 0) * 1000),
+        rating: b.reviewAverage || 0,
+        reviews: b.reviewCount || 0,
+        price: b.hotelMinCharge || 0,            // ¥ — 원화로 바꾸지 않는다
+        photo: b.hotelImageUrl || "",
+        link: b.hotelInformationUrl || "",
+        phone: b.telephoneNo || "",
+      };
+    }).filter(function (x) { return x.name; })
+      .sort(function (a, b) { return a.dist - b.dist; });
+  },
+
+  stayCredit: function () {
+    return this._ja() ? "宿泊情報: 楽天トラベル" : "숙박 정보: 라쿠텐 트래블";
+  },
+  stayNote: function () {
+    return this._ja()
+      ? "ゴルフ場から近い順 · 料金・空室は楽天トラベルで確認してください"
+      : "골프장에서 가까운 순 · 요금·빈방은 라쿠텐 트래블에서 확인하세요";
+  },
+  stayEmpty: function () {
+    return this._ja() ? "周辺の宿泊施設が見つかりませんでした"
+                      : "주변 숙소를 찾지 못했습니다";
   },
 
   /* 목록 위 안내문. 한국판 문구("카카오맵 평점 기준")를 그대로 쓰면 거짓말이 된다. */
