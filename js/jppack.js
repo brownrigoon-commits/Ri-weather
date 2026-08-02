@@ -220,10 +220,29 @@ const JPPACK = {
     try { return atob(this.PLACES_KEY_B64); } catch (_) { return ""; }
   },
 
-  /* 필드마스크가 과금 등급을 정한다 — 함부로 늘리지 말 것(설계 §3-2). */
+  /* 필드마스크가 과금 등급을 정한다 — 함부로 늘리지 말 것(설계 §3-2).
+     2026-08-02 실측: rating·userRatingCount 가 이미 **Enterprise SKU** 라서
+     nationalPhoneNumber(전화번호)를 더해도 **등급이 오르지 않는다.**
+     사장님 지시(전화 버튼 필수)를 비용 증가 없이 지킬 수 있어 넣었다. */
   FIELDS: ["places.displayName", "places.rating", "places.userRatingCount",
            "places.formattedAddress", "places.location", "places.photos",
-           "places.googleMapsUri", "places.primaryTypeDisplayName"].join(","),
+           "places.googleMapsUri", "places.primaryTypeDisplayName",
+           "places.nationalPhoneNumber"].join(","),
+
+  /* 일본에서 가장 많이 쓰는 차량 내비 — 세계측지계(WGS84)·DEG 그대로 넘긴다.
+     2026-08-02 야후 공식 문서 확인: yjcarnavi://navi/select?lat=&lon=&name=(UTF-8)
+     앱이 없으면 조용히 아무 일도 안 일어난다 — 한국의 kakaomap:// 과 같은 취급. */
+  yahooNaviUrl: function (lat, lon, name) {
+    return "yjcarnavi://navi/select?lat=" + lat + "&lon=" + lon +
+           "&name=" + encodeURIComponent(name || "");
+  },
+
+  /* じゃらん 숙소 검색 — 2026-08-02 실측으로 주소를 확인했다(200 + 검색결과 페이지).
+     추측으로 파라미터를 적지 않는다. */
+  jalanSearchUrl: function (name) {
+    return "https://www.jalan.net/uw/uwp2011/uww2011init.do?keyword=" +
+           encodeURIComponent(name || "");
+  },
 
   _nearby: async function (lat, lon, radius) {
     const r = await fetch("https://places.googleapis.com/v1/places:searchNearby", {
@@ -267,6 +286,7 @@ const JPPACK = {
         dist: Math.round(2 * R * Math.asin(Math.sqrt(h))),
         rating: p.rating || 0,
         reviews: p.userRatingCount || 0,
+        phone: p.nationalPhoneNumber || "",
         mapUri: p.googleMapsUri || "",
         // 사진은 '주소'만 들고 있다가 **눌렀을 때** 받는다 — 사진 호출은 건당 과금이다.
         photoName: (p.photos && p.photos[0] && p.photos[0].name) || "",

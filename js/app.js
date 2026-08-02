@@ -3773,19 +3773,26 @@ async function attachPhotos(list, kind, onProgress) {
   return withPhoto;
 }
 
-/* 일본 맛집 카드의 단추 — 카카오내비·티맵·네이버는 일본에서 무의미하다(D4).
-   구글맵 길찾기와 가게 페이지로 바꾼다. 전화번호는 Places 기본 응답에 없어서 빼둔다
-   (전화까지 받으려면 필드마스크를 늘려야 하고 그만큼 과금 등급이 올라간다 — 설계 §3-2). */
+/* 일본 맛집 카드의 단추 — 한국 카드와 같은 밀도로 맞춘다(설계 §4-3-1, 사장님 지시).
+   카카오내비·티맵·네이버는 일본에서 무의미하므로(D4) 자리별로 갈아끼운다:
+     전화 · 내비2(구글맵 + Yahoo!카내비) · 가게정보 · 사진
+   전화번호는 필드마스크에 nationalPhoneNumber 를 더해 받는다 —
+   rating 이 이미 Enterprise SKU 라 **과금 등급이 오르지 않는다**(8/2 실측). */
 function jpFoodActions(it) {
-  const nav = `https://www.google.com/maps/dir/?api=1&destination=${it.lat},${it.lon}`;
   const ja = typeof I18N !== "undefined" && I18N.lang === "ja";
-  let h = `<a class="fa-btn fa-kakao" href="${nav}" target="_blank" rel="noopener">${
+  const tel = (it.phone || "").replace(/[^0-9+]/g, "");
+  const nav = `https://www.google.com/maps/dir/?api=1&destination=${it.lat},${it.lon}`;
+  let h = "";
+  if (tel) h += `<a class="fa-btn fa-tel" href="tel:${tel}">${ja ? "📞 電話" : "📞 전화"}</a>`;
+  h += `<a class="fa-btn fa-kakao" href="${nav}" target="_blank" rel="noopener">${
     ja ? "🧭 経路案内" : "🧭 길찾기"}</a>`;
+  h += `<a class="fa-btn fa-tmap" href="${JPPACK.yahooNaviUrl(it.lat, it.lon, it.name)}">${
+    ja ? "Yahoo!カーナビ" : "야후 카내비"}</a>`;
   if (it.mapUri)
     h += `<a class="fa-btn fa-naver" href="${it.mapUri}" target="_blank" rel="noopener">${
       ja ? "店舗ページ" : "가게 정보"}</a>`;
   if (it.photoName)
-    h += `<button type="button" class="fa-btn fa-tmap jp-photo">${
+    h += `<button type="button" class="fa-btn fa-naver jp-photo">${
       ja ? `📷 写真 (${it.photoCount})` : `📷 사진 (${it.photoCount})`}</button>`;
   return h;
 }

@@ -379,7 +379,7 @@ function renderStayList(list, course) {
         <a class="fa-btn fa-tmap" href="tmap://route?goalname=${encodeURIComponent(it.name)}&goaly=${it.lat}&goalx=${it.lon}">${tr("stay.act.tmap")}</a>
         <a class="fa-btn fa-naver" href="https://m.search.naver.com/search.naver?query=${encodeURIComponent(it.name)}" target="_blank" rel="noopener"><b>N</b>${tr("stay.act.review")}</a>`}
       </div>
-      ${it.jp ? "" : `<div class="fi-actions stay-book">${bookBtn(it)}</div>`}`;
+      <div class="fi-actions stay-book">${it.jp ? jpStayBook(it) : bookBtn(it)}</div>`;
     el.appendChild(card);
     if (it.jp) {
       // 라쿠텐이 준 사진 한 장을 그대로 쓴다 (한국 경로의 사진 백엔드는 일본 숙소를 모른다)
@@ -407,16 +407,31 @@ function renderStayList(list, course) {
   if (typeof staggerIn === "function") staggerIn(el);
 }
 
-/* 일본 숙소 카드의 단추 — 카카오내비·티맵·네이버는 일본에서 무의미하다(D4).
-   예약은 라쿠텐 트래블 링크로 보낸다(응답에 제휴 ID 가 이미 들어 있다). */
+/* 일본 숙소 카드의 단추 — 한국 카드와 자리별로 1:1 (설계 §4-3-1, 사장님 지시).
+     전화 · 내비2(구글맵 + Yahoo!카내비)   ← 카카오내비·T맵 자리
+   예약 2개는 아래 jpStayBook() 이 stay-book 줄에 넣는다  ← 야놀자·여기어때 자리 */
 function jpStayActions(it) {
   const ja = typeof I18N !== "undefined" && I18N.lang === "ja";
   const tel = (it.phone || "").replace(/[^0-9+]/g, "");
   let h = "";
   if (tel) h += `<a class="fa-btn fa-tel" href="tel:${tel}">📞 ${ja ? "電話" : "전화"}</a>`;
   h += `<a class="fa-btn fa-kakao" href="https://www.google.com/maps/dir/?api=1&destination=${it.lat},${it.lon}" target="_blank" rel="noopener">${ja ? "🧭 経路案内" : "🧭 길찾기"}</a>`;
+  h += `<a class="fa-btn fa-tmap" href="${JPPACK.yahooNaviUrl(it.lat, it.lon, it.name)}">${
+    ja ? "Yahoo!カーナビ" : "야후 카내비"}</a>`;
+  return h;
+}
+
+/* 예약 링크 2곳 — 라쿠텐(제휴 링크가 응답에 들어 있다) + じゃらん(이름 검색).
+   じゃらん 주소는 2026-08-02 실측으로 확인했다(200 + 검색결과 페이지). 추측이 아니다. */
+function jpStayBook(it) {
+  const ja = typeof I18N !== "undefined" && I18N.lang === "ja";
+  // 클래스는 한국 예약 버튼과 같은 것을 쓴다(bk-ya/bk-gc) — 자리도 모양도 같아야 한다
+  let h = "";
   if (it.link)
-    h += `<a class="fa-btn fa-naver" href="${it.link}" target="_blank" rel="noopener">${ja ? "楽天トラベルで予約" : "라쿠텐에서 예약"}</a>`;
+    h += `<a class="fa-btn bk-ya" href="${it.link}" target="_blank" rel="noopener">${
+      ja ? "楽天トラベル" : "라쿠텐 트래블"}</a>`;
+  h += `<a class="fa-btn bk-gc" href="${JPPACK.jalanSearchUrl(it.name)}" target="_blank" rel="noopener">${
+    ja ? "じゃらん" : "자란(じゃらん)"}</a>`;
   return h;
 }
 
