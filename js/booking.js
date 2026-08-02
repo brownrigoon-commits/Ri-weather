@@ -151,7 +151,56 @@ function officialSiteUrl(course) {
    먼저 물어야 어디로 보낼지가 정해진다(사장님 지적 2026-07-30). */
 const BK_MODES = { booking: tr("bk.mode.booking"), join: tr("bk.mode.join") };
 
+/* 일본 구장 부킹 카드 — 골팡·골프몬 자리를 라쿠텐 GORA + じゃらんゴルフ 로 바꾼다.
+   (한국 카드 2개와 1:1 — 설계 §4-3-1 원칙, 사장님 지시)
+
+   🔴 BOOKINGIDS_JP 에 없는 구장은 GORA 카드를 만들지 않는다.
+      이름이 비슷한 옆 구장 예약 페이지가 뜨는 것은 빈 카드보다 나쁘다 —
+      조립기가 이름·좌표 둘 다 맞은 구장만 담았고, 여기서도 그 결과만 믿는다.
+   じゃらんゴルフ는 gc 번호를 아는 구장만 — 그것도 모르면 카드를 안 만든다. */
+function jpBookingCards(course, ymd, kind) {
+  const ja = typeof I18N !== "undefined" && I18N.lang === "ja";
+  const md = ymd.slice(5).replace("-", "/");
+  const out = [];
+
+  const b = typeof JPPACK !== "undefined" && typeof BOOKINGIDS_JP !== "undefined"
+    ? JPPACK._pick(BOOKINGIDS_JP, course) : null;
+  if (b) {
+    const [id, cal] = b;
+    // 조인(1인 예약)은 GORA 의 1人予約 목록으로 — 한국 '조인' 자리에 대응한다
+    const url = kind === "join"
+      ? "https://gora.golf.rakuten.co.jp/plan/one/?f_gc=" + id
+      : (cal || "https://gora.golf.rakuten.co.jp/gdk/gora/gc/" + id + "/");
+    out.push({
+      key: "gora", ico: "⛳", cls: "bk-mon",
+      title: ja ? (kind === "join" ? "楽天GORA 1人予約" : "楽天GORAで予約")
+                : (kind === "join" ? "라쿠텐 GORA 1인 예약" : "라쿠텐 GORA 예약"),
+      sub: ja ? `${md} ${course.name} の空き状況`
+              : `${md} · ${course.name} 빈자리 보기`,
+      url: url,
+    });
+  }
+
+  const gc = typeof JPGC_JP !== "undefined" ? JPPACK._pick(JPGC_JP, course) : null;
+  if (gc) {
+    out.push({
+      key: "jalangolf", ico: "🏌️", cls: "bk-pang",
+      title: ja ? "じゃらんゴルフで予約" : "자란 골프 예약",
+      sub: ja ? `${md} ${course.name}` : `${md} · ${course.name}`,
+      url: "https://golf-jalan.net/gc" + gc + "/",
+    });
+  }
+
+  const site = officialSiteUrl(course);
+  if (site)
+    out.push({ key: "official", ico: "🏛️", cls: "bk-site", title: tr("bk.card.official"),
+               sub: tr("bk.card.official.sub"), url: site });
+  return out;
+}
+
 function bookingLinkCards(course, ymd, kind, joinCount) {
+  // 일본 구장은 골팡·골프몬이 아무 소용이 없다 — 한국 예약 사이트라 목록이 비어 있다.
+  if (course.c === "JP") return jpBookingCards(course, ymd, kind);
   const mode = kind === "join" ? "join" : "booking";
   const id = bookingIdOf(course);
   const site = officialSiteUrl(course);
@@ -298,6 +347,9 @@ function paintBooking() {
 async function openBookingView() {
   const course = currentCourse;
   if (viewStack[viewStack.length - 1] !== "booking") pushView("booking");
+  // 일본 예약 자료(GORA 번호·じゃらん gc)는 여기서 처음 받는다.
+  // ⚠️ await 를 빼면 첫 진입에서만 카드가 없는 것처럼 보인다(코스공략에서 겪은 그 버그).
+  if (course.c === "JP" && typeof JPPACK !== "undefined") await JPPACK.need(course);
   document.querySelector("#booking-title").textContent = tr("bk.title");
   document.querySelector("#booking-desc").textContent =
     tr("bk.desc", { course: course.name });

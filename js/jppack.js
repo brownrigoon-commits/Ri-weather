@@ -46,6 +46,8 @@ const JPPACK = {
       jobs.push(this._load("holestats_jp", () => typeof HOLESTATS_JP !== "undefined"));
       jobs.push(this._load("holetext_jp", () => typeof HOLETEXT_JP !== "undefined"));
       jobs.push(this._load("staydb_jp", () => typeof STAYDB_JP !== "undefined"));
+      jobs.push(this._load("bookingids_jp", () => typeof BOOKINGIDS_JP !== "undefined"));
+      jobs.push(this._load("jpgc_jp", () => typeof JPGC_JP !== "undefined"));
     } else if (typeof I18N !== "undefined" && I18N.lang === "ja") {
       // 일본인이 한국 구장을 볼 때 — 한국 TIP 의 일본어판
       jobs.push(this._load("holeimgdb_ja", () => typeof HOLETIP_JA !== "undefined"));

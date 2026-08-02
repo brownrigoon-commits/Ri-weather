@@ -120,7 +120,9 @@ def main():
         bb = tempfile.mktemp(suffix=".py")
         shutil.copyfile(BUILD, bb)
         try:
-            tight = src0.replace("MAX_KM = 1.0", "MAX_KM = 0.3")
+            # ⚠️ MAX_KM 을 3.0 으로 올린 뒤 이 시험이 무의미해졌었다(0.3 으로 조여도
+            #    변환 유무가 결과를 안 바꿨다). WARN_KM 도 같이 조여야 실제로 갈린다.
+            tight = src0.replace("MAX_KM = 3.0", "MAX_KM = 0.3").replace("WARN_KM = 1.5", "WARN_KM = 0.2")
             open(BUILD, "w", encoding="utf-8", newline="\n").write(tight)
             run()
             with_conv = open(OUT, encoding="utf-8").read().count(":")

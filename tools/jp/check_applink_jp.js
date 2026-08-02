@@ -34,15 +34,17 @@ for (const f of files) {
     process.exit(1);
   }
 }
-// staydb_jp.js 는 배치가 끝나야 생긴다 — 없으면 그 항목만 건너뛴다(관문 자체는 돌아야 한다)
-const STAY_FILE = "js/staydb_jp.js";
-const hasStay = fs.existsSync(path.join(ROOT, STAY_FILE));
+// 배치·조립이 끝나야 생기는 파일들 — 없으면 그 항목만 건너뛴다(관문 자체는 돌아야 한다)
+const OPT = [["js/staydb_jp.js", "STAYDB_JP"], ["js/bookingids_jp.js", "BOOKINGIDS_JP"],
+             ["js/jpgc_jp.js", "JPGC_JP"]];
+const optSrc = OPT.map(([f, v]) => fs.existsSync(path.join(ROOT, f))
+  ? load(f) : `var ${v} = null;`).join("\n");
 
 // I18N 은 jppack 이 언어 판정에 쓴다 — 최소한만 흉내낸다
 const src = "var I18N = { lang: 'ko' };\n" +
-            files.map(load).join("\n") +
-            (hasStay ? "\n" + load(STAY_FILE) : "\nvar STAYDB_JP = null;") +
-            "\n;return { GOLF_DB, JPPACK, HOLEIMG_DB_JP, HOLESTATS_JP, HOLETEXT_JP, STAYDB_JP };";
+            files.map(load).join("\n") + "\n" + optSrc +
+            "\n;return { GOLF_DB, JPPACK, HOLEIMG_DB_JP, HOLESTATS_JP, HOLETEXT_JP," +
+            " STAYDB_JP, BOOKINGIDS_JP, JPGC_JP };";
 let env;
 try {
   env = new Function(src)();
@@ -50,7 +52,8 @@ try {
   console.log("✖ 앱 파일을 불러오지 못했습니다 —", e.message);
   process.exit(1);
 }
-const { GOLF_DB, JPPACK, HOLEIMG_DB_JP, HOLESTATS_JP, HOLETEXT_JP, STAYDB_JP } = env;
+const { GOLF_DB, JPPACK, HOLEIMG_DB_JP, HOLESTATS_JP, HOLETEXT_JP,
+        STAYDB_JP, BOOKINGIDS_JP, JPGC_JP } = env;
 
 // 화면이 쓰는 이름 = 검색 결과가 만드는 이름 (k 가 있으면 k, 없으면 n)
 const jp = GOLF_DB.filter((g) => g.c === "JP");
@@ -69,7 +72,8 @@ const PACKS = [
 // 숙박도 같은 관문에 태운다 — 별칭 사고(§2-9-2)를 숙박에서 다시 겪지 않기 위해서다.
 // 자료를 아무리 잘 모아도 앱이 그 이름으로 못 찾으면 화면은 비어 있다.
 if (STAYDB_JP) PACKS.push(["숙박", STAYDB_JP, (n) => JPPACK.stay(n)]);
-else console.log("   (숙박: js/staydb_jp.js 가 아직 없어 건너뜁니다 — 배치 후 생깁니다)");
+if (BOOKINGIDS_JP) PACKS.push(["부킹GORA", BOOKINGIDS_JP, (n) => JPPACK._pick(BOOKINGIDS_JP, n)]);
+if (JPGC_JP) PACKS.push(["부킹자란", JPGC_JP, (n) => JPPACK._pick(JPGC_JP, n)]);
 
 const problems = [];
 for (const [label, db, get] of PACKS) {

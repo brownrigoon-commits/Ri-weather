@@ -28,7 +28,15 @@ from jp_common import HP_JP, ROOT, NameResolver
 
 SRC = os.path.join(HP_JP, "_scan", "gora_courses.json")
 OUT = os.path.join(ROOT, "js", "bookingids_jp.js")
-MAX_KM = 1.0            # 좌표 검산 임계 — 표본 최대 오차가 854m 였다(설계 §6-1 표)
+# 좌표 검산 임계.
+# 🔴 이 검사의 일은 '이름이 **엉뚱한 구장**에 붙은 것' 을 잡는 것이지,
+#    좌표가 조금 어긋난 것을 잘라내는 게 아니다. 이름은 NameResolver 가 이미
+#    유일하게 확정했고(후보가 둘이면 아예 None 을 준다), 여기는 되짚기다.
+#    1.0km 로 뒀더니 이름이 글자까지 똑같은 早来カントリー倶楽部·西武園ゴルフ場 등
+#    11곳이 1.1~1.3km 로 잘렸다 — golfdb 는 OSM 좌표(클럽하우스)이고 GORA 는
+#    시설 대표점이라 이 정도는 같은 구장에서도 흔하다. 잘못 붙은 구장은 보통 수십 km 다.
+MAX_KM = 3.0
+WARN_KM = 1.5           # 이보다 멀면 담되 눈에 보이게 적는다
 
 
 def tokyo_to_wgs84(lat, lon):
@@ -50,6 +58,27 @@ def km(a, b, c, d):
 
 
 CHAIN = re.compile(r"【[^】]*】")          # 【アコーディア・ゴルフ】 같은 체인 표시
+OLDNAME = re.compile(r"[（(]\s*旧[^）)]*[）)]")   # （旧：大札幌カントリークラブ）
+NINE = re.compile(r"[\s　][^\s　]{1,8}コース$")   # 「…　愛別コース」 처럼 뒤에 붙은 코스명
+
+
+def variants(raw):
+    """GORA 이름 → golfdb 와 맞춰 볼 후보들 (넓은 것부터 좁은 것 순)
+
+    🔴 GORA 는 **홀 묶음(코스) 단위로** 등록돼 있고 golfdb 는 **골프장 단위**다.
+       '旭川国際カントリークラブ　愛別コース' 는 golfdb 에 '旭川国際カントリークラブ' 로만 있다.
+       코스명을 떼지 않으면 이런 곳이 전부 안 붙는다(1차 조립에서 885곳이 그랬다).
+       코스명을 뗀 뒤 붙는 것은 **같은 골프장**이므로, 그 골프장의 예약 페이지로 보내면 맞다.
+    """
+    a = CHAIN.sub("", raw or "").strip()
+    out = [a]
+    b = OLDNAME.sub("", a).strip()          # 옛 이름 병기 제거
+    if b and b != a:
+        out.append(b)
+    c = NINE.sub("", b).strip()             # 뒤에 붙은 코스명 제거
+    if c and c not in out:
+        out.append(c)
+    return out
 
 
 def js_str(s):
@@ -65,12 +94,15 @@ def main():
     res = NameResolver()
 
     db, stat = {}, {"이름못찾음": 0, "좌표어긋남": 0, "중복": 0, "담음": 0}
-    far_samples, dup_samples = [], []
+    far_samples, dup_samples, warn_samples = [], [], []
     for r in rows:
-        raw = CHAIN.sub("", r.get("name") or "").strip()
-        if not raw:
-            continue
-        name, why, lv = res.resolve(raw)
+        name = None
+        for v in variants(r.get("name")):
+            if not v:
+                continue
+            name, why, lv = res.resolve(v)
+            if name:
+                break
         if not name:
             stat["이름못찾음"] += 1
             continue
@@ -84,8 +116,12 @@ def main():
         if d > MAX_KM:
             stat["좌표어긋남"] += 1
             if len(far_samples) < 5:
-                far_samples.append(f"{raw[:20]} → {name[:20]} ({d:.1f}km)")
+                far_samples.append(f"{(r.get('name') or '')[:20]} → {name[:20]} ({d:.1f}km)")
             continue
+        if d > WARN_KM:
+            stat["멀지만담음"] = stat.get("멀지만담음", 0) + 1
+            if len(warn_samples) < 5:
+                warn_samples.append(f"{name[:24]} ({d:.1f}km)")
         if name in db:
             stat["중복"] += 1
             if len(dup_samples) < 5:
@@ -113,6 +149,10 @@ def main():
         print(f"   · 이름은 맞는데 좌표가 {MAX_KM}km 넘게 어긋남 {stat['좌표어긋남']}곳 — 담지 않음")
         for s in far_samples:
             print(f"       {s}")
+    if stat.get("멀지만담음"):
+        print(f"   · 좌표가 {WARN_KM}~{MAX_KM:g}km 떨어졌지만 이름이 맞아 담음 {stat['멀지만담음']}곳")
+        for s2 in warn_samples:
+            print(f"       {s2}")
     if stat["중복"]:
         print(f"   · 같은 구장에 GORA ID 가 둘 이상 {stat['중복']}곳 — 먼저 것을 씀")
         for s in dup_samples:
