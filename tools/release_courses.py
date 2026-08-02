@@ -256,7 +256,11 @@ for attempt in range(1, 4):
         _sw = open(sw, encoding="utf-8").read()
         _core = re.search(r"const CORE = \[(.*?)\];", _sw, re.S)
         if _core:
-            for u in re.findall(r'"([^"]+)"', _core.group(1)):
+            # ⚠️ 주석을 먼저 걷어낸다. 목록 안 주석에 따옴표 친 우리말이 들어 있으면
+            #    그걸 파일명으로 읽어 "없는 파일"이라며 배포를 막았다
+            #    (2026-08-02: 주석 속 "있으면 캐시" 때문에 멀쩡한 배포가 실패로 끝남).
+            _body = re.sub(r"//[^\n]*", "", _core.group(1))
+            for u in re.findall(r'"([^"]+)"', _body):
                 u = u[2:] if u.startswith("./") else u
                 if u and not u.startswith("http"):
                     need.append(u)
