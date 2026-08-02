@@ -145,7 +145,9 @@ def stage():
     #    이 목록에 없어서, 고쳤어도 sync 를 안 거치면 배포에서 빠질 뻔했다(2026-07-31 발견).
     git("add", "holeimg", "coursedata/homepages", "coursedata/workfiles",
         "tools", "js", "css", "icons", "assets", "docs", "sw.js", "index.html",
-        "ops-k58zq.html", "manifest.webmanifest", ".nojekyll", ".gitignore", ".sync",
+        # ⚠️ naming.html 도 저장소에 있고 **공개 주소로 열린다**. 목록에 없어서
+        #    옛 브랜드명이 남아 있는데도 배포가 안 됐다(2026-08-02 발견).
+        "ops-k58zq.html", "naming.html", "manifest.webmanifest", ".nojekyll", ".gitignore", ".sync",
         "robots.txt", "HANDOFF.md", "README.md", "CLAUDE.md", check=False)
     # --except 로 받은 경로는 담았다가 도로 뺀다(작업 파일 자체는 그대로 둔다)
     if KEEP_OUT:
