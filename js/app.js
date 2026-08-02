@@ -4,8 +4,8 @@
  * ========================================================= */
 "use strict";
 
-const APP_VER = "v193"; // 배포 버전 (홈 화면 배지에 표시)
-const APP_NOTE = "공개 페이지 옛 브랜드명 정리"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
+const APP_VER = "v194"; // 배포 버전 (홈 화면 배지에 표시)
+const APP_NOTE = "앱 지우기 전 확인 화면 추가"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
 const STORAGE_KEY = "riweather.courses.v1";
 
 /* 나중에 필요할 때 불러오는 파일 목록 (2026-07-31 신설).
@@ -5571,11 +5571,60 @@ const BACKUP = (() => {
 
   function open() { refreshUI(); $("#backup-sheet").hidden = false; }
 
+  /* ── 앱 지우기 전 확인 ──────────────────────────────────────
+     ⚠️ 웹앱은 **사용자가 앱을 지우는 순간을 알 수 없다.** 그래서 지우기 직전에
+        자동으로 뜨게 만들 수는 없고, 사용자가 스스로 열어보는 자리를 만든다.
+     대신 기록은 있는데 백업이 꺼져 있으면 앱을 켤 때 한 번 먼저 보여준다 —
+     "백업된 줄 알고 지웠다가 기록을 잃는" 사고를 막는 것이 목적이다(2026-07-27). */
+  function openBye() {
+    const s = st();
+    const c = loadCourses().length, sc = loadScores().length;
+    const desc = $("#bye-desc"), wrap = $("#bye-code-wrap"), msg = $("#bye-msg");
+    msg.textContent = "";
+    if (!c && !sc) {
+      desc.innerHTML = tr("app.bye.desc.none");
+      wrap.hidden = true;
+      $("#bye-keep").hidden = true;
+    } else if (s.on && s.code) {
+      desc.innerHTML = tr("app.bye.desc.on");
+      $("#bye-code").textContent = fmt(s.code);
+      wrap.hidden = false;
+      $("#bye-keep").hidden = false;
+    } else {
+      desc.innerHTML = tr("app.bye.desc.off", { c, s: sc });
+      wrap.hidden = true;
+      $("#bye-keep").hidden = false;
+    }
+    $("#bye-sheet").hidden = false;
+  }
+
+  /* '기록해두기' — 말만 하지 않고 **서버에 실제로 올라갔는지 확인하고** 알려준다 */
+  async function byeKeep() {
+    const btn = $("#bye-keep"), msg = $("#bye-msg");
+    btn.disabled = true;
+    msg.textContent = tr("app.bye.saving");
+    const s = st();
+    if (!s.code) { s.code = newCode(); }
+    s.on = true; s.hash = null; put(s);
+    const ok = await send(true);
+    btn.disabled = false;
+    refreshUI();
+    if (ok) {
+      $("#bye-code").textContent = fmt(st().code);
+      $("#bye-code-wrap").hidden = false;
+      $("#bye-desc").innerHTML = tr("app.bye.desc.on");
+      msg.textContent = tr("app.bye.saved");
+    } else {
+      const t = st(); t.on = false; put(t); refreshUI();
+      msg.textContent = tr("app.bye.failed");
+    }
+  }
+
   document.addEventListener("visibilitychange", () => {
     if (document.visibilityState === "hidden" && st().on) send(false);
   });
 
-  return { touch, open, enable, restore, send };
+  return { touch, open, enable, restore, send, openBye, byeKeep };
 })();
 
 $("#backup-open")?.addEventListener("click", () => BACKUP.open());
@@ -5590,6 +5639,22 @@ $("#bk-copy")?.addEventListener("click", async () => {
   setTimeout(() => { $("#bk-copy").textContent = tr("app.bk.copy"); }, 2000);
 });
 $("#bk-restore-btn")?.addEventListener("click", () => BACKUP.restore($("#bk-restore-input").value));
+
+/* 앱 지우기 전 확인 */
+$("#bye-open")?.addEventListener("click", () => { $("#backup-sheet").hidden = true; BACKUP.openBye(); });
+$("#bye-keep")?.addEventListener("click", () => BACKUP.byeKeep());
+$("#bye-drop")?.addEventListener("click", () => {
+  // 그냥 지우겠다고 해도 **무엇을 잃는지는 분명히 말하고** 닫는다
+  const c = loadCourses().length, s = loadScores().length;
+  if (c || s) $("#bye-msg").textContent = tr("app.bye.drop.warn");
+  setTimeout(() => { $("#bye-sheet").hidden = true; }, c || s ? 1600 : 0);
+});
+$("#bye-copy")?.addEventListener("click", async () => {
+  try { await navigator.clipboard.writeText($("#bye-code").textContent); } catch (_) {}
+  $("#bye-copy").textContent = tr("app.bye.copied");
+  setTimeout(() => { $("#bye-copy").textContent = tr("app.bk.copy"); }, 2000);
+});
+$("#bye-sheet")?.addEventListener("click", (e) => { if (e.target === $("#bye-sheet")) $("#bye-sheet").hidden = true; });
 
 /* ---------- 베타 의견 보내기 ----------
    100명 시험 배포(2026-07-31)용. 들어오는 길은 셋 — 홈의 초대 카드,

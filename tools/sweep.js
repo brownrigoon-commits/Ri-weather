@@ -351,6 +351,37 @@
     }
   } catch (e) { add("백업·복구 검사 예외", "backup", e.message); }
 
+  /* ── 2-2. 앱 지우기 전 확인 화면 ───────────────────────────────
+     "백업된 줄 알고 앱을 지웠다가 기록을 잃는" 사고를 막는 화면이다.
+     상태에 따라 **다른 말을 해야** 한다 — 켜짐이면 코드를, 꺼짐이면 경고를. */
+  try {
+    if (typeof BACKUP.openBye !== "function") add("앱 지우기 전 확인 화면 없음", "openBye", "");
+    else {
+      const sheet = document.querySelector("#bye-sheet");
+      const wasOn = JSON.parse(localStorage.getItem("riweather.backup") || "{}");
+      const keepC = localStorage.getItem("riweather.courses");
+      // ① 기록이 있는데 백업이 꺼진 상태 — 잃는다고 분명히 말해야 한다
+      localStorage.setItem("riweather.backup", JSON.stringify({ on: false }));
+      BACKUP.openBye();
+      const off = (document.querySelector("#bye-desc").textContent || "");
+      const hasRec = loadCourses().length || loadScores().length;
+      if (hasRec && !/사라지|되살릴 수 없/.test(off))
+        add("백업 꺼짐인데 경고를 안 함", "bye-desc", off.slice(0, 40));
+      if (!document.querySelector("#bye-code-wrap").hidden)
+        add("백업 꺼짐인데 복구 코드를 보여줌", "bye-code-wrap", "");
+      // ② 백업이 켜진 상태 — 복구 코드를 보여줘야 한다
+      localStorage.setItem("riweather.backup", JSON.stringify({ on: true, code: "123456789012", last: Date.now() }));
+      BACKUP.openBye();
+      if (document.querySelector("#bye-code-wrap").hidden)
+        add("백업 켜짐인데 복구 코드를 안 보여줌", "bye-code-wrap", "");
+      if (!/1234/.test(document.querySelector("#bye-code").textContent))
+        add("복구 코드가 화면과 다름", "bye-code", document.querySelector("#bye-code").textContent);
+      sheet.hidden = true;
+      localStorage.setItem("riweather.backup", JSON.stringify(wasOn));
+      if (keepC) localStorage.setItem("riweather.courses", keepC);
+    }
+  } catch (e) { add("앱 지우기 전 확인 검사 예외", "bye", e.message); }
+
   /* ── 3-4. 하늘 카드 — 날씨별로 카드가 깨지지 않는지 ───────────────
      wx-cloud 를 '흐림 상태'와 '구름 요소' 양쪽에 써서 카드 전체가
      블러 처리된 사고가 있었다(2026-07-27). 16조합을 매번 확인한다. */
