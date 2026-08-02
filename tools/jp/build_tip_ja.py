@@ -27,7 +27,7 @@ import urllib.error, urllib.parse, urllib.request
 from collections import Counter, defaultdict
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from jp_common import ROOT
+from jp_common import ROOT, HP_JP, batch_key, Budget
 
 SRC = os.path.join(ROOT, "js", "holeimgdb.js")
 CACHE = os.path.join(ROOT, "coursedata", "homepages_jp", "_stats", "tip_ja_cache.json")
@@ -68,15 +68,12 @@ def load_tips():
 
 
 def gem_key():
-    """앱에 들어 있는 공용 키를 그대로 쓴다 (같은 무료 한도)."""
-    app = open(os.path.join(ROOT, "js", "app.js"), encoding="utf-8").read()
-    m = re.search(r'EMBED_GEM_B64\s*=\s*"([^"]+)"', app)
-    if not m:
-        return None
-    try:
-        return base64.b64decode(m.group(1)).decode()
-    except Exception:
-        return None
+    """🔴 배치 전용 키만 쓴다. 앱 키로 폴백하지 않는다 — jp_common.batch_key 주석 참고.
+
+    (예전엔 여기서 js/app.js 의 공용 키를 꺼내 썼다. 그 키는 앱 AI 캐디가 쓰는 키였고,
+     무료 등급 Flash 는 하루 20회뿐이라 배치가 그걸 다 먹어 이용자들의 캐디가 막혔다.)
+    """
+    return batch_key()
 
 
 PROMPT = """다음은 한국 골프장의 홀별 공략 안내다. 일본인 골퍼가 한국 골프장에 와서 읽을
@@ -94,18 +91,30 @@ PROMPT = """다음은 한국 골프장의 홀별 공략 안내다. 일본인 골
 {text}"""
 
 # ⚠️ 모델 선택 (2026-08-02 실측)
-#   gemini-2.5-flash  → 404 "no longer available to new users"
-#   gemini-2.0-flash  → 429 할당량 초과
-#   gemini-flash-latest → 정상
-# 이 키는 **앱이 캐디에 쓰는 공용 키**다. 배치가 이용자 몫을 먹지 않도록
-# 한 번에 10문장씩 묶어 보내 호출 수를 1/10 로 줄인다.
-MODEL = "gemini-flash-latest"
+#   gemini-2.5-flash    → 404 "no longer available to new users"
+#   gemini-2.0-flash    → 429 할당량 초과
+#   gemini-flash-latest → 되지만 무료 등급 **하루 20회**뿐 (사장님 계정에서 직접 확인)
+#   gemini-flash-lite-latest → 무료 등급 **하루 500회** ← 배치는 이쪽
+# 번역은 있는 문장을 옮기는 일이라 Lite 로 충분하다. 한 번에 10문장씩 묶어
+# 호출 수를 1/10 로 줄이므로, 하루 500회면 5,000문장을 옮길 수 있다.
+MODEL = "gemini-flash-lite-latest"
 BATCH = 10
+BUDGET_FILE = os.path.join(HP_JP, "_stats", "gemini_budget.json")
+
+
+BUDGET = None      # main() 에서 만든다
 
 
 def _call(prompt, key, model=MODEL, tries=4):
     """한 번 호출. 429(할당량)·503(혼잡)은 기다렸다 다시 — 한 묶음이 통째로 날아가지 않게.
-       (2026-08-02 1차 실행에서 8묶음 80문장이 이렇게 날아갔다)"""
+       (2026-08-02 1차 실행에서 8묶음 80문장이 이렇게 날아갔다)
+
+    🔴 보내기 **전에** 하루치를 센다. 429 를 맞고 멈추는 건 이미 늦다 —
+       429 는 실패한 채로 남의 몫까지 축내는 요청이다(8/2 사고: 712회).
+    """
+    if BUDGET is not None and not BUDGET.take():
+        print("    ⏸ 오늘 몫을 다 썼습니다 — 여기서 멈춥니다(내일 이어서)")
+        return "__BUDGET__"
     url = (f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
            f"?key={urllib.parse.quote(key)}")
     body = json.dumps({
@@ -145,6 +154,8 @@ def translate(texts, key, model=MODEL):
     """
     joined = "\n".join(f"{i+1}|{t}" for i, t in enumerate(texts))
     raw = _call(PROMPT.format(text=joined), key, model)
+    if raw == "__BUDGET__":
+        return None                       # 오늘은 여기까지 — 부른 쪽이 멈춘다
     got = {}
     if raw:
         for line in raw.splitlines():
@@ -157,6 +168,8 @@ def translate(texts, key, model=MODEL):
         if ja and not KO.search(ja):
             continue
         one = _call(PROMPT.format(text=f"1|{t}"), key, model)
+        if one == "__BUDGET__":
+            break                         # 남은 자리는 None 인 채로 둔다 — 내일 다시 온다
         if not one:
             out[i] = None
             continue
@@ -193,18 +206,28 @@ def main():
 
     key = gem_key()
     if not key:
-        print("✖ 번역 키를 찾지 못했습니다")
+        print("✖ 배치 전용 키가 없습니다.")
+        print("   tools/jp/.gemini_key 파일에 키를 넣거나 GEMINI_BATCH_KEY 환경변수를 지정하세요.")
+        print("   🔴 앱에 심어둔 키는 쓰지 않습니다 — 그 키는 이용자들의 AI 캐디가 쓰는 키이고,")
+        print("      무료 등급 Flash 는 하루 20회뿐이라 배치가 돌면 캐디가 막힙니다(8/2 사고).")
         return 1
+
+    global BUDGET
+    BUDGET = Budget(BUDGET_FILE, rpd=500, rpm=15)   # Flash Lite 무료 등급 실측 한도
 
     cache = json.load(open(CACHE, encoding="utf-8")) if os.path.exists(CACHE) else {}
     todo = [g for g in good if g[3] not in cache]
     if a.translate:
         todo = todo[:a.translate]
-    print(f"■ 번역할 문장 {len(todo)}개 (이미 번역 {len(cache)}개)")
+    print(f"■ 번역할 문장 {len(todo)}개 (이미 번역 {len(cache)}개)"
+          f" · 오늘 남은 요청 {BUDGET.left()}회")
 
     for i in range(0, len(todo), BATCH):
         chunk = todo[i:i + BATCH]
         res = translate([c[3] for c in chunk], key)
+        if res is None:                     # 오늘 몫 소진
+            print(f"   여기까지 (누적 {len(cache)}개). 내일 같은 명령으로 이어집니다.")
+            break
         for (cc, cs, no, tip, _), ja in zip(chunk, res):
             if ja and not KO.search(ja):
                 cache[tip] = ja

@@ -242,3 +242,86 @@ def looks_like_image(headers, body):
     if len(body) < MIN_IMAGE_BYTES:
         return False, f"너무 작음({len(body)}B) — 배지 아이콘이나 빈 그림일 수 있음"
     return True, ""
+
+
+# ────────────────────────────────────────────────────────────────────────────
+# 배치용 Gemini 키·요청 예산 (2026-08-02 사고 이후 신설)
+# ────────────────────────────────────────────────────────────────────────────
+
+KEY_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".gemini_key")
+
+
+def batch_key():
+    """배치 전용 Gemini 키를 읽는다. 없으면 None.
+
+    🔴 앱에 심어둔 키(js/app.js 의 EMBED_GEM_B64)로는 **절대 폴백하지 않는다.**
+       2026-08-02: 번역 배치가 앱 캐디와 같은 키를 썼다. 무료 등급 Flash 는
+       **하루 20회**라서 배치가 그걸 다 먹었고, 그동안 이용자들의 AI 캐디가
+       같이 막혔다. 배치는 사용자 기능을 굶긴다.
+       키가 없으면 차라리 아무것도 하지 않는 편이 낫다.
+
+    순서: tools/jp/.gemini_key 파일 → 환경변수 GEMINI_BATCH_KEY
+    (.gemini_key 는 .gitignore 에 있다 — 공개 저장소다)
+    """
+    if os.path.exists(KEY_FILE):
+        k = open(KEY_FILE, encoding="utf-8").read().strip()
+        if k:
+            return k
+    return os.environ.get("GEMINI_BATCH_KEY") or None
+
+
+class Budget:
+    """하루 요청 수를 스스로 지킨다.
+
+    429 를 맞고 나서 멈추는 건 이미 늦다 — 429 는 남의 몫까지 축내며 실패한 요청이다.
+    그래서 **보내기 전에** 센다. 세어 둔 값은 파일에 남겨 프로그램을 다시 켜도 이어진다.
+
+    무료 등급 실측 한도 (2026-08-02, 사장님 계정에서 직접 읽음):
+        Flash 계열      분당 5회  · 하루 **20회**
+        Flash Lite 계열 분당 15회 · 하루 **500회**   ← 배치는 이쪽을 쓴다
+    """
+
+    def __init__(self, path, rpd=500, rpm=15):
+        self.path, self.rpd, self.rpm = path, rpd, rpm
+        self.day, self.used = self._load()
+        self.stamps = []
+
+    def _today(self):
+        # 구글의 하루는 태평양 시간 자정에 바뀐다. 우리 시간대로 세면 경계에서 어긋난다.
+        return time.strftime("%Y-%m-%d", time.gmtime(time.time() - 8 * 3600))
+
+    def _load(self):
+        try:
+            j = json.load(open(self.path, encoding="utf-8"))
+            if j.get("day") == self._today():
+                return j["day"], int(j["used"])
+        except Exception:
+            pass
+        return self._today(), 0
+
+    def _save(self):
+        try:
+            os.makedirs(os.path.dirname(self.path), exist_ok=True)
+            json.dump({"day": self.day, "used": self.used},
+                      open(self.path, "w", encoding="utf-8"))
+        except Exception:
+            pass
+
+    def left(self):
+        if self.day != self._today():          # 자정을 넘겼다
+            self.day, self.used = self._today(), 0
+        return self.rpd - self.used
+
+    def take(self):
+        """한 번 보낼 자리를 받는다. 하루치를 다 썼으면 False — 그러면 멈춘다."""
+        if self.left() <= 0:
+            return False
+        now = time.time()
+        self.stamps = [t for t in self.stamps if now - t < 60]
+        if len(self.stamps) >= self.rpm:       # 분당 한도는 기다리면 풀린다
+            time.sleep(60 - (now - self.stamps[0]) + 0.5)
+            self.stamps = [t for t in self.stamps if time.time() - t < 60]
+        self.stamps.append(time.time())
+        self.used += 1
+        self._save()
+        return True
