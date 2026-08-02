@@ -345,7 +345,9 @@ console.log("\n■ 10. 개발·테스트 기록을 집계에서 뺀다 (2026-07-
     { t: Date.now(), cid: "mypc", ev: "visit", ver: "v174", dev: "PC", age: "30대", gen: "여성" },
     { t: Date.now(), cid: "mypc", ev: "course", ver: "v175", name: "스카이72", reg: "경기북부" },
     { t: Date.now(), cid: "verify-pc", ev: "visit", ver: "v175", dev: "PC" },
-    { t: Date.now(), cid: "real1", ev: "course", ver: "v175", name: "테스트CC", reg: "경기남부" },
+    /* '테스트'가 든 이름의 행 단위 제외를 본다. ⚠️ 테스트CC 는 못 쓴다 — 그 이름은
+       FAKE_COURSES(기기 단위 A2)라서 이 줄 하나로 real1 이 통째로 빠져 버린다(2026-08-02). */
+    { t: Date.now(), cid: "real1", ev: "course", ver: "v175", name: "테스트연습장", reg: "경기남부" },
   ] });
 
   // ① 이름만으로 아는 것 — 검사 스크립트(verify-)와 가짜 골프장은 손대지 않아도 빠진다

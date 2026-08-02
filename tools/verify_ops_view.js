@@ -183,7 +183,7 @@ async function openOps(browser, summary, cids) {
     ok(!(await page.$eval("#sec-days", (e) => e.hidden)), "30일 추이는 두 모드 모두 그대로 있다");
     const sub = await page.$eval("#sub", (e) => e.textContent);
     ok(/시트 2,804건/.test(sub) && /집계 1,883건/.test(sub), "시트 줄 수와 집계 줄 수를 구분해 적는다", sub);
-    ok(/우리 기기 132대 830건/.test(sub), "무엇을 얼마나 뺐는지 적는다", sub);
+    ok(/뺀 기기 132대 830건/.test(sub), "무엇을 얼마나 뺐는지 적는다", sub);
     ok(/중복 전송 17건/.test(sub), "합친 중복 전송도 적는다", sub);
     await ctx.close();
   }
@@ -247,7 +247,7 @@ async function openOps(browser, summary, cids) {
     page.on("dialog", (d) => { asked = d.message(); d.dismiss(); });
     await page.click('#cids button[data-bulk="dev"]');
     await page.waitForTimeout(400);
-    ok(/2대를 통계에서 뺍니다/.test(asked), "누르기 전에 몇 대인지 확인을 받는다", asked);
+    ok(/하루만 쓰고 사라진 기기 2대/.test(asked), "누르기 전에 무엇을 몇 대 빼는지 확인을 받는다", asked);
     ok(/되돌릴 수 있습니다/.test(asked), "되돌릴 수 있다고 알려준다", asked);
 
     const meHit = await reallyClickable(page, "#mark-me");

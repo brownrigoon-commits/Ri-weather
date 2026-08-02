@@ -129,6 +129,7 @@ function sheet_() {
  */
 var DEV_PROP = "DEV_CIDS";      // 사람이 [안 셈] 을 누른 기기
 var KEEP_PROP = "KEEP_CIDS";    // 사람이 [이건 진짜 사용자] 로 되돌린 기기
+var B2OFF_PROP = "B2_ALL_OFF";  // "1" 이면 B2(하루살이 무더기)를 통째로 뺀다 — 스위치 하나
 var LIST_MAX = 400;             // 스크립트 속성 한 칸이 9KB — 12자 기기ID 400개면 약 6KB
 var ROW_WINDOW = 20000;         // 한 번에 읽는 최근 기록 수
 
@@ -216,12 +217,15 @@ function vetoOf_(o) {
 
 /* 자동 규칙 — 우리 자국이 분명한 것만 */
 function autoRuleOf_(o) {
+  /* hard 가 붙은 규칙은 **사실**이라 보호신호(추측)가 뒤집지 못한다.
+     A1 은 우리가 직접 붙인 표시이고, A2 의 가짜 구장은 앱으로 도달 자체가 불가능하다.
+     되돌리기는 사람 몫([이건 진짜 사용자] = KEEP)으로만 열어 둔다. (2026-08-02 반박 검증) */
   // A1 — 앱이 스스로 붙인 표시. dev-wd- 는 자동화 브라우저(헤드리스), dev- 는 ?dev=1
-  if (/^dev-wd-/.test(o.cid)) return { rule: "A1", why: "자동화 브라우저로 보고된 기기(헤드리스)" };
-  if (/^dev-/.test(o.cid)) return { rule: "A1", why: "?dev=1 로 직접 표시한 기기" };
+  if (/^dev-wd-/.test(o.cid)) return { rule: "A1", hard: true, why: "자동화 브라우저로 보고된 기기(헤드리스)" };
+  if (/^dev-/.test(o.cid)) return { rule: "A1", hard: true, why: "?dev=1 로 직접 표시한 기기" };
 
   // A2 — 앱으로는 갈 수 없는 이름을 봤다
-  if (o.fake) return { rule: "A2", why: "없는 골프장 '" + o.fake + "' 를 봄 — 앱으로는 갈 수 없는 이름" };
+  if (o.fake) return { rule: "A2", hard: true, why: "없는 골프장 '" + o.fake + "' 를 봄 — 앱으로는 갈 수 없는 이름" };
 
   /* A3 — 사람 손으로는 나올 수 없는 간격. 중복 전송을 걷어낸 뒤에 센다(scan_ 의 dedup 참고).
      ⚠️ 기준은 0.15초·같은 날이다. 처음에는 0.4초로 했다가 재검증에서 걸렸다(2026-08-02):
@@ -243,7 +247,7 @@ function autoRuleOf_(o) {
   return null;
 }
 
-function verdictOf_(o, devMap, keepMap) {
+function verdictOf_(o, devMap, keepMap, b2off) {
   if (alwaysDev_(o.cid))
     return { skip: true, state: "always", rule: "X1", why: "검사 스크립트 — 늘 빠짐" };
   if (keepMap[o.cid])
@@ -253,7 +257,7 @@ function verdictOf_(o, devMap, keepMap) {
 
   var hit = autoRuleOf_(o);
   if (hit) {
-    var veto = vetoOf_(o);
+    var veto = hit.hard ? "" : vetoOf_(o);   // 사실 규칙(A1·A2)은 추측이 뒤집지 못한다
     if (!veto) return { skip: true, state: "auto", rule: hit.rule, why: hit.why };
     return { skip: false, state: "candidate", rule: hit.rule, why: hit.why, veto: veto };
   }
@@ -266,8 +270,13 @@ function verdictOf_(o, devMap, keepMap) {
         (2026-08-02 재검증에서 모의 자료로 실제로 재현된 구멍). */
   if (o.dayCount === 1 && o.visits <= 3 && o.firstDay <= NOISE_UNTIL && !vetoOf_(o)) {
     var md = o.firstDay.slice(5).split("-");   // "07-28" → 7월 28일 (앞 0 을 뗀다)
-    return { skip: false, state: "candidate", rule: "B2",
-             why: Number(md[0]) + "월 " + Number(md[1]) + "일 하루만 쓰고 사라진 기기" };
+    var whyB2 = Number(md[0]) + "월 " + Number(md[1]) + "일 하루만 쓰고 사라진 기기";
+    /* [전부 안 셈] 은 기기ID 목록이 아니라 **스위치 하나**(B2_ALL_OFF)다.
+       무더기가 몇백 대라 목록(상한 400)에 다 넣을 수 없고, 넣을 필요도 없다 —
+       조건이 곧 명단이다. 되돌리기도 스위치 하나로 전부 돌아온다.
+       개별 구제는 KEEP 이 이 분기보다 먼저라 [이건 진짜 사용자] 가 그대로 통한다. */
+    if (b2off) return { skip: true, state: "auto", rule: "B2", why: whyB2 + " — [전부 안 셈] 처리됨" };
+    return { skip: false, state: "candidate", rule: "B2", why: whyB2 };
   }
 
   return { skip: false, state: "on", rule: "", why: "" };
@@ -461,6 +470,13 @@ function doPost(e) {
       if (!g.ok) return json_({ ok: false, err: g.err });
       var list = body.cids || [body.cid];
       return listMark_(body.fn === "devcid" ? DEV_PROP : KEEP_PROP, list, !!body.on);
+    }
+    /* B2 무더기 전체를 스위치 하나로 켜고 끈다 — 몇백 대라 목록으로는 못 담는다(상한 400) */
+    if (body.fn === "b2all") {
+      var g4 = pwGate_(body.pw);
+      if (!g4.ok) return json_({ ok: false, err: g4.err });
+      PropertiesService.getScriptProperties().setProperty(B2OFF_PROP, body.on ? "1" : "0");
+      return json_({ ok: true, on: !!body.on });
     }
     var rows = body.rows || [];
     if (!rows.length || rows.length > 100) return json_({ ok: false });
@@ -828,7 +844,7 @@ function scan_() {
     }
     o.n++;
     if (ev === "visit") o.visits++;
-    else o._acts.push(t);                       // A3 은 visit 을 빼고 본다(새 버전 자동 새로고침 때문)
+    else o._acts.push({ t: t, k: ev + "|" + name });   // A3 은 visit 을 빼고 본다(새 버전 자동 새로고침 때문)
     if (t < o.first) o.first = t;
     if (t > o.last) o.last = t;
     o._days[d] = 1;
@@ -843,6 +859,8 @@ function scan_() {
   }
 
   var devMap = listMap_(DEV_PROP), keepMap = listMap_(KEEP_PROP);
+  var b2off = false;
+  try { b2off = PropertiesService.getScriptProperties().getProperty(B2OFF_PROP) === "1"; } catch (e) {}
   var vdays = Object.keys(verByDay).sort();
   Object.keys(out.cids).forEach(function (k) {
     var o = out.cids[k];
@@ -853,15 +871,18 @@ function scan_() {
     o.vers = Object.keys(o._vers).length;
 
     /* A3 재료 — 같은 날 안에서만 짝을 센다. 하루 기록이 5건은 되어야 '연달아'를 말할 수
-       있고(두세 건의 우연은 근거가 못 된다), 날을 넘겨 누적하면 오래 쓴 이용자가 억울해진다. */
-    o._acts.sort(function (a, b) { return a - b; });
+       있고(두세 건의 우연은 근거가 못 된다), 날을 넘겨 누적하면 오래 쓴 이용자가 억울해진다.
+       ⚠️ **같은 버튼**의 연타는 짝으로 세지 않는다 — 화면이 제자리에서 다시 그려지는 탭을
+          답답해서 한 번 더 누르면 0.12초짜리 같은 이름 두 줄이 진짜로 나온다(실측).
+          검사 도구는 서로 **다른** 버튼을 0.03초 간격으로 훑으므로 이 조건에 안 걸린다. */
+    o._acts.sort(function (a, b) { return a.t - b.t; });
     o.fastPairs = 0;
     var dayActs = 1, dayFp = 0;
     for (var j = 1; j <= o._acts.length; j++) {
-      var sameDay = j < o._acts.length && kday_(o._acts[j]) === kday_(o._acts[j - 1]);
+      var sameDay = j < o._acts.length && kday_(o._acts[j].t) === kday_(o._acts[j - 1].t);
       if (sameDay) {
         dayActs++;
-        if (o._acts[j] - o._acts[j - 1] < 150) dayFp++;
+        if (o._acts[j].t - o._acts[j - 1].t < 150 && o._acts[j].k !== o._acts[j - 1].k) dayFp++;
       }
       if (!sameDay) {                 // 날이 바뀌거나 끝 — 그날 치 결산
         if (dayActs >= 5 && dayFp > o.fastPairs) o.fastPairs = dayFp;
@@ -878,7 +899,7 @@ function scan_() {
     o.versOut = Object.keys(seenV).length;
 
     delete o._days; delete o._vers; delete o._acts;
-    o.v = verdictOf_(o, devMap, keepMap);
+    o.v = verdictOf_(o, devMap, keepMap, b2off);
   });
   return out;
 }
@@ -1028,7 +1049,7 @@ function summary_() {
     var devMapFb = listMap_(DEV_PROP), keepMapFb = listMap_(KEEP_PROP);
     var fs = fbSheet_(), fl = fs.getLastRow();
     if (fl >= 2) {
-      var ff = Math.max(2, fl - 300);
+      var ff = Math.max(2, fl - 299);   // 최근 300줄 (fl-300 이면 301줄이라 보정분과 1건 겹친다)
       fs.getRange(ff, 1, fl - ff + 1, 2).getValues().forEach(function (r) {
         var c = String(r[1] || "");
         var o = sc.cids[c];

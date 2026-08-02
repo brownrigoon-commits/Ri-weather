@@ -70,6 +70,13 @@ const STATS = (() => {
         ls.del(DEV_KEY);
         if (/^dev-(wd-)?/.test(cur)) ls.set(CID_KEY, cur.replace(/^dev-(wd-)?/, ""));
       }
+      /* 표시를 적용했으면 주소창에서 ?dev= 를 지운다.
+         안 지우면 사장님이 주소를 그대로 복사해 카톡으로 보낼 때 받는 사람까지
+         '우리 기기'로 찍혀 통계에서 사라진다(2026-08-02 반박 검증에서 지적). */
+      try {
+        var q = location.search.replace(/[?&]dev=[01]/, "").replace(/^&/, "?");
+        history.replaceState(null, "", location.pathname + q + location.hash);
+      } catch (_) {}
     }
   } catch (_) {}
   /* ⚠️ dev-wd- 는 '우리 기기'가 아니라 '자동화 추측'이라 여기서 빼야 한다.
@@ -256,7 +263,8 @@ const FEEDBACK = (() => {
        의견 자체는 막지 않는다 — 우리도 폰에서 끝까지 눌러 시험해 볼 수 있어야 한다.
        대신 관리자 화면의 목록·건수에서 서버가 이 표시를 보고 걸러 낸다(2026-08-02).
        진짜 이용자는 늘 배포 주소로 열므로 여기 걸리지 않는다. */
-    if (window.RIW_STATS_OFF && cid && !/^dev-/.test(cid)) cid = "dev-" + cid;
+    // 기기ID가 아직 없어도(앱을 연 적 없는 브라우저) 표시는 붙는다 — 빈 ID 로 새면 못 걸러낸다
+    if (window.RIW_STATS_OFF && !/^dev-/.test(cid)) cid = "dev-" + (cid || "anon");
     const u = navigator.userAgent;
     const dev = /iPhone|iPad|iPod/i.test(u) ? "iOS" : /Android/i.test(u) ? "Android" : "PC";
     return { cid, dev, ver: typeof APP_VER !== "undefined" ? APP_VER : "" };

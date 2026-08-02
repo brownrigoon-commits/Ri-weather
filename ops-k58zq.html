@@ -294,7 +294,8 @@
     <p class="foot">
       집계 기준 — 방문: 앱을 연 횟수 · 사람 수: 그날의 서로 다른 기기 수<br>
       연령·성별은 동의한 이용자만, 지역은 조회한 골프장이 있는 지역군<br>
-      개발·테스트 접속은 빠집니다 — 앱을 <b>?dev=1</b> 로 한 번 열면 그 기기는 계속 빠집니다(<b>?dev=0</b> 해제)<br>
+      개발·테스트 접속은 빠집니다 — 앱을 <b>?dev=1</b> 로 한 번 열면 <b>앞으로 쌓일 것</b>이 막힙니다(<b>?dev=0</b> 해제)<br>
+      이미 쌓인 기록까지 빼려면 위 기기 목록의 <b>[이 기기는 우리 것]</b> 버튼을 쓰세요<br>
       <span id="bever"></span>
     </p>
   </div>
@@ -563,18 +564,42 @@ function loadCids() {
   });
 }
 
+/* 서버에 기기 표시를 보낸다 — 바꾸기(POST)까지가 본체다.
+   ⚠️ 시간 제한을 반드시 건다(get 과 같은 45초). 없으면 구글이 느린 날 버튼이
+      "바꾸는 중…" 에서 영원히 멈춘다 — 이 파일이 로그인에서 이미 겪은 사고다. */
+function post45(body) {
+  var ctl = window.AbortController ? new AbortController() : null;
+  var timer = setTimeout(function () { if (ctl) ctl.abort(); }, 45000);
+  var opts = { method: "POST", headers: { "Content-Type": "text/plain" }, body: JSON.stringify(body) };
+  if (ctl) opts.signal = ctl.signal;
+  return fetch(BACKEND, opts)
+    .then(function (r) { return r.json(); })
+    .catch(function (e) {
+      if (e && e.name === "AbortError") throw new Error("서버가 응답하지 않습니다(45초)");
+      throw new Error("연결하지 못했습니다");
+    })
+    .then(function (j) { clearTimeout(timer); return j; },
+          function (e) { clearTimeout(timer); throw e; });
+}
+
+/* 바꾼 뒤 화면 새로고침 — **바꾸기는 이미 성공했다.** 새로고침이 실패했다고
+   "바꾸지 못했습니다" 라고 알리면 거짓말이 된다. 새로고침 실패는 조용히 넘긴다
+   (다음 [새로고침] 에 어차피 반영된다). 통계·기기목록은 나란히 부른다(직렬이면 30초). */
+function refreshBoth() {
+  return Promise.all([load(), loadCids()]).catch(function () {});
+}
+
 /* 기기 표시 바꾸기 — 한 대든 여러 대든 같은 길로 보낸다.
-   act "dev" = 빼기 · "keep" = 되돌리기 */
+   act "dev" = 빼기 · "keep" = 되돌리기
+   ⚠️ cid(한 대)도 같이 싣는다 — 옛 백엔드는 cids(묶음)를 몰라서 cid 만 읽는다.
+      이걸 빼면 재배포 전에는 [안 셈] 버튼이 전부 "기기ID가 없습니다" 로 죽는다. */
 function markCids(act, cids) {
-  return fetch(BACKEND, {
-    method: "POST", headers: { "Content-Type": "text/plain" },
-    body: JSON.stringify({ fn: act === "keep" ? "keepcid" : "devcid", pw: pw, cids: cids, on: true }),
-  }).then(function (r) { return r.json(); }).then(function (j) {
-    if (!j || !j.ok) throw new Error((j && j.err) || "바꾸지 못했습니다");
-    /* 통계와 기기 목록을 **나란히** 다시 부른다. 줄 세워 부르면 구글이 느린 날에는
-       (요청 하나가 도착까지 10~15초) 버튼 하나 누르고 30초를 기다리게 된다. */
-    return Promise.all([load(), loadCids()]);
-  });
+  return post45({ fn: act === "keep" ? "keepcid" : "devcid", pw: pw,
+                  cid: cids[0], cids: cids, on: true })
+    .then(function (j) {
+      if (!j || !j.ok) throw new Error((j && j.err) || "바꾸지 못했습니다");
+      return refreshBoth();
+    });
 }
 
 $("cids").addEventListener("click", function (e) {
@@ -584,15 +609,34 @@ $("cids").addEventListener("click", function (e) {
   var bulk = e.target.closest("button[data-bulk]");
   if (bulk) {
     var st = bulk.dataset.st, act = bulk.dataset.bulk;
-    var list = CIDS.filter(function (r) { return r.state === st; }).map(function (r) { return r.cid; });
-    if (!list.length) return;
-    var msg = act === "keep"
-      ? list.length + "대를 다시 통계에 넣습니다."
-      : list.length + "대를 통계에서 뺍니다.";
+    var rows = CIDS.filter(function (r) { return r.state === st; });
+    if (!rows.length) return;
+    // 묶음 처리는 새 백엔드부터 있다 — 옛 백엔드에 대고 누르면 첫 한 대만 바뀌어 더 헷갈린다
+    if (!SUM || !SUM.scope) {
+      alert("묶음 처리는 백엔드를 다시 배포해야 쓸 수 있습니다.\n(Apps Script → 배포 관리 → ✏️ → 새 버전)");
+      return;
+    }
+    /* B2(하루살이 무더기)는 몇백 대라 기기ID 목록에 담지 않는다 — 서버 스위치 하나로 처리.
+       그 외(우리 자국인데 사람 흔적이 있어 확인을 청한 기기)만 목록으로 보낸다. */
+    var b2 = rows.filter(function (r) { return r.rule === "B2"; });
+    var rest = rows.filter(function (r) { return r.rule !== "B2"; }).map(function (r) { return r.cid; });
+    var bits = [];
+    if (b2.length) bits.push("하루만 쓰고 사라진 기기 " + b2.length + "대");
+    if (rest.length) bits.push("그 외 " + rest.length + "대");
+    var msg = (act === "keep" ? "다시 통계에 넣습니다" : "통계에서 뺍니다") + ": " + bits.join(" + ");
     if (!confirm(msg + "\n\n기록을 지우는 것이 아니라 세지 않는 것이라 언제든 되돌릴 수 있습니다.")) return;
+    var was = bulk.textContent;
     bulk.disabled = true; bulk.textContent = "바꾸는 중…";
-    markCids(act, list).catch(function (err) {
-      bulk.disabled = false;
+    var jobs = [];
+    if (b2.length && st === "candidate" && act === "dev")
+      jobs.push(post45({ fn: "b2all", pw: pw, on: true }));
+    if (b2.length && st === "auto" && act === "keep")
+      jobs.push(post45({ fn: "b2all", pw: pw, on: false }));
+    Promise.all(jobs).then(function (rs) {
+      rs.forEach(function (j) { if (!j || !j.ok) throw new Error((j && j.err) || "바꾸지 못했습니다"); });
+      return rest.length ? markCids(act, rest) : refreshBoth();
+    }).catch(function (err) {
+      bulk.disabled = false; bulk.textContent = was;
       alert("바꾸지 못했습니다 — " + err.message);
     });
     return;
@@ -600,9 +644,10 @@ $("cids").addEventListener("click", function (e) {
 
   var b = e.target.closest("button[data-cid]");
   if (!b) return;
+  var wasB = b.textContent;
   b.disabled = true; b.textContent = "…";
   markCids(b.dataset.act, [b.dataset.cid]).catch(function (err) {
-    b.disabled = false;
+    b.disabled = false; b.textContent = wasB;
     alert("바꾸지 못했습니다 — " + err.message);
   });
 });
@@ -719,7 +764,9 @@ function paintSub() {
   var ex = (MODE === "day" && split) ? ((s.today || {}).excluded) : s.excluded;
   var bits = [];
   if (ex) {
-    if (ex.rows) bits.push("우리 기기 " + num(ex.devices) + "대 " + num(ex.rows) + "건");
+    /* '우리 기기'라고 단정하지 않는다 — 규칙으로 뺀 것이 섞여 있고, 단정하면
+       사장님이 목록을 확인하러 갈 이유가 없어진다 */
+    if (ex.rows) bits.push("뺀 기기 " + num(ex.devices) + "대 " + num(ex.rows) + "건");
     if (ex.test) bits.push("테스트 골프장 " + num(ex.test) + "건");
     if (ex.dupes) bits.push("중복 전송 " + num(ex.dupes) + "건");
   }
@@ -727,9 +774,12 @@ function paintSub() {
     ? "오늘 " + (s.todayKey ? String(s.todayKey).slice(5).replace("-", "/") : "")
     : "시트 " + num(s.total) + "건" +
       (s.counted === undefined ? "" : " · 집계 " + num(s.counted) + "건");
-  var now = new Date();
-  $("sub").textContent = head + (bits.length ? " · 뺀 것 " + bits.join(" + ") : "") + " · " +
-    String(now.getHours()).padStart(2, "0") + ":" + String(now.getMinutes()).padStart(2, "0") + " 기준";
+  /* 시각 도장은 서버가 집계한 시각(asOf)이다 — 폰 시계가 아니라. 옛 백엔드면 현재 시각 */
+  var at = s.asOf ? new Date(s.asOf + 9 * 3600000) : null;
+  var hm = at
+    ? String(at.getUTCHours()).padStart(2, "0") + ":" + String(at.getUTCMinutes()).padStart(2, "0")
+    : (function (d) { return String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0"); })(new Date());
+  $("sub").textContent = head + (bits.length ? " · 뺀 것 " + bits.join(" + ") : "") + " · " + hm + " 기준";
 }
 
 /* 오늘 아직 아무도 안 온 새벽에 '아직 데이터가 없습니다' 를 여섯 번 반복하면 고장으로 보인다.

@@ -118,11 +118,14 @@ const find = (list, cid) => list.rows.filter((r) => r.cid === cid)[0];
    4. 보호신호 — 자동 규칙에 걸려도 사람 흔적이 있으면 빼지 않는다
    ────────────────────────────────────────────────────────────── */
 {
-  console.log("\n■ 4. 보호신호(veto) — 애매하면 빼지 않는다");
-  const t = build([
-    row(T(1000), "hasage", "visit", "", { age: "40대", gen: "남성" }),
-    row(T(9000), "hasage", "course", "테스트CC", { age: "40대", gen: "남성" }),
-  ]);
+  console.log("\n■ 4. 보호신호(veto) — 추측 규칙(A3)은 애매하면 빼지 않는다");
+  // A3 에 걸릴 기록(다른 버튼을 30ms 간격으로 6번)인데 연령이 입력돼 있다 → 확인만 청한다
+  const fast = (cid, opt) => {
+    const r = [row(T(1000), cid, "visit", "", opt)];
+    for (let i = 0; i < 6; i++) r.push(row(T(5000 + i * 30), cid, "feature", "f" + i, opt));
+    return r;
+  };
+  const t = build(fast("hasage", { age: "40대", gen: "남성" }));
   const s = t.sum(), c = t.cids();
   eq(find(c, "hasage").state, "candidate", "연령을 입력한 기기는 '확인 필요'로만 올린다");
   ok(/연령/.test(find(c, "hasage").veto), "보호신호를 밝힌다", find(c, "hasage").veto);
@@ -130,12 +133,21 @@ const find = (list, cid) => list.rows.filter((r) => r.cid === cid)[0];
   eq(s.candidates.n, 1, "확인 필요 기기 수를 알려준다");
 
   // 의견을 남긴 기기도 같다
-  const t2 = build(
-    [row(T(1000), "wrote", "visit", ""), row(T(9000), "wrote", "course", "테스트CC")],
-    {},
-    [[T(5000), "wrote", "아이디어", 5, "이런 기능 있으면 좋겠어요", "home", "v187", "iOS"]]
-  );
+  const t2 = build(fast("wrote"), {},
+    [[T(5000), "wrote", "아이디어", 5, "이런 기능 있으면 좋겠어요", "home", "v187", "iOS"]]);
   eq(find(t2.cids(), "wrote").state, "candidate", "직접 의견을 남긴 기기도 확인 필요로만");
+
+  /* ⚠️ 사실 규칙(A1·A2)은 보호신호가 뒤집지 못한다 — 없는 골프장을 봤다는 건
+     연령이 입력돼 있어도 우리 것이라는 뜻이다(동의 화면을 시험하며 채운 값).
+     되돌리기는 [이건 진짜 사용자](KEEP) 로만 연다. */
+  const t3 = build([
+    row(T(1000), "ourphone", "visit", "", { age: "40대" }),
+    row(T(9000), "ourphone", "course", "테스트CC", { age: "40대" }),
+  ]);
+  eq(find(t3.cids(), "ourphone").state, "auto", "없는 골프장을 본 기기는 연령이 있어도 빠진다");
+  const t4 = build([row(T(1000), "dev-wd-abc", "visit", "", { age: "40대" }),
+                    row(T(9000), "dev-wd-abc", "course", "파주CC", { age: "40대" })]);
+  eq(find(t4.cids(), "dev-wd-abc").state, "auto", "자동화 표시(dev-wd-)도 연령이 있어도 빠진다");
 }
 
 /* ──────────────────────────────────────────────────────────────
@@ -176,6 +188,15 @@ const find = (list, cid) => list.rows.filter((r) => r.cid === cid)[0];
   for (let i = 0; i < 8; i++) tapper.push(row(T(5000 + i * 300), "tapper", "feature", "spirit_tab_" + i));
   eq(find(build(tapper).cids(), "tapper").state, "on", "0.3초 간격으로 빠르게 탭한 진짜 이용자는 빼지 않는다");
 
+  /* 답답해서 같은 탭을 두 번 누르면 0.12초짜리 같은 이름 두 줄이 진짜로 나온다(실측).
+     같은 버튼의 연타는 짝으로 세지 않는다 — 검사 도구는 서로 다른 버튼을 훑는다. */
+  const dbl = [row(T(1000), "dbltap", "visit", "")];
+  for (let i = 0; i < 3; i++) {
+    dbl.push(row(T(5000 + i * 30000), "dbltap", "feature", "spirit_tab_mind"));
+    dbl.push(row(T(5000 + i * 30000 + 120), "dbltap", "feature", "spirit_tab_mind"));   // 두 번 누름
+  }
+  eq(find(build(dbl).cids(), "dbltap").state, "on", "같은 탭을 두 번씩 누른 진짜 이용자는 빼지 않는다");
+
   /* 짝은 '같은 날' 안에서만 센다 — 날을 넘겨 쌓이면 오래 쓴 이용자가 언젠가 걸린다 */
   const twoday = [row(T(1000), "twoday", "visit", "")];
   for (let d = 0; d < 2; d++) {
@@ -211,14 +232,14 @@ const find = (list, cid) => list.rows.filter((r) => r.cid === cid)[0];
    ────────────────────────────────────────────────────────────── */
 {
   console.log("\n■ 6-1. 가짜 골프장 이름이 순위에 새지 않는가");
-  // 연령을 입력한(=보호신호) 기기가 가나CC(폭우)를 봤다 — 기기는 세지만 그 줄은 빠져야 한다
+  // 사람이 되돌려 둔(KEEP) 기기가 가나CC(폭우)를 봤다 — 기기는 세지만 그 줄은 빠져야 한다
   const t = build([
-    row(T(1000), "vetoed", "visit", "", { age: "40대" }),
-    row(T(9000), "vetoed", "course", "가나CC(폭우)", { age: "40대" }),
-    row(T(20000), "vetoed", "course", "한림안성CC", { age: "40대" }),
-  ]);
+    row(T(1000), "kept", "visit", "", { age: "40대" }),
+    row(T(9000), "kept", "course", "가나CC(폭우)", { age: "40대" }),
+    row(T(20000), "kept", "course", "한림안성CC", { age: "40대" }),
+  ], { KEEP_CIDS: JSON.stringify(["kept"]) });
   const s = t.sum();
-  eq(s.uniq, 1, "기기 자체는 세고 있다 (보호신호)");
+  eq(s.uniq, 1, "기기 자체는 세고 있다 (되돌려 둠)");
   ok(!s.courses.some((c) => c[0] === "가나CC(폭우)"),
      "가나CC(폭우) 는 인기 골프장에 나오지 않는다", JSON.stringify(s.courses));
   ok(s.courses.some((c) => c[0] === "한림안성CC"), "진짜 구장 조회는 남는다");
@@ -358,13 +379,28 @@ const find = (list, cid) => list.rows.filter((r) => r.cid === cid)[0];
   eq(day(t), 353 - 70, "자동 판정만으로 353명 → 283명 (검사기기 70대 즉시 제외)");
   eq(t.sum().candidates.n, 280, "무더기 280대가 '확인 필요'로 올라온다 (진짜 이용자는 안 섞임)");
 
-  // [전부 안 셈] 재현 — 확인 필요 기기를 전부 DEV 목록에 넣는다
-  const cand = t.cids().rows.filter((r) => r.state === "candidate").map((r) => r.cid);
-  const t2 = build(rows, { DEV_CIDS: JSON.stringify(cand) });
+  /* [전부 안 셈] 재현 — 기기ID 목록이 아니라 **스위치 하나**(B2_ALL_OFF)다.
+     280대를 목록(상한 400)에 담다가 거절당하는 길을 애초에 없앴다. */
+  const t2 = build(rows, { B2_ALL_OFF: "1" });
   eq(day(t2), 3, "[전부 안 셈] 뒤 7/28 = 진짜 이용자 3명만 남는다");
   eq(t2.sum().uniq, 4, "누적 사용자도 진짜 4명만");
   ["realA", "realB", "realC", "realD"].forEach((c) =>
     ok(!find(t2.cids(), c).off, "진짜 이용자 " + c + " 는 살아 있다"));
+
+  // 스위치가 켜져 있어도 [이건 진짜 사용자] 로 한 대씩 살릴 수 있다
+  const oneCid = t.cids().rows.filter((r) => r.rule === "B2")[0].cid;
+  const t3 = build(rows, { B2_ALL_OFF: "1", KEEP_CIDS: JSON.stringify([oneCid]) });
+  eq(find(t3.cids(), oneCid).state, "keep", "스위치보다 KEEP(개별 되돌리기)이 이긴다");
+  eq(day(t3), 4, "되돌린 한 대가 그날 숫자에 돌아온다");
+
+  // 스위치 켜고 끄는 서버 창구(fn=b2all)
+  const S = t.S;
+  const r1 = S.__json(S.doPost({ postData: { contents: JSON.stringify({ fn: "b2all", pw: "golf2026!", on: true }) } }));
+  ok(r1.ok && S.__props.B2_ALL_OFF === "1", "b2all 켜기", JSON.stringify(r1));
+  const r2 = S.__json(S.doPost({ postData: { contents: JSON.stringify({ fn: "b2all", pw: "golf2026!", on: false }) } }));
+  ok(r2.ok && S.__props.B2_ALL_OFF === "0", "b2all 끄기(전부 되돌리기)");
+  const r3 = S.__json(S.doPost({ postData: { contents: JSON.stringify({ fn: "b2all", pw: "틀린값", on: true }) } }));
+  ok(!r3.ok, "비밀번호 없이는 스위치를 못 만진다");
 }
 
 /* ──────────────────────────────────────────────────────────────
