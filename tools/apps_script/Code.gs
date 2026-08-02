@@ -67,7 +67,6 @@ function guard_(fn, k) {
   if (!tokOk_(k)) return json_({ ok: false, why: "denied" });
   return null;                              // 통과
 }
->>>>>>> 987e23ab (차단막 1단계 - 백엔드 서명·상한 + DB권 고지 + 카나리 (v197))
 
 /* 관리자 비밀번호 — 스크립트 속성 ADMIN_PW 가 정본이다.
    (코드에 적으면 저장소를 공개로 돌리는 순간 그대로 노출된다)
