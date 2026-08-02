@@ -319,6 +319,24 @@ async function openOps(browser, summary, cids) {
     await ctx.close();
   }
 
+  // ── 6-0. [새로고침] 은 페이지째 다시 받아야 한다 ─────────────────
+  {
+    console.log("\n■ 6-0. [새로고침] 이 화면 파일까지 새로 받는가");
+    const { ctx, page } = await openOps(browser, newSummary(false));
+    /* 예전에는 숫자(JSON)만 다시 불러와서, 탭을 켜 두고 이 버튼만 누르면
+       새로 배포한 화면이 며칠이 지나도 오지 않았다(사장님이 실제로 겪은 일). */
+    const before = page.url();
+    await Promise.all([
+      page.waitForNavigation({ timeout: 10000 }),
+      page.click("#reload"),
+    ]);
+    ok(page.url() !== before, "주소가 바뀌며 페이지가 통째로 다시 열린다", before + " → " + page.url());
+    ok(/[?&]fresh=\d+/.test(page.url()), "캐시를 건너뛰도록 주소에 시각을 붙인다", page.url());
+    await page.waitForSelector("#main:not([hidden])", { timeout: 15000 });
+    ok(true, "다시 열린 뒤 자동 로그인으로 화면이 돌아온다");
+    await ctx.close();
+  }
+
   // ── 6. 앱 기록이 없는 브라우저 (홈 화면 설치 앱은 저장공간이 따로) ──────
   {
     console.log("\n■ 6. 앱을 연 적 없는 브라우저에서 눌렀을 때");

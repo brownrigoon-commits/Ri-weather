@@ -62,6 +62,10 @@ self.addEventListener("activate", (e) => {
 self.addEventListener("fetch", (e) => {
   const url = new URL(e.request.url);
   if (e.request.method !== "GET" || url.origin !== location.origin) return; // API/타일은 항상 네트워크
+  /* 관리자 화면은 캐시하지 않는다 — 백엔드 없이는 아무것도 못 보므로 오프라인 캐시가 이득이 0인데,
+     한 번 담기면 통신이 잠깐 끊긴 날 **옛 화면이 아무 표시 없이** 뜬다(2026-08-02 실측).
+     새 기능을 배포했는데 "그대로인데요?" 가 되는 경로 중 하나였다. 브라우저에 그냥 맡긴다. */
+  if (/\/ops-[\w-]+\.html$/.test(url.pathname)) return;
   // 같은 출처 정적 파일: 네트워크 우선, 실패 시 캐시 (오프라인에서도 앱 껍데기 열림)
   e.respondWith(
     fetch(e.request, { cache: "no-cache" }) // 항상 서버 재검증 → 업데이트 즉시 반영

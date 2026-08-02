@@ -1036,11 +1036,19 @@ function enter() {
 
 $("go").addEventListener("click", enter);
 $("pw").addEventListener("keydown", function (e) { if (e.key === "Enter") enter(); });
+/* [새로고침] — **페이지째** 다시 받는다.
+   ⚠️ 예전에는 숫자(JSON)만 다시 불러왔다. 그래서 탭을 켜 두고 이 버튼만 누르면
+      화면 파일(HTML·JS)은 며칠이 지나도 옛것 그대로였다 — 새 기능을 배포해도
+      "그대로인데요?" 가 되는 원인이었다(2026-08-02 사장님이 실제로 겪음).
+      '로그인 유지'가 켜져 있으면 다시 열어도 자동으로 들어가므로 잃는 것이 없다.
+   ⚠️ 캐시를 확실히 건너뛰려고 주소에 시각을 붙인다(그냥 reload 는 옛 사본이 나올 수 있다). */
 $("reload").addEventListener("click", function () {
   var b = $("reload"); b.disabled = true; b.textContent = "불러오는 중…";
-  load().then(function () { loadFb(); loadCids(); })
-    .catch(function (e) { alert("불러오지 못했습니다 — " + e.message); })
-    .then(function () { b.disabled = false; b.textContent = "새로고침"; });
+  try {
+    location.replace(location.pathname + "?fresh=" + Date.now());
+  } catch (e) {
+    location.reload();
+  }
 });
 $("fb-filters").addEventListener("click", function (e) {
   var c = e.target.closest(".chip");
