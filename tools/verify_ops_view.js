@@ -226,6 +226,18 @@ async function openOps(browser, summary, cids) {
   {
     console.log("\n■ 4. 기기 목록 묶음");
     const { ctx, page } = await openOps(browser, newSummary(false));
+
+    /* 평소에는 접혀 있어야 한다 — 사장님이 볼 일이 없는 목록이다(지시 8/2) */
+    await page.waitForFunction(() => !!document.querySelector('#cids button[data-listopen="1"]'));
+    const sum = await page.$eval("#cids", (e) => e.textContent);
+    ok(!(await page.$("#cids .grp")), "기본은 접혀 있다 — 기기 줄이 보이지 않는다");
+    ok(/빠져 있는 기기 3대/.test(sum), "요약에 지금 빠진 기기 수를 적는다", sum.slice(0, 90));
+    ok(/전체 419대/.test(sum), "전체 기기 수도 적는다");
+    ok(/확인이 필요한 기기가 2대/.test(sum), "손댈 것이 있으면 요약에서 알린다", sum.slice(0, 120));
+
+    const openHit = await reallyClickable(page, '#cids button[data-listopen="1"]');
+    ok(openHit.ok, "'기기 목록 펼쳐 보기' 가 실제 좌표에서 눌린다", openHit.why);
+    await page.click('#cids button[data-listopen="1"]');
     await page.waitForFunction(() => document.querySelectorAll("#cids .grp").length > 0);
     const txt = await page.$eval("#cids", (e) => e.textContent);
     ok(/확인이 필요합니다 \(2대\)/.test(txt), "확인 필요 묶음이 개수와 함께 뜬다");
@@ -252,6 +264,11 @@ async function openOps(browser, summary, cids) {
 
     const meHit = await reallyClickable(page, "#mark-me");
     ok(meHit.ok, "'이 기기는 우리 것' 버튼이 실제 좌표에서 눌린다", meHit.why);
+
+    // 다시 접을 수 있어야 한다
+    await page.click('#cids button[data-listopen="0"]');
+    await page.waitForFunction(() => !document.querySelector("#cids .grp"));
+    ok(!!(await page.$('#cids button[data-listopen="1"]')), "[목록 접기] 로 다시 접힌다");
     await ctx.close();
   }
 
@@ -260,7 +277,7 @@ async function openOps(browser, summary, cids) {
     console.log("\n■ 5. 이 기기 영구 제외");
     const { ctx, page } = await openOps(browser, newSummary(false));
     await page.evaluate(() => localStorage.setItem("riweather.cid", "myphone123"));
-    await page.waitForFunction(() => document.querySelectorAll("#cids .grp").length > 0);
+    await page.waitForFunction(() => !!document.querySelector("#mark-me"));
     await page.click("#mark-me");
     await page.waitForFunction(() => /표시되어 있습니다/.test(document.querySelector("#mark-me-box").textContent),
                                { timeout: 8000 });
