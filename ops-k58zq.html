@@ -478,9 +478,11 @@ function cidRow(r, act) {
     r.dev || "?",
     "접속 " + (r.visits || 0) + "회",
     "기록 " + (r.n || 0) + "건",
-    (r.days || 1) + "일 동안",
-    when(r.first) + "~" + when(r.last),
   ];
+  /* 옛 백엔드 응답에는 days 가 없다 — 그때 '1일 동안'이라고 지어내면
+     7/27~8/2 짜리 기기에 1일이 붙는 헛소리가 된다(2026-08-02 실제 발생). 모르면 뺀다. */
+  if (r.days) meta.push(r.days + "일 동안");
+  meta.push(when(r.first) + "~" + when(r.last));
   /* '본 버전 38개' 만 적으면 열심히 쓴 이용자로 오해하기 쉽다.
      그 사이 우리가 몇 개를 내보냈는지 같이 적어야 뜻이 산다. */
   if (r.versOut) meta.push("그 사이 나간 버전 " + r.versOut + "개 중 " + (r.vers || 0) + "개 봄");
@@ -673,7 +675,9 @@ function paintMarkMe() {
   box.innerHTML =
     '<button class="btn sub" id="mark-me">이 기기는 우리 것 — 계속 빼기</button>' +
     '<p class="hint" style="margin:6px 0 0">지금 보고 계신 폰·PC를 통계에서 뺍니다.' +
-    ' 앞으로 이 기기에서 앱을 열어도 계속 빠집니다. <b>브라우저마다 한 번씩</b> 눌러 주세요.</p>';
+    ' 앞으로 이 기기에서 앱을 열어도 계속 빠집니다. <b>브라우저마다 한 번씩</b> 눌러 주세요.<br>' +
+    '⚠️ <b>홈 화면에 설치한 앱은 저장공간이 따로</b>라 이 버튼이 닿지 못합니다 —' +
+    ' 그 앱의 기록은 아래 목록에서 본인 기기 줄의 <b>[안 셈]</b> 을 눌러 빼 주세요.</p>';
 }
 
 $("mark-me-box").addEventListener("click", function (e) {
@@ -681,7 +685,19 @@ $("mark-me-box").addEventListener("click", function (e) {
     var b = e.target.closest("#mark-me"), old = "";
     try { old = localStorage.getItem("riweather.cid") || ""; } catch (err) {}
     if (!old) {
-      alert("이 기기는 아직 앱을 연 적이 없습니다.\n앱을 한 번 열어 본 뒤에 다시 눌러 주세요.");
+      /* 이 브라우저에는 앱 기록이 없다 — 홈 화면에 설치한 앱은 저장공간이 따로라서,
+         폰에 앱이 있어도 여기서는 빈손이다(2026-08-02 사장님 폰에서 실제로 겪음).
+         ① 이 브라우저는 지금 표시해서 앞으로 잡음을 안 만들게 하고,
+         ② 설치된 앱이 이미 쌓은 기록은 목록의 [안 셈]으로 빼도록 안내한다. */
+      try {
+        localStorage.setItem("riweather.dev", "1");
+        localStorage.setItem("riweather.cid", "dev-" + Math.random().toString(36).slice(2, 10));
+      } catch (err2) {}
+      paintMarkMe();
+      alert("이 브라우저는 이제 통계에서 빠집니다.\n\n" +
+            "다만 홈 화면에 설치한 앱은 저장공간이 따로여서 이 버튼이 닿지 못합니다.\n" +
+            "그 앱이 이미 쌓은 기록은 아래 기기 목록에서 본인 기기 줄의 [안 셈] 을 눌러 빼 주세요.\n" +
+            "(기간·자주 본 골프장으로 알아볼 수 있고, 잘못 눌러도 되돌릴 수 있습니다)");
       return;
     }
     b.disabled = true; b.textContent = "등록하는 중…";

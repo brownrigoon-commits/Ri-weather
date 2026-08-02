@@ -302,6 +302,27 @@ async function openOps(browser, summary, cids) {
     await ctx.close();
   }
 
+  // ── 6. 앱 기록이 없는 브라우저 (홈 화면 설치 앱은 저장공간이 따로) ──────
+  {
+    console.log("\n■ 6. 앱을 연 적 없는 브라우저에서 눌렀을 때");
+    const { ctx, page } = await openOps(browser, newSummary(false));   // cid 를 심지 않는다
+    await page.waitForFunction(() => !!document.querySelector("#mark-me"));
+    let told = "";
+    page.on("dialog", (d) => { told = d.message(); d.accept(); });
+    await page.click("#mark-me");
+    await page.waitForFunction(() => /표시되어 있습니다/.test(document.querySelector("#mark-me-box").textContent),
+                               { timeout: 8000 });
+    ok(/홈 화면/.test(told) && /안 셈/.test(told),
+       "설치 앱은 따로라는 것과, 목록 [안 셈]으로 빼라는 안내가 뜬다", told);
+    const st = await page.evaluate(() => ({
+      dev: localStorage.getItem("riweather.dev"),
+      cid: localStorage.getItem("riweather.cid"),
+    }));
+    ok(st.dev === "1" && /^dev-/.test(st.cid || ""),
+       "이 브라우저는 그 자리에서 표시되어 앞으로 잡음을 안 만든다", JSON.stringify(st));
+    await ctx.close();
+  }
+
   await browser.close();
   console.log("\n" + (fails.length ? "✖ 실패 " + fails.length + "건" : "✅ 전부 통과"));
   process.exit(fails.length ? 1 : 0);
