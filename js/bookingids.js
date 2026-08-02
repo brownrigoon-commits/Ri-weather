@@ -1,4 +1,5 @@
 /* 부킹 연결용 구장 번호표 — tools/build_booking_ids.py 산출물. 손으로 고치지 말 것.
+ * ⓒ TOURLIST — 데이터베이스제작자 권리 보호 대상. 무단 수집·복제 금지(약관 제7조).
  *
  * pang/sector/sector3 : 골팡(golfpang.com) 자기 사이트의 골프장 선택 드롭다운 값.
  * mon                 : 골프몬(golfmon.net) golfFk. 그쪽 검색 UI 로 하나씩 확인해 넣는다.
@@ -659,6 +660,12 @@ const BOOKING_IDS = {
   "pangName": "울진마린",
   "sector": 16,
   "sector3": 3
+ },
+ "월하미르CC": {
+  "pang": "9909",
+  "pangName": "월하미르",
+  "sector": "5",
+  "sector3": "0"
  },
  "웨스트오션CC": {
   "mon": 752,

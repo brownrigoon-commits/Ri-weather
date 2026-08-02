@@ -423,6 +423,8 @@ def main():
         return
     body = json.dumps(by_course, ensure_ascii=False, indent=1, sort_keys=True)
     js = ("/* 구장별 유튜브 공략 영상 — tools/build_coursevideos.py 산출물. 손으로 고치지 말 것.\n"
+          " * ⓒ TOURLIST — 구장·영상 매칭 색인은 데이터베이스제작자 권리 보호 대상.\n"
+          " *   무단 수집·복제·재배포 금지(이용약관 제5조·제7조).\n"
           " *\n"
           " * ⚠️ 조회수는 유튜브 정책상 30일 이상 보관하면 안 된다(Non-Authorized Data).\n"
           " *    화면에 FETCHED_AT 을 기준일로 함께 찍고, 2주마다 다시 수집할 것.\n"

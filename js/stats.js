@@ -15,6 +15,17 @@
    통계 수집 + 맛집 실제 사진(카카오 플레이스)이 이 주소 하나로 동작한다. */
 window.RIW_BACKEND = "https://script.google.com/macros/s/AKfycbzVkab8qBwUdukg_O9FtYjwHvTygc9Riyh3tEOD0z-bALNZxbO9ksRNPLM9y1mOWv9q4A/exec";
 
+/* 백엔드 요청 서명 — 오늘 날짜(UTC)로 만드는 토큰. 백엔드가 같은 식으로 만들어 대조한다.
+   (차단막 1단계, 2026-08-02) 소스가 공개라 작정한 공격자는 못 막는다 — 막는 것은
+   "주소만 복사해 돌리는 스크립트 남용"이고, 최후 방어선은 백엔드의 사용량 상한이다.
+   ⚠️ 식을 바꾸면 tools/apps_script/Code.gs 의 tok_() 도 함께 바꿔야 한다. */
+window.RIW_TOK = function () {
+  const s = new Date().toISOString().slice(0, 10).replace(/-/g, "") + "|tourlist-guard-1";
+  let h = 5381;
+  for (let i = 0; i < s.length; i++) h = (h * 33 + s.charCodeAt(i)) >>> 0;
+  return h.toString(36);
+};
+
 const STATS = (() => {
   /* ── 우리 접속은 통계에 넣지 않는다 (2026-08-02 개편) ─────────────────
      우리가 하루에도 수십 번 열어 보는 것이 그대로 쌓여서, 2026-07-31 기준
@@ -222,7 +233,7 @@ const STATS = (() => {
     timer = null;
     const q = loadQ();
     if (!q.length || !STATS_URL) return;
-    const body = JSON.stringify({ rows: q });
+    const body = JSON.stringify({ rows: q, k: window.RIW_TOK() });
     // Apps Script는 preflight를 처리하지 못하므로 단순 요청(text/plain)으로 보낸다
     if (useBeacon && navigator.sendBeacon) {
       if (navigator.sendBeacon(STATS_URL, body)) saveQ([]);
@@ -277,7 +288,7 @@ const FEEDBACK = (() => {
       // Apps Script 는 preflight 를 못 받으므로 text/plain 단순 요청으로 보낸다
       const r = await fetch(URL_, {
         method: "POST", headers: { "Content-Type": "text/plain" },
-        body: JSON.stringify(Object.assign({ fn: "feedback" }, item)), signal: ctl.signal,
+        body: JSON.stringify(Object.assign({ fn: "feedback", k: window.RIW_TOK() }, item)), signal: ctl.signal,
       });
       if (!r.ok) return { ok: false, net: true };
       const j = await r.json();

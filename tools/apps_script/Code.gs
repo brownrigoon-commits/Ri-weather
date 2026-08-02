@@ -14,8 +14,60 @@
    tools/verify_deploy.py 가 이 값을 서버에서 읽어와 로컬과 대조한다.
    두 번이나 "코드는 고쳤는데 배포를 안 해서" 기능이 죽어 있었다:
      · 기록 백업·복구 (2026-07-27)  · 숙소 객실사진 우선 (2026-07-28) */
-var BACKEND_VER = "2026-08-02a";   // b: 메일 제목 개명 / c: 비밀번호 변경(fn=setpw) / d: 개발기기 제외·지역군
-                                   // 2026-08-02a: 우리 기록 자동 제외(규칙) + 오늘/누적 나누어 보기
+var BACKEND_VER = "2026-08-02f";   // a: 우리 기록 자동 제외 + 오늘/누적 / f: 차단막 1단계 — 사용량 상한 + 요청 서명
+
+/* ============ 차단막 1단계 (2026-08-02 사장님 지시) ============
+ * 이 주소는 앱 소스에 공개돼 있어서, 누구든 복사해 fn=tts 를 반복 호출하면
+ * **우리 구글 요금이 나간다.** 두 겹으로 막는다.
+ *
+ * ① 사용량 상한 — 기능별로 6시간 창 안에서 몇 번까지만 받는다.
+ *    (CacheService 의 최대 수명이 6시간이라 창이 6시간이다. 하루 최대 = 상한×4)
+ *    카운터가 고장 나도 서비스는 계속된다 — 상한은 최후 방어선이지 관문이 아니다.
+ * ② 요청 서명 — 앱이 오늘 날짜(UTC)로 만든 토큰(k)을 붙이고, 여기서 같은 식으로
+ *    만들어 대조한다. 식이 앱 소스에 보이므로 작정한 공격자는 못 막는다(정직하게).
+ *    막는 것은 "주소만 복사해 돌리는 스크립트"다. 시차·자정 걸침 때문에 어제·내일
+ *    토큰도 받아준다.
+ *    ⚠️ 옛 버전 앱(캐시)이 토큰 없이 부르는 동안은 통과시킨다 — GRACE 까지.
+ */
+var GUARD_GRACE_UNTIL = "2026-08-17";       // 이날부터 토큰 없는 요청 거절
+var GUARD_QUOTA = {                         // 6시간 창 상한 (베타 100명 기준 넉넉히)
+  tts: 2000, placemeta: 800, placephotos: 2000,
+  restore: 300, backup: 600, feedback: 200, stats: 3000,
+};
+
+function tok_(dayStr) {                     // 앱(js/stats.js RIW_TOK)과 같은 식이어야 한다
+  var s = dayStr + "|tourlist-guard-1";
+  var h = 5381;
+  for (var i = 0; i < s.length; i++) h = (h * 33 + s.charCodeAt(i)) >>> 0;
+  return h.toString(36);
+}
+
+function tokOk_(k) {
+  if (!k) return new Date() < new Date(GUARD_GRACE_UNTIL + "T00:00:00Z");   // 유예기간만 통과
+  for (var d = -1; d <= 1; d++) {
+    var t = new Date(Date.now() + d * 864e5);
+    if (k === tok_(Utilities.formatDate(t, "UTC", "yyyyMMdd"))) return true;
+  }
+  return false;
+}
+
+function overQuota_(fn) {
+  try {
+    var c = CacheService.getScriptCache();
+    var key = "q:" + fn;
+    var n = parseInt(c.get(key) || "0", 10) + 1;
+    c.put(key, String(n), 21600);           // 6시간 창
+    return n > (GUARD_QUOTA[fn] || 1000);
+  } catch (e) { return false; }             // 카운터 고장 ≠ 서비스 중단
+}
+
+/* 관문 하나로 묶는다 — 순서 중요: 상한 검사가 먼저다(토큰이 맞아도 폭주면 막는다) */
+function guard_(fn, k) {
+  if (overQuota_(fn)) return json_({ ok: false, why: "quota" });
+  if (!tokOk_(k)) return json_({ ok: false, why: "denied" });
+  return null;                              // 통과
+}
+>>>>>>> 987e23ab (차단막 1단계 - 백엔드 서명·상한 + DB권 고지 + 카나리 (v197))
 
 /* 관리자 비밀번호 — 스크립트 속성 ADMIN_PW 가 정본이다.
    (코드에 적으면 저장소를 공개로 돌리는 순간 그대로 노출된다)
@@ -457,8 +509,14 @@ function backupLoad_(code) {
 function doPost(e) {
   try {
     var body = JSON.parse(e.postData.contents || "{}");
-    if (body.fn === "backup") return backupSave_(body.code, body.data);
-    if (body.fn === "feedback") return fbSave_(body);
+    if (body.fn === "backup") {
+      var gb = guard_("backup", body.k); if (gb) return gb;
+      return backupSave_(body.code, body.data);
+    }
+    if (body.fn === "feedback") {
+      var gf = guard_("feedback", body.k); if (gf) return gf;
+      return fbSave_(body);
+    }
     // 비밀번호 변경은 POST 로만 받는다 — GET 이면 주소창·서버 로그에 새 비밀번호가 남는다
     if (body.fn === "setpw") return setPw_(body.pw, body.newPw);
     /* 기기 표시 (관리자만) — 한 대씩(cid)도, 여러 대 묶음(cids)도 받는다.
@@ -480,6 +538,7 @@ function doPost(e) {
     }
     var rows = body.rows || [];
     if (!rows.length || rows.length > 100) return json_({ ok: false });
+    var gs = guard_("stats", body.k); if (gs) return gs;
     var sh = sheet_();
     var out = [];
     rows.forEach(function (r) {
@@ -514,9 +573,19 @@ function doPost(e) {
 /* ---------- 조회 (관리자 화면 / 사진 프록시) ---------- */
 function doGet(e) {
   var p = (e && e.parameter) || {};
-  if (p.fn === "placephotos") return placePhotos_(p.id, p.kind);
-  if (p.fn === "placemeta") return placeMeta_(p.ids);
-  if (p.fn === "restore") return backupLoad_(p.code);
+  // 돈이 나가는 대리호출·개인 백업 조회는 관문을 먼저 지난다 (차단막 1단계)
+  if (p.fn === "placephotos") {
+    var g4 = guard_("placephotos", p.k); if (g4) return g4;
+    return placePhotos_(p.id, p.kind);
+  }
+  if (p.fn === "placemeta") {
+    var g5 = guard_("placemeta", p.k); if (g5) return g5;
+    return placeMeta_(p.ids);
+  }
+  if (p.fn === "restore") {
+    var g6 = guard_("restore", p.k); if (g6) return g6;
+    return backupLoad_(p.code);
+  }
   if (p.fn === "summary") {
     var g1 = pwGate_(p.pw);
     if (!g1.ok) return json_({ err: g1.err });
@@ -532,7 +601,10 @@ function doGet(e) {
     if (!g3.ok) return json_({ err: g3.err });
     return cidList_();
   }
-  if (p.fn === "tts") return tts_(p.text, p.speaker, p.speed);
+  if (p.fn === "tts") {
+    var g7 = guard_("tts", p.k); if (g7) return g7;
+    return tts_(p.text, p.speaker, p.speed);
+  }
   return json_({ ok: true, service: "golflife-backend", ver: BACKEND_VER,
                  tts: ttsKeys_() ? "on" : "off" });
 }

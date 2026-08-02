@@ -899,6 +899,24 @@
     currentCourse = keep;
   } catch (e) { add("공략 영상 검사 예외", "coursevideos", e.message); }
 
+  /* ── 3-13. 차단막 1단계 — 토큰·법적 고지·카나리 ─────────────────
+     돈이 나가는 백엔드 호출에 서명이 빠지면 유예기간(2026-08-17) 뒤 전부 죽는다.
+     조용히 사라지면 캐디 음성·맛집 사진이 한꺼번에 멎으므로 여기서 잡는다. */
+  try {
+    if (typeof window.RIW_TOK !== "function") add("백엔드 서명 함수 없음", "RIW_TOK", "stats.js 확인");
+    else if (!/^[0-9a-z]{4,8}$/.test(window.RIW_TOK())) add("서명 형식 이상", "RIW_TOK", window.RIW_TOK());
+    const appSrc = await (await fetch("js/app.js", { cache: "reload" })).text();
+    ["fn=tts", "fn=placemeta", "fn=placephotos", "fn=restore"].forEach((fn) => {
+      const seg = appSrc.split(fn)[1] || "";
+      if (!/k=/.test(seg.slice(0, 120)) && !/RIW_TOK/.test(seg.slice(0, 160)))
+        add("백엔드 호출에 서명이 빠짐", fn, "유예기간 뒤 이 기능이 죽는다");
+    });
+    if (!(tr("legal.tos.a7.li4") || "").includes("데이터베이스제작자"))
+      add("약관에 DB제작자 권리 조항 없음", "legal.tos.a7.li4", "");
+    if (typeof BOOKING_IDS !== "undefined" && !BOOKING_IDS["월하미르CC"])
+      add("부킹 카나리가 사라짐", "월하미르CC", "build_booking_ids.py 확인");
+  } catch (e) { add("차단막 검사 예외", "guard", e.message); }
+
   /* ── 4. 브랜드 잔재 점검 ─────────────────────────────────────── */
   const html = document.body.innerText;
   if (/Ri-Weather/i.test(html)) add("옛 브랜드명 노출", "body", html.match(/.{0,30}Ri-Weather.{0,30}/i)[0]);

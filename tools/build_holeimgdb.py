@@ -50,7 +50,10 @@ if dups:
     sys.exit(1)
 
 with open(OUT, "w", encoding="utf-8", newline="\n") as w:
-    w.write("/* Ri-Weather 공식 홀맵 이미지 DB — 각 골프장 공식 홈페이지 원문 (출처 표기) */\n")
+    w.write("/* 투어리스트 공식 홀맵 이미지 DB — 각 골프장 공식 홈페이지 원문 (출처 표기)\n"
+            " * ⓒ TOURLIST. 본 데이터베이스는 상당한 투자로 수집·검증·체계화한 것으로\n"
+            " * 저작권법상 데이터베이스제작자 권리의 보호를 받습니다. 무단 크롤링·복제·\n"
+            " * 재배포·타 서비스 이용을 금지합니다(이용약관 제5조·제7조). */\n")
     w.write("const HOLEIMG_DB = {\n")
     for d in entries:
         w.write(f'  {js_str(d["course"])}: {{\n')

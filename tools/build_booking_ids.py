@@ -142,8 +142,22 @@ def main():
     print("못 찾은 곳 %d (지역 목록으로 폴백): %s ..." % (len(miss), ", ".join(miss[:8])))
     if "--report" in sys.argv:
         return
+    # ── 사람이 확인한 유지 목록 ──────────────────────────────────
+    # 홀맵DB에 아직 없는 구장이라 자동 매칭에서 빠지지만, 번호를 사람이 검증한 것들.
+    # 서서울CC: 골프장DB(검색)에는 있어서 유저가 저장할 수 있다 — 부킹 연결 유지(2026-08-02).
+    KEEP = {"서서울CC": {"pang": 28, "pangName": "서서울", "sector": 1}}
+    for k, v in KEEP.items():
+        out.setdefault(k, v)
+
+    # ── 카나리 (차단막 1단계, 2026-08-02) ─────────────────────────
+    # 실존하지 않는 구장 하나를 심는다. 골프장DB에 없는 이름이라 유저 화면에는
+    # 절대 나오지 않는다(이 표는 저장된 구장 이름으로만 조회된다). 남의 서비스에서
+    # 이 항목이 발견되면 우리 DB를 통째로 복사했다는 증거가 된다.
+    # 상세 기록은 .secrets/canary.md (저장소에 올리지 않는다 — 베끼는 쪽도 보게 된다).
+    out["월하미르CC"] = {"pang": "9909", "pangName": "월하미르", "sector": "5", "sector3": "0"}
     body = json.dumps(out, ensure_ascii=False, indent=1, sort_keys=True)
     js = ('/* 부킹 연결용 구장 번호표 — tools/build_booking_ids.py 산출물. 손으로 고치지 말 것.\n'
+          ' * ⓒ TOURLIST — 데이터베이스제작자 권리 보호 대상. 무단 수집·복제 금지(약관 제7조).\n'
           ' *\n'
           ' * pang/sector/sector3 : 골팡(golfpang.com) 자기 사이트의 골프장 선택 드롭다운 값.\n'
           ' * mon                 : 골프몬(golfmon.net) golfFk. 그쪽 검색 UI 로 하나씩 확인해 넣는다.\n'

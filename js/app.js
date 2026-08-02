@@ -5,7 +5,7 @@
 "use strict";
 
 const APP_VER = "v197"; // 배포 버전 (홈 화면 배지에 표시)
-const APP_NOTE = "관리자"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
+const APP_NOTE = "차단막 1단계"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
 const STORAGE_KEY = "riweather.courses.v1";
 
 /* 나중에 필요할 때 불러오는 파일 목록 (2026-07-31 신설).
@@ -2626,7 +2626,7 @@ async function ttsFetch(text) {
   if (ttsMemo.has(text)) return ttsMemo.get(text);
   try {
     const u = window.RIW_BACKEND + "?fn=tts&speaker=" + TTS_SPEAKER +
-              "&text=" + encodeURIComponent(text);
+              "&k=" + window.RIW_TOK() + "&text=" + encodeURIComponent(text);
     const r = await fetchT(u, null, 9000);
     const j = await r.json();
     if (!j || !j.ok || !j.mp3) { ttsServerOk = false; return null; }
@@ -3558,7 +3558,7 @@ async function attachFoodRatings(list) {
     try {
       // 백엔드(Apps Script)는 콜드스타트 시 오래 걸릴 수 있다 → 12초 상한.
       // 실패해도 목록은 이미 떠 있고 거리순으로 동작하므로 조용히 포기한다.
-      const r = await fetchT(window.RIW_BACKEND + "?fn=placemeta&ids=" + ids.join(","), null, 12000);
+      const r = await fetchT(window.RIW_BACKEND + "?fn=placemeta&k=" + window.RIW_TOK() + "&ids=" + ids.join(","), null, 12000);
       meta = await r.json();
       if (!meta || typeof meta !== "object") return false;   // 'null' 응답을 캐시에 남기지 않는다
       try { localStorage.setItem(LS, JSON.stringify({ t: Date.now(), d: meta })); } catch (_) {}
@@ -3618,7 +3618,7 @@ async function attachPhotos(list, kind, onProgress) {
     } catch (_) {}
     if (!window.RIW_BACKEND) { it.photos = []; return; }
     try {
-      const r = await fetchT(window.RIW_BACKEND + "?fn=placephotos&id=" + pid + qs, null, 8000);
+      const r = await fetchT(window.RIW_BACKEND + "?fn=placephotos&k=" + window.RIW_TOK() + "&id=" + pid + qs, null, 8000);
       const j = await r.json();
       it.photos = genuinePhotos(j.photos).slice(0, 10);
       // 숙박: '카카오 예약하기' 연동 여부. 옛 백엔드는 이 값을 안 주므로 null 이면 판단하지 않는다.
@@ -3826,7 +3826,7 @@ function renderFoodList(list, region, fromKakao) {
           if (c && Date.now() - c.t < 7 * 864e5) list = c.d;
         } catch (_) {}
         if (!list) {
-          const r = await fetchT(window.RIW_BACKEND + "?fn=placephotos&id=" + pid, null, 10000);
+          const r = await fetchT(window.RIW_BACKEND + "?fn=placephotos&k=" + window.RIW_TOK() + "&id=" + pid, null, 10000);
           list = genuinePhotos((await r.json()).photos).slice(0, 10);
           try { localStorage.setItem(LS, JSON.stringify({ t: Date.now(), d: list })); } catch (_) {}
         }
@@ -5440,7 +5440,7 @@ const BACKUP = (() => {
     const s = st();
     if (!s.on || !s.code || !window.RIW_BACKEND) return false;
     const data = collect();
-    const body = JSON.stringify({ fn: "backup", code: s.code, data });
+    const body = JSON.stringify({ fn: "backup", code: s.code, data, k: window.RIW_TOK() });
     const h = hash(body);
     if (!force && s.hash === h) return true;             // 달라진 게 없으면 보내지 않음
     /* ⚠️ 구글(Apps Script)이 가끔 JSON 대신 HTML 오류 페이지를 돌려준다.
@@ -5506,7 +5506,7 @@ const BACKUP = (() => {
     // 말하면, 있는 기록을 없다고 하는 셈이라 제일 나쁘다.
     for (let attempt = 1; attempt <= 3 && !j; attempt++) {
       try {
-        const r = await fetchT(window.RIW_BACKEND + "?fn=restore&code=" + code, null, 15000);
+        const r = await fetchT(window.RIW_BACKEND + "?fn=restore&k=" + window.RIW_TOK() + "&code=" + code, null, 15000);
         const txt = await r.text();
         j = txt.trim().startsWith("{") ? JSON.parse(txt) : null;
       } catch (_) { j = null; }

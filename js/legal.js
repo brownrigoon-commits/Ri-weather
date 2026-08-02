@@ -85,6 +85,10 @@ const LEGAL_DOCS = {
   <li>${tr("legal.tos.a7.li1")}</li>
   <li>${tr("legal.tos.a7.li2")}</li>
   <li>${tr("legal.tos.a7.li3")}</li>
+  <!-- 차단막 1단계(2026-08-02): 우리 DB의 제작자 권리 명시.
+       제5조에 이미 있던 크롤링 금지를 구체화한 것이라 재동의(LEGAL_VERSION)는 안 올린다 -->
+  <li>${tr("legal.tos.a7.li4")}</li>
+  <li>${tr("legal.tos.a7.li5")}</li>
 </ul>
 
 <h4>${tr("legal.tos.a8.h")}</h4>
