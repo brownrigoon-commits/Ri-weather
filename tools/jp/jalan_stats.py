@@ -21,7 +21,7 @@
   python tools/jp/jalan_stats.py --sample 3            표본
   python tools/jp/jalan_stats.py --all                 전량 (등록된 구장 우선)
 """
-import argparse, json, os, re, sys
+import argparse, json, os, re, sys, unicodedata
 from collections import Counter
 from datetime import date
 
@@ -31,6 +31,7 @@ from jp_common import ROOT, HP_JP, Blocked, NameResolver, fetch
 HOST = "https://golf-jalan.net"
 SITEMAP = HOST + "/sitemap.xml"
 OUT_DIR = os.path.join(HP_JP, "_stats")
+INDEX = os.path.join(HP_JP, "_scan", "jalan_gc_index.json")   # gc ↔ 구장이름
 SOURCE = "じゃらんゴルフ"          # ⚠️ jp_takedown 의 jalan 항목과 같은 표기
 
 # 밴드 순서는 **고정**이다 — 조립·화면이 이 순서를 그대로 믿는다
@@ -45,6 +46,21 @@ FIELDS = ["rank", "avg", "putt", "birdie", "gir", "fw", "bunker", "ob"]
 
 def strip_tags(s):
     return re.sub(r"\s+", " ", re.sub(r"(?s)<[^>]+>", " ", s).replace("&nbsp;", " ")).strip()
+
+
+def clean_name(title):
+    """<title> → 구장 이름.
+
+    🔴 홀맵 수집기(jalan_collect.clean_name)와 **똑같이** 다듬어야 한다.
+       한쪽만 괄호를 떼면 같은 구장인데 이름이 달라져 통계가 안 붙는다.
+       실제로 그랬다(2026-08-02): 'Ｇ－ｓｔｙｌｅカントリー倶楽部（旧ダイヤモンド佐用ＣＣ）'
+       를 그대로 두는 바람에 G-style CC 44곳이 'データなし' 로 떴다.
+    """
+    n = title.split("のコースレイアウト")[0]
+    n = re.sub(r"［.*?］|\[.*?\]", "", n)
+    n = re.sub(r"【[^】]*】", "", n)          # 체인 표시 (【ＰＧＭ】 등)
+    n = re.sub(r"（[^）]*）$", "", n)          # 옛 이름 병기 (（旧…）)
+    return unicodedata.normalize("NFKC", n).strip()
 
 
 def parse_stats(html):
@@ -187,10 +203,21 @@ def one(url, resolver, reg, force=False):
     t = re.search(r"<title>(.*?)</title>", html, re.S)
     if not t:
         return {"gc": gc, "skip": "제목 없음"}
-    name = re.sub(r"【[^】]*】", "", strip_tags(t.group(1)).split("のコースレイアウト")[0]).strip()
+    name = clean_name(strip_tags(t.group(1)))
     g, why, _ = resolver.resolve(name)
     if not g:
         return {"gc": gc, "name": name, "skip": why}
+
+    # gc ↔ 구장이름 색인 — 다음 실행 때 '어느 gc 가 어느 구장인지' 되짚는 데 쓴다
+    # (전수를 다시 훑지 않고 빠진 곳만 받기 위해)
+    try:
+        idx = json.load(open(INDEX, encoding="utf-8")) if os.path.exists(INDEX) else {}
+        if idx.get(gc) != g:
+            idx[gc] = g
+            os.makedirs(os.path.dirname(INDEX), exist_ok=True)
+            json.dump(idx, open(INDEX, "w", encoding="utf-8"), ensure_ascii=False)
+    except Exception:
+        pass
 
     dest = os.path.join(OUT_DIR, key_of(g) + ".json")
     if os.path.exists(dest) and not force:
@@ -233,6 +260,8 @@ def main():
     ap.add_argument("--only", action="append", default=[])
     ap.add_argument("--sample", type=int, default=0)
     ap.add_argument("--all", action="store_true")
+    ap.add_argument("--missing", action="store_true",
+                    help="홀맵은 있는데 통계가 없는 구장만 다시 받는다")
     ap.add_argument("--force", action="store_true")
     a = ap.parse_args()
 
@@ -243,6 +272,38 @@ def main():
 
     if a.only:
         targets = [u for u in urls if any(o in u for o in a.only)]
+    elif a.missing:
+        # 홀맵은 있는데 통계가 없는 구장만 — 전수를 다시 훑지 않고 그 곳만 받는다.
+        # 어느 gc 인지는 이전 훑기 기록(_scan/jalan_scan.json)의 이름으로 되짚는다.
+        have = set()
+        for fn in os.listdir(OUT_DIR) if os.path.isdir(OUT_DIR) else []:
+            if fn.endswith(".json") and fn != "tip_ja_cache.json":
+                try:
+                    have.add(json.load(open(os.path.join(OUT_DIR, fn), encoding="utf-8"))["course"])
+                except Exception:
+                    pass
+        want = set(reg) - have
+        gcs = set()
+        for src in (INDEX, os.path.join(HP_JP, "_scan", "jalan_scan.json")):
+            if not os.path.exists(src):
+                continue
+            data = json.load(open(src, encoding="utf-8"))
+            rows = data.get("rows", []) if isinstance(data, dict) and "rows" in data else None
+            if rows is not None:
+                for r in rows:
+                    nm = r.get("name")
+                    if nm:
+                        g, _, _ = resolver.resolve(clean_name(nm))
+                        if g in want:
+                            gcs.add(r["gc"])
+            else:                                    # gc → 구장이름 색인
+                for gc, g in data.items():
+                    if g in want:
+                        gcs.add(gc)
+        targets = [u for u in urls if re.search(r"/(gc\d+)/", u).group(1) in gcs]
+        print(f"  통계 없는 구장 {len(want)}곳 중 gc 를 아는 {len(targets)}곳을 받습니다")
+        if len(targets) < len(want):
+            print(f"  ⚠ 나머지 {len(want)-len(targets)}곳은 gc 를 몰라 --all 로 훑어야 합니다")
     elif a.all:
         targets = urls
     else:

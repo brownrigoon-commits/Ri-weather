@@ -359,10 +359,16 @@ def main():
         rate = stats["사용 가능"] / n
         print(f"\n   → 전체 {len(urls):,}곳에 적용하면 약 {int(len(urls)*rate):,}곳 예상")
 
-    os.makedirs(os.path.dirname(CACHE), exist_ok=True)
-    json.dump({"at": str(date.today()), "n": n, "stats": dict(stats), "rows": rows},
-              open(CACHE, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
-    print(f"   (자세한 결과: {os.path.relpath(CACHE, ROOT)})")
+    # ⚠️ 한 곳만 돌렸을 때 전수 기록을 덮어쓰지 않는다.
+    #    2026-08-02 에 --only 실행이 2,433곳 기록을 1줄로 날려, 나중에 '통계 없는 구장'의
+    #    gc 를 되짚지 못했다. 전수 결과는 전수 실행일 때만 쓴다.
+    if len(targets) > 50 or not os.path.exists(CACHE):
+        os.makedirs(os.path.dirname(CACHE), exist_ok=True)
+        json.dump({"at": str(date.today()), "n": n, "stats": dict(stats), "rows": rows},
+                  open(CACHE, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
+        print(f"   (자세한 결과: {os.path.relpath(CACHE, ROOT)})")
+    else:
+        print("   (일부만 돌렸으므로 전수 기록은 그대로 둡니다)")
     return 0
 
 

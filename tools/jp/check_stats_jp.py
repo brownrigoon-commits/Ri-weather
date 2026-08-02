@@ -122,8 +122,35 @@ def check():
     return problems, notes, len(files)
 
 
+def missing_report():
+    """홀맵은 있는데 통계가 없는 구장 — '있는 자료가 맞나' 만 보면 이걸 놓친다.
+
+    🔴 2026-08-02 실제로 놓쳤다: 이름 다듬는 규칙이 도구마다 달라 44곳의 통계가 조용히
+       빠졌는데, 관문은 남아 있는 자료만 검사해서 '통과' 라고 말했다.
+       사장님이 화면에서 'データなし' 를 보고 알려주셨다. 그래서 여기에 넣는다.
+    """
+    have = set()
+    if os.path.isdir(STATS):
+        for fn in os.listdir(STATS):
+            if fn.endswith(".json") and fn != "tip_ja_cache.json":
+                try:
+                    have.add(json.load(open(os.path.join(STATS, fn), encoding="utf-8"))["course"])
+                except Exception:
+                    pass
+    reg = set(registered_pars())
+    return sorted(reg - have), len(reg)
+
+
 def main():
     problems, notes, n = check()
+    miss, nreg = missing_report()
+    if miss:
+        print(f"※ 홀맵은 있는데 통계가 없는 구장 {len(miss)}/{nreg}곳"
+              f" — じゃらん에 없거나 이름이 크게 다른 곳입니다")
+        for m in miss[:8]:
+            print(f"    · {m}")
+        if len(miss) > 8:
+            print(f"    · … 그 밖에 {len(miss) - 8}곳")
     report = "--report" in sys.argv
     if report:
         for x in notes:
