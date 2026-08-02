@@ -4,7 +4,7 @@
  * ========================================================= */
 "use strict";
 
-const APP_VER = "v218"; // 배포 버전 (홈 화면 배지에 표시)
+const APP_VER = "v219"; // 배포 버전 (홈 화면 배지에 표시)
 const APP_NOTE = "관리자"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
 const STORAGE_KEY = "riweather.courses.v1";
 
@@ -2313,7 +2313,7 @@ function renderCourseVideos(course) {
       ifr.src = `https://www.youtube-nocookie.com/embed/${id}` +
                 "?autoplay=1&mute=1&playsinline=1&rel=0&enablejsapi=1" +
                 "&origin=" + encodeURIComponent(location.origin);
-      ifr.title = "공략 영상";
+      ifr.title = tr("app.video.title");
       ifr.allow = "autoplay; encrypted-media; picture-in-picture; fullscreen";
       ifr.setAttribute("allowfullscreen", "");
       ifr.setAttribute("playsinline", "");
@@ -2344,7 +2344,7 @@ function renderCourseVideos(course) {
   // 출처 표기 — 유튜브 약관상 원본으로 가는 길을 열어둔다
   more.href = "https://www.youtube.com/results?search_query=" +
               encodeURIComponent(course.name + " 코스공략");
-  more.textContent = "▶ 유튜브에서 더 보기";
+  more.textContent = tr("app.video.more");
 }
 
 /* ---------- 공식 홀맵 이미지 모드 (홈페이지 홀맵 그대로 + AI 캐디) ---------- */
@@ -4015,7 +4015,7 @@ function renderFoodList(list, region, fromKakao) {
           <span class="fi-emoji">${catEmoji(it.cat)}</span>
           <div style="flex:1;min-width:0">
             <div class="fi-name">${it.name}</div>
-            <div class="fi-sub">${it.cat || "식당"}${it.rating > 0
+            <div class="fi-sub">${it.cat || tr("app.food.cat.default")}${it.rating > 0
               ? ` <span class="fi-star">⭐ ${it.rating.toFixed(1)} <em>(${it.reviews})</em></span>` : ""}</div>
           </div>
           <span class="fi-dist">${km}</span>
@@ -4055,7 +4055,7 @@ function renderFoodList(list, region, fromKakao) {
         <span class="fi-emoji">${catEmoji(it.cat)}</span>
         <div style="flex:1;min-width:0">
           <div class="fi-name">${it.name}</div>
-          <div class="fi-sub">${it.cat || "식당"}${it.rating > 0
+          <div class="fi-sub">${it.cat || tr("app.food.cat.default")}${it.rating > 0
             ? ` <span class="fi-star">⭐ ${it.rating.toFixed(1)} <em>(${it.reviews})</em></span>` : ""}</div>
         </div>
         <span class="fi-dist">${km}</span>
@@ -5217,7 +5217,7 @@ function scorecardHtml(r) {
 
   return `<div class="sb-card">
     <div class="sb-top"><span class="sb-name">${r.course}</span><span class="sb-total">${r.score}</span></div>
-    ${r.front || r.back ? `<div class="sb-courses">⚑ ${r.front || "전반"} - ${r.back || "후반"}</div>` : ""}
+    ${r.front || r.back ? `<div class="sb-courses">⚑ ${r.front || tr("app.sc.front")} - ${r.back || tr("app.sc.back")}</div>` : ""}
     ${block(f, pf)}
     ${block(b, pb)}
   </div>`;

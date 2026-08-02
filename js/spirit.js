@@ -78,11 +78,11 @@ function renderQuoteCard() {
     el.hidden = false;
     el.innerHTML =
       '<div class="sp-ask">' +
-      '<div class="sp-ask-t">⛳ 매일 한 문장, 받아보시겠어요?</div>' +
-      '<div class="sp-ask-d">세계 명선수들이 남긴 짧은 말과 조언을 홈 화면에 하루 하나씩 보여드립니다.</div>' +
+      '<div class="sp-ask-t">' + tr("sp.ask.title") + '</div>' +
+      '<div class="sp-ask-d">' + tr("sp.ask.desc") + '</div>' +
       '<div class="sp-ask-btns">' +
-      '<button class="sp-btn on" data-q="on">좋아요</button>' +
-      '<button class="sp-btn" data-q="off">괜찮아요</button>' +
+      '<button class="sp-btn on" data-q="on">' + tr("sp.ask.yes") + '</button>' +
+      '<button class="sp-btn" data-q="off">' + tr("sp.ask.no") + '</button>' +
       "</div></div>";
     return;
   }
