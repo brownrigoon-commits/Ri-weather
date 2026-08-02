@@ -19,7 +19,7 @@
 import json, os, sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from jp_common import HP_JP
+from jp_common import HP_JP, align_stats
 
 STATS = os.path.join(HP_JP, "_stats")
 SOURCE_MARK = "じゃらん"
@@ -49,7 +49,7 @@ def check():
     problems, notes = [], []
     if not os.path.isdir(STATS):
         return [], ["통계 자료가 아직 없습니다"], 0
-    files = sorted(f for f in os.listdir(STATS) if f.endswith(".json"))
+    files = sorted(f for f in os.listdir(STATS) if f.endswith(".json") and f != "tip_ja_cache.json")
     reg = registered_pars()
 
     for fn in files:
@@ -97,13 +97,26 @@ def check():
         # 🔴 가장 위험한 것 — 홀맵과 순서가 어긋나면 엉뚱한 홀에 통계가 붙는다
         course = d.get("course")
         if course in reg:
-            if reg[course] != d.get("pars"):
-                if len(reg[course]) == len(d.get("pars") or []):
-                    problems.append(f"{who}: 등록 홀맵과 파 배열이 다릅니다 — "
-                                    f"통계가 엉뚱한 홀에 붙습니다")
-                else:
-                    problems.append(f"{who}: 홀 수가 등록 홀맵과 다릅니다 "
-                                    f"(홀맵 {len(reg[course])} / 통계 {len(d.get('pars') or [])})")
+            mine = d.get("pars") or []
+            theirs = reg[course]
+            # ⚠️ 아래 어긋남들은 '나쁜 자료'가 아니라 '붙일 수 없는 자료'다.
+            #    조립기가 담지 않으므로 배포를 막지 않는다 — 대신 놓치지 않게 눈에 띄게 적는다.
+            #    (막아야 하는 것은 값 자체가 틀린 경우다 — 위쪽 검사들)
+            if len(theirs) != len(mine):
+                notes.append(f"{who}: 홀 수가 달라 통계를 못 붙임 "
+                             f"(홀맵 {len(theirs)} / 통계 {len(mine)}) — 홀맵이 덜 모인 구장일 수 있음")
+            elif all(a is None for a in theirs):
+                notes.append(f"{who}: 홀맵에 파가 없어 대조 못 함 (홀 수만 일치) — 파를 채울 수 있습니다")
+            else:
+                # 코스 순서·IN OUT 순서가 출처마다 다르다 — 파 배열로 자리를 맞춰 본다.
+                # 맞출 수 있으면 문제가 아니다(조립기가 그 자리표대로 넣는다).
+                idx = align_stats(theirs, mine)
+                if idx is None:
+                    diff = [i for i, (a, b) in enumerate(zip(theirs, mine))
+                            if a is not None and a != b]
+                    notes.append(f"{who}: 파가 달라 자리를 못 맞춤 ({len(diff)}홀) — 통계를 붙이지 않음")
+                elif idx != list(range(len(idx))):
+                    notes.append(f"{who}: 코스 순서가 홀맵과 달라 자리를 맞춰 붙입니다")
         else:
             notes.append(f"{who}: 홀맵이 아직 없는 구장 (통계만 보유)")
     return problems, notes, len(files)

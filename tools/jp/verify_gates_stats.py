@@ -74,16 +74,34 @@ def main():
         lambda d: d["holes"][0]["b"][0].__setitem__(4, 850.0),
         "gir 가 850.0% 입니다")
 
-    sab("등록 홀맵과 파 배열이 다름 (엉뚱한 홀에 붙음)",
-        lambda d: d.__setitem__("pars", [3] * len(d["pars"])),
-        "엉뚱한 홀에 붙습니다")
+    # ── 아래 두 가지는 '관문이 막는' 것이 아니라 '조립기가 담지 않는' 것이다.
+    #    (파가 어긋나면 배포를 멈추는 게 아니라 그 구장만 빼는 것이 맞다 —
+    #     다른 596곳은 멀쩡하기 때문이다). 그래서 **조립 결과로** 확인한다.
+    BUILD = os.path.join(HERE, "build_holestats_jp.py")
+    OUTJS = os.path.join(os.path.dirname(os.path.dirname(HERE)), "js", "holestats_jp.js")
 
-    # 홀맵 18홀 ↔ 통계 9홀 처럼 **둘 다 9의 배수**인데 다른 경우.
-    # (17홀로 줄이면 '홀 수가 이상함' 검사에 먼저 걸려 이 항목을 시험하지 못한다)
-    sab("홀 수가 홀맵과 다름 (9의 배수지만 짝이 안 맞음)",
-        lambda d: (d.__setitem__("pars", d["pars"][:9]),
-                   d.__setitem__("holes", d["holes"][:9]))[0],
-        "홀 수가 등록 홀맵과 다릅니다")
+    def sab_build(name, mutate, course):
+        d = copy.deepcopy(backup)
+        mutate(d)
+        json.dump(d, open(target, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
+        before = open(OUTJS, encoding="utf-8").read() if os.path.exists(OUTJS) else ""
+        r = subprocess.run([sys.executable, BUILD], capture_output=True, text=True,
+                           encoding="utf-8", errors="replace")
+        after = open(OUTJS, encoding="utf-8").read() if os.path.exists(OUTJS) else ""
+        gone = f'"{course}"' not in after
+        print(("  ✔ 담지 않음  " if gone else "  ✖ 담아버림 ") + name)
+        if not gone:
+            print("       조립 로그: " + (r.stdout or "").strip().replace("\n", " ")[:200])
+        restore()
+        subprocess.run([sys.executable, BUILD], capture_output=True)   # 원상 복구
+        ok.append(gone)
+
+    course = backup["course"]
+    sab_build("파가 어긋나 자리를 못 맞추는 구장 (엉뚱한 홀에 붙는 것 방지)",
+              lambda d: d.__setitem__("pars", [3] * len(d["pars"])), course)
+    sab_build("홀 수가 홀맵과 다른 구장 (9의 배수지만 짝이 안 맞음)",
+              lambda d: (d.__setitem__("pars", d["pars"][:9]),
+                         d.__setitem__("holes", d["holes"][:9]))[0], course)
 
     sab("출처 표기 누락 (내리기 스위치가 못 내림)",
         lambda d: d.__setitem__("source", "어디선가"),

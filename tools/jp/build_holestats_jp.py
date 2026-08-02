@@ -20,7 +20,7 @@
 import json, os, sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from jp_common import HP_JP, ROOT
+from jp_common import HP_JP, ROOT, align_stats
 
 STATS = os.path.join(HP_JP, "_stats")
 OUT = os.path.join(ROOT, "js", "holestats_jp.js")
@@ -43,23 +43,36 @@ def main():
     if not os.path.isdir(STATS):
         print("통계 자료가 없습니다")
         return 1
-    files = sorted(f for f in os.listdir(STATS) if f.endswith(".json"))
+    # tip_ja_cache.json 처럼 통계가 아닌 파일이 같은 폴더에 있다 — 형태로 가른다
+    files = sorted(f for f in os.listdir(STATS) if f.endswith(".json") and f != "tip_ja_cache.json")
     # 홀맵이 등록된 구장만 담는다 — 홀맵 없이 숫자만 있으면 화면에 붙일 자리가 없다
-    reg = set()
+    reg = {}
     for d in os.listdir(HP_JP):
         f = os.path.join(HP_JP, d, "parsed.json")
         if os.path.exists(f):
             try:
-                reg.add(json.load(open(f, encoding="utf-8"))["course"])
+                j = json.load(open(f, encoding="utf-8"))
+                reg[j["course"]] = [h.get("par") for c in j["courses"] for h in c["holes"]]
             except Exception:
                 pass
 
-    rows, skipped = [], 0
+    rows, skipped, reordered, unaligned = [], 0, 0, 0
     for fn in files:
         d = json.load(open(os.path.join(STATS, fn), encoding="utf-8"))
         if d["course"] not in reg:
             skipped += 1
             continue
+        theirs = reg[d["course"]]
+        # 🔴 출처마다 코스 순서·IN OUT 순서가 다르다. 홀맵 순서에 맞춰 자리를 바꿔 담는다.
+        #    맞출 수 없으면 담지 않는다 — 엉뚱한 홀에 숫자가 붙느니 없는 게 낫다.
+        if any(a is not None for a in theirs) and theirs != d["pars"]:
+            idx = align_stats(theirs, d["pars"])
+            if idx is None:
+                unaligned += 1
+                continue
+            d["pars"] = [d["pars"][i] for i in idx]
+            d["holes"] = [d["holes"][i] for i in idx]
+            reordered += 1
         rows.append(d)
 
     with open(OUT, "w", encoding="utf-8", newline="\n") as w:
@@ -82,8 +95,13 @@ def main():
         w.write("};\n")
     kb = os.path.getsize(OUT) // 1024
     holes = sum(len(d["holes"]) for d in rows)
-    print(f"holestats_jp.js 조립 완료: {len(rows)}구장 · {holes:,}홀 · {kb}KB"
-          + (f" (홀맵 없는 구장 {skipped}곳은 제외)" if skipped else ""))
+    print(f"holestats_jp.js 조립 완료: {len(rows)}구장 · {holes:,}홀 · {kb}KB")
+    if skipped:
+        print(f"   · 홀맵이 없어 제외 {skipped}곳")
+    if reordered:
+        print(f"   · 코스 순서를 홀맵에 맞춰 재배치 {reordered}곳")
+    if unaligned:
+        print(f"   · 자리를 맞출 수 없어 제외 {unaligned}곳 (엉뚱한 홀에 붙는 것보다 낫다)")
     return 0
 
 

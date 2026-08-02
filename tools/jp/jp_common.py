@@ -189,6 +189,43 @@ MAGIC = {b"\xff\xd8\xff": "jpg", b"\x89PNG": "png", b"GIF8": "gif", b"RIFF": "we
 MIN_IMAGE_BYTES = 10_000
 
 
+# ── 홀 통계를 홀맵 순서에 맞추기 ──────────────────────────────────
+def align_stats(map_pars, stat_pars):
+    """홀맵의 홀 순서에 맞도록 통계의 자리를 바꾼다 → 자리표(index 목록) or None
+
+    왜 필요한가 (2026-08-02 실측):
+      · 여러 코스를 가진 구장은 **출처마다 코스 순서가 다르다**
+        (水戸: 홀맵 南西北東 / じゃらん 다른 순서)
+      · 18홀 구장인데 じゃらん 이 IN 을 먼저 싣는 곳이 있다
+        (船戸山GC 통계 홀번호가 10~18 로 시작)
+      순서를 안 맞추고 붙이면 **다른 홀의 통계가 표시된다** — 홀맵이 뒤바뀌는 것과 같은 사고다.
+
+    맞추는 방법: 9홀 단위로 잘라 **파 배열이 같은 덩어리끼리** 짝짓는다.
+    짝이 하나로 정해지지 않으면(같은 파 배열이 둘 이상) **포기한다** — 추측하지 않는다.
+    """
+    if not map_pars or not stat_pars or len(map_pars) != len(stat_pars):
+        return None
+    if map_pars == stat_pars:
+        return list(range(len(map_pars)))
+    n = len(map_pars)
+    if n % 9:
+        return None
+    blocks = n // 9
+    mb = [tuple(map_pars[i * 9:(i + 1) * 9]) for i in range(blocks)]
+    sb = [tuple(stat_pars[i * 9:(i + 1) * 9]) for i in range(blocks)]
+    used, order = set(), []
+    for want in mb:
+        cand = [j for j in range(blocks) if j not in used and sb[j] == want]
+        if len(cand) != 1:
+            return None                    # 없거나 여럿 — 어느 것인지 확정 못 한다
+        used.add(cand[0])
+        order.append(cand[0])
+    idx = []
+    for b in order:
+        idx.extend(range(b * 9, b * 9 + 9))
+    return idx
+
+
 def looks_like_image(headers, body):
     """→ (참/거짓, 사유)
 
