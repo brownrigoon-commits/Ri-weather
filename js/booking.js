@@ -132,14 +132,22 @@ function golfmonUrl(id, ymd, name, kind, joinCount) {
 /* 구장 공식 홈페이지 — 홀맵 DB 에 이미 출처 URL 이 들어 있다(232곳).
    여기도 이름을 통째로 비교하면 "파주" 가 "파주CC" 를 못 찾는다 → 핵심 이름으로. */
 let BK_SITE_INDEX = null;
+/* 구장 제 사이트가 아니라 '모아 놓은 곳' — 여기로 보내면서 공식이라 하면 안 된다 */
+const BK_AGGREGATOR = /golf-jalan\.net|jalan\.net|gora\.golf\.rakuten|travel\.rakuten|golfdigest|gdo\.co\.jp|alba\.co\.jp/i;
 function officialSiteUrl(course) {
   if (!course) return "";
-  /* 일본 구장의 공식 주소는 **일본 홀맵 꾸러미** 안에 있다(645곳 전부 sourceUrl 을 가지고 있다).
-     한국 HOLEIMG_DB 만 뒤지면 일본 구장은 늘 빈손이라 예약처 카드가 하나도 안 뜬다
-     — 2026-08-03 鳴尾GC 에서 부킹 화면이 통째로 비어 있는 것을 보고 찾았다. */
+  /* 일본 구장의 공식 주소는 **일본 홀맵 꾸러미** 안에 있다.
+     🔴 다만 sourceUrl 이 곧 공식 홈페이지는 아니다 — 647곳 중 508곳은 じゃらん 페이지다.
+        그걸 그대로 쓰면 "ゴルフ場公式ホームページ" 라는 딱지를 달고 **바로 위 자란 카드와
+        같은 곳**으로 보내게 된다. 남의 중개 사이트를 구장 공식이라 부르는 셈이다
+        (2026-08-03 사장님 지적으로 발견 — 내가 하루 전에 넣은 구멍이다).
+        모아 놓은 곳(중개 사이트)은 걸러내고, 구장·운영사 제 사이트만 공식으로 친다.
+        아코디아 예약 사이트는 아코디아가 그 구장의 운영사이므로 공식으로 본다. */
   if (course.c === "JP" && typeof JPPACK !== "undefined") {
     const j = JPPACK.imgdb(course);
-    if (j && j.sourceUrl) return j.sourceUrl;
+    const u = (j && j.sourceUrl) || "";
+    if (u && !BK_AGGREGATOR.test(u)) return u;
+    return "";
   }
   if (typeof HOLEIMG_DB === "undefined") return "";
   const direct = HOLEIMG_DB[course.name];
@@ -203,6 +211,20 @@ function jpBookingCards(course, ymd, kind) {
   if (site)
     out.push({ key: "official", ico: "🏛️", cls: "bk-site", title: tr("bk.card.official"),
                sub: tr("bk.card.official.sub"), url: site });
+
+  /* 예약처도 공식 주소도 없는 구장이 895곳 있다(실측 2026-08-03).
+     그 사람들은 "그럼 어디서 예약하나" 하고 화면 앞에서 막힌다.
+     우리가 주소를 모른다고 길까지 끊을 이유는 없다 — **찾아 주는** 카드를 넣는다.
+     ⚠️ 딱지를 '공식 홈페이지' 라고 달지 않는다. 우리는 그 주소를 모른다.
+        '공식 사이트를 찾아본다' 고 있는 그대로 적는다. 열어 보면 검색 결과다. */
+  if (!out.length) {
+    const q = dispName(course) + (ja ? " ゴルフ場 公式" : " 골프장 공식");
+    out.push({
+      key: "search", ico: "🔎", cls: "bk-site",
+      title: tr("bk.card.search"), sub: tr("bk.card.search.sub"),
+      url: "https://www.google.com/search?q=" + encodeURIComponent(q),
+    });
+  }
   return out;
 }
 
