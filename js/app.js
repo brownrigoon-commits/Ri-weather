@@ -4,8 +4,8 @@
  * ========================================================= */
 "use strict";
 
-const APP_VER = "v210"; // 배포 버전 (홈 화면 배지에 표시)
-const APP_NOTE = "관리자"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
+const APP_VER = "v211"; // 배포 버전 (홈 화면 배지에 표시)
+const APP_NOTE = "앱 지우기 전 화면"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
 const STORAGE_KEY = "riweather.courses.v1";
 
 /* 나중에 필요할 때 불러오는 파일 목록 (2026-07-31 신설).
@@ -2379,8 +2379,16 @@ function renderImgCourse(course, db) {
       const safeTip = tipText.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
       infoHtml += tr("app.hole.tip.title") + safeTip;
     }
-    // 홀별 실전 통계(일본) — 스코어대는 내 평균 타수에 맞춰 처음부터 열린다(§2-8-1)
     if (typeof JPPACK !== "undefined") {
+      // 홀별 한 줄 공략 — 공식 TIP 이 없는 일본 구장에서 이 자리를 채운다.
+      // 지어낸 문장이 아니라 통계·사실 토큰에서 끌어낸 말이다(tools/jp/gen_hole_text.py).
+      // 공식 TIP 이 있으면 그쪽이 이긴다 — 구장이 직접 쓴 글이 우리 요약보다 낫다.
+      const line = JPPACK.text(course.name, i);
+      if (line && !tipText) {
+        infoHtml += tr("app.hole.tip.title") +
+          line.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+      }
+      // 홀별 실전 통계 — 스코어대는 내 평균 타수에 맞춰 처음부터 열린다(§2-8-1)
       const stat = JPPACK.statHtml(course.name, i, holeBand);
       if (stat) infoHtml += JPPACK.bandHtml(holeBand) + stat;
     }
@@ -5631,15 +5639,20 @@ const BACKUP = (() => {
     const c = loadCourses().length, sc = loadScores().length;
     const desc = $("#bye-desc"), wrap = $("#bye-code-wrap"), msg = $("#bye-msg");
     msg.textContent = "";
-    if (!c && !sc) {
-      desc.innerHTML = tr("app.bye.desc.none");
-      wrap.hidden = true;
-      $("#bye-keep").hidden = true;
-    } else if (s.on && s.code) {
-      desc.innerHTML = tr("app.bye.desc.on");
+    /* ⚠️ 순서가 중요하다 — **백업 켜짐을 가장 먼저 본다.**
+       예전엔 '기록 없음'을 먼저 봐서, 이 기기에 저장된 게 없으면 백업이 켜져 있어도
+       복구 코드를 감췄다. 새 기기·브라우저 정리 직후가 정확히 그 상태인데,
+       그때 서버엔 기록이 남아 있다 — 되살릴 유일한 열쇠를 감추고 "잃을 것 없다"고
+       말하는 셈이었다(2026-08-02 발견). 코드는 이용자의 것이니 항상 보여준다. */
+    if (s.on && s.code) {
+      desc.innerHTML = tr(c || sc ? "app.bye.desc.on" : "app.bye.desc.on.empty");
       $("#bye-code").textContent = fmt(s.code);
       wrap.hidden = false;
       $("#bye-keep").hidden = false;
+    } else if (!c && !sc) {
+      desc.innerHTML = tr("app.bye.desc.none");
+      wrap.hidden = true;
+      $("#bye-keep").hidden = true;
     } else {
       desc.innerHTML = tr("app.bye.desc.off", { c, s: sc });
       wrap.hidden = true;

@@ -43,6 +43,7 @@ const JPPACK = {
     if (course && course.c === "JP") {
       jobs.push(this._load("holeimgdb_jp", () => typeof HOLEIMG_DB_JP !== "undefined"));
       jobs.push(this._load("holestats_jp", () => typeof HOLESTATS_JP !== "undefined"));
+      jobs.push(this._load("holetext_jp", () => typeof HOLETEXT_JP !== "undefined"));
     } else if (typeof I18N !== "undefined" && I18N.lang === "ja") {
       // 일본인이 한국 구장을 볼 때 — 한국 TIP 의 일본어판
       jobs.push(this._load("holeimgdb_ja", () => typeof HOLETIP_JA !== "undefined"));
@@ -56,6 +57,17 @@ const JPPACK = {
 
   stats: function (name) {
     return (typeof HOLESTATS_JP !== "undefined" && HOLESTATS_JP[name]) || null;
+  },
+
+  /* 홀별 한 줄 공략 — 지어낸 문장이 아니라 통계·사실 토큰에서 끌어낸 말이다
+     (tools/jp/gen_hole_text.py, 관문 check_holetext_jp.py 가 자료로 되짚는다).
+     할 말이 없는 홀은 빈 문자열이고, 그러면 이 줄을 아예 그리지 않는다. */
+  text: function (name, holeIdx) {
+    if (typeof HOLETEXT_JP === "undefined") return "";
+    const list = HOLETEXT_JP[name];
+    const it = list && list[holeIdx];
+    if (!it) return "";
+    return (this._ja() ? it.j : it.k) || "";
   },
 
   /* 한국 구장 TIP 의 일본어판. 없으면 null → 부르는 쪽이 한국어 원문을 그대로 쓴다.

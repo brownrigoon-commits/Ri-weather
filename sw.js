@@ -1,5 +1,5 @@
 ﻿/* 투어리스트(구 골프라이프) 서비스 워커 — 앱 뼈대는 캐시, 날씨 데이터는 항상 네트워크 */
-const CACHE = "riweather-v210";
+const CACHE = "riweather-v211";
 const CORE = [
   "./",
   "./index.html",
@@ -27,8 +27,8 @@ const CORE = [
   "./js/holeimgdb.js",
   "./js/coursevideos.js",
   "./js/jppack.js",
-  // ⚠️ holeimgdb_jp.js(2.4MB)·holestats_jp.js(2.6MB) 는 여기 넣지 않는다.
-  //    설치 때 5MB 를 미리 받게 되고, 한국 이용자는 평생 쓰지 않는다.
+  // ⚠️ holeimgdb_jp.js(2.4MB)·holestats_jp.js(2.6MB)·holetext_jp.js(1.2MB) 는 여기 넣지 않는다.
+  //    설치 때 6MB 를 미리 받게 되고, 한국 이용자는 평생 쓰지 않는다.
   //    일본 구장을 열 때 jppack 이 받고, 아래 "있으면 캐시" 규칙이 알아서 남긴다.
   "./manifest.webmanifest",
   "./icons/icon-192.png",

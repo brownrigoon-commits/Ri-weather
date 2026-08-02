@@ -357,28 +357,54 @@
   try {
     if (typeof BACKUP.openBye !== "function") add("앱 지우기 전 확인 화면 없음", "openBye", "");
     else {
+      /* ⚠️ 이 검사는 **주변 상태에 기대지 않는다.** 예전엔 그때그때 저장돼 있던
+         즐겨찾기에 기대는 바람에, 기록이 0건인 순간에 돌면 스스로 실패했다.
+         그리고 되돌릴 때 저장 키를 'riweather.courses' 로 잘못 적어(진짜는
+         riweather.courses.v1) 원상복구가 되지 않고 있었다(2026-08-02 둘 다 수정). */
       const sheet = document.querySelector("#bye-sheet");
-      const wasOn = JSON.parse(localStorage.getItem("riweather.backup") || "{}");
-      const keepC = localStorage.getItem("riweather.courses");
-      // ① 기록이 있는데 백업이 꺼진 상태 — 잃는다고 분명히 말해야 한다
-      localStorage.setItem("riweather.backup", JSON.stringify({ on: false }));
+      const K_BK = "riweather.backup", K_CS = "riweather.courses.v1", K_SC = "riweather.scores.v1";
+      const wasBk = localStorage.getItem(K_BK);
+      const wasCs = localStorage.getItem(K_CS);
+      const wasSc = localStorage.getItem(K_SC);
+      const 기록넣기 = () => {
+        localStorage.setItem(K_CS, JSON.stringify([{ id: "sweep", name: "가야CC", addr: "", lat: 35.27, lon: 128.9 }]));
+        localStorage.setItem(K_SC, JSON.stringify([{ id: "s", date: "2026-08-02", course: "가야CC", total: 90 }]));
+      };
+      const 기록비우기 = () => { localStorage.removeItem(K_CS); localStorage.removeItem(K_SC); };
+      const 코드보임 = () => !document.querySelector("#bye-code-wrap").hidden;
+      const 안내 = () => document.querySelector("#bye-desc").textContent || "";
+
+      // ① 기록 있음 + 백업 꺼짐 — 잃는다고 분명히 말하고, 코드는 없다
+      기록넣기();
+      localStorage.setItem(K_BK, JSON.stringify({ on: false }));
       BACKUP.openBye();
-      const off = (document.querySelector("#bye-desc").textContent || "");
-      const hasRec = loadCourses().length || loadScores().length;
-      if (hasRec && !/사라지|되살릴 수 없/.test(off))
-        add("백업 꺼짐인데 경고를 안 함", "bye-desc", off.slice(0, 40));
-      if (!document.querySelector("#bye-code-wrap").hidden)
-        add("백업 꺼짐인데 복구 코드를 보여줌", "bye-code-wrap", "");
-      // ② 백업이 켜진 상태 — 복구 코드를 보여줘야 한다
-      localStorage.setItem("riweather.backup", JSON.stringify({ on: true, code: "123456789012", last: Date.now() }));
+      if (!/사라지|되살릴 수 없/.test(안내())) add("백업 꺼짐인데 경고를 안 함", "bye-desc", 안내().slice(0, 40));
+      if (코드보임()) add("백업 꺼짐인데 복구 코드를 보여줌", "bye-code-wrap", "");
+
+      // ② 기록 있음 + 백업 켜짐 — 복구 코드를 보여준다
+      localStorage.setItem(K_BK, JSON.stringify({ on: true, code: "123456789012", last: Date.now() }));
       BACKUP.openBye();
-      if (document.querySelector("#bye-code-wrap").hidden)
-        add("백업 켜짐인데 복구 코드를 안 보여줌", "bye-code-wrap", "");
+      if (!코드보임()) add("백업 켜짐인데 복구 코드를 안 보여줌", "bye-code-wrap", "");
       if (!/1234/.test(document.querySelector("#bye-code").textContent))
         add("복구 코드가 화면과 다름", "bye-code", document.querySelector("#bye-code").textContent);
+
+      /* ③ 기록 없음 + 백업 켜짐 — **여기서도 코드를 보여줘야 한다.**
+         새 기기·브라우저 정리 직후가 이 상태다. 서버엔 기록이 남아 있는데
+         코드를 감추면 되살릴 길이 사라진다(2026-08-02 실제 버그). */
+      기록비우기();
+      BACKUP.openBye();
+      if (!코드보임()) add("기록 없을 때 복구 코드를 감춤(새 기기에서 되살릴 길이 막힘)", "bye-code-wrap", 안내().slice(0, 40));
+      if (/잃을 기록이 없습니다/.test(안내()))
+        add("백업 켜짐인데 '잃을 것 없다'고 안내", "bye-desc", 안내().slice(0, 40));
+
+      // ④ 기록 없음 + 백업 꺼짐 — 이때만 '잃을 것 없음'
+      localStorage.setItem(K_BK, JSON.stringify({ on: false }));
+      BACKUP.openBye();
+      if (코드보임()) add("백업 꺼짐·기록 없음인데 코드를 보여줌", "bye-code-wrap", "");
+
       sheet.hidden = true;
-      localStorage.setItem("riweather.backup", JSON.stringify(wasOn));
-      if (keepC) localStorage.setItem("riweather.courses", keepC);
+      const 되돌리기 = (k, v) => v === null ? localStorage.removeItem(k) : localStorage.setItem(k, v);
+      되돌리기(K_BK, wasBk); 되돌리기(K_CS, wasCs); 되돌리기(K_SC, wasSc);
     }
   } catch (e) { add("앱 지우기 전 확인 검사 예외", "bye", e.message); }
 
