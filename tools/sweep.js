@@ -816,6 +816,13 @@
     renderCourseVideos(currentCourse);
     const card = document.querySelector("#course-videos-card");
     if (card && card.hidden) add("영상이 있는데 카드가 안 뜸", names[0], "");
+    // 순서 — 남의 영상은 **우리 자료 아래**여야 한다(2026-08-02 사장님 지시)
+    const order = [...document.querySelectorAll("#course-view > section, #course-view > p")].map((e) => e.id);
+    const iv = order.indexOf("course-videos-card");
+    ["course-map-card", "profile-card", "hole-list-card", "hole-detail-card"].forEach((id) => {
+      const i = order.indexOf(id);
+      if (i >= 0 && iv >= 0 && iv < i) add("공략 영상이 우리 자료보다 위에 있음", id, order.join(" → "));
+    });
     const items = document.querySelectorAll(".cv-item").length;
     if (items !== COURSE_VIDEOS[names[0]].length)
       add("영상 개수가 화면과 다름", names[0], items + " ≠ " + COURSE_VIDEOS[names[0]].length);

@@ -116,6 +116,19 @@ app = os.path.join(ROOT, "js", "app.js")
 sw = os.path.join(ROOT, "sw.js")
 msg = sys.argv[1] if len(sys.argv) > 1 else "구장 등록 배포"
 
+# ── 다른 창 작업 빼기 ─────────────────────────────────────────
+# stage() 는 폴더를 통째로 담는다(파일 누락 사고를 막으려고 그렇게 만들었다).
+# 그래서 한 PC 에서 창 두 개로 작업하면 **남의 작업 중인 파일까지 딸려 나간다.**
+# 근본 해결은 창마다 폴더를 나누는 것(git worktree)이지만, 급할 때는 이걸 쓴다.
+#
+#   python tools/release_courses.py "메시지" --except tools/jp coursedata/homepages_jp
+#
+# 뺀 경로는 스테이징에서 되돌릴 뿐, 작업 파일은 건드리지 않는다.
+KEEP_OUT = []
+if "--except" in sys.argv:
+    KEEP_OUT = [a for a in sys.argv[sys.argv.index("--except") + 1:] if not a.startswith("-")]
+    print("이번 배포에서 뺄 경로:", ", ".join(KEEP_OUT))
+
 def git(*args, check=True):
     r = subprocess.run(["git", "-C", ROOT] + list(args), capture_output=True,
                        text=True, encoding="utf-8", errors="replace")
@@ -134,6 +147,9 @@ def stage():
         "tools", "js", "css", "icons", "assets", "docs", "sw.js", "index.html",
         "ops-k58zq.html", "manifest.webmanifest", ".nojekyll", ".gitignore", ".sync",
         "robots.txt", "HANDOFF.md", "README.md", "CLAUDE.md", check=False)
+    # --except 로 받은 경로는 담았다가 도로 뺀다(작업 파일 자체는 그대로 둔다)
+    if KEEP_OUT:
+        git("reset", "-q", "HEAD", "--", *KEEP_OUT, check=False)
 
 def bump():
     """항상 '현재 파일에 적힌 버전 +1' — 최신화 직후 호출해야 유일한 버전이 됨.
