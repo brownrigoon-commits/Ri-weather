@@ -133,7 +133,15 @@ function golfmonUrl(id, ymd, name, kind, joinCount) {
    여기도 이름을 통째로 비교하면 "파주" 가 "파주CC" 를 못 찾는다 → 핵심 이름으로. */
 let BK_SITE_INDEX = null;
 function officialSiteUrl(course) {
-  if (typeof HOLEIMG_DB === "undefined" || !course) return "";
+  if (!course) return "";
+  /* 일본 구장의 공식 주소는 **일본 홀맵 꾸러미** 안에 있다(645곳 전부 sourceUrl 을 가지고 있다).
+     한국 HOLEIMG_DB 만 뒤지면 일본 구장은 늘 빈손이라 예약처 카드가 하나도 안 뜬다
+     — 2026-08-03 鳴尾GC 에서 부킹 화면이 통째로 비어 있는 것을 보고 찾았다. */
+  if (course.c === "JP" && typeof JPPACK !== "undefined") {
+    const j = JPPACK.imgdb(course);
+    if (j && j.sourceUrl) return j.sourceUrl;
+  }
+  if (typeof HOLEIMG_DB === "undefined") return "";
   const direct = HOLEIMG_DB[course.name];
   if (direct && direct.sourceUrl) return direct.sourceUrl;
   if (!BK_SITE_INDEX) {
@@ -175,8 +183,8 @@ function jpBookingCards(course, ymd, kind) {
       key: "gora", ico: "⛳", cls: "bk-mon",
       title: ja ? (kind === "join" ? "楽天GORA 1人予約" : "楽天GORAで予約")
                 : (kind === "join" ? "라쿠텐 GORA 1인 예약" : "라쿠텐 GORA 예약"),
-      sub: ja ? `${md} ${course.name} の空き状況`
-              : `${md} · ${course.name} 빈자리 보기`,
+      sub: ja ? `${md} ${dispName(course)} の空き状況`
+              : `${md} · ${dispName(course)} 빈자리 보기`,
       url: url,
     });
   }
@@ -186,7 +194,7 @@ function jpBookingCards(course, ymd, kind) {
     out.push({
       key: "jalangolf", ico: "🏌️", cls: "bk-pang",
       title: ja ? "じゃらんゴルフで予約" : "자란 골프 예약",
-      sub: ja ? `${md} ${course.name}` : `${md} · ${course.name}`,
+      sub: ja ? `${md} ${dispName(course)}` : `${md} · ${dispName(course)}`,
       url: "https://golf-jalan.net/gc" + gc + "/",
     });
   }
@@ -225,8 +233,8 @@ function bookingLinkCards(course, ymd, kind, joinCount) {
       { key: "mon_join", img: "assets/brand/golfmon.png", cls: "bk-mon",
         title: tr("bk.card.mon.join"),
         sub: monExact
-          ? (joinCount ? tr("bk.sub.mon.join.cnt", { md: md, course: course.name, cnt: cnt })
-                       : tr("bk.sub.mon.join", { md: md, course: course.name }))
+          ? (joinCount ? tr("bk.sub.mon.join.cnt", { md: md, course: dispName(course), cnt: cnt })
+                       : tr("bk.sub.mon.join", { md: md, course: dispName(course) }))
           : tr("bk.sub.mon.pick"),
         url: golfmonUrl(id, ymd, course.name, "join", joinCount) },
     ];
@@ -236,7 +244,7 @@ function bookingLinkCards(course, ymd, kind, joinCount) {
       sub: pangSub, url: golfpangUrl("booking", id, ymd) },
     { key: "mon_booking", img: "assets/brand/golfmon.png", cls: "bk-mon",
       title: tr("bk.card.mon.booking"),
-      sub: monExact ? tr("bk.sub.mon.booking", { md: md, course: course.name }) : tr("bk.sub.mon.pick"),
+      sub: monExact ? tr("bk.sub.mon.booking", { md: md, course: dispName(course) }) : tr("bk.sub.mon.pick"),
       url: golfmonUrl(id, ymd, course.name, "booking") },
   ];
   if (site) {
@@ -289,6 +297,7 @@ function paintBooking() {
   const ymd = bkYmd(days[pick]);
   const el = document.querySelector("#booking-body");
   const note = bookingDayNote(days, wx, pick);
+  const bkCards = bookingLinkCards(course, ymd, mode, joinCount);
   el.innerHTML =
     `<div class="bk-modes" role="tablist">` +
     Object.keys(BK_MODES).map((k) =>
@@ -308,7 +317,12 @@ function paintBooking() {
     `<div class="bk-days">${renderBookingDays(days, wx, pick)}</div>` +
     (note ? `<p class="bk-note">${note}</p>` : "") +
     `<div class="bk-links">` +
-    bookingLinkCards(course, ymd, mode, joinCount).map((c) =>
+    /* 예약처가 하나도 없을 수 있다(회원제 구장 등). 그때 아무 말 없이 빈칸이면
+       이용자는 앱이 고장 난 줄 안다 — 2026-08-03 鳴尾GC 에서 실제로 그랬다.
+       ⚠️ "이 구장은 예약이 안 됩니다" 라고는 쓰지 않는다. 우리가 확인한 것은
+          '우리에게 예약처 자료가 없다'는 것뿐이다. 아는 데까지만 말한다. */
+    (bkCards.length === 0 ? `<p class="bk-none">${tr("bk.none")}</p>` : "") +
+    bkCards.map((c) =>
       `<div class="bk-slot">` +
       `<a class="bk-card ${c.cls}" href="${c.url}" target="_blank" rel="noopener" data-out="${c.key}">
          <span class="bk-card-ic">${c.img
@@ -352,7 +366,7 @@ async function openBookingView() {
   if (course.c === "JP" && typeof JPPACK !== "undefined") await JPPACK.need(course);
   document.querySelector("#booking-title").textContent = tr("bk.title");
   document.querySelector("#booking-desc").textContent =
-    tr("bk.desc", { course: course.name });
+    tr("bk.desc", { course: dispName(course) });
 
   const today = new Date(); today.setHours(0, 0, 0, 0);
   const days = Array.from({ length: BOOKING_DAYS }, (_, i) => {

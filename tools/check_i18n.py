@@ -21,7 +21,7 @@
   python tools/check_i18n.py            # 위반만, 있으면 종료코드 1
   python tools/check_i18n.py --report   # 통과 항목·고아 키까지
 """
-import glob, json, os, re, sys
+import glob, html.parser, json, os, re, sys
 
 sys.stdout.reconfigure(encoding="utf-8")
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -89,12 +89,99 @@ def used_keys():
     return used
 
 
+class _KoScan(html.parser.HTMLParser):
+    """마크업을 훑어 '표시가 안 붙은 한국어 글자'를 찾는다.
+
+       I18N.applyDom() 은 `data-i18n` 이 달린 요소의 textContent 만 바꾼다.
+       표시가 없으면 그 글자는 **일본어 화면에서도 한국어로 남는다.**
+       사전 키가 다 있어도 이건 못 잡는다 — 애초에 키를 안 만든 글자이기 때문이다.
+       (2026-08-03 실측: '위 검색창에서…' 등 2곳이 이 구멍으로 새어 일본어 화면에 남아 있었다.
+        기존 ①②만으로는 검사가 'OK' 라고 답했다.) """
+
+    # <title> 은 뺐다 — 탭 제목도 이용자에게 보이는 글자다(홈 화면 추가 때 뜬다)
+
+    def __init__(self):
+        super().__init__(convert_charrefs=True)
+        self.stack = []          # [(태그, 표시있음, 안쪽까지덮음)]
+        self.hits = []
+        self.bad_option = []     # 값이 안 박힌 채 번역되는 <option>
+
+    def handle_starttag(self, tag, attrs):
+        a = dict(attrs)
+        # data-i18n / -node / -html / -skip 중 무엇이든 있으면 '표시된' 것으로 본다
+        marked = any(k.startswith("data-i18n") for k in a)
+        # data-i18n-html 은 **안쪽을 통째로** 갈아 끼우므로 그 아래도 모두 덮인다
+        deep = "data-i18n-html" in a
+        # 🔴 <option> 은 value 가 없으면 **글자가 곧 값**이다.
+        #    글자를 일본어로 옮기는 순간 .value 도 일본어가 되어
+        #    저장된 기록("화이트")과 어긋나고, $("#sf-tee").value = "화이트" 도 실패한다.
+        #    번역되는 option 에는 한국어를 value 로 못 박아 두어야 한다.
+        if tag == "option" and marked and "value" not in a:
+            self.bad_option.append(self.getpos()[0])
+        # void 요소는 닫는 태그가 없어 쌓으면 안 된다
+        if tag not in ("br", "img", "input", "meta", "link", "hr", "source"):
+            self.stack.append((tag, marked, deep))
+
+    def handle_startendtag(self, tag, attrs):
+        pass
+
+    def handle_endtag(self, tag):
+        for i in range(len(self.stack) - 1, -1, -1):
+            if self.stack[i][0] == tag:
+                del self.stack[i:]
+                return
+
+    def handle_data(self, data):
+        if not KO_CH.search(data) or not data.strip():
+            return
+        if any(t in ("script", "style") for t, _, _ in self.stack):
+            return
+        # 글자를 채워 주는 것은 **바로 위 요소**다 — data-i18n/-node 는 조상에 달 수 없다
+        # (textContent 로 덮으면 자식이 통째로 사라진다).
+        # 다만 data-i18n-html 은 안쪽을 통째로 바꾸므로 조상에 있어도 덮인다.
+        if self.stack and self.stack[-1][1]:
+            return
+        if any(deep for _, _, deep in self.stack):
+            return
+        where = " > ".join(t for t, _, _ in self.stack[-3:])
+        self.hits.append((where, " ".join(data.split())[:46], self.getpos()[0]))
+
+
+KO_CH = re.compile(r"[가-힣]")
+
+
+def scan_html(rel="index.html"):
+    p = _KoScan()
+    p.feed(read(rel))
+    return p
+
+
+def unmarked_korean(rel="index.html"):
+    return scan_html(rel).hits
+
+
 def violations(root=None):
     have = dict_keys("ko")
     used = used_keys()
     bad, note = [], []
 
-    missing = [k for k in used if k not in have]
+    scan = scan_html("index.html")
+    for where, text, line in scan.hits:
+        bad.append(f'index.html:{line} 표시가 없는 한국어: "{text}" (<{where}>) '
+                   f'— 일본어 화면에서도 한국어로 남습니다. data-i18n 을 달거나, '
+                   f'일부러 두는 것이면 data-i18n-skip 을 다세요')
+    for line in scan.bad_option:
+        bad.append(f'index.html:{line} 번역되는 <option> 에 value 가 없습니다 '
+                   f'— 글자가 곧 저장값이라 옮기는 순간 기존 이용자 기록과 어긋납니다. '
+                   f'value="한국어원문" 을 박으세요')
+
+    # tr("app.pf." + t) 처럼 **이어 붙여 만드는 키**는 정적으로 확인할 수 없다.
+    # 점으로 끝나면 그건 온전한 키가 아니라 앞머리다 — 없는 키라고 하면 거짓 경보다.
+    # (이런 자리는 코드가 tr() 결과가 키 그대로면 원문을 쓰도록 되받침을 두고 있다)
+    prefixes = sorted(k for k in used if k.endswith("."))
+    if prefixes:
+        note.append(f"이어 붙여 만드는 키 {len(prefixes)}종 (정적 확인 불가): {', '.join(prefixes)}")
+    missing = [k for k in used if k not in have and not k.endswith(".")]
     if missing:
         for k in sorted(missing)[:20]:
             bad.append(f'사전에 없는 키: "{k}" ({", ".join(sorted(set(used[k])))}) — 화면에 키가 그대로 나옵니다')

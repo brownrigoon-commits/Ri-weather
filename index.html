@@ -6,7 +6,9 @@
   <meta name="theme-color" content="#f2f4f6">
   <!-- 봇 수집 차단 — robots.txt 를 무시하고 들어온 봇에게도 '색인하지 말라'고 못박는다 -->
   <meta name="robots" content="noindex, nofollow, noarchive">
-  <title>투어리스트 · 골프 날씨부터 클럽까지</title>
+  <!-- 탭 제목도 사전으로 바꾼다 — applyDom 이 textContent 를 채우면 document.title 이 따라 바뀐다.
+       (홈 화면에 추가할 때 뜨는 이름은 manifest.webmanifest 소관이라 여기서는 못 바꾼다) -->
+  <title data-i18n="ui.app.title">투어리스트 · 골프 날씨부터 클럽까지</title>
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="apple-touch-icon" href="icons/icon-180.png">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -180,7 +182,8 @@
     <div id="empty-state" class="empty-state" hidden>
       <div class="empty-icon">⛳️</div>
       <p><strong data-i18n="ui.empty.title">저장된 골프장이 없습니다</strong></p>
-      <p>위 검색창에서 가려는 골프장을 검색하고<br>별(☆) 버튼으로 저장해 보세요.</p>
+      <p data-i18n="ui.empty.desc">위 검색창에서 가려는 골프장을 검색하고
+별(☆) 버튼으로 저장해 보세요.</p>
       <p><button id="backup-open-empty" class="c-view" data-i18n="ui.empty.restore">이전에 쓰던 기록이 있다면 — 복구 코드로 되살리기</button></p>
 
       <div class="howto-card">
@@ -190,7 +193,8 @@
           <li><b data-i18n="ui.howto.intl.label">일본·중국 골프장 (한글 발음)</b><span data-i18n="ui.howto.intl.ex">히츠지가오카, 신치토세, 관란호</span></li>
           <li><b data-i18n="ui.howto.addr.label">주소·지역</b><span data-i18n="ui.howto.addr.ex">파주 법원읍, 웅촌로 1, 제주 서귀포</span></li>
         </ul>
-        <div class="howto-tip">골프장을 선택하면 시간별 날씨와 모레까지의<br>비구름 이동 지도를 볼 수 있어요.</div>
+        <div class="howto-tip" data-i18n="ui.howto.tip">골프장을 선택하면 시간별 날씨와 모레까지의
+비구름 이동 지도를 볼 수 있어요.</div>
       </div>
     </div>
 
@@ -208,7 +212,13 @@
       <button id="backup-open" class="c-view" data-i18n="ui.foot.backup">💾 기록 지키기</button><span>·</span>
       <button class="c-view" data-doc="tos" data-i18n="ui.foot.tos">이용약관</button><span>·</span>
       <button class="c-view" data-doc="privacy" data-i18n="ui.foot.privacy">개인정보 처리방침</button><span>·</span>
-      <button id="consent-settings" class="c-view" data-i18n="ui.foot.consent">동의 설정</button>
+      <button id="consent-settings" class="c-view" data-i18n="ui.foot.consent">동의 설정</button><span>·</span>
+      <!-- 언어 전환 — 문구는 사전을 안 탄다. 어느 언어 화면에서도 제 나라 말로 보여야
+           이용자가 되돌아올 수 있기 때문이다(일본어 화면에서 "한국어"가 한글이어야 한다). -->
+      <!-- 이 두 개만은 **각자 제 언어로 둔다**(data-i18n-skip). 사전으로 옮기면
+           일본어 화면에서 두 버튼이 모두 일본어가 되어 한국어로 돌아올 길이 사라진다. -->
+      <button id="lang-ko" class="c-view lang-btn" data-i18n-skip>한국어</button>
+      <button id="lang-ja" class="c-view lang-btn" data-i18n-skip>日本語</button>
     </div>
   </main>
 
@@ -243,10 +253,10 @@
 
       <!-- 강수 지도 (예보 + 실황 레이더) -->
       <section class="card radar-card">
-        <div class="card-title"><span class="ic">🛰️</span> 강수 지도 <small id="radar-updated"></small></div>
+        <div class="card-title" data-i18n-node="ui.radar.title"><span class="ic">🛰️</span> 강수 지도 <small id="radar-updated"></small></div>
         <div class="map-mode">
-          <button class="mode-btn active" data-mode="fc">강수 예보 <small data-i18n="ui.radar.mode.fc.sub">모레까지</small></button>
-          <button class="mode-btn" data-mode="rv" id="rv-mode-btn">실황 레이더 <small data-i18n="ui.radar.mode.rv.sub">2시간</small></button>
+          <button class="mode-btn active" data-mode="fc" data-i18n-node="ui.radar.mode.fc">강수 예보 <small data-i18n="ui.radar.mode.fc.sub">모레까지</small></button>
+          <button class="mode-btn" data-mode="rv" id="rv-mode-btn" data-i18n-node="ui.radar.mode.rv">실황 레이더 <small data-i18n="ui.radar.mode.rv.sub">2시간</small></button>
         </div>
         <!-- 한국: 기상청 공식 '레이더 실황+2시간 예측' 애니메이션 (틀리지 않는 공식 영상 그대로) -->
         <div id="kma-radar-wrap" class="kma-radar" hidden>
@@ -256,11 +266,11 @@
             <div id="kma-dot" class="kma-dot" hidden><span class="kma-dot-ring"></span></div>
           </div>
           <button id="kma-zoom-btn" class="kma-zoom-btn" type="button" data-i18n="ui.radar.zoom.all">전국 보기</button>
-          <p class="kma-radar-cap">기상청 공식 영상 · <b>실황 → 앞으로 2시간 예측</b> 반복 · <span class="kma-dot-legend">●</span> 내 골프장</p>
+          <p class="kma-radar-cap" data-i18n-html="ui.radar.cap">기상청 공식 영상 · <b>실황 → 앞으로 2시간 예측</b> 반복 · <span class="kma-dot-legend">●</span> 내 골프장</p>
         </div>
         <div class="map-wrap">
           <div id="map"></div>
-          <div class="radar-legend">
+          <div class="radar-legend" data-i18n-html="ui.auto.001">
             <i style="background:#88e2a1"></i>약
             <i style="background:#f7e26b"></i>중
             <i style="background:#f2994a"></i>강
@@ -279,26 +289,26 @@
 
       <!-- 시간별 강수 예보 (모레까지) -->
       <section class="card">
-        <div class="card-title"><span class="ic">💦</span> 시간별 강수 예보 <small data-i18n="ui.radar.mode.fc.sub">모레까지</small></div>
+        <div class="card-title" data-i18n-node="ui.precip.title"><span class="ic">💦</span> 시간별 강수 예보 <small data-i18n="ui.radar.mode.fc.sub">모레까지</small></div>
         <div class="precip-scroll" id="precip-scroll"></div>
       </section>
 
       <!-- 상세 지표 카드 -->
       <section class="metric-grid">
         <div class="card metric">
-          <div class="card-title"><span class="ic">🌧️</span> 강수량</div>
+          <div class="card-title" data-i18n-node="ui.metric.precip"><span class="ic">🌧️</span> 강수량</div>
           <div class="metric-main" id="m-precip">-</div>
           <div class="metric-eval" id="m-precip-eval"></div>
           <div class="metric-sub" id="m-precip-sub"></div>
         </div>
         <div class="card metric">
-          <div class="card-title"><span class="ic">💧</span> 습도</div>
+          <div class="card-title" data-i18n-node="ui.metric.humidity"><span class="ic">💧</span> 습도</div>
           <div class="metric-main" id="m-humidity">-</div>
           <div class="metric-eval" id="m-humidity-eval"></div>
           <div class="metric-sub" id="m-humidity-sub"></div>
         </div>
         <div class="card metric">
-          <div class="card-title"><span class="ic">🌬️</span> 바람</div>
+          <div class="card-title" data-i18n-node="ui.metric.wind"><span class="ic">🌬️</span> 바람</div>
           <div class="metric-main wind-main">
             <span class="wind-arrow" id="m-wind-arrow">↑</span>
             <span id="m-wind">-</span>
@@ -307,14 +317,14 @@
           <div class="metric-sub" id="m-wind-sub"></div>
         </div>
         <div class="card metric">
-          <div class="card-title"><span class="ic">👁️</span> 가시거리</div>
+          <div class="card-title" data-i18n-node="ui.metric.vis"><span class="ic">👁️</span> 가시거리</div>
           <div class="metric-main" id="m-vis">-</div>
           <div class="metric-eval" id="m-vis-eval"></div>
           <div class="metric-sub" id="m-vis-sub"></div>
         </div>
       </section>
 
-      <footer class="credits">
+      <footer class="credits" data-i18n-html="ui.auto.002">
         데이터: Open-Meteo · RainViewer · OpenStreetMap<br>
         투어리스트 베타 — 참고용이며 실제 기상 정보와 다를 수 있습니다.
       </footer>
@@ -371,33 +381,33 @@
       <span class="hdr-btn" style="visibility:hidden"></span>
     </header>
     <section class="card radar-card" id="course-map-card">
-      <div id="course-prep-note" class="course-prep-note" hidden>🛠 이 골프장은 <b>홀별 공략 준비 중</b>입니다.<br><span>공식 홀 자료가 확보되는 대로 추가됩니다. 아래는 위성 전경입니다.</span></div>
-      <div class="card-title"><span class="ic">🛰️</span> 코스 지도 <small id="course-status"></small></div>
+      <div id="course-prep-note" class="course-prep-note" hidden data-i18n-html="ui.course.prep">🛠 이 골프장은 <b>홀별 공략 준비 중</b>입니다.<br><span>공식 홀 자료가 확보되는 대로 추가됩니다. 아래는 위성 전경입니다.</span></div>
+      <div class="card-title" data-i18n-node="ui.course.map.title"><span class="ic">🛰️</span> 코스 지도 <small id="course-status"></small></div>
       <div class="map-wrap"><div id="course-map"></div></div>
     </section>
     <section class="card" id="profile-card">
-      <div class="card-title"><span class="ic">🏌️</span> 내 플레이 정보 <small data-i18n="ui.profile.sub">홀 공략 맞춤용</small></div>
+      <div class="card-title" data-i18n-node="ui.profile.title"><span class="ic">🏌️</span> 내 플레이 정보 <small data-i18n="ui.profile.sub">홀 공략 맞춤용</small></div>
       <div class="pf-row">
-        <label>구질
+        <label data-i18n-node="cf.eb.b4">구질
           <select id="pf-shape">
-            <option>스트레이트</option>
-            <option>슬라이스</option><option>페이드</option>
-            <option>드로우</option><option>훅</option>
+            <option value="스트레이트" data-i18n="ui.auto.003">스트레이트</option>
+            <option value="슬라이스" data-i18n="ui.auto.004">슬라이스</option><option value="페이드" data-i18n="ui.auto.005">페이드</option>
+            <option value="드로우" data-i18n="ui.auto.006">드로우</option><option value="훅" data-i18n="ui.auto.007">훅</option>
           </select>
         </label>
-        <label>드라이버 비거리
+        <label data-i18n-node="ui.pf.dist">드라이버 비거리
           <div class="pf-dist-wrap"><input id="pf-dist" type="number" min="100" max="330" placeholder="210"><span>m</span></div>
         </label>
       </div>
       <div class="pf-row pf-row-1" id="pf-years-row">
-        <label>골프 구력
+        <label data-i18n-node="ui.pf.years">골프 구력
           <select id="pf-years">
-            <option value="">선택 안 함</option>
-            <option>1년 미만 (입문)</option>
-            <option>1~3년</option>
-            <option>3~5년</option>
-            <option>5~10년</option>
-            <option>10년 이상</option>
+            <option value="" data-i18n="ui.opt.none">선택 안 함</option>
+            <option value="1년 미만 (입문)" data-i18n="ui.auto.008">1년 미만 (입문)</option>
+            <option value="1~3년" data-i18n="ui.auto.009">1~3년</option>
+            <option value="3~5년" data-i18n="ui.auto.010">3~5년</option>
+            <option value="5~10년" data-i18n="ui.auto.011">5~10년</option>
+            <option value="10년 이상" data-i18n="cf.career.gt10">10년 이상</option>
           </select>
         </label>
       </div>
@@ -407,7 +417,7 @@
       <div class="pi-row pfc-row" id="pfc-avg-row" hidden><span class="pi-label" data-i18n="ui.pi.avg">평균타수</span><div class="pi-chips" id="pfc-avg"></div></div>
     </section>
     <section class="card" id="hole-list-card" hidden>
-      <div class="card-title"><span class="ic">⛳</span> 홀 선택</div>
+      <div class="card-title" data-i18n-node="ui.hole.pick"><span class="ic">⛳</span> 홀 선택</div>
       <div class="hole-grid" id="hole-grid"></div>
     </section>
     <section class="card" id="hole-detail-card" hidden>
@@ -523,11 +533,11 @@
       <div class="card-title"><span class="ic">✏️</span> <span id="sf-title" data-i18n="ui.sf.title">라운딩 기록 추가</span></div>
 
       <div class="sf-photo-row">
-        <label class="sf-photo-btn">📷 스코어보드 사진으로 입력 (AI 인식)
+        <label class="sf-photo-btn" data-i18n-node="ui.sf.photo.btn">📷 스코어보드 사진으로 입력 (AI 인식)
           <input type="file" id="sf-photo" accept="image/*" hidden>
         </label>
         <img id="sf-photo-preview" class="sf-photo-preview" hidden data-i18n-attr="alt:ui.alt.scoreboard" alt="스코어보드">
-        <div class="sf-photo-tip">
+        <div class="sf-photo-tip" data-i18n-node="ui.sf.photo.tip">
           💡 팁: 화면을 정면에서, 스코어 표가 꽉 차게 찍으면 인식이 잘 됩니다
           <button type="button" id="ai-key-btn" class="ocr-raw-btn" data-i18n="ui.sf.aikey.btn">🔑 정밀 인식 켜기</button>
         </div>
@@ -536,21 +546,21 @@
       <pre id="ocr-raw"></pre>
       <div id="ocr-chips" class="ocr-chips" hidden></div>
 
-      <label>날짜 <input type="date" id="sf-date" required></label>
-      <label>티업 시간
+      <label data-i18n-node="app.ocr.f.date">날짜 <input type="date" id="sf-date" required></label>
+      <label data-i18n-node="ui.sf.time">티업 시간
         <div class="sf-time-row">
           <input type="time" id="sf-time">
-          <label class="sf-check"><input type="checkbox" id="sf-time-unknown"> 기억 안 남</label>
+          <label class="sf-check" data-i18n-node="ui.sf.time.unknown"><input type="checkbox" id="sf-time-unknown"> 기억 안 남</label>
         </div>
       </label>
-      <label>골프장 <input type="text" id="sf-course" required></label>
+      <label data-i18n-node="app.ocr.f.club">골프장 <input type="text" id="sf-course" required></label>
       <div id="course-name-chips" class="ocr-chips" hidden></div>
       <div class="sf-two">
-        <label>전반 코스
+        <label data-i18n-node="ui.sf.front">전반 코스
           <select id="sf-front-sel" hidden></select>
           <input type="text" id="sf-front" list="course-names-dl" data-i18n-attr="placeholder:ui.sf.front.ph" placeholder="예: EAST, 하늘">
         </label>
-        <label>후반 코스
+        <label data-i18n-node="ui.sf.back">후반 코스
           <select id="sf-back-sel" hidden></select>
           <input type="text" id="sf-back" list="course-names-dl" data-i18n-attr="placeholder:ui.sf.back.ph" placeholder="예: WEST, 누리">
         </label>
@@ -561,11 +571,11 @@
         <button type="button" class="ocr-chip" data-tee="화이트" data-i18n="ui.sf.tee.default.m">남성 · 화이트</button>
         <button type="button" class="ocr-chip" data-tee="레이디" data-i18n="ui.sf.tee.default.f">여성 · 레이디</button>
       </div>
-      <label>티
+      <label data-i18n-node="app.ocr.f.tee">티
         <select id="sf-tee">
-          <option value="">선택 안 함</option>
-          <option>화이트</option><option>레이디</option><option>레드</option>
-          <option>옐로우</option><option>블루</option><option>블랙</option><option>골드</option>
+          <option value="" data-i18n="ui.opt.none">선택 안 함</option>
+          <option value="화이트" data-i18n="ui.auto.012">화이트</option><option value="레이디" data-i18n="ui.auto.013">레이디</option><option value="레드" data-i18n="ui.auto.014">레드</option>
+          <option value="옐로우" data-i18n="ui.auto.015">옐로우</option><option value="블루" data-i18n="ui.auto.016">블루</option><option value="블랙" data-i18n="ui.auto.017">블랙</option><option value="골드" data-i18n="ui.auto.018">골드</option>
         </select>
       </label>
 
@@ -578,8 +588,8 @@
         <div class="hg-sum" id="hg-sum"></div>
       </div>
 
-      <label>총 타수 <input type="number" id="sf-score" min="27" max="180" data-i18n-attr="placeholder:ui.sf.score.ph" placeholder="예: 85 (9홀은 그대로 입력)" required></label>
-      <label>동반자
+      <label data-i18n-node="ui.sf.score">총 타수 <input type="number" id="sf-score" min="27" max="180" data-i18n-attr="placeholder:ui.sf.score.ph" placeholder="예: 85 (9홀은 그대로 입력)" required></label>
+      <label data-i18n-node="app.ocr.f.friends">동반자
         <div class="sf-friends-grid">
           <input type="text" id="sf-f1" data-i18n-attr="placeholder:ui.sf.friend.1" placeholder="동반자1">
           <input type="text" id="sf-f2" data-i18n-attr="placeholder:ui.sf.friend.2" placeholder="동반자2">
@@ -587,7 +597,7 @@
           <input type="text" id="sf-f4" data-i18n-attr="placeholder:ui.sf.friend.4" placeholder="동반자4">
         </div>
       </label>
-      <label>메모 <input type="text" id="sf-memo" data-i18n-attr="placeholder:ui.sf.memo.ph" placeholder="예: 드라이버 좋았음"></label>
+      <label data-i18n-node="ui.sf.memo">메모 <input type="text" id="sf-memo" data-i18n-attr="placeholder:ui.sf.memo.ph" placeholder="예: 드라이버 좋았음"></label>
       <div class="sf-actions">
         <button type="button" class="sf-cancel" id="sf-cancel" data-i18n="ui.sf.cancel">취소</button>
         <button type="submit" class="sf-save" id="sf-save-btn" data-i18n="ui.sf.save">저장 (그날 날씨 자동 기록)</button>
@@ -598,7 +608,7 @@
     <div id="score-empty" class="empty-state" hidden>
       <div class="empty-icon">🏌️</div>
       <p><strong data-i18n="ui.score.empty.title">아직 기록이 없습니다</strong></p>
-      <p>우측 상단 ＋ 버튼으로 라운딩을 기록해 보세요.<br>그날의 날씨·바람이 자동으로 함께 저장됩니다.</p>
+      <p data-i18n-html="ui.score.empty.desc">우측 상단 ＋ 버튼으로 라운딩을 기록해 보세요.<br>그날의 날씨·바람이 자동으로 함께 저장됩니다.</p>
     </div>
   </main>
 
@@ -624,7 +634,7 @@
   <div id="update-toast" class="update-toast" hidden>
     <span class="ut-ico">✨</span>
     <span class="ut-body">
-      <b>업데이트되었습니다 <span id="ut-ver"></span></b>
+      <b data-i18n-node="ui.update.title">업데이트되었습니다 <span id="ut-ver"></span></b>
       <small id="ut-note"></small>
     </span>
   </div>
@@ -635,9 +645,9 @@
     <div class="consent-box">
       <div class="consent-head">
         <div class="consent-logo">⛳️</div>
-        <h2>투어리스트 <span class="consent-ver" id="consent-ver"></span></h2>
+        <h2 data-i18n-node="app.brand">투어리스트 <span class="consent-ver" id="consent-ver"></span></h2>
         <p data-i18n="ui.consent.desc">서비스 이용 전 아래 내용을 확인해 주세요.</p>
-        <p id="consent-standalone-note" class="consent-standalone-note" hidden>📱 휴대폰 정책상 <b>홈 화면 앱은 브라우저와 저장 공간이 분리</b>되어 있습니다.<br>브라우저에서 이미 동의하셨더라도 <b>처음 한 번만</b> 다시 확인해 주세요.</p>
+        <p id="consent-standalone-note" class="consent-standalone-note" hidden data-i18n-html="ui.consent.standalone">📱 휴대폰 정책상 <b>홈 화면 앱은 브라우저와 저장 공간이 분리</b>되어 있습니다.<br>브라우저에서 이미 동의하셨더라도 <b>처음 한 번만</b> 다시 확인해 주세요.</p>
       </div>
 
       <label class="consent-all">
@@ -647,22 +657,22 @@
 
       <ul class="consent-list">
         <li>
-          <label><input type="checkbox" id="c-age"><span><b class="req" data-i18n="ui.consent.req">필수</b> 만 14세 이상입니다</span></label>
+          <label><input type="checkbox" id="c-age"><span data-i18n-node="ui.consent.age"><b class="req" data-i18n="ui.consent.req">필수</b> 만 14세 이상입니다</span></label>
         </li>
         <li>
-          <label><input type="checkbox" id="c-tos"><span><b class="req" data-i18n="ui.consent.req">필수</b> 서비스 이용약관 동의</span></label>
+          <label><input type="checkbox" id="c-tos"><span data-i18n-node="app.consent.miss.tos"><b class="req" data-i18n="ui.consent.req">필수</b> 서비스 이용약관 동의</span></label>
           <button class="c-view" data-doc="tos" data-i18n="ui.consent.view">보기</button>
         </li>
         <li>
-          <label><input type="checkbox" id="c-loc"><span><b class="opt" data-i18n="ui.consent.opt">선택</b> 위치정보 이용 동의</span></label>
+          <label><input type="checkbox" id="c-loc"><span data-i18n-node="ui.consent.loc"><b class="opt" data-i18n="ui.consent.opt">선택</b> 위치정보 이용 동의</span></label>
           <button class="c-view" data-doc="loc" data-i18n="ui.consent.view">보기</button>
         </li>
-        <li class="c-sub" id="c-loc-why">동의하시면 <b>내 위치에서 골프장까지 거리·이동시간</b>이 자동으로 표시됩니다. 위치는 <b>휴대폰 안에서만</b> 계산되고 서버로 전송되지 않습니다.</li>
+        <li class="c-sub" id="c-loc-why" data-i18n-html="ui.consent.loc.why">동의하시면 <b>내 위치에서 골프장까지 거리·이동시간</b>이 자동으로 표시됩니다. 위치는 <b>휴대폰 안에서만</b> 계산되고 서버로 전송되지 않습니다.</li>
         <li>
-          <label><input type="checkbox" id="c-profile"><span><b class="opt" data-i18n="ui.consent.opt">선택</b> 연령대·성별 제공</span></label>
+          <label><input type="checkbox" id="c-profile"><span data-i18n-node="ui.consent.profile"><b class="opt" data-i18n="ui.consent.opt">선택</b> 연령대·성별 제공</span></label>
           <button class="c-view" data-doc="profile" data-i18n="ui.consent.view">보기</button>
         </li>
-        <li class="c-sub" id="c-profile-why">알려주시면 <b>AI 캐디가 연령대·성별에 맞는 비거리와 체력을 감안한 맞춤 공략</b>을 드립니다. <b>이름·연락처는 수집하지 않으며</b> 다른 용도로 쓰지 않습니다.</li>
+        <li class="c-sub" id="c-profile-why" data-i18n-html="ui.consent.profile.why">알려주시면 <b>AI 캐디가 연령대·성별에 맞는 비거리와 체력을 감안한 맞춤 공략</b>을 드립니다. <b>이름·연락처는 수집하지 않으며</b> 다른 용도로 쓰지 않습니다.</li>
         <li id="profile-input" class="profile-input" hidden>
           <div class="pi-row"><span class="pi-label" data-i18n="ui.pi.age">연령대</span><div class="pi-chips" id="pi-age"></div></div>
           <div class="pi-row"><span class="pi-label" data-i18n="ui.pi.gender">성별</span><div class="pi-chips" id="pi-gender"></div></div>
@@ -670,11 +680,11 @@
           <div class="pi-row"><span class="pi-label" data-i18n="ui.pi.avg">평균타수</span><div class="pi-chips" id="pi-avg"></div></div>
         </li>
         <li>
-          <label><input type="checkbox" id="c-mkt"><span><b class="opt" data-i18n="ui.consent.opt">선택</b> 새 기능·소식 안내 받기</span></label>
+          <label><input type="checkbox" id="c-mkt"><span data-i18n-node="ui.consent.mkt"><b class="opt" data-i18n="ui.consent.opt">선택</b> 새 기능·소식 안내 받기</span></label>
         </li>
       </ul>
 
-      <p class="consent-note">선택 항목에 동의하지 않아도 <b>모든 기능을 그대로</b> 이용하실 수 있습니다.</p>
+      <p class="consent-note" data-i18n-html="ui.consent.note">선택 항목에 동의하지 않아도 <b>모든 기능을 그대로</b> 이용하실 수 있습니다.</p>
     </div>
     </div>
 
@@ -694,7 +704,7 @@
     <div class="sheet">
       <div class="sheet-bar"></div>
       <div class="sheet-title" data-i18n="ui.aip.title">🤖 더 정확한 공략을 드릴까요?</div>
-      <div class="sheet-desc">
+      <div class="sheet-desc" data-i18n-html="ui.auto.019">
         연령대와 성별을 알려주시면 <b>티박스 선택과 비거리를 감안한</b> 맞춤 공략을 드립니다.
         <br>알려주지 않으셔도 공략은 그대로 받으실 수 있어요.
         <button class="c-view" data-doc="profile" style="font-size:12px" data-i18n="ui.aip.doc">수집 안내 보기</button>
@@ -711,7 +721,7 @@
     <div class="sheet">
       <div class="sheet-bar"></div>
       <div class="sheet-title" data-i18n="ui.foot.backup">💾 기록 지키기</div>
-      <div class="sheet-desc">
+      <div class="sheet-desc" data-i18n-html="ui.auto.020">
         즐겨찾기·스코어는 휴대폰 안에 저장돼서, <b>앱을 지우면 함께 사라집니다.</b><br>
         백업을 켜면 서버에 안전하게 보관되고, <b>복구 코드</b>만 있으면
         재설치·기기변경 후에도 그대로 되살릴 수 있어요. (스코어 사진은 제외)
@@ -726,7 +736,7 @@
           <span id="bk-code" class="bk-code"></span>
           <button id="bk-copy" class="ff-chip sm" data-i18n="ui.bk.copy">복사</button>
         </div>
-        <p class="bk-hint">📸 이 코드를 <b>화면 캡처</b>해 두세요. 앱을 다시 깔면 아래 칸에 입력해 복구합니다.</p>
+        <p class="bk-hint" data-i18n-html="ui.bk.hint">📸 이 코드를 <b>화면 캡처</b>해 두세요. 앱을 다시 깔면 아래 칸에 입력해 복구합니다.</p>
       </div>
 
       <div class="bk-restore">
@@ -752,7 +762,7 @@
           <span id="bye-code" class="bk-code"></span>
           <button id="bye-copy" class="ff-chip sm" data-i18n="ui.bk.copy">복사</button>
         </div>
-        <p class="bk-hint" data-i18n="ui.bye.capture">📸 이 코드를 <b>화면 캡처</b>해 두세요. 이 코드가 없으면 되살릴 수 없습니다.</p>
+        <p class="bk-hint" data-i18n="ui.bye.capture">📸 이 코드를 <b data-i18n="ui.auto.021">화면 캡처</b>해 두세요. 이 코드가 없으면 되살릴 수 없습니다.</p>
       </div>
       <p id="bye-msg" class="bk-hint"></p>
       <button id="bye-keep" class="consent-start" data-i18n="ui.bye.keep">기록해두기</button>
@@ -765,7 +775,7 @@
     <div class="sheet">
       <div class="sheet-bar"></div>
       <div class="sheet-title" data-i18n="ui.fb.title">🧪 베타 의견 보내기</div>
-      <div class="sheet-desc">
+      <div class="sheet-desc" data-i18n-html="ui.fb.desc">
         지금은 <b>시험 배포(베타)</b> 기간입니다. 안 되는 것·불편한 것·바라는 것을 알려주시면
         다음 업데이트에 반영합니다. <b>이름·연락처는 받지 않습니다.</b>
       </div>
@@ -778,7 +788,7 @@
         <button type="button" class="pi-chip" data-cat="칭찬" data-i18n="ui.fb.cat.praise">👍 좋아요</button>
       </div>
 
-      <div class="fb-label">앱, 지금까지 어때요? <small data-i18n="ui.fb.star.opt">(선택)</small></div>
+      <div class="fb-label" data-i18n-node="ui.fb.star.label">앱, 지금까지 어때요? <small data-i18n="ui.fb.star.opt">(선택)</small></div>
       <div class="fb-stars" id="fb-stars">
         <button type="button" data-s="1" data-i18n-attr="aria-label:ui.a11y.star.1" aria-label="별 1개">☆</button>
         <button type="button" data-s="2" data-i18n-attr="aria-label:ui.a11y.star.2" aria-label="별 2개">☆</button>
@@ -790,7 +800,7 @@
       <div class="fb-label" data-i18n="ui.fb.text.label">자세히 알려주세요</div>
       <textarea id="fb-text" class="fb-text" maxlength="500" rows="4"
         placeholder="예) 클럽 피팅에서 마지막 문항 뒤에 결과가 안 나와요&#10;예) ○○CC가 검색에 없어요"></textarea>
-      <div class="fb-count"><span id="fb-count">0</span> / 500자</div>
+      <div class="fb-count" data-i18n-node="ui.fb.count.suffix"><span id="fb-count">0</span> / 500자</div>
 
       <p class="fb-note" id="fb-note"></p>
       <p class="fb-msg" id="fb-msg" hidden></p>
@@ -805,7 +815,7 @@
     <div class="sheet">
       <div class="sheet-bar"></div>
       <div class="sheet-title" data-i18n="ui.nag.title">⚠️ 아직 동의하지 않으셨어요</div>
-      <div class="sheet-desc">
+      <div class="sheet-desc" data-i18n-html="ui.auto.022">
         서비스를 계속 이용하시려면 <b data-i18n="ui.foot.tos">이용약관</b>과 <b>만 14세 이상 확인</b>에 동의가 필요합니다.
         1분이면 끝나고, 선택 항목은 동의하지 않으셔도 됩니다.
       </div>
@@ -882,6 +892,21 @@
        뒤에 실으면 그 배열이 빈 문구로 굳는다. (js/i18n/ko.js 는 생성물) -->
   <script src="js/i18n.js"></script>
   <script src="js/i18n/ko.js"></script>
+  <!-- 일본어 자료(사전 170KB + 골프정신 내용)는 **일본어 화면일 때만** 싣는다.
+       한국 이용자에게는 1바이트도 안 간다(홀맵·통계 꾸러미와 같은 원칙).
+       ko.js 는 언제나 싣는다 — ja 에 없는 문구가 있으면 한국어로 되돌려야 하기 때문이다.
+       ⚠️ document.write 를 쓰는 이유: app.js 보다 **먼저·동기로** 실려야 한다.
+          비동기로 실으면 이미 그려진 화면이 한국어인 채로 남는다. -->
+  <script>
+    (function () {
+      var saved = null;
+      try { saved = localStorage.getItem("riweather.lang"); } catch (e) {}
+      var dev = (navigator.language || "ko").toLowerCase();
+      if ((saved || (dev.indexOf("ja") === 0 ? "ja" : "ko")) !== "ja") return;
+      document.write('<script src="js/i18n/ja.js"><\/script>');
+      document.write('<script src="js/spiritdb_ja.js"><\/script>');
+    })();
+  </script>
   <script src="js/loading.js"></script>
   <script src="js/weatherfx.js"></script>
   <script src="js/legal.js"></script>

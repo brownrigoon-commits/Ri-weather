@@ -4,7 +4,7 @@
  * ========================================================= */
 "use strict";
 
-const APP_VER = "v216"; // 배포 버전 (홈 화면 배지에 표시)
+const APP_VER = "v217"; // 배포 버전 (홈 화면 배지에 표시)
 const APP_NOTE = "관리자"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
 const STORAGE_KEY = "riweather.courses.v1";
 
@@ -290,7 +290,9 @@ async function fetchPrecipGrid(GRID) {
 async function searchPlaces(q) {
   const url = new URL("https://nominatim.openstreetmap.org/search");
   url.search = new URLSearchParams({
-    q, format: "jsonv2", "accept-language": "ko",
+    // 주소를 **보는 사람의 말**로 받는다. "ko" 로 못 박아 두면 일본어 화면에서도
+    // "니시노미야시 鳴尾町一丁目" 처럼 한글 음차가 섞여 나온다(2026-08-03 실측).
+    q, format: "jsonv2", "accept-language": I18N.lang,
     countrycodes: "kr,jp,cn", limit: "8",
   });
   const res = await fetchT(url, null, 6000);
@@ -325,7 +327,7 @@ async function searchPlacesSmart(q) {
 async function reverseGeocode(lat, lon) {
   const url = new URL("https://nominatim.openstreetmap.org/reverse");
   url.search = new URLSearchParams({
-    lat, lon, format: "jsonv2", "accept-language": "ko", zoom: "10",
+    lat, lon, format: "jsonv2", "accept-language": I18N.lang, zoom: "10",
   });
   const res = await fetchT(url, null, 6000);
   if (!res.ok) throw new Error("reverse HTTP " + res.status);
@@ -573,7 +575,7 @@ function renderHome() {
     card.innerHTML = `
       <div class="cc-top">
         <div>
-          <div class="cc-name">${c.name}</div>
+          <div class="cc-name">${dispName(c)}</div>
           <div class="cc-sub">${c.addr || ""}</div>
         </div>
         <div style="display:flex;align-items:flex-start">
@@ -588,7 +590,7 @@ function renderHome() {
     card.addEventListener("click", () => openHub(c));
     card.querySelector(".cc-del").addEventListener("click", (e) => {
       e.stopPropagation();
-      if (!confirm(tr("app.home.del.ask", { name: c.name }))) return;
+      if (!confirm(tr("app.home.del.ask", { name: dispName(c) }))) return;
       saveCourses(loadCourses().filter((x) => x.id !== c.id));
       renderHome();
     });
@@ -640,25 +642,64 @@ function hideSearchUI() {
   searchStatus.hidden = true;
 }
 
-/* Nominatim 결과의 행정 단위 → 한글 라벨 */
+/* Nominatim 결과의 행정 단위 → 라벨.
+   글자를 바로 쓰지 않고 사전을 거친다 — 전에는 "시"·"읍·면" 이 코드에 박혀 있어
+   일본어 화면에서도 「📍 지역」처럼 한국어가 그대로 나왔다(2026-08-03). */
 const ADDR_TYPE_KO = {
   province: "도", state: "도", city: "시", county: "군", borough: "구",
   town: "읍·면", village: "리·마을", suburb: "동", neighbourhood: "동네",
   hamlet: "마을", road: "도로", building: "건물", house: "건물",
   amenity: "시설", leisure: "시설",
 };
+function addrTypeLabel(r) {
+  const ko = ADDR_TYPE_KO[r.addresstype] || ADDR_TYPE_KO[r.type];
+  return ko ? tr("app.addr." + ko) : tr("app.search.tag.area");
+}
+
+/* 화면에 보일 구장 이름. 일본어 화면에서는 현지 원어명(鳴尾GC)을 보여준다.
+   ⚠️ course.name 자체는 **절대 바꾸지 않는다.** 즐겨찾기·스코어·홀맵·통계가
+      모두 이 이름을 열쇠로 쓴다. 열쇠를 바꾸면 이용자가 언어를 바꾼 순간
+      저장해 둔 구장과 기록이 통째로 사라진 것처럼 보인다.
+      보이는 글자만 바꾸고 열쇠는 그대로 둔다.
+   한국 구장은 golfdb 에 k(한글별칭)가 없어 n 이 곧 한국어다 — 그대로 나온다. */
+/* 프로필 칸의 '값' → 화면에 보일 글자.
+   ⚠️ 값(t)은 절대 바꾸지 않는다 — localStorage 에 그대로 저장되고
+      "여성" · "60대 이상" 같은 문자열 동치로 분기한다(check_i18n.py KEEP 참조).
+      바꾸면 기존 이용자의 저장값이 어느 칩과도 안 맞아 선택이 풀린 것처럼 보인다.
+      글자만 사전을 거치고, 사전에 없으면 원래 값을 그대로 보여준다. */
+function pfLabel(t) {
+  if (t == null) return "";
+  const k = "app.pf." + t, v = tr(k);
+  return v === k ? t : v;
+}
+
+function dispName(course) {
+  const nm = (typeof course === "string") ? course : (course && course.name);
+  if (!nm || typeof I18N === "undefined" || I18N.lang !== "ja") return nm || "";
+  if (typeof GOLF_DB === "undefined") return nm;
+  const lat = course && course.lat, lon = course && course.lon;
+  let best = null, bd = Infinity;
+  for (const g of GOLF_DB) {
+    if (g.k !== nm && g.n !== nm) continue;
+    if (lat == null || lon == null) return g.n || nm;
+    // 같은 별칭이 여러 구장을 가리킬 때가 있다(조요CC = 城陽·常陽, 400km 거리) — 좌표로 고른다
+    const d = (g.lat - lat) ** 2 + (g.lon - lon) ** 2;
+    if (d < bd) { bd = d; best = g; }
+  }
+  return (best && best.n) || nm;
+}
 
 function renderResultItem(entry) {
   const li = document.createElement("li");
   const flag = entry.flag ? entry.flag + " " : "";
   const tag = entry.golf
     ? `<span class="r-tag">${tr("app.search.tag.golf")}</span>`
-    : `<span class="r-tag r-tag-area">📍 ${entry.typeKo || "지역"}</span>`;
+    : `<span class="r-tag r-tag-area">📍 ${entry.typeLabel || tr("app.search.tag.area")}</span>`;
   const note = entry.centerNote
     ? ` <span class="r-note">${tr("app.search.centernote")}</span>` : "";
   const sub = entry.addr || entry.alias || "";
   li.innerHTML = `
-    <div class="r-name">${flag}${entry.name}${tag}</div>
+    <div class="r-name">${flag}${entry.disp || entry.name}${tag}</div>
     ${sub || note ? `<div class="r-addr">${sub}${note}</div>` : ""}`;
   li.addEventListener("click", () => {
     hideSearchUI();
@@ -675,11 +716,15 @@ const runSearch = debounce(async (q) => {
   /* 1) 내장 골프장 DB — 즉시 표시 (한글 표기명 우선) */
   const golf = searchGolfDB(q).map((g) => ({
     id: "gdb-" + g.lat + "," + g.lon,
-    name: g.k || g.n,                       // 한국어 우선
+    name: g.k || g.n,                       // 열쇠는 언제나 한국어 우선 — 언어를 바꿔도 안 변한다
     addr: "", lat: g.lat, lon: g.lon, golf: true,
     c: g.c,
     flag: COUNTRY_FLAG[g.c] || "",
-    alias: g.k ? g.n : (g.a ? g.a.split(" ")[0] : ""),  // 부제: 현지어 원어명
+    // 보이는 글자만 언어를 따른다. 일본어 화면: 원어명이 위, 한글 음차가 부제
+    disp: (I18N.lang === "ja" && g.n) ? g.n : (g.k || g.n),
+    alias: (I18N.lang === "ja")
+      ? (g.k || (g.a ? g.a.split(" ")[0] : ""))
+      : (g.k ? g.n : (g.a ? g.a.split(" ")[0] : "")),
   }));
 
   searchResults.innerHTML = "";
@@ -707,11 +752,14 @@ const runSearch = debounce(async (q) => {
     .map((r) => {
       const name = r.name || r.display_name.split(",")[0];
       const addr = r.display_name.split(",").slice(1).map((s) => s.trim()).slice(0, 3).reverse().join(" ");
+      // ⚠️ typeKo 는 **값**이다 — 바로 아래 centerNote 가 이 한국어를 정규식으로 본다.
+      //    번역하면 안내가 조용히 사라진다. 보이는 글자는 typeLabel 로 따로 만든다.
       const typeKo = ADDR_TYPE_KO[r.addresstype] || ADDR_TYPE_KO[r.type] || "지역";
       // 검색어에 번지 등 숫자가 있는데 마을/동 단위로만 매칭된 경우 안내
       const centerNote = /\d/.test(q) && /리·마을|동|읍·면|마을|동네/.test(typeKo);
       return {
         id: "osm-" + r.place_id, name, addr, typeKo, centerNote,
+        typeLabel: addrTypeLabel(r),
         lat: parseFloat(r.lat), lon: parseFloat(r.lon), golf: isGolfPlace(r),
       };
     });
@@ -922,8 +970,8 @@ function openHub(course) {
     STATS.hit("course", course.name, STATS.region(course.addr, course.c));
   };
   if (course.addr || (course.c && course.c !== "KR")) hitCourse();
-  $("#hub-name").textContent = course.name;
-  $("#hub-title-mini").textContent = course.name;
+  $("#hub-name").textContent = dispName(course);
+  $("#hub-title-mini").textContent = dispName(course);
   $("#hub-addr").textContent = course.addr || "";
   $("#hub-now").textContent = "";
   refreshStars();
@@ -983,8 +1031,8 @@ async function openDetail(course) {
   if (viewStack[viewStack.length - 1] !== "detail") pushView("detail"); // 재시도 시 중복 방지
   refreshStars();
 
-  $("#hero-name").textContent = course.name;
-  $("#detail-title-mini").textContent = course.name;
+  $("#hero-name").textContent = dispName(course);
+  $("#detail-title-mini").textContent = dispName(course);
   $("#hero-addr").textContent = course.addr || "";
   $("#hero-temp").textContent = "--°";
   $("#hero-desc").textContent = tr("app.loading");
@@ -1890,17 +1938,23 @@ function buildHoleStrategy(h, bunkers, waters) {
   const turn = ((bearing(mid, green) - bearing(tee, mid) + 540) % 360) - 180;
   const shapeBend = { 슬라이스: "우", 페이드: "우", 드로우: "좌", 훅: "좌" }[shape] || null;
 
-  let txt = `파${h.par} · 약 ${h.len}m`;
+  /* ⚠️ 아래 "좌"·"우측"·"벙커" 같은 한국어는 **값**이다 — 방향 판정과 비교에 쓴다.
+     값은 그대로 두고, 화면에 나갈 때만 hw() 로 사전을 거친다.
+     (문장 자체도 코드에 박혀 있어 일본어 화면에서 통째로 한국어로 나왔다 — 2026-08-03) */
+  const hw = (w) => { const k = "app.hs.w." + w, v = tr(k); return v === k ? w : v; };
+  const shapeTxt = pfLabel(shape);
+
+  let txt = tr("app.hs.head", { par: h.par, len: h.len });
   const bendDir = Math.abs(turn) > 28 ? (turn > 0 ? "우" : "좌") : null;
   if (bendDir) {
-    txt += ` · ${bendDir}측 도그레그.\n`;
+    txt += tr("app.hs.dogleg", { dir: hw(bendDir) });
     if (shapeBend === bendDir) {
-      txt += `${shape} 구질과 꺾임 방향이 같아 유리한 홀 — 코너를 따라 자연스럽게 태우세요.\n`;
+      txt += tr("app.hs.bend.same", { shape: shapeTxt });
     } else if (shapeBend) {
-      txt += `${shape} 구질과 반대로 꺾이는 홀 — 코너 공략 욕심 내지 말고 바깥쪽 안전 라인으로 가세요.\n`;
+      txt += tr("app.hs.bend.opp", { shape: shapeTxt });
     }
   } else {
-    txt += " · 직선 홀.\n";
+    txt += tr("app.hs.straight");
   }
 
   if (h.par >= 4) {
@@ -1909,28 +1963,29 @@ function buildHoleStrategy(h, bunkers, waters) {
     const L = [], R = [];
     bunkers.forEach((b) => { if (distM(b, land) < 65) (sideOfPlay(tee, green, b) === "좌측" ? L : R).push("벙커"); });
     waters.forEach((w) => { if (distM(w, land) < 85) (sideOfPlay(tee, green, w) === "좌측" ? L : R).push("워터해저드"); });
-    txt += `\n🚩 티샷 (내 비거리 ${drv}m 낙하지점 기준): `;
-    const uniq = (a) => [...new Set(a)].join("·");
+    txt += tr("app.hs.tee.head", { drv });
+    const uniq = (a) => [...new Set(a)].map(hw).join("·");
     if (L.length && R.length) {
-      txt += `양쪽에 위험(좌 ${uniq(L)} / 우 ${uniq(R)}) — 드라이버 대신 우드로 짧게 끊어가는 게 확률적으로 안전합니다.`;
+      txt += tr("app.hs.tee.both", { l: uniq(L), r: uniq(R) });
     } else if (L.length || R.length) {
       const danger = L.length ? "좌측" : "우측";
       const aim = L.length ? "우측" : "좌측";
-      const hz = uniq(L.length ? L : R);
-      txt += `${danger}에 ${hz}. `;
+      txt += tr("app.hs.tee.one", { danger: hw(danger), hz: uniq(L.length ? L : R) });
       const risky = (danger === "우측" && (shape === "슬라이스" || shape === "페이드")) ||
                     (danger === "좌측" && (shape === "훅" || shape === "드로우"));
-      if (risky) txt += `${shape} 구질이라 특히 조심 — ${aim} 러프 라인을 보고 치면 휘어 들어와도 페어웨이에 남습니다.`;
-      else txt += `${aim} 절반을 조준하면 안전합니다.`;
+      txt += risky
+        ? tr("app.hs.tee.risky", { shape: shapeTxt, aim: hw(aim) })
+        : tr("app.hs.tee.safe", { aim: hw(aim) });
     } else {
       txt += shapeBend
-        ? `낙하지점 주변 큰 위험 없음 — ${shapeBend === "우" ? "좌측" : "우측"} 가장자리를 보고 치면 ${shape}가 중앙으로 들어옵니다.`
-        : "낙하지점 주변 큰 위험 없음 — 페어웨이 센터 조준.";
+        ? tr("app.hs.tee.clear.shape",
+             { side: hw(shapeBend === "우" ? "좌측" : "우측"), shape: shapeTxt })
+        : tr("app.hs.tee.clear");
     }
     const remain = Math.max(0, h.len - drv);
-    if (remain > 30) txt += `\n\n⛳ 세컨: 남은 약 ${remain}m.`;
+    if (remain > 30) txt += tr("app.hs.second", { m: remain });
   } else {
-    txt += `\n🚩 티샷: 그린까지 ${h.len}m — 핀보다 그린 중앙을 보세요.`;
+    txt += tr("app.hs.par3", { m: h.len });
   }
 
   // 그린 주변 벙커 (앞/좌/우)
@@ -1938,11 +1993,12 @@ function buildHoleStrategy(h, bunkers, waters) {
   if (gb.length) {
     const tags = [...new Set(gb.map((b) =>
       distM(b, tee) < distM(green, tee) - 10 ? "앞" : sideOfPlay(tee, green, b)))];
-    txt += ` 그린 ${tags.join("·")}에 벙커`;
-    if (tags.includes("앞")) txt += " — 짧으면 잡히니 반 클럽 길게 보세요.";
-    else txt += ` — ${tags[0] === "좌측" ? "우측" : "좌측"} 절반이 안전합니다.`;
+    txt += tr("app.hs.gb", { tags: tags.map(hw).join("·") });
+    txt += tags.includes("앞")
+      ? tr("app.hs.gb.front")
+      : tr("app.hs.gb.side", { side: hw(tags[0] === "좌측" ? "우측" : "좌측") });
   } else if (h.par >= 4) {
-    txt += " 그린 주변 벙커 없음 — 핀을 직접 노려도 됩니다.";
+    txt += tr("app.hs.gb.none");
   }
 
   // 그린 흐름(지형 추정)은 실제 그린 조형과 다를 수 있어 표시하지 않음 —
@@ -1968,7 +2024,7 @@ async function openCourseView() {
   const course = currentCourse;
   pushView("course");
   refreshProfileCard();   // 연령·성별·구력 중 미입력 항목만 노출
-  $("#course-title").textContent = course.name;
+  $("#course-title").textContent = dispName(course);
   $("#course-status").textContent = tr("app.course.loading");
   $("#hole-list-card").hidden = true;
   $("#hole-detail-card").hidden = true;
@@ -3026,7 +3082,7 @@ const AI_PROFILE = {
         const b = document.createElement("button");
         b.type = "button";
         b.className = "pi-chip" + (get() === t ? " on" : "");
-        b.textContent = t;
+        b.textContent = pfLabel(t);
         b.addEventListener("click", () => { set(get() === t ? null : t); draw(host, items, get, set); });
         host.appendChild(b);
       });
@@ -3294,7 +3350,7 @@ function refreshProfileCard() {
       const b = document.createElement("button");
       b.type = "button";
       b.className = "pi-chip" + (get() === t ? " on" : "");
-      b.textContent = t;
+      b.textContent = pfLabel(t);
       b.addEventListener("click", () => {
         set(get() === t ? null : t);
         drawChips(host, items, get, set);
@@ -3507,7 +3563,7 @@ async function openFoodView() {
   const course = currentCourse;
   if (viewStack[viewStack.length - 1] !== "food") pushView("food");
   $("#food-title").textContent = tr("app.food.title");
-  $("#food-desc").textContent = tr("app.food.desc", { course: course.name });
+  $("#food-desc").textContent = tr("app.food.desc", { course: dispName(course) });
   const listEl = $("#food-list");
   listEl.innerHTML = "";
   $("#food-note").hidden = true;
@@ -5314,7 +5370,7 @@ $("#doc-sheet").addEventListener("click", (e) => {
       const b = document.createElement("button");
       b.className = "pi-chip" + (get() === t ? " on" : "");
       b.type = "button";
-      b.textContent = t;
+      b.textContent = pfLabel(t);
       b.addEventListener("click", () => {
         set(get() === t ? null : t);
         chips(host, items, get, set);
@@ -5443,6 +5499,36 @@ $("#doc-sheet").addEventListener("click", (e) => {
 
   // 첫 방문이면 동의 화면, '나중에'를 눌렀던 이용자는 사용 중 안내로만
   if (!CONSENT.done() && !CONSENT_NAG.postponed()) open();
+})();
+
+/* 언어 전환 (2026-08-03 · 해외진출_설계 Phase 3)
+ *
+ * 🔴 왜 다시 그리지 않고 새로고침하나
+ *    화면의 상당 부분이 자바스크립트로 그려진 뒤 DOM 에 남아 있다(홀 카드·목록·차트…).
+ *    I18N.applyDom() 은 data-i18n 이 달린 정적 마크업만 다시 입히므로,
+ *    이미 그려진 것들은 한국어인 채로 남아 **반쪽짜리 화면**이 된다.
+ *    새로고침이 느려 보여도 그게 정직하다 — 어중간하게 섞인 화면보다 낫다.
+ *    (언어를 바꾸는 일은 자주 있는 일이 아니다.)
+ */
+(function () {
+  const paint = () => {
+    const cur = I18N.lang;
+    const ko = $("#lang-ko"), ja = $("#lang-ja");
+    if (!ko || !ja) return;
+    ko.classList.toggle("on", cur === "ko");
+    ja.classList.toggle("on", cur === "ja");
+    ko.setAttribute("aria-pressed", String(cur === "ko"));
+    ja.setAttribute("aria-pressed", String(cur === "ja"));
+  };
+  const pick = (lang) => {
+    if (I18N.lang === lang) return;
+    I18N.setLang(lang);
+    location.reload();
+  };
+  const ko = $("#lang-ko"), ja = $("#lang-ja");
+  if (ko) ko.addEventListener("click", () => pick("ko"));
+  if (ja) ja.addEventListener("click", () => pick("ja"));
+  paint();
 })();
 
 /* ---------- 홈 화면에 추가 (기기 자동 감지) ----------

@@ -56,7 +56,50 @@ const I18N = {
     const scope = root || document;
     scope.querySelectorAll("[data-i18n]").forEach((el) => {
       const k = el.getAttribute("data-i18n");
-      if (k) el.textContent = tr(k);
+      if (!k) return;
+      const v = tr(k);
+      if (v.indexOf("\n") < 0) { el.textContent = v; return; }
+      /* 줄바꿈이 든 문구는 <br> 로 끊어 넣는다.
+         문장을 "앞줄"·"뒷줄" 두 키로 쪼개면 안 된다 — 일본어는 어순이 달라
+         "…검색하고 / 저장해 보세요" 를 줄 단위로 옮기면 문장이 깨진다.
+         innerHTML 을 쓰지 않는 이유: 사전 값이 곧 HTML 이 되면 태그가 섞여 들어온다.
+         여기서는 우리가 만든 <br> 만 넣으므로 그 위험이 없다. */
+      el.textContent = "";
+      v.split("\n").forEach((line, i) => {
+        if (i) el.appendChild(document.createElement("br"));
+        el.appendChild(document.createTextNode(line));
+      });
+    });
+    /* data-i18n-node — 자식 요소는 그대로 두고 **맨 글자 마디만** 갈아 끼운다.
+           <div class="card-title"><span class="ic">🛰️</span> 강수 지도 <small id="radar-updated"></small></div>
+       이런 자리가 index.html 에 74줄 있다(2026-08-03 실측). 여기엔
+         · data-i18n 을 못 쓴다 — textContent 로 덮으면 <span>·<small> 이 통째로 사라진다.
+         · <span> 으로 감싸는 것도 못 쓴다 — 부모가 flex 면 칸이 하나 늘어 배치가 어긋난다
+           (이 앱 CSS 에 flex/grid 선택자가 79개다).
+       그래서 글자 마디만 바꾼다. 요소가 그대로 남으므로 #radar-updated 같은 참조도 산다.
+       앞뒤 빈칸은 원래 것을 지킨다 — "🛰️" 와 글자 사이가 붙어 버리면 안 된다.
+       키가 여럿이면 '|' 로 나눠 **빈칸 아닌 글자 마디**와 앞에서부터 짝짓는다. */
+    scope.querySelectorAll("[data-i18n-node]").forEach((el) => {
+      const keys = el.getAttribute("data-i18n-node").split("|");
+      let i = 0;
+      for (const n of el.childNodes) {
+        if (n.nodeType !== 3 || !n.nodeValue.trim()) continue;
+        const k = (keys[i++] || "").trim();
+        if (!k) continue;
+        const m = n.nodeValue.match(/^(\s*)[\s\S]*?(\s*)$/);
+        n.nodeValue = m[1] + tr(k) + m[2];
+      }
+    });
+    /* data-i18n-html — 안쪽을 통째로 갈아 끼운다(태그까지 사전 값에 들어 있다).
+           <li>동의하시면 <b>거리·이동시간</b>이 자동으로 표시됩니다.</li>
+       이런 문장은 마디로 쪼개면 안 된다 — "동의하시면"·"이 자동으로 표시됩니다" 를
+       따로 옮기면 일본어 어순에서 말이 되지 않는다. 문장 하나를 한 덩이로 옮긴다.
+       사전 값은 우리가 만든 파일이고 이용자 입력이 아니므로 innerHTML 로 넣어도 된다
+       (js/app.js 가 이미 441개 문구를 같은 방식으로 쓰고 있다).
+       ⚠️ 안쪽 요소가 새로 만들어진다 — id 를 붙들고 있는 자리에는 쓰지 않는다. */
+    scope.querySelectorAll("[data-i18n-html]").forEach((el) => {
+      const k = el.getAttribute("data-i18n-html");
+      if (k) el.innerHTML = tr(k);
     });
     scope.querySelectorAll("[data-i18n-attr]").forEach((el) => {
       el.getAttribute("data-i18n-attr").split(";").forEach((pair) => {

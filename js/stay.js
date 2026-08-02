@@ -339,7 +339,7 @@ function renderStayList(list, course) {
   note.className = "food-osm-sub";
   note.innerHTML = isJP && typeof JPPACK !== "undefined"
     ? JPPACK.stayNote()
-    : tr("stay.note", { course: course.name });
+    : tr("stay.note", { course: dispName(course) });
   el.appendChild(note);
 
   let arr = list.filter((x) => STAY_VIEW.cat === "전체" || x.kind === STAY_VIEW.cat);
@@ -458,7 +458,7 @@ function openStayView() {
   const course = currentCourse;
   if (viewStack[viewStack.length - 1] !== "stay") pushView("stay");
   document.querySelector("#stay-title").textContent = tr("stay.title");
-  document.querySelector("#stay-desc").textContent = tr("stay.desc", { course: course.name });
+  document.querySelector("#stay-desc").textContent = tr("stay.desc", { course: dispName(course) });
   runStaySearch(course);
 }
 
@@ -471,7 +471,7 @@ async function runStaySearch(course) {
   //    카카오는 한국 POI 라 일본에서 빈 목록이 된다.
   //    아래 한국 경로는 **한 줄도 건드리지 않는다** — KR 무변경 원칙.
   if (course.c === "JP" && typeof JPPACK !== "undefined") {
-    const w = WAIT.open("stay", { msgs: [tr("stay.wait.search", { course: course.name })] });
+    const w = WAIT.open("stay", { msgs: [tr("stay.wait.search", { course: dispName(course) })] });
     try {
       await JPPACK.need(course);                   // staydb_jp.js 지연 로드
       const list = await JPPACK.stayList(course);
@@ -499,7 +499,7 @@ async function runStaySearch(course) {
     return;
   }
 
-  const searching = tr("stay.wait.search", { course: course.name });
+  const searching = tr("stay.wait.search", { course: dispName(course) });
   const w = WAIT.open("stay", { msgs: [searching] });
   try {
     w.say(searching, 12);

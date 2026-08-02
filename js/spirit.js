@@ -28,7 +28,7 @@ const spEsc = (s) =>
 function todayQuote(when) {
   const now = when || new Date();
   const day = Math.floor((now - new Date(now.getFullYear(), 0, 0)) / 86400000);  // 1~366
-  return QUOTES_DB[day % QUOTES_DB.length];
+  return spQuotes()[day % spQuotes().length];
 }
 
 /* 이름 끝 글자의 받침에 따라 '이/가' 를 고른다.
@@ -41,7 +41,11 @@ function josaIGa(name) {
 
 /* 출처가 확실하지 않으면 단정하지 않는다 — "전해지는 말"로 적는다 */
 function quoteWho(q) {
-  return q.sure ? q.who : q.who + josaIGa(q.who) + " 남긴 것으로 전해지는 말";
+  if (q.sure) return q.who;
+  /* 조사(이/가)는 **한국어에서만** 붙인다. 일본어 문장에는 조사가 문구 안에 들어 있어
+     여기서 또 붙이면 "ボビー・ジョーンズ가 남긴…" 처럼 두 말이 섞인다(2026-08-03 실측). */
+  const ja = typeof I18N !== "undefined" && I18N.lang === "ja";
+  return tr("sp.quote.who.unsure", { who: ja ? q.who : q.who + josaIGa(q.who) });
 }
 
 function quotePref() {
@@ -88,8 +92,8 @@ function renderQuoteCard() {
   el.hidden = false;
   el.innerHTML =
     '<div class="sp-home" role="button" tabindex="0">' +
-    '<button class="sp-home-x" data-q="off" aria-label="오늘의 한마디 끄기">&times;</button>' +
-    '<div class="sp-home-h">⛳ 오늘의 한마디</div>' +
+    '<button class="sp-home-x" data-q="off" aria-label="' + tr("sp.quote.off") + '">&times;</button>' +
+    '<div class="sp-home-h">' + tr("sp.quote.head") + '</div>' +
     '<div class="sp-home-q">' + spEsc(q.ko) + "</div>" +
     '<div class="sp-home-w">— ' + spEsc(quoteWho(q)) + "</div>" +
     (q.tip ? '<div class="sp-home-t">' + spEsc(q.tip) + "</div>" : "") +
@@ -113,6 +117,19 @@ function bindQuoteCard() {
   });
 }
 
+/* 화면에 쓸 내용 꾸러미를 고른다.
+   일본어 화면이면 일본어판(js/spiritdb_ja.js)을 쓴다 — 이 파일은 **일본어일 때만** 실린다.
+   못 실렸으면 조용히 한국어판으로 돌아간다(빈 화면보다 낫다).
+   ⚠️ sections[].key 는 두 판이 같아야 한다. 탭 판정이 key 로 이뤄진다. */
+function spDB() {
+  return (typeof I18N !== "undefined" && I18N.lang === "ja" &&
+          typeof SPIRIT_DB_JA !== "undefined") ? SPIRIT_DB_JA : SPIRIT_DB;
+}
+function spQuotes() {
+  return (typeof I18N !== "undefined" && I18N.lang === "ja" &&
+          typeof QUOTES_DB_JA !== "undefined") ? QUOTES_DB_JA : QUOTES_DB;
+}
+
 /* ── 골프 정신 화면 ────────────────────────────────────────────── */
 function paintSpirit() {
   const body = spQ("#spirit-body");
@@ -124,29 +141,29 @@ function paintSpirit() {
   // 오늘의 한마디 카드
   let html =
     '<div class="sp-quote">' +
-    '<div class="sp-q-h">⛳ 오늘의 한마디</div>' +
+    '<div class="sp-q-h">' + tr("sp.quote.head") + '</div>' +
     '<div class="sp-q-ko">' + spEsc(q.ko) + "</div>" +
     '<div class="sp-q-who">— ' + spEsc(quoteWho(q)) + "</div>" +
     (q.tip ? '<div class="sp-q-tip">' + spEsc(q.tip) + "</div>" : "") +
     '<button class="sp-toggle' + (on ? " on" : "") + '" id="sp-toggle">' +
-    '<span class="sp-tg-t">홈에서도 매일 보기</span>' +
-    '<span class="sp-tg-s">' + (on ? "켜짐" : "꺼짐") + "</span></button>" +
+    '<span class="sp-tg-t">' + tr("sp.home.toggle") + '</span>' +
+    '<span class="sp-tg-s">' + tr(on ? "sp.on" : "sp.off") + "</span></button>" +
     "</div>";
 
   // 탭
   html += '<div class="sp-tabs">' +
-    SPIRIT_DB.sections.map((s) =>
+    spDB().sections.map((s) =>
       '<button class="sp-tab' + (s.key === SPIRIT_VIEW.tab ? " on" : "") +
       '" data-tab="' + s.key + '">' + spEsc(s.title) + "</button>").join("") +
     "</div>";
 
-  const sec = SPIRIT_DB.sections.find((s) => s.key === SPIRIT_VIEW.tab) || SPIRIT_DB.sections[0];
+  const sec = spDB().sections.find((s) => s.key === SPIRIT_VIEW.tab) || spDB().sections[0];
 
   if (sec.intro) html += '<p class="sp-intro">' + spEsc(sec.intro) + "</p>";
 
   // 룰 탭이 대개정 반영 중이면 먼저 알린다
-  if (sec.key === "rules" && SPIRIT_DB.rulesNotice)
-    html += '<p class="sp-notice">' + spEsc(SPIRIT_DB.rulesNotice) + "</p>";
+  if (sec.key === "rules" && spDB().rulesNotice)
+    html += '<p class="sp-notice">' + spEsc(spDB().rulesNotice) + "</p>";
 
   /* 카드
      · g(소그룹)가 바뀔 때마다 소제목을 굵게 넣는다 (동반자 배려 탭)
@@ -164,8 +181,8 @@ function paintSpirit() {
       (sec.num ? '<span class="sp-no">' + (i + 1) + "</span>" : "") +
       spEsc(it.t) + "</div>" +
       '<div class="sp-d">' + spEsc(it.d) + "</div>" +
-      (it.see ? '<button class="sp-see" data-see="' + it.see + '">공식 룰 ' + it.see +
-                "번과 비교해 보기</button>" : "") +
+      (it.see ? '<button class="sp-see" data-see="' + it.see + '">' +
+                tr("sp.see", { n: it.see }) + "</button>" : "") +
       (it.ref ? '<div class="sp-ref">' + spEsc(it.ref) + "</div>" : "") +
       "</div>";
   });
@@ -174,19 +191,16 @@ function paintSpirit() {
   // 공식 룰 탭 맨 아래 — 출처와 신선도를 밝힌다
   if (sec.key === "rules") {
     html += '<div class="sp-foot">' +
-      "<p>이 코너는 R&amp;A·USGA " + spEsc(SPIRIT_DB.rulesEdition) +
-      "년판 규칙을 우리말로 풀어 쓴 요약입니다. 대회나 분쟁에서는 공식 규칙이 우선합니다.</p>" +
-      "<p>최근 점검 " + spEsc(SPIRIT_VIEW.checked || "확인 중") +
-      " · 내용 반영 " + spEsc(SPIRIT_DB.updated) + "</p>" +
-      '<a class="sp-link" href="' + spEsc(SPIRIT_DB.rulesLink) +
-      '" target="_blank" rel="noopener">공식 규칙 보기 (대한골프협회)</a></div>';
+      "<p>" + tr("sp.rules.note", { ed: spEsc(spDB().rulesEdition) }) + "</p>" +
+      "<p>" + tr("sp.rules.checked", { at: spEsc(SPIRIT_VIEW.checked || tr("sp.checking")), up: spEsc(spDB().updated) }) + "</p>" +
+      '<a class="sp-link" href="' + spEsc(spDB().rulesLink) +
+      '" target="_blank" rel="noopener">' + tr("sp.rules.link") + '</a></div>';
   }
   // 동호회 룰 탭 — 규칙이 아니라는 것을 화면 안에서도 못 박는다
   if (sec.key === "club") {
     html += '<div class="sp-foot">' +
-      "<p>여기 있는 것은 <b>공식 규칙이 아니라 모임의 약속</b>입니다. " +
-      "대회나 공식 경기에서는 왼쪽 '공식 룰' 탭이 기준입니다.</p>" +
-      "<p>모임마다 다르니, 그날 함께 치는 분들과 시작 전에 맞춰 보세요.</p></div>";
+      "<p>" + tr("sp.club.note") + "</p>" +
+      "<p>" + tr("sp.club.note2") + "</p></div>";
   }
 
   body.innerHTML = html;
