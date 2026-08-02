@@ -174,6 +174,14 @@ const BK_MODES = { booking: tr("bk.mode.booking"), join: tr("bk.mode.join") };
       이름이 비슷한 옆 구장 예약 페이지가 뜨는 것은 빈 카드보다 나쁘다 —
       조립기가 이름·좌표 둘 다 맞은 구장만 담았고, 여기서도 그 결과만 믿는다.
    じゃらんゴルフ는 gc 번호를 아는 구장만 — 그것도 모르면 카드를 안 만든다. */
+/* 라쿠텐 제휴 링크로 감싼다. 조립기(build_bookingids_jp.py)가 캘린더 주소에 쓰는 것과 같은 꼴 —
+   감싸지 않으면 그 클릭은 우리 것으로 잡히지 않는다. 키가 없으면 원래 주소를 그대로 쓴다. */
+function rkAffiliate(url) {
+  if (typeof JPPACK === "undefined" || !JPPACK.RK_AFF || !JPPACK.RK_APP) return url;
+  return "https://hb.afl.rakuten.co.jp/hgc/" + JPPACK.RK_AFF +
+         "/?pc=" + encodeURIComponent(url) + "&rafcid=wsc_g_cs_" + JPPACK.RK_APP;
+}
+
 function jpBookingCards(course, ymd, kind) {
   const ja = typeof I18N !== "undefined" && I18N.lang === "ja";
   const md = ymd.slice(5).replace("-", "/");
@@ -183,10 +191,22 @@ function jpBookingCards(course, ymd, kind) {
     ? JPPACK._pick(BOOKINGIDS_JP, course) : null;
   if (b) {
     const [id, cal] = b;
-    // 조인(1인 예약)은 GORA 의 1人予約 목록으로 — 한국 '조인' 자리에 대응한다
+    /* 조인(1인 예약)은 GORA 의 1人予約 목록으로 — 한국 '조인' 자리에 대응한다.
+       🔴 예전 주소 gora.golf.rakuten.co.jp/plan/one/?f_gc= 는 **404 였다**(2026-08-03 실측).
+          조인 카드를 누른 사람은 전부 오류 페이지를 봤다.
+          지금 주소는 GORA 1人予約 화면의 검색 폼에서 그대로 가져왔다 —
+          그 폼이 쓰는 칸이 menu=srch_solo · act=disp · c_id · month · day 다.
+          열어 보면 제목이 "{구장명} 検索結果| 1人予約" 로 뜬다(확인함).
+       ⚠️ month 는 **1부터**다(GORA). 아래 자란은 0부터라 서로 다르다 — 헷갈리지 말 것.
+          날짜가 실제로 걸리는지는 확인하지 못했다(그 날 1인 플랜이 없으면 다른 날이 나온다).
+          그래도 그들 폼이 보내는 값 그대로이므로 그대로 넘긴다. */
+    const [yy, mm, dd] = ymd.split("-").map(Number);
+    const solo = "https://search.gora.golf.rakuten.co.jp/?menu=srch_solo&act=disp"
+      + "&c_id=" + id + "&month=" + mm + "&day=" + dd
+      + "&widthday=1&plan_day=-1&is_except_full_flg=1";
     const url = kind === "join"
-      ? "https://gora.golf.rakuten.co.jp/plan/one/?f_gc=" + id
-      : (cal || "https://gora.golf.rakuten.co.jp/gdk/gora/gc/" + id + "/");
+      ? rkAffiliate(solo)
+      : (cal || "https://search.gora.golf.rakuten.co.jp/cal/disp/c_id/" + id);
     out.push({
       key: "gora", ico: "⛳", cls: "bk-mon",
       title: ja ? (kind === "join" ? "楽天GORA 1人予約" : "楽天GORAで予約")
@@ -199,11 +219,19 @@ function jpBookingCards(course, ymd, kind) {
 
   const gc = typeof JPGC_JP !== "undefined" ? JPPACK._pick(JPGC_JP, course) : null;
   if (gc) {
+    /* じゃらんゴルフ는 **고른 날짜로 바로 갈 수 있다** — 구장 페이지의 달력이 그 날로 열린다.
+       ⚠️ playMonth 는 **0부터**다(0=1월). 실측으로 확인했다(2026-08-03):
+            playMonth=7&playDate=15 → 예약링크 ymd=20260815
+            playMonth=8&playDate=15 → 20260915
+          GORA 는 1부터라 서로 반대다. 여기서 한 번 틀리면 한 달이 어긋난다.
+       해가 바뀌는 자리(12월 말에 1월 날짜)는 사이트가 다음 해로 잡아 주는 것으로 보이나
+       8월에는 확인할 수 없었다 — 연말에 한 번 눈으로 볼 것. */
+    const [, jm, jd] = ymd.split("-").map(Number);
     out.push({
       key: "jalangolf", ico: "🏌️", cls: "bk-pang",
       title: ja ? "じゃらんゴルフで予約" : "자란 골프 예약",
       sub: ja ? `${md} ${dispName(course)}` : `${md} · ${dispName(course)}`,
-      url: "https://golf-jalan.net/gc" + gc + "/",
+      url: "https://golf-jalan.net/gc" + gc + "/?playMonth=" + (jm - 1) + "&playDate=" + jd,
     });
   }
 
