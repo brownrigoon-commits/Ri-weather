@@ -45,7 +45,7 @@ function newSummary(todayEmpty) {
   const hours = new Array(24).fill(0);
   if (!todayEmpty) { hours[9] = 3; hours[10] = 5; }
   return {
-    ver: "2026-08-02a", scope: "day+all", tz: "Asia/Seoul",
+    ver: "2026-08-02g", scope: "day+all", counts: "people", tz: "Asia/Seoul",
     asOf: now, todayKey, lastAt: now - 3600000,
     total: 2804, counted: 1883, windowFull: true, uniq: 287, back7: 46,
     excluded: { devices: 132, rows: 830, test: 91, dupes: 17, byRule: { A2: 300, A3: 400, A1: 130 } },
@@ -54,8 +54,9 @@ function newSummary(todayEmpty) {
     days: [{ d: yKey, hits: 132, users: 38 }, { d: todayKey, hits: todayEmpty ? 0 : 8, users: todayEmpty ? 0 : 3 }],
     courses: [["한림안성CC", 87], ["알프스대영CC", 38]],
     features: [["weather", 215], ["course", 166]],
-    devices: [["PC", 1540], ["iOS", 1023]],
-    ages: [["40대", 668]], genders: [["남성", 673]], regions: [["경기북부", 14]],
+    /* 사람 수다 — 누적 사용자(287명)를 넘을 수 없다. 넘는 값을 넣으면 화면이 거짓을 말하는 셈 */
+    devices: [["PC", 154], ["iOS", 102]],
+    ages: [["40대", 66]], genders: [["남성", 67]], regions: [["경기북부", 14]],
     today: {
       hits: todayEmpty ? 0 : 8, users: todayEmpty ? 0 : 3,
       newUsers: todayEmpty ? 0 : 2, newUsersExact: true,
@@ -73,6 +74,7 @@ function newSummary(todayEmpty) {
 function oldSummary() {
   const s = newSummary(false);
   delete s.scope; delete s.counted; delete s.windowFull; delete s.candidates;
+  delete s.counts;                     // 옛 백엔드는 연령·성별을 '줄 수'로 준다
   s.ver = "2026-07-31d";
   s.today = { hits: 8, users: 3 };
   s.excluded = { devices: 1, rows: 2, test: 0 };
@@ -219,6 +221,39 @@ async function openOps(browser, summary, cids) {
     const big = await page.$$eval("#cards .v", (es) => es.map((e) => e.textContent.trim()));
     ok(/^287명/.test(big[0]), "누적 사용자 카드가 정상", big[0]);
     ok(await page.$eval("#days", (e) => e.children.length > 0), "옛 날짜 형식(MM-dd)도 그대로 그려진다");
+
+    /* 옛 백엔드가 주는 연령·성별은 아직 '줄 수'다. 여기서 '사람 수'라고 적으면
+       화면이 거짓말을 한다 — 재배포 전까지는 건수라고 밝혀야 한다(2026-08-02). */
+    const oldHint = await page.$eval("#hint-ages", (e) => e.textContent);
+    ok(/기록 건수/.test(oldHint), "재배포 전에는 '기록 건수'라고 밝힌다", oldHint);
+    ok(/사람 수가 아닙니다/.test(oldHint), "사람 수가 아니라고 못박는다", oldHint);
+    ok(/배포/.test(oldHint), "재배포하면 바뀐다고 알려준다", oldHint);
+    await ctx.close();
+  }
+
+  // ── 3-2. 연령·성별·기기 단위 — '명'인지 '건'인지 화면이 정직한가 ──
+  {
+    console.log("\n■ 3-2. 연령·성별·기기의 단위 표시");
+    const { ctx, page } = await openOps(browser, newSummary(false));
+    await page.click("#m-all");
+    await page.waitForFunction(() => document.querySelector("#m-all").classList.contains("on"));
+
+    const hints = await page.evaluate(() => ({
+      dev: document.querySelector("#hint-devices").textContent,
+      age: document.querySelector("#hint-ages").textContent,
+      gen: document.querySelector("#hint-genders").textContent,
+    }));
+    ok(/사람 수/.test(hints.age), "새 백엔드에서는 '사람 수'라고 적는다", hints.age);
+    ok(/사람 수/.test(hints.gen), "성별도 마찬가지", hints.gen);
+    ok(/사람 수/.test(hints.dev), "기기도 마찬가지", hints.dev);
+    ok(!/기록 건수/.test(hints.age), "'기록 건수'라는 옛 문구가 남지 않는다", hints.age);
+
+    /* 사장님이 실제로 하신 검산 — 성별 합이 누적 사용자보다 크면 안 된다.
+       (2026-08-02: 누적 33명인데 '남성 163' 이 떠서 물어보셨다) */
+    const nums = await page.$$eval("#genders .ct", (es) => es.map((e) => +e.textContent.replace(/,/g, "")));
+    const uniq = +(await page.$eval("#cards .v", (e) => e.textContent.replace(/[^0-9]/g, "")));
+    ok(nums.reduce((a, b) => a + b, 0) <= uniq,
+       "성별 합이 누적 사용자를 넘지 않는다", nums.join("+") + " vs " + uniq);
     await ctx.close();
   }
 

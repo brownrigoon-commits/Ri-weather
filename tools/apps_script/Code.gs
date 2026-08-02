@@ -14,7 +14,7 @@
    tools/verify_deploy.py 가 이 값을 서버에서 읽어와 로컬과 대조한다.
    두 번이나 "코드는 고쳤는데 배포를 안 해서" 기능이 죽어 있었다:
      · 기록 백업·복구 (2026-07-27)  · 숙소 객실사진 우선 (2026-07-28) */
-var BACKEND_VER = "2026-08-02f";   // a: 우리 기록 자동 제외 + 오늘/누적 / f: 차단막 1단계 — 사용량 상한 + 요청 서명
+var BACKEND_VER = "2026-08-02g";   // a: 우리 기록 자동 제외 + 오늘/누적 / f: 차단막 1단계 — 사용량 상한 + 요청 서명 / g: 기기·연령·성별을 사람 수로
 
 /* ============ 차단막 1단계 (2026-08-02 사장님 지시) ============
  * 이 주소는 앱 소스에 공개돼 있어서, 누구든 복사해 fn=tts 를 반복 호출하면
@@ -1025,19 +1025,32 @@ function cidList_() {
  * 최상위 키의 의미는 예전과 하나도 바꾸지 않았다 — 옛 화면도 그대로 돈다.
  */
 function newAgg_() {
-  return { hits: 0, users: {}, courses: {}, feats: {}, devs: {}, ages: {}, gens: {},
+  return { hits: 0, users: {}, courses: {}, feats: {}, devOf: {}, ageOf: {}, genOf: {},
            regs: {}, courseSet: {} };
 }
 
+/* ⚠️ 기기·연령·성별은 **사람(기기) 수**로 센다 — 줄 수로 세면 안 된다.
+   줄로 세면 부지런한 한 사람이 수십 번 세어져, 누적 사용자 33명인 날에
+   '남성 163' 이 떠 버린다. 사장님이 이걸 163명으로 읽고 "맞는 건가요" 하고
+   물으셨다(2026-08-02). 골프장·기능 순위는 '몇 번 눌렸나'가 알고 싶은 것이라
+   그대로 줄 수로 둔다 — 세는 단위가 물음에 따라 다른 것이 맞다.
+   같은 기기가 값을 바꾸면(연령대 수정) 마지막 값 하나만 센다. */
 function feed_(a, r) {
-  var ev = r[3], name = r[4];
-  if (ev === "visit") { a.hits++; a.users[r[2]] = 1; }
+  var cid = r[2], ev = r[3], name = r[4];
+  if (ev === "visit") { a.hits++; a.users[cid] = 1; }
   if (ev === "course" && name) { a.courses[name] = (a.courses[name] || 0) + 1; a.courseSet[name] = 1; }
   if (ev === "feature" && name) a.feats[name] = (a.feats[name] || 0) + 1;
-  if (okv_(r[5])) a.devs[r[5]] = (a.devs[r[5]] || 0) + 1;
-  if (okv_(r[6])) a.ages[r[6]] = (a.ages[r[6]] || 0) + 1;
-  if (okv_(r[7]) && r[7] !== "선택 안 함") a.gens[r[7]] = (a.gens[r[7]] || 0) + 1;
+  if (okv_(r[5])) a.devOf[cid] = r[5];
+  if (okv_(r[6])) a.ageOf[cid] = r[6];
+  if (okv_(r[7]) && r[7] !== "선택 안 함") a.genOf[cid] = r[7];
   if (okv_(r[8])) a.regs[r[8]] = (a.regs[r[8]] || 0) + 1;
+}
+
+/* 기기별 값 하나 → 값마다 몇 대인지 */
+function tally_(byCid) {
+  var o = {};
+  Object.keys(byCid).forEach(function (c) { var v = byCid[c]; o[v] = (o[v] || 0) + 1; });
+  return o;
 }
 
 function top_(o, n) {
@@ -1139,6 +1152,8 @@ function summary_() {
   return json_({
     ver: BACKEND_VER,
     scope: "day+all",            // ★ 이 키가 있으면 화면이 '오늘/누적 나누어 보기'를 켠다
+    counts: "people",            // ★ 기기·연령·성별을 '명'으로 센다. 없으면 옛 백엔드(=건수)라
+                                 //   화면이 '건'이라고 적는다 — 단위를 거짓으로 쓰지 않기 위해
     tz: "Asia/Seoul",
     asOf: nowMs,
     todayKey: todayKey,
@@ -1160,7 +1175,8 @@ function summary_() {
       return { d: d, hits: days[d], users: uniqDays[d] || 0 };
     }),
     courses: top_(all.courses, 20), features: top_(all.feats, 14),
-    devices: top_(all.devs, 5), ages: top_(all.ages, 8), genders: top_(all.gens, 3),
+    devices: top_(tally_(all.devOf), 5), ages: top_(tally_(all.ageOf), 8),
+    genders: top_(tally_(all.genOf), 3),
     regions: top_(all.regs, 12),
 
     // ── 오늘 (한국 시각) ──
@@ -1173,7 +1189,8 @@ function summary_() {
       hours: hours,
       excluded: { devices: Object.keys(dExCids).length, rows: dExRows, test: dExTest },
       courses: top_(day.courses, 20), features: top_(day.feats, 14),
-      devices: top_(day.devs, 5), ages: top_(day.ages, 8), genders: top_(day.gens, 3),
+      devices: top_(tally_(day.devOf), 5), ages: top_(tally_(day.ageOf), 8),
+      genders: top_(tally_(day.genOf), 3),
       regions: top_(day.regs, 12),
     },
   });
