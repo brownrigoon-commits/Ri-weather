@@ -142,7 +142,7 @@ const find = (list, cid) => list.rows.filter((r) => r.cid === cid)[0];
    5. A3 — 사람 손으로 불가능한 간격. 그리고 그 오판 방지
    ────────────────────────────────────────────────────────────── */
 {
-  console.log("\n■ 5. A3 — 0.4초 안에 연달아 누른 기록");
+  console.log("\n■ 5. A3 — 0.15초 안에 연달아 누른 기록 (같은 날)");
   const fast = [row(T(1000), "robot", "visit", "")];
   for (let i = 0; i < 6; i++) fast.push(row(T(5000 + i * 30), "robot", "feature", "f" + i));
   const t = build(fast);
@@ -168,24 +168,79 @@ const find = (list, cid) => list.rows.filter((r) => r.cid === cid)[0];
   const few = [row(T(1000), "few", "visit", ""),
                row(T(5000), "few", "feature", "a"), row(T(5010), "few", "feature", "b"),
                row(T(5020), "few", "feature", "c"), row(T(5030), "few", "feature", "d")];
-  eq(find(build(few).cids(), "few").state, "on", "기록이 5건 미만이면 A3 를 적용하지 않는다");
+  eq(find(build(few).cids(), "few").state, "on", "하루 기록이 5건 미만이면 A3 를 적용하지 않는다");
+
+  /* 빠른 손가락은 0.3초 간격 탭이 실제로 나온다(재검증 실측) — 걸리면 안 된다.
+     기계(검사 도구)는 0.03초라 0.15초 기준이면 확실히 갈린다. */
+  const tapper = [row(T(1000), "tapper", "visit", "")];
+  for (let i = 0; i < 8; i++) tapper.push(row(T(5000 + i * 300), "tapper", "feature", "spirit_tab_" + i));
+  eq(find(build(tapper).cids(), "tapper").state, "on", "0.3초 간격으로 빠르게 탭한 진짜 이용자는 빼지 않는다");
+
+  /* 짝은 '같은 날' 안에서만 센다 — 날을 넘겨 쌓이면 오래 쓴 이용자가 언젠가 걸린다 */
+  const twoday = [row(T(1000), "twoday", "visit", "")];
+  for (let d = 0; d < 2; d++) {
+    const base = T(5000 + d * 86400000).getTime();
+    for (let i = 0; i < 3; i++) twoday.push(row(new Date(base + i * 100), "twoday", "feature", "t" + d + i));
+    twoday.push(row(new Date(base + 60000), "twoday", "feature", "x" + d));
+    twoday.push(row(new Date(base + 120000), "twoday", "feature", "y" + d));
+  }
+  eq(find(build(twoday).cids(), "twoday").state, "on",
+     "이틀에 걸쳐 나눠 쌓인 빠른 짝(하루 2개씩)은 합쳐 세지 않는다");
 }
 
 /* ──────────────────────────────────────────────────────────────
-   6. A4 — 클럽 피팅 4종 10분 안에 전부 시작 (검사 스크립트의 자국)
+   6. 클럽 피팅을 빨리 훑는 것은 정상 사용이다 (A4 폐기 확인)
    ────────────────────────────────────────────────────────────── */
 {
-  console.log("\n■ 6. A4 — 클럽 피팅 4종 훑기");
+  console.log("\n■ 6. 피팅 4종 빨리 훑기 = 정상 사용 (A4 는 폐기됨)");
+  /* 재검증 실측: 진짜 이용자가 피팅 화면에서 클럽 탭 4개를 구경하는 데 터치 8번·5.3초.
+     예전 A4(4종 10분)는 이걸 자동 제외했다 — 그래서 폐기했다. 되살아나면 이 시험이 잡는다. */
   const clubs = ["driver", "iron", "wedge", "putter"];
-  const sweep = [row(T(1000), "sweeper", "visit", "")];
-  clubs.forEach((c, i) => sweep.push(row(T(60000 + i * 20000), "sweeper", "feature", "clubfit_start_" + c)));
-  eq(find(build(sweep).cids(), "sweeper").state, "auto", "1분 안에 4종을 다 시작하면 자동 제외");
-  eq(find(build(sweep).cids(), "sweeper").rule, "A4", "규칙 A4");
+  const browse = [row(T(1000), "browser1", "visit", "")];
+  clubs.forEach((c, i) => browse.push(row(T(5000 + i * 1300), "browser1", "feature", "clubfit_start_" + c)));
+  eq(find(build(browse).cids(), "browser1").state, "on",
+     "피팅 4종을 5초 만에 훑은 진짜 이용자도 그대로 센다");
 
-  // 진짜 이용자는 하루에 걸쳐 천천히 본다
   const slow = [row(T(1000), "slowuser", "visit", "")];
   clubs.forEach((c, i) => slow.push(row(T(3600000 * (1 + i * 3)), "slowuser", "feature", "clubfit_start_" + c)));
-  eq(find(build(slow).cids(), "slowuser").state, "on", "3시간씩 띄워 본 이용자는 빼지 않는다");
+  eq(find(build(slow).cids(), "slowuser").state, "on", "3시간씩 띄워 본 이용자도 그대로 센다");
+}
+
+/* ──────────────────────────────────────────────────────────────
+   6-1. 가짜 골프장 줄은 기기와 무관하게 순위에서 빠진다
+   ────────────────────────────────────────────────────────────── */
+{
+  console.log("\n■ 6-1. 가짜 골프장 이름이 순위에 새지 않는가");
+  // 연령을 입력한(=보호신호) 기기가 가나CC(폭우)를 봤다 — 기기는 세지만 그 줄은 빠져야 한다
+  const t = build([
+    row(T(1000), "vetoed", "visit", "", { age: "40대" }),
+    row(T(9000), "vetoed", "course", "가나CC(폭우)", { age: "40대" }),
+    row(T(20000), "vetoed", "course", "한림안성CC", { age: "40대" }),
+  ]);
+  const s = t.sum();
+  eq(s.uniq, 1, "기기 자체는 세고 있다 (보호신호)");
+  ok(!s.courses.some((c) => c[0] === "가나CC(폭우)"),
+     "가나CC(폭우) 는 인기 골프장에 나오지 않는다", JSON.stringify(s.courses));
+  ok(s.courses.some((c) => c[0] === "한림안성CC"), "진짜 구장 조회는 남는다");
+  eq(s.excluded.test, 1, "뺀 줄 수로 세어진다");
+}
+
+/* ──────────────────────────────────────────────────────────────
+   6-2. 의견 건수(카드)와 의견 목록이 같은 기준으로 걸러지는가
+   ────────────────────────────────────────────────────────────── */
+{
+  console.log("\n■ 6-2. 의견 카드 숫자 = 의견 목록 개수");
+  const fb = [
+    [T(1000), "realuser", "칭찬", 5, "정말 잘 쓰고 있습니다 감사합니다", "home", "v190", "iOS"],
+    [T(2000), "dev-mypc", "오류", 0, "버튼이 안 눌리는 것 같은데요", "course", "v190", "PC"],
+    [T(3000), "verify-pc", "오류", 0, "검사 스크립트가 남긴 의견입니다", "home", "v190", "PC"],
+  ];
+  const t = build([row(T(500), "realuser", "visit", "")], {}, fb);
+  const s = t.sum();
+  const list = t.S.__json(t.S.fbList_());
+  eq(s.fbTotal, 1, "카드: 진짜 이용자 의견 1건만 센다 (dev-·verify- 제외)");
+  eq(list.rows.length, 1, "목록: 같은 1건만 보여준다");
+  eq(list.rows[0].cid, "realuser", "남는 것은 진짜 이용자의 의견이다");
 }
 
 /* ──────────────────────────────────────────────────────────────
@@ -247,6 +302,69 @@ const find = (list, cid) => list.rows.filter((r) => r.cid === cid)[0];
   eq(find(c, "oneday").rule, "B2", "규칙 B2");
   eq(s.uniq, 1, "여전히 세고 있다");
   eq(s.candidates.byRule.B2, 1, "확인 필요 묶음에 규칙별로 센다");
+
+  /* ⚠️ 사람 흔적이 있는 하루살이는 확인 목록에도 올리지 않는다.
+     안 그러면 [전부 안 셈] 이 그날 한 번 써 보고 떠난 진짜 이용자를 쓸어간다
+     (2026-08-02 재검증에서 모의 자료 353대로 실제 재현했던 구멍). */
+  const t2 = build([
+    row(old, "humanday", "visit", "", { age: "40대", gen: "남성" }),
+    row(new Date(+old + 60000), "humanday", "course", "서서울CC", { age: "40대" }),
+  ]);
+  eq(find(t2.cids(), "humanday").state, "on", "연령을 입력한 하루살이는 그냥 센다 (묻지도 않음)");
+
+  const t3 = build(
+    [row(old, "fbday", "visit", ""), row(new Date(+old + 60000), "fbday", "course", "서서울CC")],
+    {},
+    [[old, "fbday", "칭찬", 5, "앱이 정말 좋아요 잘 쓰겠습니다", "home", "v160", "iOS"]]
+  );
+  eq(find(t3.cids(), "fbday").state, "on", "의견을 남긴 하루살이도 그냥 센다");
+}
+
+/* ──────────────────────────────────────────────────────────────
+   11. 7/28 무더기 종합 재현 — 사장님이 실제로 보신 353명이 어떻게 되나
+   ────────────────────────────────────────────────────────────── */
+{
+  console.log("\n■ 11. 7/28 무더기 353대 종합 재현");
+  const D = new Date("2026-07-28T03:00:00Z").getTime();   // 한국 7/28 정오
+  const rows = [];
+  let n = 0;
+  // 가짜 골프장을 본 검사 기기 30 + 기계 속도 검사 기기 40 + 하루살이 검사 기기 280
+  for (let i = 0; i < 30; i++) {
+    const c = "fk" + n++;
+    rows.push(row(new Date(D + i * 9000), c, "visit", ""));
+    rows.push(row(new Date(D + i * 9000 + 3000), c, "course", "테스트CC"));
+  }
+  for (let i = 0; i < 40; i++) {
+    const c = "fs" + n++, t = D + 400000 + i * 9000;
+    rows.push(row(new Date(t), c, "visit", ""));
+    for (let k = 0; k < 6; k++) rows.push(row(new Date(t + 3000 + k * 30), c, "feature", "f" + k));
+  }
+  for (let i = 0; i < 280; i++) {
+    const c = "od" + n++, t = D + 900000 + i * 7000;
+    rows.push(row(new Date(t), c, "visit", ""));
+    rows.push(row(new Date(t + 15000), c, "course", ["한림안성CC", "서서울CC", "스카이72"][i % 3]));
+  }
+  // 진짜 이용자 4명 — 7/28 하루만 온 사람 2명(연령 입력), 이틀 온 사람 1명, 다른 날 1명
+  rows.push(row(new Date(D + 5e6), "realA", "visit", "", { dev: "iOS", age: "40대", gen: "남성" }));
+  rows.push(row(new Date(D + 5e6 + 6e4), "realA", "course", "파주CC", { dev: "iOS", age: "40대" }));
+  rows.push(row(new Date(D + 6e6), "realB", "visit", "", { dev: "iOS", age: "30대" }));
+  rows.push(row(new Date(D + 6e6 + 6e4), "realB", "course", "파주CC", { dev: "iOS", age: "30대" }));
+  rows.push(row(new Date(D + 7e6), "realC", "visit", "", { dev: "iOS" }));
+  rows.push(row(new Date(D + 86400000 * 4), "realC", "visit", "", { dev: "iOS" }));    // 8/1 재방문
+  rows.push(row(new Date(D - 86400000), "realD", "visit", "", { dev: "Android", gen: "여성" }));
+
+  const t = build(rows);
+  const day = (r) => (r.sum().days.find((x) => x.d === "2026-07-28") || { users: 0 }).users;
+  eq(day(t), 353 - 70, "자동 판정만으로 353명 → 283명 (검사기기 70대 즉시 제외)");
+  eq(t.sum().candidates.n, 280, "무더기 280대가 '확인 필요'로 올라온다 (진짜 이용자는 안 섞임)");
+
+  // [전부 안 셈] 재현 — 확인 필요 기기를 전부 DEV 목록에 넣는다
+  const cand = t.cids().rows.filter((r) => r.state === "candidate").map((r) => r.cid);
+  const t2 = build(rows, { DEV_CIDS: JSON.stringify(cand) });
+  eq(day(t2), 3, "[전부 안 셈] 뒤 7/28 = 진짜 이용자 3명만 남는다");
+  eq(t2.sum().uniq, 4, "누적 사용자도 진짜 4명만");
+  ["realA", "realB", "realC", "realD"].forEach((c) =>
+    ok(!find(t2.cids(), c).off, "진짜 이용자 " + c + " 는 살아 있다"));
 }
 
 /* ──────────────────────────────────────────────────────────────

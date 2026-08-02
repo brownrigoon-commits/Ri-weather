@@ -511,7 +511,8 @@ function paintCidsOld(rows) {
     }).join("");
 }
 
-var folded = {};
+var folded = {};      // folded[묶음] = 1 이면 '펼쳐 둠' — 다시 누르면 도로 접힌다
+var CIDS_TOTAL = 0;   // 서버가 아는 전체 기기 수 (목록에는 일부만 내려올 수 있다)
 function paintCids(rows) {
   var box = $("cids");
   if (!rows || !rows.length) { box.innerHTML = '<p class="empty">아직 기록이 없습니다.</p>'; return; }
@@ -522,8 +523,16 @@ function paintCids(rows) {
     var list = rows.filter(function (r) { return r.state === g.st; });
     if (!list.length) return;
     var hide = g.fold && !folded[g.st];
+    /* '세고 있는 기기'는 서버가 상위 150대만 보낸다 — 몇 대 중 몇 대인지 밝힌다.
+       조용히 자르면 "419대라더니 여긴 150대뿐" 이 된다(2026-08-02 재검증 지적). */
+    var cnt = list.length + "대";
+    if (g.st === "on" && CIDS_TOTAL) {
+      var others = rows.filter(function (r) { return r.state !== "on"; }).length;
+      var total = CIDS_TOTAL - others;
+      if (total > list.length) cnt = total + "대 중 기록 많은 " + list.length + "대 표시";
+    }
     out.push('<div class="grp"><div class="gh"><div>' +
-      '<div class="gt">' + g.t + " (" + list.length + "대)</div>" +
+      '<div class="gt">' + g.t + " (" + cnt + ")</div>" +
       '<div class="gd">' + g.d + "</div></div>" +
       (g.bulk && list.length > 1
         ? '<button class="btn sub" data-bulk="' + g.act + '" data-st="' + g.st + '">' + g.bulk + "</button>"
@@ -531,7 +540,8 @@ function paintCids(rows) {
       "</div>" +
       (hide
         ? '<button class="fold" data-fold="' + g.st + '">▸ ' + list.length + "대 펼쳐 보기</button>"
-        : '<div class="items">' + list.map(function (r) { return cidRow(r, g.act); }).join("") + "</div>") +
+        : (g.fold ? '<button class="fold" data-fold="' + g.st + '">▾ 접어 두기</button>' : "") +
+          '<div class="items">' + list.map(function (r) { return cidRow(r, g.act); }).join("") + "</div>") +
       "</div>");
   });
   box.innerHTML = out.join("");
@@ -546,6 +556,7 @@ function loadCids() {
       return;
     }
     CIDS = j.rows;
+    CIDS_TOTAL = j.totalCids || 0;
     paintCids(CIDS);
   }).catch(function (e) {
     $("cids").innerHTML = '<p class="empty">불러오지 못했습니다 — ' + esc(e.message) + "</p>";
@@ -560,13 +571,15 @@ function markCids(act, cids) {
     body: JSON.stringify({ fn: act === "keep" ? "keepcid" : "devcid", pw: pw, cids: cids, on: true }),
   }).then(function (r) { return r.json(); }).then(function (j) {
     if (!j || !j.ok) throw new Error((j && j.err) || "바꾸지 못했습니다");
-    return load().then(loadCids);      // 통계까지 다시 계산해 바로 반영한다
+    /* 통계와 기기 목록을 **나란히** 다시 부른다. 줄 세워 부르면 구글이 느린 날에는
+       (요청 하나가 도착까지 10~15초) 버튼 하나 누르고 30초를 기다리게 된다. */
+    return Promise.all([load(), loadCids()]);
   });
 }
 
 $("cids").addEventListener("click", function (e) {
   var f = e.target.closest("button[data-fold]");
-  if (f) { folded[f.dataset.fold] = 1; paintCids(CIDS); return; }
+  if (f) { folded[f.dataset.fold] = !folded[f.dataset.fold]; paintCids(CIDS); return; }
 
   var bulk = e.target.closest("button[data-bulk]");
   if (bulk) {
@@ -652,12 +665,26 @@ function card(k, v, unit, note) {
     '</div><div class="n">' + note + "</div></div>";
 }
 
+/* 하루 평균 방문 — 최근 7일 **달력** 기준.
+   ⚠️ days 배열에는 방문이 있던 날만 들어 있다. 배열 끝 7개를 평균 내면
+      띄엄띄엄 온 주에 숫자가 크게 부풀어 오른다(재검증 실측: 10명 vs 실제 1명).
+      방문 없는 날을 0 으로 세어야 진짜 평균이다. */
 function avg7() {
-  var d = (SUM.days || []).slice(-7);
-  if (!d.length) return null;
-  var sum = 0;
-  d.forEach(function (x) { sum += (x.users || 0); });
-  return Math.round(sum / d.length);
+  var days = SUM.days || [];
+  if (!days.length) return null;
+  if (SUM.todayKey) {
+    var map = {};
+    days.forEach(function (x) { map[x.d] = x.users || 0; });
+    var base = Date.parse(SUM.todayKey + "T00:00:00Z");
+    var sum = 0;
+    for (var i = 0; i < 7; i++)
+      sum += map[new Date(base - i * 86400000).toISOString().slice(0, 10)] || 0;
+    return Math.round(sum / 7);
+  }
+  // 옛 백엔드(날짜가 MM-dd)는 달력 계산이 안 된다 — 대략치라도 보여준다
+  var d = days.slice(-7), s = 0;
+  d.forEach(function (x) { s += (x.users || 0); });
+  return Math.round(s / d.length);
 }
 
 function paintCards() {

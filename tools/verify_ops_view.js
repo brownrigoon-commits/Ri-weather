@@ -85,7 +85,7 @@ const CIDS_NEW = {
   rows: [
     { cid: "5zjav7voehrn", n: 232, visits: 86, first: now - 5 * DAY, last: now - DAY, dev: "PC",
       vers: 13, versOut: 50, course: "솔라고컨트리클럽", days: 4, state: "auto", rule: "A3",
-      why: "0.4초 안에 연달아 누른 기록 9번 — 사람 손으로는 나올 수 없음", veto: "", off: true, auto: false },
+      why: "0.15초 안에 연달아 누른 기록 9번(하루 안) — 사람 손으로는 나올 수 없음", veto: "", off: true, auto: false },
     { cid: "b0awfmojc7ei", n: 64, visits: 44, first: now - 6 * DAY, last: now - 5 * DAY, dev: "PC",
       vers: 5, versOut: 30, course: "테스트CC", days: 2, state: "auto", rule: "A2",
       why: "없는 골프장 '테스트CC' 를 봄 — 앱으로는 갈 수 없는 이름", veto: "", off: true, auto: false },

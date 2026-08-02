@@ -192,8 +192,10 @@ const STATS = (() => {
     name = String(name || "").slice(0, 60);
     reg = String(reg || "").slice(0, 10);
     // 좌표성 항목은 원천 차단 (지역 칸에도 같은 잣대를 댄다)
-    if (FORBIDDEN.test(ev) || FORBIDDEN.test(name) || FORBIDDEN.test(reg)) return;
-    if (/\d{2,}\.\d{3,}/.test(reg)) return;        // 숫자 좌표처럼 생긴 건 무조건 버린다
+    // ⚠️ 골프장 이름은 숫자 좌표 모양만 막는다 — 글자 검사를 대면 PLATEAU 처럼
+    //    'lat' 이 우연히 든 진짜 구장이 통째로, 조용히 안 세어진다(2026-08-02 재검증).
+    if (FORBIDDEN.test(ev) || FORBIDDEN.test(reg)) return;
+    if (/\d{2,}\.\d{3,}/.test(reg) || /\d{2,}\.\d{3,}/.test(name)) return;   // 숫자 좌표처럼 생긴 건 무조건 버린다
     const p = profile();
     const q = loadQ();
     q.push({ t: Date.now(), cid: cid(), ev: String(ev).slice(0, 20), name,
@@ -250,6 +252,11 @@ const FEEDBACK = (() => {
   function meta() {
     let cid = "";
     try { cid = localStorage.getItem("riweather.cid") || ""; } catch (_) {}
+    /* 우리 접속(로컬 미리보기·?dev=1 기기)에서 보낸 의견은 기기ID에 표시를 얹어 보낸다.
+       의견 자체는 막지 않는다 — 우리도 폰에서 끝까지 눌러 시험해 볼 수 있어야 한다.
+       대신 관리자 화면의 목록·건수에서 서버가 이 표시를 보고 걸러 낸다(2026-08-02).
+       진짜 이용자는 늘 배포 주소로 열므로 여기 걸리지 않는다. */
+    if (window.RIW_STATS_OFF && cid && !/^dev-/.test(cid)) cid = "dev-" + cid;
     const u = navigator.userAgent;
     const dev = /iPhone|iPad|iPod/i.test(u) ? "iOS" : /Android/i.test(u) ? "Android" : "PC";
     return { cid, dev, ver: typeof APP_VER !== "undefined" ? APP_VER : "" };

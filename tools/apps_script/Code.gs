@@ -224,16 +224,21 @@ function autoRuleOf_(o) {
   if (o.fake) return { rule: "A2", why: "없는 골프장 '" + o.fake + "' 를 봄 — 앱으로는 갈 수 없는 이름" };
 
   /* A3 — 사람 손으로는 나올 수 없는 간격. 중복 전송을 걷어낸 뒤에 센다(scan_ 의 dedup 참고).
+     ⚠️ 기준은 0.15초·같은 날이다. 처음에는 0.4초로 했다가 재검증에서 걸렸다(2026-08-02):
+        빠른 손가락은 0.3초 간격 탭이 실제로 나온다. 우리 검사 도구는 0.03초로 누르므로
+        0.15초면 기계만 걸린다. '같은 날' 조건이 없으면 짝이 평생 누적되어
+        이틀만 부지런히 쓴 이용자도 언젠가 3짝을 채운다.
      ⚠️ 이 규칙은 **손가락 한 번에 기록이 한 건**이라는 전제 위에 서 있다.
         (2026-08-02 확인: js/app.js·booking.js·clubfit.js·spirit.js 의 STATS.hit 호출은
          전부 각각 다른 클릭 핸들러 안에 있고, 화면을 그릴 때 저절로 부르는 곳은 없다)
         앞으로 '화면을 열면 자동으로 기록되는' 계측을 추가하면 이 전제가 깨지고,
-        진짜 이용자가 A3 에 걸리기 시작한다. 그런 계측을 넣을 때는 이 규칙을 같이 손볼 것. */
-  if (o.fastPairs >= 3)
-    return { rule: "A3", why: "0.4초 안에 연달아 누른 기록 " + o.fastPairs + "번 — 사람 손으로는 나올 수 없음" };
+        진짜 이용자가 A3 에 걸리기 시작한다. 그런 계측을 넣을 때는 이 규칙을 같이 손볼 것.
 
-  // A4 — 클럽 피팅 4종을 10분 안에 전부 시작. tools/sweep.js 가 정확히 이 순회를 한다
-  if (o.clubfitSweep) return { rule: "A4", why: "클럽 피팅 4종을 10분 안에 모두 시작함 — 검사 스크립트의 자국" };
+     ⛔ 여기 있던 A4(클럽 피팅 4종을 10분 안에 시작)는 재검증에서 **폐기**했다:
+        진짜 이용자가 피팅 화면을 구경만 해도(터치 8번·5.3초) 걸리는 것이 실측됐고,
+        검사 도구가 남긴 그 무더기는 어차피 A3(0.03초 간격)와 B2(하루살이)가 잡는다. */
+  if (o.fastPairs >= 3)
+    return { rule: "A3", why: "0.15초 안에 연달아 누른 기록 " + o.fastPairs + "번(하루 안) — 사람 손으로는 나올 수 없음" };
 
   return null;
 }
@@ -254,10 +259,16 @@ function verdictOf_(o, devMap, keepMap) {
   }
 
   /* B2 — 장치가 붙기 전(8/1 이전)에 하루만 쓰고 사라진 기기.
-     한 번 열어보고 안 온 진짜 이용자와 모양이 같으므로 **세면서** 확인만 요청한다. */
-  if (o.dayCount === 1 && o.visits <= 3 && o.firstDay <= NOISE_UNTIL)
+     한 번 열어보고 안 온 진짜 이용자와 모양이 같으므로 **세면서** 확인만 요청한다.
+     ⚠️ 단, 사람 흔적(연령·성별 입력, 직접 쓴 의견)이 있으면 확인 목록에도 올리지 않는다.
+        우리 검사 도구는 그 값을 채우는 법이 없다 — 채워져 있으면 사람이다.
+        이걸 빼먹으면 [전부 안 셈] 버튼이 그날 한 번 써 보고 떠난 진짜 이용자까지 쓸어간다
+        (2026-08-02 재검증에서 모의 자료로 실제로 재현된 구멍). */
+  if (o.dayCount === 1 && o.visits <= 3 && o.firstDay <= NOISE_UNTIL && !vetoOf_(o)) {
+    var md = o.firstDay.slice(5).split("-");   // "07-28" → 7월 28일 (앞 0 을 뗀다)
     return { skip: false, state: "candidate", rule: "B2",
-             why: o.firstDay.slice(5).replace("-", "월 ") + "일 하루만 쓰고 사라진 기기" };
+             why: Number(md[0]) + "월 " + Number(md[1]) + "일 하루만 쓰고 사라진 기기" };
+  }
 
   return { skip: false, state: "on", rule: "", why: "" };
 }
@@ -456,9 +467,15 @@ function doPost(e) {
     var sh = sheet_();
     var out = [];
     rows.forEach(function (r) {
-      // 좌표성 데이터는 서버에서도 한 번 더 차단
-      var s = JSON.stringify(r);
-      if (/lat|lon|coord|위도|경도/i.test(s)) return;
+      /* 좌표성 데이터는 서버에서도 한 번 더 차단.
+         ⚠️ 행 전체를 JSON 으로 뭉쳐 검사하면 안 된다(2026-08-02 재검증에서 발견) —
+            무작위 기기ID 약 3,900대 중 1대는 'lat' 같은 글자가 우연히 들어가고,
+            그 이용자의 기록은 통째로, ok:true 를 돌려주면서 조용히 사라진다.
+            좌표가 실제로 들어올 수 있는 칸만 본다. 골프장 이름은 숫자 좌표 모양만 막는다
+            (영어 구장명에는 PLATEAU 처럼 'lat' 이 든 진짜 이름이 있다). */
+      if (/lat|lon|coord|위도|경도/i.test(Object.keys(r).join(" "))) return;   // 좌표 '칸'이 있는 줄
+      if (/lat|lon|coord|위도|경도/i.test([r.ev, r.reg, r.age, r.gen].join(" "))) return;
+      if (/\d{2,}\.\d{3,}/.test(String(r.name || ""))) return;
       out.push([
         new Date(r.t || Date.now()),
         String(r.cid || "").slice(0, 20),
@@ -755,25 +772,10 @@ function placeMeta_(ids) {
  * 그래서 읽기·판정을 여기 한 곳에 모은다.
  */
 
-/* 클럽 피팅 4종을 10분 안에 다 시작했나 (검사 스크립트 sweep.js 의 자국).
-   4종이 다 든 가장 짧은 구간을 찾아 그 폭을 본다 — 아침에 드라이버, 저녁에 퍼터를
-   시작한 진짜 이용자가 걸리지 않게 하려면 '같은 날'만으로는 모자라다. */
-function clubfitSweep_(list) {
-  if (!list || list.length < 4) return false;
-  list.sort(function (a, b) { return a.t - b.t; });
-  var have = {}, cnt = 0, i = 0;
-  for (var j = 0; j < list.length; j++) {
-    if (!have[list[j].c]) cnt++;
-    have[list[j].c] = (have[list[j].c] || 0) + 1;
-    while (cnt === 4) {
-      if (list[j].t - list[i].t <= 600000) return true;   // 10분
-      have[list[i].c]--;
-      if (!have[list[i].c]) cnt--;
-      i++;
-    }
-  }
-  return false;
-}
+/* ⛔ 여기 있던 clubfitSweep_(피팅 4종 10분 규칙, A4)는 2026-08-02 재검증에서 지웠다.
+   진짜 이용자가 피팅 화면을 구경만 해도(클럽 탭 4번 = 터치 8번·5.3초) 걸리는 것이
+   실제 브라우저 실측으로 확인됐다. 검사 도구의 그 무더기는 A3·B2 가 어차피 잡는다.
+   피팅을 빨리 훑는 것은 **정상 사용**이다 — 그걸 벌주는 규칙을 되살리지 말 것. */
 
 /* 오래된 기록 몇 줄에 글자가 깨진 값(�)이 남아 있다. 세어 봐야 '50�' 가 화면에 뜰 뿐이다. */
 function okv_(x) { return x && String(x).indexOf("�") < 0; }
@@ -822,7 +824,7 @@ function scan_() {
     if (!o) {
       o = out.cids[cid] = { cid: cid, n: 0, visits: 0, first: t, last: t, dev: "",
                             course: "", fake: "", profile: false, fb: !!fbCids[cid],
-                            _days: {}, _vers: {}, _acts: [], _cf: [] };
+                            _days: {}, _vers: {}, _acts: [] };
     }
     o.n++;
     if (ev === "visit") o.visits++;
@@ -837,10 +839,6 @@ function scan_() {
       if (!o.course) o.course = name;
       if (!o.fake && FAKE_COURSES[name]) o.fake = name;   // ⚠️ 대표구장이 아니라 **전부** 훑어야 한다
     }
-    if (ev === "feature") {
-      var m = /^clubfit_start_(driver|iron|wedge|putter)$/.exec(name);
-      if (m) o._cf.push({ t: t, c: m[1] });
-    }
     out.rows.push([t, d, cid, ev, name, r[5], r[6], r[7], r[8]]);
   }
 
@@ -854,19 +852,24 @@ function scan_() {
     o.lastDay = ds[ds.length - 1];
     o.vers = Object.keys(o._vers).length;
 
+    /* A3 재료 — 같은 날 안에서만 짝을 센다. 하루 기록이 5건은 되어야 '연달아'를 말할 수
+       있고(두세 건의 우연은 근거가 못 된다), 날을 넘겨 누적하면 오래 쓴 이용자가 억울해진다. */
     o._acts.sort(function (a, b) { return a - b; });
-    var fp = 0;
-    for (var j = 1; j < o._acts.length; j++) if (o._acts[j] - o._acts[j - 1] < 400) fp++;
-    // 5건은 있어야 '연달아'를 말할 수 있다 — 두세 건에서 나온 우연은 근거가 못 된다
-    o.fastPairs = o._acts.length >= 5 ? fp : 0;
-    o.clubfitSweep = clubfitSweep_(o._cf);
-
+    o.fastPairs = 0;
+    var dayActs = 1, dayFp = 0;
+    for (var j = 1; j <= o._acts.length; j++) {
+      var sameDay = j < o._acts.length && kday_(o._acts[j]) === kday_(o._acts[j - 1]);
+      if (sameDay) {
+        dayActs++;
+        if (o._acts[j] - o._acts[j - 1] < 150) dayFp++;
+      }
+      if (!sameDay) {                 // 날이 바뀌거나 끝 — 그날 치 결산
+        if (dayActs >= 5 && dayFp > o.fastPairs) o.fastPairs = dayFp;
+        dayActs = 1; dayFp = 0;
+      }
+    }
     /* '본 버전 N개'만으로는 아무것도 알 수 없다 — 그 사이 우리가 몇 개를 내보냈는지 같이 봐야 한다.
        (하루 13번 배포한 주에는 열성 이용자도 숫자가 커진다) */
-    var outv = 0;
-    for (var q = 0; q < vdays.length; q++)
-      if (vdays[q] >= o.firstDay && vdays[q] <= o.lastDay) outv++;
-    o.versOut = 0;
     var seenV = {};
     for (var q2 = 0; q2 < vdays.length; q2++) {
       if (vdays[q2] < o.firstDay || vdays[q2] > o.lastDay) continue;
@@ -874,7 +877,7 @@ function scan_() {
     }
     o.versOut = Object.keys(seenV).length;
 
-    delete o._days; delete o._vers; delete o._acts; delete o._cf;
+    delete o._days; delete o._vers; delete o._acts;
     o.v = verdictOf_(o, devMap, keepMap);
   });
   return out;
@@ -971,7 +974,11 @@ function summary_() {
       if (isToday) { dExRows++; dExCids[cid] = 1; }
       return;
     }
-    if (ev === "course" && isTestName_(name)) { exTest++; if (isToday) dExTest++; return; }
+    /* 검사용 골프장 줄은 기기와 무관하게 뺀다 — 보호신호로 살아남은 기기의 기록이라도
+       '가나CC(폭우)' 같은 이름이 인기 골프장 순위에 오르면 안 된다(2026-08-02 재검증에서 발견). */
+    if (ev === "course" && (isTestName_(name) || FAKE_COURSES[name])) {
+      exTest++; if (isToday) dExTest++; return;
+    }
     counted++;
 
     feed_(all, r);
@@ -1012,16 +1019,22 @@ function summary_() {
     cand.byRule[vd.rule] = (cand.byRule[vd.rule] || 0) + 1;
   });
 
-  // 피드백 건수 (오늘 / 전체) — 뺀 기기의 의견은 세지 않는다
+  /* 피드백 건수 (오늘 / 전체) — 뺀 기기의 의견은 세지 않는다.
+     ⚠️ 목록(fbList_)과 **같은 기준**이어야 한다. 기준이 다르면 카드는 2건인데 목록엔 1건이
+        떠서 사장님이 "하나가 사라졌다"고 읽는다(2026-08-02 재검증에서 실제 재현).
+        그래서 dev- 표시 기기도 목록과 똑같이 뺀다(되돌려 둔 기기는 양쪽 다 남긴다). */
   var fbTotal = 0, fbToday = 0;
   try {
+    var devMapFb = listMap_(DEV_PROP), keepMapFb = listMap_(KEEP_PROP);
     var fs = fbSheet_(), fl = fs.getLastRow();
     if (fl >= 2) {
       var ff = Math.max(2, fl - 300);
       fs.getRange(ff, 1, fl - ff + 1, 2).getValues().forEach(function (r) {
         var c = String(r[1] || "");
         var o = sc.cids[c];
-        if (alwaysDev_(c) || (o && o.v.skip)) return;
+        if (alwaysDev_(c)) return;
+        if (!keepMapFb[c] && (devMapFb[c] || /^dev-/.test(c))) return;
+        if (o && o.v.skip) return;
         fbTotal++;
         var ft = new Date(r[0]).getTime();
         if (ft && kday_(ft) === todayKey) fbToday++;
