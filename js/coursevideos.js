@@ -24,6 +24,22 @@ const COURSE_VIDEOS = {
    "views": 7470
   },
   {
+   "channel": "밀떡아재",
+   "likes": 28,
+   "publishedAt": "2022-04-24",
+   "title": "360도CC/인코스",
+   "videoId": "blhpX65xktg",
+   "views": 4848
+  },
+  {
+   "channel": "밀떡아재",
+   "likes": 31,
+   "publishedAt": "2022-04-19",
+   "title": "360도CC/아웃코스",
+   "videoId": "mJTzQ9ndoyw",
+   "views": 4479
+  },
+  {
    "channel": "맵가이더",
    "likes": 10,
    "publishedAt": "2024-09-11",
@@ -131,7 +147,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2024-09-12",
    "title": "SG아름다운골프. HILL(힐)코스. 라운드전 한번에 파악하기.",
    "videoId": "1Jgv-ON1XLg",
-   "views": 1868
+   "views": 1870
   },
   {
    "channel": "맵가이더",
@@ -167,7 +183,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2024-09-13",
    "title": "가야cc 김해코스. 라운드전 한번에 파악하기.",
    "videoId": "LFZr6LkUJX8",
-   "views": 5089
+   "views": 5090
   },
   {
    "channel": "맵가이더",
@@ -175,7 +191,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2024-09-13",
    "title": "가야cc 가락코스. 라운드전 한번에 파악하기.",
    "videoId": "O7fNhw2jL4w",
-   "views": 3931
+   "views": 3932
   },
   {
    "channel": "맵가이더",
@@ -267,7 +283,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2022-12-26",
    "title": "충북 음성 감곡CC 피치코스 5분 공략",
    "videoId": "O_GZE33ex0U",
-   "views": 29534
+   "views": 29535
   },
   {
    "channel": "리보플TV",
@@ -275,7 +291,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2023-01-02",
    "title": "충북 음성 감곡CC 글렌코스 5분 공략",
    "videoId": "ATDseWCgPOE",
-   "views": 16690
+   "views": 16691
   },
   {
    "channel": "맵가이더",
@@ -292,6 +308,14 @@ const COURSE_VIDEOS = {
    "title": "감곡cc GLEN(글렌) 코스. 라운드전 한번에 파악하기.",
    "videoId": "9yBlOsoyn8o",
    "views": 5454
+  },
+  {
+   "channel": "밀떡아재",
+   "likes": 18,
+   "publishedAt": "2023-03-13",
+   "title": "[3분코트요리] 감곡CC / 피치코스(수정본)",
+   "videoId": "ZnN1e4GAMMM",
+   "views": 2799
   }
  ],
  "강남300CC": [
@@ -371,7 +395,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2024-12-20",
    "title": "경주신라CC 천마 IN코스. 코스공략. 라운드전 한번에 파악하기.",
    "videoId": "9N1QVe2fIc0",
-   "views": 4238
+   "views": 4239
   },
   {
    "channel": "맵가이더",
@@ -413,7 +437,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2024-10-26",
    "title": "노벨 CC 가야코스. 라운드전 한번에 파악하기.",
    "videoId": "JiCNNLzKyrI",
-   "views": 3006
+   "views": 3008
   },
   {
    "channel": "맵가이더",
@@ -421,7 +445,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2024-10-26",
    "title": "노벨 CC 공룡코스. 라운드전 한번에 파악하기.",
    "videoId": "_h1nMih3Jlc",
-   "views": 2965
+   "views": 2968
   },
   {
    "channel": "맵가이더",
@@ -437,7 +461,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2025-08-08",
    "title": "#고성노벨 #골프장 #드론 #드론촬영 #골프연습 #추천골프장 #골프스윙 #golf",
    "videoId": "eCek9wKnSac",
-   "views": 1308
+   "views": 1310
   }
  ],
  "고양 CC": [
@@ -473,7 +497,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2024-12-13",
    "title": "고창CC 비치코스. 코스공략. 라운드전 한번에 파악하기.",
    "videoId": "OP3zi3et3CA",
-   "views": 2595
+   "views": 2594
   },
   {
    "channel": "맵가이더",
@@ -535,7 +559,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2024-12-22",
    "title": "골드레이크CC 힐코스. 코스공략. 라운드전 한번에 파악하기.",
    "videoId": "Wn9YLLFV6vQ",
-   "views": 2542
+   "views": 2543
   },
   {
    "channel": "맵가이더",
@@ -543,7 +567,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2024-12-22",
    "title": "골드레이크CC 밸리코스. 코스공략. 라운드전 한번에 파악하기.",
    "videoId": "wCDAn6N7yiQ",
-   "views": 2461
+   "views": 2462
   }
  ],
  "골든베이골프&리조트": [
@@ -553,7 +577,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2021-09-15",
    "title": "[전백시]골든베이CC / 오션코스",
    "videoId": "uhy5BUOgT8k",
-   "views": 12472
+   "views": 12474
   },
   {
    "channel": "밀떡아재",
@@ -569,7 +593,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2024-10-11",
    "title": "골든베이 CC 오션코스. 라운드전 한번에 파악하기.",
    "videoId": "u9xio2OABws",
-   "views": 3219
+   "views": 3221
   },
   {
    "channel": "맵가이더",
@@ -617,6 +641,14 @@ const COURSE_VIDEOS = {
   },
   {
    "channel": "밀떡아재",
+   "likes": 39,
+   "publishedAt": "2023-01-13",
+   "title": "골프존카운티 사천CC / 다솔코스",
+   "videoId": "sOYKujOyLOk",
+   "views": 9742
+  },
+  {
+   "channel": "밀떡아재",
    "likes": 7,
    "publishedAt": "2025-10-31",
    "title": "골프존카운티 사천CC / 다솔코스 #골프존카운티사천CC#골프존카운티#다솔코스#사천골프장#남해골프#코스설명",
@@ -630,6 +662,14 @@ const COURSE_VIDEOS = {
    "title": "골프존카운티 사천CC / 다솔코스 #골프존카운티사천CC#골프존카운티#비토코스#사천골프장#남해골프#코스설명",
    "videoId": "Ls001jZBZiA",
    "views": 1954
+  },
+  {
+   "channel": "밀떡아재",
+   "likes": 5,
+   "publishedAt": "2025-10-30",
+   "title": "골프존카운티 사천CC / 비룡코스 #골프존카운티사천CC#비룡코스#캐디설명#남해골프",
+   "videoId": "BwwZRFFDOw0",
+   "views": 1901
   }
  ],
  "골프존카운티 순천": [
@@ -689,7 +729,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2023-10-16",
    "title": "골프존카운티 안성H 힐코스 5분 공략",
    "videoId": "UX8NA5uXr4Q",
-   "views": 11562
+   "views": 11566
   }
  ],
  "골프존카운티 안성W": [
@@ -699,7 +739,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2021-08-06",
    "title": "골프존카운티 안성W In코스 공략",
    "videoId": "IbJuCfxCqnc",
-   "views": 46588
+   "views": 46590
   },
   {
    "channel": "리보플TV",
@@ -707,7 +747,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2021-08-01",
    "title": "골프존카운티 안성W Out코스 공략",
    "videoId": "rbR9ysXAJjA",
-   "views": 32729
+   "views": 32730
   }
  ],
  "골프존카운티 진천": [
@@ -749,7 +789,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2022-06-27",
    "title": "골프존카운티 진천 (구 아트밸리) 밸리코스 5분 공략",
    "videoId": "T6j5R4GIOHY",
-   "views": 9032
+   "views": 9033
   },
   {
    "channel": "맵가이더",
@@ -765,7 +805,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2024-10-04",
    "title": "골프존카운티-진천 밸리코스. 라운드전 한번에 파악하기.",
    "videoId": "hpgtGfpWf_o",
-   "views": 2776
+   "views": 2777
   },
   {
    "channel": "맵가이더",
@@ -773,7 +813,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2024-10-04",
    "title": "골프존카운티-진천 레이크코스. 라운드전 한번에 파악하기.",
    "videoId": "m66JhufQs2Y",
-   "views": 2547
+   "views": 2548
   },
   {
    "channel": "맵가이더",
@@ -781,7 +821,15 @@ const COURSE_VIDEOS = {
    "publishedAt": "2024-10-04",
    "title": "골프존카운티-진천 마운틴코스. 라운드전 한번에 파악하기.",
    "videoId": "6o8eEQkoHyM",
-   "views": 2400
+   "views": 2401
+  },
+  {
+   "channel": "밀떡아재",
+   "likes": 8,
+   "publishedAt": "2025-08-26",
+   "title": "\"캐디님 티박스설명\" 골프존카운티진천CC/밸리코스",
+   "videoId": "u12oOfxj1SQ",
+   "views": 1080
   }
  ],
  "골프존카운티 천안": [
@@ -799,7 +847,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2024-10-04",
    "title": "골프존카운티-천안 OUT(아웃)코스. 라운드전 한번에 파악하기.",
    "videoId": "RnbTKgkCYBU",
-   "views": 2464
+   "views": 2463
   },
   {
    "channel": "맵가이더",
@@ -1022,6 +1070,14 @@ const COURSE_VIDEOS = {
    "views": 16652
   },
   {
+   "channel": "밀떡아재",
+   "likes": 49,
+   "publishedAt": "2023-07-20",
+   "title": "금강CC / 서코스 \"구장이 넓다고 쉬운건 아니다\"",
+   "videoId": "YL54VFpV_Vo",
+   "views": 13298
+  },
+  {
    "channel": "리보플TV",
    "likes": 53,
    "publishedAt": "2021-10-22",
@@ -1030,12 +1086,20 @@ const COURSE_VIDEOS = {
    "views": 12068
   },
   {
+   "channel": "밀떡아재",
+   "likes": 33,
+   "publishedAt": "2023-07-25",
+   "title": "금강CC / 남코스 \"코스는 넓어 보이나 페어웨이는 생각보다 좁다\"",
+   "videoId": "4VnrtjPAafg",
+   "views": 8628
+  },
+  {
    "channel": "맵가이더",
    "likes": 17,
    "publishedAt": "2024-11-23",
    "title": "금강 CC 동코스. 코스공략. 라운드전 한번에 파악하기.",
    "videoId": "U5xUtbVe2Dk",
-   "views": 4749
+   "views": 4750
   },
   {
    "channel": "맵가이더",
@@ -1061,10 +1125,18 @@ const COURSE_VIDEOS = {
    "publishedAt": "2024-10-27",
    "title": "기장동원로얄 CC OUT코스. 라운드전 한번에 파악하기.",
    "videoId": "pVLKcSsU57g",
-   "views": 3604
+   "views": 3605
   }
  ],
  "기흥CC": [
+  {
+   "channel": "밀떡아재",
+   "likes": 27,
+   "publishedAt": "2025-09-01",
+   "title": "기흥CC / 북코스 \"싱글치기 딱 좋은 골프장\"(1부)",
+   "videoId": "KIsKh0hASlk",
+   "views": 4258
+  },
   {
    "channel": "맵가이더",
    "likes": 15,
@@ -1104,6 +1176,14 @@ const COURSE_VIDEOS = {
    "title": "기흥CC / 북코스 코스설명 #기흥CC#북코스#편안한골프장",
    "videoId": "t62dFM2Xie4",
    "views": 2373
+  },
+  {
+   "channel": "밀떡아재",
+   "likes": 20,
+   "publishedAt": "2025-09-04",
+   "title": "기흥CC / 북코스 \"싱글은 운도 따라야한다\"(2부)",
+   "videoId": "GOFquXHFuw0",
+   "views": 1913
   },
   {
    "channel": "밀떡아재",
@@ -1279,7 +1359,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2021-11-09",
    "title": "남여주CC 누리코스 공략",
    "videoId": "QLB86WfOpS8",
-   "views": 22974
+   "views": 22976
   },
   {
    "channel": "리보플TV",
@@ -1287,7 +1367,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2021-11-10",
    "title": "남여주CC 가람코스 공략",
    "videoId": "yleeS_EZNGM",
-   "views": 21804
+   "views": 21807
   },
   {
    "channel": "리보플TV",
@@ -1295,7 +1375,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2021-11-07",
    "title": "남여주CC 마루코스 공략",
    "videoId": "Cn8Embm2dbg",
-   "views": 17959
+   "views": 17960
   },
   {
    "channel": "밀떡아재",
@@ -1358,6 +1438,22 @@ const COURSE_VIDEOS = {
  ],
  "남촌CC": [
   {
+   "channel": "밀떡아재",
+   "likes": 28,
+   "publishedAt": "2022-08-04",
+   "title": "[3분코스요리]남촌CC/동코스",
+   "videoId": "9Ry04gq2mmo",
+   "views": 5403
+  },
+  {
+   "channel": "밀떡아재",
+   "likes": 26,
+   "publishedAt": "2022-08-01",
+   "title": "[3분코스요리]남촌CC/서코스",
+   "videoId": "T3mH2oP45wc",
+   "views": 4132
+  },
+  {
    "channel": "맵가이더",
    "likes": 11,
    "publishedAt": "2025-11-29",
@@ -1381,7 +1477,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2024-12-29",
    "title": "남춘천 CC 챌린지코스. 코스공략. 라운드전 한번에 파악하기.",
    "videoId": "Yxeu7PE3wiE",
-   "views": 4660
+   "views": 4662
   },
   {
    "channel": "맵가이더",
@@ -1407,7 +1503,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2023-06-12",
    "title": "내장산CC 홍단풍 코스 5분 공략",
    "videoId": "7i5In4siXbo",
-   "views": 10077
+   "views": 10076
   },
   {
    "channel": "리보플TV",
@@ -1415,7 +1511,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2023-06-19",
    "title": "내장산CC 청단풍 코스 5분 공략",
    "videoId": "mo1LD-hr40E",
-   "views": 6377
+   "views": 6376
   },
   {
    "channel": "맵가이더",
@@ -1460,6 +1556,14 @@ const COURSE_VIDEOS = {
    "views": 4212
   },
   {
+   "channel": "밀떡아재",
+   "likes": 9,
+   "publishedAt": "2026-04-20",
+   "title": "노스팜CC/웨스트코스#노스팜CC#웨스트코스#티박스#golf#골프",
+   "videoId": "8Xi2r0w5lrM",
+   "views": 1604
+  },
+  {
    "channel": "맵가이더",
    "likes": 4,
    "publishedAt": "2025-08-06",
@@ -1475,7 +1579,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2021-07-14",
    "title": "뉴서울CC 예술 OUT 코스 공략",
    "videoId": "zd00ppH5Z8Y",
-   "views": 17486
+   "views": 17487
   },
   {
    "channel": "리보플TV",
@@ -1483,7 +1587,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2021-07-14",
    "title": "뉴서울CC 예술 IN 코스 공략",
    "videoId": "N1wfoXSx72I",
-   "views": 15804
+   "views": 15806
   },
   {
    "channel": "리보플TV",
@@ -1491,7 +1595,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2024-09-02",
    "title": "경기 광주 뉴서울CC 문화 Out 코스 (1~9번) 5분 공략",
    "videoId": "65cQ_P4pyU0",
-   "views": 7136
+   "views": 7137
   },
   {
    "channel": "리보플TV",
@@ -1575,7 +1679,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2022-08-22",
    "title": "고양 뉴코리아CC Out 코스 (1~9번) 5분 공략",
    "videoId": "veBZar3l6BI",
-   "views": 11861
+   "views": 11862
   },
   {
    "channel": "리보플TV",
@@ -1711,7 +1815,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2026-02-23",
    "title": "[골프] 대영베이스 CC (2026.ver) IN 코스 공략. 라운드전 한번에 파악하기.",
    "videoId": "MKYgnsXbS9Q",
-   "views": 3632
+   "views": 3633
   },
   {
    "channel": "맵가이더",
@@ -1753,7 +1857,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2026-02-26",
    "title": "[골프] 대영힐스 CC (2026.ver) 청 코스 공략. 라운드전 한번에 파악하기.",
    "videoId": "o0zjBO0hR44",
-   "views": 4262
+   "views": 4263
   },
   {
    "channel": "맵가이더",
@@ -1821,7 +1925,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2024-10-27",
    "title": "더 시에나 CC(구.제주cc) 동코스. 라운드전 한번에 파악하기.",
    "videoId": "Gr8UvCtxZzQ",
-   "views": 2698
+   "views": 2700
   },
   {
    "channel": "맵가이더",
@@ -1891,7 +1995,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2021-06-12",
    "title": "이천 더크로스비 GC 아리아코스 공략",
    "videoId": "FLawnZVrhHI",
-   "views": 29324
+   "views": 29325
   },
   {
    "channel": "리보플TV",
@@ -1915,7 +2019,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2024-09-30",
    "title": "더크로스비 GC 아리아코스. 라운드전 한번에 파악하기.",
    "videoId": "xcu6N-0IMUA",
-   "views": 5983
+   "views": 5982
   },
   {
    "channel": "맵가이더",
@@ -1923,7 +2027,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2024-09-30",
    "title": "더크로스비 GC 빌리코스. 라운드전 한번에 파악하기.",
    "videoId": "Oazd9wlK6fY",
-   "views": 3682
+   "views": 3683
   },
   {
    "channel": "맵가이더",
@@ -2009,7 +2113,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2024-09-26",
    "title": "동부산 CC 힐코스. 라운드전 한번에 파악하기.",
    "videoId": "m8CbXNpQys4",
-   "views": 3270
+   "views": 3272
   },
   {
    "channel": "맵가이더",
@@ -2035,7 +2139,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2025-01-13",
    "title": "동원썬밸리 CC 밸리코스. 코스공략. 라운드전 한번에 파악하기.",
    "videoId": "VTNFNoW1OIQ",
-   "views": 5585
+   "views": 5587
   },
   {
    "channel": "맵가이더",
@@ -2062,6 +2166,22 @@ const COURSE_VIDEOS = {
    "title": "충주 동촌GC 서코스 공략",
    "videoId": "M6H2gzsLn-E",
    "views": 22419
+  },
+  {
+   "channel": "밀떡아재",
+   "likes": 43,
+   "publishedAt": "2023-06-16",
+   "title": "동촌CC / 동코스 \"코스레이아웃 최강의 충주골프장\"",
+   "videoId": "orVWFVOAjuc",
+   "views": 12453
+  },
+  {
+   "channel": "밀떡아재",
+   "likes": 38,
+   "publishedAt": "2023-06-12",
+   "title": "동촌CC / 서코스 \"코스는 정말 재미있는데...그린은 왜 이렇게 느린겨\"",
+   "videoId": "fOkBMz8Dcvk",
+   "views": 6685
   },
   {
    "channel": "맵가이더",
@@ -2335,7 +2455,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2024-11-30",
    "title": "제주 라헨느CC 레이크 코스 5분 공략",
    "videoId": "SrBgBMKaSWU",
-   "views": 2804
+   "views": 2806
   },
   {
    "channel": "맵가이더",
@@ -2367,7 +2487,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2024-10-15",
    "title": "라헨느 CC 오션코스. 라운드전 한번에 파악하기.",
    "videoId": "oyN8GA2n6OY",
-   "views": 808
+   "views": 810
   }
  ],
  "레이크사이드CC": [
@@ -2377,7 +2497,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2021-11-17",
    "title": "용인 레이크사이드CC 동코스 Out (1~9번) 공략",
    "videoId": "VwTrQJXBAhE",
-   "views": 21914
+   "views": 21915
   },
   {
    "channel": "리보플TV",
@@ -2385,7 +2505,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2021-11-18",
    "title": "용인 레이크사이드CC 동코스 In (10~18번) 코스 공략",
    "videoId": "32oh_VhKmro",
-   "views": 15218
+   "views": 15220
   },
   {
    "channel": "리보플TV",
@@ -2411,7 +2531,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2021-07-08",
    "title": "양주 레이크우드cc 물길코스 공략",
    "videoId": "jwxO0sXBrfg",
-   "views": 14851
+   "views": 14852
   },
   {
    "channel": "리보플TV",
@@ -2472,9 +2592,33 @@ const COURSE_VIDEOS = {
    "title": "곤지암 렉스필드CC 마운틴 코스 5분 공략",
    "videoId": "eldSENEPk2o",
    "views": 15693
+  },
+  {
+   "channel": "밀떡아재",
+   "likes": 27,
+   "publishedAt": "2023-04-04",
+   "title": "렉스필드 CC / 마운틴코스 \"곤지암 3대 회원제 골프장\"",
+   "videoId": "HaEXo2MZbto",
+   "views": 7049
+  },
+  {
+   "channel": "밀떡아재",
+   "likes": 22,
+   "publishedAt": "2023-04-09",
+   "title": "렉스필드 CC / 밸리코스 \"좌우 폭이 좁은 페어웨이\"",
+   "videoId": "Pz1A3qvvasw",
+   "views": 5116
   }
  ],
  "로드힐스CC": [
+  {
+   "channel": "밀떡아재",
+   "likes": 45,
+   "publishedAt": "2023-09-21",
+   "title": "로드힐스CC / 레이크코스 \"코스 모르고 가면 눈뜨고 코베이는\"",
+   "videoId": "cnjIO7pFjqw",
+   "views": 13234
+  },
   {
    "channel": "리보플TV",
    "likes": 38,
@@ -2589,7 +2733,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2024-09-29",
    "title": "로얄포레 cc 포레코스. 라운드전 한번에 파악하기.",
    "videoId": "e0ZKVUM009E",
-   "views": 5846
+   "views": 5847
   },
   {
    "channel": "맵가이더",
@@ -2598,6 +2742,22 @@ const COURSE_VIDEOS = {
    "title": "로얄포레 cc 로얄코스. 라운드전 한번에 파악하기.",
    "videoId": "eOF0dLJpkxA",
    "views": 4588
+  },
+  {
+   "channel": "밀떡아재",
+   "likes": 30,
+   "publishedAt": "2026-04-30",
+   "title": "2026년 과연 \"올데이\"는 \"올데이\"이 할까? 1부 \"로얄포레CC / 로얄코스\"",
+   "videoId": "3CD2ErLwLpM",
+   "views": 3771
+  },
+  {
+   "channel": "밀떡아재",
+   "likes": 18,
+   "publishedAt": "2026-05-04",
+   "title": "7월까진 참으세요. 아직 로얄포레 갈 때가 아닙니다? \"로얄포레CC / 포레코스\"",
+   "videoId": "X2dEMEdPjOA",
+   "views": 2871
   },
   {
    "channel": "맵가이더",
@@ -2659,7 +2819,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2021-11-26",
    "title": "여주 루트52 A코스 (1~9번) 공략",
    "videoId": "KPrXVG6P8yw",
-   "views": 20474
+   "views": 20475
   },
   {
    "channel": "리보플TV",
@@ -2667,7 +2827,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2021-12-03",
    "title": "여주 루트52 B코스 (10~18번) 공략",
    "videoId": "Lx4QJrJ0-d4",
-   "views": 11495
+   "views": 11497
   },
   {
    "channel": "맵가이더",
@@ -2683,7 +2843,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2024-09-25",
    "title": "루트52 CC B코스. 라운드전 한번에 파악하기.",
    "videoId": "Xhoa5i4wgZU",
-   "views": 4818
+   "views": 4819
   }
  ],
  "리더스컨트리클럽": [
@@ -2714,6 +2874,14 @@ const COURSE_VIDEOS = {
  ],
  "리베라CC": [
   {
+   "channel": "밀떡아재",
+   "likes": 26,
+   "publishedAt": "2023-01-23",
+   "title": "동탄 리베라CC / 파인힐코스",
+   "videoId": "mjcbvbuIpAs",
+   "views": 6288
+  },
+  {
    "channel": "맵가이더",
    "likes": 18,
    "publishedAt": "2024-10-01",
@@ -2743,7 +2911,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2024-10-01",
    "title": "리베라 CC 파인코스. 라운드전 한번에 파악하기.",
    "videoId": "8Jr3UOfYNz8",
-   "views": 2348
+   "views": 2349
   },
   {
    "channel": "리보플TV",
@@ -2751,7 +2919,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2026-02-23",
    "title": "화성 리베라CC 파인힐 코스 5분 공략",
    "videoId": "gZMbCHCsIrM",
-   "views": 1905
+   "views": 1906
   },
   {
    "channel": "리보플TV",
@@ -2787,7 +2955,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2024-12-15",
    "title": "마론뉴데이CC 드림코스. 코스공략. 라운드전 한번에 파악하기.",
    "videoId": "RoTrLnIlwLQ",
-   "views": 5820
+   "views": 5822
   }
  ],
  "마스터피스컨트리클럽": [
@@ -2901,7 +3069,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2025-01-20",
    "title": "마이다스밸리 청평 골프클립 마이다스 코스 5분 공략",
    "videoId": "SXT32zFmo5M",
-   "views": 3201
+   "views": 3202
   },
   {
    "channel": "맵가이더",
@@ -2927,7 +3095,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2023-05-15",
    "title": "강릉 메이플비치 CC 비치코스 5분 공략",
    "videoId": "Uvjv92w1Dck",
-   "views": 12614
+   "views": 12616
   },
   {
    "channel": "리보플TV",
@@ -2938,6 +3106,24 @@ const COURSE_VIDEOS = {
    "views": 5523
   }
  ],
+ "모나크CC": [
+  {
+   "channel": "밀떡아재",
+   "likes": 98,
+   "publishedAt": "2023-09-25",
+   "title": "모나크CC/마운틴코스 \"비거리를 늘리고 정확도를 잃어버린 80돌이\"",
+   "videoId": "aw1-F8-zU9s",
+   "views": 27852
+  },
+  {
+   "channel": "밀떡아재",
+   "likes": 53,
+   "publishedAt": "2023-09-27",
+   "title": "모나크CC/그랜드코스 \"각성한 골퍼, 과연 평균비거리를 얼마나 늘릴 수 있을까?",
+   "videoId": "pGmMyFWxMYg",
+   "views": 14595
+  }
+ ],
  "몽베르CC": [
   {
    "channel": "맵가이더",
@@ -2946,6 +3132,14 @@ const COURSE_VIDEOS = {
    "title": "몽베르 CC 오똔코스. 라운드전 한번에 파악하기.",
    "videoId": "iMbCh3KuG2Y",
    "views": 4329
+  },
+  {
+   "channel": "밀떡아재",
+   "likes": 19,
+   "publishedAt": "2026-06-24",
+   "title": "환골탈태 골프장 \"몽베르CC / 망무봉 아웃코스\"",
+   "videoId": "R7FfGst8_yA",
+   "views": 3749
   },
   {
    "channel": "맵가이더",
@@ -2970,6 +3164,14 @@ const COURSE_VIDEOS = {
    "title": "몽베르 CC 에떼코스. 라운드전 한번에 파악하기.",
    "videoId": "AzOjJEV7yVQ",
    "views": 2999
+  },
+  {
+   "channel": "밀떡아재",
+   "likes": 15,
+   "publishedAt": "2026-06-29",
+   "title": "자신있게 추천하는 골프장  \"몽베르CC / 망무봉 인코스\"",
+   "videoId": "PNx5fgQktNE",
+   "views": 1302
   }
  ],
  "무등산CC": [
@@ -3005,7 +3207,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2025-01-14",
    "title": "무안 CC 동A코스. 코스공략. 라운드전 한번에 파악하기.",
    "videoId": "srEXTpMQRRs",
-   "views": 3209
+   "views": 3210
   },
   {
    "channel": "맵가이더",
@@ -3055,7 +3257,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2025-03-14",
    "title": "무안클린밸리 CC 클린코스. 코스공략. 라운드전 한번에 파악하기.",
    "videoId": "rp-ImGAJ7rg",
-   "views": 2708
+   "views": 2707
   },
   {
    "channel": "맵가이더",
@@ -3177,7 +3379,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2024-10-15",
    "title": "발리오스 CC 동코스. 라운드전 한번에 파악하기.",
    "videoId": "Ai2OOxMy-40",
-   "views": 2069
+   "views": 2070
   },
   {
    "channel": "맵가이더",
@@ -3226,6 +3428,22 @@ const COURSE_VIDEOS = {
  ],
  "버치힐CC": [
   {
+   "channel": "밀떡아재",
+   "likes": 48,
+   "publishedAt": "2023-04-24",
+   "title": "버치힐 GC / 힐코스 \"80돌이도 힘들게 하는 벙커지옥\"",
+   "videoId": "xx2mf1Agxu8",
+   "views": 7969
+  },
+  {
+   "channel": "밀떡아재",
+   "likes": 38,
+   "publishedAt": "2023-04-28",
+   "title": "버치힐 GC / 버치코스 \"구노쓰 이러다 90돌이 된다!\"",
+   "videoId": "i4f1BMqFwYw",
+   "views": 7898
+  },
+  {
    "channel": "맵가이더",
    "likes": 11,
    "publishedAt": "2024-10-01",
@@ -3273,7 +3491,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2024-10-03",
    "title": "베뉴지 CC 휴코스. 라운드전 한번에 파악하기.",
    "videoId": "YoN-pRLZhLQ",
-   "views": 5395
+   "views": 5396
   },
   {
    "channel": "맵가이더",
@@ -3289,7 +3507,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2024-10-03",
    "title": "베뉴지 CC 힐코스. 라운드전 한번에 파악하기.",
    "videoId": "783xQNTzBwU",
-   "views": 2687
+   "views": 2688
   }
  ],
  "베스트밸리GC": [
@@ -3299,7 +3517,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2024-09-25",
    "title": "베스트밸리 GC OUT코스. 라운드전 한번에 파악하기.",
    "videoId": "bQklaiYzLLk",
-   "views": 4321
+   "views": 4322
   },
   {
    "channel": "밀떡아재",
@@ -3317,7 +3535,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2021-07-22",
    "title": "인천 베어즈베스트청라 GC 미국코스 공략",
    "videoId": "Dcuw_94YyUg",
-   "views": 15933
+   "views": 15935
   },
   {
    "channel": "리보플TV",
@@ -3325,7 +3543,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2021-07-22",
    "title": "인천 베어즈베스트청라 GC 오스트랄아시아 코스 공략",
    "videoId": "UtHlIWFRX0E",
-   "views": 12187
+   "views": 12189
   }
  ],
  "베어크리크G.C": [
@@ -3343,7 +3561,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2022-07-11",
    "title": "베어크리크 포천 베어코스 Out (1~9번) 5분 공략",
    "videoId": "YSEig562zBk",
-   "views": 13634
+   "views": 13635
   },
   {
    "channel": "리보플TV",
@@ -3351,7 +3569,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2022-07-11",
    "title": "베어크리크 포천 베어코스 In (10~18번) 5분 공략",
    "videoId": "139z0iX0Pl4",
-   "views": 11841
+   "views": 11842
   },
   {
    "channel": "밀떡아재",
@@ -3360,6 +3578,14 @@ const COURSE_VIDEOS = {
    "title": "[전백시]포천 베어크리크CC 캐디님의 베어코스 후반 설명. Part. 2",
    "videoId": "0oql3ft0ROc",
    "views": 6255
+  },
+  {
+   "channel": "밀떡아재",
+   "likes": 25,
+   "publishedAt": "2024-01-19",
+   "title": "\"역시 포천 1등 골프장\" 베어크리크 포천 CC / 크리크아웃코스",
+   "videoId": "gGnLmhk6miQ",
+   "views": 5607
   },
   {
    "channel": "리보플TV",
@@ -3376,6 +3602,14 @@ const COURSE_VIDEOS = {
    "title": "포천 베어크리크GC 크리크 In코스 (10~18번) 5분 공략",
    "videoId": "mu7OsDQjXaU",
    "views": 2805
+  },
+  {
+   "channel": "밀떡아재",
+   "likes": 17,
+   "publishedAt": "2024-01-15",
+   "title": "\"겨울골프는 날씨와의 눈치싸움\" 베어크리크 포천 CC / 크리크인코스",
+   "videoId": "qMbLxDEnE18",
+   "views": 1897
   }
  ],
  "베어크리크GC 춘천": [
@@ -3411,7 +3645,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2024-09-17",
    "title": "베이스타즈cc STARS(스타즈)코스. 라운드전 한번에 파악하기.",
    "videoId": "eVNYHvncQGw",
-   "views": 3464
+   "views": 3465
   }
  ],
  "벨라 45 CC": [
@@ -3429,7 +3663,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2025-02-17",
    "title": "벨라45 마스터즈 C코스 5분 공략",
    "videoId": "uJOtnSHuIyE",
-   "views": 5389
+   "views": 5390
   },
   {
    "channel": "맵가이더",
@@ -3495,7 +3729,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2024-12-15",
    "title": "벨라스톤CC 벨라코스. 코스공략. 라운드전 한번에 파악하기.",
    "videoId": "jN5F19TDD8k",
-   "views": 4031
+   "views": 4032
   },
   {
    "channel": "맵가이더",
@@ -3513,7 +3747,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2024-10-29",
    "title": "보라 CC 헨리코스. 라운드전 한번에 파악하기.",
    "videoId": "_PF3xeupA6Q",
-   "views": 4888
+   "views": 4891
   },
   {
    "channel": "맵가이더",
@@ -3549,7 +3783,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2025-01-15",
    "title": "보문 CC IN코스. 코스공략. 라운드전 한번에 파악하기.",
    "videoId": "h5DjB10wtZc",
-   "views": 6509
+   "views": 6510
   },
   {
    "channel": "맵가이더",
@@ -3611,7 +3845,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2024-10-16",
    "title": "부산 CC OUT코스. 라운드전 한번에 파악하기.",
    "videoId": "f6LHnKhzkOs",
-   "views": 4115
+   "views": 4117
   },
   {
    "channel": "맵가이더",
@@ -3629,7 +3863,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2024-09-25",
    "title": "블랙밸리 CC 블랙코스. 라운드전 한번에 파악하기.",
    "videoId": "dGnfv41aHWM",
-   "views": 5298
+   "views": 5297
   },
   {
    "channel": "맵가이더",
@@ -3663,7 +3897,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2025-01-17",
    "title": "블랙스톤벨포레 CC 마운틴코스. 코스공략. 라운드전 한번에 파악하기.",
    "videoId": "149JQKbZRhM",
-   "views": 5326
+   "views": 5325
   }
  ],
  "블랙스톤CC": [
@@ -3685,6 +3919,22 @@ const COURSE_VIDEOS = {
   }
  ],
  "블랙스톤이천GC": [
+  {
+   "channel": "밀떡아재",
+   "likes": 54,
+   "publishedAt": "2022-04-09",
+   "title": "블랙스톤 이천 CC / 동코스",
+   "videoId": "Ew-cjQFVMmI",
+   "views": 18377
+  },
+  {
+   "channel": "밀떡아재",
+   "likes": 45,
+   "publishedAt": "2022-04-13",
+   "title": "블랙스톤 이천 CC / 북코스",
+   "videoId": "gN0m5EbLDVE",
+   "views": 13677
+  },
   {
    "channel": "리보플TV",
    "likes": 32,
@@ -3709,7 +3959,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2024-09-20",
    "title": "블루원 용인 cc WEST(서)코스. 라운드전 한번에 파악하기.",
    "videoId": "jfgBxJhQvsU",
-   "views": 7315
+   "views": 7317
   },
   {
    "channel": "맵가이더",
@@ -3748,12 +3998,28 @@ const COURSE_VIDEOS = {
  ],
  "비콘힐스골프클럽": [
   {
+   "channel": "밀떡아재",
+   "likes": 63,
+   "publishedAt": "2022-05-10",
+   "title": "비콘힐스CC / 하늘코스",
+   "videoId": "ysEVqgVsYbA",
+   "views": 17997
+  },
+  {
+   "channel": "밀떡아재",
+   "likes": 56,
+   "publishedAt": "2022-05-14",
+   "title": "비콘힐스CC / 누리코스",
+   "videoId": "FZ7rJhM4flE",
+   "views": 11136
+  },
+  {
    "channel": "맵가이더",
    "likes": 25,
    "publishedAt": "2024-10-07",
    "title": "비콘힐스 CC 하늘코스. 라운드전 한번에 파악하기.",
    "videoId": "FgkSBpCaM1s",
-   "views": 7336
+   "views": 7337
   },
   {
    "channel": "맵가이더",
@@ -3762,6 +4028,22 @@ const COURSE_VIDEOS = {
    "title": "비콘힐스 CC 누리코스. 라운드전 한번에 파악하기.",
    "videoId": "zxKQcxOryT8",
    "views": 4651
+  },
+  {
+   "channel": "밀떡아재",
+   "likes": 10,
+   "publishedAt": "2025-10-13",
+   "title": "라베 도전이 가능한 골프장 비콘힐스CC / 하늘코스 #비콘힐스#하늘코스#강원도골프장",
+   "videoId": "iZWquQ73bPQ",
+   "views": 2912
+  },
+  {
+   "channel": "밀떡아재",
+   "likes": 15,
+   "publishedAt": "2025-10-14",
+   "title": "요즘 스코어가 안나온다면 여기로 가보세요. 비콘힐스 CC / 누리코스 #비콘힐스CC#누리코스#라베가능",
+   "videoId": "PYwhhGxjl9M",
+   "views": 2517
   }
  ],
  "빅토리아CC": [
@@ -3920,6 +4202,14 @@ const COURSE_VIDEOS = {
    "views": 13408
   },
   {
+   "channel": "밀떡아재",
+   "likes": 44,
+   "publishedAt": "2024-06-03",
+   "title": "샤인데일CC/레이크코스 \"짜증나게 어렵다\"",
+   "videoId": "A1YxQh1hAmU",
+   "views": 10178
+  },
+  {
    "channel": "맵가이더",
    "likes": 15,
    "publishedAt": "2025-01-19",
@@ -3998,6 +4288,22 @@ const COURSE_VIDEOS = {
  ],
  "서산수컨트리클럽": [
   {
+   "channel": "밀떡아재",
+   "likes": 43,
+   "publishedAt": "2023-12-08",
+   "title": "서산수CC/산수코스 \"산수코스는 매우 재미있던데\"",
+   "videoId": "x5r5pxhlaXw",
+   "views": 9768
+  },
+  {
+   "channel": "밀떡아재",
+   "likes": 39,
+   "publishedAt": "2023-12-03",
+   "title": "서산수CC/서산코스 \"국찌니형 여기 좋은 골프장 아니었어?",
+   "videoId": "Quu9-bL_EAw",
+   "views": 6430
+  },
+  {
    "channel": "맵가이더",
    "likes": 18,
    "publishedAt": "2024-10-29",
@@ -4011,7 +4317,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2024-10-29",
    "title": "서산수 CC 서산코스. 라운드전 한번에 파악하기.",
    "videoId": "yYg_Z_8Qzwc",
-   "views": 3433
+   "views": 3432
   }
  ],
  "서서울CC": [
@@ -4063,7 +4369,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2022-06-20",
    "title": "파주 서원밸리CC 서원코스 5분 공략",
    "videoId": "wcJZ2kHVlac",
-   "views": 7892
+   "views": 7894
   }
  ],
  "서원힐스CC": [
@@ -4073,7 +4379,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2024-07-29",
    "title": "파주 서원힐스 CC 이스트 코스 5분 공략",
    "videoId": "_hAOGSaaPZA",
-   "views": 11237
+   "views": 11239
   }
  ],
  "석정힐CC": [
@@ -4083,7 +4389,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2024-09-21",
    "title": "석정힐cc 마운틴코스. 라운드전 한번에 파악하기.",
    "videoId": "dRXHYoTZdjI",
-   "views": 4857
+   "views": 4858
   },
   {
    "channel": "맵가이더",
@@ -4091,7 +4397,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2024-09-21",
    "title": "석정힐cc 레이크코스. 라운드전 한번에 파악하기.",
    "videoId": "4GF4Wd10-QA",
-   "views": 4171
+   "views": 4172
   }
  ],
  "선리치GC": [
@@ -4105,6 +4411,30 @@ const COURSE_VIDEOS = {
   }
  ],
  "설악썬밸리CC": [
+  {
+   "channel": "밀떡아재",
+   "likes": 26,
+   "publishedAt": "2025-05-31",
+   "title": "설악썬밸리CC/썬코스 \"가장 재미있는 코스레이아웃\"",
+   "videoId": "707DEGt9Kxo",
+   "views": 3344
+  },
+  {
+   "channel": "밀떡아재",
+   "likes": 20,
+   "publishedAt": "2025-05-23",
+   "title": "설악썬밸리CC/설악코스 \"장타자 친화 코스\"",
+   "videoId": "b4ZpnB-PZ1o",
+   "views": 3236
+  },
+  {
+   "channel": "밀떡아재",
+   "likes": 24,
+   "publishedAt": "2025-05-18",
+   "title": "설악썬밸리CC/밸리코스 \"90돌이에겐 어렵지 않은 코스 하지만...골프장 상태가 왜 이런거지?",
+   "videoId": "MZyDMfCBvz8",
+   "views": 2447
+  },
   {
    "channel": "맵가이더",
    "likes": 9,
@@ -4127,7 +4457,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2024-09-21",
    "title": "설악썬밸리cc 밸리코스. 라운드전 한번에 파악하기.",
    "videoId": "bLmPKmYQ4RI",
-   "views": 1484
+   "views": 1485
   }
  ],
  "설해원": [
@@ -4141,6 +4471,22 @@ const COURSE_VIDEOS = {
   }
  ],
  "성문안 컨트리클럽": [
+  {
+   "channel": "밀떡아재",
+   "likes": 46,
+   "publishedAt": "2023-04-13",
+   "title": "성문안 CC / 인코스 \"그린피31만원\" 그런데 왜 돈이 안아깝지?",
+   "videoId": "64fbsCrz_5g",
+   "views": 9676
+  },
+  {
+   "channel": "밀떡아재",
+   "likes": 31,
+   "publishedAt": "2023-04-18",
+   "title": "성문안 CC / 아웃코스 \"재방문 의사 100%\" 프리미엄 퍼블릭 골프장",
+   "videoId": "-SXsz5TIiu8",
+   "views": 4863
+  },
   {
    "channel": "맵가이더",
    "likes": 10,
@@ -4197,7 +4543,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2025-01-19",
    "title": "세라지오 GC 세라코스. 코스공략. 라운드전 한번에 파악하기.",
    "videoId": "fNQ68WqtZAM",
-   "views": 3124
+   "views": 3125
   },
   {
    "channel": "맵가이더",
@@ -4223,7 +4569,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2025-01-22",
    "title": "세레니티 CC(구.실크리버) 리버코스. 코스공략. 라운드전 한번에 파악하기.",
    "videoId": "aM-vGF8V0ow",
-   "views": 4890
+   "views": 4891
   },
   {
    "channel": "맵가이더",
@@ -4231,7 +4577,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2025-01-22",
    "title": "세레니티 CC(구.실크리버) 실크코스. 코스공략. 라운드전 한번에 파악하기.",
    "videoId": "b2z_8HJjMrE",
-   "views": 4775
+   "views": 4777
   }
  ],
  "세븐밸리CC": [
@@ -4429,7 +4775,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2024-09-11",
    "title": "센추리21 cc 파인 코스. 라운드전 한번에 파악하기.",
    "videoId": "kJXMoJsNdO0",
-   "views": 4314
+   "views": 4316
   },
   {
    "channel": "맵가이더",
@@ -4437,7 +4783,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2024-09-11",
    "title": "센추리21 cc 마운틴 코스. 라운드전 한번에 파악하기.",
    "videoId": "yYQZtTHHLJ4",
-   "views": 3772
+   "views": 3773
   },
   {
    "channel": "리보플TV",
@@ -4461,7 +4807,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2024-09-11",
    "title": "센추리21 cc 밸리 코스. 라운드전 한번에 파악하기.",
    "videoId": "qxR9VFlIAe0",
-   "views": 2726
+   "views": 2729
   },
   {
    "channel": "맵가이더",
@@ -4469,7 +4815,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2024-09-11",
    "title": "센추리21 cc 필드 코스. 라운드전 한번에 파악하기.",
    "videoId": "BwYytkwrSg8",
-   "views": 2374
+   "views": 2375
   }
  ],
  "센테리움": [
@@ -4503,7 +4849,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2025-08-25",
    "title": "충주 센테리움CC 스코틀랜드 코스 5분 공략",
    "videoId": "jbCh_bGCjM0",
-   "views": 3357
+   "views": 3358
   },
   {
    "channel": "리보플TV",
@@ -4552,12 +4898,28 @@ const COURSE_VIDEOS = {
  ],
  "소피아그린CC": [
   {
+   "channel": "밀떡아재",
+   "likes": 39,
+   "publishedAt": "2023-08-27",
+   "title": "소피아그린CC / 세종코스 \"매우 강추 골프장\"",
+   "videoId": "U_awJNzEXBU",
+   "views": 9252
+  },
+  {
    "channel": "리보플TV",
    "likes": 42,
    "publishedAt": "2021-12-30",
    "title": "여주 소피아그린CC 황학코스 5분 공략",
    "videoId": "3kQudlZJqJo",
    "views": 8732
+  },
+  {
+   "channel": "밀떡아재",
+   "likes": 43,
+   "publishedAt": "2023-08-22",
+   "title": "소피아그린CC / 황학코스 \"어쩜 이렇게 관리가 잘 되어 있지\"",
+   "videoId": "9_furZtx4B0",
+   "views": 7405
   },
   {
    "channel": "리보플TV",
@@ -4748,6 +5110,22 @@ const COURSE_VIDEOS = {
  ],
  "스카이밸리CC": [
   {
+   "channel": "밀떡아재",
+   "likes": 71,
+   "publishedAt": "2023-05-18",
+   "title": "스카이밸리CC / 스카이코스 \"밸리코스보다는 재미있다\"",
+   "videoId": "SF8UWebKKXk",
+   "views": 19400
+  },
+  {
+   "channel": "밀떡아재",
+   "likes": 81,
+   "publishedAt": "2023-05-13",
+   "title": "스카이밸리CC / 밸리코스 \"코스는 쉬워 보이는데 스코어는 개판인날\"",
+   "videoId": "VxgpylgTJQo",
+   "views": 16283
+  },
+  {
    "channel": "맵가이더",
    "likes": 22,
    "publishedAt": "2024-10-30",
@@ -4761,7 +5139,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2024-10-30",
    "title": "스카이밸리 CC 레이크코스. 라운드전 한번에 파악하기.",
    "videoId": "RRCZ28japDM",
-   "views": 4743
+   "views": 4744
   },
   {
    "channel": "맵가이더",
@@ -4873,7 +5251,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2022-08-29",
    "title": "충주 시그너스CC 라미코스 5분 공략",
    "videoId": "SVJNcF6zuFo",
-   "views": 19820
+   "views": 19819
   },
   {
    "channel": "맵가이더",
@@ -4897,7 +5275,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2025-01-25",
    "title": "시그너스 CC 라미코스. 코스공략. 라운드전 한번에 파악하기.",
    "videoId": "31D4w04kuYQ",
-   "views": 2497
+   "views": 2498
   }
  ],
  "시엘골프클럽 (Ciel Golf Club)": [
@@ -4917,7 +5295,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2024-10-28",
    "title": "여주 신라CC 남코스 5분 공략",
    "videoId": "j7PqpT-X7I8",
-   "views": 10506
+   "views": 10511
   },
   {
    "channel": "리보플TV",
@@ -4925,7 +5303,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2024-11-04",
    "title": "여주 신라CC 동코스 5분 공략",
    "videoId": "10RCl3y1NbA",
-   "views": 7767
+   "views": 7771
   },
   {
    "channel": "리보플TV",
@@ -4933,7 +5311,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2025-07-14",
    "title": "여주 신라CC 서코스 5분 공략",
    "videoId": "mEUBq4CXwsg",
-   "views": 6110
+   "views": 6111
   },
   {
    "channel": "맵가이더",
@@ -4962,6 +5340,14 @@ const COURSE_VIDEOS = {
  ],
  "신안CC": [
   {
+   "channel": "밀떡아재",
+   "likes": 23,
+   "publishedAt": "2025-02-08",
+   "title": "\"공사판 아님 골프장임\" 신안CC / 토마토코스",
+   "videoId": "uwOGoSaZpxI",
+   "views": 9411
+  },
+  {
    "channel": "맵가이더",
    "likes": 28,
    "publishedAt": "2025-01-27",
@@ -4984,6 +5370,14 @@ const COURSE_VIDEOS = {
    "title": "신안 CC 애플코스. 코스공략. 라운드전 한번에 파악하기.",
    "videoId": "cRKk5ZWP2kg",
    "views": 7281
+  },
+  {
+   "channel": "밀떡아재",
+   "likes": 32,
+   "publishedAt": "2025-02-03",
+   "title": "\"겨울 골프는 날씨와의 눈치싸움\" 신안CC / 오렌지코스",
+   "videoId": "2ldMTfQSzWc",
+   "views": 5485
   }
  ],
  "신원CC": [
@@ -5035,7 +5429,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2026-06-22",
    "title": "용인 써닝포인트CC 포인트 코스 5분 공략",
    "videoId": "S7SejkM15rE",
-   "views": 1057
+   "views": 1058
   },
   {
    "channel": "리보플TV",
@@ -5053,7 +5447,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2025-01-27",
    "title": "써미트CC M코스. 코스공략. 라운드전 한번에 파악하기.",
    "videoId": "Fpon7aX2gz8",
-   "views": 4722
+   "views": 4723
   },
   {
    "channel": "맵가이더",
@@ -5069,7 +5463,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2025-01-27",
    "title": "써미트CC K코스. 코스공략. 라운드전 한번에 파악하기.",
    "videoId": "wi0TCoeu_O4",
-   "views": 3951
+   "views": 3954
   },
   {
    "channel": "맵가이더",
@@ -5111,7 +5505,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2021-02-01",
    "title": "[전백시]일죽 썬밸리CC / 썬코스",
    "videoId": "8pRpaOfLZ8I",
-   "views": 10528
+   "views": 10530
   },
   {
    "channel": "맵가이더",
@@ -5153,10 +5547,26 @@ const COURSE_VIDEOS = {
    "publishedAt": "2026-02-16",
    "title": "가평 썬힐GC 밸리 코스 5분 공략",
    "videoId": "XrHniSV-k3o",
-   "views": 2164
+   "views": 2165
   }
  ],
  "아난티 남해 골프클럽": [
+  {
+   "channel": "밀떡아재",
+   "likes": 54,
+   "publishedAt": "2021-04-02",
+   "title": "[전백시]남해 아난티 CC 캐디의 아웃(OUT)코스 설명",
+   "videoId": "vQOZ9stuTLw",
+   "views": 12020
+  },
+  {
+   "channel": "밀떡아재",
+   "likes": 26,
+   "publishedAt": "2021-04-08",
+   "title": "[전백시]남해 아난티 CC 캐디의 인(IN)코스 설명",
+   "videoId": "XNhegj7nnyw",
+   "views": 7625
+  },
   {
    "channel": "맵가이더",
    "likes": 24,
@@ -5171,7 +5581,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2025-01-29",
    "title": "아난티남해CC OUT 코스. 코스공략. 라운드전 한번에 파악하기.",
    "videoId": "KL2g4ak0dPo",
-   "views": 3792
+   "views": 3793
   }
  ],
  "아난티 중앙 골프클럽": [
@@ -5217,7 +5627,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2024-10-07",
    "title": "아델스코트 CC 레이크코스. 라운드전 한번에 파악하기.",
    "videoId": "4KBFilUIEA0",
-   "views": 4847
+   "views": 4848
   },
   {
    "channel": "맵가이더",
@@ -5251,7 +5661,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2025-01-29",
    "title": "아리스타CC 마운틴코스. 코스공략. 라운드전 한번에 파악하기.",
    "videoId": "ibtbarJlaNw",
-   "views": 5076
+   "views": 5077
   }
  ],
  "아리지CC": [
@@ -5298,12 +5708,28 @@ const COURSE_VIDEOS = {
  ],
  "아시아나CC": [
   {
+   "channel": "밀떡아재",
+   "likes": 51,
+   "publishedAt": "2023-06-19",
+   "title": "아시아나CC / 서코스 1~9번홀 \"언듈레이션 심한 회원제 골프장\"",
+   "videoId": "Ym_rkpZ5KW0",
+   "views": 12120
+  },
+  {
    "channel": "리보플TV",
    "likes": 36,
    "publishedAt": "2023-07-17",
    "title": "아시아나CC 서코스 Out (1~9번) 5분 공략",
    "videoId": "KgbNCg-AdkQ",
-   "views": 7530
+   "views": 7531
+  },
+  {
+   "channel": "밀떡아재",
+   "likes": 36,
+   "publishedAt": "2023-06-26",
+   "title": "아시아나CC / 서코스 후반전 \"확실히 늘어난 전장\"",
+   "videoId": "KvhcvLG0Stg",
+   "views": 4727
   },
   {
    "channel": "리보플TV",
@@ -5321,7 +5747,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2025-01-29",
    "title": "아시아드CC 레이크코스. 코스공략. 라운드전 한번에 파악하기.",
    "videoId": "E1MPd5vQE8I",
-   "views": 3124
+   "views": 3125
   },
   {
    "channel": "맵가이더",
@@ -5391,7 +5817,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2025-01-31",
    "title": "안동레이크GC IN코스. 코스공략. 라운드전 한번에 파악하기.",
    "videoId": "vNaQwFp1HNA",
-   "views": 2968
+   "views": 2970
   },
   {
    "channel": "맵가이더",
@@ -5435,7 +5861,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2023-10-02",
    "title": "안성CC Out코스 (1~9번) 5분 공략",
    "videoId": "gJ8os5e5ek8",
-   "views": 12940
+   "views": 12941
   },
   {
    "channel": "리보플TV",
@@ -5459,7 +5885,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2025-01-31",
    "title": "안성CC OUT코스. 코스공략. 라운드전 한번에 파악하기.",
    "videoId": "f0UBOWcdX_Y",
-   "views": 3134
+   "views": 3135
   }
  ],
  "안성베네스트골프클럽": [
@@ -5501,7 +5927,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2024-02-26",
    "title": "안성 베네스트 GC 북코스 5분 공략",
    "videoId": "2jiSuZcQlro",
-   "views": 9155
+   "views": 9158
   },
   {
    "channel": "리보플TV",
@@ -5509,7 +5935,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2024-12-22",
    "title": "안성 베네스트 동코스 5분 공략",
    "videoId": "7UZhC0rrhHY",
-   "views": 7475
+   "views": 7477
   }
  ],
  "알펜시아700GC": [
@@ -5519,7 +5945,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2025-02-11",
    "title": "알펜시아700 GC 알프스코스. 코스공략. 라운드전 한번에 파악하기.",
    "videoId": "TO2F_HpO3IU",
-   "views": 4463
+   "views": 4464
   },
   {
    "channel": "맵가이더",
@@ -5555,7 +5981,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2025-02-11",
    "title": "애플밸리 CC OUT코스. 코스공략. 라운드전 한번에 파악하기.",
    "videoId": "_o-zx1kr5ao",
-   "views": 1482
+   "views": 1483
   }
  ],
  "양산CC": [
@@ -5573,7 +5999,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2024-09-12",
    "title": "양산cc 마루코스. 라운드전 한번에 파악하기.",
    "videoId": "FHktMtrIwdM",
-   "views": 6539
+   "views": 6540
   },
   {
    "channel": "맵가이더",
@@ -5604,6 +6030,22 @@ const COURSE_VIDEOS = {
  ],
  "양지파인CC": [
   {
+   "channel": "밀떡아재",
+   "likes": 46,
+   "publishedAt": "2023-02-13",
+   "title": "양지파인CC / 남코스 \"가격은 굿, 상태는 배드\"",
+   "videoId": "Zc2bFDvf6v4",
+   "views": 12396
+  },
+  {
+   "channel": "밀떡아재",
+   "likes": 36,
+   "publishedAt": "2023-02-17",
+   "title": "양지파인CC / 동코스 \"엄청난 오르막 코스에 도가니 나갈판\"",
+   "videoId": "_i1AZQKf0YE",
+   "views": 10398
+  },
+  {
    "channel": "맵가이더",
    "likes": 32,
    "publishedAt": "2024-10-20",
@@ -5625,7 +6067,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2024-10-20",
    "title": "양지파인 CC 남코스. 라운드전 한번에 파악하기.",
    "videoId": "3irsDYOc12k",
-   "views": 4323
+   "views": 4326
   }
  ],
  "양평TPC골프클럽": [
@@ -5635,7 +6077,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2024-11-08",
    "title": "양평TPC GC 루나코스. 라운드전 한번에 파악하기.",
    "videoId": "t9aNQAmSHgM",
-   "views": 5513
+   "views": 5514
   },
   {
    "channel": "맵가이더",
@@ -5643,7 +6085,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2024-11-08",
    "title": "양평TPC GC 스텔라코스. 라운드전 한번에 파악하기.",
    "videoId": "zqDW12LJ3Tk",
-   "views": 5486
+   "views": 5487
   },
   {
    "channel": "맵가이더",
@@ -5651,7 +6093,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2024-11-08",
    "title": "양평TPC GC 솔라코스. 라운드전 한번에 파악하기.",
    "videoId": "bT0RkOk57LY",
-   "views": 4360
+   "views": 4361
   }
  ],
  "에덴블루CC": [
@@ -5678,6 +6120,22 @@ const COURSE_VIDEOS = {
    "title": "안성 에덴블루cc 마운틴코스 공략",
    "videoId": "nzDhwvvNQDI",
    "views": 27577
+  },
+  {
+   "channel": "밀떡아재",
+   "likes": 63,
+   "publishedAt": "2023-02-23",
+   "title": "에덴블루 CC / 벨리코스 \"긴 전장, 버라이어티한 코스설계\"",
+   "videoId": "au7PDavEIWg",
+   "views": 20989
+  },
+  {
+   "channel": "밀떡아재",
+   "likes": 36,
+   "publishedAt": "2023-02-27",
+   "title": "에덴블루CC / 마운틴코스 \"좌우폭이 좁은 내리막 설계\" 좌측 OB에 유의",
+   "videoId": "53F1sjI9gng",
+   "views": 8248
   },
   {
    "channel": "맵가이더",
@@ -5737,7 +6195,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2025-02-13",
    "title": "에스앤 CC OUT코스. 코스공략. 라운드전 한번에 파악하기.",
    "videoId": "xc1WoymWO4s",
-   "views": 2865
+   "views": 2866
   }
  ],
  "에코랜드 CC": [
@@ -5747,7 +6205,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2025-07-21",
    "title": "에코랜드CC #에코랜드 #골프 #골프스윙 #아이언 #드라이버 #golfswing #golf",
    "videoId": "iiS0VnkKb_w",
-   "views": 3479
+   "views": 3481
   },
   {
    "channel": "맵가이더",
@@ -5915,7 +6373,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2020-04-04",
    "title": "[전백시] 오너스CC 힐코스 / 현장 캐디가 알려주는 생생한 공략법(1)",
    "videoId": "f3ZngwUs8OM",
-   "views": 24746
+   "views": 24747
   },
   {
    "channel": "밀떡아재",
@@ -5923,7 +6381,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2020-04-05",
    "title": "[전백시] 오너스CC 레이크 코스 현장 캐디가 알려주는 생생한 공략법(2)",
    "videoId": "v2ThY_y7qsI",
-   "views": 21019
+   "views": 21021
   },
   {
    "channel": "맵가이더",
@@ -5931,7 +6389,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2024-11-05",
    "title": "오너스 GC 힐코스. 라운드전 한번에 파악하기.",
    "videoId": "I6A2nU3Iiy4",
-   "views": 5566
+   "views": 5568
   },
   {
    "channel": "맵가이더",
@@ -5958,6 +6416,24 @@ const COURSE_VIDEOS = {
    "title": "오렌지듄스 GC 이스트코스. 라운드전 한번에 파악하기.",
    "videoId": "VINnG8kZKvk",
    "views": 4246
+  }
+ ],
+ "오렌지듄스영종GC": [
+  {
+   "channel": "밀떡아재",
+   "likes": 13,
+   "publishedAt": "2026-04-07",
+   "title": "오렌지듄스 영종 GC/웨스트코스 \"클럽72 손님 많이 뺏어가겠는데\"",
+   "videoId": "nYckqD3c59M",
+   "views": 1230
+  },
+  {
+   "channel": "밀떡아재",
+   "likes": 12,
+   "publishedAt": "2026-04-13",
+   "title": "오렌지듄스 영종 GC/이스트코스 \"스코어는 안나오는데 비행기는 실컷 보고 있는 중\"",
+   "videoId": "vIw5fFL3qJs",
+   "views": 973
   }
  ],
  "오르비스GC": [
@@ -6029,7 +6505,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2024-10-09",
    "title": "오크밸리 CC 오크코스. 라운드전 한번에 파악하기.",
    "videoId": "pr9p18CJUQo",
-   "views": 2191
+   "views": 2192
   },
   {
    "channel": "맵가이더",
@@ -6063,7 +6539,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2025-02-16",
    "title": "오크힐스 CC 브릿지코스. 코스공략. 라운드전 한번에 파악하기.",
    "videoId": "VprPaKNqEPE",
-   "views": 3560
+   "views": 3563
   }
  ],
  "오투리조트 CC": [
@@ -6081,7 +6557,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2022-05-28",
    "title": "[전백시] 오투리조트CC / 태백스카이코스",
    "videoId": "MXFq_Rsy4J0",
-   "views": 8449
+   "views": 8450
   },
   {
    "channel": "맵가이더",
@@ -6106,6 +6582,14 @@ const COURSE_VIDEOS = {
    "title": "오투리조트(O2) CC 백두코스. 코스공략. 라운드전 한번에 파악하기.",
    "videoId": "oUTQOrF53NI",
    "views": 2701
+  },
+  {
+   "channel": "밀떡아재",
+   "likes": 7,
+   "publishedAt": "2025-11-02",
+   "title": "오투CC/태백스카이코스 #오투CC#강원도골프장#태백골프장",
+   "videoId": "EBnLEGuoYFY",
+   "views": 1186
   }
  ],
  "옥스필드CC": [
@@ -6115,7 +6599,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2024-10-22",
    "title": "옥스필드 CC 필드코스. 라운드전 한번에 파악하기.",
    "videoId": "PYRUqGIUGgY",
-   "views": 4289
+   "views": 4290
   },
   {
    "channel": "맵가이더",
@@ -6157,7 +6641,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2025-03-15",
    "title": "올림픽 CC OUT코스. 코스공략. 라운드전 한번에 파악하기.",
    "videoId": "HlbBoDTX8SA",
-   "views": 3678
+   "views": 3679
   }
  ],
  "용원 GC": [
@@ -6270,12 +6754,28 @@ const COURSE_VIDEOS = {
  ],
  "우정힐스CC": [
   {
+   "channel": "밀떡아재",
+   "likes": 41,
+   "publishedAt": "2024-08-20",
+   "title": "우정힐스CC/인코스 \"회원제의 품격이 느껴진다.\"",
+   "videoId": "VtfIMN1NnOY",
+   "views": 6464
+  },
+  {
+   "channel": "밀떡아재",
+   "likes": 28,
+   "publishedAt": "2024-09-07",
+   "title": "우정힐스CC/아웃코스 \"우정힐스 회원과 친해져야 하는 이유\"",
+   "videoId": "lADlV6m2Kvw",
+   "views": 3790
+  },
+  {
    "channel": "맵가이더",
    "likes": 4,
    "publishedAt": "2024-10-22",
    "title": "우정힐스 CC IN코스. 라운드전 한번에 파악하기.",
    "videoId": "63_qbr9zGYI",
-   "views": 1293
+   "views": 1295
   },
   {
    "channel": "맵가이더",
@@ -6325,7 +6825,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2024-11-04",
    "title": "울산CC 남코스. 라운드전 한번에 파악하기.",
    "videoId": "fJGo9ncElvM",
-   "views": 3371
+   "views": 3372
   }
  ],
  "울진마린CC": [
@@ -6353,7 +6853,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2024-11-06",
    "title": "웅포 CC RIVER IN코스. 라운드전 한번에 파악하기.",
    "videoId": "Va5WkKacYFY",
-   "views": 4694
+   "views": 4695
   },
   {
    "channel": "맵가이더",
@@ -6361,7 +6861,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2024-11-06",
    "title": "웅포 CC RIVER OUT코스. 라운드전 한번에 파악하기.",
    "videoId": "Iv3L4NB6GTY",
-   "views": 3289
+   "views": 3290
   }
  ],
  "웨스트오션CC": [
@@ -6431,7 +6931,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2025-03-09",
    "title": "윈체스트 GC 로맨틱코스. 코스공략. 라운드전 한번에 파악하기.",
    "videoId": "-12CXvetvAM",
-   "views": 4021
+   "views": 4022
   },
   {
    "channel": "맵가이더",
@@ -6439,7 +6939,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2025-03-09",
    "title": "윈체스트 GC 클래식코스. 코스공략. 라운드전 한번에 파악하기.",
    "videoId": "L4hwMQxGk14",
-   "views": 3274
+   "views": 3275
   }
  ],
  "유니밸리컨트리클럽": [
@@ -6493,7 +6993,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2024-10-23",
    "title": "은화삼 CC 동(EAST)코스. 라운드전 한번에 파악하기.",
    "videoId": "bBihpA6chw8",
-   "views": 3427
+   "views": 3428
   },
   {
    "channel": "맵가이더",
@@ -6501,7 +7001,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2024-10-23",
    "title": "은화삼 CC 서(WEST)코스. 라운드전 한번에 파악하기.",
    "videoId": "cjyiO8iHueE",
-   "views": 1950
+   "views": 1951
   }
  ],
  "의령리온CC": [
@@ -6564,12 +7064,36 @@ const COURSE_VIDEOS = {
    "views": 6083
   },
   {
+   "channel": "밀떡아재",
+   "likes": 24,
+   "publishedAt": "2022-11-07",
+   "title": "[3분코스요리]이글몬트CC / 히든코스",
+   "videoId": "O6IR3uZ3aNM",
+   "views": 5503
+  },
+  {
    "channel": "맵가이더",
    "likes": 18,
    "publishedAt": "2025-03-15",
    "title": "이글몬트 CC 몬트코스. 코스공략. 라운드전 한번에 파악하기.",
    "videoId": "58c4CuDc1Rk",
    "views": 4198
+  },
+  {
+   "channel": "밀떡아재",
+   "likes": 26,
+   "publishedAt": "2022-11-02",
+   "title": "[3분코스요리]이글몬트CC / 몬트코스",
+   "videoId": "_JVu015G-Eg",
+   "views": 2061
+  },
+  {
+   "channel": "밀떡아재",
+   "likes": 4,
+   "publishedAt": "2025-10-10",
+   "title": "코스공략이 재미있는 골프장 이글몬트CC / 몬트코스 #이글몬트CC#몬트코스#안성골프장",
+   "videoId": "JO0wXn1VBrk",
+   "views": 1297
   }
  ],
  "이븐데일CC": [
@@ -6603,7 +7127,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2026-03-16",
    "title": "청주 이븐데일 GC 데일코스 5분 공략",
    "videoId": "hjGDnB1vs5Y",
-   "views": 889
+   "views": 888
   }
  ],
  "이스턴컨트리클럽": [
@@ -6659,7 +7183,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2023-11-27",
    "title": "이천 실크밸리GC 밸리코스 5분 공략",
    "videoId": "SGeT98J8OX0",
-   "views": 12314
+   "views": 12316
   },
   {
    "channel": "리보플TV",
@@ -6701,7 +7225,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2022-04-11",
    "title": "여주 이포CC Out 코스 (1~9번) 5분 공략",
    "videoId": "BopI4HE_DxI",
-   "views": 17425
+   "views": 17426
   },
   {
    "channel": "리보플TV",
@@ -6815,7 +7339,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2026-03-19",
    "title": "[골프] 일라이트CC (2026.ver) S 코스 공략. 라운드전 한번에 파악하기.",
    "videoId": "RcSS_m91F0s",
-   "views": 1554
+   "views": 1556
   }
  ],
  "일레븐CC": [
@@ -6852,6 +7376,40 @@ const COURSE_VIDEOS = {
    "title": "여주 자유CC In 코스 (10~18번) 5분 공략",
    "videoId": "rYL7TFhGWFY",
    "views": 10611
+  }
+ ],
+ "자유로CC": [
+  {
+   "channel": "밀떡아재",
+   "likes": 36,
+   "publishedAt": "2022-03-04",
+   "title": "자유로CC/민국코스(화이트티)",
+   "videoId": "tDmFIWNzZ-M",
+   "views": 10224
+  },
+  {
+   "channel": "밀떡아재",
+   "likes": 22,
+   "publishedAt": "2022-03-09",
+   "title": "자유로CC / 통일코스 (화이트티)",
+   "videoId": "NOX9fakJIJ8",
+   "views": 6660
+  },
+  {
+   "channel": "밀떡아재",
+   "likes": 18,
+   "publishedAt": "2022-02-17",
+   "title": "[전지적백순이시점]자유로CC / 민국코스(레이디티)",
+   "videoId": "ZxiULAvmWzg",
+   "views": 1712
+  },
+  {
+   "channel": "밀떡아재",
+   "likes": 11,
+   "publishedAt": "2022-02-25",
+   "title": "[전지적백순이시점]자유로CC/통일코스(레이디티)",
+   "videoId": "5B42H-jxQkc",
+   "views": 988
   }
  ],
  "장수골프리조트": [
@@ -6991,7 +7549,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2025-12-08",
    "title": "충북 음성 젠스필드CC 드래곤 코스 5분 공략",
    "videoId": "R3Bs8C2JdKE",
-   "views": 2885
+   "views": 2886
   },
   {
    "channel": "리보플TV",
@@ -7071,7 +7629,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2020-05-03",
    "title": "[전백시] 중원 CC, 현지 캐디에게 직접 듣는 고구려 코스설명",
    "videoId": "f2K2-Ku6fn4",
-   "views": 28719
+   "views": 28723
   },
   {
    "channel": "밀떡아재",
@@ -7079,7 +7637,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2020-05-10",
    "title": "[전백시] 중원 CC 베테랑 캐디에게 직접 듣는 백제코스 설명",
    "videoId": "wPoXep-tdgI",
-   "views": 27576
+   "views": 27577
   },
   {
    "channel": "밀떡아재",
@@ -7171,7 +7729,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2025-03-17",
    "title": "진양밸리 CC 힐코스 5분 공략",
    "videoId": "Lb_a7mnNrac",
-   "views": 8621
+   "views": 8622
   },
   {
    "channel": "맵가이더",
@@ -7205,7 +7763,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2024-10-24",
    "title": "진주 CC 촉석코스. 라운드전 한번에 파악하기.",
    "videoId": "MQm9q-rQPF8",
-   "views": 3775
+   "views": 3777
   },
   {
    "channel": "맵가이더",
@@ -7241,7 +7799,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2024-11-10",
    "title": "천룡(P) CC OUT코스(퍼블릭). 라운드전 한번에 파악하기.",
    "videoId": "G-VsBLPpQnA",
-   "views": 3027
+   "views": 3028
   },
   {
    "channel": "맵가이더",
@@ -7249,7 +7807,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2025-03-18",
    "title": "천룡CC 청룡코스공략. 라운드전 한번에 파악하기.",
    "videoId": "B3vA-obiwyM",
-   "views": 2426
+   "views": 2427
   },
   {
    "channel": "맵가이더",
@@ -7269,6 +7827,22 @@ const COURSE_VIDEOS = {
   }
  ],
  "천안상록CC": [
+  {
+   "channel": "밀떡아재",
+   "likes": 74,
+   "publishedAt": "2023-05-03",
+   "title": "천안상록CC / 중코스 \"멀더라도 화성상록 보다는 천안상록으로\"",
+   "videoId": "Najx4TZ-ing",
+   "views": 21116
+  },
+  {
+   "channel": "밀떡아재",
+   "likes": 78,
+   "publishedAt": "2023-05-08",
+   "title": "천안상록CC / 남코스 \"좌우 폭이 넓은 페어웨이, 장타자에겐 천국\"",
+   "videoId": "5r-RKErNzWc",
+   "views": 19465
+  },
   {
    "channel": "맵가이더",
    "likes": 26,
@@ -7329,7 +7903,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2025-09-01",
    "title": "캐슬렉스서울CC Out 코스 (1~9번) 5분 공략",
    "videoId": "vW1hojVTWqI",
-   "views": 3595
+   "views": 3596
   },
   {
    "channel": "리보플TV",
@@ -7337,7 +7911,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2025-09-08",
    "title": "캐슬렉스서울CC In 코스 (10~18번) 5분 공략",
    "videoId": "nrQ2SPU5dgQ",
-   "views": 1895
+   "views": 1896
   }
  ],
  "캐슬파인GC": [
@@ -7347,7 +7921,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2022-12-19",
    "title": "여주 캐슬파인GC 밸리 코스 5분 공략",
    "videoId": "M-DCRYNHzPk",
-   "views": 21014
+   "views": 21013
   },
   {
    "channel": "리보플TV",
@@ -7356,6 +7930,38 @@ const COURSE_VIDEOS = {
    "title": "여주 캐슬파인GC 레이크 코스 5분 공략",
    "videoId": "VmX9E1i77nw",
    "views": 17400
+  },
+  {
+   "channel": "밀떡아재",
+   "likes": 36,
+   "publishedAt": "2022-07-29",
+   "title": "[전팔시]결국 테니스 프로도 닝겐이었다! / 캐슬파인CC / 밸리코스",
+   "videoId": "bqfrM26GURc",
+   "views": 5568
+  },
+  {
+   "channel": "밀떡아재",
+   "likes": 38,
+   "publishedAt": "2022-07-27",
+   "title": "[전팔시]테니스 프로가 골프채를 잡으면 생기는일? / 캐슬파인CC / 레이크코스",
+   "videoId": "dBhFhCh8GnY",
+   "views": 4384
+  },
+  {
+   "channel": "밀떡아재",
+   "likes": 7,
+   "publishedAt": "2025-11-12",
+   "title": "캐슬파인GC / 밸리코스 \"레이코 코스보단 넓다\" #캐슬파인#코스공략#밸리코스",
+   "videoId": "KtcIOxIDRmk",
+   "views": 1698
+  },
+  {
+   "channel": "밀떡아재",
+   "likes": 8,
+   "publishedAt": "2025-11-10",
+   "title": "캐슬파인CC / 레이크코스 \"장타자들에겐 까다로운 코스레이아웃\" #파인캐슬GC#코스레이아웃#여주골프장",
+   "videoId": "vNdTzQwQ3_Y",
+   "views": 549
   }
  ],
  "코리아CC": [
@@ -7402,12 +8008,28 @@ const COURSE_VIDEOS = {
  ],
  "코스카CC": [
   {
+   "channel": "밀떡아재",
+   "likes": 66,
+   "publishedAt": "2023-11-23",
+   "title": "코스카CC/릴리코스 \"역시 90돌이 개싸움이 제일 재미있음\"",
+   "videoId": "SWKxnF_H5hk",
+   "views": 15646
+  },
+  {
    "channel": "맵가이더",
    "likes": 19,
    "publishedAt": "2025-03-13",
    "title": "코스카 CC 파인코스. 코스공략. 라운드전 한번에 파악하기.",
    "videoId": "KffJ20ELwJo",
    "views": 4353
+  },
+  {
+   "channel": "밀떡아재",
+   "likes": 28,
+   "publishedAt": "2023-11-28",
+   "title": "코스카CC/파크코스 \"17홀까지 동타. 90돌이의 찐 승자는? \"",
+   "videoId": "NQ0L_1CqARQ",
+   "views": 4346
   },
   {
    "channel": "맵가이더",
@@ -7458,6 +8080,16 @@ const COURSE_VIDEOS = {
    "title": "제주 크라운CC 동코스 5분 공략",
    "videoId": "iomjHQ1kTJQ",
    "views": 1639
+  }
+ ],
+ "크리스밸리 CC": [
+  {
+   "channel": "밀떡아재",
+   "likes": 10,
+   "publishedAt": "2026-05-26",
+   "title": "크리스밸리CC / 마운틴코스 \"좌우폭이 좁은 산악형 코스\"",
+   "videoId": "VNDzZyEdhUw",
+   "views": 1212
   }
  ],
  "크리스탈밸리 골프클럽": [
@@ -7527,7 +8159,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2021-09-18",
    "title": "홍천 클럽모우 오아시스 코스 공략",
    "videoId": "Amg4gQF6oto",
-   "views": 11597
+   "views": 11595
   },
   {
    "channel": "리보플TV",
@@ -7535,7 +8167,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2024-07-22",
    "title": "홍천 클럽 모우 마운틴코스 5분 공략",
    "videoId": "Vd-Che1gpak",
-   "views": 9490
+   "views": 9491
   },
   {
    "channel": "맵가이더",
@@ -7604,6 +8236,22 @@ const COURSE_VIDEOS = {
    "title": "킹즈락 CC 이스트코스. 코스공략. 라운드전 한번에 파악하기.",
    "videoId": "cSh22nqW-ew",
    "views": 4474
+  },
+  {
+   "channel": "밀떡아재",
+   "likes": 5,
+   "publishedAt": "2025-12-06",
+   "title": "킹즈락CC/웨스트코스 #eat_it_up_spaghetti#킹즈락CC#웨스트코스",
+   "videoId": "tJW9fR2Tg9I",
+   "views": 362
+  },
+  {
+   "channel": "밀떡아재",
+   "likes": 6,
+   "publishedAt": "2025-12-08",
+   "title": "킹즈락CC/사우스코스 #킹즈락CC#(구)힐데스하임#사우스코스 #golf",
+   "videoId": "iRZbUsDnPmY",
+   "views": 282
   }
  ],
  "타미우스 골프클럽": [
@@ -7647,7 +8295,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2021-02-27",
    "title": "[전백시]타이거CC 캐디님이 설명해 주는 누리코스",
    "videoId": "kp25R9ZhcV4",
-   "views": 11993
+   "views": 11992
   },
   {
    "channel": "맵가이더",
@@ -7655,7 +8303,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2025-03-14",
    "title": "타이거 CC 가온코스. 코스공략. 라운드전 한번에 파악하기.",
    "videoId": "ikPqXP9yt14",
-   "views": 7983
+   "views": 7986
   },
   {
    "channel": "맵가이더",
@@ -7712,6 +8360,30 @@ const COURSE_VIDEOS = {
    "views": 1939
   },
   {
+   "channel": "밀떡아재",
+   "likes": 10,
+   "publishedAt": "2025-11-24",
+   "title": "테디밸리CC / 테디코스 #테디밸리CC#제주도골프장#테디코스",
+   "videoId": "Zrs32tigYYs",
+   "views": 1931
+  },
+  {
+   "channel": "밀떡아재",
+   "likes": 8,
+   "publishedAt": "2022-02-10",
+   "title": "[전팔시]테디밸리CC/테디코스",
+   "videoId": "vARp48cNstw",
+   "views": 1720
+  },
+  {
+   "channel": "밀떡아재",
+   "likes": 12,
+   "publishedAt": "2022-01-29",
+   "title": "테디밸리CC / 밸리코스",
+   "videoId": "JVjXThIAFEw",
+   "views": 1494
+  },
+  {
    "channel": "맵가이더",
    "likes": 3,
    "publishedAt": "2024-11-13",
@@ -7761,7 +8433,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2021-09-08",
    "title": "동두천 티클라우드CC 해밀코스 공략",
    "videoId": "BbH9Mmuwvmg",
-   "views": 12852
+   "views": 12855
   },
   {
    "channel": "리보플TV",
@@ -7805,7 +8477,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2022-05-23",
    "title": "고성 파인리즈CC 파인코스 5분 공략",
    "videoId": "rTFJGEA7KB8",
-   "views": 7651
+   "views": 7652
   },
   {
    "channel": "리보플TV",
@@ -7816,12 +8488,28 @@ const COURSE_VIDEOS = {
    "views": 7437
   },
   {
+   "channel": "밀떡아재",
+   "likes": 35,
+   "publishedAt": "2025-07-30",
+   "title": "파인리즈CC/리즈코스 \"니가 고성에서 가장 좋은 골프장이었구나?\"",
+   "videoId": "BZHeZAy4oVE",
+   "views": 4633
+  },
+  {
    "channel": "맵가이더",
    "likes": 17,
    "publishedAt": "2024-12-17",
    "title": "파인리즈CC 리즈코스. 코스공략. 라운드전 한번에 파악하기.",
    "videoId": "sfHpWMu6gY0",
    "views": 3514
+  },
+  {
+   "channel": "밀떡아재",
+   "likes": 25,
+   "publishedAt": "2025-08-04",
+   "title": "파인리즈CC/레이크코스 \"여긴 무조건 쳐야하는 코스!\"",
+   "videoId": "cfQVG33mm8M",
+   "views": 3360
   },
   {
    "channel": "맵가이더",
@@ -7838,6 +8526,22 @@ const COURSE_VIDEOS = {
    "title": "파인리즈CC 레이크코스. 코스공략. 라운드전 한번에 파악하기.",
    "videoId": "GfB7FZ08OR4",
    "views": 2674
+  },
+  {
+   "channel": "밀떡아재",
+   "likes": 21,
+   "publishedAt": "2025-08-01",
+   "title": "파인리즈CC/파인코스 \"블라인드 코스가 너무 많아!\"",
+   "videoId": "g78vjc1T_-4",
+   "views": 1877
+  },
+  {
+   "channel": "밀떡아재",
+   "likes": 7,
+   "publishedAt": "2025-08-17",
+   "title": "대부분이 블라인드 코스 \"파인리즈CC / 파인코스\"",
+   "videoId": "wN1mCf2bS8Y",
+   "views": 861
   }
  ],
  "파인밸리CC": [
@@ -7871,7 +8575,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2024-10-29",
    "title": "파인밸리 CC 파인코스. 라운드전 한번에 파악하기.",
    "videoId": "d3Da7FFL7TY",
-   "views": 1563
+   "views": 1564
   }
  ],
  "파인스톤 CC": [
@@ -7882,6 +8586,22 @@ const COURSE_VIDEOS = {
    "title": "[전백시]파인스톤CC(파인코스) 현직 캐디에게 듣는 생생한 코스 설명",
    "videoId": "4ndh34ZGMwU",
    "views": 21330
+  },
+  {
+   "channel": "밀떡아재",
+   "likes": 46,
+   "publishedAt": "2023-10-27",
+   "title": "파인스톤CC / 스톤코스 \"화이트티가 이렇게 길었나?\"",
+   "videoId": "wa2Anpv538w",
+   "views": 12241
+  },
+  {
+   "channel": "밀떡아재",
+   "likes": 22,
+   "publishedAt": "2023-10-31",
+   "title": "파인스톤CC / 파인코스 \"이 골프장 사장이 앞팀이었어?\"",
+   "videoId": "CPAcaRxCEko",
+   "views": 5001
   },
   {
    "channel": "맵가이더",
@@ -7907,7 +8627,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2023-08-21",
    "title": "파인크리크CC 파인코스 5분 공략",
    "videoId": "luHZJ6YFg6E",
-   "views": 13512
+   "views": 13513
   },
   {
    "channel": "리보플TV",
@@ -7915,7 +8635,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2024-07-01",
    "title": "파인크리크CC 크리크 코스 5분 공략",
    "videoId": "dWxT4r-TngA",
-   "views": 12175
+   "views": 12176
   },
   {
    "channel": "리보플TV",
@@ -7923,7 +8643,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2023-08-14",
    "title": "파인크리크CC 밸리코스 5분 공략",
    "videoId": "Hmrnh14pIVo",
-   "views": 8987
+   "views": 8988
   },
   {
    "channel": "맵가이더",
@@ -8042,6 +8762,14 @@ const COURSE_VIDEOS = {
    "title": "파크밸리CC 밸리코스 #파크밸리CC#코스설명#코스레이아웃",
    "videoId": "UPRUHoCnlO8",
    "views": 2145
+  },
+  {
+   "channel": "밀떡아재",
+   "likes": 5,
+   "publishedAt": "2025-11-20",
+   "title": "파크밸리CC/파크코스 \"포대그린으로 난이도를 높여놓은 골프장\" #파크밸리#코스영성#코스레이아웃",
+   "videoId": "sjDdKOai9Dg",
+   "views": 391
   }
  ],
  "팔공컨트리클럽": [
@@ -8131,7 +8859,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2025-03-16",
    "title": "포웰CC안성 버치힐코스 공략. 라운드전 한번에 파악하기.",
    "videoId": "sBOJoahdqSQ",
-   "views": 8595
+   "views": 8596
   },
   {
    "channel": "맵가이더",
@@ -8157,7 +8885,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2023-09-18",
    "title": "포천 아도니스CC 동코스 5분 공략",
    "videoId": "1av8oDqLpX4",
-   "views": 10117
+   "views": 10121
   },
   {
    "channel": "밀떡아재",
@@ -8165,7 +8893,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2021-12-13",
    "title": "[전백시]포천 아도니스 CC 캐디님 서코스 설명",
    "videoId": "tdLB7mobEw8",
-   "views": 9904
+   "views": 9905
   },
   {
    "channel": "밀떡아재",
@@ -8181,7 +8909,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2023-09-18",
    "title": "포천 아도니스CC 중코스 5분 공략",
    "videoId": "aWO9M-h_DOw",
-   "views": 5641
+   "views": 5642
   },
   {
    "channel": "맵가이더",
@@ -8214,6 +8942,24 @@ const COURSE_VIDEOS = {
    "title": "[골프] 아도니스 CC (2026.ver) 중 코스 공략. 라운드전 한번에 파악하기.",
    "videoId": "Vkgf9KPf9vs",
    "views": 651
+  }
+ ],
+ "포천힐스 CC": [
+  {
+   "channel": "밀떡아재",
+   "likes": 21,
+   "publishedAt": "2021-08-11",
+   "title": "[당골]포천힐스CC/팰리스코스, 마포오픈 4차전(전반전)",
+   "videoId": "mvpAkqW3x4k",
+   "views": 3411
+  },
+  {
+   "channel": "밀떡아재",
+   "likes": 19,
+   "publishedAt": "2021-08-14",
+   "title": "[당골]포천힐스CC/캐슬코스, 마포오픈 4차전(후반전)",
+   "videoId": "IFmEzjQqTBs",
+   "views": 3249
   }
  ],
  "포항CC": [
@@ -8279,6 +9025,22 @@ const COURSE_VIDEOS = {
   }
  ],
  "플라밍고 CC": [
+  {
+   "channel": "밀떡아재",
+   "likes": 61,
+   "publishedAt": "2023-10-22",
+   "title": "플라밍고CC / 듄스코스 \"날 \"좁밥\"이라 부른 너에게...큰 선물을 드리리오.\"",
+   "videoId": "KE9u_plwuCA",
+   "views": 11413
+  },
+  {
+   "channel": "밀떡아재",
+   "likes": 42,
+   "publishedAt": "2023-10-19",
+   "title": "플라밍고CC / 파크코스 \"나 링크스코스 잘치는 골퍼였던거야?\"",
+   "videoId": "F6aT4up8d9s",
+   "views": 10240
+  },
   {
    "channel": "맵가이더",
    "likes": 40,
@@ -8356,6 +9118,24 @@ const COURSE_VIDEOS = {
    "views": 368
   }
  ],
+ "필로스CC": [
+  {
+   "channel": "밀떡아재",
+   "likes": 47,
+   "publishedAt": "2023-03-10",
+   "title": "필로스CC / 동코스 \"캐디님도 설명할께 없는 단조로운 코스\"",
+   "videoId": "CKnEh1BStZs",
+   "views": 13843
+  },
+  {
+   "channel": "밀떡아재",
+   "likes": 50,
+   "publishedAt": "2023-03-15",
+   "title": "필로스CC / 서코스 \"동코스보다는 재미있는 코스 레이아웃\"",
+   "videoId": "9aqThO2icqk",
+   "views": 13042
+  }
+ ],
  "하이원CC": [
   {
    "channel": "맵가이더",
@@ -8400,6 +9180,24 @@ const COURSE_VIDEOS = {
    "title": "[골프] 한미르대덕 CC OUT 코스공략. 라운드전 한번에 파악하기.",
    "videoId": "lmQmujmJDPE",
    "views": 3646
+  }
+ ],
+ "한성CC": [
+  {
+   "channel": "밀떡아재",
+   "likes": 63,
+   "publishedAt": "2023-09-01",
+   "title": "한성CC / 오렌지코스 \"태어나 가본 가장 가까운 회원제 골프장\"",
+   "videoId": "iU4sr7-GrtE",
+   "views": 12902
+  },
+  {
+   "channel": "밀떡아재",
+   "likes": 44,
+   "publishedAt": "2023-09-05",
+   "title": "한성CC / 그린코스 \"품격가득한 골프장 하지만 비싼 그늘집은 어쩔\"",
+   "videoId": "qO7Y_mUnhwc",
+   "views": 10526
   }
  ],
  "한양파인 CC": [
@@ -8448,12 +9246,20 @@ const COURSE_VIDEOS = {
    "views": 10160
   },
   {
+   "channel": "밀떡아재",
+   "likes": 42,
+   "publishedAt": "2023-12-13",
+   "title": "한탄강CC/밸리코스 \"적과의동침 1부\"",
+   "videoId": "gz5lJOG4AC4",
+   "views": 7715
+  },
+  {
    "channel": "맵가이더",
    "likes": 14,
    "publishedAt": "2025-03-17",
    "title": "[골프] 한탄강 CC 마운틴코스공략. 라운드전 한번에 파악하기.",
    "videoId": "p39Z29rChCQ",
-   "views": 5422
+   "views": 5423
   },
   {
    "channel": "맵가이더",
@@ -8462,6 +9268,30 @@ const COURSE_VIDEOS = {
    "title": "[골프] 한탄강 CC 밸리코스공략. 라운드전 한번에 파악하기.",
    "videoId": "TGC9LL_ZXWU",
    "views": 4051
+  },
+  {
+   "channel": "밀떡아재",
+   "likes": 23,
+   "publishedAt": "2022-06-02",
+   "title": "[3분코스요리]한탄강CC/마운틴코스",
+   "videoId": "FxZ9wMwyn5k",
+   "views": 3303
+  },
+  {
+   "channel": "밀떡아재",
+   "likes": 18,
+   "publishedAt": "2023-12-19",
+   "title": "한탄강CC/마운틴코스 \"적과의동침 2부\"",
+   "videoId": "fwsLtr4d9r4",
+   "views": 2396
+  },
+  {
+   "channel": "밀떡아재",
+   "likes": 23,
+   "publishedAt": "2022-06-06",
+   "title": "[3분코스요리]한탄강CC / 밸리코스",
+   "videoId": "UBM6-CcOm6c",
+   "views": 2034
   }
  ],
  "함평천지CC": [
@@ -8517,7 +9347,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2023-11-06",
    "title": "남양주 해비치CC서울 Out 코스 (1~9번) 공략",
    "videoId": "FOB_G9X7VEc",
-   "views": 7447
+   "views": 7448
   },
   {
    "channel": "리보플TV",
@@ -8583,7 +9413,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2025-03-17",
    "title": "[골프] 해솔리아CC 리아코스공략. 라운드전 한번에 파악하기.",
    "videoId": "2hwsqYMEAOE",
-   "views": 5458
+   "views": 5459
   }
  ],
  "해운대비치골프&리조트": [
@@ -8653,7 +9483,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2025-03-18",
    "title": "[골프] 해피니스CC 해피코스공략. 라운드전 한번에 파악하기.",
    "videoId": "-I-klGD7rc4",
-   "views": 2177
+   "views": 2178
   },
   {
    "channel": "맵가이더",
@@ -8672,6 +9502,22 @@ const COURSE_VIDEOS = {
    "title": "화산CC Out 코스 (1~9번) 5분 공략",
    "videoId": "1KVL5wIUqsA",
    "views": 6545
+  },
+  {
+   "channel": "밀떡아재",
+   "likes": 40,
+   "publishedAt": "2023-09-09",
+   "title": "화산CC / 인코스 \"그린피 28만원의 회원제 골프장의 코스관리가?\"",
+   "videoId": "dXaHtOQeR18",
+   "views": 5198
+  },
+  {
+   "channel": "밀떡아재",
+   "likes": 32,
+   "publishedAt": "2023-09-13",
+   "title": "화산CC / 아웃코스 \"캐디님이 살린 화산CC\"",
+   "videoId": "S-LLR6F8y1c",
+   "views": 4620
   },
   {
    "channel": "리보플TV",
@@ -8705,7 +9551,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2024-11-19",
    "title": "화성CC OUT코스. 라운드전 한번에 파악하기.",
    "videoId": "bt7HXJXD-9E",
-   "views": 3500
+   "views": 3501
   }
  ],
  "화성상록GC": [
@@ -8739,7 +9585,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2026-07-13",
    "title": "동탄 화성상록GC 남코스 5분 공략",
    "videoId": "oKTjcX-KMCc",
-   "views": 145
+   "views": 146
   },
   {
    "channel": "리보플TV",
@@ -8765,7 +9611,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2024-11-19",
    "title": "화순 CC 봄코스. 라운드전 한번에 파악하기.",
    "videoId": "Da6nxnvRHu4",
-   "views": 2054
+   "views": 2055
   },
   {
    "channel": "맵가이더",
@@ -8773,7 +9619,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2024-11-19",
    "title": "화순 CC 가을코스. 라운드전 한번에 파악하기.",
    "videoId": "BRnILcraIrs",
-   "views": 1908
+   "views": 1909
   }
  ],
  "휘닉스평창 CC": [
@@ -8869,7 +9715,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2025-03-22",
    "title": "[골프] 힐데스하임CC 힐코스공략. 라운드전 한번에 파악하기.",
    "videoId": "LwO7VldeNbI",
-   "views": 9366
+   "views": 9369
   },
   {
    "channel": "맵가이더",
@@ -8895,7 +9741,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2021-09-22",
    "title": "홍천 힐드로사이CC 파인코스 공략",
    "videoId": "GpsK3Kl4BcI",
-   "views": 10337
+   "views": 10339
   },
   {
    "channel": "리보플TV",
@@ -8904,6 +9750,22 @@ const COURSE_VIDEOS = {
    "title": "홍천 힐드로사이CC 버치코스 공략",
    "videoId": "36l2q2f8-Gw",
    "views": 10332
+  },
+  {
+   "channel": "밀떡아재",
+   "likes": 61,
+   "publishedAt": "2022-09-20",
+   "title": "[전팔시]힐드로사이CC / 버치코스",
+   "videoId": "jAEyc8QMBLE",
+   "views": 9342
+  },
+  {
+   "channel": "밀떡아재",
+   "likes": 43,
+   "publishedAt": "2022-09-26",
+   "title": "[전팔시]힐드로사이CC / 파인코스",
+   "videoId": "eu3wL2cYqys",
+   "views": 6523
   },
   {
    "channel": "맵가이더",
@@ -8919,7 +9781,7 @@ const COURSE_VIDEOS = {
    "publishedAt": "2024-09-15",
    "title": "힐드로사이cc 버치코스. 라운드전 한번에 파악하기.",
    "videoId": "RpI0YlbVS5w",
-   "views": 2094
+   "views": 2095
   }
  ]
 };
