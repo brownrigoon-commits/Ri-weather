@@ -282,7 +282,12 @@ const JPPACK = {
       },
       body: JSON.stringify({
         includedTypes: ["restaurant"],
-        maxResultCount: 10,                       // 비용 통제 — 늘리지 말 것
+        /* 20 은 Places 니어바이 검색의 **최대치**다(더 못 올린다).
+           10 이면 카테고리를 걸러 보고 나면 볼 것이 몇 개 안 남는다 —
+           "음식점이 20개 정도 나왔으면 좋겠어요"(사장님 2026-08-04).
+           ⚠️ 검색 요청 값은 그대로 1회다. 20 으로 늘려도 **검색 비용은 안 는다.**
+              돈이 드는 것은 사진인데, 사진은 화면에 들어온 카드만 받는다(bindJpFoodPhoto). */
+        maxResultCount: 20,
         languageCode: typeof I18N !== "undefined" ? I18N.lang : "ko",
         locationRestriction: { circle: {
           center: { latitude: lat, longitude: lon }, radius: radius } },
@@ -387,7 +392,23 @@ const JPPACK = {
         phone: b.telephoneNo || "",
       };
     }).filter(function (x) { return x.name; })
-      .sort(function (a, b) { return a.dist - b.dist; });
+      /* 맛집과 같은 잣대로 **추천순**이 기본이다(사장님 2026-08-04).
+         거리순만 쓰면 바로 옆의 평 나쁜 숙소가 맨 위에 온다.
+         점수는 평점 그대로가 아니라 **후기 수를 감안한 값**이다 —
+         후기 2개짜리 5.0 이 후기 800개짜리 4.3 을 이기면 그게 더 거짓말이다.
+         (js/app.js recoScore 와 같은 식: (평점×후기 + 3.3×8) / (후기 + 8))
+         점수가 같으면 가까운 곳이 위로. */
+      .sort(function (a, b) {
+        var s = JPPACK.recoOf(b) - JPPACK.recoOf(a);
+        return s || (a.dist - b.dist);
+      });
+  },
+
+  /* 후기 수를 감안한 추천 점수 — 후기가 적으면 평균(3.3)쪽으로 끌어당긴다 */
+  recoOf: function (x) {
+    var r = x.rating || 0, c = x.reviews || 0;
+    if (!c) return 0;
+    return (r * c + 3.3 * 8) / (c + 8);
   },
 
   stayCredit: function () {

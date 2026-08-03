@@ -350,7 +350,11 @@ function renderStayList(list, course) {
   arr = arr.slice().sort((a, b) => (side(a) - side(b)) ||
     (STAY_VIEW.sort === "reco" ? recoScore(b) - recoScore(a) : a.dist - b.dist));
 
-  arr.slice(0, 30).forEach((it) => {
+  arr.slice(0, 30).forEach((it, rankIdx) => {
+    /* 추천순일 때만 **몇 번째인지** 보여준다(맛집과 같은 방식).
+       정렬은 예전부터 추천순이 기본이었는데 화면에 표가 안 났다(사장님 2026-08-04). */
+    const rank = STAY_VIEW.sort === "reco"
+      ? `<span class="fi-rank${rankIdx < 3 ? " top" : ""}">${rankIdx + 1}</span>` : "";
     const card = document.createElement("div");
     card.className = "food-item v2";
     const km = it.dist >= 1000 ? (it.dist / 1000).toFixed(1) + "km" : it.dist + "m";
@@ -362,7 +366,7 @@ function renderStayList(list, course) {
     // flex 가 안 걸려 아이콘·거리가 세로로 쌓이고 버튼이 겹쳤다. (2026-07-28)
     card.innerHTML = `
       <div class="fi-row">
-        <span class="fi-emoji">${STAY_ICON[it.kind] || "🛏️"}</span>
+        <span class="fi-emoji">${rank || STAY_ICON[it.kind] || "🛏️"}</span>
         <div style="flex:1;min-width:0">
           <div class="fi-name">${it.name}</div>
           <div class="fi-sub">${stayKindLabel(it.kind)}${star}${bookableTag(it)}</div>

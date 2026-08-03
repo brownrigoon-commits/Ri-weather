@@ -4,8 +4,8 @@
  * ========================================================= */
 "use strict";
 
-const APP_VER = "v234"; // 배포 버전 (홈 화면 배지에 표시)
-const APP_NOTE = "골프존 27홀 이상 구장"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
+const APP_VER = "v235"; // 배포 버전 (홈 화면 배지에 표시)
+const APP_NOTE = "맛집 20곳·추천순위 표시, 숙박도 추천순 정렬"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
 const STORAGE_KEY = "riweather.courses.v1";
 
 /* 나중에 필요할 때 불러오는 파일 목록 (2026-07-31 신설).
@@ -4074,14 +4074,19 @@ function renderFoodList(list, region, fromKakao) {
     // 이제 attachPhotos() 가 목록을 만들기 전에 전부 받아 두므로 바로 그리면 된다.
     // (관찰이 안 걸려 사진이 영영 안 뜨는 사고가 있었다 — 2026-07-28)
     // 실제 이미지 내려받기는 <img loading="lazy"> 가 알아서 미룬다.
-    shown.forEach((it) => {
+    shown.forEach((it, rankIdx) => {
       const km = it.dist < 950 ? it.dist + "m" : (it.dist / 1000).toFixed(1) + "km";
       const tel = (it.phone || "").replace(/[^0-9+]/g, "");
+      /* 추천순일 때는 **몇 번째인지 보이게** 한다.
+         정렬은 예전부터 되고 있었는데 화면에 표가 안 나서 "추천 순위가 따로 없느냐"는
+         말씀을 들었다(2026-08-04). 거리순일 때는 순위가 뜻이 없으므로 안 붙인다. */
+      const rank = (FOOD_VIEW.sort === "reco" && hasRatings)
+        ? `<span class="fi-rank${rankIdx < 3 ? " top" : ""}">${rankIdx + 1}</span>` : "";
       const div = document.createElement("div");
       div.className = "food-item v2";
       div.innerHTML = `
         <div class="fi-row">
-          <span class="fi-emoji">${catEmoji(it.cat)}</span>
+          <span class="fi-emoji">${rank || catEmoji(it.cat)}</span>
           <div style="flex:1;min-width:0">
             <div class="fi-name">${it.name}</div>
             <div class="fi-sub">${it.cat || tr("app.food.cat.default")}${it.rating > 0
