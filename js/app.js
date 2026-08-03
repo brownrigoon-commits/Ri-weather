@@ -4,7 +4,7 @@
  * ========================================================= */
 "use strict";
 
-const APP_VER = "v225"; // 배포 버전 (홈 화면 배지에 표시)
+const APP_VER = "v226"; // 배포 버전 (홈 화면 배지에 표시)
 const APP_NOTE = "관리자"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
 const STORAGE_KEY = "riweather.courses.v1";
 
@@ -2146,6 +2146,19 @@ async function openCourseView() {
         }))
         .sort((a, b) => (parseInt(a.ref) || 99) - (parseInt(b.ref) || 99));
 
+  /* 🔴 홀 번호를 모르면 홀 목록을 만들지 않는다.
+     OSM 에 golf=hole 은 있는데 ref(홀 번호) 태그가 없는 구장이 있다.
+     예전 코드는 번호를 "?" 로 채워, 지도에도 목록에도 ? 가 깔리고
+     제목이 「?번홀 공략」 이 됐다(2026-08-03 사장님이 나고야GC 에서 발견).
+     번호를 우리가 1·2·3… 으로 매길 수도 없다 — OSM 의 way 순서는 라운드 순서가 아니라
+     그렇게 하면 **없는 정보를 지어내는 것**이 된다.
+     모르면 모른다고 두고 위성 전경만 보여준다
+     ("홀맵이 정확히 없는 것은 그냥 위성 전체 구장이 비추게" — 사장님 지시).
+     par 만 있어도 어느 홀인지 못 짚으면 쓸모가 없다. */
+  if (courseHoles.length && !courseHoles.some((h) => /^\d+$/.test(String(h.ref)))) {
+    courseHoles = [];
+  }
+
   if (!courseHoles.length) {
     // 공식 자료가 없는 구장 — 추정 정보는 만들지 않고 위성 전경만 보여준다
     $("#course-status").textContent = tr("app.course.satellite");
@@ -3537,11 +3550,16 @@ function openLightbox(list, i) {
   lbList = list;
   $("#img-lightbox").hidden = false;
   document.body.style.overflow = "hidden";
+  /* 떠 있는 뒤로가기·공유를 감춘다 — 뷰어에는 제 닫기(×)와 넘김(‹ ›)이 따로 있다.
+     버튼을 대기 화면 위(5100)로 올린 뒤 사진 뷰어(200)까지 덮어 서로 겹쳐 눌렸다
+     (2026-08-03 사장님 화면 — 맛집 사진에서 발견). */
+  document.body.classList.add("lb-open");
   lbShow(i);
 }
 function closeLightbox() {
   $("#img-lightbox").hidden = true;
   document.body.style.overflow = "";
+  document.body.classList.remove("lb-open");
   $("#lb-img").src = "";
 }
 (function initLightbox() {
