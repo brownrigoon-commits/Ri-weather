@@ -170,6 +170,20 @@ def violations(root=None):
         bad.append(f'index.html:{line} 표시가 없는 한국어: "{text}" (<{where}>) '
                    f'— 일본어 화면에서도 한국어로 남습니다. data-i18n 을 달거나, '
                    f'일부러 두는 것이면 data-i18n-skip 을 다세요')
+    # 🔴 번역기 내부 표식(§0§)이 문구에 남아 있으면 그대로 화면에 찍힌다.
+    #    "19サイズ§1§" 처럼 나간 적이 있다(2026-08-03 사장님 발견, 5개).
+    #    원인은 build_i18n_ja.py 가 **모델이 지어낸** 표식을 확인하지 않은 것.
+    #    거기서도 막았지만, 손으로 사전을 고칠 수도 있으니 관문에서도 본다.
+    for f in sorted(glob.glob(os.path.join(ROOT, "js", "i18n", "src", "*.json"))):
+        try:
+            d = json.load(open(f, encoding="utf-8"))
+        except Exception:
+            continue
+        for k, v in d.items():
+            if isinstance(v, str) and "§" in v:
+                bad.append(f'{os.path.basename(f)} "{k}" 에 번역기 표식이 남았습니다: '
+                           f'{v[:40]} — 화면에 그대로 찍힙니다')
+
     for line in scan.bad_option:
         bad.append(f'index.html:{line} 번역되는 <option> 에 value 가 없습니다 '
                    f'— 글자가 곧 저장값이라 옮기는 순간 기존 이용자 기록과 어긋납니다. '
