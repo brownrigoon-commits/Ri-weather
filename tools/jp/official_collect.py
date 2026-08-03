@@ -402,6 +402,10 @@ def main():
     ap.add_argument("--scan", type=int, default=0)
     ap.add_argument("--scan-all", action="store_true")
     ap.add_argument("--collect", action="store_true")
+    # 홀맵이 있는 곳만 골라 돌린다. official_from_dom.py 가 만든 목록을 쓰면
+    # 홀맵이 없는 수백 곳을 다시 두드리지 않는다(남의 서버에 헛 요청을 보내지 않는다).
+    ap.add_argument("--only-list", default="",
+                    help="구장명 목록 JSON (예: _scan/official_holemaps.json)")
     a = ap.parse_args()
 
     if a.seeds:
@@ -414,6 +418,12 @@ def main():
     ex = already()
     print(f"■ 씨앗 {len(seeds)}곳 · 이미 등록 {len(ex)}곳")
 
+    if a.only_list:
+        want = {r["golfdb"] if isinstance(r, dict) else r
+                for r in json.load(open(a.only_list, encoding="utf-8"))}
+        before = len(seeds)
+        seeds = [s for s in seeds if s["golfdb"] in want]
+        print(f"■ 목록으로 좁힘: {before} → {len(seeds)}곳 ({os.path.basename(a.only_list)})")
     targets = seeds if (a.scan_all or a.collect) else seeds[:max(1, a.scan)]
     print(f"■ 대상 {len(targets)}곳" + (" · 내려받기" if a.collect else " · 훑기만"))
     rows, stat = [], Counter()
