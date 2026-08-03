@@ -238,7 +238,13 @@ write_status()
 stage()
 _rows = manifest()
 show_manifest(_rows)
-_files = "\n".join(f"  {st} {p}" for st, p in _rows)
+# 커밋 메시지에 파일 목록을 다 적으면, 파일이 많을 때 **명령줄 길이 한계**에 걸린다
+# (윈도우 32KB. 2026-08-03 일본 구장 96곳 = 파일 1,800여 개를 올릴 때 WinError 206 으로 멈췄다).
+# 앞부분만 적고 나머지는 수로 남긴다 — 전체 목록은 `git show --stat` 으로 언제든 본다.
+_head = _rows[:40]
+_files = "\n".join(f"  {st} {p}" for st, p in _head)
+if len(_rows) > len(_head):
+    _files += f"\n  … 외 {len(_rows) - len(_head)}개"
 git("commit", "-m", f"{msg}\n\n배포 파일 {len(_rows)}개:\n{_files}\n\n"
     "Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>", check=False)
 
