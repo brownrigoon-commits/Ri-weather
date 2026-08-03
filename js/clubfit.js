@@ -3031,11 +3031,46 @@
     }
     paint(target);
   }
+  /* 클럽 자료(js/clubdb.js)의 낱말을 **화면에서만** 일본어로 바꾼다.
+   *
+   * 왜 DB 를 안 바꾸나 — 그 값들이 곧 판정 기준이기 때문이다.
+   * clubfit.js 안에 `=== "낮음"` · `=== "스틸"` · `!== "블레이드"` 같은 비교가 40군데 넘게 있다.
+   * 자료를 일본어로 바꾸는 순간 추천 엔진이 통째로 어긋난다.
+   * 그래서 값은 한국어 그대로 두고, **다 그린 뒤 글자 마디만** 갈아 끼운다.
+   * (프로필 칩·홀 공략에서 쓴 것과 같은 원칙 — 값과 글자를 가른다)
+   *
+   * 글자 마디(TEXT_NODE)만 건드리므로 주소·클래스·data 속성은 손대지 않는다.
+   * 한국어 화면에서는 아무 일도 하지 않는다.
+   */
+  function cfLocalizeWords(root) {
+    if (typeof I18N === "undefined" || I18N.lang !== "ja" || !root) return;
+    const w = (s) => { const k = "cf.w." + s, v = tr(k); return v === k ? null : v; };
+    const walk = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+    const KO = /[가-힣]/;
+    const jobs = [];
+    for (let n = walk.nextNode(); n; n = walk.nextNode())
+      if (KO.test(n.nodeValue)) jobs.push(n);
+    jobs.forEach((n) => {
+      let s = n.nodeValue;
+      const whole = w(s.trim());
+      if (whole) { n.nodeValue = s.replace(s.trim(), whole); return; }
+      // 통째로 없으면 마디 단위로 — "던롭 젝시오 13 아이언" 처럼 이어 붙은 값이 있다
+      s = s.replace(/[가-힣][가-힣0-9A-Za-z.]*(?:\s[가-힣0-9A-Za-z.]+)*/g, (m) => {
+        let t = m;
+        while (t) { const v = w(t); if (v) return v + m.slice(t.length);
+          const cut = t.lastIndexOf(" "); if (cut < 0) break; t = t.slice(0, cut); }
+        return m;
+      });
+      n.nodeValue = s;
+    });
+  }
+
   function paint(i) {
     idx = Math.max(0, Math.min(i, SCREENS.length - 1));
     const sc = SCREENS[idx];
     if (!sc) return;                                      // 화면 목록이 비어 있으면 아무것도 하지 않는다
     scrEl().innerHTML = (idx > 0 ? `<button class="cf-back" data-back>${tr("cf.btn.back")}</button>` : "") + sc.render();
+    cfLocalizeWords(scrEl());
     const stage = $$("#cf-stage"), step = $$("#cf-step");
     // 진행 표시는 내부 단계 이름이 아니라 "지금 무슨 일이 일어나는지"를 말한다.
     const eye = (scrEl().querySelector(".q-eyebrow") || {}).textContent || "";

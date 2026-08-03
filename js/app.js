@@ -4,7 +4,7 @@
  * ========================================================= */
 "use strict";
 
-const APP_VER = "v223"; // 배포 버전 (홈 화면 배지에 표시)
+const APP_VER = "v224"; // 배포 버전 (홈 화면 배지에 표시)
 const APP_NOTE = "관리자"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
 const STORAGE_KEY = "riweather.courses.v1";
 
@@ -901,6 +901,17 @@ window.addEventListener("popstate", () => {
   }
 });
 function goBack() {
+  /* 기다리는 화면이 떠 있으면 **그것부터 닫는다.**
+     오래 걸리는 처리 중에는 대기 화면(z-index 5000)이 화면을 다 덮어 이용자가 갇혔다
+     — "오래 걸려서 다른 메뉴를 보려 할 때 뒤로갈 수 있어야 하는데 그게 없으니
+        계속 기다려야 하고, 슬라이딩도 잘 안 된다"(사장님 2026-08-03).
+     기다릴지 말지는 이용자가 정한다. 닫고 나서 평소대로 한 화면 물러난다.
+     ⚠️ 이때는 clubfitBack(이전 문항으로) 을 타지 않는다 — 나가려고 누른 것이기 때문이다. */
+  if (typeof WAIT !== "undefined" && typeof WAIT.isOpen === "function" && WAIT.isOpen()) {
+    WAIT.close(true);
+    if (viewStack.length > 1) history.back();
+    return;
+  }
   // 클럽 피팅 중에는 화면을 나가지 말고 '이전 문항'으로 돌아간다.
   // 선택지를 누르면 자동으로 다음 문항으로 넘어가므로, 잘못 눌렀을 때
   // 가장 눈에 띄는 뒤로가기가 피팅 전체를 날려버리면 안 된다(2026-07-28 지적).
@@ -1147,18 +1158,32 @@ function requestLocationConsent(after) {
 
 async function renderDist(course, el) {
   const straight = distM(userPos, [course.lat, course.lon]);
-  // 카카오맵 앱의 길안내를 직접 실행 (키 불필요 · 웹 중간 페이지 없음)
-  const kakaoUrl = `kakaomap://route?ep=${course.lat},${course.lon}&by=CAR`;
-  const tmapUrl = `tmap://route?goalname=${encodeURIComponent(course.name)}&goaly=${course.lat}&goalx=${course.lon}`;
+  /* 길안내 앱은 **구장이 어느 나라인지**로 고른다. 화면 언어가 아니다 —
+     한국 이용자가 일본 구장에 가도 카카오내비·T맵은 일본에서 길을 못 찾는다.
+     일본 구장에서는 맛집·숙박 카드와 같은 것을 쓴다(Yahoo!카내비 + 구글맵). */
+  const isJP = course.c === "JP" && typeof JPPACK !== "undefined";
+  const navs = isJP
+    ? [["dist-nav tmap", JPPACK.yahooNaviUrl(course.lat, course.lon, dispName(course)),
+        tr("app.dist.nav.yahoo")],
+       ["dist-nav kakao",
+        `https://www.google.com/maps/dir/?api=1&destination=${course.lat},${course.lon}`,
+        tr("app.dist.nav.gmap")]]
+    // 카카오맵 앱의 길안내를 직접 실행 (키 불필요 · 웹 중간 페이지 없음)
+    : [["dist-nav kakao", `kakaomap://route?ep=${course.lat},${course.lon}&by=CAR`,
+        tr("app.dist.nav.kakao")],
+       ["dist-nav tmap",
+        `tmap://route?goalname=${encodeURIComponent(course.name)}&goaly=${course.lat}&goalx=${course.lon}`,
+        tr("app.dist.nav.tmap")]];
   const show = (km, mins, approx) => {
     el.innerHTML = `
       <div class="dist-main">${tr("app.dist.main", { km: km, mins: mins })}
         <small>${approx ? tr("app.dist.approx") : tr("app.dist.exact")}</small>
       </div>
-      <div class="dist-navs">
-        <a class="dist-nav kakao" href="${kakaoUrl}">${tr("app.dist.nav.kakao")}</a>
-        <a class="dist-nav tmap" href="${tmapUrl}">${tr("app.dist.nav.tmap")}</a>
-      </div>`;
+      <div class="dist-navs">` +
+      navs.map(([cls, href, label]) =>
+        `<a class="${cls}" href="${href}"${/^https/.test(href) ? ' target="_blank" rel="noopener"' : ""}>${label}</a>`
+      ).join("") +
+      `</div>`;
   };
   const key = userPos[0].toFixed(3) + "|" + course.lat.toFixed(4) + "," + course.lon.toFixed(4);
   const cached = routeCache.get(key);

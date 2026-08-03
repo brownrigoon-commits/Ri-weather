@@ -395,7 +395,13 @@ body::before {
 /* 플로팅 조작 버튼 공통 — 반투명, 항상 따라다님 */
 .float-btn {
   position: fixed;
-  z-index: 90;
+  /* 🔴 대기 화면(.rw-wait, z-index 5000)보다 **위**에 있어야 한다.
+     90 이던 시절, 클럽피팅 정렬처럼 오래 걸리는 처리 중에는 뒤로가기가 통째로 덮여
+     이용자가 끝날 때까지 빠져나갈 수 없었다(사장님 지적 2026-08-03 —
+     "오래 걸려서 다른 메뉴를 보려 할 때 뒤로갈 수 있어야 하는데 그게 없으니 계속 기다려야 하고").
+     스와이프 뒤로가기도 대기 화면이 화면을 다 덮고 있어 잘 안 먹혔다.
+     기다릴지 말지는 이용자가 정한다. 버튼은 어느 화면에서도 살아 있어야 한다. */
+  z-index: 5100;
   width: 46px; height: 46px; border-radius: 50%;
   border: 1px solid var(--line);
   cursor: pointer;
@@ -2036,6 +2042,27 @@ button:active, .hub-item:active, .chip:active {
    기본값은 어절 구분 없이 아무 데서나 끊어서 "마세/요" 같은 꼴이 나온다.
    토스를 포함한 완성도 높은 한국어 앱은 전부 keep-all 을 쓴다. */
 body, .view, .cf-screen, .card, .sheet { word-break: keep-all; overflow-wrap: break-word; }
+
+/* 🔴 일본어에서는 keep-all 을 **전부 푼다**.
+   한국어는 띄어쓰기가 있어 keep-all 이어도 어절에서 끊긴다. 일본어는 공백이 없다 —
+   「カバー・コンプレッション・スピン量 — すべてのショットに使う唯一のギア」 가
+   **한 덩어리**가 되어 상자를 밀어내고 화면이 가로로 넘친다
+   (2026-08-03 사장님 화면에서 클럽 선택 카드가 잘려 나온 원인. 320px 에서 body 가 379px 로 벌어졌다).
+   lang 은 I18N 이 <html> 에 찍어 준다. keep-all 을 쓴 21곳을 하나씩 손대지 않고 여기서 되돌린다.
+   ⚠️ 새 규칙에 keep-all 을 또 적더라도 이 블록이 뒤에 있어 이깁니다 — 순서를 바꾸지 말 것. */
+html[lang="ja"] body,
+html[lang="ja"] .view,
+html[lang="ja"] .cf-screen,
+html[lang="ja"] .card,
+html[lang="ja"] .sheet,
+html[lang="ja"] body * { word-break: normal; overflow-wrap: anywhere; }
+
+/* 격자·플렉스 칸은 기본값(min-width:auto)이라 내용이 크면 칸이 늘어난다.
+   글자가 안 끊기는 순간 그대로 화면 밖으로 밀린다 — 0 으로 못 박아 둔다. */
+.cf-club-grid > *, .fi-actions > *, .bk-links > * { min-width: 0; }
+
+/* iOS 가 글자를 제멋대로 키우면 위와 같은 넘침이 되살아난다 */
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 
 /* ── 클럽 선택 타일 (피팅 첫 화면) ──────────────────────────────
    드라이버부터 강제로 시작하던 흐름을 없애고, 맞추고 싶은 클럽을 먼저 고르게 한다. */

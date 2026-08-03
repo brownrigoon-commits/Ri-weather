@@ -198,7 +198,10 @@ const WAIT = (() => {
     finally { w.close(); }
   }
 
-  return { open, close, run, SCRIPTS };
+  /* 지금 기다리는 화면이 떠 있나 — 뒤로가기가 이걸 보고 먼저 닫는다(app.js goBack) */
+  function isOpen() { return !!box; }
+
+  return { open, close, run, isOpen, SCRIPTS };
 })();
 
 /* 리스트가 위에서부터 차례로 나타나게 (맛집·스코어 목록 등)
