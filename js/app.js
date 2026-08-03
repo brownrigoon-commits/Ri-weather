@@ -4,7 +4,7 @@
  * ========================================================= */
 "use strict";
 
-const APP_VER = "v226"; // 배포 버전 (홈 화면 배지에 표시)
+const APP_VER = "v227"; // 배포 버전 (홈 화면 배지에 표시)
 const APP_NOTE = "관리자"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
 const STORAGE_KEY = "riweather.courses.v1";
 
@@ -2184,16 +2184,27 @@ async function openCourseView() {
       $("#course-note").innerHTML = tr("app.course.prep");
     }
     $("#course-note").hidden = false;
-    // 코스 전체가 보이도록 지도 맞춤 (OSM 코스 도형이 있으면 그 범위로)
+    /* 코스 **전체**가 담기게 지도를 맞춘다.
+       ⚠️ 그려 놓은 도형(courseLayers)만 보면 안 된다.
+          홀 번호가 없어 홀 라인을 안 그리는 구장에서는 남은 도형이 그린 하나뿐이라
+          지도가 거기에 딱 맞아 **건물 지붕만 크게** 나왔다(2026-08-03 나고야GC 실측).
+          그리지 않았을 뿐 홀·페어웨이 좌표는 ways 에 그대로 있다 — 그걸로 범위를 잡는다.
+       ("홀맵이 정확히 없는 것은 그냥 위성 전체 구장이 비추게" — 사장님 지시) */
     setTimeout(() => {
       courseMap.invalidateSize();
-      const layers = courseLayers.filter((l) => l.getBounds);
-      let fitted = false;
-      if (layers.length) {
-        const b = layers.reduce((acc, l) => acc ? acc.extend(l.getBounds()) : L.latLngBounds(l.getBounds()), null);
-        if (b && b.isValid()) { courseMap.fitBounds(b.pad(0.12)); fitted = true; }
-      }
-      if (!fitted) courseMap.setView([course.lat, course.lon], 15);
+      let b = null;
+      const add = (la, lo) => {
+        if (la == null || lo == null) return;
+        b = b ? b.extend([la, lo]) : L.latLngBounds([[la, lo], [la, lo]]);
+      };
+      ways.forEach((w) => pts(w).forEach((p) => add(p[0], p[1])));
+      courseLayers.forEach((l) => {
+        if (!l.getBounds) return;
+        const lb = l.getBounds();
+        if (lb && lb.isValid()) { add(lb.getNorth(), lb.getWest()); add(lb.getSouth(), lb.getEast()); }
+      });
+      if (b && b.isValid()) courseMap.fitBounds(b.pad(0.12));
+      else courseMap.setView([course.lat, course.lon], 15);
     }, 120);
     return;
   }
