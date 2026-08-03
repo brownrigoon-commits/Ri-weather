@@ -8,7 +8,7 @@
 이미 등록된 구장(수작업·홈페이지 파싱)은 건드리지 않는다.
 사용: python tools/golfzon_build.py [--limit N] [--write]
 """
-import argparse, glob, json, os, re, shutil, sys
+import argparse, hashlib, glob, json, os, re, shutil, sys
 sys.stdout.reconfigure(encoding="utf-8")
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, "tools"))
@@ -54,14 +54,30 @@ def load_golfdb():
             out[norm(gzname)] = dbname
     return out
 
-def registered_names():
-    s = set()
+def registered_index():
+    """이미 등록된 구장 → (폴더, 지금 담긴 홀 수).
+
+       폴더까지 아는 이유: 갱신할 때 **그 폴더에 덮어써야** 하기 때문이다.
+       슬러그를 다시 계산해서 찾으면 안 된다 — 아래 stable_id() 주석 참조."""
+    idx = {}
     for f in glob.glob(os.path.join(ROOT, "coursedata", "homepages", "*", "parsed.json")):
         try:
-            s.add(norm(json.load(open(f, encoding="utf-8"))["course"]))
+            j = json.load(open(f, encoding="utf-8"))
+            n = sum(len(c.get("holes") or []) for c in (j.get("courses") or []))
+            idx[norm(j["course"])] = (os.path.dirname(f), n)
         except Exception:
             pass
-    return s
+    return idx
+
+
+def stable_id(k):
+    """구장키 → 늘 같은 짧은 식별자.
+
+       🔴 예전엔 abs(hash(k)) 를 썼다. 파이썬 3 의 문자열 hash 는 **실행마다 값이 달라진다**
+          (해시 무작위화). 그래서 조립기를 다시 돌리면 같은 구장이 **다른 폴더**로 또 생긴다.
+          지금까지 안 터진 건 '이미 등록된 이름은 건너뛴다' 가 가려 주고 있었을 뿐이다.
+          md5 는 어느 실행에서나 같다."""
+    return hashlib.md5(k.encode("utf-8")).hexdigest()[:6]
 
 def course_names_from(ccname, n):
     """'자유로 CC - 대한/민국' → ['대한','민국']; 없으면 OUT/IN/A·B·C
@@ -145,11 +161,25 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--limit", type=int, default=0)
     ap.add_argument("--write", action="store_true")
+    ap.add_argument("--update", action="store_true",
+                    help="이미 등록된 구장도 홀이 늘어날 때만 다시 쓴다(기존 폴더에 덮어씀)")
     a = ap.parse_args()
     gdb = load_golfdb()
-    done = registered_names()
+    done = registered_index()
     files = sorted(glob.glob(os.path.join(GZ, "cc_*.json")))
-    best = {}                     # 구장명 → (홀수, courses, url)
+    # ── 구장별로 **파일을 전부 합친다** ──────────────────────────────
+    # 🔴 예전에는 홀 수가 가장 많은 파일 **하나만** 골랐다(total > best[k][0]).
+    #    골프존은 27홀 이상 구장을 18홀 조합으로 쪼개 판다 —
+    #      리더스CC-HILL_LAKE · 리더스CC-LAKE_PINE · 리더스CC-PINE_HILL
+    #    세 파일이 각각 18홀이라 하나만 고르면 27홀 중 18홀만 남았다.
+    #    비에이비스타CC 는 54홀인데 18홀만 등록돼 있었다(2026-08-03 감사).
+    #    실측: 84구장에서 972홀을 잃고 있었다.
+    #
+    # 합쳐도 되는지 먼저 확인했다 — 같은 코스명이 여러 파일에 나오지만
+    # **홀 번호·파·거리가 완전히 같다.** 다른 것은 video·_map 주소뿐인데
+    # 골프존이 18홀 조합마다 영상을 따로 만들어서다(같은 나인의 다른 렌더링).
+    # 그래서 코스명을 열쇠로 합치고, 먼저 만난 것의 매체 주소를 쓴다(파일명 순이라 결정적).
+    merged = {}          # 구장키 → {club, courses{코스명:코스}, url, best}
     for f in files:
         try:
             r = build_club(f)
@@ -159,26 +189,49 @@ def main():
             continue
         club, courses, url = r
         k = norm(club)
+        m = merged.setdefault(k, {"club": club, "courses": {}, "url": url, "best": 0})
+        for c in courses:
+            m["courses"].setdefault(c["name"], c)      # 먼저 만난 것을 남긴다
         total = sum(len(c["holes"]) for c in courses)
-        if k not in best or total > best[k][0]:
-            best[k] = (total, club, courses, url)
+        if total > m["best"]:                          # 대표 주소는 가장 큰 파일 것으로
+            m["best"], m["url"] = total, url
+
+    best = {k: (sum(len(c["holes"]) for c in m["courses"].values()),
+                m["club"], list(m["courses"].values()), m["url"])
+            for k, m in merged.items()}
 
     made = skipped = nodb = 0
+    grown = []
     for k, (total, club, courses, url) in sorted(best.items(), key=lambda x: -x[1][0]):
-        if k in done:
-            skipped += 1; continue
+        # 🔴 등록 여부는 **앱DB 이름**으로 판정한다. 골프존 이름으로 보면 안 된다.
+        #    골프존과 앱DB 는 같은 구장을 다르게 부른다:
+        #      테디밸리CC ↔ 테디밸리 골프&리조트 · 청우GC ↔ 알프스대영CC · 한림용인CC ↔ 레이크힐스용인CC
+        #    골프존 이름으로만 보면 "새 구장" 으로 착각해 **같은 구장이 두 폴더로 생긴다.**
+        #    실측(2026-08-03): 이대로 두면 신규 30곳 중 29곳이 중복 등록될 뻔했다.
         dbname = gdb.get(k)
         if not dbname:
             cand = [v for kk, v in gdb.items() if k and (k in kk or kk in k)]
             dbname = cand[0] if len(cand) == 1 else None
         if not dbname:
             nodb += 1; continue
+
+        # 이미 등록된 구장 — 평소엔 건드리지 않는다(손으로 만든 것도 섞여 있다).
+        # --update 일 때만, 그리고 **홀이 실제로 늘어날 때만** 그 폴더에 덮어쓴다.
+        outdir = None
+        seen = done.get(norm(dbname)) or done.get(k)
+        if seen:
+            olddir, oldn = seen
+            if not (a.update and total > oldn):
+                skipped += 1; continue
+            outdir = olddir
+            grown.append((dbname, oldn, total))
         if a.limit and made >= a.limit:
             break
         # 슬러그: 영문/숫자만 남기고, 한글 구장명은 코드포인트 해시로 고유화
         ascii_part = re.sub(r"[^0-9a-z]", "", norm(club))[:14]
-        uniq = format(abs(hash(k)) % 0xFFFFFF, "x")
-        slug = "gz" + (ascii_part + "_" if ascii_part else "") + uniq
+        uniq = stable_id(k)
+        slug = os.path.basename(outdir) if outdir else \
+               "gz" + (ascii_part + "_" if ascii_part else "") + uniq
 
         # 홀맵 이미지: 야디지맵을 서서울 규격으로 표준화해 배치
         imgdir = os.path.join(ROOT, "holeimg", slug)
@@ -207,7 +260,7 @@ def main():
                 "sourceUrl": url or "https://www.golfzon.com/course/main",
                 "courses": courses}
         if a.write:
-            dst = os.path.join(ROOT, "coursedata", "homepages", slug)
+            dst = outdir or os.path.join(ROOT, "coursedata", "homepages", slug)
             os.makedirs(dst, exist_ok=True)
             json.dump(data, open(os.path.join(dst, "parsed.json"), "w", encoding="utf-8"),
                       ensure_ascii=False, indent=1)
@@ -215,7 +268,11 @@ def main():
         if made <= 12:
             vids = sum(1 for c in courses for h in c["holes"] if h.get("video"))
             print(f"  {dbname}: {total}홀 ({', '.join(c['name'] for c in courses)}) 영상 {vids}")
-    print(f"\n생성 {made}곳 / 기등록 건너뜀 {skipped} / 앱DB 미매칭 {nodb} (전체 {len(best)})")
+    if grown:
+        print(f"\n■ 홀이 늘어난 구장 {len(grown)}곳 · {sum(t-o for _,o,t in grown)}홀 추가")
+        for club, o, t in sorted(grown, key=lambda x: -(x[2]-x[1]))[:12]:
+            print(f"   {club[:24]:26s} {o:3d}홀 → {t:3d}홀")
+    print(f"\n새로 만든 구장 {made - len(grown)}곳 / 갱신 {len(grown)}곳 / 기등록 건너뜀 {skipped} / 앱DB 미매칭 {nodb} (전체 {len(best)})")
     if not a.write:
         print("※ --write 를 붙이면 실제 등록합니다.")
 
