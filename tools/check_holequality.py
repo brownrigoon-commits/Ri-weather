@@ -82,6 +82,25 @@ def check_tip(rows):
     return bad
 
 
+# 홈페이지 상단 메뉴가 공략 자리에 통째로 들어간 흔적 (웰링턴CC 8홀, 2026-08-03 감사)
+MENU_WORDS = re.compile(
+    r"LOGIN|LANGUAGE|SITEMAP|로그인|회원가입|마이페이지|예약하기|예약확인|오시는[ ]?길|"
+    r"코스소개|클럽소개|이용안내|공지사항|편의시설|프로샵|멤버쉽|고객센터|전체메뉴", re.I)
+
+
+def check_menu(rows):
+    bad = []
+    for r in rows:
+        t = r["tip"]
+        if not t:
+            continue
+        hits = set(m.group(0) for m in MENU_WORDS.finditer(t))
+        # 한두 단어는 본문에도 나올 수 있다(예: '클럽소개'). 셋 이상이면 메뉴다.
+        if len(hits) >= 3:
+            bad.append((r, f"공략 자리에 메뉴 글이 들어 있습니다({'·'.join(sorted(hits))[:40]})"))
+    return bad
+
+
 def check_img(rows):
     from PIL import Image, ImageStat
     bad, seen = [], {}
@@ -114,11 +133,12 @@ def main():
 
     rows = holes_from_db()
     tips = check_tip(rows)
+    menus = check_menu(rows)
     imgs = check_img(rows)
     print(f"■ 홀 {len(rows)}개 검사 (공략 있는 홀 {sum(1 for r in rows if r['tip'])} · "
           f"이미지 있는 홀 {sum(1 for r in rows if r['img'])})")
 
-    for title, bad in (("남의 홀 공략", tips), ("백지 홀맵", imgs)):
+    for title, bad in (("남의 홀 공략", tips), ("메뉴 글이 공략 자리에", menus), ("백지 홀맵", imgs)):
         if not bad:
             print(f"  ✅ {title} 0건")
             continue
@@ -127,7 +147,7 @@ def main():
             print(f'     {r["course"]} {r["sub"]} {r["no"]}번 — {why}')
         if not a.list and len(bad) > 12:
             print(f"     … 그 외 {len(bad) - 12}건 (--list 로 전부)")
-    if tips or imgs:
+    if tips or menus or imgs:
         print("\n고치는 길")
         print("  · 공략: coursedata/homepages/<slug>/parsed.json 의 tip 을 바로잡거나 비운다")
         print("    (같은 템플릿 구장은 python tools/reparse_holetitle.py --write)")

@@ -54,6 +54,9 @@ TARGETS = {
                     "pages": {"OUT": "p1.html", "IN": "p2.html"}},
     "sunningpoint": {"folder": "써닝포인트CC", "profile": "tabhole", "prefer": "pages_v2",
                      "pages": {"SUN": "p2.html", "POINT": "p3.html"}},
+    # 웰링턴CC 는 홀마다 페이지가 따로다(.../golf/one/hole01.do). 코스 slug 로 묶는다.
+    "wellingtoncc": {"folder": "웰링턴CC", "profile": "greeninfo", "prefer": "pages",
+                     "pages": {"OUT": "one"}},
 }
 
 HOLE_SPLIT = re.compile(r'<div class="hole-title"')
@@ -235,6 +238,44 @@ def parse_tabhole(html):
     return out
 
 
+GI_HEAD = re.compile(r"<strong>(\d+)</strong>\s*Par\s*(\d)", re.I)
+GI_DIST = re.compile(r"([\d.]+)\s*yds?\s*/\s*([\d.]+)\s*m", re.I)
+
+
+def parse_greeninfo_page(html):
+    """웰링턴CC — 홀 하나에 페이지 하나. <div class="green_info"> 안이 그 홀 것이다."""
+    box = re.search(r'<div class="green_info">(.*?)</div>\s*</div>', html, re.S | re.I)
+    if not box:
+        return None
+    chunk = box.group(1)
+    m = GI_HEAD.search(chunk)
+    if not m:
+        return None
+    h = {"no": int(m.group(1)), "par": int(m.group(2))}
+    d = GI_DIST.search(text_of(chunk))
+    if d:
+        h["len"] = int(float(d.group(2)))
+    body = re.findall(r'<span class="pc_block">(.*?)</span>', chunk, re.S | re.I)
+    if body:
+        t = clean_tip(" ".join(text_of(b) for b in body), h["no"], h["par"])
+        if t:
+            h["tip"] = t
+    img = re.search(r'<img[^>]+src="([^"]*/hole\d+\.(?:png|jpg))"', html, re.I)
+    if img:
+        h["_siteimg"] = os.path.basename(img.group(1)).lower()
+    return h
+
+
+def parse_greeninfo(pages):
+    """pages = [(파일경로, URL)] — 한 코스에 속한 홀 페이지들."""
+    out = []
+    for path, _url in pages:
+        h = parse_greeninfo_page(open(path, encoding="utf-8", errors="ignore").read())
+        if h:
+            out.append(h)
+    return sorted(out, key=lambda x: x["no"])
+
+
 PROFILES = {"holetitle": parse_holetitle, "holecontent": parse_holecontent,
             "tabhole": parse_tabhole}
 
@@ -280,8 +321,15 @@ def main():
                 print(f'  ✖ {c["name"]}: 어느 페이지인지 모릅니다 — 건드리지 않습니다')
                 ok = False
                 break
-            f = os.path.join(AUTO, cfg["folder"], cfg["prefer"], page)
-            holes = PROFILES[cfg["profile"]](open(f, encoding="utf-8", errors="ignore").read())
+            if cfg["profile"] == "greeninfo":
+                # 홀마다 페이지가 따로인 사이트 — meta.json 의 URL 로 코스·홀을 가른다
+                meta = json.load(open(os.path.join(AUTO, cfg["folder"], "meta.json"), encoding="utf-8"))
+                pages = [(os.path.join(AUTO, cfg["folder"], cfg["prefer"], fn), url)
+                         for fn, url in meta["pages"].items() if f"/{page}/hole" in url]
+                holes = parse_greeninfo(sorted(pages, key=lambda x: x[1]))
+            else:
+                f = os.path.join(AUTO, cfg["folder"], cfg["prefer"], page)
+                holes = PROFILES[cfg["profile"]](open(f, encoding="utf-8", errors="ignore").read())
             # 사이트가 IN 코스를 1..9 로 적는 곳도, 10..18 로 적는 곳도 있다.
             # 앱은 기존 번호 체계를 그대로 쓴다(마이스코어·일본어 사전이 거기 붙어 있다).
             want = [h["no"] for h in c["holes"]]

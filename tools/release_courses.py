@@ -63,9 +63,9 @@ if tee_bad:
 print("티 거리 검사 OK: 모든 홀이 거리 내림차순")
 
 # 홀 자료 품질 (2026-08-03 신설 — 남의 홀 공략 23건·백지 홀맵 27장을 실제로 찾아냈다)
-from check_holequality import holes_from_db, check_tip, check_img
+from check_holequality import holes_from_db, check_tip, check_menu, check_img
 _hq_rows = holes_from_db()
-_hq_bad = check_tip(_hq_rows) + check_img(_hq_rows)
+_hq_bad = check_tip(_hq_rows) + check_menu(_hq_rows) + check_img(_hq_rows)
 if _hq_bad:
     print(f"✖ 홀 자료 품질 검사 실패 {len(_hq_bad)}건 — 배포를 멈춥니다")
     for r, why in _hq_bad[:20]:

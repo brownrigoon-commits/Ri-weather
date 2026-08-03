@@ -64,7 +64,12 @@ def main():
             for c in d["courses"]:
                 w.write(f'      {{ name: {js_str(c["name"])}, holes: [\n')
                 for h in c["holes"]:
-                    parts = [f'no: {h["no"]}', f'par: {h.get("par") or 4}']
+                    # ⚠️ 파를 모르면 **비워 둔다**. 예전에는 `or 4` 로 파 4를 지어냈고,
+                    #    일본 22개 구장 396홀이 근거 없는 '파 4'로 화면과 AI 캐디에 나갔다
+                    #    (2026-08-03 감사에서 발견). 틀릴 수 있는 정보는 표시하지 않는다.
+                    parts = [f'no: {h["no"]}']
+                    if h.get("par"):
+                        parts.append(f'par: {h["par"]}')
                     if h.get("img"):
                         parts.append(f'img: {js_str(h["img"])}')
                     if h.get("hdcp"):

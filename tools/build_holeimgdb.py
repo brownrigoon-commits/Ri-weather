@@ -63,7 +63,10 @@ with open(OUT, "w", encoding="utf-8", newline="\n") as w:
         for c in d["courses"]:
             w.write(f'      {{ name: {js_str(c["name"])}, holes: [\n')
             for h in c["holes"]:
-                parts = [f'no: {h["no"]}', f'par: {h.get("par") or 4}']
+                # ⚠️ 파를 모르면 비워 둔다 — `or 4` 는 지어내기다(일본판에서 396홀이 그렇게 나갔다).
+                parts = [f'no: {h["no"]}']
+                if h.get("par"):
+                    parts.append(f'par: {h["par"]}')
                 if h.get("img"):
                     parts.append(f'img: {js_str(h["img"])}')
                 if h.get("video"):

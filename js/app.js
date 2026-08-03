@@ -4,8 +4,8 @@
  * ========================================================= */
 "use strict";
 
-const APP_VER = "v229"; // 배포 버전 (홈 화면 배지에 표시)
-const APP_NOTE = "홀 자료 바로잡기"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
+const APP_VER = "v230"; // 배포 버전 (홈 화면 배지에 표시)
+const APP_NOTE = "지어낸 파 4 제거 + 웰링턴CC 공략 복구 + 메뉴글 관문"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
 const STORAGE_KEY = "riweather.courses.v1";
 
 /* 나중에 필요할 때 불러오는 파일 목록 (2026-07-31 신설).
@@ -2447,7 +2447,8 @@ function renderImgCourse(course, db) {
       flat.push({ ...h, cname: c.name });
       const b = document.createElement("button");
       b.className = "hole-btn";
-      b.innerHTML = `${h.no}<small>${tr("app.hole.par", { par: h.par })}</small>`;
+      // 파를 모르는 홀이 있다(공식 표기가 없는 일본 구장 396홀). 지어내지 않고 비운다.
+      b.innerHTML = h.par ? `${h.no}<small>${tr("app.hole.par", { par: h.par })}</small>` : `${h.no}`;
       b.addEventListener("click", () => sel(i, true));
       grid.appendChild(b);
     });
@@ -3243,10 +3244,10 @@ async function runAiCaddieInner() {
       : "";
     const head = hasImg ?
       `당신은 밝고 자신감 넘치는 투어 경력의 여성 캐디입니다. 지금 플레이어 옆에서 함께 걸으며 말로 안내하는 중입니다 — 보고서가 아니라 대화입니다. ` +
-      `첨부 이미지 1번은 ${aiHoleCtx.courseName} ${hh.cname}코스 ${hh.no}번홀(파${hh.par})의 공식 홀맵입니다. ` +
+      `첨부 이미지 1번은 ${aiHoleCtx.courseName} ${hh.cname}코스 ${hh.no}번홀${hh.par ? `(파${hh.par})` : ""}의 공식 홀맵입니다. ` +
       `홀맵에는 홀 모양, 벙커·해저드 위치, 그린까지 거리선(50/100/150M)이 표시되어 있습니다. ` + frameTxt + greenTxt + elevTxt :
       `당신은 밝고 자신감 넘치는 투어 경력의 여성 캐디입니다. 지금 플레이어 옆에서 함께 걸으며 말로 안내하는 중입니다 — 보고서가 아니라 대화입니다. ` +
-      `${aiHoleCtx.courseName} ${hh.cname}코스 ${hh.no}번홀(파${hh.par})을 안내합니다. ` +
+      `${aiHoleCtx.courseName} ${hh.cname}코스 ${hh.no}번홀${hh.par ? `(파${hh.par})` : ""}을 안내합니다. ` +
       `홀맵 그림은 없고 아래 수치 정보만 있습니다. 사진이 있는 것처럼 지형·벙커 위치를 지어내지 말고, 주어진 파·거리·고도차와 플레이어 구질만으로 조언하세요. ` + elevTxt;
     const facts =
       (hh.dist ? `티별 거리(m): L그린 백${hh.dist.L[0]}/레귤러${hh.dist.L[1]}/프론트${hh.dist.L[2]}/레이디${hh.dist.L[3]}, R그린 백${hh.dist.R[0]}/레귤러${hh.dist.R[1]}/프론트${hh.dist.R[2]}/레이디${hh.dist.R[3]}. ` :
