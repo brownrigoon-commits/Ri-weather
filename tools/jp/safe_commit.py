@@ -9,7 +9,8 @@
 """
 import os, subprocess, sys
 
-R = r"C:\Users\디자이너\Desktop\claude\Ri-weather"
+# 저장소 = 이 파일(tools/jp/)의 두 단계 위 — 집(디자이너)·회사(PC) 어느 쪽에서도 맞는다.
+R = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.stdout.reconfigure(encoding="utf-8")
 
 
