@@ -4,7 +4,7 @@
  * ========================================================= */
 "use strict";
 
-const APP_VER = "v228"; // 배포 버전 (홈 화면 배지에 표시)
+const APP_VER = "v229"; // 배포 버전 (홈 화면 배지에 표시)
 const APP_NOTE = "홀 자료 바로잡기"; // 이번 업데이트 내용 — 배포 시 자동 갱신됨
 const STORAGE_KEY = "riweather.courses.v1";
 
