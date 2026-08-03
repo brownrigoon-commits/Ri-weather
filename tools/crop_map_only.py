@@ -85,7 +85,13 @@ def crop_map(path, outpath, x0_ratio=0.42, keep="largest"):
 
 def _finish(out, bg, outpath):
     # 배경색 → 흰색 정규화 (미색 카드 대응, 흰 카드는 사실상 무변화)
-    if any(c < 250 for c in bg):
+    #
+    # ⚠ 밝은 카드일 때만 해야 한다. 2026-08-03 사고: 롯데스카이힐 성주CC 의
+    # 야디지맵은 화면 전체가 짙은 초록이라 모서리 표본 bg 가 어두운 색으로 잡혔고,
+    # 255/bg 배율(약 6배)이 그림 전체를 태워 **홀맵 18장이 백지**가 됐다.
+    # 원본은 멀쩡했다 — 망가뜨린 쪽은 이 줄이다.
+    # 기준: 세 채널이 모두 200 이상일 때만 '밝은 카드'로 본다.
+    if min(bg) >= 200 and any(c < 250 for c in bg):
         lut = []
         for ch in range(3):
             scale = 255.0 / max(1, bg[ch])

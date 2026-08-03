@@ -62,6 +62,19 @@ if tee_bad:
     sys.exit(1)
 print("티 거리 검사 OK: 모든 홀이 거리 내림차순")
 
+# 홀 자료 품질 (2026-08-03 신설 — 남의 홀 공략 23건·백지 홀맵 27장을 실제로 찾아냈다)
+from check_holequality import holes_from_db, check_tip, check_img
+_hq_rows = holes_from_db()
+_hq_bad = check_tip(_hq_rows) + check_img(_hq_rows)
+if _hq_bad:
+    print(f"✖ 홀 자료 품질 검사 실패 {len(_hq_bad)}건 — 배포를 멈춥니다")
+    for r, why in _hq_bad[:20]:
+        print(f'   - {r["course"]} {r["sub"]} {r["no"]}번 — {why}')
+    print("  python tools/check_holequality.py --list 로 전부 보고,")
+    print("  python tools/reparse_holes.py --write --images 로 고칠 수 있는지 보세요.")
+    sys.exit(1)
+print(f"홀 자료 품질 OK: 남의 홀 공략 0건 · 백지 홀맵 0건 ({len(_hq_rows)}홀)")
+
 # 등록명과 자료 출처가 같은 구장인지 (2026-07-30 '그린골프클럽←골드그린GC' 사고 재발 방지)
 from check_sources import violations as src_violations
 src_bad, _ = src_violations(ROOT)
