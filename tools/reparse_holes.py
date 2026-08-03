@@ -57,6 +57,8 @@ TARGETS = {
     # 웰링턴CC 는 홀마다 페이지가 따로다(.../golf/one/hole01.do). 코스 slug 로 묶는다.
     "wellingtoncc": {"folder": "웰링턴CC", "profile": "greeninfo", "prefer": "pages",
                      "pages": {"OUT": "one"}},
+    "theninegc": {"folder": "더나인골프클럽", "profile": "menutab", "prefer": "pages",
+                  "pages": {"OUT": "p1.html"}},
 }
 
 HOLE_SPLIT = re.compile(r'<div class="hole-title"')
@@ -238,6 +240,52 @@ def parse_tabhole(html):
     return out
 
 
+MT_SPLIT = re.compile(r'<div id="menu(\d+)" class="tab-pane')
+# 8번홀만 "8 HOLE" 처럼 띄어 써 있다(사이트 오타) — 공백을 허용한다
+MT_HEAD = re.compile(r"<h4>\s*(\d+)\s*HOLE[^<]*<span>[^<]*<em>\s*PAR\s*(\d)\s*,?\s*HDCP\s*([\d/]+)?", re.I)
+
+
+def parse_menutab(html):
+    """더나인골프클럽 — <div id="menuN"> 탭 하나가 홀 하나.
+
+    티 표(L Green/R Green × B.T~L.T)는 그린이 둘이라 한 줄로 못 줄인다 —
+    대표 거리만 R Green 백티로 잡고 티 사다리는 만들지 않는다(억지로 만들면 틀린다).
+    """
+    out = []
+    marks = list(MT_SPLIT.finditer(html))
+    for i, m in enumerate(marks):
+        chunk = html[m.end():marks[i + 1].start() if i + 1 < len(marks) else len(html)]
+        head = MT_HEAD.search(chunk)
+        if not head or int(head.group(1)) != int(m.group(1)):
+            continue
+        h = {"no": int(head.group(1)), "par": int(head.group(2))}
+        # 그린이 둘(L/R)이라 거리도 핸디캡도 두 벌이다. 하나를 골라 적으면 절반은 틀린 값이 된다.
+        # 두 그린 값이 같을 때만 적고, 다르면 비운다(제1원칙). 홀 이미지에는 두 값이 다 그려져 있다.
+        hd = [x for x in (head.group(3) or "").split("/") if x.strip().isdigit()]
+        if hd and len(set(hd)) == 1:
+            h["hdcp"] = int(hd[0])
+        greens = []
+        for tr in re.findall(r"<tr>(.*?)</tr>", chunk, re.S | re.I):
+            cells = [text_of(c) for c in re.findall(r"<td[^>]*>(.*?)</td>", tr, re.S | re.I)]
+            if len(cells) >= 6 and "green" in cells[0].lower():
+                nums = [int(x) for x in cells[1:] if x.strip().isdigit()]
+                if nums:
+                    greens.append(nums[0])       # 그 그린의 백티
+        if greens and len(set(greens)) == 1:
+            h["len"] = greens[0]
+        body = re.search(r'<div class="point_title">코스공략법</div>\s*<p[^>]*>(.*?)</p>',
+                         chunk, re.S | re.I)
+        if body:
+            t = clean_tip(text_of(body.group(1)), h["no"], h["par"])
+            if t:
+                h["tip"] = t
+        img = re.search(r'<img[^>]+src="([^"]*course\d+\.(?:jpg|png))"', chunk, re.I)
+        if img:
+            h["_siteimg"] = os.path.basename(img.group(1)).lower()
+        out.append(h)
+    return out
+
+
 GI_HEAD = re.compile(r"<strong>(\d+)</strong>\s*Par\s*(\d)", re.I)
 GI_DIST = re.compile(r"([\d.]+)\s*yds?\s*/\s*([\d.]+)\s*m", re.I)
 
@@ -277,7 +325,7 @@ def parse_greeninfo(pages):
 
 
 PROFILES = {"holetitle": parse_holetitle, "holecontent": parse_holecontent,
-            "tabhole": parse_tabhole}
+            "tabhole": parse_tabhole, "menutab": parse_menutab}
 
 
 def remake_image(folder, site_base, app_rel):

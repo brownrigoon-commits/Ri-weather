@@ -208,7 +208,7 @@ const HOLEIMG_DB = {
     source: "골프존 코스 데이터 (홀맵·파·거리·고도차·홀 영상)",
     sourceUrl: "http://www.lakehills.co.kr/g_jj",
     courses: [
-      { name: "OUT", holes: [
+      { name: "아쿠아마린", holes: [
         { no: 1, par: 4, img: "holeimg/gz11dadd/1out1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_297_01_01.mp4", frames: ["holeimg/gz11dadd/fout1_1.jpg", "holeimg/gz11dadd/fout1_2.jpg", "holeimg/gz11dadd/fout1_3.jpg"], elev: -24, tees: [{ name: "챔피언", m: 368 }, { name: "백", m: 350 }, { name: "프론트", m: 316 }, { name: "시니어", m: 290 }], len: 368 },
         { no: 2, par: 5, img: "holeimg/gz11dadd/1out2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_297_01_02.mp4", frames: ["holeimg/gz11dadd/fout2_1.jpg", "holeimg/gz11dadd/fout2_2.jpg", "holeimg/gz11dadd/fout2_3.jpg"], elev: -40, tees: [{ name: "챔피언", m: 514 }, { name: "백", m: 496 }, { name: "프론트", m: 472 }, { name: "시니어", m: 428 }], len: 514 },
         { no: 3, par: 3, img: "holeimg/gz11dadd/1out3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_297_01_03.mp4", frames: ["holeimg/gz11dadd/fout3_1.jpg", "holeimg/gz11dadd/fout3_2.jpg"], elev: -6, tees: [{ name: "챔피언", m: 179 }, { name: "백", m: 153 }, { name: "프론트", m: 105 }, { name: "시니어", m: 92 }], len: 179 },
@@ -219,7 +219,7 @@ const HOLEIMG_DB = {
         { no: 8, par: 4, img: "holeimg/gz11dadd/1out8.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_297_01_08.mp4", frames: ["holeimg/gz11dadd/fout8_1.jpg", "holeimg/gz11dadd/fout8_2.jpg", "holeimg/gz11dadd/fout8_3.jpg"], elev: 22, tees: [{ name: "챔피언", m: 306 }, { name: "백", m: 295 }, { name: "프론트", m: 278 }, { name: "시니어", m: 240 }], len: 306 },
         { no: 9, par: 4, img: "holeimg/gz11dadd/1out9.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_297_01_09.mp4", frames: ["holeimg/gz11dadd/fout9_1.jpg", "holeimg/gz11dadd/fout9_2.jpg", "holeimg/gz11dadd/fout9_3.jpg"], tees: [{ name: "챔피언", m: 396 }, { name: "백", m: 378 }, { name: "프론트", m: 323 }, { name: "시니어", m: 285 }], len: 396 },
       ]},
-      { name: "IN", holes: [
+      { name: "토파즈", holes: [
         { no: 1, par: 4, img: "holeimg/gz11dadd/2in1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_297_02_01.mp4", frames: ["holeimg/gz11dadd/fin1_1.jpg", "holeimg/gz11dadd/fin1_2.jpg", "holeimg/gz11dadd/fin1_3.jpg"], elev: 14, tees: [{ name: "챔피언", m: 380 }, { name: "백", m: 345 }, { name: "프론트", m: 275 }, { name: "시니어", m: 246 }, { name: "레이디", m: 245 }], len: 380 },
         { no: 2, par: 3, img: "holeimg/gz11dadd/2in2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_297_02_02.mp4", frames: ["holeimg/gz11dadd/fin2_1.jpg", "holeimg/gz11dadd/fin2_2.jpg"], elev: -34, tees: [{ name: "챔피언", m: 182 }, { name: "백", m: 155 }, { name: "프론트", m: 133 }, { name: "시니어", m: 103 }], len: 182 },
         { no: 3, par: 4, img: "holeimg/gz11dadd/2in3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_297_02_03.mp4", frames: ["holeimg/gz11dadd/fin3_1.jpg", "holeimg/gz11dadd/fin3_2.jpg", "holeimg/gz11dadd/fin3_3.jpg"], elev: -43, tees: [{ name: "챔피언", m: 356 }, { name: "백", m: 341 }, { name: "프론트", m: 324 }, { name: "시니어", m: 297 }], len: 356 },
@@ -432,7 +432,7 @@ const HOLEIMG_DB = {
     source: "골프존 코스 데이터 (홀맵·파·거리·고도차·홀 영상)",
     sourceUrl: "https://www.seosansoo.com/",
     courses: [
-      { name: "OUT", holes: [
+      { name: "서산", holes: [
         { no: 1, par: 4, img: "holeimg/gz1b2309/1out1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1309_01_01.mp4", frames: ["holeimg/gz1b2309/fout1_1.jpg", "holeimg/gz1b2309/fout1_2.jpg", "holeimg/gz1b2309/fout1_3.jpg"], elev: -5, tees: [{ name: "챔피언", m: 362 }, { name: "백", m: 334 }, { name: "프론트", m: 316 }, { name: "시니어", m: 295 }, { name: "레이디", m: 263 }], len: 362 },
         { no: 2, par: 5, img: "holeimg/gz1b2309/1out2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1309_01_02.mp4", frames: ["holeimg/gz1b2309/fout2_1.jpg", "holeimg/gz1b2309/fout2_2.jpg", "holeimg/gz1b2309/fout2_3.jpg"], elev: -23, tees: [{ name: "챔피언", m: 549 }, { name: "백", m: 526 }, { name: "프론트", m: 519 }, { name: "시니어", m: 493 }, { name: "레이디", m: 460 }], len: 549 },
         { no: 3, par: 4, img: "holeimg/gz1b2309/1out3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1309_01_03.mp4", frames: ["holeimg/gz1b2309/fout3_1.jpg", "holeimg/gz1b2309/fout3_2.jpg", "holeimg/gz1b2309/fout3_3.jpg"], elev: 12, tees: [{ name: "챔피언", m: 411 }, { name: "백", m: 360 }, { name: "프론트", m: 329 }, { name: "시니어", m: 291 }, { name: "레이디", m: 258 }], len: 411 },
@@ -443,7 +443,7 @@ const HOLEIMG_DB = {
         { no: 8, par: 3, img: "holeimg/gz1b2309/1out8.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1309_01_08.mp4", frames: ["holeimg/gz1b2309/fout8_1.jpg", "holeimg/gz1b2309/fout8_2.jpg"], elev: -4, tees: [{ name: "챔피언", m: 176 }, { name: "백", m: 173 }, { name: "프론트", m: 142 }, { name: "시니어", m: 115 }, { name: "레이디", m: 102 }], len: 176 },
         { no: 9, par: 5, img: "holeimg/gz1b2309/1out9.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1309_01_09.mp4", frames: ["holeimg/gz1b2309/fout9_1.jpg", "holeimg/gz1b2309/fout9_2.jpg", "holeimg/gz1b2309/fout9_3.jpg"], elev: 7, tees: [{ name: "챔피언", m: 469 }, { name: "백", m: 460 }, { name: "프론트", m: 437 }, { name: "시니어", m: 420 }, { name: "레이디", m: 405 }], len: 469 },
       ]},
-      { name: "IN", holes: [
+      { name: "산수", holes: [
         { no: 1, par: 4, img: "holeimg/gz1b2309/2in1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1309_02_01.mp4", frames: ["holeimg/gz1b2309/fin1_1.jpg", "holeimg/gz1b2309/fin1_2.jpg", "holeimg/gz1b2309/fin1_3.jpg"], elev: -18, tees: [{ name: "챔피언", m: 345 }, { name: "백", m: 317 }, { name: "프론트", m: 308 }, { name: "시니어", m: 287 }, { name: "레이디", m: 262 }], len: 345 },
         { no: 2, par: 4, img: "holeimg/gz1b2309/2in2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1309_02_02.mp4", frames: ["holeimg/gz1b2309/fin2_1.jpg", "holeimg/gz1b2309/fin2_2.jpg", "holeimg/gz1b2309/fin2_3.jpg"], elev: 15, tees: [{ name: "챔피언", m: 312 }, { name: "백", m: 302 }, { name: "프론트", m: 277 }, { name: "시니어", m: 253 }, { name: "레이디", m: 252 }], len: 312 },
         { no: 3, par: 5, img: "holeimg/gz1b2309/2in3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1309_02_03.mp4", frames: ["holeimg/gz1b2309/fin3_1.jpg", "holeimg/gz1b2309/fin3_2.jpg", "holeimg/gz1b2309/fin3_3.jpg"], elev: -45, tees: [{ name: "챔피언", m: 550 }, { name: "백", m: 532 }, { name: "프론트", m: 508 }, { name: "시니어", m: 479 }, { name: "레이디", m: 383 }], len: 550 },
@@ -488,7 +488,7 @@ const HOLEIMG_DB = {
     source: "골프존 코스 데이터 (홀맵·파·거리·고도차·홀 영상)",
     sourceUrl: "http://www.taeincc.co.kr",
     courses: [
-      { name: "OUT", holes: [
+      { name: "LAKE", holes: [
         { no: 1, par: 4, img: "holeimg/gz1d3308/1out1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_63_01_01.mp4", frames: ["holeimg/gz1d3308/fout1_1.jpg", "holeimg/gz1d3308/fout1_2.jpg", "holeimg/gz1d3308/fout1_3.jpg"], elev: -42, tees: [{ name: "챔피언", m: 351 }, { name: "프론트", m: 339 }, { name: "시니어", m: 323 }, { name: "레이디", m: 304 }], len: 351 },
         { no: 2, par: 3, img: "holeimg/gz1d3308/1out2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_63_01_02.mp4", frames: ["holeimg/gz1d3308/fout2_1.jpg", "holeimg/gz1d3308/fout2_2.jpg"], elev: -7, tees: [{ name: "챔피언", m: 161 }, { name: "프론트", m: 149 }, { name: "시니어", m: 136 }, { name: "레이디", m: 132 }], len: 161 },
         { no: 3, par: 5, img: "holeimg/gz1d3308/1out3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_63_01_03.mp4", frames: ["holeimg/gz1d3308/fout3_1.jpg", "holeimg/gz1d3308/fout3_2.jpg", "holeimg/gz1d3308/fout3_3.jpg"], elev: 14, tees: [{ name: "챔피언", m: 499 }, { name: "프론트", m: 482 }, { name: "시니어", m: 467 }, { name: "레이디", m: 403 }], len: 499 },
@@ -499,7 +499,7 @@ const HOLEIMG_DB = {
         { no: 8, par: 4, img: "holeimg/gz1d3308/1out8.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_63_01_08.mp4", frames: ["holeimg/gz1d3308/fout8_1.jpg", "holeimg/gz1d3308/fout8_2.jpg", "holeimg/gz1d3308/fout8_3.jpg"], elev: 15, tees: [{ name: "챔피언", m: 318 }, { name: "프론트", m: 301 }, { name: "시니어", m: 277 }, { name: "레이디", m: 229 }], len: 318 },
         { no: 9, par: 4, img: "holeimg/gz1d3308/1out9.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_63_01_09.mp4", frames: ["holeimg/gz1d3308/fout9_1.jpg", "holeimg/gz1d3308/fout9_2.jpg", "holeimg/gz1d3308/fout9_3.jpg"], elev: 24, tees: [{ name: "챔피언", m: 349 }, { name: "프론트", m: 333 }, { name: "시니어", m: 320 }, { name: "레이디", m: 286 }], len: 349 },
       ]},
-      { name: "IN", holes: [
+      { name: "MOUNTAIN", holes: [
         { no: 1, par: 4, img: "holeimg/gz1d3308/2in1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_63_02_01.mp4", frames: ["holeimg/gz1d3308/fin1_1.jpg", "holeimg/gz1d3308/fin1_2.jpg", "holeimg/gz1d3308/fin1_3.jpg"], elev: -32, tees: [{ name: "챔피언", m: 375 }, { name: "프론트", m: 371 }, { name: "시니어", m: 347 }, { name: "레이디", m: 314 }], len: 375 },
         { no: 2, par: 5, img: "holeimg/gz1d3308/2in2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_63_02_02.mp4", frames: ["holeimg/gz1d3308/fin2_1.jpg", "holeimg/gz1d3308/fin2_2.jpg", "holeimg/gz1d3308/fin2_3.jpg"], tees: [{ name: "챔피언", m: 547 }, { name: "프론트", m: 533 }, { name: "시니어", m: 513 }, { name: "레이디", m: 455 }], len: 547 },
         { no: 3, par: 4, img: "holeimg/gz1d3308/2in3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_63_02_03.mp4", frames: ["holeimg/gz1d3308/fin3_1.jpg", "holeimg/gz1d3308/fin3_2.jpg", "holeimg/gz1d3308/fin3_3.jpg"], elev: 3, tees: [{ name: "챔피언", m: 366 }, { name: "프론트", m: 348 }, { name: "시니어", m: 327 }, { name: "레이디", m: 257 }], len: 366 },
@@ -544,7 +544,7 @@ const HOLEIMG_DB = {
     source: "골프존 코스 데이터 (홀맵·파·거리·고도차·홀 영상)",
     sourceUrl: "https://www.diamondcc.co.kr/",
     courses: [
-      { name: "OUT", holes: [
+      { name: "NORTH", holes: [
         { no: 1, par: 4, img: "holeimg/gz1e342a/1out1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1210_01_01.mp4", frames: ["holeimg/gz1e342a/fout1_1.jpg", "holeimg/gz1e342a/fout1_2.jpg", "holeimg/gz1e342a/fout1_3.jpg"], elev: -11, tees: [{ name: "챔피언", m: 327 }, { name: "백", m: 326 }, { name: "프론트", m: 297 }, { name: "시니어", m: 280 }, { name: "레이디", m: 279 }], len: 327 },
         { no: 2, par: 5, img: "holeimg/gz1e342a/1out2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1210_01_02.mp4", frames: ["holeimg/gz1e342a/fout2_1.jpg", "holeimg/gz1e342a/fout2_2.jpg", "holeimg/gz1e342a/fout2_3.jpg"], tees: [{ name: "챔피언", m: 458 }, { name: "백", m: 457 }, { name: "프론트", m: 428 }, { name: "시니어", m: 374 }, { name: "레이디", m: 373 }], len: 458 },
         { no: 3, par: 4, img: "holeimg/gz1e342a/1out3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1210_01_03.mp4", frames: ["holeimg/gz1e342a/fout3_1.jpg", "holeimg/gz1e342a/fout3_2.jpg"], tees: [{ name: "챔피언", m: 291 }, { name: "프론트", m: 290 }, { name: "시니어", m: 224 }, { name: "레이디", m: 223 }], len: 291 },
@@ -555,7 +555,7 @@ const HOLEIMG_DB = {
         { no: 8, par: 4, img: "holeimg/gz1e342a/1out8.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1210_01_08.mp4", frames: ["holeimg/gz1e342a/fout8_1.jpg", "holeimg/gz1e342a/fout8_2.jpg", "holeimg/gz1e342a/fout8_3.jpg"], elev: -4, tees: [{ name: "챔피언", m: 345 }, { name: "백", m: 344 }, { name: "프론트", m: 331 }, { name: "시니어", m: 295 }, { name: "레이디", m: 294 }], len: 345 },
         { no: 9, par: 4, img: "holeimg/gz1e342a/1out9.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1210_01_09.mp4", frames: ["holeimg/gz1e342a/fout9_1.jpg", "holeimg/gz1e342a/fout9_2.jpg", "holeimg/gz1e342a/fout9_3.jpg"], elev: -34, tees: [{ name: "챔피언", m: 380 }, { name: "프론트", m: 361 }, { name: "시니어", m: 313 }, { name: "레이디", m: 312 }], len: 380 },
       ]},
-      { name: "IN", holes: [
+      { name: "SOUTH", holes: [
         { no: 1, par: 4, img: "holeimg/gz1e342a/2in1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1210_02_01.mp4", frames: ["holeimg/gz1e342a/fin1_1.jpg", "holeimg/gz1e342a/fin1_2.jpg", "holeimg/gz1e342a/fin1_3.jpg"], tees: [{ name: "챔피언", m: 363 }, { name: "백", m: 362 }, { name: "프론트", m: 350 }, { name: "시니어", m: 313 }, { name: "레이디", m: 312 }], len: 363 },
         { no: 2, par: 5, img: "holeimg/gz1e342a/2in2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1210_02_02.mp4", frames: ["holeimg/gz1e342a/fin2_1.jpg", "holeimg/gz1e342a/fin2_2.jpg", "holeimg/gz1e342a/fin2_3.jpg"], elev: -35, tees: [{ name: "챔피언", m: 487 }, { name: "백", m: 486 }, { name: "프론트", m: 461 }, { name: "시니어", m: 423 }, { name: "레이디", m: 422 }], len: 487 },
         { no: 3, par: 3, img: "holeimg/gz1e342a/2in3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1210_02_03.mp4", frames: ["holeimg/gz1e342a/fin3_1.jpg", "holeimg/gz1e342a/fin3_2.jpg"], elev: -37, tees: [{ name: "챔피언", m: 183 }, { name: "프론트", m: 160 }, { name: "시니어", m: 134 }, { name: "레이디", m: 133 }], len: 183 },
@@ -572,7 +572,7 @@ const HOLEIMG_DB = {
     source: "골프존 코스 데이터 (홀맵·파·거리·고도차·홀 영상)",
     sourceUrl: "http://www.oceanhills.com/new/index_intro_1.asp",
     courses: [
-      { name: "OUT", holes: [
+      { name: "VALLEY", holes: [
         { no: 1, par: 4, img: "holeimg/gz1fb2b4/1out1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_444_01_01.mp4", frames: ["holeimg/gz1fb2b4/fout1_1.jpg", "holeimg/gz1fb2b4/fout1_2.jpg", "holeimg/gz1fb2b4/fout1_3.jpg"], elev: 14, tees: [{ name: "챔피언", m: 363 }, { name: "백", m: 346 }, { name: "프론트", m: 321 }, { name: "시니어", m: 292 }, { name: "레이디", m: 273 }], len: 363 },
         { no: 2, par: 4, img: "holeimg/gz1fb2b4/1out2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_444_01_02.mp4", frames: ["holeimg/gz1fb2b4/fout2_1.jpg", "holeimg/gz1fb2b4/fout2_2.jpg", "holeimg/gz1fb2b4/fout2_3.jpg"], elev: -23, tees: [{ name: "챔피언", m: 390 }, { name: "백", m: 368 }, { name: "프론트", m: 343 }, { name: "시니어", m: 321 }], len: 390 },
         { no: 3, par: 3, img: "holeimg/gz1fb2b4/1out3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_444_01_03.mp4", frames: ["holeimg/gz1fb2b4/fout3_1.jpg", "holeimg/gz1fb2b4/fout3_2.jpg"], tees: [{ name: "챔피언", m: 169 }, { name: "백", m: 143 }, { name: "프론트", m: 129 }, { name: "시니어", m: 111 }], len: 169 },
@@ -583,7 +583,7 @@ const HOLEIMG_DB = {
         { no: 8, par: 3, img: "holeimg/gz1fb2b4/1out8.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_444_01_08.mp4", frames: ["holeimg/gz1fb2b4/fout8_1.jpg", "holeimg/gz1fb2b4/fout8_2.jpg"], tees: [{ name: "챔피언", m: 170 }, { name: "프론트", m: 138 }, { name: "시니어", m: 113 }], len: 170 },
         { no: 9, par: 5, img: "holeimg/gz1fb2b4/1out9.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_444_01_09.mp4", frames: ["holeimg/gz1fb2b4/fout9_1.jpg", "holeimg/gz1fb2b4/fout9_2.jpg", "holeimg/gz1fb2b4/fout9_3.jpg"], elev: -35, tees: [{ name: "챔피언", m: 603 }, { name: "백", m: 567 }, { name: "프론트", m: 543 }, { name: "시니어", m: 507 }, { name: "레이디", m: 470 }], len: 603 },
       ]},
-      { name: "IN", holes: [
+      { name: "CREEK", holes: [
         { no: 1, par: 4, img: "holeimg/gz1fb2b4/2in1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_444_02_01.mp4", frames: ["holeimg/gz1fb2b4/fin1_1.jpg", "holeimg/gz1fb2b4/fin1_2.jpg", "holeimg/gz1fb2b4/fin1_3.jpg"], elev: -12, tees: [{ name: "챔피언", m: 356 }, { name: "백", m: 330 }, { name: "프론트", m: 308 }, { name: "시니어", m: 281 }], len: 356 },
         { no: 2, par: 4, img: "holeimg/gz1fb2b4/2in2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_444_02_02.mp4", frames: ["holeimg/gz1fb2b4/fin2_1.jpg", "holeimg/gz1fb2b4/fin2_2.jpg", "holeimg/gz1fb2b4/fin2_3.jpg"], elev: -23, tees: [{ name: "챔피언", m: 394 }, { name: "백", m: 376 }, { name: "프론트", m: 350 }, { name: "시니어", m: 287 }], len: 394 },
         { no: 3, par: 3, img: "holeimg/gz1fb2b4/2in3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_444_02_03.mp4", frames: ["holeimg/gz1fb2b4/fin3_1.jpg", "holeimg/gz1fb2b4/fin3_2.jpg"], elev: -11, tees: [{ name: "챔피언", m: 171 }, { name: "백", m: 153 }, { name: "프론트", m: 130 }, { name: "시니어", m: 112 }, { name: "레이디", m: 93 }], len: 171 },
@@ -684,7 +684,7 @@ const HOLEIMG_DB = {
     source: "골프존 코스 데이터 (홀맵·파·거리·고도차·홀 영상)",
     sourceUrl: "https://www.npcc.co.kr/",
     courses: [
-      { name: "OUT", holes: [
+      { name: "WEST", holes: [
         { no: 1, par: 5, img: "holeimg/gz2346df/1out1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1303_01_01.mp4", frames: ["holeimg/gz2346df/fout1_1.jpg", "holeimg/gz2346df/fout1_2.jpg", "holeimg/gz2346df/fout1_3.jpg"], elev: 17, tees: [{ name: "챔피언", m: 500 }, { name: "프론트", m: 481 }, { name: "시니어", m: 472 }, { name: "레이디", m: 345 }], len: 500 },
         { no: 2, par: 4, img: "holeimg/gz2346df/1out2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1303_01_02.mp4", frames: ["holeimg/gz2346df/fout2_1.jpg", "holeimg/gz2346df/fout2_2.jpg", "holeimg/gz2346df/fout2_3.jpg"], elev: -18, tees: [{ name: "챔피언", m: 378 }, { name: "프론트", m: 356 }, { name: "시니어", m: 328 }, { name: "레이디", m: 303 }], len: 378 },
         { no: 3, par: 3, img: "holeimg/gz2346df/1out3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1303_01_03.mp4", frames: ["holeimg/gz2346df/fout3_1.jpg", "holeimg/gz2346df/fout3_2.jpg"], elev: -21, tees: [{ name: "챔피언", m: 148 }, { name: "백", m: 147 }, { name: "프론트", m: 132 }, { name: "시니어", m: 128 }, { name: "레이디", m: 111 }], len: 148 },
@@ -695,7 +695,7 @@ const HOLEIMG_DB = {
         { no: 8, par: 4, img: "holeimg/gz2346df/1out8.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1303_01_08.mp4", frames: ["holeimg/gz2346df/fout8_1.jpg", "holeimg/gz2346df/fout8_2.jpg", "holeimg/gz2346df/fout8_3.jpg"], tees: [{ name: "챔피언", m: 352 }, { name: "프론트", m: 333 }, { name: "시니어", m: 323 }, { name: "레이디", m: 302 }], len: 352 },
         { no: 9, par: 4, img: "holeimg/gz2346df/1out9.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1303_01_09.mp4", frames: ["holeimg/gz2346df/fout9_1.jpg", "holeimg/gz2346df/fout9_2.jpg", "holeimg/gz2346df/fout9_3.jpg"], elev: 5, tees: [{ name: "챔피언", m: 352 }, { name: "프론트", m: 332 }, { name: "시니어", m: 312 }, { name: "레이디", m: 302 }], len: 352 },
       ]},
-      { name: "IN", holes: [
+      { name: "EAST", holes: [
         { no: 1, par: 4, img: "holeimg/gz2346df/2in1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1303_02_01.mp4", frames: ["holeimg/gz2346df/fin1_1.jpg", "holeimg/gz2346df/fin1_2.jpg", "holeimg/gz2346df/fin1_3.jpg"], elev: 17, tees: [{ name: "챔피언", m: 318 }, { name: "프론트", m: 300 }, { name: "시니어", m: 284 }, { name: "레이디", m: 267 }], len: 318 },
         { no: 2, par: 5, img: "holeimg/gz2346df/2in2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1303_02_02.mp4", frames: ["holeimg/gz2346df/fin2_1.jpg", "holeimg/gz2346df/fin2_2.jpg", "holeimg/gz2346df/fin2_3.jpg"], elev: -9, tees: [{ name: "챔피언", m: 457 }, { name: "프론트", m: 409 }, { name: "시니어", m: 373 }, { name: "레이디", m: 343 }], len: 457 },
         { no: 3, par: 4, img: "holeimg/gz2346df/2in3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1303_02_03.mp4", frames: ["holeimg/gz2346df/fin3_1.jpg", "holeimg/gz2346df/fin3_2.jpg", "holeimg/gz2346df/fin3_3.jpg"], tees: [{ name: "챔피언", m: 378 }, { name: "백", m: 377 }, { name: "프론트", m: 360 }, { name: "시니어", m: 349 }, { name: "레이디", m: 328 }], len: 378 },
@@ -712,7 +712,7 @@ const HOLEIMG_DB = {
     source: "골프존 코스 데이터 (홀맵·파·거리·고도차·홀 영상)",
     sourceUrl: "http://www.cwgc.kr/",
     courses: [
-      { name: "OUT", holes: [
+      { name: "블루", holes: [
         { no: 1, par: 4, img: "holeimg/gz234f53/1out1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_88_01_01.mp4", frames: ["holeimg/gz234f53/fout1_1.jpg", "holeimg/gz234f53/fout1_2.jpg", "holeimg/gz234f53/fout1_3.jpg"], elev: -22, tees: [{ name: "챔피언", m: 387 }, { name: "백", m: 386 }, { name: "프론트", m: 355 }, { name: "시니어", m: 285 }, { name: "레이디", m: 266 }], len: 387 },
         { no: 2, par: 4, img: "holeimg/gz234f53/1out2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_88_01_02.mp4", frames: ["holeimg/gz234f53/fout2_1.jpg", "holeimg/gz234f53/fout2_2.jpg", "holeimg/gz234f53/fout2_3.jpg"], elev: 12, tees: [{ name: "챔피언", m: 368 }, { name: "프론트", m: 339 }, { name: "시니어", m: 316 }, { name: "레이디", m: 288 }], len: 368 },
         { no: 3, par: 4, img: "holeimg/gz234f53/1out3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_88_01_03.mp4", frames: ["holeimg/gz234f53/fout3_1.jpg", "holeimg/gz234f53/fout3_2.jpg", "holeimg/gz234f53/fout3_3.jpg"], tees: [{ name: "챔피언", m: 367 }, { name: "프론트", m: 353 }, { name: "시니어", m: 263 }, { name: "레이디", m: 224 }], len: 367 },
@@ -723,7 +723,7 @@ const HOLEIMG_DB = {
         { no: 8, par: 4, img: "holeimg/gz234f53/1out8.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_88_01_08.mp4", frames: ["holeimg/gz234f53/fout8_1.jpg", "holeimg/gz234f53/fout8_2.jpg", "holeimg/gz234f53/fout8_3.jpg"], tees: [{ name: "챔피언", m: 342 }, { name: "프론트", m: 301 }, { name: "시니어", m: 233 }, { name: "레이디", m: 223 }], len: 342 },
         { no: 9, par: 5, img: "holeimg/gz234f53/1out9.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_88_01_09.mp4", frames: ["holeimg/gz234f53/fout9_1.jpg", "holeimg/gz234f53/fout9_2.jpg", "holeimg/gz234f53/fout9_3.jpg"], elev: 18, tees: [{ name: "챔피언", m: 492 }, { name: "백", m: 491 }, { name: "프론트", m: 469 }, { name: "시니어", m: 411 }, { name: "레이디", m: 362 }], len: 492 },
       ]},
-      { name: "IN", holes: [
+      { name: "코스모스", holes: [
         { no: 1, par: 4, img: "holeimg/gz234f53/2in1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_88_02_01.mp4", frames: ["holeimg/gz234f53/fin1_1.jpg", "holeimg/gz234f53/fin1_2.jpg", "holeimg/gz234f53/fin1_3.jpg"], elev: -11, tees: [{ name: "챔피언", m: 386 }, { name: "백", m: 385 }, { name: "프론트", m: 370 }, { name: "시니어", m: 271 }, { name: "레이디", m: 254 }], len: 386 },
         { no: 2, par: 4, img: "holeimg/gz234f53/2in2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_88_02_02.mp4", frames: ["holeimg/gz234f53/fin2_1.jpg", "holeimg/gz234f53/fin2_2.jpg", "holeimg/gz234f53/fin2_3.jpg"], elev: 22, tees: [{ name: "챔피언", m: 297 }, { name: "프론트", m: 289 }, { name: "시니어", m: 244 }, { name: "레이디", m: 207 }], len: 297 },
         { no: 3, par: 3, img: "holeimg/gz234f53/2in3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_88_02_03.mp4", frames: ["holeimg/gz234f53/fin3_1.jpg", "holeimg/gz234f53/fin3_2.jpg"], elev: -23, tees: [{ name: "챔피언", m: 188 }, { name: "프론트", m: 166 }, { name: "시니어", m: 113 }, { name: "레이디", m: 107 }], len: 188 },
@@ -740,7 +740,7 @@ const HOLEIMG_DB = {
     source: "골프존 코스 데이터 (홀맵·파·거리·고도차·홀 영상)",
     sourceUrl: "https://www.stonegatecc.co.kr",
     courses: [
-      { name: "OUT", holes: [
+      { name: "스톤", holes: [
         { no: 1, par: 4, img: "holeimg/gz24c8c/1out1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_755_01_01.mp4", frames: ["holeimg/gz24c8c/fout1_1.jpg", "holeimg/gz24c8c/fout1_2.jpg", "holeimg/gz24c8c/fout1_3.jpg"], elev: 4, tees: [{ name: "챔피언", m: 331 }, { name: "백", m: 312 }, { name: "프론트", m: 286 }, { name: "시니어", m: 270 }, { name: "레이디", m: 256 }], len: 331 },
         { no: 2, par: 5, img: "holeimg/gz24c8c/1out2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_755_01_02.mp4", frames: ["holeimg/gz24c8c/fout2_1.jpg", "holeimg/gz24c8c/fout2_2.jpg", "holeimg/gz24c8c/fout2_3.jpg"], elev: -37, tees: [{ name: "챔피언", m: 467 }, { name: "백", m: 448 }, { name: "프론트", m: 423 }, { name: "시니어", m: 401 }, { name: "레이디", m: 393 }], len: 467 },
         { no: 3, par: 4, img: "holeimg/gz24c8c/1out3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_755_01_03.mp4", frames: ["holeimg/gz24c8c/fout3_1.jpg", "holeimg/gz24c8c/fout3_2.jpg", "holeimg/gz24c8c/fout3_3.jpg"], elev: 11, tees: [{ name: "챔피언", m: 305 }, { name: "백", m: 288 }, { name: "프론트", m: 260 }, { name: "시니어", m: 226 }, { name: "레이디", m: 218 }], len: 305 },
@@ -751,7 +751,7 @@ const HOLEIMG_DB = {
         { no: 8, par: 5, img: "holeimg/gz24c8c/1out8.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_755_01_08.mp4", frames: ["holeimg/gz24c8c/fout8_1.jpg", "holeimg/gz24c8c/fout8_2.jpg", "holeimg/gz24c8c/fout8_3.jpg"], elev: 29, tees: [{ name: "챔피언", m: 510 }, { name: "백", m: 486 }, { name: "프론트", m: 466 }, { name: "시니어", m: 416 }, { name: "레이디", m: 404 }], len: 510 },
         { no: 9, par: 4, img: "holeimg/gz24c8c/1out9.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_755_01_09.mp4", frames: ["holeimg/gz24c8c/fout9_1.jpg", "holeimg/gz24c8c/fout9_2.jpg", "holeimg/gz24c8c/fout9_3.jpg"], elev: -7, tees: [{ name: "챔피언", m: 348 }, { name: "백", m: 327 }, { name: "프론트", m: 315 }, { name: "시니어", m: 301 }, { name: "레이디", m: 283 }], len: 348 },
       ]},
-      { name: "IN", holes: [
+      { name: "게이트", holes: [
         { no: 1, par: 3, img: "holeimg/gz24c8c/2in1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_755_02_01.mp4", frames: ["holeimg/gz24c8c/fin1_1.jpg", "holeimg/gz24c8c/fin1_2.jpg"], tees: [{ name: "챔피언", m: 164 }, { name: "백", m: 146 }, { name: "프론트", m: 129 }, { name: "시니어", m: 119 }, { name: "레이디", m: 111 }], len: 164 },
         { no: 2, par: 4, img: "holeimg/gz24c8c/2in2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_755_02_02.mp4", frames: ["holeimg/gz24c8c/fin2_1.jpg", "holeimg/gz24c8c/fin2_2.jpg", "holeimg/gz24c8c/fin2_3.jpg"], elev: -16, tees: [{ name: "챔피언", m: 370 }, { name: "백", m: 341 }, { name: "프론트", m: 320 }, { name: "시니어", m: 296 }, { name: "레이디", m: 276 }], len: 370 },
         { no: 3, par: 4, img: "holeimg/gz24c8c/2in3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_755_02_03.mp4", frames: ["holeimg/gz24c8c/fin3_1.jpg", "holeimg/gz24c8c/fin3_2.jpg", "holeimg/gz24c8c/fin3_3.jpg"], elev: 27, tees: [{ name: "챔피언", m: 304 }, { name: "백", m: 276 }, { name: "프론트", m: 258 }, { name: "시니어", m: 243 }, { name: "레이디", m: 232 }], len: 304 },
@@ -768,7 +768,7 @@ const HOLEIMG_DB = {
     source: "골프존 코스 데이터 (홀맵·파·거리·고도차·홀 영상)",
     sourceUrl: "http://www.golfzoncounty.com/gcounty/info/main?cc_code=30",
     courses: [
-      { name: "OUT", holes: [
+      { name: "LAKE", holes: [
         { no: 1, par: 4, img: "holeimg/gz25546e/1out1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_528_01_01.mp4", frames: ["holeimg/gz25546e/fout1_1.jpg", "holeimg/gz25546e/fout1_2.jpg", "holeimg/gz25546e/fout1_3.jpg"], elev: 8, tees: [{ name: "챔피언", m: 409 }, { name: "백", m: 401 }, { name: "프론트", m: 369 }, { name: "시니어", m: 344 }, { name: "레이디", m: 325 }], len: 409 },
         { no: 2, par: 5, img: "holeimg/gz25546e/1out2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_528_01_02.mp4", frames: ["holeimg/gz25546e/fout2_1.jpg", "holeimg/gz25546e/fout2_2.jpg", "holeimg/gz25546e/fout2_3.jpg"], elev: -54, tees: [{ name: "챔피언", m: 518 }, { name: "백", m: 501 }, { name: "프론트", m: 462 }, { name: "시니어", m: 403 }, { name: "레이디", m: 391 }], len: 518 },
         { no: 3, par: 3, img: "holeimg/gz25546e/1out3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_528_01_03.mp4", frames: ["holeimg/gz25546e/fout3_1.jpg", "holeimg/gz25546e/fout3_2.jpg"], elev: -18, tees: [{ name: "챔피언", m: 160 }, { name: "백", m: 150 }, { name: "프론트", m: 149 }, { name: "시니어", m: 126 }, { name: "레이디", m: 120 }], len: 160 },
@@ -779,7 +779,7 @@ const HOLEIMG_DB = {
         { no: 8, par: 5, img: "holeimg/gz25546e/1out8.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_528_01_08.mp4", frames: ["holeimg/gz25546e/fout8_1.jpg", "holeimg/gz25546e/fout8_2.jpg", "holeimg/gz25546e/fout8_3.jpg"], tees: [{ name: "챔피언", m: 472 }, { name: "백", m: 454 }, { name: "프론트", m: 434 }, { name: "시니어", m: 413 }, { name: "레이디", m: 409 }], len: 472 },
         { no: 9, par: 4, img: "holeimg/gz25546e/1out9.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_528_01_09.mp4", frames: ["holeimg/gz25546e/fout9_1.jpg", "holeimg/gz25546e/fout9_2.jpg", "holeimg/gz25546e/fout9_3.jpg"], elev: -14, tees: [{ name: "챔피언", m: 356 }, { name: "백", m: 341 }, { name: "프론트", m: 319 }, { name: "시니어", m: 298 }, { name: "레이디", m: 268 }], len: 356 },
       ]},
-      { name: "IN", holes: [
+      { name: "MOUNTAIN", holes: [
         { no: 1, par: 4, img: "holeimg/gz25546e/2in1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_528_02_01.mp4", frames: ["holeimg/gz25546e/fin1_1.jpg", "holeimg/gz25546e/fin1_2.jpg", "holeimg/gz25546e/fin1_3.jpg"], tees: [{ name: "챔피언", m: 386 }, { name: "백", m: 372 }, { name: "프론트", m: 362 }, { name: "시니어", m: 319 }, { name: "레이디", m: 292 }], len: 386 },
         { no: 2, par: 5, img: "holeimg/gz25546e/2in2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_528_02_02.mp4", frames: ["holeimg/gz25546e/fin2_1.jpg", "holeimg/gz25546e/fin2_2.jpg", "holeimg/gz25546e/fin2_3.jpg"], elev: 37, tees: [{ name: "챔피언", m: 446 }, { name: "백", m: 427 }, { name: "프론트", m: 411 }, { name: "시니어", m: 398 }, { name: "레이디", m: 333 }], len: 446 },
         { no: 3, par: 3, img: "holeimg/gz25546e/2in3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_528_02_03.mp4", frames: ["holeimg/gz25546e/fin3_1.jpg", "holeimg/gz25546e/fin3_2.jpg"], elev: -8, tees: [{ name: "챔피언", m: 183 }, { name: "백", m: 163 }, { name: "프론트", m: 121 }, { name: "시니어", m: 119 }, { name: "레이디", m: 100 }], len: 183 },
@@ -880,7 +880,7 @@ const HOLEIMG_DB = {
     source: "골프존 코스 데이터 (홀맵·파·거리·고도차·홀 영상)",
     sourceUrl: "www.teddyvalley.com",
     courses: [
-      { name: "OUT", holes: [
+      { name: "TEDDY", holes: [
         { no: 1, par: 4, img: "holeimg/gz28985e/1out1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_61_02_01.mp4", frames: ["holeimg/gz28985e/fout1_1.jpg", "holeimg/gz28985e/fout1_2.jpg", "holeimg/gz28985e/fout1_3.jpg"], elev: -10, tees: [{ name: "챔피언", m: 387 }, { name: "백", m: 371 }, { name: "프론트", m: 352 }, { name: "시니어", m: 295 }, { name: "레이디", m: 274 }], len: 387 },
         { no: 2, par: 4, img: "holeimg/gz28985e/1out2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_61_02_02.mp4", frames: ["holeimg/gz28985e/fout2_1.jpg", "holeimg/gz28985e/fout2_2.jpg", "holeimg/gz28985e/fout2_3.jpg"], elev: 5, tees: [{ name: "챔피언", m: 349 }, { name: "백", m: 339 }, { name: "프론트", m: 324 }, { name: "시니어", m: 285 }, { name: "레이디", m: 257 }], len: 349 },
         { no: 3, par: 4, img: "holeimg/gz28985e/1out3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_61_02_03.mp4", frames: ["holeimg/gz28985e/fout3_1.jpg", "holeimg/gz28985e/fout3_2.jpg", "holeimg/gz28985e/fout3_3.jpg"], elev: -8, tees: [{ name: "챔피언", m: 370 }, { name: "백", m: 355 }, { name: "프론트", m: 335 }, { name: "시니어", m: 264 }, { name: "레이디", m: 238 }], len: 370 },
@@ -891,7 +891,7 @@ const HOLEIMG_DB = {
         { no: 8, par: 3, img: "holeimg/gz28985e/1out8.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_61_02_08.mp4", frames: ["holeimg/gz28985e/fout8_1.jpg", "holeimg/gz28985e/fout8_2.jpg"], tees: [{ name: "챔피언", m: 197 }, { name: "백", m: 171 }, { name: "프론트", m: 153 }, { name: "시니어", m: 131 }, { name: "레이디", m: 108 }], len: 197 },
         { no: 9, par: 4, img: "holeimg/gz28985e/1out9.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_61_02_09.mp4", frames: ["holeimg/gz28985e/fout9_1.jpg", "holeimg/gz28985e/fout9_2.jpg", "holeimg/gz28985e/fout9_3.jpg"], elev: 5, tees: [{ name: "챔피언", m: 358 }, { name: "백", m: 340 }, { name: "프론트", m: 318 }, { name: "시니어", m: 298 }, { name: "레이디", m: 263 }], len: 358 },
       ]},
-      { name: "IN", holes: [
+      { name: "VALLEY", holes: [
         { no: 1, par: 4, img: "holeimg/gz28985e/2in1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_61_01_01.mp4", frames: ["holeimg/gz28985e/fin1_1.jpg", "holeimg/gz28985e/fin1_2.jpg", "holeimg/gz28985e/fin1_3.jpg"], elev: -6, tees: [{ name: "챔피언", m: 388 }, { name: "백", m: 373 }, { name: "프론트", m: 354 }, { name: "시니어", m: 307 }, { name: "레이디", m: 274 }], len: 388 },
         { no: 2, par: 4, img: "holeimg/gz28985e/2in2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_61_01_02.mp4", frames: ["holeimg/gz28985e/fin2_1.jpg", "holeimg/gz28985e/fin2_2.jpg", "holeimg/gz28985e/fin2_3.jpg"], elev: -9, tees: [{ name: "챔피언", m: 375 }, { name: "백", m: 352 }, { name: "프론트", m: 338 }, { name: "시니어", m: 289 }, { name: "레이디", m: 273 }], len: 375 },
         { no: 3, par: 3, img: "holeimg/gz28985e/2in3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_61_01_03.mp4", frames: ["holeimg/gz28985e/fin3_1.jpg", "holeimg/gz28985e/fin3_2.jpg"], tees: [{ name: "챔피언", m: 196 }, { name: "백", m: 175 }, { name: "프론트", m: 153 }, { name: "시니어", m: 150 }, { name: "레이디", m: 129 }], len: 196 },
@@ -936,7 +936,7 @@ const HOLEIMG_DB = {
     source: "골프존 코스 데이터 (홀맵·파·거리·고도차·홀 영상)",
     sourceUrl: "http://www.princessgc.co.kr/",
     courses: [
-      { name: "OUT", holes: [
+      { name: "PINE", holes: [
         { no: 1, par: 4, img: "holeimg/gz28d637/1out1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_40_01_01.mp4", frames: ["holeimg/gz28d637/fout1_1.jpg", "holeimg/gz28d637/fout1_2.jpg", "holeimg/gz28d637/fout1_3.jpg"], elev: -32, tees: [{ name: "챔피언", m: 344 }, { name: "프론트", m: 315 }, { name: "시니어", m: 252 }], len: 344 },
         { no: 2, par: 4, img: "holeimg/gz28d637/1out2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_40_01_02.mp4", frames: ["holeimg/gz28d637/fout2_1.jpg", "holeimg/gz28d637/fout2_2.jpg", "holeimg/gz28d637/fout2_3.jpg"], elev: 22, tees: [{ name: "챔피언", m: 377 }, { name: "프론트", m: 337 }, { name: "시니어", m: 225 }], len: 377 },
         { no: 3, par: 4, img: "holeimg/gz28d637/1out3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_40_01_03.mp4", frames: ["holeimg/gz28d637/fout3_1.jpg", "holeimg/gz28d637/fout3_2.jpg", "holeimg/gz28d637/fout3_3.jpg"], elev: -13, tees: [{ name: "챔피언", m: 350 }, { name: "백", m: 349 }, { name: "프론트", m: 325 }, { name: "시니어", m: 252 }], len: 350 },
@@ -947,7 +947,7 @@ const HOLEIMG_DB = {
         { no: 8, par: 3, img: "holeimg/gz28d637/1out8.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_40_01_08.mp4", frames: ["holeimg/gz28d637/fout8_1.jpg", "holeimg/gz28d637/fout8_2.jpg", "holeimg/gz28d637/fout8_3.jpg"], elev: -8, tees: [{ name: "챔피언", m: 150 }, { name: "백", m: 149 }, { name: "프론트", m: 126 }, { name: "시니어", m: 95 }], len: 150 },
         { no: 9, par: 4, img: "holeimg/gz28d637/1out9.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_40_01_09.mp4", frames: ["holeimg/gz28d637/fout9_1.jpg", "holeimg/gz28d637/fout9_2.jpg", "holeimg/gz28d637/fout9_3.jpg"], elev: -7, tees: [{ name: "챔피언", m: 293 }, { name: "프론트", m: 263 }, { name: "시니어", m: 219 }], len: 293 },
       ]},
-      { name: "IN", holes: [
+      { name: "VALLEY", holes: [
         { no: 1, par: 5, img: "holeimg/gz28d637/2in1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_40_02_01.mp4", frames: ["holeimg/gz28d637/fin1_1.jpg", "holeimg/gz28d637/fin1_2.jpg", "holeimg/gz28d637/fin1_3.jpg"], elev: 5, tees: [{ name: "챔피언", m: 503 }, { name: "프론트", m: 492 }, { name: "시니어", m: 401 }], len: 503 },
         { no: 2, par: 3, img: "holeimg/gz28d637/2in2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_40_02_02.mp4", frames: ["holeimg/gz28d637/fin2_1.jpg", "holeimg/gz28d637/fin2_2.jpg", "holeimg/gz28d637/fin2_3.jpg"], elev: 4, tees: [{ name: "챔피언", m: 134 }, { name: "백", m: 133 }, { name: "프론트", m: 121 }, { name: "시니어", m: 106 }, { name: "레이디", m: 105 }], len: 134 },
         { no: 3, par: 4, img: "holeimg/gz28d637/2in3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_40_02_03.mp4", frames: ["holeimg/gz28d637/fin3_1.jpg", "holeimg/gz28d637/fin3_2.jpg", "holeimg/gz28d637/fin3_3.jpg"], elev: -4, tees: [{ name: "챔피언", m: 348 }, { name: "백", m: 347 }, { name: "프론트", m: 330 }, { name: "시니어", m: 188 }], len: 348 },
@@ -964,7 +964,7 @@ const HOLEIMG_DB = {
     source: "골프존 코스 데이터 (홀맵·파·거리·고도차·홀 영상)",
     sourceUrl: "https://sj.blueone.com/",
     courses: [
-      { name: "OUT", holes: [
+      { name: "EAST", holes: [
         { no: 1, par: 4, img: "holeimg/gz29b664/1out1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_153_01_01.mp4", frames: ["holeimg/gz29b664/fout1_1.jpg", "holeimg/gz29b664/fout1_2.jpg", "holeimg/gz29b664/fout1_3.jpg"], elev: 11, tees: [{ name: "챔피언", m: 354 }, { name: "백", m: 327 }, { name: "프론트", m: 298 }, { name: "시니어", m: 278 }, { name: "레이디", m: 251 }], len: 354 },
         { no: 2, par: 4, img: "holeimg/gz29b664/1out2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_153_01_02.mp4", frames: ["holeimg/gz29b664/fout2_1.jpg", "holeimg/gz29b664/fout2_2.jpg", "holeimg/gz29b664/fout2_3.jpg"], elev: -20, tees: [{ name: "챔피언", m: 407 }, { name: "백", m: 389 }, { name: "프론트", m: 368 }, { name: "시니어", m: 333 }, { name: "레이디", m: 294 }], len: 407 },
         { no: 3, par: 5, img: "holeimg/gz29b664/1out3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_153_01_03.mp4", frames: ["holeimg/gz29b664/fout3_1.jpg", "holeimg/gz29b664/fout3_2.jpg", "holeimg/gz29b664/fout3_3.jpg"], elev: 6, tees: [{ name: "챔피언", m: 492 }, { name: "백", m: 455 }, { name: "프론트", m: 408 }, { name: "시니어", m: 357 }, { name: "레이디", m: 324 }], len: 492 },
@@ -975,7 +975,7 @@ const HOLEIMG_DB = {
         { no: 8, par: 5, img: "holeimg/gz29b664/1out8.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_153_01_08.mp4", frames: ["holeimg/gz29b664/fout8_1.jpg", "holeimg/gz29b664/fout8_2.jpg", "holeimg/gz29b664/fout8_3.jpg"], tees: [{ name: "챔피언", m: 512 }, { name: "백", m: 480 }, { name: "프론트", m: 455 }, { name: "시니어", m: 396 }, { name: "레이디", m: 354 }], len: 512 },
         { no: 9, par: 4, img: "holeimg/gz29b664/1out9.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_153_01_09.mp4", frames: ["holeimg/gz29b664/fout9_1.jpg", "holeimg/gz29b664/fout9_2.jpg", "holeimg/gz29b664/fout9_3.jpg"], elev: 4, tees: [{ name: "챔피언", m: 417 }, { name: "백", m: 374 }, { name: "프론트", m: 350 }, { name: "시니어", m: 326 }, { name: "레이디", m: 291 }], len: 417 },
       ]},
-      { name: "IN", holes: [
+      { name: "WEST", holes: [
         { no: 1, par: 4, img: "holeimg/gz29b664/2in1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_153_02_01.mp4", frames: ["holeimg/gz29b664/fin1_1.jpg", "holeimg/gz29b664/fin1_2.jpg", "holeimg/gz29b664/fin1_3.jpg"], elev: 13, tees: [{ name: "챔피언", m: 372 }, { name: "백", m: 352 }, { name: "프론트", m: 301 }, { name: "시니어", m: 290 }, { name: "레이디", m: 267 }], len: 372 },
         { no: 2, par: 5, img: "holeimg/gz29b664/2in2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_153_02_02.mp4", frames: ["holeimg/gz29b664/fin2_1.jpg", "holeimg/gz29b664/fin2_2.jpg", "holeimg/gz29b664/fin2_3.jpg"], elev: -18, tees: [{ name: "챔피언", m: 513 }, { name: "백", m: 488 }, { name: "프론트", m: 470 }, { name: "시니어", m: 431 }, { name: "레이디", m: 391 }], len: 513 },
         { no: 3, par: 4, img: "holeimg/gz29b664/2in3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_153_02_03.mp4", frames: ["holeimg/gz29b664/fin3_1.jpg", "holeimg/gz29b664/fin3_2.jpg", "holeimg/gz29b664/fin3_3.jpg"], tees: [{ name: "챔피언", m: 428 }, { name: "백", m: 381 }, { name: "프론트", m: 360 }, { name: "시니어", m: 331 }, { name: "레이디", m: 296 }], len: 428 },
@@ -1048,7 +1048,7 @@ const HOLEIMG_DB = {
     source: "골프존 코스 데이터 (홀맵·파·거리·고도차·홀 영상)",
     sourceUrl: "https://4wellcc.com/",
     courses: [
-      { name: "OUT", holes: [
+      { name: "SKY", holes: [
         { no: 1, par: 4, img: "holeimg/gz2da569/1out1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_897_01_01.mp4", frames: ["holeimg/gz2da569/fout1_1.jpg", "holeimg/gz2da569/fout1_2.jpg", "holeimg/gz2da569/fout1_3.jpg"], elev: 8, tees: [{ name: "챔피언", m: 358 }, { name: "백", m: 338 }, { name: "프론트", m: 312 }, { name: "시니어", m: 290 }], len: 358 },
         { no: 2, par: 4, img: "holeimg/gz2da569/1out2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_897_01_02.mp4", frames: ["holeimg/gz2da569/fout2_1.jpg", "holeimg/gz2da569/fout2_2.jpg", "holeimg/gz2da569/fout2_3.jpg"], elev: -33, tees: [{ name: "챔피언", m: 386 }, { name: "백", m: 367 }, { name: "프론트", m: 346 }, { name: "시니어", m: 328 }], len: 386 },
         { no: 3, par: 3, img: "holeimg/gz2da569/1out3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_897_01_03.mp4", frames: ["holeimg/gz2da569/fout3_1.jpg", "holeimg/gz2da569/fout3_2.jpg"], elev: -18, tees: [{ name: "챔피언", m: 194 }, { name: "백", m: 178 }, { name: "프론트", m: 158 }, { name: "시니어", m: 138 }, { name: "레이디", m: 120 }], len: 194 },
@@ -1059,7 +1059,7 @@ const HOLEIMG_DB = {
         { no: 8, par: 5, img: "holeimg/gz2da569/1out8.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_897_01_08.mp4", frames: ["holeimg/gz2da569/fout8_1.jpg", "holeimg/gz2da569/fout8_2.jpg", "holeimg/gz2da569/fout8_3.jpg"], elev: 11, tees: [{ name: "챔피언", m: 557 }, { name: "백", m: 543 }, { name: "프론트", m: 524 }, { name: "시니어", m: 508 }, { name: "레이디", m: 487 }], len: 557 },
         { no: 9, par: 4, img: "holeimg/gz2da569/1out9.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_897_01_09.mp4", frames: ["holeimg/gz2da569/fout9_1.jpg", "holeimg/gz2da569/fout9_2.jpg", "holeimg/gz2da569/fout9_3.jpg"], elev: -17, tees: [{ name: "챔피언", m: 400 }, { name: "백", m: 378 }, { name: "프론트", m: 353 }, { name: "시니어", m: 331 }], len: 400 },
       ]},
-      { name: "IN", holes: [
+      { name: "HILL", holes: [
         { no: 1, par: 4, img: "holeimg/gz2da569/2in1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_897_02_01.mp4", frames: ["holeimg/gz2da569/fin1_1.jpg", "holeimg/gz2da569/fin1_2.jpg", "holeimg/gz2da569/fin1_3.jpg"], elev: -30, tees: [{ name: "챔피언", m: 357 }, { name: "백", m: 350 }, { name: "프론트", m: 328 }, { name: "시니어", m: 295 }], len: 357 },
         { no: 2, par: 4, img: "holeimg/gz2da569/2in2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_897_02_02.mp4", frames: ["holeimg/gz2da569/fin2_1.jpg", "holeimg/gz2da569/fin2_2.jpg", "holeimg/gz2da569/fin2_3.jpg"], elev: -33, tees: [{ name: "챔피언", m: 387 }, { name: "백", m: 370 }, { name: "프론트", m: 354 }, { name: "시니어", m: 312 }], len: 387 },
         { no: 3, par: 4, img: "holeimg/gz2da569/2in3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_897_02_03.mp4", frames: ["holeimg/gz2da569/fin3_1.jpg", "holeimg/gz2da569/fin3_2.jpg", "holeimg/gz2da569/fin3_3.jpg"], elev: -16, tees: [{ name: "챔피언", m: 339 }, { name: "백", m: 317 }, { name: "프론트", m: 297 }, { name: "시니어", m: 280 }], len: 339 },
@@ -1104,7 +1104,7 @@ const HOLEIMG_DB = {
     source: "골프존 코스 데이터 (홀맵·파·거리·고도차·홀 영상)",
     sourceUrl: "https://www.seilcc.co.kr/index.asp",
     courses: [
-      { name: "OUT", holes: [
+      { name: "산길", holes: [
         { no: 1, par: 4, img: "holeimg/gz2f43ba/1out1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1221_01_01.mp4", frames: ["holeimg/gz2f43ba/fout1_1.jpg", "holeimg/gz2f43ba/fout1_2.jpg", "holeimg/gz2f43ba/fout1_3.jpg"], elev: 10, tees: [{ name: "챔피언", m: 416 }, { name: "백", m: 401 }, { name: "프론트", m: 366 }, { name: "시니어", m: 344 }, { name: "레이디", m: 292 }], len: 416 },
         { no: 2, par: 5, img: "holeimg/gz2f43ba/1out2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1221_01_02.mp4", frames: ["holeimg/gz2f43ba/fout2_1.jpg", "holeimg/gz2f43ba/fout2_2.jpg", "holeimg/gz2f43ba/fout2_3.jpg"], tees: [{ name: "챔피언", m: 486 }, { name: "백", m: 472 }, { name: "프론트", m: 437 }, { name: "시니어", m: 401 }, { name: "레이디", m: 388 }], len: 486 },
         { no: 3, par: 3, img: "holeimg/gz2f43ba/1out3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1221_01_03.mp4", frames: ["holeimg/gz2f43ba/fout3_1.jpg", "holeimg/gz2f43ba/fout3_2.jpg", "holeimg/gz2f43ba/fout3_3.jpg"], tees: [{ name: "챔피언", m: 143 }, { name: "백", m: 132 }, { name: "프론트", m: 127 }, { name: "시니어", m: 117 }, { name: "레이디", m: 105 }], len: 143 },
@@ -1115,7 +1115,7 @@ const HOLEIMG_DB = {
         { no: 8, par: 4, img: "holeimg/gz2f43ba/1out8.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1221_01_08.mp4", frames: ["holeimg/gz2f43ba/fout8_1.jpg", "holeimg/gz2f43ba/fout8_2.jpg", "holeimg/gz2f43ba/fout8_3.jpg"], elev: -86, tees: [{ name: "챔피언", m: 341 }, { name: "백", m: 340 }, { name: "시니어", m: 339 }, { name: "레이디", m: 270 }], len: 341 },
         { no: 9, par: 5, img: "holeimg/gz2f43ba/1out9.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1221_01_09.mp4", frames: ["holeimg/gz2f43ba/fout9_1.jpg", "holeimg/gz2f43ba/fout9_2.jpg", "holeimg/gz2f43ba/fout9_3.jpg"], elev: -10, tees: [{ name: "챔피언", m: 509 }, { name: "백", m: 482 }, { name: "프론트", m: 476 }, { name: "시니어", m: 455 }, { name: "레이디", m: 438 }], len: 509 },
       ]},
-      { name: "IN", holes: [
+      { name: "들길", holes: [
         { no: 1, par: 5, img: "holeimg/gz2f43ba/2in1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1221_02_01.mp4", frames: ["holeimg/gz2f43ba/fin1_1.jpg", "holeimg/gz2f43ba/fin1_2.jpg", "holeimg/gz2f43ba/fin1_3.jpg"], tees: [{ name: "챔피언", m: 500 }, { name: "백", m: 486 }, { name: "프론트", m: 470 }, { name: "시니어", m: 444 }, { name: "레이디", m: 407 }], len: 500 },
         { no: 2, par: 4, img: "holeimg/gz2f43ba/2in2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1221_02_02.mp4", frames: ["holeimg/gz2f43ba/fin2_1.jpg", "holeimg/gz2f43ba/fin2_2.jpg"], elev: -19, tees: [{ name: "챔피언", m: 253 }, { name: "백", m: 252 }, { name: "프론트", m: 237 }, { name: "시니어", m: 219 }, { name: "레이디", m: 195 }], len: 253 },
         { no: 3, par: 4, img: "holeimg/gz2f43ba/2in3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1221_02_03.mp4", frames: ["holeimg/gz2f43ba/fin3_1.jpg", "holeimg/gz2f43ba/fin3_2.jpg", "holeimg/gz2f43ba/fin3_3.jpg"], elev: 8, tees: [{ name: "챔피언", m: 296 }, { name: "백", m: 290 }, { name: "프론트", m: 266 }, { name: "시니어", m: 265 }, { name: "레이디", m: 218 }], len: 296 },
@@ -1188,7 +1188,7 @@ const HOLEIMG_DB = {
     source: "골프존 코스 데이터 (홀맵·파·거리·고도차·홀 영상)",
     sourceUrl: "http://www.hmcn.co.kr/",
     courses: [
-      { name: "OUT", holes: [
+      { name: "H코스", holes: [
         { no: 1, par: 4, img: "holeimg/gz344a26/1out1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_31_02_01.mp4", frames: ["holeimg/gz344a26/fout1_1.jpg", "holeimg/gz344a26/fout1_2.jpg", "holeimg/gz344a26/fout1_3.jpg"], tees: [{ name: "챔피언", m: 356 }, { name: "프론트", m: 333 }, { name: "시니어", m: 286 }, { name: "레이디", m: 254 }], len: 356 },
         { no: 2, par: 4, img: "holeimg/gz344a26/1out2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_31_02_02.mp4", frames: ["holeimg/gz344a26/fout2_1.jpg", "holeimg/gz344a26/fout2_2.jpg", "holeimg/gz344a26/fout2_3.jpg"], elev: 16, tees: [{ name: "챔피언", m: 383 }, { name: "프론트", m: 356 }, { name: "시니어", m: 318 }, { name: "레이디", m: 281 }], len: 383 },
         { no: 3, par: 3, img: "holeimg/gz344a26/1out3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_31_02_03.mp4", frames: ["holeimg/gz344a26/fout3_1.jpg", "holeimg/gz344a26/fout3_2.jpg"], tees: [{ name: "챔피언", m: 134 }, { name: "프론트", m: 124 }, { name: "시니어", m: 112 }, { name: "레이디", m: 77 }], len: 134 },
@@ -1199,7 +1199,7 @@ const HOLEIMG_DB = {
         { no: 8, par: 5, img: "holeimg/gz344a26/1out8.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_31_02_08.mp4", frames: ["holeimg/gz344a26/fout8_1.jpg", "holeimg/gz344a26/fout8_2.jpg", "holeimg/gz344a26/fout8_3.jpg"], elev: -59, tees: [{ name: "챔피언", m: 544 }, { name: "프론트", m: 518 }, { name: "시니어", m: 489 }, { name: "레이디", m: 456 }], len: 544 },
         { no: 9, par: 4, img: "holeimg/gz344a26/1out9.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_31_02_09.mp4", frames: ["holeimg/gz344a26/fout9_1.jpg", "holeimg/gz344a26/fout9_2.jpg", "holeimg/gz344a26/fout9_3.jpg"], elev: -25, tees: [{ name: "챔피언", m: 381 }, { name: "프론트", m: 343 }, { name: "시니어", m: 315 }, { name: "레이디", m: 283 }], len: 381 },
       ]},
-      { name: "IN", holes: [
+      { name: "M코스", holes: [
         { no: 1, par: 4, img: "holeimg/gz344a26/2in1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_31_01_01.mp4", frames: ["holeimg/gz344a26/fin1_1.jpg", "holeimg/gz344a26/fin1_2.jpg", "holeimg/gz344a26/fin1_3.jpg"], elev: 28, tees: [{ name: "챔피언", m: 374 }, { name: "백", m: 373 }, { name: "프론트", m: 347 }, { name: "시니어", m: 310 }, { name: "레이디", m: 273 }], len: 374 },
         { no: 2, par: 4, img: "holeimg/gz344a26/2in2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_31_01_02.mp4", frames: ["holeimg/gz344a26/fin2_1.jpg", "holeimg/gz344a26/fin2_2.jpg", "holeimg/gz344a26/fin2_3.jpg"], elev: -30, tees: [{ name: "챔피언", m: 412 }, { name: "백", m: 411 }, { name: "프론트", m: 382 }, { name: "시니어", m: 354 }, { name: "레이디", m: 330 }], len: 412 },
         { no: 3, par: 5, img: "holeimg/gz344a26/2in3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_31_01_03.mp4", frames: ["holeimg/gz344a26/fin3_1.jpg", "holeimg/gz344a26/fin3_2.jpg", "holeimg/gz344a26/fin3_3.jpg"], elev: 30, tees: [{ name: "챔피언", m: 532 }, { name: "프론트", m: 510 }, { name: "시니어", m: 477 }, { name: "레이디", m: 441 }], len: 532 },
@@ -1216,7 +1216,7 @@ const HOLEIMG_DB = {
     source: "골프존 코스 데이터 (홀맵·파·거리·고도차·홀 영상)",
     sourceUrl: "http://www.sienacountryclub.com",
     courses: [
-      { name: "OUT", holes: [
+      { name: "서코스", holes: [
         { no: 1, par: 4, img: "holeimg/gz34ac06/1out1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_962_01_01.mp4", frames: ["holeimg/gz34ac06/fout1_1.jpg", "holeimg/gz34ac06/fout1_2.jpg"], elev: -4, tees: [{ name: "챔피언", m: 393 }, { name: "백", m: 364 }, { name: "시니어", m: 302 }, { name: "레이디", m: 301 }], len: 393 },
         { no: 2, par: 4, img: "holeimg/gz34ac06/1out2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_962_01_02.mp4", frames: ["holeimg/gz34ac06/fout2_1.jpg", "holeimg/gz34ac06/fout2_2.jpg"], elev: 13, tees: [{ name: "챔피언", m: 362 }, { name: "백", m: 335 }, { name: "시니어", m: 277 }, { name: "레이디", m: 243 }], len: 362 },
         { no: 3, par: 3, img: "holeimg/gz34ac06/1out3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_962_01_03.mp4", frames: ["holeimg/gz34ac06/fout3_1.jpg", "holeimg/gz34ac06/fout3_2.jpg"], elev: -17, tees: [{ name: "챔피언", m: 168 }, { name: "시니어", m: 115 }], len: 168 },
@@ -1227,7 +1227,7 @@ const HOLEIMG_DB = {
         { no: 8, par: 4, img: "holeimg/gz34ac06/1out8.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_962_01_08.mp4", frames: ["holeimg/gz34ac06/fout8_1.jpg", "holeimg/gz34ac06/fout8_2.jpg", "holeimg/gz34ac06/fout8_3.jpg"], elev: 10, tees: [{ name: "챔피언", m: 415 }, { name: "백", m: 391 }, { name: "시니어", m: 284 }], len: 415 },
         { no: 9, par: 4, img: "holeimg/gz34ac06/1out9.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_962_01_09.mp4", frames: ["holeimg/gz34ac06/fout9_1.jpg", "holeimg/gz34ac06/fout9_2.jpg"], elev: -28, tees: [{ name: "챔피언", m: 330 }, { name: "백", m: 304 }, { name: "시니어", m: 252 }], len: 330 },
       ]},
-      { name: "IN", holes: [
+      { name: "동코스", holes: [
         { no: 1, par: 4, img: "holeimg/gz34ac06/2in1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_962_02_01.mp4", frames: ["holeimg/gz34ac06/fin1_1.jpg", "holeimg/gz34ac06/fin1_2.jpg"], elev: 17, tees: [{ name: "챔피언", m: 297 }, { name: "백", m: 276 }, { name: "시니어", m: 199 }, { name: "레이디", m: 198 }], len: 297 },
         { no: 2, par: 4, img: "holeimg/gz34ac06/2in2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_962_02_02.mp4", frames: ["holeimg/gz34ac06/fin2_1.jpg", "holeimg/gz34ac06/fin2_2.jpg"], elev: -25, tees: [{ name: "챔피언", m: 322 }, { name: "백", m: 294 }, { name: "시니어", m: 260 }], len: 322 },
         { no: 3, par: 4, img: "holeimg/gz34ac06/2in3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_962_02_03.mp4", frames: ["holeimg/gz34ac06/fin3_1.jpg", "holeimg/gz34ac06/fin3_2.jpg"], elev: 11, tees: [{ name: "챔피언", m: 356 }, { name: "백", m: 334 }, { name: "프론트", m: 333 }, { name: "시니어", m: 301 }, { name: "레이디", m: 242 }], len: 356 },
@@ -1300,7 +1300,7 @@ const HOLEIMG_DB = {
     source: "골프존 코스 데이터 (홀맵·파·거리·고도차·홀 영상)",
     sourceUrl: "http://www.foresthill.kr",
     courses: [
-      { name: "OUT", holes: [
+      { name: "ROCK", holes: [
         { no: 1, par: 5, img: "holeimg/gz3ceda5/1out1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_448_01_01.mp4", frames: ["holeimg/gz3ceda5/fout1_1.jpg", "holeimg/gz3ceda5/fout1_2.jpg", "holeimg/gz3ceda5/fout1_3.jpg"], elev: 33, tees: [{ name: "챔피언", m: 503 }, { name: "백", m: 488 }, { name: "프론트", m: 473 }, { name: "시니어", m: 461 }, { name: "레이디", m: 429 }], len: 503 },
         { no: 2, par: 3, img: "holeimg/gz3ceda5/1out2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_448_01_02.mp4", frames: ["holeimg/gz3ceda5/fout2_1.jpg", "holeimg/gz3ceda5/fout2_2.jpg"], tees: [{ name: "챔피언", m: 202 }, { name: "백", m: 182 }, { name: "프론트", m: 166 }, { name: "시니어", m: 148 }, { name: "레이디", m: 115 }], len: 202 },
         { no: 3, par: 5, img: "holeimg/gz3ceda5/1out3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_448_01_03.mp4", frames: ["holeimg/gz3ceda5/fout3_1.jpg", "holeimg/gz3ceda5/fout3_2.jpg", "holeimg/gz3ceda5/fout3_3.jpg"], elev: -6, tees: [{ name: "챔피언", m: 543 }, { name: "백", m: 528 }, { name: "프론트", m: 511 }, { name: "시니어", m: 483 }, { name: "레이디", m: 425 }], len: 543 },
@@ -1311,7 +1311,7 @@ const HOLEIMG_DB = {
         { no: 8, par: 4, img: "holeimg/gz3ceda5/1out8.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_448_01_08.mp4", frames: ["holeimg/gz3ceda5/fout8_1.jpg", "holeimg/gz3ceda5/fout8_2.jpg", "holeimg/gz3ceda5/fout8_3.jpg"], elev: -10, tees: [{ name: "챔피언", m: 377 }, { name: "백", m: 361 }, { name: "프론트", m: 341 }, { name: "시니어", m: 319 }, { name: "레이디", m: 281 }], len: 377 },
         { no: 9, par: 4, img: "holeimg/gz3ceda5/1out9.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_448_01_09.mp4", frames: ["holeimg/gz3ceda5/fout9_1.jpg", "holeimg/gz3ceda5/fout9_2.jpg", "holeimg/gz3ceda5/fout9_3.jpg"], elev: -41, tees: [{ name: "챔피언", m: 298 }, { name: "백", m: 279 }, { name: "프론트", m: 251 }, { name: "시니어", m: 228 }, { name: "레이디", m: 210 }], len: 298 },
       ]},
-      { name: "IN", holes: [
+      { name: "HILL", holes: [
         { no: 1, par: 4, img: "holeimg/gz3ceda5/2in1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_448_02_01.mp4", frames: ["holeimg/gz3ceda5/fin1_1.jpg", "holeimg/gz3ceda5/fin1_2.jpg", "holeimg/gz3ceda5/fin1_3.jpg"], elev: 19, tees: [{ name: "챔피언", m: 336 }, { name: "백", m: 322 }, { name: "프론트", m: 316 }, { name: "시니어", m: 294 }, { name: "레이디", m: 225 }], len: 336 },
         { no: 2, par: 4, img: "holeimg/gz3ceda5/2in2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_448_02_02.mp4", frames: ["holeimg/gz3ceda5/fin2_1.jpg", "holeimg/gz3ceda5/fin2_2.jpg", "holeimg/gz3ceda5/fin2_3.jpg"], elev: 4, tees: [{ name: "챔피언", m: 394 }, { name: "백", m: 373 }, { name: "프론트", m: 355 }, { name: "시니어", m: 333 }, { name: "레이디", m: 289 }], len: 394 },
         { no: 3, par: 3, img: "holeimg/gz3ceda5/2in3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_448_02_03.mp4", frames: ["holeimg/gz3ceda5/fin3_1.jpg", "holeimg/gz3ceda5/fin3_2.jpg"], elev: -11, tees: [{ name: "챔피언", m: 223 }, { name: "백", m: 203 }, { name: "프론트", m: 183 }, { name: "시니어", m: 142 }, { name: "레이디", m: 120 }], len: 223 },
@@ -1328,7 +1328,7 @@ const HOLEIMG_DB = {
     source: "골프존 코스 데이터 (홀맵·파·거리·고도차·홀 영상)",
     sourceUrl: "https://www.baystars.co.kr/",
     courses: [
-      { name: "OUT", holes: [
+      { name: "BAY", holes: [
         { no: 1, par: 4, img: "holeimg/gz3d5ca4/1out1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_966_01_01.mp4", frames: ["holeimg/gz3d5ca4/fout1_1.jpg", "holeimg/gz3d5ca4/fout1_2.jpg", "holeimg/gz3d5ca4/fout1_3.jpg"], tees: [{ name: "챔피언", m: 337 }, { name: "프론트", m: 320 }, { name: "시니어", m: 264 }, { name: "레이디", m: 263 }], len: 337 },
         { no: 2, par: 4, img: "holeimg/gz3d5ca4/1out2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_966_01_02.mp4", frames: ["holeimg/gz3d5ca4/fout2_1.jpg", "holeimg/gz3d5ca4/fout2_2.jpg", "holeimg/gz3d5ca4/fout2_3.jpg"], elev: -8, tees: [{ name: "챔피언", m: 369 }, { name: "프론트", m: 350 }, { name: "시니어", m: 285 }, { name: "레이디", m: 284 }], len: 369 },
         { no: 3, par: 5, img: "holeimg/gz3d5ca4/1out3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_966_01_03.mp4", frames: ["holeimg/gz3d5ca4/fout3_1.jpg", "holeimg/gz3d5ca4/fout3_2.jpg", "holeimg/gz3d5ca4/fout3_3.jpg"], elev: -22, tees: [{ name: "챔피언", m: 476 }, { name: "프론트", m: 453 }, { name: "시니어", m: 400 }], len: 476 },
@@ -1339,7 +1339,7 @@ const HOLEIMG_DB = {
         { no: 8, par: 3, img: "holeimg/gz3d5ca4/1out8.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_966_01_08.mp4", frames: ["holeimg/gz3d5ca4/fout8_1.jpg", "holeimg/gz3d5ca4/fout8_2.jpg"], tees: [{ name: "챔피언", m: 163 }, { name: "프론트", m: 148 }, { name: "시니어", m: 124 }, { name: "레이디", m: 123 }], len: 163 },
         { no: 9, par: 4, img: "holeimg/gz3d5ca4/1out9.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_966_01_09.mp4", frames: ["holeimg/gz3d5ca4/fout9_1.jpg", "holeimg/gz3d5ca4/fout9_2.jpg", "holeimg/gz3d5ca4/fout9_3.jpg"], elev: -22, tees: [{ name: "챔피언", m: 351 }, { name: "백", m: 350 }, { name: "프론트", m: 326 }, { name: "시니어", m: 280 }], len: 351 },
       ]},
-      { name: "IN", holes: [
+      { name: "STARS", holes: [
         { no: 1, par: 5, img: "holeimg/gz3d5ca4/2in1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_966_02_01.mp4", frames: ["holeimg/gz3d5ca4/fin1_1.jpg", "holeimg/gz3d5ca4/fin1_2.jpg", "holeimg/gz3d5ca4/fin1_3.jpg"], elev: -4, tees: [{ name: "챔피언", m: 490 }, { name: "프론트", m: 463 }, { name: "시니어", m: 377 }, { name: "레이디", m: 376 }], len: 490 },
         { no: 2, par: 4, img: "holeimg/gz3d5ca4/2in2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_966_02_02.mp4", frames: ["holeimg/gz3d5ca4/fin2_1.jpg", "holeimg/gz3d5ca4/fin2_2.jpg", "holeimg/gz3d5ca4/fin2_3.jpg"], elev: -14, tees: [{ name: "챔피언", m: 344 }, { name: "백", m: 343 }, { name: "프론트", m: 311 }, { name: "시니어", m: 287 }, { name: "레이디", m: 286 }], len: 344 },
         { no: 3, par: 4, img: "holeimg/gz3d5ca4/2in3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_966_02_03.mp4", frames: ["holeimg/gz3d5ca4/fin3_1.jpg", "holeimg/gz3d5ca4/fin3_2.jpg", "holeimg/gz3d5ca4/fin3_3.jpg"], elev: -34, tees: [{ name: "챔피언", m: 286 }, { name: "프론트", m: 285 }, { name: "시니어", m: 175 }], len: 286 },
@@ -1356,7 +1356,7 @@ const HOLEIMG_DB = {
     source: "골프존 코스 데이터 (홀맵·파·거리·고도차·홀 영상)",
     sourceUrl: "http://www.hillmaru.com/",
     courses: [
-      { name: "A", holes: [
+      { name: "남코스", holes: [
         { no: 1, par: 4, img: "holeimg/gz3de0d1/1a1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_4_01_01.mp4", frames: ["holeimg/gz3de0d1/fa1_1.jpg", "holeimg/gz3de0d1/fa1_2.jpg", "holeimg/gz3de0d1/fa1_3.jpg"], elev: -26, tees: [{ name: "챔피언", m: 422 }, { name: "백", m: 392 }, { name: "프론트", m: 359 }, { name: "시니어", m: 309 }, { name: "레이디", m: 272 }], len: 422 },
         { no: 2, par: 5, img: "holeimg/gz3de0d1/1a2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_4_01_02.mp4", frames: ["holeimg/gz3de0d1/fa2_1.jpg", "holeimg/gz3de0d1/fa2_2.jpg", "holeimg/gz3de0d1/fa2_3.jpg"], elev: -10, tees: [{ name: "챔피언", m: 510 }, { name: "백", m: 486 }, { name: "프론트", m: 459 }, { name: "시니어", m: 425 }, { name: "레이디", m: 417 }], len: 510 },
         { no: 3, par: 3, img: "holeimg/gz3de0d1/1a3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_4_01_03.mp4", frames: ["holeimg/gz3de0d1/fa3_1.jpg", "holeimg/gz3de0d1/fa3_2.jpg"], elev: -8, tees: [{ name: "챔피언", m: 226 }, { name: "백", m: 203 }, { name: "프론트", m: 169 }, { name: "시니어", m: 147 }, { name: "레이디", m: 110 }], len: 226 },
@@ -1367,7 +1367,7 @@ const HOLEIMG_DB = {
         { no: 8, par: 3, img: "holeimg/gz3de0d1/1a8.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_4_01_08.mp4", frames: ["holeimg/gz3de0d1/fa8_1.jpg", "holeimg/gz3de0d1/fa8_2.jpg"], elev: -5, tees: [{ name: "챔피언", m: 198 }, { name: "백", m: 181 }, { name: "프론트", m: 166 }, { name: "시니어", m: 150 }, { name: "레이디", m: 132 }], len: 198 },
         { no: 9, par: 4, img: "holeimg/gz3de0d1/1a9.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_4_01_09.mp4", frames: ["holeimg/gz3de0d1/fa9_1.jpg", "holeimg/gz3de0d1/fa9_2.jpg", "holeimg/gz3de0d1/fa9_3.jpg"], elev: 5, tees: [{ name: "챔피언", m: 436 }, { name: "백", m: 396 }, { name: "프론트", m: 373 }, { name: "시니어", m: 346 }, { name: "레이디", m: 317 }], len: 436 },
       ]},
-      { name: "B", holes: [
+      { name: "북코스", holes: [
         { no: 1, par: 4, img: "holeimg/gz3de0d1/2b1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_4_02_01.mp4", frames: ["holeimg/gz3de0d1/fb1_1.jpg", "holeimg/gz3de0d1/fb1_2.jpg", "holeimg/gz3de0d1/fb1_3.jpg"], elev: -12, tees: [{ name: "챔피언", m: 392 }, { name: "백", m: 364 }, { name: "프론트", m: 330 }, { name: "시니어", m: 317 }, { name: "레이디", m: 261 }], len: 392 },
         { no: 2, par: 3, img: "holeimg/gz3de0d1/2b2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_4_02_02.mp4", frames: ["holeimg/gz3de0d1/fb2_1.jpg", "holeimg/gz3de0d1/fb2_2.jpg"], tees: [{ name: "챔피언", m: 172 }, { name: "백", m: 170 }, { name: "프론트", m: 168 }, { name: "시니어", m: 165 }, { name: "레이디", m: 161 }], len: 172 },
         { no: 3, par: 4, img: "holeimg/gz3de0d1/2b3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_4_02_03.mp4", frames: ["holeimg/gz3de0d1/fb3_1.jpg", "holeimg/gz3de0d1/fb3_2.jpg", "holeimg/gz3de0d1/fb3_3.jpg"], elev: -18, tees: [{ name: "챔피언", m: 387 }, { name: "백", m: 383 }, { name: "프론트", m: 362 }, { name: "시니어", m: 340 }, { name: "레이디", m: 334 }], len: 387 },
@@ -1406,7 +1406,7 @@ const HOLEIMG_DB = {
     source: "골프존 코스 데이터 (홀맵·파·거리·고도차·홀 영상)",
     sourceUrl: "https://www.springdale.co.kr/",
     courses: [
-      { name: "OUT", holes: [
+      { name: "스프링", holes: [
         { no: 1, par: 4, img: "holeimg/gz3df294/1out1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_899_01_01.mp4", frames: ["holeimg/gz3df294/fout1_1.jpg", "holeimg/gz3df294/fout1_2.jpg", "holeimg/gz3df294/fout1_3.jpg"], elev: -9, tees: [{ name: "챔피언", m: 358 }, { name: "백", m: 353 }, { name: "프론트", m: 340 }, { name: "시니어", m: 306 }, { name: "레이디", m: 270 }], len: 358 },
         { no: 2, par: 5, img: "holeimg/gz3df294/1out2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_899_01_02.mp4", frames: ["holeimg/gz3df294/fout2_1.jpg", "holeimg/gz3df294/fout2_2.jpg", "holeimg/gz3df294/fout2_3.jpg"], elev: 6, tees: [{ name: "챔피언", m: 495 }, { name: "백", m: 465 }, { name: "프론트", m: 440 }, { name: "시니어", m: 411 }, { name: "레이디", m: 386 }], len: 495 },
         { no: 3, par: 3, img: "holeimg/gz3df294/1out3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_899_01_03.mp4", frames: ["holeimg/gz3df294/fout3_1.jpg", "holeimg/gz3df294/fout3_2.jpg"], elev: -8, tees: [{ name: "챔피언", m: 168 }, { name: "백", m: 142 }, { name: "프론트", m: 120 }, { name: "시니어", m: 111 }, { name: "레이디", m: 86 }], len: 168 },
@@ -1417,7 +1417,7 @@ const HOLEIMG_DB = {
         { no: 8, par: 3, img: "holeimg/gz3df294/1out8.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_899_01_08.mp4", frames: ["holeimg/gz3df294/fout8_1.jpg", "holeimg/gz3df294/fout8_2.jpg"], elev: -3, tees: [{ name: "챔피언", m: 203 }, { name: "백", m: 187 }, { name: "프론트", m: 165 }, { name: "시니어", m: 151 }, { name: "레이디", m: 126 }], len: 203 },
         { no: 9, par: 4, img: "holeimg/gz3df294/1out9.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_899_01_09.mp4", frames: ["holeimg/gz3df294/fout9_1.jpg", "holeimg/gz3df294/fout9_2.jpg", "holeimg/gz3df294/fout9_3.jpg"], elev: 9, tees: [{ name: "챔피언", m: 367 }, { name: "백", m: 360 }, { name: "프론트", m: 349 }, { name: "시니어", m: 339 }, { name: "레이디", m: 328 }], len: 367 },
       ]},
-      { name: "IN", holes: [
+      { name: "데일", holes: [
         { no: 1, par: 4, img: "holeimg/gz3df294/2in1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_899_02_01.mp4", frames: ["holeimg/gz3df294/fin1_1.jpg", "holeimg/gz3df294/fin1_2.jpg", "holeimg/gz3df294/fin1_3.jpg"], elev: 14, tees: [{ name: "챔피언", m: 354 }, { name: "백", m: 350 }, { name: "프론트", m: 332 }, { name: "시니어", m: 312 }, { name: "레이디", m: 298 }], len: 354 },
         { no: 2, par: 5, img: "holeimg/gz3df294/2in2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_899_02_02.mp4", frames: ["holeimg/gz3df294/fin2_1.jpg", "holeimg/gz3df294/fin2_2.jpg", "holeimg/gz3df294/fin2_3.jpg"], elev: -4, tees: [{ name: "챔피언", m: 510 }, { name: "백", m: 504 }, { name: "프론트", m: 476 }, { name: "시니어", m: 449 }, { name: "레이디", m: 430 }], len: 510 },
         { no: 3, par: 3, img: "holeimg/gz3df294/2in3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_899_02_03.mp4", frames: ["holeimg/gz3df294/fin3_1.jpg", "holeimg/gz3df294/fin3_2.jpg"], elev: 6, tees: [{ name: "챔피언", m: 226 }, { name: "백", m: 198 }, { name: "프론트", m: 149 }, { name: "시니어", m: 136 }, { name: "레이디", m: 120 }], len: 226 },
@@ -1490,7 +1490,7 @@ const HOLEIMG_DB = {
     source: "골프존 코스 데이터 (홀맵·파·거리·고도차·홀 영상)",
     sourceUrl: "http://www.bkcc.co.kr/main/main.asp",
     courses: [
-      { name: "OUT", holes: [
+      { name: "WEST", holes: [
         { no: 1, par: 4, img: "holeimg/gz4029ac/1out1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_260_01_01.mp4", frames: ["holeimg/gz4029ac/fout1_1.jpg", "holeimg/gz4029ac/fout1_2.jpg", "holeimg/gz4029ac/fout1_3.jpg"], tees: [{ name: "챔피언", m: 366 }, { name: "백", m: 365 }, { name: "프론트", m: 338 }, { name: "시니어", m: 315 }], len: 366 },
         { no: 2, par: 5, img: "holeimg/gz4029ac/1out2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_260_01_02.mp4", frames: ["holeimg/gz4029ac/fout2_1.jpg", "holeimg/gz4029ac/fout2_2.jpg", "holeimg/gz4029ac/fout2_3.jpg"], elev: 39, tees: [{ name: "챔피언", m: 449 }, { name: "백", m: 448 }, { name: "프론트", m: 444 }, { name: "시니어", m: 419 }], len: 449 },
         { no: 3, par: 4, img: "holeimg/gz4029ac/1out3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_260_01_03.mp4", frames: ["holeimg/gz4029ac/fout3_1.jpg", "holeimg/gz4029ac/fout3_2.jpg", "holeimg/gz4029ac/fout3_3.jpg"], elev: -19, tees: [{ name: "챔피언", m: 349 }, { name: "프론트", m: 323 }, { name: "시니어", m: 311 }], len: 349 },
@@ -1501,7 +1501,7 @@ const HOLEIMG_DB = {
         { no: 8, par: 3, img: "holeimg/gz4029ac/1out8.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_260_01_08.mp4", frames: ["holeimg/gz4029ac/fout8_1.jpg", "holeimg/gz4029ac/fout8_2.jpg"], elev: -8, tees: [{ name: "챔피언", m: 170 }, { name: "프론트", m: 144 }, { name: "시니어", m: 129 }], len: 170 },
         { no: 9, par: 4, img: "holeimg/gz4029ac/1out9.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_260_01_09.mp4", frames: ["holeimg/gz4029ac/fout9_1.jpg", "holeimg/gz4029ac/fout9_2.jpg", "holeimg/gz4029ac/fout9_3.jpg"], elev: -42, tees: [{ name: "챔피언", m: 396 }, { name: "프론트", m: 384 }, { name: "시니어", m: 315 }], len: 396 },
       ]},
-      { name: "IN", holes: [
+      { name: "EAST", holes: [
         { no: 1, par: 5, img: "holeimg/gz4029ac/2in1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_260_02_01.mp4", frames: ["holeimg/gz4029ac/fin1_1.jpg", "holeimg/gz4029ac/fin1_2.jpg", "holeimg/gz4029ac/fin1_3.jpg"], elev: -19, tees: [{ name: "챔피언", m: 521 }, { name: "백", m: 520 }, { name: "프론트", m: 510 }, { name: "시니어", m: 469 }], len: 521 },
         { no: 2, par: 3, img: "holeimg/gz4029ac/2in2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_260_02_02.mp4", frames: ["holeimg/gz4029ac/fin2_1.jpg", "holeimg/gz4029ac/fin2_2.jpg"], elev: -17, tees: [{ name: "챔피언", m: 159 }, { name: "프론트", m: 155 }, { name: "시니어", m: 135 }], len: 159 },
         { no: 3, par: 4, img: "holeimg/gz4029ac/2in3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_260_02_03.mp4", frames: ["holeimg/gz4029ac/fin3_1.jpg", "holeimg/gz4029ac/fin3_2.jpg", "holeimg/gz4029ac/fin3_3.jpg"], elev: 26, tees: [{ name: "챔피언", m: 348 }, { name: "프론트", m: 345 }, { name: "시니어", m: 313 }], len: 348 },
@@ -1546,7 +1546,7 @@ const HOLEIMG_DB = {
     source: "골프존 코스 데이터 (홀맵·파·거리·고도차·홀 영상)",
     sourceUrl: "https://www.serenitygangchon.com/index.asp",
     courses: [
-      { name: "OUT", holes: [
+      { name: "청춘", holes: [
         { no: 1, par: 4, img: "holeimg/gz413fea/1out1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_521_01_01.mp4", frames: ["holeimg/gz413fea/fout1_1.jpg", "holeimg/gz413fea/fout1_2.jpg", "holeimg/gz413fea/fout1_3.jpg"], elev: -31, tees: [{ name: "챔피언", m: 372 }, { name: "백", m: 361 }, { name: "프론트", m: 336 }, { name: "시니어", m: 309 }, { name: "레이디", m: 259 }], len: 372 },
         { no: 2, par: 4, img: "holeimg/gz413fea/1out2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_521_01_02.mp4", frames: ["holeimg/gz413fea/fout2_1.jpg", "holeimg/gz413fea/fout2_2.jpg", "holeimg/gz413fea/fout2_3.jpg"], elev: 13, tees: [{ name: "챔피언", m: 347 }, { name: "프론트", m: 323 }, { name: "시니어", m: 303 }, { name: "레이디", m: 212 }], len: 347 },
         { no: 3, par: 5, img: "holeimg/gz413fea/1out3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_521_01_03.mp4", frames: ["holeimg/gz413fea/fout3_1.jpg", "holeimg/gz413fea/fout3_2.jpg", "holeimg/gz413fea/fout3_3.jpg"], elev: -34, tees: [{ name: "챔피언", m: 556 }, { name: "백", m: 518 }, { name: "프론트", m: 498 }, { name: "시니어", m: 473 }, { name: "레이디", m: 452 }], len: 556 },
@@ -1557,7 +1557,7 @@ const HOLEIMG_DB = {
         { no: 8, par: 3, img: "holeimg/gz413fea/1out8.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_521_01_08.mp4", frames: ["holeimg/gz413fea/fout8_1.jpg", "holeimg/gz413fea/fout8_2.jpg"], tees: [{ name: "챔피언", m: 189 }, { name: "백", m: 188 }, { name: "프론트", m: 168 }, { name: "시니어", m: 161 }, { name: "레이디", m: 130 }], len: 189 },
         { no: 9, par: 4, img: "holeimg/gz413fea/1out9.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_521_01_09.mp4", frames: ["holeimg/gz413fea/fout9_1.jpg", "holeimg/gz413fea/fout9_2.jpg", "holeimg/gz413fea/fout9_3.jpg"], elev: 16, tees: [{ name: "챔피언", m: 358 }, { name: "백", m: 327 }, { name: "프론트", m: 304 }, { name: "시니어", m: 295 }, { name: "레이디", m: 189 }], len: 358 },
       ]},
-      { name: "IN", holes: [
+      { name: "파란", holes: [
         { no: 1, par: 4, img: "holeimg/gz413fea/2in1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_521_02_01.mp4", frames: ["holeimg/gz413fea/fin1_1.jpg", "holeimg/gz413fea/fin1_2.jpg", "holeimg/gz413fea/fin1_3.jpg"], elev: 26, tees: [{ name: "챔피언", m: 317 }, { name: "백", m: 316 }, { name: "프론트", m: 311 }, { name: "시니어", m: 287 }, { name: "레이디", m: 268 }], len: 317 },
         { no: 2, par: 4, img: "holeimg/gz413fea/2in2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_521_02_02.mp4", frames: ["holeimg/gz413fea/fin2_1.jpg", "holeimg/gz413fea/fin2_2.jpg", "holeimg/gz413fea/fin2_3.jpg"], elev: 18, tees: [{ name: "챔피언", m: 340 }, { name: "백", m: 310 }, { name: "프론트", m: 275 }, { name: "시니어", m: 251 }, { name: "레이디", m: 225 }], len: 340 },
         { no: 3, par: 3, img: "holeimg/gz413fea/2in3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_521_02_03.mp4", frames: ["holeimg/gz413fea/fin3_1.jpg", "holeimg/gz413fea/fin3_2.jpg"], elev: -39, tees: [{ name: "챔피언", m: 208 }, { name: "프론트", m: 187 }, { name: "시니어", m: 120 }], len: 208 },
@@ -1574,7 +1574,7 @@ const HOLEIMG_DB = {
     source: "골프존 코스 데이터 (홀맵·파·거리·고도차·홀 영상)",
     sourceUrl: "https://www.clubd.co.kr/",
     courses: [
-      { name: "OUT", holes: [
+      { name: "EAST", holes: [
         { no: 1, par: 5, img: "holeimg/gz419440/1out1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_785_01_01.mp4", frames: ["holeimg/gz419440/fout1_1.jpg", "holeimg/gz419440/fout1_2.jpg", "holeimg/gz419440/fout1_3.jpg"], elev: -19, tees: [{ name: "챔피언", m: 489 }, { name: "백", m: 474 }, { name: "프론트", m: 453 }, { name: "시니어", m: 396 }, { name: "레이디", m: 391 }], len: 489 },
         { no: 2, par: 4, img: "holeimg/gz419440/1out2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_785_01_02.mp4", frames: ["holeimg/gz419440/fout2_1.jpg", "holeimg/gz419440/fout2_2.jpg", "holeimg/gz419440/fout2_3.jpg"], tees: [{ name: "챔피언", m: 365 }, { name: "백", m: 349 }, { name: "프론트", m: 320 }, { name: "시니어", m: 298 }, { name: "레이디", m: 288 }], len: 365 },
         { no: 3, par: 3, img: "holeimg/gz419440/1out3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_785_01_03.mp4", frames: ["holeimg/gz419440/fout3_1.jpg", "holeimg/gz419440/fout3_2.jpg"], elev: -8, tees: [{ name: "챔피언", m: 163 }, { name: "백", m: 143 }, { name: "프론트", m: 125 }, { name: "시니어", m: 116 }, { name: "레이디", m: 105 }], len: 163 },
@@ -1585,7 +1585,7 @@ const HOLEIMG_DB = {
         { no: 8, par: 3, img: "holeimg/gz419440/1out8.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_785_01_08.mp4", frames: ["holeimg/gz419440/fout8_1.jpg", "holeimg/gz419440/fout8_2.jpg"], elev: -15, tees: [{ name: "챔피언", m: 197 }, { name: "백", m: 172 }, { name: "프론트", m: 154 }, { name: "시니어", m: 131 }, { name: "레이디", m: 120 }], len: 197 },
         { no: 9, par: 4, img: "holeimg/gz419440/1out9.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_785_01_09.mp4", frames: ["holeimg/gz419440/fout9_1.jpg", "holeimg/gz419440/fout9_2.jpg", "holeimg/gz419440/fout9_3.jpg"], elev: 9, tees: [{ name: "챔피언", m: 343 }, { name: "백", m: 329 }, { name: "프론트", m: 310 }, { name: "시니어", m: 255 }, { name: "레이디", m: 251 }], len: 343 },
       ]},
-      { name: "IN", holes: [
+      { name: "WEST", holes: [
         { no: 1, par: 4, img: "holeimg/gz419440/2in1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_785_02_01.mp4", frames: ["holeimg/gz419440/fin1_1.jpg", "holeimg/gz419440/fin1_2.jpg", "holeimg/gz419440/fin1_3.jpg"], elev: 7, tees: [{ name: "챔피언", m: 374 }, { name: "백", m: 348 }, { name: "프론트", m: 314 }, { name: "시니어", m: 298 }, { name: "레이디", m: 281 }], len: 374 },
         { no: 2, par: 4, img: "holeimg/gz419440/2in2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_785_02_02.mp4", frames: ["holeimg/gz419440/fin2_1.jpg", "holeimg/gz419440/fin2_2.jpg", "holeimg/gz419440/fin2_3.jpg"], elev: 5, tees: [{ name: "챔피언", m: 334 }, { name: "백", m: 313 }, { name: "프론트", m: 291 }, { name: "시니어", m: 232 }, { name: "레이디", m: 226 }], len: 334 },
         { no: 3, par: 3, img: "holeimg/gz419440/2in3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_785_02_03.mp4", frames: ["holeimg/gz419440/fin3_1.jpg", "holeimg/gz419440/fin3_2.jpg"], elev: 3, tees: [{ name: "챔피언", m: 147 }, { name: "백", m: 146 }, { name: "프론트", m: 124 }, { name: "시니어", m: 106 }, { name: "레이디", m: 97 }], len: 147 },
@@ -1630,7 +1630,7 @@ const HOLEIMG_DB = {
     source: "골프존 코스 데이터 (홀맵·파·거리·고도차·홀 영상)",
     sourceUrl: "https://www.ownersgc.co.kr/",
     courses: [
-      { name: "OUT", holes: [
+      { name: "HILL", holes: [
         { no: 1, par: 4, img: "holeimg/gz42a309/1out1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1266_01_01.mp4", frames: ["holeimg/gz42a309/fout1_1.jpg", "holeimg/gz42a309/fout1_2.jpg", "holeimg/gz42a309/fout1_3.jpg"], elev: -24, tees: [{ name: "챔피언", m: 395 }, { name: "백", m: 375 }, { name: "프론트", m: 352 }, { name: "시니어", m: 326 }, { name: "레이디", m: 246 }], len: 395 },
         { no: 2, par: 4, img: "holeimg/gz42a309/1out2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1266_01_02.mp4", frames: ["holeimg/gz42a309/fout2_1.jpg", "holeimg/gz42a309/fout2_2.jpg", "holeimg/gz42a309/fout2_3.jpg"], elev: 23, tees: [{ name: "챔피언", m: 335 }, { name: "백", m: 316 }, { name: "프론트", m: 307 }, { name: "시니어", m: 283 }, { name: "레이디", m: 263 }], len: 335 },
         { no: 3, par: 3, img: "holeimg/gz42a309/1out3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1266_01_03.mp4", frames: ["holeimg/gz42a309/fout3_1.jpg", "holeimg/gz42a309/fout3_2.jpg"], tees: [{ name: "챔피언", m: 195 }, { name: "백", m: 176 }, { name: "프론트", m: 157 }, { name: "시니어", m: 128 }, { name: "레이디", m: 100 }], len: 195 },
@@ -1641,7 +1641,7 @@ const HOLEIMG_DB = {
         { no: 8, par: 4, img: "holeimg/gz42a309/1out8.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1266_01_08.mp4", frames: ["holeimg/gz42a309/fout8_1.jpg", "holeimg/gz42a309/fout8_2.jpg", "holeimg/gz42a309/fout8_3.jpg"], elev: -33, tees: [{ name: "챔피언", m: 363 }, { name: "백", m: 352 }, { name: "프론트", m: 298 }, { name: "시니어", m: 293 }, { name: "레이디", m: 244 }], len: 363 },
         { no: 9, par: 5, img: "holeimg/gz42a309/1out9.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1266_01_09.mp4", frames: ["holeimg/gz42a309/fout9_1.jpg", "holeimg/gz42a309/fout9_2.jpg", "holeimg/gz42a309/fout9_3.jpg"], elev: 30, tees: [{ name: "챔피언", m: 506 }, { name: "백", m: 490 }, { name: "프론트", m: 458 }, { name: "시니어", m: 394 }, { name: "레이디", m: 364 }], len: 506 },
       ]},
-      { name: "IN", holes: [
+      { name: "LAKE", holes: [
         { no: 1, par: 4, img: "holeimg/gz42a309/2in1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1266_02_01.mp4", frames: ["holeimg/gz42a309/fin1_1.jpg", "holeimg/gz42a309/fin1_2.jpg", "holeimg/gz42a309/fin1_3.jpg"], elev: -46, tees: [{ name: "챔피언", m: 359 }, { name: "백", m: 345 }, { name: "프론트", m: 323 }, { name: "시니어", m: 322 }, { name: "레이디", m: 302 }], len: 359 },
         { no: 2, par: 4, img: "holeimg/gz42a309/2in2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1266_02_02.mp4", frames: ["holeimg/gz42a309/fin2_1.jpg", "holeimg/gz42a309/fin2_2.jpg", "holeimg/gz42a309/fin2_3.jpg"], elev: -39, tees: [{ name: "챔피언", m: 375 }, { name: "백", m: 368 }, { name: "프론트", m: 356 }, { name: "시니어", m: 331 }, { name: "레이디", m: 306 }], len: 375 },
         { no: 3, par: 5, img: "holeimg/gz42a309/2in3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1266_02_03.mp4", frames: ["holeimg/gz42a309/fin3_1.jpg", "holeimg/gz42a309/fin3_2.jpg", "holeimg/gz42a309/fin3_3.jpg"], elev: 30, tees: [{ name: "챔피언", m: 526 }, { name: "백", m: 511 }, { name: "프론트", m: 490 }, { name: "시니어", m: 467 }, { name: "레이디", m: 395 }], len: 526 },
@@ -1658,7 +1658,7 @@ const HOLEIMG_DB = {
     source: "골프존 코스 데이터 (홀맵·파·거리·고도차·홀 영상)",
     sourceUrl: "http://www.dongwonresort.co.kr",
     courses: [
-      { name: "OUT", holes: [
+      { name: "한려", holes: [
         { no: 1, par: 4, img: "holeimg/gz432641/1out1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_719_01_01.mp4", frames: ["holeimg/gz432641/fout1_1.jpg", "holeimg/gz432641/fout1_2.jpg", "holeimg/gz432641/fout1_3.jpg"], elev: -15, tees: [{ name: "챔피언", m: 292 }, { name: "프론트", m: 279 }, { name: "시니어", m: 263 }, { name: "레이디", m: 236 }], len: 292 },
         { no: 2, par: 4, img: "holeimg/gz432641/1out2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_719_01_02.mp4", frames: ["holeimg/gz432641/fout2_1.jpg", "holeimg/gz432641/fout2_2.jpg", "holeimg/gz432641/fout2_3.jpg"], tees: [{ name: "챔피언", m: 320 }, { name: "백", m: 319 }, { name: "프론트", m: 309 }, { name: "시니어", m: 290 }, { name: "레이디", m: 269 }], len: 320 },
         { no: 3, par: 4, img: "holeimg/gz432641/1out3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_719_01_03.mp4", frames: ["holeimg/gz432641/fout3_1.jpg", "holeimg/gz432641/fout3_2.jpg", "holeimg/gz432641/fout3_3.jpg"], elev: -51, tees: [{ name: "챔피언", m: 367 }, { name: "백", m: 366 }, { name: "프론트", m: 345 }, { name: "시니어", m: 305 }, { name: "레이디", m: 281 }], len: 367 },
@@ -1669,7 +1669,7 @@ const HOLEIMG_DB = {
         { no: 8, par: 5, img: "holeimg/gz432641/1out8.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_719_01_08.mp4", frames: ["holeimg/gz432641/fout8_1.jpg", "holeimg/gz432641/fout8_2.jpg", "holeimg/gz432641/fout8_3.jpg"], elev: -40, tees: [{ name: "챔피언", m: 524 }, { name: "프론트", m: 495 }, { name: "시니어", m: 455 }, { name: "레이디", m: 401 }], len: 524 },
         { no: 9, par: 4, img: "holeimg/gz432641/1out9.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_719_01_09.mp4", frames: ["holeimg/gz432641/fout9_1.jpg", "holeimg/gz432641/fout9_2.jpg", "holeimg/gz432641/fout9_3.jpg"], elev: 4, tees: [{ name: "챔피언", m: 386 }, { name: "프론트", m: 364 }, { name: "시니어", m: 332 }, { name: "레이디", m: 258 }], len: 386 },
       ]},
-      { name: "IN", holes: [
+      { name: "미륵", holes: [
         { no: 1, par: 4, img: "holeimg/gz432641/2in1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_719_02_01.mp4", frames: ["holeimg/gz432641/fin1_1.jpg", "holeimg/gz432641/fin1_2.jpg", "holeimg/gz432641/fin1_3.jpg"], elev: -36, tees: [{ name: "챔피언", m: 331 }, { name: "시니어", m: 311 }, { name: "레이디", m: 289 }], len: 331 },
         { no: 2, par: 3, img: "holeimg/gz432641/2in2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_719_02_02.mp4", frames: ["holeimg/gz432641/fin2_1.jpg", "holeimg/gz432641/fin2_2.jpg"], tees: [{ name: "챔피언", m: 168 }, { name: "프론트", m: 154 }, { name: "시니어", m: 135 }, { name: "레이디", m: 116 }], len: 168 },
         { no: 3, par: 4, img: "holeimg/gz432641/2in3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_719_02_03.mp4", frames: ["holeimg/gz432641/fin3_1.jpg", "holeimg/gz432641/fin3_2.jpg", "holeimg/gz432641/fin3_3.jpg"], tees: [{ name: "챔피언", m: 329 }, { name: "프론트", m: 304 }, { name: "시니어", m: 273 }, { name: "레이디", m: 244 }], len: 329 },
@@ -1742,7 +1742,7 @@ const HOLEIMG_DB = {
     source: "골프존 코스 데이터 (홀맵·파·거리·고도차·홀 영상)",
     sourceUrl: "https://www.castlexjj.com/",
     courses: [
-      { name: "OUT", holes: [
+      { name: "SOUTH", holes: [
         { no: 1, par: 4, img: "holeimg/gz450ee6/1out1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_82_01_01.mp4", frames: ["holeimg/gz450ee6/fout1_1.jpg", "holeimg/gz450ee6/fout1_2.jpg", "holeimg/gz450ee6/fout1_3.jpg"], elev: -34, tees: [{ name: "챔피언", m: 394 }, { name: "백", m: 392 }, { name: "프론트", m: 367 }, { name: "시니어", m: 342 }, { name: "레이디", m: 341 }], len: 394 },
         { no: 2, par: 4, img: "holeimg/gz450ee6/1out2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_82_01_02.mp4", frames: ["holeimg/gz450ee6/fout2_1.jpg", "holeimg/gz450ee6/fout2_2.jpg", "holeimg/gz450ee6/fout2_3.jpg"], elev: 20, tees: [{ name: "챔피언", m: 316 }, { name: "백", m: 315 }, { name: "프론트", m: 288 }, { name: "시니어", m: 257 }], len: 316 },
         { no: 3, par: 3, img: "holeimg/gz450ee6/1out3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_82_01_03.mp4", frames: ["holeimg/gz450ee6/fout3_1.jpg", "holeimg/gz450ee6/fout3_2.jpg"], elev: -19, tees: [{ name: "챔피언", m: 196 }, { name: "프론트", m: 165 }, { name: "시니어", m: 143 }, { name: "레이디", m: 142 }], len: 196 },
@@ -1753,7 +1753,7 @@ const HOLEIMG_DB = {
         { no: 8, par: 3, img: "holeimg/gz450ee6/1out8.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_82_01_08.mp4", frames: ["holeimg/gz450ee6/fout8_1.jpg", "holeimg/gz450ee6/fout8_2.jpg"], elev: -3, tees: [{ name: "챔피언", m: 169 }, { name: "백", m: 167 }, { name: "프론트", m: 128 }, { name: "시니어", m: 115 }, { name: "레이디", m: 113 }], len: 169 },
         { no: 9, par: 5, img: "holeimg/gz450ee6/1out9.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_82_01_09.mp4", frames: ["holeimg/gz450ee6/fout9_1.jpg", "holeimg/gz450ee6/fout9_2.jpg", "holeimg/gz450ee6/fout9_3.jpg"], elev: 9, tees: [{ name: "챔피언", m: 438 }, { name: "백", m: 436 }, { name: "프론트", m: 413 }, { name: "시니어", m: 342 }, { name: "레이디", m: 341 }], len: 438 },
       ]},
-      { name: "IN", holes: [
+      { name: "EAST", holes: [
         { no: 1, par: 4, img: "holeimg/gz450ee6/2in1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_82_02_01.mp4", frames: ["holeimg/gz450ee6/fin1_1.jpg", "holeimg/gz450ee6/fin1_2.jpg", "holeimg/gz450ee6/fin1_3.jpg"], elev: -29, tees: [{ name: "챔피언", m: 389 }, { name: "프론트", m: 359 }, { name: "시니어", m: 320 }, { name: "레이디", m: 319 }], len: 389 },
         { no: 2, par: 4, img: "holeimg/gz450ee6/2in2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_82_02_02.mp4", frames: ["holeimg/gz450ee6/fin2_1.jpg", "holeimg/gz450ee6/fin2_2.jpg", "holeimg/gz450ee6/fin2_3.jpg"], elev: 11, tees: [{ name: "챔피언", m: 317 }, { name: "백", m: 314 }, { name: "프론트", m: 276 }, { name: "시니어", m: 248 }], len: 317 },
         { no: 3, par: 3, img: "holeimg/gz450ee6/2in3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_82_02_03.mp4", frames: ["holeimg/gz450ee6/fin3_1.jpg", "holeimg/gz450ee6/fin3_2.jpg"], tees: [{ name: "챔피언", m: 143 }, { name: "프론트", m: 122 }, { name: "시니어", m: 115 }], len: 143 },
@@ -1854,7 +1854,7 @@ const HOLEIMG_DB = {
     source: "골프존 코스 데이터 (홀맵·파·거리·고도차·홀 영상)",
     sourceUrl: "http://www.kwangneungcc.co.kr",
     courses: [
-      { name: "OUT", holes: [
+      { name: "GLEN", holes: [
         { no: 1, par: 5, img: "holeimg/gz49329f/1out1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_373_01_01.mp4", frames: ["holeimg/gz49329f/fout1_1.jpg", "holeimg/gz49329f/fout1_2.jpg", "holeimg/gz49329f/fout1_3.jpg"], elev: 19, tees: [{ name: "챔피언", m: 481 }, { name: "백", m: 477 }, { name: "프론트", m: 454 }, { name: "시니어", m: 398 }], len: 481 },
         { no: 2, par: 4, img: "holeimg/gz49329f/1out2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_373_01_02.mp4", frames: ["holeimg/gz49329f/fout2_1.jpg", "holeimg/gz49329f/fout2_2.jpg", "holeimg/gz49329f/fout2_3.jpg"], elev: 13, tees: [{ name: "챔피언", m: 351 }, { name: "백", m: 330 }, { name: "프론트", m: 309 }, { name: "시니어", m: 292 }], len: 351 },
         { no: 3, par: 4, img: "holeimg/gz49329f/1out3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_373_01_03.mp4", frames: ["holeimg/gz49329f/fout3_1.jpg", "holeimg/gz49329f/fout3_2.jpg", "holeimg/gz49329f/fout3_3.jpg"], elev: 9, tees: [{ name: "챔피언", m: 331 }, { name: "프론트", m: 322 }, { name: "시니어", m: 306 }], len: 331 },
@@ -1865,7 +1865,7 @@ const HOLEIMG_DB = {
         { no: 8, par: 4, img: "holeimg/gz49329f/1out8.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_373_01_08.mp4", frames: ["holeimg/gz49329f/fout8_1.jpg", "holeimg/gz49329f/fout8_2.jpg", "holeimg/gz49329f/fout8_3.jpg"], elev: -21, tees: [{ name: "챔피언", m: 382 }, { name: "프론트", m: 368 }, { name: "시니어", m: 327 }], len: 382 },
         { no: 9, par: 4, img: "holeimg/gz49329f/1out9.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_373_01_09.mp4", frames: ["holeimg/gz49329f/fout9_1.jpg", "holeimg/gz49329f/fout9_2.jpg", "holeimg/gz49329f/fout9_3.jpg"], elev: -37, tees: [{ name: "챔피언", m: 378 }, { name: "프론트", m: 358 }, { name: "시니어", m: 338 }], len: 378 },
       ]},
-      { name: "IN", holes: [
+      { name: "PINE", holes: [
         { no: 1, par: 5, img: "holeimg/gz49329f/2in1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_373_02_01.mp4", frames: ["holeimg/gz49329f/fin1_1.jpg", "holeimg/gz49329f/fin1_2.jpg", "holeimg/gz49329f/fin1_3.jpg"], elev: -12, tees: [{ name: "챔피언", m: 470 }, { name: "백", m: 462 }, { name: "프론트", m: 444 }, { name: "시니어", m: 417 }, { name: "레이디", m: 416 }], len: 470 },
         { no: 2, par: 4, img: "holeimg/gz49329f/2in2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_373_02_02.mp4", frames: ["holeimg/gz49329f/fin2_1.jpg", "holeimg/gz49329f/fin2_2.jpg", "holeimg/gz49329f/fin2_3.jpg"], elev: -6, tees: [{ name: "챔피언", m: 372 }, { name: "백", m: 360 }, { name: "프론트", m: 338 }, { name: "시니어", m: 325 }], len: 372 },
         { no: 3, par: 3, img: "holeimg/gz49329f/2in3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_373_02_03.mp4", frames: ["holeimg/gz49329f/fin3_1.jpg", "holeimg/gz49329f/fin3_2.jpg"], tees: [{ name: "챔피언", m: 144 }, { name: "백", m: 130 }, { name: "프론트", m: 113 }, { name: "시니어", m: 100 }, { name: "레이디", m: 99 }], len: 144 },
@@ -1882,7 +1882,7 @@ const HOLEIMG_DB = {
     source: "골프존 코스 데이터 (홀맵·파·거리·고도차·홀 영상)",
     sourceUrl: "https://www.crystalvalley.co.kr/",
     courses: [
-      { name: "OUT", holes: [
+      { name: "CRYSTAL", holes: [
         { no: 1, par: 4, img: "holeimg/gz509e2c/1out1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1333_01_01.mp4", frames: ["holeimg/gz509e2c/fout1_1.jpg", "holeimg/gz509e2c/fout1_2.jpg", "holeimg/gz509e2c/fout1_3.jpg"], elev: -32, tees: [{ name: "챔피언", m: 400 }, { name: "백", m: 399 }, { name: "프론트", m: 355 }, { name: "시니어", m: 324 }, { name: "레이디", m: 296 }], len: 400 },
         { no: 2, par: 5, img: "holeimg/gz509e2c/1out2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1333_01_02.mp4", frames: ["holeimg/gz509e2c/fout2_1.jpg", "holeimg/gz509e2c/fout2_2.jpg", "holeimg/gz509e2c/fout2_3.jpg"], tees: [{ name: "챔피언", m: 522 }, { name: "백", m: 521 }, { name: "프론트", m: 493 }, { name: "시니어", m: 452 }, { name: "레이디", m: 422 }], len: 522 },
         { no: 3, par: 3, img: "holeimg/gz509e2c/1out3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1333_01_03.mp4", frames: ["holeimg/gz509e2c/fout3_1.jpg", "holeimg/gz509e2c/fout3_2.jpg"], elev: -24, tees: [{ name: "챔피언", m: 182 }, { name: "프론트", m: 167 }, { name: "시니어", m: 147 }, { name: "레이디", m: 104 }], len: 182 },
@@ -1893,7 +1893,7 @@ const HOLEIMG_DB = {
         { no: 8, par: 3, img: "holeimg/gz509e2c/1out8.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1333_01_08.mp4", frames: ["holeimg/gz509e2c/fout8_1.jpg", "holeimg/gz509e2c/fout8_2.jpg"], tees: [{ name: "챔피언", m: 170 }, { name: "프론트", m: 156 }, { name: "시니어", m: 143 }, { name: "레이디", m: 133 }], len: 170 },
         { no: 9, par: 4, img: "holeimg/gz509e2c/1out9.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1333_01_09.mp4", frames: ["holeimg/gz509e2c/fout9_1.jpg", "holeimg/gz509e2c/fout9_2.jpg", "holeimg/gz509e2c/fout9_3.jpg"], elev: 12, tees: [{ name: "챔피언", m: 343 }, { name: "백", m: 342 }, { name: "프론트", m: 308 }, { name: "시니어", m: 267 }, { name: "레이디", m: 235 }], len: 343 },
       ]},
-      { name: "IN", holes: [
+      { name: "VALLEY", holes: [
         { no: 1, par: 5, img: "holeimg/gz509e2c/2in1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1333_02_01.mp4", frames: ["holeimg/gz509e2c/fin1_1.jpg", "holeimg/gz509e2c/fin1_2.jpg", "holeimg/gz509e2c/fin1_3.jpg"], elev: -9, tees: [{ name: "챔피언", m: 548 }, { name: "프론트", m: 510 }, { name: "시니어", m: 479 }, { name: "레이디", m: 443 }], len: 548 },
         { no: 2, par: 3, img: "holeimg/gz509e2c/2in2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1333_02_02.mp4", frames: ["holeimg/gz509e2c/fin2_1.jpg", "holeimg/gz509e2c/fin2_2.jpg"], tees: [{ name: "챔피언", m: 139 }, { name: "프론트", m: 123 }, { name: "시니어", m: 114 }, { name: "레이디", m: 108 }], len: 139 },
         { no: 3, par: 4, img: "holeimg/gz509e2c/2in3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1333_02_03.mp4", frames: ["holeimg/gz509e2c/fin3_1.jpg", "holeimg/gz509e2c/fin3_2.jpg", "holeimg/gz509e2c/fin3_3.jpg"], elev: 18, tees: [{ name: "챔피언", m: 370 }, { name: "백", m: 369 }, { name: "프론트", m: 360 }, { name: "시니어", m: 333 }, { name: "레이디", m: 264 }], len: 370 },
@@ -1910,7 +1910,7 @@ const HOLEIMG_DB = {
     source: "골프존 코스 데이터 (홀맵·파·거리·고도차·홀 영상)",
     sourceUrl: "http://www.phoenixpark.co.kr",
     courses: [
-      { name: "OUT", holes: [
+      { name: "MOUNTAIN", holes: [
         { no: 1, par: 4, img: "holeimg/gz5123d2/1out1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_7_01_01.mp4", frames: ["holeimg/gz5123d2/fout1_1.jpg", "holeimg/gz5123d2/fout1_2.jpg", "holeimg/gz5123d2/fout1_3.jpg"], elev: 10, tees: [{ name: "챔피언", m: 370 }, { name: "백", m: 336 }, { name: "프론트", m: 301 }, { name: "시니어", m: 243 }], len: 370 },
         { no: 2, par: 5, img: "holeimg/gz5123d2/1out2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_7_01_02.mp4", frames: ["holeimg/gz5123d2/fout2_1.jpg", "holeimg/gz5123d2/fout2_2.jpg", "holeimg/gz5123d2/fout2_3.jpg"], elev: -24, tees: [{ name: "챔피언", m: 509 }, { name: "백", m: 470 }, { name: "프론트", m: 450 }, { name: "시니어", m: 403 }], len: 509 },
         { no: 3, par: 4, img: "holeimg/gz5123d2/1out3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_7_01_03.mp4", frames: ["holeimg/gz5123d2/fout3_1.jpg", "holeimg/gz5123d2/fout3_2.jpg", "holeimg/gz5123d2/fout3_3.jpg"], elev: 8, tees: [{ name: "챔피언", m: 327 }, { name: "백", m: 297 }, { name: "프론트", m: 265 }, { name: "시니어", m: 229 }], len: 327 },
@@ -1921,7 +1921,7 @@ const HOLEIMG_DB = {
         { no: 8, par: 3, img: "holeimg/gz5123d2/1out8.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_7_01_08.mp4", frames: ["holeimg/gz5123d2/fout8_1.jpg", "holeimg/gz5123d2/fout8_2.jpg"], elev: -23, tees: [{ name: "챔피언", m: 155 }, { name: "백", m: 137 }, { name: "프론트", m: 120 }, { name: "시니어", m: 100 }], len: 155 },
         { no: 9, par: 4, img: "holeimg/gz5123d2/1out9.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_7_01_09.mp4", frames: ["holeimg/gz5123d2/fout9_1.jpg", "holeimg/gz5123d2/fout9_2.jpg", "holeimg/gz5123d2/fout9_3.jpg"], elev: -30, tees: [{ name: "챔피언", m: 428 }, { name: "백", m: 399 }, { name: "프론트", m: 372 }, { name: "시니어", m: 308 }], len: 428 },
       ]},
-      { name: "IN", holes: [
+      { name: "LAKE", holes: [
         { no: 1, par: 4, img: "holeimg/gz5123d2/2in1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_7_02_01.mp4", frames: ["holeimg/gz5123d2/fin1_1.jpg", "holeimg/gz5123d2/fin1_2.jpg", "holeimg/gz5123d2/fin1_3.jpg"], elev: -26, tees: [{ name: "챔피언", m: 361 }, { name: "백", m: 327 }, { name: "프론트", m: 299 }, { name: "시니어", m: 270 }], len: 361 },
         { no: 2, par: 4, img: "holeimg/gz5123d2/2in2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_7_02_02.mp4", frames: ["holeimg/gz5123d2/fin2_1.jpg", "holeimg/gz5123d2/fin2_2.jpg", "holeimg/gz5123d2/fin2_3.jpg"], elev: -19, tees: [{ name: "챔피언", m: 344 }, { name: "백", m: 313 }, { name: "프론트", m: 291 }, { name: "시니어", m: 239 }], len: 344 },
         { no: 3, par: 3, img: "holeimg/gz5123d2/2in3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_7_02_03.mp4", frames: ["holeimg/gz5123d2/fin3_1.jpg", "holeimg/gz5123d2/fin3_2.jpg"], tees: [{ name: "챔피언", m: 157 }, { name: "백", m: 150 }, { name: "시니어", m: 131 }], len: 157 },
@@ -1966,7 +1966,7 @@ const HOLEIMG_DB = {
     source: "골프존 코스 데이터 (홀맵·파·거리·고도차·홀 영상)",
     sourceUrl: "http://www.theoceanresort.co.kr/subpage.php?page_code=040101",
     courses: [
-      { name: "OUT", holes: [
+      { name: "WEST", holes: [
         { no: 1, par: 4, img: "holeimg/gz52b57a/1out1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_517_01_01.mp4", frames: ["holeimg/gz52b57a/fout1_1.jpg", "holeimg/gz52b57a/fout1_2.jpg", "holeimg/gz52b57a/fout1_3.jpg"], elev: 21, tees: [{ name: "챔피언", m: 323 }, { name: "백", m: 289 }, { name: "프론트", m: 265 }, { name: "시니어", m: 231 }], len: 323 },
         { no: 2, par: 4, img: "holeimg/gz52b57a/1out2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_517_01_02.mp4", frames: ["holeimg/gz52b57a/fout2_1.jpg", "holeimg/gz52b57a/fout2_2.jpg"], elev: -17, tees: [{ name: "챔피언", m: 402 }, { name: "백", m: 383 }, { name: "프론트", m: 361 }, { name: "시니어", m: 294 }], len: 402 },
         { no: 3, par: 3, img: "holeimg/gz52b57a/1out3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_517_01_03.mp4", frames: ["holeimg/gz52b57a/fout3_1.jpg", "holeimg/gz52b57a/fout3_2.jpg", "holeimg/gz52b57a/fout3_3.jpg"], elev: -27, tees: [{ name: "챔피언", m: 178 }, { name: "백", m: 164 }, { name: "프론트", m: 155 }, { name: "시니어", m: 122 }], len: 178 },
@@ -1977,7 +1977,7 @@ const HOLEIMG_DB = {
         { no: 8, par: 4, img: "holeimg/gz52b57a/1out8.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_517_01_08.mp4", frames: ["holeimg/gz52b57a/fout8_1.jpg", "holeimg/gz52b57a/fout8_2.jpg", "holeimg/gz52b57a/fout8_3.jpg"], tees: [{ name: "챔피언", m: 331 }, { name: "백", m: 324 }, { name: "프론트", m: 292 }, { name: "시니어", m: 254 }], len: 331 },
         { no: 9, par: 5, img: "holeimg/gz52b57a/1out9.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_517_01_09.mp4", frames: ["holeimg/gz52b57a/fout9_1.jpg", "holeimg/gz52b57a/fout9_2.jpg", "holeimg/gz52b57a/fout9_3.jpg"], tees: [{ name: "챔피언", m: 486 }, { name: "백", m: 461 }, { name: "프론트", m: 453 }, { name: "시니어", m: 383 }], len: 486 },
       ]},
-      { name: "IN", holes: [
+      { name: "EAST", holes: [
         { no: 1, par: 4, img: "holeimg/gz52b57a/2in1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_517_02_01.mp4", frames: ["holeimg/gz52b57a/fin1_1.jpg", "holeimg/gz52b57a/fin1_2.jpg", "holeimg/gz52b57a/fin1_3.jpg"], elev: -17, tees: [{ name: "챔피언", m: 345 }, { name: "백", m: 326 }, { name: "프론트", m: 283 }, { name: "시니어", m: 263 }], len: 345 },
         { no: 2, par: 4, img: "holeimg/gz52b57a/2in2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_517_02_02.mp4", frames: ["holeimg/gz52b57a/fin2_1.jpg", "holeimg/gz52b57a/fin2_2.jpg", "holeimg/gz52b57a/fin2_3.jpg"], tees: [{ name: "챔피언", m: 331 }, { name: "백", m: 291 }, { name: "프론트", m: 271 }, { name: "시니어", m: 239 }], len: 331 },
         { no: 3, par: 5, img: "holeimg/gz52b57a/2in3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_517_02_03.mp4", frames: ["holeimg/gz52b57a/fin3_1.jpg", "holeimg/gz52b57a/fin3_2.jpg", "holeimg/gz52b57a/fin3_3.jpg"], elev: -40, tees: [{ name: "챔피언", m: 574 }, { name: "백", m: 534 }, { name: "프론트", m: 513 }, { name: "시니어", m: 481 }], len: 574 },
@@ -2022,7 +2022,7 @@ const HOLEIMG_DB = {
     source: "골프존 코스 데이터 (홀맵·파·거리·고도차·홀 영상)",
     sourceUrl: "https://www.coveswing.com/",
     courses: [
-      { name: "OUT", holes: [
+      { name: "코브", holes: [
         { no: 1, par: 4, img: "holeimg/gz53cd35/1out1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_743_01_01.mp4", frames: ["holeimg/gz53cd35/fout1_1.jpg", "holeimg/gz53cd35/fout1_2.jpg"], elev: 4, tees: [{ name: "챔피언", m: 420 }, { name: "백", m: 419 }, { name: "프론트", m: 376 }, { name: "시니어", m: 341 }, { name: "레이디", m: 309 }], len: 420 },
         { no: 2, par: 4, img: "holeimg/gz53cd35/1out2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_743_01_02.mp4", frames: ["holeimg/gz53cd35/fout2_1.jpg", "holeimg/gz53cd35/fout2_2.jpg"], elev: -6, tees: [{ name: "챔피언", m: 362 }, { name: "백", m: 361 }, { name: "프론트", m: 336 }, { name: "시니어", m: 310 }, { name: "레이디", m: 279 }], len: 362 },
         { no: 3, par: 4, img: "holeimg/gz53cd35/1out3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_743_01_03.mp4", frames: ["holeimg/gz53cd35/fout3_1.jpg", "holeimg/gz53cd35/fout3_2.jpg"], elev: 9, tees: [{ name: "챔피언", m: 396 }, { name: "프론트", m: 369 }, { name: "시니어", m: 335 }, { name: "레이디", m: 303 }], len: 396 },
@@ -2033,7 +2033,7 @@ const HOLEIMG_DB = {
         { no: 8, par: 3, img: "holeimg/gz53cd35/1out8.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_743_01_08.mp4", frames: ["holeimg/gz53cd35/fout8_1.jpg", "holeimg/gz53cd35/fout8_2.jpg"], elev: -26, tees: [{ name: "챔피언", m: 111 }, { name: "프론트", m: 99 }, { name: "레이디", m: 71 }], len: 111 },
         { no: 9, par: 5, img: "holeimg/gz53cd35/1out9.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_743_01_09.mp4", frames: ["holeimg/gz53cd35/fout9_1.jpg", "holeimg/gz53cd35/fout9_2.jpg"], elev: -77, tees: [{ name: "챔피언", m: 539 }, { name: "프론트", m: 510 }, { name: "시니어", m: 471 }, { name: "레이디", m: 423 }], len: 539 },
       ]},
-      { name: "IN", holes: [
+      { name: "스윙", holes: [
         { no: 1, par: 4, img: "holeimg/gz53cd35/2in1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_743_02_01.mp4", frames: ["holeimg/gz53cd35/fin1_1.jpg", "holeimg/gz53cd35/fin1_2.jpg"], elev: -16, tees: [{ name: "챔피언", m: 340 }, { name: "프론트", m: 318 }, { name: "시니어", m: 255 }, { name: "레이디", m: 247 }], len: 340 },
         { no: 2, par: 4, img: "holeimg/gz53cd35/2in2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_743_02_02.mp4", frames: ["holeimg/gz53cd35/fin2_1.jpg", "holeimg/gz53cd35/fin2_2.jpg"], elev: -15, tees: [{ name: "챔피언", m: 337 }, { name: "프론트", m: 317 }, { name: "시니어", m: 267 }, { name: "레이디", m: 239 }], len: 337 },
         { no: 3, par: 3, img: "holeimg/gz53cd35/2in3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_743_02_03.mp4", frames: ["holeimg/gz53cd35/fin3_1.jpg", "holeimg/gz53cd35/fin3_2.jpg"], elev: 15, tees: [{ name: "챔피언", m: 182 }, { name: "백", m: 181 }, { name: "프론트", m: 159 }, { name: "시니어", m: 140 }, { name: "레이디", m: 118 }], len: 182 },
@@ -2050,7 +2050,7 @@ const HOLEIMG_DB = {
     source: "골프존 코스 데이터 (홀맵·파·거리·고도차·홀 영상)",
     sourceUrl: "https://www.pinestonecc.com/",
     courses: [
-      { name: "OUT", holes: [
+      { name: "파인", holes: [
         { no: 1, par: 4, img: "holeimg/gz55f6b1/1out1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_53_01_01.mp4", frames: ["holeimg/gz55f6b1/fout1_1.jpg", "holeimg/gz55f6b1/fout1_2.jpg", "holeimg/gz55f6b1/fout1_3.jpg"], tees: [{ name: "챔피언", m: 414 }, { name: "백", m: 384 }, { name: "프론트", m: 352 }, { name: "시니어", m: 331 }, { name: "레이디", m: 288 }], len: 414 },
         { no: 2, par: 3, img: "holeimg/gz55f6b1/1out2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_53_01_02.mp4", frames: ["holeimg/gz55f6b1/fout2_1.jpg", "holeimg/gz55f6b1/fout2_2.jpg"], tees: [{ name: "챔피언", m: 192 }, { name: "백", m: 171 }, { name: "프론트", m: 170 }, { name: "시니어", m: 148 }, { name: "레이디", m: 128 }], len: 192 },
         { no: 3, par: 4, img: "holeimg/gz55f6b1/1out3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_53_01_03.mp4", frames: ["holeimg/gz55f6b1/fout3_1.jpg", "holeimg/gz55f6b1/fout3_2.jpg", "holeimg/gz55f6b1/fout3_3.jpg"], tees: [{ name: "챔피언", m: 418 }, { name: "백", m: 392 }, { name: "프론트", m: 385 }, { name: "시니어", m: 336 }, { name: "레이디", m: 291 }], len: 418 },
@@ -2061,7 +2061,7 @@ const HOLEIMG_DB = {
         { no: 8, par: 5, img: "holeimg/gz55f6b1/1out8.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_53_01_08.mp4", frames: ["holeimg/gz55f6b1/fout8_1.jpg", "holeimg/gz55f6b1/fout8_2.jpg", "holeimg/gz55f6b1/fout8_3.jpg"], tees: [{ name: "챔피언", m: 514 }, { name: "백", m: 486 }, { name: "프론트", m: 449 }, { name: "시니어", m: 443 }, { name: "레이디", m: 413 }], len: 514 },
         { no: 9, par: 4, img: "holeimg/gz55f6b1/1out9.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_53_01_09.mp4", frames: ["holeimg/gz55f6b1/fout9_1.jpg", "holeimg/gz55f6b1/fout9_2.jpg", "holeimg/gz55f6b1/fout9_3.jpg"], tees: [{ name: "챔피언", m: 389 }, { name: "백", m: 362 }, { name: "프론트", m: 336 }, { name: "시니어", m: 327 }, { name: "레이디", m: 305 }], len: 389 },
       ]},
-      { name: "IN", holes: [
+      { name: "스톤", holes: [
         { no: 1, par: 4, img: "holeimg/gz55f6b1/2in1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_53_02_01.mp4", frames: ["holeimg/gz55f6b1/fin1_1.jpg", "holeimg/gz55f6b1/fin1_2.jpg", "holeimg/gz55f6b1/fin1_3.jpg"], tees: [{ name: "챔피언", m: 395 }, { name: "백", m: 367 }, { name: "프론트", m: 347 }, { name: "시니어", m: 341 }, { name: "레이디", m: 319 }], len: 395 },
         { no: 2, par: 4, img: "holeimg/gz55f6b1/2in2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_53_02_02.mp4", frames: ["holeimg/gz55f6b1/fin2_1.jpg", "holeimg/gz55f6b1/fin2_2.jpg", "holeimg/gz55f6b1/fin2_3.jpg"], tees: [{ name: "챔피언", m: 384 }, { name: "백", m: 360 }, { name: "프론트", m: 320 }, { name: "시니어", m: 310 }, { name: "레이디", m: 290 }], len: 384 },
         { no: 3, par: 3, img: "holeimg/gz55f6b1/2in3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_53_02_03.mp4", frames: ["holeimg/gz55f6b1/fin3_1.jpg", "holeimg/gz55f6b1/fin3_2.jpg"], tees: [{ name: "챔피언", m: 178 }, { name: "백", m: 161 }, { name: "프론트", m: 155 }, { name: "시니어", m: 148 }, { name: "레이디", m: 126 }], len: 178 },
@@ -2162,7 +2162,7 @@ const HOLEIMG_DB = {
     source: "골프존 코스 데이터 (홀맵·파·거리·고도차·홀 영상)",
     sourceUrl: "http://www.kangwonland.com",
     courses: [
-      { name: "OUT", holes: [
+      { name: "MOUNTAIN", holes: [
         { no: 1, par: 4, img: "holeimg/gz59b945/1out1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_33_01_01.mp4", frames: ["holeimg/gz59b945/fout1_1.jpg", "holeimg/gz59b945/fout1_2.jpg", "holeimg/gz59b945/fout1_3.jpg"], elev: -29, tees: [{ name: "챔피언", m: 319 }, { name: "백", m: 302 }, { name: "프론트", m: 281 }, { name: "시니어", m: 260 }], len: 319 },
         { no: 2, par: 4, img: "holeimg/gz59b945/1out2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_33_01_02.mp4", frames: ["holeimg/gz59b945/fout2_1.jpg", "holeimg/gz59b945/fout2_2.jpg", "holeimg/gz59b945/fout2_3.jpg"], tees: [{ name: "챔피언", m: 393 }, { name: "백", m: 362 }, { name: "프론트", m: 326 }, { name: "시니어", m: 284 }], len: 393 },
         { no: 3, par: 4, img: "holeimg/gz59b945/1out3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_33_01_03.mp4", frames: ["holeimg/gz59b945/fout3_1.jpg", "holeimg/gz59b945/fout3_2.jpg", "holeimg/gz59b945/fout3_3.jpg"], elev: -14, tees: [{ name: "챔피언", m: 358 }, { name: "백", m: 324 }, { name: "프론트", m: 290 }, { name: "시니어", m: 256 }], len: 358 },
@@ -2173,7 +2173,7 @@ const HOLEIMG_DB = {
         { no: 8, par: 3, img: "holeimg/gz59b945/1out8.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_33_01_08.mp4", frames: ["holeimg/gz59b945/fout8_1.jpg", "holeimg/gz59b945/fout8_2.jpg"], tees: [{ name: "챔피언", m: 162 }, { name: "백", m: 141 }, { name: "프론트", m: 116 }, { name: "시니어", m: 89 }], len: 162 },
         { no: 9, par: 4, img: "holeimg/gz59b945/1out9.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_33_01_09.mp4", frames: ["holeimg/gz59b945/fout9_1.jpg", "holeimg/gz59b945/fout9_2.jpg", "holeimg/gz59b945/fout9_3.jpg"], elev: 18, tees: [{ name: "챔피언", m: 382 }, { name: "백", m: 360 }, { name: "프론트", m: 319 }, { name: "시니어", m: 287 }], len: 382 },
       ]},
-      { name: "IN", holes: [
+      { name: "VALLEY", holes: [
         { no: 1, par: 4, img: "holeimg/gz59b945/2in1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_33_02_01.mp4", frames: ["holeimg/gz59b945/fin1_1.jpg", "holeimg/gz59b945/fin1_2.jpg", "holeimg/gz59b945/fin1_3.jpg"], elev: -14, tees: [{ name: "챔피언", m: 342 }, { name: "백", m: 312 }, { name: "프론트", m: 289 }, { name: "시니어", m: 228 }], len: 342 },
         { no: 2, par: 5, img: "holeimg/gz59b945/2in2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_33_02_02.mp4", frames: ["holeimg/gz59b945/fin2_1.jpg", "holeimg/gz59b945/fin2_2.jpg", "holeimg/gz59b945/fin2_3.jpg"], elev: -22, tees: [{ name: "챔피언", m: 558 }, { name: "백", m: 535 }, { name: "프론트", m: 511 }, { name: "시니어", m: 432 }, { name: "레이디", m: 431 }], len: 558 },
         { no: 3, par: 4, img: "holeimg/gz59b945/2in3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_33_02_03.mp4", frames: ["holeimg/gz59b945/fin3_1.jpg", "holeimg/gz59b945/fin3_2.jpg", "holeimg/gz59b945/fin3_3.jpg"], elev: 20, tees: [{ name: "챔피언", m: 357 }, { name: "백", m: 334 }, { name: "프론트", m: 324 }, { name: "시니어", m: 274 }], len: 357 },
@@ -2190,7 +2190,7 @@ const HOLEIMG_DB = {
     source: "골프존 코스 데이터 (홀맵·파·거리·고도차·홀 영상)",
     sourceUrl: "http://www.ygcc.co.kr/",
     courses: [
-      { name: "OUT", holes: [
+      { name: "VALLEY", holes: [
         { no: 1, par: 4, img: "holeimg/gz5a92bd/1out1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_157_01_01.mp4", frames: ["holeimg/gz5a92bd/fout1_1.jpg", "holeimg/gz5a92bd/fout1_2.jpg", "holeimg/gz5a92bd/fout1_3.jpg"], tees: [{ name: "챔피언", m: 375 }, { name: "프론트", m: 350 }, { name: "시니어", m: 315 }, { name: "레이디", m: 265 }], len: 375 },
         { no: 2, par: 4, img: "holeimg/gz5a92bd/1out2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_157_01_02.mp4", frames: ["holeimg/gz5a92bd/fout2_1.jpg", "holeimg/gz5a92bd/fout2_2.jpg", "holeimg/gz5a92bd/fout2_3.jpg"], elev: -21, tees: [{ name: "챔피언", m: 375 }, { name: "프론트", m: 360 }, { name: "시니어", m: 340 }, { name: "레이디", m: 295 }], len: 375 },
         { no: 3, par: 5, img: "holeimg/gz5a92bd/1out3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_157_01_03.mp4", frames: ["holeimg/gz5a92bd/fout3_1.jpg", "holeimg/gz5a92bd/fout3_2.jpg", "holeimg/gz5a92bd/fout3_3.jpg"], tees: [{ name: "챔피언", m: 465 }, { name: "프론트", m: 445 }, { name: "시니어", m: 415 }, { name: "레이디", m: 380 }], len: 465 },
@@ -2201,7 +2201,7 @@ const HOLEIMG_DB = {
         { no: 8, par: 4, img: "holeimg/gz5a92bd/1out8.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_157_01_08.mp4", frames: ["holeimg/gz5a92bd/fout8_1.jpg", "holeimg/gz5a92bd/fout8_2.jpg", "holeimg/gz5a92bd/fout8_3.jpg"], tees: [{ name: "챔피언", m: 330 }, { name: "프론트", m: 310 }, { name: "시니어", m: 280 }, { name: "레이디", m: 255 }], len: 330 },
         { no: 9, par: 4, img: "holeimg/gz5a92bd/1out9.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_157_01_09.mp4", frames: ["holeimg/gz5a92bd/fout9_1.jpg", "holeimg/gz5a92bd/fout9_2.jpg", "holeimg/gz5a92bd/fout9_3.jpg"], elev: -3, tees: [{ name: "챔피언", m: 380 }, { name: "프론트", m: 360 }, { name: "시니어", m: 315 }, { name: "레이디", m: 275 }], len: 380 },
       ]},
-      { name: "IN", holes: [
+      { name: "OCEAN", holes: [
         { no: 1, par: 5, img: "holeimg/gz5a92bd/2in1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_157_02_01.mp4", frames: ["holeimg/gz5a92bd/fin1_1.jpg", "holeimg/gz5a92bd/fin1_2.jpg", "holeimg/gz5a92bd/fin1_3.jpg"], elev: -34, tees: [{ name: "챔피언", m: 480 }, { name: "백", m: 465 }, { name: "프론트", m: 445 }, { name: "시니어", m: 405 }, { name: "레이디", m: 390 }], len: 480 },
         { no: 2, par: 4, img: "holeimg/gz5a92bd/2in2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_157_02_02.mp4", frames: ["holeimg/gz5a92bd/fin2_1.jpg", "holeimg/gz5a92bd/fin2_2.jpg", "holeimg/gz5a92bd/fin2_3.jpg"], elev: 5, tees: [{ name: "챔피언", m: 355 }, { name: "프론트", m: 330 }, { name: "시니어", m: 285 }, { name: "레이디", m: 208 }], len: 355 },
         { no: 3, par: 4, img: "holeimg/gz5a92bd/2in3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_157_02_03.mp4", frames: ["holeimg/gz5a92bd/fin3_1.jpg", "holeimg/gz5a92bd/fin3_2.jpg", "holeimg/gz5a92bd/fin3_3.jpg"], elev: -50, tees: [{ name: "챔피언", m: 375 }, { name: "프론트", m: 335 }, { name: "시니어", m: 300 }, { name: "레이디", m: 285 }], len: 375 },
@@ -2246,7 +2246,7 @@ const HOLEIMG_DB = {
     source: "골프존 코스 데이터 (홀맵·파·거리·고도차·홀 영상)",
     sourceUrl: "https://www.s-parkresort.co.kr/",
     courses: [
-      { name: "OUT", holes: [
+      { name: "S코스", holes: [
         { no: 1, par: 4, img: "holeimg/gz5d499b/1out1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1219_01_01.mp4", frames: ["holeimg/gz5d499b/fout1_1.jpg", "holeimg/gz5d499b/fout1_2.jpg"], tees: [{ name: "챔피언", m: 370 }, { name: "프론트", m: 361 }, { name: "시니어", m: 257 }], len: 370 },
         { no: 2, par: 5, img: "holeimg/gz5d499b/1out2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1219_01_02.mp4", frames: ["holeimg/gz5d499b/fout2_1.jpg", "holeimg/gz5d499b/fout2_2.jpg", "holeimg/gz5d499b/fout2_3.jpg"], tees: [{ name: "챔피언", m: 530 }, { name: "프론트", m: 525 }, { name: "시니어", m: 418 }], len: 530 },
         { no: 3, par: 3, img: "holeimg/gz5d499b/1out3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1219_01_03.mp4", frames: ["holeimg/gz5d499b/fout3_1.jpg", "holeimg/gz5d499b/fout3_2.jpg"], tees: [{ name: "챔피언", m: 165 }, { name: "프론트", m: 157 }, { name: "시니어", m: 109 }], len: 165 },
@@ -2257,7 +2257,7 @@ const HOLEIMG_DB = {
         { no: 8, par: 4, img: "holeimg/gz5d499b/1out8.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1219_01_08.mp4", frames: ["holeimg/gz5d499b/fout8_1.jpg", "holeimg/gz5d499b/fout8_2.jpg"], tees: [{ name: "챔피언", m: 367 }, { name: "프론트", m: 366 }, { name: "시니어", m: 229 }, { name: "레이디", m: 228 }], len: 367 },
         { no: 9, par: 5, img: "holeimg/gz5d499b/1out9.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1219_01_09.mp4", frames: ["holeimg/gz5d499b/fout9_1.jpg", "holeimg/gz5d499b/fout9_2.jpg", "holeimg/gz5d499b/fout9_3.jpg"], elev: -5, tees: [{ name: "챔피언", m: 512 }, { name: "프론트", m: 506 }, { name: "시니어", m: 393 }], len: 512 },
       ]},
-      { name: "IN", holes: [
+      { name: "R코스", holes: [
         { no: 1, par: 4, img: "holeimg/gz5d499b/2in1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1219_02_01.mp4", frames: ["holeimg/gz5d499b/fin1_1.jpg", "holeimg/gz5d499b/fin1_2.jpg"], tees: [{ name: "챔피언", m: 349 }, { name: "프론트", m: 339 }, { name: "시니어", m: 236 }], len: 349 },
         { no: 2, par: 4, img: "holeimg/gz5d499b/2in2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1219_02_02.mp4", frames: ["holeimg/gz5d499b/fin2_1.jpg", "holeimg/gz5d499b/fin2_2.jpg"], tees: [{ name: "챔피언", m: 334 }, { name: "프론트", m: 324 }, { name: "시니어", m: 222 }], len: 334 },
         { no: 3, par: 3, img: "holeimg/gz5d499b/2in3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1219_02_03.mp4", frames: ["holeimg/gz5d499b/fin3_1.jpg", "holeimg/gz5d499b/fin3_2.jpg"], tees: [{ name: "챔피언", m: 158 }, { name: "프론트", m: 151 }, { name: "시니어", m: 96 }, { name: "레이디", m: 95 }], len: 158 },
@@ -2358,7 +2358,7 @@ const HOLEIMG_DB = {
     source: "골프존 코스 데이터 (홀맵·파·거리·고도차·홀 영상)",
     sourceUrl: "https://www.sonofelicecc.com/dp",
     courses: [
-      { name: "OUT", holes: [
+      { name: "OCEAN", holes: [
         { no: 1, par: 4, img: "holeimg/gz64c56d/1out1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_326_01_01.mp4", frames: ["holeimg/gz64c56d/fout1_1.jpg", "holeimg/gz64c56d/fout1_2.jpg", "holeimg/gz64c56d/fout1_3.jpg"], elev: -3, tees: [{ name: "챔피언", m: 328 }, { name: "백", m: 327 }, { name: "프론트", m: 308 }, { name: "시니어", m: 289 }, { name: "레이디", m: 261 }], len: 328 },
         { no: 2, par: 4, img: "holeimg/gz64c56d/1out2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_326_01_02.mp4", frames: ["holeimg/gz64c56d/fout2_1.jpg", "holeimg/gz64c56d/fout2_2.jpg", "holeimg/gz64c56d/fout2_3.jpg"], elev: -51, tees: [{ name: "챔피언", m: 450 }, { name: "백", m: 449 }, { name: "프론트", m: 434 }, { name: "시니어", m: 394 }, { name: "레이디", m: 362 }], len: 450 },
         { no: 3, par: 4, img: "holeimg/gz64c56d/1out3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_326_01_03.mp4", frames: ["holeimg/gz64c56d/fout3_1.jpg", "holeimg/gz64c56d/fout3_2.jpg", "holeimg/gz64c56d/fout3_3.jpg"], elev: 11, tees: [{ name: "챔피언", m: 360 }, { name: "백", m: 359 }, { name: "프론트", m: 338 }, { name: "시니어", m: 317 }, { name: "레이디", m: 287 }], len: 360 },
@@ -2369,7 +2369,7 @@ const HOLEIMG_DB = {
         { no: 8, par: 5, img: "holeimg/gz64c56d/1out8.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_326_01_08.mp4", frames: ["holeimg/gz64c56d/fout8_1.jpg", "holeimg/gz64c56d/fout8_2.jpg", "holeimg/gz64c56d/fout8_3.jpg"], tees: [{ name: "챔피언", m: 460 }, { name: "백", m: 459 }, { name: "프론트", m: 439 }, { name: "시니어", m: 409 }, { name: "레이디", m: 404 }], len: 460 },
         { no: 9, par: 4, img: "holeimg/gz64c56d/1out9.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_326_01_09.mp4", frames: ["holeimg/gz64c56d/fout9_1.jpg", "holeimg/gz64c56d/fout9_2.jpg", "holeimg/gz64c56d/fout9_3.jpg"], elev: 16, tees: [{ name: "챔피언", m: 316 }, { name: "프론트", m: 303 }, { name: "시니어", m: 289 }, { name: "레이디", m: 220 }], len: 316 },
       ]},
-      { name: "IN", holes: [
+      { name: "MOUNTAIN", holes: [
         { no: 1, par: 4, img: "holeimg/gz64c56d/2in1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_326_02_01.mp4", frames: ["holeimg/gz64c56d/fin1_1.jpg", "holeimg/gz64c56d/fin1_2.jpg", "holeimg/gz64c56d/fin1_3.jpg"], tees: [{ name: "챔피언", m: 307 }, { name: "백", m: 306 }, { name: "프론트", m: 284 }, { name: "시니어", m: 264 }, { name: "레이디", m: 238 }], len: 307 },
         { no: 2, par: 5, img: "holeimg/gz64c56d/2in2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_326_02_02.mp4", frames: ["holeimg/gz64c56d/fin2_1.jpg", "holeimg/gz64c56d/fin2_2.jpg", "holeimg/gz64c56d/fin2_3.jpg"], elev: 24, tees: [{ name: "챔피언", m: 451 }, { name: "백", m: 450 }, { name: "프론트", m: 429 }, { name: "시니어", m: 401 }, { name: "레이디", m: 365 }], len: 451 },
         { no: 3, par: 4, img: "holeimg/gz64c56d/2in3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_326_02_03.mp4", frames: ["holeimg/gz64c56d/fin3_1.jpg", "holeimg/gz64c56d/fin3_2.jpg", "holeimg/gz64c56d/fin3_3.jpg"], elev: 16, tees: [{ name: "챔피언", m: 340 }, { name: "프론트", m: 309 }, { name: "시니어", m: 278 }, { name: "레이디", m: 250 }], len: 340 },
@@ -2442,7 +2442,7 @@ const HOLEIMG_DB = {
     source: "골프존 코스 데이터 (홀맵·파·거리·고도차·홀 영상)",
     sourceUrl: "http://www.fortunehills.co.kr/",
     courses: [
-      { name: "A", holes: [
+      { name: "CASTLE", holes: [
         { no: 1, par: 5, img: "holeimg/gz670ef/1a1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_449_01_01.mp4", frames: ["holeimg/gz670ef/fa1_1.jpg", "holeimg/gz670ef/fa1_2.jpg", "holeimg/gz670ef/fa1_3.jpg"], elev: 10, tees: [{ name: "챔피언", m: 462 }, { name: "백", m: 431 }, { name: "프론트", m: 391 }, { name: "시니어", m: 358 }, { name: "레이디", m: 357 }], len: 462 },
         { no: 2, par: 4, img: "holeimg/gz670ef/1a2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_449_01_02.mp4", frames: ["holeimg/gz670ef/fa2_1.jpg", "holeimg/gz670ef/fa2_2.jpg", "holeimg/gz670ef/fa2_3.jpg"], elev: -13, tees: [{ name: "챔피언", m: 342 }, { name: "백", m: 318 }, { name: "프론트", m: 293 }, { name: "시니어", m: 244 }], len: 342 },
         { no: 3, par: 3, img: "holeimg/gz670ef/1a3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_449_01_03.mp4", frames: ["holeimg/gz670ef/fa3_1.jpg", "holeimg/gz670ef/fa3_2.jpg"], elev: -21, tees: [{ name: "챔피언", m: 209 }, { name: "백", m: 186 }, { name: "프론트", m: 162 }, { name: "시니어", m: 161 }], len: 209 },
@@ -2453,7 +2453,7 @@ const HOLEIMG_DB = {
         { no: 8, par: 4, img: "holeimg/gz670ef/1a8.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_449_01_08.mp4", frames: ["holeimg/gz670ef/fa8_1.jpg", "holeimg/gz670ef/fa8_2.jpg", "holeimg/gz670ef/fa8_3.jpg"], tees: [{ name: "챔피언", m: 322 }, { name: "백", m: 296 }, { name: "프론트", m: 276 }, { name: "시니어", m: 242 }], len: 322 },
         { no: 9, par: 5, img: "holeimg/gz670ef/1a9.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_449_01_09.mp4", frames: ["holeimg/gz670ef/fa9_1.jpg", "holeimg/gz670ef/fa9_2.jpg", "holeimg/gz670ef/fa9_3.jpg"], elev: -22, tees: [{ name: "챔피언", m: 545 }, { name: "백", m: 518 }, { name: "프론트", m: 496 }, { name: "시니어", m: 429 }], len: 545 },
       ]},
-      { name: "B", holes: [
+      { name: "PALACE", holes: [
         { no: 1, par: 5, img: "holeimg/gz670ef/2b1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_449_02_01.mp4", frames: ["holeimg/gz670ef/fb1_1.jpg", "holeimg/gz670ef/fb1_2.jpg", "holeimg/gz670ef/fb1_3.jpg"], tees: [{ name: "챔피언", m: 546 }, { name: "백", m: 523 }, { name: "프론트", m: 498 }, { name: "시니어", m: 418 }], len: 546 },
         { no: 2, par: 3, img: "holeimg/gz670ef/2b2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_449_02_02.mp4", frames: ["holeimg/gz670ef/fb2_1.jpg", "holeimg/gz670ef/fb2_2.jpg"], elev: -28, tees: [{ name: "챔피언", m: 167 }, { name: "백", m: 136 }, { name: "프론트", m: 117 }, { name: "시니어", m: 101 }, { name: "레이디", m: 100 }], len: 167 },
         { no: 3, par: 4, img: "holeimg/gz670ef/2b3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_449_02_03.mp4", frames: ["holeimg/gz670ef/fb3_1.jpg", "holeimg/gz670ef/fb3_2.jpg", "holeimg/gz670ef/fb3_3.jpg"], elev: -7, tees: [{ name: "챔피언", m: 397 }, { name: "백", m: 364 }, { name: "프론트", m: 339 }, { name: "시니어", m: 316 }], len: 397 },
@@ -2621,7 +2621,7 @@ const HOLEIMG_DB = {
     source: "골프존 코스 데이터 (홀맵·파·거리·고도차·홀 영상)",
     sourceUrl: "http://www.namchoncc.co.kr/",
     courses: [
-      { name: "OUT", holes: [
+      { name: "EAST", holes: [
         { no: 1, par: 5, img: "holeimg/gz6e819b/1out1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_340_01_01.mp4", frames: ["holeimg/gz6e819b/fout1_1.jpg", "holeimg/gz6e819b/fout1_2.jpg", "holeimg/gz6e819b/fout1_3.jpg"], elev: -5, tees: [{ name: "챔피언", m: 503 }, { name: "백", m: 474 }, { name: "프론트", m: 448 }, { name: "시니어", m: 424 }, { name: "레이디", m: 395 }], len: 503 },
         { no: 2, par: 4, img: "holeimg/gz6e819b/1out2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_340_01_02.mp4", frames: ["holeimg/gz6e819b/fout2_1.jpg", "holeimg/gz6e819b/fout2_2.jpg", "holeimg/gz6e819b/fout2_3.jpg"], elev: 10, tees: [{ name: "챔피언", m: 373 }, { name: "백", m: 355 }, { name: "프론트", m: 323 }, { name: "시니어", m: 300 }, { name: "레이디", m: 265 }], len: 373 },
         { no: 3, par: 4, img: "holeimg/gz6e819b/1out3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_340_01_03.mp4", frames: ["holeimg/gz6e819b/fout3_1.jpg", "holeimg/gz6e819b/fout3_2.jpg", "holeimg/gz6e819b/fout3_3.jpg"], elev: -3, tees: [{ name: "챔피언", m: 392 }, { name: "백", m: 371 }, { name: "프론트", m: 338 }, { name: "시니어", m: 313 }, { name: "레이디", m: 282 }], len: 392 },
@@ -2632,7 +2632,7 @@ const HOLEIMG_DB = {
         { no: 8, par: 3, img: "holeimg/gz6e819b/1out8.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_340_01_08.mp4", frames: ["holeimg/gz6e819b/fout8_1.jpg", "holeimg/gz6e819b/fout8_2.jpg"], elev: -16, tees: [{ name: "챔피언", m: 192 }, { name: "백", m: 176 }, { name: "프론트", m: 158 }, { name: "시니어", m: 138 }, { name: "레이디", m: 119 }], len: 192 },
         { no: 9, par: 4, img: "holeimg/gz6e819b/1out9.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_340_01_09.mp4", frames: ["holeimg/gz6e819b/fout9_1.jpg", "holeimg/gz6e819b/fout9_2.jpg", "holeimg/gz6e819b/fout9_3.jpg"], elev: 20, tees: [{ name: "챔피언", m: 344 }, { name: "백", m: 323 }, { name: "프론트", m: 304 }, { name: "시니어", m: 276 }, { name: "레이디", m: 246 }], len: 344 },
       ]},
-      { name: "IN", holes: [
+      { name: "WEST", holes: [
         { no: 1, par: 4, img: "holeimg/gz6e819b/2in1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_340_02_01.mp4", frames: ["holeimg/gz6e819b/fin1_1.jpg", "holeimg/gz6e819b/fin1_2.jpg", "holeimg/gz6e819b/fin1_3.jpg"], elev: -19, tees: [{ name: "챔피언", m: 361 }, { name: "백", m: 334 }, { name: "프론트", m: 312 }, { name: "시니어", m: 280 }, { name: "레이디", m: 242 }], len: 361 },
         { no: 2, par: 4, img: "holeimg/gz6e819b/2in2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_340_02_02.mp4", frames: ["holeimg/gz6e819b/fin2_1.jpg", "holeimg/gz6e819b/fin2_2.jpg", "holeimg/gz6e819b/fin2_3.jpg"], elev: 14, tees: [{ name: "챔피언", m: 347 }, { name: "백", m: 323 }, { name: "프론트", m: 303 }, { name: "시니어", m: 278 }, { name: "레이디", m: 250 }], len: 347 },
         { no: 3, par: 3, img: "holeimg/gz6e819b/2in3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_340_02_03.mp4", frames: ["holeimg/gz6e819b/fin3_1.jpg", "holeimg/gz6e819b/fin3_2.jpg"], elev: -4, tees: [{ name: "챔피언", m: 198 }, { name: "백", m: 180 }, { name: "프론트", m: 158 }, { name: "시니어", m: 142 }, { name: "레이디", m: 105 }], len: 198 },
@@ -2677,7 +2677,7 @@ const HOLEIMG_DB = {
     source: "골프존 코스 데이터 (홀맵·파·거리·고도차·홀 영상)",
     sourceUrl: "http://www.songnisancc.co.kr/",
     courses: [
-      { name: "OUT", holes: [
+      { name: "EAST", holes: [
         { no: 1, par: 4, img: "holeimg/gz7000d1/1out1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_784_01_01.mp4", frames: ["holeimg/gz7000d1/fout1_1.jpg", "holeimg/gz7000d1/fout1_2.jpg"], elev: -15, tees: [{ name: "챔피언", m: 400 }, { name: "백", m: 382 }, { name: "프론트", m: 368 }, { name: "시니어", m: 329 }, { name: "레이디", m: 265 }], len: 400 },
         { no: 2, par: 4, img: "holeimg/gz7000d1/1out2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_784_01_02.mp4", frames: ["holeimg/gz7000d1/fout2_1.jpg", "holeimg/gz7000d1/fout2_2.jpg"], elev: -33, tees: [{ name: "챔피언", m: 321 }, { name: "백", m: 320 }, { name: "프론트", m: 308 }, { name: "시니어", m: 230 }, { name: "레이디", m: 229 }], len: 321 },
         { no: 3, par: 5, img: "holeimg/gz7000d1/1out3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_784_01_03.mp4", frames: ["holeimg/gz7000d1/fout3_1.jpg", "holeimg/gz7000d1/fout3_2.jpg"], tees: [{ name: "챔피언", m: 483 }, { name: "프론트", m: 452 }, { name: "시니어", m: 417 }, { name: "레이디", m: 395 }], len: 483 },
@@ -2688,7 +2688,7 @@ const HOLEIMG_DB = {
         { no: 8, par: 4, img: "holeimg/gz7000d1/1out8.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_784_01_08.mp4", frames: ["holeimg/gz7000d1/fout8_1.jpg", "holeimg/gz7000d1/fout8_2.jpg"], tees: [{ name: "챔피언", m: 343 }, { name: "백", m: 321 }, { name: "프론트", m: 309 }, { name: "시니어", m: 300 }, { name: "레이디", m: 269 }], len: 343 },
         { no: 9, par: 4, img: "holeimg/gz7000d1/1out9.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_784_01_09.mp4", frames: ["holeimg/gz7000d1/fout9_1.jpg", "holeimg/gz7000d1/fout9_2.jpg"], elev: -9, tees: [{ name: "챔피언", m: 313 }, { name: "백", m: 300 }, { name: "시니어", m: 215 }, { name: "레이디", m: 214 }], len: 313 },
       ]},
-      { name: "IN", holes: [
+      { name: "WEST", holes: [
         { no: 1, par: 4, img: "holeimg/gz7000d1/2in1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_784_02_01.mp4", frames: ["holeimg/gz7000d1/fin1_1.jpg", "holeimg/gz7000d1/fin1_2.jpg"], elev: -7, tees: [{ name: "챔피언", m: 398 }, { name: "백", m: 349 }, { name: "프론트", m: 332 }, { name: "시니어", m: 314 }, { name: "레이디", m: 294 }], len: 398 },
         { no: 2, par: 5, img: "holeimg/gz7000d1/2in2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_784_02_02.mp4", frames: ["holeimg/gz7000d1/fin2_1.jpg", "holeimg/gz7000d1/fin2_2.jpg"], elev: 11, tees: [{ name: "챔피언", m: 430 }, { name: "프론트", m: 419 }, { name: "시니어", m: 364 }, { name: "레이디", m: 344 }], len: 430 },
         { no: 3, par: 3, img: "holeimg/gz7000d1/2in3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_784_02_03.mp4", frames: ["holeimg/gz7000d1/fin3_1.jpg", "holeimg/gz7000d1/fin3_2.jpg"], elev: -10, tees: [{ name: "챔피언", m: 128 }, { name: "백", m: 119 }, { name: "프론트", m: 110 }, { name: "시니어", m: 94 }, { name: "레이디", m: 93 }], len: 128 },
@@ -2705,7 +2705,7 @@ const HOLEIMG_DB = {
     source: "골프존 코스 데이터 (홀맵·파·거리·고도차·홀 영상)",
     sourceUrl: "https://www.alpensia.com/main.do",
     courses: [
-      { name: "OUT", holes: [
+      { name: "알프스", holes: [
         { no: 1, par: 4, img: "holeimg/gz700_cd01c6/1out1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_178_01_01.mp4", frames: ["holeimg/gz700_cd01c6/fout1_1.jpg", "holeimg/gz700_cd01c6/fout1_2.jpg", "holeimg/gz700_cd01c6/fout1_3.jpg"], elev: 18, tees: [{ name: "챔피언", m: 341 }, { name: "프론트", m: 325 }, { name: "시니어", m: 214 }], len: 341 },
         { no: 2, par: 4, img: "holeimg/gz700_cd01c6/1out2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_178_01_02.mp4", frames: ["holeimg/gz700_cd01c6/fout2_1.jpg", "holeimg/gz700_cd01c6/fout2_2.jpg", "holeimg/gz700_cd01c6/fout2_3.jpg"], tees: [{ name: "챔피언", m: 289 }, { name: "백", m: 288 }, { name: "프론트", m: 277 }, { name: "시니어", m: 236 }], len: 289 },
         { no: 3, par: 5, img: "holeimg/gz700_cd01c6/1out3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_178_01_03.mp4", frames: ["holeimg/gz700_cd01c6/fout3_1.jpg", "holeimg/gz700_cd01c6/fout3_2.jpg", "holeimg/gz700_cd01c6/fout3_3.jpg"], elev: -11, tees: [{ name: "챔피언", m: 499 }, { name: "프론트", m: 473 }, { name: "시니어", m: 424 }], len: 499 },
@@ -2716,7 +2716,7 @@ const HOLEIMG_DB = {
         { no: 8, par: 3, img: "holeimg/gz700_cd01c6/1out8.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_178_01_08.mp4", frames: ["holeimg/gz700_cd01c6/fout8_1.jpg", "holeimg/gz700_cd01c6/fout8_2.jpg"], elev: -7, tees: [{ name: "챔피언", m: 131 }, { name: "프론트", m: 124 }, { name: "시니어", m: 111 }], len: 131 },
         { no: 9, par: 4, img: "holeimg/gz700_cd01c6/1out9.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_178_01_09.mp4", frames: ["holeimg/gz700_cd01c6/fout9_1.jpg", "holeimg/gz700_cd01c6/fout9_2.jpg", "holeimg/gz700_cd01c6/fout9_3.jpg"], elev: 20, tees: [{ name: "챔피언", m: 345 }, { name: "백", m: 344 }, { name: "프론트", m: 321 }, { name: "시니어", m: 249 }], len: 345 },
       ]},
-      { name: "IN", holes: [
+      { name: "아시아", holes: [
         { no: 1, par: 4, img: "holeimg/gz700_cd01c6/2in1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_178_02_01.mp4", frames: ["holeimg/gz700_cd01c6/fin1_1.jpg", "holeimg/gz700_cd01c6/fin1_2.jpg", "holeimg/gz700_cd01c6/fin1_3.jpg"], elev: -20, tees: [{ name: "챔피언", m: 384 }, { name: "프론트", m: 348 }, { name: "시니어", m: 315 }], len: 384 },
         { no: 2, par: 4, img: "holeimg/gz700_cd01c6/2in2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_178_02_02.mp4", frames: ["holeimg/gz700_cd01c6/fin2_1.jpg", "holeimg/gz700_cd01c6/fin2_2.jpg", "holeimg/gz700_cd01c6/fin2_3.jpg"], elev: 15, tees: [{ name: "챔피언", m: 338 }, { name: "프론트", m: 333 }, { name: "시니어", m: 308 }, { name: "레이디", m: 307 }], len: 338 },
         { no: 3, par: 5, img: "holeimg/gz700_cd01c6/2in3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_178_02_03.mp4", frames: ["holeimg/gz700_cd01c6/fin3_1.jpg", "holeimg/gz700_cd01c6/fin3_2.jpg", "holeimg/gz700_cd01c6/fin3_3.jpg"], elev: 24, tees: [{ name: "챔피언", m: 456 }, { name: "프론트", m: 431 }, { name: "시니어", m: 395 }], len: 456 },
@@ -2733,7 +2733,7 @@ const HOLEIMG_DB = {
     source: "골프존 코스 데이터 (홀맵·파·거리·고도차·홀 영상)",
     sourceUrl: "www.blackstonebelleforet.com",
     courses: [
-      { name: "OUT", holes: [
+      { name: "마운틴뷰", holes: [
         { no: 1, par: 4, img: "holeimg/gz701bac/1out1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_841_01_01.mp4", frames: ["holeimg/gz701bac/fout1_1.jpg", "holeimg/gz701bac/fout1_2.jpg", "holeimg/gz701bac/fout1_3.jpg"], elev: 13, tees: [{ name: "챔피언", m: 389 }, { name: "프론트", m: 344 }, { name: "시니어", m: 242 }], len: 389 },
         { no: 2, par: 4, img: "holeimg/gz701bac/1out2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_841_01_02.mp4", frames: ["holeimg/gz701bac/fout2_1.jpg", "holeimg/gz701bac/fout2_2.jpg", "holeimg/gz701bac/fout2_3.jpg"], elev: 20, tees: [{ name: "챔피언", m: 323 }, { name: "프론트", m: 220 }, { name: "시니어", m: 192 }], len: 323 },
         { no: 3, par: 5, img: "holeimg/gz701bac/1out3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_841_01_03.mp4", frames: ["holeimg/gz701bac/fout3_1.jpg", "holeimg/gz701bac/fout3_2.jpg", "holeimg/gz701bac/fout3_3.jpg"], elev: 4, tees: [{ name: "챔피언", m: 475 }, { name: "프론트", m: 459 }, { name: "시니어", m: 425 }], len: 475 },
@@ -2744,7 +2744,7 @@ const HOLEIMG_DB = {
         { no: 8, par: 4, img: "holeimg/gz701bac/1out8.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_841_01_08.mp4", frames: ["holeimg/gz701bac/fout8_1.jpg", "holeimg/gz701bac/fout8_2.jpg", "holeimg/gz701bac/fout8_3.jpg"], elev: 4, tees: [{ name: "챔피언", m: 311 }, { name: "시니어", m: 274 }], len: 311 },
         { no: 9, par: 5, img: "holeimg/gz701bac/1out9.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_841_01_09.mp4", frames: ["holeimg/gz701bac/fout9_1.jpg", "holeimg/gz701bac/fout9_2.jpg", "holeimg/gz701bac/fout9_3.jpg"], elev: -37, tees: [{ name: "챔피언", m: 507 }, { name: "프론트", m: 474 }, { name: "시니어", m: 459 }], len: 507 },
       ]},
-      { name: "IN", holes: [
+      { name: "레이크뷰", holes: [
         { no: 1, par: 5, img: "holeimg/gz701bac/2in1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_841_02_01.mp4", frames: ["holeimg/gz701bac/fin1_1.jpg", "holeimg/gz701bac/fin1_2.jpg", "holeimg/gz701bac/fin1_3.jpg"], elev: -19, tees: [{ name: "챔피언", m: 511 }, { name: "프론트", m: 496 }, { name: "시니어", m: 460 }], len: 511 },
         { no: 2, par: 4, img: "holeimg/gz701bac/2in2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_841_02_02.mp4", frames: ["holeimg/gz701bac/fin2_1.jpg", "holeimg/gz701bac/fin2_2.jpg", "holeimg/gz701bac/fin2_3.jpg"], tees: [{ name: "챔피언", m: 318 }, { name: "시니어", m: 254 }], len: 318 },
         { no: 3, par: 3, img: "holeimg/gz701bac/2in3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_841_02_03.mp4", frames: ["holeimg/gz701bac/fin3_1.jpg", "holeimg/gz701bac/fin3_2.jpg"], elev: -25, tees: [{ name: "챔피언", m: 125 }, { name: "시니어", m: 111 }], len: 125 },
@@ -2761,7 +2761,7 @@ const HOLEIMG_DB = {
     source: "골프존 코스 데이터 (홀맵·파·거리·고도차·홀 영상)",
     sourceUrl: "http://www.hantancc.co.kr/",
     courses: [
-      { name: "OUT", holes: [
+      { name: "VALLEY", holes: [
         { no: 1, par: 4, img: "holeimg/gz710d20/1out1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_26_01_01.mp4", frames: ["holeimg/gz710d20/fout1_1.jpg", "holeimg/gz710d20/fout1_2.jpg", "holeimg/gz710d20/fout1_3.jpg"], elev: -10, tees: [{ name: "챔피언", m: 338 }, { name: "프론트", m: 318 }, { name: "시니어", m: 311 }], len: 338 },
         { no: 2, par: 3, img: "holeimg/gz710d20/1out2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_26_01_02.mp4", frames: ["holeimg/gz710d20/fout2_1.jpg", "holeimg/gz710d20/fout2_2.jpg"], elev: -17, tees: [{ name: "챔피언", m: 182 }, { name: "백", m: 136 }], len: 182 },
         { no: 3, par: 5, img: "holeimg/gz710d20/1out3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_26_01_03.mp4", frames: ["holeimg/gz710d20/fout3_1.jpg", "holeimg/gz710d20/fout3_2.jpg", "holeimg/gz710d20/fout3_3.jpg"], elev: 10, tees: [{ name: "챔피언", m: 454 }, { name: "프론트", m: 443 }, { name: "시니어", m: 394 }], len: 454 },
@@ -2772,7 +2772,7 @@ const HOLEIMG_DB = {
         { no: 8, par: 4, img: "holeimg/gz710d20/1out8.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_26_01_08.mp4", frames: ["holeimg/gz710d20/fout8_1.jpg", "holeimg/gz710d20/fout8_2.jpg", "holeimg/gz710d20/fout8_3.jpg"], elev: 16, tees: [{ name: "챔피언", m: 323 }, { name: "백", m: 322 }, { name: "프론트", m: 309 }, { name: "시니어", m: 287 }], len: 323 },
         { no: 9, par: 5, img: "holeimg/gz710d20/1out9.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_26_01_09.mp4", frames: ["holeimg/gz710d20/fout9_1.jpg", "holeimg/gz710d20/fout9_2.jpg", "holeimg/gz710d20/fout9_3.jpg"], tees: [{ name: "챔피언", m: 488 }, { name: "프론트", m: 464 }, { name: "시니어", m: 447 }], len: 488 },
       ]},
-      { name: "IN", holes: [
+      { name: "MOUNTAIN", holes: [
         { no: 1, par: 4, img: "holeimg/gz710d20/2in1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_26_02_01.mp4", frames: ["holeimg/gz710d20/fin1_1.jpg", "holeimg/gz710d20/fin1_2.jpg", "holeimg/gz710d20/fin1_3.jpg"], elev: 11, tees: [{ name: "챔피언", m: 379 }, { name: "백", m: 356 }, { name: "프론트", m: 319 }, { name: "시니어", m: 268 }, { name: "레이디", m: 267 }], len: 379 },
         { no: 2, par: 4, img: "holeimg/gz710d20/2in2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_26_02_02.mp4", frames: ["holeimg/gz710d20/fin2_1.jpg", "holeimg/gz710d20/fin2_2.jpg", "holeimg/gz710d20/fin2_3.jpg"], elev: 10, tees: [{ name: "챔피언", m: 343 }, { name: "백", m: 321 }, { name: "프론트", m: 294 }, { name: "시니어", m: 284 }], len: 343 },
         { no: 3, par: 5, img: "holeimg/gz710d20/2in3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_26_02_03.mp4", frames: ["holeimg/gz710d20/fin3_1.jpg", "holeimg/gz710d20/fin3_2.jpg", "holeimg/gz710d20/fin3_3.jpg"], elev: -17, tees: [{ name: "챔피언", m: 469 }, { name: "백", m: 463 }, { name: "프론트", m: 443 }, { name: "시니어", m: 421 }], len: 469 },
@@ -2789,7 +2789,7 @@ const HOLEIMG_DB = {
     source: "골프존 코스 데이터 (홀맵·파·거리·고도차·홀 영상)",
     sourceUrl: "http://www.namyeoju.co.kr/",
     courses: [
-      { name: "OUT", holes: [
+      { name: "누리", holes: [
         { no: 1, par: 4, img: "holeimg/gz714157/1out1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_341_01_01.mp4", frames: ["holeimg/gz714157/fout1_1.jpg", "holeimg/gz714157/fout1_2.jpg", "holeimg/gz714157/fout1_3.jpg"], elev: 8, tees: [{ name: "챔피언", m: 334 }, { name: "백", m: 298 }, { name: "프론트", m: 278 }, { name: "시니어", m: 265 }], len: 334 },
         { no: 2, par: 4, img: "holeimg/gz714157/1out2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_341_01_02.mp4", frames: ["holeimg/gz714157/fout2_1.jpg", "holeimg/gz714157/fout2_2.jpg", "holeimg/gz714157/fout2_3.jpg"], tees: [{ name: "챔피언", m: 341 }, { name: "백", m: 270 }, { name: "시니어", m: 248 }], len: 341 },
         { no: 3, par: 3, img: "holeimg/gz714157/1out3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_341_01_03.mp4", frames: ["holeimg/gz714157/fout3_1.jpg", "holeimg/gz714157/fout3_2.jpg"], tees: [{ name: "챔피언", m: 163 }, { name: "백", m: 146 }, { name: "프론트", m: 123 }, { name: "시니어", m: 117 }], len: 163 },
@@ -2800,7 +2800,7 @@ const HOLEIMG_DB = {
         { no: 8, par: 5, img: "holeimg/gz714157/1out8.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_341_01_08.mp4", frames: ["holeimg/gz714157/fout8_1.jpg", "holeimg/gz714157/fout8_2.jpg", "holeimg/gz714157/fout8_3.jpg"], elev: -32, tees: [{ name: "챔피언", m: 504 }, { name: "프론트", m: 481 }, { name: "시니어", m: 420 }], len: 504 },
         { no: 9, par: 4, img: "holeimg/gz714157/1out9.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_341_01_09.mp4", frames: ["holeimg/gz714157/fout9_1.jpg", "holeimg/gz714157/fout9_2.jpg", "holeimg/gz714157/fout9_3.jpg"], elev: -12, tees: [{ name: "챔피언", m: 401 }, { name: "백", m: 357 }, { name: "프론트", m: 332 }, { name: "시니어", m: 291 }], len: 401 },
       ]},
-      { name: "IN", holes: [
+      { name: "마루", holes: [
         { no: 1, par: 4, img: "holeimg/gz714157/2in1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_341_02_01.mp4", frames: ["holeimg/gz714157/fin1_1.jpg", "holeimg/gz714157/fin1_2.jpg", "holeimg/gz714157/fin1_3.jpg"], elev: -17, tees: [{ name: "챔피언", m: 378 }, { name: "백", m: 353 }, { name: "프론트", m: 293 }, { name: "시니어", m: 267 }], len: 378 },
         { no: 2, par: 5, img: "holeimg/gz714157/2in2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_341_02_02.mp4", frames: ["holeimg/gz714157/fin2_1.jpg", "holeimg/gz714157/fin2_2.jpg", "holeimg/gz714157/fin2_3.jpg"], elev: -4, tees: [{ name: "챔피언", m: 520 }, { name: "백", m: 508 }, { name: "프론트", m: 495 }, { name: "시니어", m: 474 }, { name: "레이디", m: 473 }], len: 520 },
         { no: 3, par: 4, img: "holeimg/gz714157/2in3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_341_02_03.mp4", frames: ["holeimg/gz714157/fin3_1.jpg", "holeimg/gz714157/fin3_2.jpg", "holeimg/gz714157/fin3_3.jpg"], elev: -6, tees: [{ name: "챔피언", m: 354 }, { name: "프론트", m: 351 }, { name: "시니어", m: 333 }], len: 354 },
@@ -2845,7 +2845,7 @@ const HOLEIMG_DB = {
     source: "골프존 코스 데이터 (홀맵·파·거리·고도차·홀 영상)",
     sourceUrl: "http://www.parkvalley.co.kr/",
     courses: [
-      { name: "OUT", holes: [
+      { name: "PARK", holes: [
         { no: 1, par: 4, img: "holeimg/gz725a61/1out1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_49_01_01.mp4", frames: ["holeimg/gz725a61/fout1_1.jpg", "holeimg/gz725a61/fout1_2.jpg", "holeimg/gz725a61/fout1_3.jpg"], elev: -3, tees: [{ name: "챔피언", m: 335 }, { name: "프론트", m: 323 }, { name: "시니어", m: 300 }], len: 335 },
         { no: 2, par: 5, img: "holeimg/gz725a61/1out2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_49_01_02.mp4", frames: ["holeimg/gz725a61/fout2_1.jpg", "holeimg/gz725a61/fout2_2.jpg", "holeimg/gz725a61/fout2_3.jpg"], elev: -33, tees: [{ name: "챔피언", m: 476 }, { name: "백", m: 475 }, { name: "프론트", m: 468 }, { name: "시니어", m: 436 }, { name: "레이디", m: 435 }], len: 476 },
         { no: 3, par: 4, img: "holeimg/gz725a61/1out3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_49_01_03.mp4", frames: ["holeimg/gz725a61/fout3_1.jpg", "holeimg/gz725a61/fout3_2.jpg", "holeimg/gz725a61/fout3_3.jpg"], elev: 17, tees: [{ name: "챔피언", m: 329 }, { name: "프론트", m: 319 }, { name: "시니어", m: 279 }, { name: "레이디", m: 278 }], len: 329 },
@@ -2856,7 +2856,7 @@ const HOLEIMG_DB = {
         { no: 8, par: 4, img: "holeimg/gz725a61/1out8.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_49_01_08.mp4", frames: ["holeimg/gz725a61/fout8_1.jpg", "holeimg/gz725a61/fout8_2.jpg", "holeimg/gz725a61/fout8_3.jpg"], elev: 14, tees: [{ name: "챔피언", m: 336 }, { name: "프론트", m: 331 }, { name: "시니어", m: 301 }, { name: "레이디", m: 300 }], len: 336 },
         { no: 9, par: 5, img: "holeimg/gz725a61/1out9.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_49_01_09.mp4", frames: ["holeimg/gz725a61/fout9_1.jpg", "holeimg/gz725a61/fout9_2.jpg", "holeimg/gz725a61/fout9_3.jpg"], elev: 30, tees: [{ name: "챔피언", m: 511 }, { name: "프론트", m: 508 }, { name: "시니어", m: 473 }], len: 511 },
       ]},
-      { name: "IN", holes: [
+      { name: "VALLEY", holes: [
         { no: 1, par: 5, img: "holeimg/gz725a61/2in1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_49_02_01.mp4", frames: ["holeimg/gz725a61/fin1_1.jpg", "holeimg/gz725a61/fin1_2.jpg", "holeimg/gz725a61/fin1_3.jpg"], elev: -6, tees: [{ name: "챔피언", m: 495 }, { name: "프론트", m: 480 }, { name: "시니어", m: 445 }], len: 495 },
         { no: 2, par: 4, img: "holeimg/gz725a61/2in2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_49_02_02.mp4", frames: ["holeimg/gz725a61/fin2_1.jpg", "holeimg/gz725a61/fin2_2.jpg", "holeimg/gz725a61/fin2_3.jpg"], elev: 12, tees: [{ name: "챔피언", m: 330 }, { name: "백", m: 329 }, { name: "프론트", m: 299 }, { name: "시니어", m: 235 }, { name: "레이디", m: 234 }], len: 330 },
         { no: 3, par: 4, img: "holeimg/gz725a61/2in3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_49_02_03.mp4", frames: ["holeimg/gz725a61/fin3_1.jpg", "holeimg/gz725a61/fin3_2.jpg", "holeimg/gz725a61/fin3_3.jpg"], elev: -38, tees: [{ name: "챔피언", m: 313 }, { name: "프론트", m: 312 }, { name: "시니어", m: 273 }], len: 313 },
@@ -2901,7 +2901,7 @@ const HOLEIMG_DB = {
     source: "골프존 코스 데이터 (홀맵·파·거리·고도차·홀 영상)",
     sourceUrl: "https://www.creasvalley.com/",
     courses: [
-      { name: "OUT", holes: [
+      { name: "마운틴", holes: [
         { no: 1, par: 4, img: "holeimg/gz736316/1out1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1325_01_01.mp4", frames: ["holeimg/gz736316/fout1_1.jpg", "holeimg/gz736316/fout1_2.jpg", "holeimg/gz736316/fout1_3.jpg"], elev: 16, tees: [{ name: "챔피언", m: 388 }, { name: "백", m: 367 }, { name: "프론트", m: 353 }, { name: "시니어", m: 330 }, { name: "레이디", m: 294 }], len: 388 },
         { no: 2, par: 5, img: "holeimg/gz736316/1out2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1325_01_02.mp4", frames: ["holeimg/gz736316/fout2_1.jpg", "holeimg/gz736316/fout2_2.jpg", "holeimg/gz736316/fout2_3.jpg"], elev: -19, tees: [{ name: "챔피언", m: 473 }, { name: "백", m: 446 }, { name: "프론트", m: 424 }, { name: "시니어", m: 396 }, { name: "레이디", m: 372 }], len: 473 },
         { no: 3, par: 4, img: "holeimg/gz736316/1out3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1325_01_03.mp4", frames: ["holeimg/gz736316/fout3_1.jpg", "holeimg/gz736316/fout3_2.jpg", "holeimg/gz736316/fout3_3.jpg"], elev: -7, tees: [{ name: "챔피언", m: 352 }, { name: "백", m: 323 }, { name: "프론트", m: 292 }, { name: "시니어", m: 270 }, { name: "레이디", m: 252 }], len: 352 },
@@ -2912,7 +2912,7 @@ const HOLEIMG_DB = {
         { no: 8, par: 3, img: "holeimg/gz736316/1out8.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1325_01_08.mp4", frames: ["holeimg/gz736316/fout8_1.jpg", "holeimg/gz736316/fout8_2.jpg"], tees: [{ name: "챔피언", m: 156 }, { name: "백", m: 128 }, { name: "프론트", m: 124 }, { name: "시니어", m: 101 }, { name: "레이디", m: 93 }], len: 156 },
         { no: 9, par: 4, img: "holeimg/gz736316/1out9.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1325_01_09.mp4", frames: ["holeimg/gz736316/fout9_1.jpg", "holeimg/gz736316/fout9_2.jpg", "holeimg/gz736316/fout9_3.jpg"], elev: -20, tees: [{ name: "챔피언", m: 428 }, { name: "백", m: 404 }, { name: "프론트", m: 388 }, { name: "시니어", m: 352 }, { name: "레이디", m: 311 }], len: 428 },
       ]},
-      { name: "IN", holes: [
+      { name: "레이크", holes: [
         { no: 1, par: 4, img: "holeimg/gz736316/2in1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1325_02_01.mp4", frames: ["holeimg/gz736316/fin1_1.jpg", "holeimg/gz736316/fin1_2.jpg", "holeimg/gz736316/fin1_3.jpg"], elev: -20, tees: [{ name: "챔피언", m: 370 }, { name: "백", m: 345 }, { name: "프론트", m: 327 }, { name: "시니어", m: 305 }, { name: "레이디", m: 282 }], len: 370 },
         { no: 2, par: 4, img: "holeimg/gz736316/2in2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1325_02_02.mp4", frames: ["holeimg/gz736316/fin2_1.jpg", "holeimg/gz736316/fin2_2.jpg", "holeimg/gz736316/fin2_3.jpg"], elev: 18, tees: [{ name: "챔피언", m: 348 }, { name: "백", m: 324 }, { name: "프론트", m: 313 }, { name: "시니어", m: 288 }, { name: "레이디", m: 258 }], len: 348 },
         { no: 3, par: 3, img: "holeimg/gz736316/2in3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1325_02_03.mp4", frames: ["holeimg/gz736316/fin3_1.jpg", "holeimg/gz736316/fin3_2.jpg"], elev: -23, tees: [{ name: "챔피언", m: 179 }, { name: "백", m: 151 }, { name: "프론트", m: 123 }, { name: "시니어", m: 109 }, { name: "레이디", m: 108 }], len: 179 },
@@ -2929,7 +2929,7 @@ const HOLEIMG_DB = {
     source: "골프존 코스 데이터 (홀맵·파·거리·고도차·홀 영상)",
     sourceUrl: "http://www.aristacc.co.kr/",
     courses: [
-      { name: "OUT", holes: [
+      { name: "LAKE", holes: [
         { no: 1, par: 4, img: "holeimg/gz73a147/1out1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_806_01_01.mp4", frames: ["holeimg/gz73a147/fout1_1.jpg", "holeimg/gz73a147/fout1_2.jpg", "holeimg/gz73a147/fout1_3.jpg"], elev: -48, tees: [{ name: "챔피언", m: 412 }, { name: "백", m: 386 }, { name: "프론트", m: 346 }, { name: "시니어", m: 317 }, { name: "레이디", m: 316 }], len: 412 },
         { no: 2, par: 4, img: "holeimg/gz73a147/1out2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_806_01_02.mp4", frames: ["holeimg/gz73a147/fout2_1.jpg", "holeimg/gz73a147/fout2_2.jpg", "holeimg/gz73a147/fout2_3.jpg"], elev: -19, tees: [{ name: "챔피언", m: 365 }, { name: "백", m: 332 }, { name: "프론트", m: 321 }, { name: "시니어", m: 242 }], len: 365 },
         { no: 3, par: 3, img: "holeimg/gz73a147/1out3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_806_01_03.mp4", frames: ["holeimg/gz73a147/fout3_1.jpg", "holeimg/gz73a147/fout3_2.jpg", "holeimg/gz73a147/fout3_3.jpg"], elev: -3, tees: [{ name: "챔피언", m: 193 }, { name: "백", m: 161 }, { name: "프론트", m: 150 }, { name: "시니어", m: 130 }, { name: "레이디", m: 129 }], len: 193 },
@@ -2940,7 +2940,7 @@ const HOLEIMG_DB = {
         { no: 8, par: 3, img: "holeimg/gz73a147/1out8.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_806_01_08.mp4", frames: ["holeimg/gz73a147/fout8_1.jpg", "holeimg/gz73a147/fout8_2.jpg", "holeimg/gz73a147/fout8_3.jpg"], elev: 4, tees: [{ name: "챔피언", m: 180 }, { name: "백", m: 151 }, { name: "프론트", m: 140 }, { name: "시니어", m: 104 }], len: 180 },
         { no: 9, par: 4, img: "holeimg/gz73a147/1out9.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_806_01_09.mp4", frames: ["holeimg/gz73a147/fout9_1.jpg", "holeimg/gz73a147/fout9_2.jpg", "holeimg/gz73a147/fout9_3.jpg"], tees: [{ name: "챔피언", m: 341 }, { name: "백", m: 317 }, { name: "프론트", m: 286 }, { name: "시니어", m: 225 }], len: 341 },
       ]},
-      { name: "IN", holes: [
+      { name: "MOUNTAIN", holes: [
         { no: 1, par: 5, img: "holeimg/gz73a147/2in1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_806_02_01.mp4", frames: ["holeimg/gz73a147/fin1_1.jpg", "holeimg/gz73a147/fin1_2.jpg", "holeimg/gz73a147/fin1_3.jpg"], elev: -10, tees: [{ name: "챔피언", m: 524 }, { name: "백", m: 503 }, { name: "프론트", m: 469 }, { name: "시니어", m: 417 }], len: 524 },
         { no: 2, par: 3, img: "holeimg/gz73a147/2in2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_806_02_02.mp4", frames: ["holeimg/gz73a147/fin2_1.jpg", "holeimg/gz73a147/fin2_2.jpg", "holeimg/gz73a147/fin2_3.jpg"], tees: [{ name: "챔피언", m: 122 }, { name: "프론트", m: 121 }, { name: "시니어", m: 109 }], len: 122 },
         { no: 3, par: 4, img: "holeimg/gz73a147/2in3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_806_02_03.mp4", frames: ["holeimg/gz73a147/fin3_1.jpg", "holeimg/gz73a147/fin3_2.jpg", "holeimg/gz73a147/fin3_3.jpg"], elev: -64, tees: [{ name: "챔피언", m: 299 }, { name: "백", m: 284 }, { name: "프론트", m: 257 }, { name: "시니어", m: 239 }], len: 299 },
@@ -3013,7 +3013,7 @@ const HOLEIMG_DB = {
     source: "골프존 코스 데이터 (홀맵·파·거리·고도차·홀 영상)",
     sourceUrl: "http://www.zephyrosgc.co.kr/",
     courses: [
-      { name: "OUT", holes: [
+      { name: "마운틴", holes: [
         { no: 1, par: 4, img: "holeimg/gz7a352f/1out1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_102_01_01.mp4", frames: ["holeimg/gz7a352f/fout1_1.jpg", "holeimg/gz7a352f/fout1_2.jpg", "holeimg/gz7a352f/fout1_3.jpg"], elev: 16, tees: [{ name: "챔피언", m: 367 }, { name: "프론트", m: 345 }, { name: "시니어", m: 333 }, { name: "레이디", m: 277 }], len: 367 },
         { no: 2, par: 3, img: "holeimg/gz7a352f/1out2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_102_01_02.mp4", frames: ["holeimg/gz7a352f/fout2_1.jpg", "holeimg/gz7a352f/fout2_2.jpg"], tees: [{ name: "챔피언", m: 195 }, { name: "프론트", m: 177 }, { name: "시니어", m: 167 }, { name: "레이디", m: 134 }], len: 195 },
         { no: 3, par: 4, img: "holeimg/gz7a352f/1out3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_102_01_03.mp4", frames: ["holeimg/gz7a352f/fout3_1.jpg", "holeimg/gz7a352f/fout3_2.jpg", "holeimg/gz7a352f/fout3_3.jpg"], elev: -19, tees: [{ name: "챔피언", m: 373 }, { name: "프론트", m: 350 }, { name: "시니어", m: 327 }, { name: "레이디", m: 227 }], len: 373 },
@@ -3024,7 +3024,7 @@ const HOLEIMG_DB = {
         { no: 8, par: 4, img: "holeimg/gz7a352f/1out8.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_102_01_08.mp4", frames: ["holeimg/gz7a352f/fout8_1.jpg", "holeimg/gz7a352f/fout8_2.jpg", "holeimg/gz7a352f/fout8_3.jpg"], elev: 16, tees: [{ name: "챔피언", m: 338 }, { name: "백", m: 337 }, { name: "프론트", m: 318 }, { name: "시니어", m: 308 }, { name: "레이디", m: 239 }], len: 338 },
         { no: 9, par: 4, img: "holeimg/gz7a352f/1out9.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_102_01_09.mp4", frames: ["holeimg/gz7a352f/fout9_1.jpg", "holeimg/gz7a352f/fout9_2.jpg", "holeimg/gz7a352f/fout9_3.jpg"], elev: -22, tees: [{ name: "챔피언", m: 404 }, { name: "프론트", m: 375 }, { name: "시니어", m: 349 }, { name: "레이디", m: 309 }], len: 404 },
       ]},
-      { name: "IN", holes: [
+      { name: "씨", holes: [
         { no: 1, par: 5, img: "holeimg/gz7a352f/2in1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_102_02_01.mp4", frames: ["holeimg/gz7a352f/fin1_1.jpg", "holeimg/gz7a352f/fin1_2.jpg", "holeimg/gz7a352f/fin1_3.jpg"], elev: -29, tees: [{ name: "챔피언", m: 489 }, { name: "프론트", m: 459 }, { name: "시니어", m: 457 }, { name: "레이디", m: 377 }], len: 489 },
         { no: 2, par: 4, img: "holeimg/gz7a352f/2in2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_102_02_02.mp4", frames: ["holeimg/gz7a352f/fin2_1.jpg", "holeimg/gz7a352f/fin2_2.jpg", "holeimg/gz7a352f/fin2_3.jpg"], elev: 15, tees: [{ name: "챔피언", m: 390 }, { name: "백", m: 389 }, { name: "프론트", m: 356 }, { name: "시니어", m: 339 }, { name: "레이디", m: 295 }], len: 390 },
         { no: 3, par: 4, img: "holeimg/gz7a352f/2in3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_102_02_03.mp4", frames: ["holeimg/gz7a352f/fin3_1.jpg", "holeimg/gz7a352f/fin3_2.jpg", "holeimg/gz7a352f/fin3_3.jpg"], elev: -18, tees: [{ name: "챔피언", m: 338 }, { name: "프론트", m: 322 }, { name: "시니어", m: 301 }, { name: "레이디", m: 260 }], len: 338 },
@@ -3041,7 +3041,7 @@ const HOLEIMG_DB = {
     source: "골프존 코스 데이터 (홀맵·파·거리·고도차·홀 영상)",
     sourceUrl: "http://www.golfzoncounty.com/sunwoon/main",
     courses: [
-      { name: "OUT", holes: [
+      { name: "선운", holes: [
         { no: 1, par: 4, img: "holeimg/gz7fcd71/1out1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_233_01_01.mp4", frames: ["holeimg/gz7fcd71/fout1_1.jpg", "holeimg/gz7fcd71/fout1_2.jpg", "holeimg/gz7fcd71/fout1_3.jpg"], elev: 15, tees: [{ name: "챔피언", m: 300 }, { name: "백", m: 299 }, { name: "프론트", m: 281 }, { name: "시니어", m: 262 }, { name: "레이디", m: 242 }], len: 300 },
         { no: 2, par: 5, img: "holeimg/gz7fcd71/1out2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_233_01_02.mp4", frames: ["holeimg/gz7fcd71/fout2_1.jpg", "holeimg/gz7fcd71/fout2_2.jpg", "holeimg/gz7fcd71/fout2_3.jpg"], elev: 15, tees: [{ name: "챔피언", m: 459 }, { name: "프론트", m: 431 }, { name: "시니어", m: 406 }, { name: "레이디", m: 393 }], len: 459 },
         { no: 3, par: 4, img: "holeimg/gz7fcd71/1out3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_233_01_03.mp4", frames: ["holeimg/gz7fcd71/fout3_1.jpg", "holeimg/gz7fcd71/fout3_2.jpg", "holeimg/gz7fcd71/fout3_3.jpg"], elev: -26, tees: [{ name: "챔피언", m: 306 }, { name: "프론트", m: 288 }, { name: "시니어", m: 269 }, { name: "레이디", m: 246 }], len: 306 },
@@ -3052,7 +3052,7 @@ const HOLEIMG_DB = {
         { no: 8, par: 3, img: "holeimg/gz7fcd71/1out8.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_233_01_08.mp4", frames: ["holeimg/gz7fcd71/fout8_1.jpg", "holeimg/gz7fcd71/fout8_2.jpg"], elev: -4, tees: [{ name: "챔피언", m: 158 }, { name: "프론트", m: 142 }, { name: "시니어", m: 131 }, { name: "레이디", m: 113 }], len: 158 },
         { no: 9, par: 5, img: "holeimg/gz7fcd71/1out9.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_233_01_09.mp4", frames: ["holeimg/gz7fcd71/fout9_1.jpg", "holeimg/gz7fcd71/fout9_2.jpg", "holeimg/gz7fcd71/fout9_3.jpg"], elev: -10, tees: [{ name: "챔피언", m: 474 }, { name: "프론트", m: 451 }, { name: "시니어", m: 419 }, { name: "레이디", m: 394 }], len: 474 },
       ]},
-      { name: "IN", holes: [
+      { name: "화시", holes: [
         { no: 1, par: 4, img: "holeimg/gz7fcd71/2in1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_233_02_01.mp4", frames: ["holeimg/gz7fcd71/fin1_1.jpg", "holeimg/gz7fcd71/fin1_2.jpg", "holeimg/gz7fcd71/fin1_3.jpg"], tees: [{ name: "챔피언", m: 332 }, { name: "백", m: 331 }, { name: "프론트", m: 315 }, { name: "시니어", m: 299 }, { name: "레이디", m: 272 }], len: 332 },
         { no: 2, par: 3, img: "holeimg/gz7fcd71/2in2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_233_02_02.mp4", frames: ["holeimg/gz7fcd71/fin2_1.jpg", "holeimg/gz7fcd71/fin2_2.jpg"], elev: 5, tees: [{ name: "챔피언", m: 143 }, { name: "프론트", m: 132 }, { name: "시니어", m: 122 }, { name: "레이디", m: 103 }], len: 143 },
         { no: 3, par: 5, img: "holeimg/gz7fcd71/2in3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_233_02_03.mp4", frames: ["holeimg/gz7fcd71/fin3_1.jpg", "holeimg/gz7fcd71/fin3_2.jpg", "holeimg/gz7fcd71/fin3_3.jpg"], elev: 34, tees: [{ name: "챔피언", m: 456 }, { name: "프론트", m: 435 }, { name: "시니어", m: 409 }, { name: "레이디", m: 374 }], len: 456 },
@@ -3069,7 +3069,7 @@ const HOLEIMG_DB = {
     source: "골프존 코스 데이터 (홀맵·파·거리·고도차·홀 영상)",
     sourceUrl: "https://www.sunvalley.co.kr/",
     courses: [
-      { name: "OUT", holes: [
+      { name: "SUN", holes: [
         { no: 1, par: 4, img: "holeimg/gz83ef8f/1out1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_315_02_01.mp4", frames: ["holeimg/gz83ef8f/fout1_1.jpg", "holeimg/gz83ef8f/fout1_2.jpg", "holeimg/gz83ef8f/fout1_3.jpg"], elev: -22, tees: [{ name: "챔피언", m: 376 }, { name: "백", m: 375 }, { name: "프론트", m: 358 }, { name: "시니어", m: 337 }, { name: "레이디", m: 298 }], len: 376 },
         { no: 2, par: 5, img: "holeimg/gz83ef8f/1out2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_315_02_02.mp4", frames: ["holeimg/gz83ef8f/fout2_1.jpg", "holeimg/gz83ef8f/fout2_2.jpg", "holeimg/gz83ef8f/fout2_3.jpg"], tees: [{ name: "챔피언", m: 507 }, { name: "프론트", m: 488 }, { name: "시니어", m: 443 }, { name: "레이디", m: 421 }], len: 507 },
         { no: 3, par: 3, img: "holeimg/gz83ef8f/1out3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_315_02_03.mp4", frames: ["holeimg/gz83ef8f/fout3_1.jpg", "holeimg/gz83ef8f/fout3_2.jpg"], elev: -4, tees: [{ name: "챔피언", m: 200 }, { name: "백", m: 199 }, { name: "프론트", m: 172 }, { name: "시니어", m: 148 }, { name: "레이디", m: 126 }], len: 200 },
@@ -3080,7 +3080,7 @@ const HOLEIMG_DB = {
         { no: 8, par: 4, img: "holeimg/gz83ef8f/1out8.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_315_02_08.mp4", frames: ["holeimg/gz83ef8f/fout8_1.jpg", "holeimg/gz83ef8f/fout8_2.jpg", "holeimg/gz83ef8f/fout8_3.jpg"], elev: -19, tees: [{ name: "챔피언", m: 388 }, { name: "프론트", m: 366 }, { name: "시니어", m: 324 }, { name: "레이디", m: 309 }], len: 388 },
         { no: 9, par: 4, img: "holeimg/gz83ef8f/1out9.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_315_02_09.mp4", frames: ["holeimg/gz83ef8f/fout9_1.jpg", "holeimg/gz83ef8f/fout9_2.jpg", "holeimg/gz83ef8f/fout9_3.jpg"], elev: 23, tees: [{ name: "챔피언", m: 354 }, { name: "프론트", m: 337 }, { name: "시니어", m: 313 }, { name: "레이디", m: 280 }], len: 354 },
       ]},
-      { name: "IN", holes: [
+      { name: "VALLEY", holes: [
         { no: 1, par: 4, img: "holeimg/gz83ef8f/2in1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_315_01_01.mp4", frames: ["holeimg/gz83ef8f/fin1_1.jpg", "holeimg/gz83ef8f/fin1_2.jpg", "holeimg/gz83ef8f/fin1_3.jpg"], tees: [{ name: "챔피언", m: 370 }, { name: "프론트", m: 350 }, { name: "시니어", m: 312 }, { name: "레이디", m: 286 }], len: 370 },
         { no: 2, par: 4, img: "holeimg/gz83ef8f/2in2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_315_01_02.mp4", frames: ["holeimg/gz83ef8f/fin2_1.jpg", "holeimg/gz83ef8f/fin2_2.jpg", "holeimg/gz83ef8f/fin2_3.jpg"], tees: [{ name: "챔피언", m: 338 }, { name: "프론트", m: 299 }, { name: "시니어", m: 248 }, { name: "레이디", m: 227 }], len: 338 },
         { no: 3, par: 3, img: "holeimg/gz83ef8f/2in3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_315_01_03.mp4", frames: ["holeimg/gz83ef8f/fin3_1.jpg", "holeimg/gz83ef8f/fin3_2.jpg"], elev: -9, tees: [{ name: "챔피언", m: 178 }, { name: "프론트", m: 161 }, { name: "시니어", m: 138 }, { name: "레이디", m: 101 }], len: 178 },
@@ -3125,7 +3125,7 @@ const HOLEIMG_DB = {
     source: "골프존 코스 데이터 (홀맵·파·거리·고도차·홀 영상)",
     sourceUrl: "http://www.thegolfclub.co.kr",
     courses: [
-      { name: "OUT", holes: [
+      { name: "OCEAN", holes: [
         { no: 1, par: 4, img: "holeimg/gz857171/1out1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_757_01_01.mp4", frames: ["holeimg/gz857171/fout1_1.jpg", "holeimg/gz857171/fout1_2.jpg", "holeimg/gz857171/fout1_3.jpg"], tees: [{ name: "챔피언", m: 298 }, { name: "백", m: 291 }, { name: "시니어", m: 258 }, { name: "레이디", m: 234 }], len: 298 },
         { no: 2, par: 5, img: "holeimg/gz857171/1out2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_757_01_02.mp4", frames: ["holeimg/gz857171/fout2_1.jpg", "holeimg/gz857171/fout2_2.jpg", "holeimg/gz857171/fout2_3.jpg"], elev: 13, tees: [{ name: "챔피언", m: 442 }, { name: "프론트", m: 417 }, { name: "시니어", m: 343 }, { name: "레이디", m: 312 }], len: 442 },
         { no: 3, par: 3, img: "holeimg/gz857171/1out3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_757_01_03.mp4", frames: ["holeimg/gz857171/fout3_1.jpg", "holeimg/gz857171/fout3_2.jpg"], tees: [{ name: "챔피언", m: 187 }, { name: "백", m: 179 }, { name: "시니어", m: 125 }], len: 187 },
@@ -3136,7 +3136,7 @@ const HOLEIMG_DB = {
         { no: 8, par: 4, img: "holeimg/gz857171/1out8.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_757_01_08.mp4", frames: ["holeimg/gz857171/fout8_1.jpg", "holeimg/gz857171/fout8_2.jpg", "holeimg/gz857171/fout8_3.jpg"], tees: [{ name: "챔피언", m: 333 }, { name: "백", m: 317 }, { name: "시니어", m: 283 }], len: 333 },
         { no: 9, par: 4, img: "holeimg/gz857171/1out9.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_757_01_09.mp4", frames: ["holeimg/gz857171/fout9_1.jpg", "holeimg/gz857171/fout9_2.jpg", "holeimg/gz857171/fout9_3.jpg"], elev: -9, tees: [{ name: "챔피언", m: 313 }, { name: "백", m: 284 }, { name: "시니어", m: 246 }], len: 313 },
       ]},
-      { name: "IN", holes: [
+      { name: "ROCKY", holes: [
         { no: 1, par: 4, img: "holeimg/gz857171/2in1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_757_02_01.mp4", frames: ["holeimg/gz857171/fin1_1.jpg", "holeimg/gz857171/fin1_2.jpg", "holeimg/gz857171/fin1_3.jpg"], elev: 4, tees: [{ name: "챔피언", m: 312 }, { name: "시니어", m: 269 }, { name: "레이디", m: 268 }], len: 312 },
         { no: 2, par: 4, img: "holeimg/gz857171/2in2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_757_02_02.mp4", frames: ["holeimg/gz857171/fin2_1.jpg", "holeimg/gz857171/fin2_2.jpg", "holeimg/gz857171/fin2_3.jpg"], elev: -11, tees: [{ name: "챔피언", m: 332 }, { name: "시니어", m: 276 }, { name: "레이디", m: 257 }], len: 332 },
         { no: 3, par: 4, img: "holeimg/gz857171/2in3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_757_02_03.mp4", frames: ["holeimg/gz857171/fin3_1.jpg", "holeimg/gz857171/fin3_2.jpg", "holeimg/gz857171/fin3_3.jpg"], elev: 10, tees: [{ name: "챔피언", m: 306 }, { name: "시니어", m: 275 }, { name: "레이디", m: 249 }], len: 306 },
@@ -3181,7 +3181,7 @@ const HOLEIMG_DB = {
     source: "골프존 코스 데이터 (홀맵·파·거리·고도차·홀 영상)",
     sourceUrl: "http://www.yongincc.com/",
     courses: [
-      { name: "OUT", holes: [
+      { name: "석천", holes: [
         { no: 1, par: 4, img: "holeimg/gz85b6/1out1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_139_01_01.mp4", frames: ["holeimg/gz85b6/fout1_1.jpg", "holeimg/gz85b6/fout1_2.jpg", "holeimg/gz85b6/fout1_3.jpg"], elev: -19, tees: [{ name: "챔피언", m: 329 }, { name: "프론트", m: 324 }, { name: "시니어", m: 308 }, { name: "레이디", m: 301 }], len: 329 },
         { no: 2, par: 5, img: "holeimg/gz85b6/1out2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_139_01_02.mp4", frames: ["holeimg/gz85b6/fout2_1.jpg", "holeimg/gz85b6/fout2_2.jpg", "holeimg/gz85b6/fout2_3.jpg"], elev: 36, tees: [{ name: "챔피언", m: 587 }, { name: "백", m: 530 }, { name: "프론트", m: 509 }, { name: "시니어", m: 499 }, { name: "레이디", m: 429 }], len: 587 },
         { no: 3, par: 4, img: "holeimg/gz85b6/1out3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_139_01_03.mp4", frames: ["holeimg/gz85b6/fout3_1.jpg", "holeimg/gz85b6/fout3_2.jpg", "holeimg/gz85b6/fout3_3.jpg"], elev: -26, tees: [{ name: "챔피언", m: 320 }, { name: "백", m: 319 }, { name: "프론트", m: 301 }, { name: "시니어", m: 291 }, { name: "레이디", m: 273 }], len: 320 },
@@ -3192,7 +3192,7 @@ const HOLEIMG_DB = {
         { no: 8, par: 4, img: "holeimg/gz85b6/1out8.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_139_01_08.mp4", frames: ["holeimg/gz85b6/fout8_1.jpg", "holeimg/gz85b6/fout8_2.jpg", "holeimg/gz85b6/fout8_3.jpg"], elev: -20, tees: [{ name: "챔피언", m: 320 }, { name: "프론트", m: 305 }, { name: "시니어", m: 300 }, { name: "레이디", m: 276 }], len: 320 },
         { no: 9, par: 5, img: "holeimg/gz85b6/1out9.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_139_01_09.mp4", frames: ["holeimg/gz85b6/fout9_1.jpg", "holeimg/gz85b6/fout9_2.jpg", "holeimg/gz85b6/fout9_3.jpg"], elev: -22, tees: [{ name: "챔피언", m: 475 }, { name: "프론트", m: 463 }, { name: "시니어", m: 458 }, { name: "레이디", m: 449 }], len: 475 },
       ]},
-      { name: "IN", holes: [
+      { name: "용인", holes: [
         { no: 1, par: 4, img: "holeimg/gz85b6/2in1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_139_02_01.mp4", frames: ["holeimg/gz85b6/fin1_1.jpg", "holeimg/gz85b6/fin1_2.jpg", "holeimg/gz85b6/fin1_3.jpg"], elev: 21, tees: [{ name: "챔피언", m: 284 }, { name: "프론트", m: 279 }, { name: "시니어", m: 266 }, { name: "레이디", m: 251 }], len: 284 },
         { no: 2, par: 4, img: "holeimg/gz85b6/2in2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_139_02_02.mp4", frames: ["holeimg/gz85b6/fin2_1.jpg", "holeimg/gz85b6/fin2_2.jpg", "holeimg/gz85b6/fin2_3.jpg"], elev: -29, tees: [{ name: "챔피언", m: 393 }, { name: "프론트", m: 375 }, { name: "시니어", m: 360 }, { name: "레이디", m: 346 }], len: 393 },
         { no: 3, par: 4, img: "holeimg/gz85b6/2in3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_139_02_03.mp4", frames: ["holeimg/gz85b6/fin3_1.jpg", "holeimg/gz85b6/fin3_2.jpg", "holeimg/gz85b6/fin3_3.jpg"], elev: 13, tees: [{ name: "챔피언", m: 296 }, { name: "백", m: 295 }, { name: "프론트", m: 280 }, { name: "시니어", m: 266 }, { name: "레이디", m: 254 }], len: 296 },
@@ -3209,7 +3209,7 @@ const HOLEIMG_DB = {
     source: "골프존 코스 데이터 (홀맵·파·거리·고도차·홀 영상)",
     sourceUrl: "https://www.paragio.co.kr/",
     courses: [
-      { name: "OUT", holes: [
+      { name: "LAKE", holes: [
         { no: 1, par: 4, img: "holeimg/gz87bc59/1out1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_749_01_01.mp4", frames: ["holeimg/gz87bc59/fout1_1.jpg", "holeimg/gz87bc59/fout1_2.jpg", "holeimg/gz87bc59/fout1_3.jpg"], elev: -14, tees: [{ name: "챔피언", m: 345 }, { name: "백", m: 327 }, { name: "프론트", m: 305 }, { name: "시니어", m: 281 }, { name: "레이디", m: 261 }], len: 345 },
         { no: 2, par: 4, img: "holeimg/gz87bc59/1out2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_749_01_02.mp4", frames: ["holeimg/gz87bc59/fout2_1.jpg", "holeimg/gz87bc59/fout2_2.jpg", "holeimg/gz87bc59/fout2_3.jpg"], elev: -16, tees: [{ name: "챔피언", m: 372 }, { name: "백", m: 353 }, { name: "프론트", m: 334 }, { name: "레이디", m: 314 }], len: 372 },
         { no: 3, par: 3, img: "holeimg/gz87bc59/1out3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_749_01_03.mp4", frames: ["holeimg/gz87bc59/fout3_1.jpg", "holeimg/gz87bc59/fout3_2.jpg"], tees: [{ name: "챔피언", m: 171 }, { name: "백", m: 155 }, { name: "프론트", m: 143 }, { name: "시니어", m: 120 }, { name: "레이디", m: 100 }], len: 171 },
@@ -3220,7 +3220,7 @@ const HOLEIMG_DB = {
         { no: 8, par: 4, img: "holeimg/gz87bc59/1out8.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_749_01_08.mp4", frames: ["holeimg/gz87bc59/fout8_1.jpg", "holeimg/gz87bc59/fout8_2.jpg", "holeimg/gz87bc59/fout8_3.jpg"], elev: -35, tees: [{ name: "챔피언", m: 383 }, { name: "백", m: 354 }, { name: "프론트", m: 328 }, { name: "시니어", m: 299 }, { name: "레이디", m: 273 }], len: 383 },
         { no: 9, par: 4, img: "holeimg/gz87bc59/1out9.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_749_01_09.mp4", frames: ["holeimg/gz87bc59/fout9_1.jpg", "holeimg/gz87bc59/fout9_2.jpg", "holeimg/gz87bc59/fout9_3.jpg"], elev: 6, tees: [{ name: "챔피언", m: 316 }, { name: "백", m: 298 }, { name: "프론트", m: 293 }, { name: "시니어", m: 279 }, { name: "레이디", m: 265 }], len: 316 },
       ]},
-      { name: "IN", holes: [
+      { name: "HILL", holes: [
         { no: 1, par: 4, img: "holeimg/gz87bc59/2in1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_749_02_01.mp4", frames: ["holeimg/gz87bc59/fin1_1.jpg", "holeimg/gz87bc59/fin1_2.jpg", "holeimg/gz87bc59/fin1_3.jpg"], elev: -8, tees: [{ name: "챔피언", m: 354 }, { name: "백", m: 329 }, { name: "프론트", m: 308 }, { name: "시니어", m: 283 }, { name: "레이디", m: 210 }], len: 354 },
         { no: 2, par: 5, img: "holeimg/gz87bc59/2in2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_749_02_02.mp4", frames: ["holeimg/gz87bc59/fin2_1.jpg", "holeimg/gz87bc59/fin2_2.jpg", "holeimg/gz87bc59/fin2_3.jpg"], elev: 22, tees: [{ name: "챔피언", m: 537 }, { name: "백", m: 514 }, { name: "프론트", m: 489 }, { name: "레이디", m: 357 }], len: 537 },
         { no: 3, par: 3, img: "holeimg/gz87bc59/2in3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_749_02_03.mp4", frames: ["holeimg/gz87bc59/fin3_1.jpg", "holeimg/gz87bc59/fin3_2.jpg"], elev: -6, tees: [{ name: "챔피언", m: 150 }, { name: "백", m: 138 }, { name: "프론트", m: 118 }, { name: "레이디", m: 91 }], len: 150 },
@@ -3237,7 +3237,7 @@ const HOLEIMG_DB = {
     source: "골프존 코스 데이터 (홀맵·파·거리·고도차·홀 영상)",
     sourceUrl: "http://www.bellastonecc.com/",
     courses: [
-      { name: "OUT", holes: [
+      { name: "STONE", holes: [
         { no: 1, par: 5, img: "holeimg/gz87ceed/1out1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_495_01_01.mp4", frames: ["holeimg/gz87ceed/fout1_1.jpg", "holeimg/gz87ceed/fout1_2.jpg", "holeimg/gz87ceed/fout1_3.jpg"], elev: 13, tees: [{ name: "챔피언", m: 527 }, { name: "백", m: 502 }, { name: "프론트", m: 470 }, { name: "시니어", m: 433 }, { name: "레이디", m: 348 }], len: 527 },
         { no: 2, par: 4, img: "holeimg/gz87ceed/1out2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_495_01_02.mp4", frames: ["holeimg/gz87ceed/fout2_1.jpg", "holeimg/gz87ceed/fout2_2.jpg", "holeimg/gz87ceed/fout2_3.jpg"], elev: -33, tees: [{ name: "챔피언", m: 392 }, { name: "백", m: 380 }, { name: "프론트", m: 358 }, { name: "시니어", m: 330 }, { name: "레이디", m: 266 }], len: 392 },
         { no: 3, par: 4, img: "holeimg/gz87ceed/1out3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_495_01_03.mp4", frames: ["holeimg/gz87ceed/fout3_1.jpg", "holeimg/gz87ceed/fout3_2.jpg", "holeimg/gz87ceed/fout3_3.jpg"], elev: 17, tees: [{ name: "챔피언", m: 392 }, { name: "백", m: 373 }, { name: "프론트", m: 349 }, { name: "시니어", m: 316 }, { name: "레이디", m: 287 }], len: 392 },
@@ -3248,7 +3248,7 @@ const HOLEIMG_DB = {
         { no: 8, par: 4, img: "holeimg/gz87ceed/1out8.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_495_01_08.mp4", frames: ["holeimg/gz87ceed/fout8_1.jpg", "holeimg/gz87ceed/fout8_2.jpg", "holeimg/gz87ceed/fout8_3.jpg"], elev: -8, tees: [{ name: "챔피언", m: 341 }, { name: "백", m: 320 }, { name: "프론트", m: 295 }, { name: "시니어", m: 268 }, { name: "레이디", m: 245 }], len: 341 },
         { no: 9, par: 4, img: "holeimg/gz87ceed/1out9.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_495_01_09.mp4", frames: ["holeimg/gz87ceed/fout9_1.jpg", "holeimg/gz87ceed/fout9_2.jpg", "holeimg/gz87ceed/fout9_3.jpg"], tees: [{ name: "챔피언", m: 350 }, { name: "백", m: 327 }, { name: "프론트", m: 304 }, { name: "시니어", m: 268 }, { name: "레이디", m: 231 }], len: 350 },
       ]},
-      { name: "IN", holes: [
+      { name: "BELLA", holes: [
         { no: 1, par: 4, img: "holeimg/gz87ceed/2in1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_495_02_01.mp4", frames: ["holeimg/gz87ceed/fin1_1.jpg", "holeimg/gz87ceed/fin1_2.jpg", "holeimg/gz87ceed/fin1_3.jpg"], tees: [{ name: "챔피언", m: 339 }, { name: "백", m: 319 }, { name: "프론트", m: 290 }, { name: "시니어", m: 260 }, { name: "레이디", m: 232 }], len: 339 },
         { no: 2, par: 4, img: "holeimg/gz87ceed/2in2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_495_02_02.mp4", frames: ["holeimg/gz87ceed/fin2_1.jpg", "holeimg/gz87ceed/fin2_2.jpg", "holeimg/gz87ceed/fin2_3.jpg"], elev: -18, tees: [{ name: "챔피언", m: 394 }, { name: "백", m: 364 }, { name: "프론트", m: 354 }, { name: "시니어", m: 317 }, { name: "레이디", m: 291 }], len: 394 },
         { no: 3, par: 4, img: "holeimg/gz87ceed/2in3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_495_02_03.mp4", frames: ["holeimg/gz87ceed/fin3_1.jpg", "holeimg/gz87ceed/fin3_2.jpg", "holeimg/gz87ceed/fin3_3.jpg"], elev: 15, tees: [{ name: "챔피언", m: 334 }, { name: "백", m: 307 }, { name: "프론트", m: 282 }, { name: "시니어", m: 272 }, { name: "레이디", m: 249 }], len: 334 },
@@ -3405,7 +3405,7 @@ const HOLEIMG_DB = {
     source: "골프존 코스 데이터 (홀맵·파·거리·고도차·홀 영상)",
     sourceUrl: "http://www.sscc.co.kr/",
     courses: [
-      { name: "OUT", holes: [
+      { name: "LAKE", holes: [
         { no: 1, par: 4, img: "holeimg/gz8c052c/1out1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_8_01_01.mp4", frames: ["holeimg/gz8c052c/fout1_1.jpg", "holeimg/gz8c052c/fout1_2.jpg", "holeimg/gz8c052c/fout1_3.jpg"], elev: -19, tees: [{ name: "챔피언", m: 359 }, { name: "백", m: 345 }, { name: "프론트", m: 337 }, { name: "시니어", m: 322 }, { name: "레이디", m: 296 }], len: 359 },
         { no: 2, par: 5, img: "holeimg/gz8c052c/1out2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_8_01_02.mp4", frames: ["holeimg/gz8c052c/fout2_1.jpg", "holeimg/gz8c052c/fout2_2.jpg", "holeimg/gz8c052c/fout2_3.jpg"], tees: [{ name: "챔피언", m: 510 }, { name: "백", m: 489 }, { name: "프론트", m: 448 }, { name: "시니어", m: 411 }, { name: "레이디", m: 375 }], len: 510 },
         { no: 3, par: 4, img: "holeimg/gz8c052c/1out3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_8_01_03.mp4", frames: ["holeimg/gz8c052c/fout3_1.jpg", "holeimg/gz8c052c/fout3_2.jpg", "holeimg/gz8c052c/fout3_3.jpg"], elev: -23, tees: [{ name: "챔피언", m: 342 }, { name: "백", m: 332 }, { name: "프론트", m: 316 }, { name: "시니어", m: 297 }, { name: "레이디", m: 268 }], len: 342 },
@@ -3416,7 +3416,7 @@ const HOLEIMG_DB = {
         { no: 8, par: 3, img: "holeimg/gz8c052c/1out8.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_8_01_08.mp4", frames: ["holeimg/gz8c052c/fout8_1.jpg", "holeimg/gz8c052c/fout8_2.jpg"], elev: -11, tees: [{ name: "챔피언", m: 177 }, { name: "백", m: 158 }, { name: "프론트", m: 135 }, { name: "시니어", m: 116 }, { name: "레이디", m: 92 }], len: 177 },
         { no: 9, par: 4, img: "holeimg/gz8c052c/1out9.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_8_01_09.mp4", frames: ["holeimg/gz8c052c/fout9_1.jpg", "holeimg/gz8c052c/fout9_2.jpg", "holeimg/gz8c052c/fout9_3.jpg"], elev: 12, tees: [{ name: "챔피언", m: 382 }, { name: "백", m: 356 }, { name: "프론트", m: 324 }, { name: "시니어", m: 304 }, { name: "레이디", m: 196 }], len: 382 },
       ]},
-      { name: "IN", holes: [
+      { name: "MOUNTAIN", holes: [
         { no: 1, par: 4, img: "holeimg/gz8c052c/2in1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_8_02_01.mp4", frames: ["holeimg/gz8c052c/fin1_1.jpg", "holeimg/gz8c052c/fin1_2.jpg", "holeimg/gz8c052c/fin1_3.jpg"], elev: 5, tees: [{ name: "챔피언", m: 331 }, { name: "백", m: 314 }, { name: "프론트", m: 289 }, { name: "시니어", m: 270 }, { name: "레이디", m: 245 }], len: 331 },
         { no: 2, par: 4, img: "holeimg/gz8c052c/2in2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_8_02_02.mp4", frames: ["holeimg/gz8c052c/fin2_1.jpg", "holeimg/gz8c052c/fin2_2.jpg", "holeimg/gz8c052c/fin2_3.jpg"], tees: [{ name: "챔피언", m: 381 }, { name: "백", m: 359 }, { name: "프론트", m: 334 }, { name: "시니어", m: 225 }, { name: "레이디", m: 208 }], len: 381 },
         { no: 3, par: 5, img: "holeimg/gz8c052c/2in3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_8_02_03.mp4", frames: ["holeimg/gz8c052c/fin3_1.jpg", "holeimg/gz8c052c/fin3_2.jpg", "holeimg/gz8c052c/fin3_3.jpg"], elev: -22, tees: [{ name: "챔피언", m: 522 }, { name: "백", m: 501 }, { name: "프론트", m: 483 }, { name: "시니어", m: 446 }, { name: "레이디", m: 394 }], len: 522 },
@@ -3433,7 +3433,7 @@ const HOLEIMG_DB = {
     source: "골프존 코스 데이터 (홀맵·파·거리·고도차·홀 영상)",
     sourceUrl: "http://www.golfzoncounty.com/",
     courses: [
-      { name: "OUT", holes: [
+      { name: "청통", holes: [
         { no: 1, par: 4, img: "holeimg/gz8cb33f/1out1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_710_01_01.mp4", frames: ["holeimg/gz8cb33f/fout1_1.jpg", "holeimg/gz8cb33f/fout1_2.jpg", "holeimg/gz8cb33f/fout1_3.jpg"], elev: -19, tees: [{ name: "챔피언", m: 395 }, { name: "백", m: 377 }, { name: "프론트", m: 350 }, { name: "시니어", m: 319 }], len: 395 },
         { no: 2, par: 5, img: "holeimg/gz8cb33f/1out2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_710_01_02.mp4", frames: ["holeimg/gz8cb33f/fout2_1.jpg", "holeimg/gz8cb33f/fout2_2.jpg", "holeimg/gz8cb33f/fout2_3.jpg"], elev: 14, tees: [{ name: "챔피언", m: 420 }, { name: "프론트", m: 411 }, { name: "시니어", m: 361 }], len: 420 },
         { no: 3, par: 5, img: "holeimg/gz8cb33f/1out3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_710_01_03.mp4", frames: ["holeimg/gz8cb33f/fout3_1.jpg", "holeimg/gz8cb33f/fout3_2.jpg", "holeimg/gz8cb33f/fout3_3.jpg"], elev: -14, tees: [{ name: "챔피언", m: 507 }, { name: "백", m: 481 }, { name: "프론트", m: 451 }, { name: "시니어", m: 426 }, { name: "레이디", m: 394 }], len: 507 },
@@ -3444,7 +3444,7 @@ const HOLEIMG_DB = {
         { no: 8, par: 3, img: "holeimg/gz8cb33f/1out8.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_710_01_08.mp4", frames: ["holeimg/gz8cb33f/fout8_1.jpg", "holeimg/gz8cb33f/fout8_2.jpg"], elev: -6, tees: [{ name: "챔피언", m: 166 }, { name: "프론트", m: 128 }, { name: "시니어", m: 108 }], len: 166 },
         { no: 9, par: 5, img: "holeimg/gz8cb33f/1out9.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_710_01_09.mp4", frames: ["holeimg/gz8cb33f/fout9_1.jpg", "holeimg/gz8cb33f/fout9_2.jpg", "holeimg/gz8cb33f/fout9_3.jpg"], elev: 11, tees: [{ name: "챔피언", m: 463 }, { name: "백", m: 439 }, { name: "프론트", m: 401 }, { name: "시니어", m: 368 }, { name: "레이디", m: 341 }], len: 463 },
       ]},
-      { name: "IN", holes: [
+      { name: "팔공", holes: [
         { no: 1, par: 4, img: "holeimg/gz8cb33f/2in1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_710_02_01.mp4", frames: ["holeimg/gz8cb33f/fin1_1.jpg", "holeimg/gz8cb33f/fin1_2.jpg", "holeimg/gz8cb33f/fin1_3.jpg"], elev: -12, tees: [{ name: "챔피언", m: 352 }, { name: "프론트", m: 318 }, { name: "시니어", m: 284 }, { name: "레이디", m: 283 }], len: 352 },
         { no: 2, par: 4, img: "holeimg/gz8cb33f/2in2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_710_02_02.mp4", frames: ["holeimg/gz8cb33f/fin2_1.jpg", "holeimg/gz8cb33f/fin2_2.jpg", "holeimg/gz8cb33f/fin2_3.jpg"], tees: [{ name: "챔피언", m: 315 }, { name: "프론트", m: 292 }, { name: "시니어", m: 272 }, { name: "레이디", m: 235 }], len: 315 },
         { no: 3, par: 3, img: "holeimg/gz8cb33f/2in3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_710_02_03.mp4", frames: ["holeimg/gz8cb33f/fin3_1.jpg", "holeimg/gz8cb33f/fin3_2.jpg"], elev: -7, tees: [{ name: "챔피언", m: 188 }, { name: "백", m: 167 }, { name: "프론트", m: 149 }, { name: "시니어", m: 129 }], len: 188 },
@@ -3545,7 +3545,7 @@ const HOLEIMG_DB = {
     source: "골프존 코스 데이터 (홀맵·파·거리·고도차·홀 영상)",
     sourceUrl: "https://www.jangsugolf.com/",
     courses: [
-      { name: "OUT", holes: [
+      { name: "사과", holes: [
         { no: 1, par: 5, img: "holeimg/gz8f5eeb/1out1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_911_01_01.mp4", frames: ["holeimg/gz8f5eeb/fout1_1.jpg", "holeimg/gz8f5eeb/fout1_2.jpg", "holeimg/gz8f5eeb/fout1_3.jpg"], elev: 44, tees: [{ name: "챔피언", m: 507 }, { name: "백", m: 476 }, { name: "프론트", m: 443 }, { name: "시니어", m: 415 }, { name: "레이디", m: 357 }], len: 507 },
         { no: 2, par: 4, img: "holeimg/gz8f5eeb/1out2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_911_01_02.mp4", frames: ["holeimg/gz8f5eeb/fout2_1.jpg", "holeimg/gz8f5eeb/fout2_2.jpg", "holeimg/gz8f5eeb/fout2_3.jpg"], elev: -20, tees: [{ name: "챔피언", m: 318 }, { name: "프론트", m: 290 }, { name: "시니어", m: 262 }, { name: "레이디", m: 227 }], len: 318 },
         { no: 3, par: 3, img: "holeimg/gz8f5eeb/1out3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_911_01_03.mp4", frames: ["holeimg/gz8f5eeb/fout3_1.jpg", "holeimg/gz8f5eeb/fout3_2.jpg"], tees: [{ name: "챔피언", m: 172 }, { name: "백", m: 159 }, { name: "프론트", m: 154 }, { name: "시니어", m: 127 }, { name: "레이디", m: 104 }], len: 172 },
@@ -3556,7 +3556,7 @@ const HOLEIMG_DB = {
         { no: 8, par: 4, img: "holeimg/gz8f5eeb/1out8.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_911_01_08.mp4", frames: ["holeimg/gz8f5eeb/fout8_1.jpg", "holeimg/gz8f5eeb/fout8_2.jpg", "holeimg/gz8f5eeb/fout8_3.jpg"], elev: -18, tees: [{ name: "챔피언", m: 404 }, { name: "백", m: 378 }, { name: "프론트", m: 316 }, { name: "시니어", m: 275 }, { name: "레이디", m: 250 }], len: 404 },
         { no: 9, par: 5, img: "holeimg/gz8f5eeb/1out9.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_911_01_09.mp4", frames: ["holeimg/gz8f5eeb/fout9_1.jpg", "holeimg/gz8f5eeb/fout9_2.jpg", "holeimg/gz8f5eeb/fout9_3.jpg"], elev: -93, tees: [{ name: "챔피언", m: 531 }, { name: "프론트", m: 497 }, { name: "시니어", m: 465 }, { name: "레이디", m: 404 }], len: 531 },
       ]},
-      { name: "IN", holes: [
+      { name: "나무", holes: [
         { no: 1, par: 5, img: "holeimg/gz8f5eeb/2in1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_911_02_01.mp4", frames: ["holeimg/gz8f5eeb/fin1_1.jpg", "holeimg/gz8f5eeb/fin1_2.jpg", "holeimg/gz8f5eeb/fin1_3.jpg"], elev: 48, tees: [{ name: "챔피언", m: 484 }, { name: "백", m: 463 }, { name: "프론트", m: 436 }, { name: "시니어", m: 407 }, { name: "레이디", m: 378 }], len: 484 },
         { no: 2, par: 4, img: "holeimg/gz8f5eeb/2in2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_911_02_02.mp4", frames: ["holeimg/gz8f5eeb/fin2_1.jpg", "holeimg/gz8f5eeb/fin2_2.jpg", "holeimg/gz8f5eeb/fin2_3.jpg"], elev: -42, tees: [{ name: "챔피언", m: 344 }, { name: "백", m: 324 }, { name: "프론트", m: 303 }, { name: "시니어", m: 283 }, { name: "레이디", m: 253 }], len: 344 },
         { no: 3, par: 3, img: "holeimg/gz8f5eeb/2in3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_911_02_03.mp4", frames: ["holeimg/gz8f5eeb/fin3_1.jpg", "holeimg/gz8f5eeb/fin3_2.jpg"], elev: -4, tees: [{ name: "챔피언", m: 182 }, { name: "백", m: 167 }, { name: "프론트", m: 154 }, { name: "시니어", m: 137 }, { name: "레이디", m: 97 }], len: 182 },
@@ -3573,7 +3573,7 @@ const HOLEIMG_DB = {
     source: "골프존 코스 데이터 (홀맵·파·거리·고도차·홀 영상)",
     sourceUrl: "http://www.maronnewday.com/#2",
     courses: [
-      { name: "OUT", holes: [
+      { name: "DREAM", holes: [
         { no: 1, par: 4, img: "holeimg/gz8fa142/1out1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_502_01_01.mp4", frames: ["holeimg/gz8fa142/fout1_1.jpg", "holeimg/gz8fa142/fout1_2.jpg", "holeimg/gz8fa142/fout1_3.jpg"], elev: 20, tees: [{ name: "챔피언", m: 373 }, { name: "백", m: 325 }, { name: "시니어", m: 275 }], len: 373 },
         { no: 2, par: 5, img: "holeimg/gz8fa142/1out2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_502_01_02.mp4", frames: ["holeimg/gz8fa142/fout2_1.jpg", "holeimg/gz8fa142/fout2_2.jpg", "holeimg/gz8fa142/fout2_3.jpg"], tees: [{ name: "챔피언", m: 471 }, { name: "백", m: 437 }, { name: "프론트", m: 392 }, { name: "시니어", m: 347 }], len: 471 },
         { no: 3, par: 4, img: "holeimg/gz8fa142/1out3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_502_01_03.mp4", frames: ["holeimg/gz8fa142/fout3_1.jpg", "holeimg/gz8fa142/fout3_2.jpg", "holeimg/gz8fa142/fout3_3.jpg"], elev: 14, tees: [{ name: "챔피언", m: 373 }, { name: "백", m: 334 }, { name: "프론트", m: 333 }, { name: "시니어", m: 292 }], len: 373 },
@@ -3584,7 +3584,7 @@ const HOLEIMG_DB = {
         { no: 8, par: 5, img: "holeimg/gz8fa142/1out8.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_502_01_08.mp4", frames: ["holeimg/gz8fa142/fout8_1.jpg", "holeimg/gz8fa142/fout8_2.jpg", "holeimg/gz8fa142/fout8_3.jpg"], elev: -13, tees: [{ name: "챔피언", m: 471 }, { name: "백", m: 450 }, { name: "프론트", m: 433 }, { name: "시니어", m: 351 }], len: 471 },
         { no: 9, par: 4, img: "holeimg/gz8fa142/1out9.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_502_01_09.mp4", frames: ["holeimg/gz8fa142/fout9_1.jpg", "holeimg/gz8fa142/fout9_2.jpg", "holeimg/gz8fa142/fout9_3.jpg"], elev: 7, tees: [{ name: "챔피언", m: 383 }, { name: "백", m: 346 }, { name: "시니어", m: 302 }], len: 383 },
       ]},
-      { name: "IN", holes: [
+      { name: "VISION", holes: [
         { no: 1, par: 4, img: "holeimg/gz8fa142/2in1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_502_02_01.mp4", frames: ["holeimg/gz8fa142/fin1_1.jpg", "holeimg/gz8fa142/fin1_2.jpg", "holeimg/gz8fa142/fin1_3.jpg"], elev: -13, tees: [{ name: "챔피언", m: 337 }, { name: "백", m: 305 }, { name: "프론트", m: 277 }, { name: "시니어", m: 211 }], len: 337 },
         { no: 2, par: 4, img: "holeimg/gz8fa142/2in2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_502_02_02.mp4", frames: ["holeimg/gz8fa142/fin2_1.jpg", "holeimg/gz8fa142/fin2_2.jpg", "holeimg/gz8fa142/fin2_3.jpg"], elev: -34, tees: [{ name: "챔피언", m: 446 }, { name: "백", m: 405 }, { name: "프론트", m: 379 }, { name: "시니어", m: 341 }], len: 446 },
         { no: 3, par: 5, img: "holeimg/gz8fa142/2in3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_502_02_03.mp4", frames: ["holeimg/gz8fa142/fin3_1.jpg", "holeimg/gz8fa142/fin3_2.jpg", "holeimg/gz8fa142/fin3_3.jpg"], elev: 30, tees: [{ name: "챔피언", m: 524 }, { name: "백", m: 482 }, { name: "시니어", m: 406 }], len: 524 },
@@ -3629,7 +3629,7 @@ const HOLEIMG_DB = {
     source: "골프존 코스 데이터 (홀맵·파·거리·고도차·홀 영상)",
     sourceUrl: "https://thesiena.co.kr/content/seoulcc",
     courses: [
-      { name: "OUT", holes: [
+      { name: "WEST", holes: [
         { no: 1, par: 4, img: "holeimg/gz93c6f4/1out1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_99_02_01.mp4", frames: ["holeimg/gz93c6f4/fout1_1.jpg", "holeimg/gz93c6f4/fout1_2.jpg", "holeimg/gz93c6f4/fout1_3.jpg"], elev: -37, tees: [{ name: "챔피언", m: 341 }, { name: "프론트", m: 319 }, { name: "시니어", m: 286 }], len: 341 },
         { no: 2, par: 4, img: "holeimg/gz93c6f4/1out2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_99_02_02.mp4", frames: ["holeimg/gz93c6f4/fout2_1.jpg", "holeimg/gz93c6f4/fout2_2.jpg", "holeimg/gz93c6f4/fout2_3.jpg"], elev: 12, tees: [{ name: "챔피언", m: 342 }, { name: "프론트", m: 322 }, { name: "시니어", m: 273 }], len: 342 },
         { no: 3, par: 5, img: "holeimg/gz93c6f4/1out3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_99_02_03.mp4", frames: ["holeimg/gz93c6f4/fout3_1.jpg", "holeimg/gz93c6f4/fout3_2.jpg", "holeimg/gz93c6f4/fout3_3.jpg"], elev: -7, tees: [{ name: "챔피언", m: 461 }, { name: "프론트", m: 441 }, { name: "시니어", m: 377 }], len: 461 },
@@ -3640,7 +3640,7 @@ const HOLEIMG_DB = {
         { no: 8, par: 3, img: "holeimg/gz93c6f4/1out8.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_99_02_08.mp4", frames: ["holeimg/gz93c6f4/fout8_1.jpg", "holeimg/gz93c6f4/fout8_2.jpg"], elev: -13, tees: [{ name: "챔피언", m: 190 }, { name: "프론트", m: 165 }, { name: "시니어", m: 139 }], len: 190 },
         { no: 9, par: 4, img: "holeimg/gz93c6f4/1out9.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_99_02_09.mp4", frames: ["holeimg/gz93c6f4/fout9_1.jpg", "holeimg/gz93c6f4/fout9_2.jpg", "holeimg/gz93c6f4/fout9_3.jpg"], tees: [{ name: "챔피언", m: 321 }, { name: "프론트", m: 292 }, { name: "시니어", m: 251 }], len: 321 },
       ]},
-      { name: "IN", holes: [
+      { name: "EAST", holes: [
         { no: 1, par: 4, img: "holeimg/gz93c6f4/2in1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_99_01_01.mp4", frames: ["holeimg/gz93c6f4/fin1_1.jpg", "holeimg/gz93c6f4/fin1_2.jpg", "holeimg/gz93c6f4/fin1_3.jpg"], elev: -26, tees: [{ name: "챔피언", m: 390 }, { name: "프론트", m: 369 }, { name: "시니어", m: 313 }], len: 390 },
         { no: 2, par: 5, img: "holeimg/gz93c6f4/2in2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_99_01_02.mp4", frames: ["holeimg/gz93c6f4/fin2_1.jpg", "holeimg/gz93c6f4/fin2_2.jpg", "holeimg/gz93c6f4/fin2_3.jpg"], elev: 11, tees: [{ name: "챔피언", m: 492 }, { name: "프론트", m: 465 }, { name: "시니어", m: 411 }], len: 492 },
         { no: 3, par: 4, img: "holeimg/gz93c6f4/2in3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_99_01_03.mp4", frames: ["holeimg/gz93c6f4/fin3_1.jpg", "holeimg/gz93c6f4/fin3_2.jpg", "holeimg/gz93c6f4/fin3_3.jpg"], elev: -33, tees: [{ name: "챔피언", m: 367 }, { name: "프론트", m: 335 }, { name: "시니어", m: 258 }], len: 367 },
@@ -3657,7 +3657,7 @@ const HOLEIMG_DB = {
     source: "골프존 코스 데이터 (홀맵·파·거리·고도차·홀 영상)",
     sourceUrl: "http://www.winchestgc.co.kr/",
     courses: [
-      { name: "OUT", holes: [
+      { name: "로맨틱", holes: [
         { no: 1, par: 4, img: "holeimg/gz94edca/1out1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_132_01_01.mp4", frames: ["holeimg/gz94edca/fout1_1.jpg", "holeimg/gz94edca/fout1_2.jpg", "holeimg/gz94edca/fout1_3.jpg"], elev: 9, tees: [{ name: "챔피언", m: 382 }, { name: "백", m: 346 }, { name: "프론트", m: 344 }, { name: "시니어", m: 317 }, { name: "레이디", m: 288 }], len: 382 },
         { no: 2, par: 5, img: "holeimg/gz94edca/1out2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_132_01_02.mp4", frames: ["holeimg/gz94edca/fout2_1.jpg", "holeimg/gz94edca/fout2_2.jpg", "holeimg/gz94edca/fout2_3.jpg"], elev: -22, tees: [{ name: "챔피언", m: 570 }, { name: "백", m: 540 }, { name: "프론트", m: 509 }, { name: "시니어", m: 484 }, { name: "레이디", m: 455 }], len: 570 },
         { no: 3, par: 3, img: "holeimg/gz94edca/1out3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_132_01_03.mp4", frames: ["holeimg/gz94edca/fout3_1.jpg", "holeimg/gz94edca/fout3_2.jpg"], tees: [{ name: "챔피언", m: 201 }, { name: "백", m: 173 }, { name: "프론트", m: 171 }, { name: "시니어", m: 142 }, { name: "레이디", m: 119 }], len: 201 },
@@ -3668,7 +3668,7 @@ const HOLEIMG_DB = {
         { no: 8, par: 4, img: "holeimg/gz94edca/1out8.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_132_01_08.mp4", frames: ["holeimg/gz94edca/fout8_1.jpg", "holeimg/gz94edca/fout8_2.jpg", "holeimg/gz94edca/fout8_3.jpg"], elev: -9, tees: [{ name: "챔피언", m: 351 }, { name: "백", m: 325 }, { name: "프론트", m: 302 }, { name: "시니어", m: 284 }, { name: "레이디", m: 246 }], len: 351 },
         { no: 9, par: 4, img: "holeimg/gz94edca/1out9.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_132_01_09.mp4", frames: ["holeimg/gz94edca/fout9_1.jpg", "holeimg/gz94edca/fout9_2.jpg", "holeimg/gz94edca/fout9_3.jpg"], elev: -34, tees: [{ name: "챔피언", m: 398 }, { name: "백", m: 374 }, { name: "프론트", m: 344 }, { name: "시니어", m: 313 }, { name: "레이디", m: 279 }], len: 398 },
       ]},
-      { name: "IN", holes: [
+      { name: "클래식", holes: [
         { no: 1, par: 5, img: "holeimg/gz94edca/2in1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_132_02_01.mp4", frames: ["holeimg/gz94edca/fin1_1.jpg", "holeimg/gz94edca/fin1_2.jpg", "holeimg/gz94edca/fin1_3.jpg"], elev: 23, tees: [{ name: "챔피언", m: 480 }, { name: "백", m: 456 }, { name: "프론트", m: 454 }, { name: "시니어", m: 431 }, { name: "레이디", m: 411 }], len: 480 },
         { no: 2, par: 4, img: "holeimg/gz94edca/2in2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_132_02_02.mp4", frames: ["holeimg/gz94edca/fin2_1.jpg", "holeimg/gz94edca/fin2_2.jpg", "holeimg/gz94edca/fin2_3.jpg"], elev: -19, tees: [{ name: "챔피언", m: 315 }, { name: "백", m: 290 }, { name: "프론트", m: 288 }, { name: "시니어", m: 276 }, { name: "레이디", m: 266 }], len: 315 },
         { no: 3, par: 3, img: "holeimg/gz94edca/2in3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_132_02_03.mp4", frames: ["holeimg/gz94edca/fin3_1.jpg", "holeimg/gz94edca/fin3_2.jpg"], elev: -4, tees: [{ name: "챔피언", m: 169 }, { name: "백", m: 142 }, { name: "프론트", m: 141 }, { name: "시니어", m: 121 }, { name: "레이디", m: 104 }], len: 169 },
@@ -3685,7 +3685,7 @@ const HOLEIMG_DB = {
     source: "골프존 코스 데이터 (홀맵·파·거리·고도차·홀 영상)",
     sourceUrl: "http://www.songrazenith.com/index.asp",
     courses: [
-      { name: "OUT", holes: [
+      { name: "동해", holes: [
         { no: 1, par: 4, img: "holeimg/gz96f851/1out1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_216_01_01.mp4", frames: ["holeimg/gz96f851/fout1_1.jpg", "holeimg/gz96f851/fout1_2.jpg"], elev: -11, tees: [{ name: "챔피언", m: 361 }, { name: "백", m: 349 }, { name: "프론트", m: 324 }, { name: "시니어", m: 294 }, { name: "레이디", m: 273 }], len: 361 },
         { no: 2, par: 4, img: "holeimg/gz96f851/1out2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_216_01_02.mp4", frames: ["holeimg/gz96f851/fout2_1.jpg", "holeimg/gz96f851/fout2_2.jpg"], elev: 8, tees: [{ name: "챔피언", m: 350 }, { name: "백", m: 338 }, { name: "프론트", m: 303 }, { name: "시니어", m: 279 }, { name: "레이디", m: 259 }], len: 350 },
         { no: 3, par: 5, img: "holeimg/gz96f851/1out3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_216_01_03.mp4", frames: ["holeimg/gz96f851/fout3_1.jpg", "holeimg/gz96f851/fout3_2.jpg", "holeimg/gz96f851/fout3_3.jpg"], elev: -8, tees: [{ name: "챔피언", m: 569 }, { name: "백", m: 513 }, { name: "프론트", m: 473 }, { name: "시니어", m: 442 }], len: 569 },
@@ -3696,7 +3696,7 @@ const HOLEIMG_DB = {
         { no: 8, par: 3, img: "holeimg/gz96f851/1out8.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_216_01_08.mp4", frames: ["holeimg/gz96f851/fout8_1.jpg", "holeimg/gz96f851/fout8_2.jpg"], elev: -14, tees: [{ name: "챔피언", m: 197 }, { name: "백", m: 174 }, { name: "프론트", m: 154 }, { name: "시니어", m: 120 }], len: 197 },
         { no: 9, par: 4, img: "holeimg/gz96f851/1out9.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_216_01_09.mp4", frames: ["holeimg/gz96f851/fout9_1.jpg", "holeimg/gz96f851/fout9_2.jpg"], elev: -9, tees: [{ name: "챔피언", m: 349 }, { name: "백", m: 331 }, { name: "프론트", m: 308 }, { name: "시니어", m: 293 }, { name: "레이디", m: 271 }], len: 349 },
       ]},
-      { name: "IN", holes: [
+      { name: "태백", holes: [
         { no: 1, par: 4, img: "holeimg/gz96f851/2in1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_216_02_01.mp4", frames: ["holeimg/gz96f851/fin1_1.jpg", "holeimg/gz96f851/fin1_2.jpg"], elev: -3, tees: [{ name: "챔피언", m: 375 }, { name: "백", m: 351 }, { name: "프론트", m: 329 }, { name: "시니어", m: 302 }, { name: "레이디", m: 267 }], len: 375 },
         { no: 2, par: 3, img: "holeimg/gz96f851/2in2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_216_02_02.mp4", frames: ["holeimg/gz96f851/fin2_1.jpg", "holeimg/gz96f851/fin2_2.jpg"], elev: -6, tees: [{ name: "챔피언", m: 205 }, { name: "백", m: 175 }, { name: "프론트", m: 157 }, { name: "시니어", m: 130 }], len: 205 },
         { no: 3, par: 4, img: "holeimg/gz96f851/2in3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_216_02_03.mp4", frames: ["holeimg/gz96f851/fin3_1.jpg", "holeimg/gz96f851/fin3_2.jpg"], elev: -25, tees: [{ name: "챔피언", m: 322 }, { name: "백", m: 305 }, { name: "프론트", m: 280 }, { name: "시니어", m: 250 }], len: 322 },
@@ -3713,7 +3713,7 @@ const HOLEIMG_DB = {
     source: "골프존 코스 데이터 (홀맵·파·거리·고도차·홀 영상)",
     sourceUrl: "https://www.dongchongc.co.kr:442/",
     courses: [
-      { name: "OUT", holes: [
+      { name: "동코스", holes: [
         { no: 1, par: 4, img: "holeimg/gz98e17/1out1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_558_01_01.mp4", frames: ["holeimg/gz98e17/fout1_1.jpg", "holeimg/gz98e17/fout1_2.jpg", "holeimg/gz98e17/fout1_3.jpg"], elev: -32, tees: [{ name: "챔피언", m: 393 }, { name: "백", m: 373 }, { name: "프론트", m: 346 }, { name: "시니어", m: 318 }, { name: "레이디", m: 290 }], len: 393 },
         { no: 2, par: 5, img: "holeimg/gz98e17/1out2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_558_01_02.mp4", frames: ["holeimg/gz98e17/fout2_1.jpg", "holeimg/gz98e17/fout2_2.jpg", "holeimg/gz98e17/fout2_3.jpg"], elev: 36, tees: [{ name: "챔피언", m: 519 }, { name: "백", m: 478 }, { name: "프론트", m: 449 }, { name: "시니어", m: 411 }, { name: "레이디", m: 391 }], len: 519 },
         { no: 3, par: 3, img: "holeimg/gz98e17/1out3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_558_01_03.mp4", frames: ["holeimg/gz98e17/fout3_1.jpg", "holeimg/gz98e17/fout3_2.jpg"], tees: [{ name: "챔피언", m: 221 }, { name: "백", m: 202 }, { name: "프론트", m: 183 }, { name: "시니어", m: 160 }, { name: "레이디", m: 130 }], len: 221 },
@@ -3724,7 +3724,7 @@ const HOLEIMG_DB = {
         { no: 8, par: 3, img: "holeimg/gz98e17/1out8.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_558_01_08.mp4", frames: ["holeimg/gz98e17/fout8_1.jpg", "holeimg/gz98e17/fout8_2.jpg"], elev: -10, tees: [{ name: "챔피언", m: 182 }, { name: "백", m: 164 }, { name: "프론트", m: 143 }, { name: "시니어", m: 126 }, { name: "레이디", m: 106 }], len: 182 },
         { no: 9, par: 4, img: "holeimg/gz98e17/1out9.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_558_01_09.mp4", frames: ["holeimg/gz98e17/fout9_1.jpg", "holeimg/gz98e17/fout9_2.jpg", "holeimg/gz98e17/fout9_3.jpg"], elev: -49, tees: [{ name: "챔피언", m: 383 }, { name: "백", m: 361 }, { name: "프론트", m: 331 }, { name: "시니어", m: 314 }, { name: "레이디", m: 310 }], len: 383 },
       ]},
-      { name: "IN", holes: [
+      { name: "서코스", holes: [
         { no: 1, par: 4, img: "holeimg/gz98e17/2in1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_558_02_01.mp4", frames: ["holeimg/gz98e17/fin1_1.jpg", "holeimg/gz98e17/fin1_2.jpg", "holeimg/gz98e17/fin1_3.jpg"], elev: -29, tees: [{ name: "챔피언", m: 407 }, { name: "백", m: 384 }, { name: "프론트", m: 365 }, { name: "시니어", m: 339 }, { name: "레이디", m: 292 }], len: 407 },
         { no: 2, par: 4, img: "holeimg/gz98e17/2in2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_558_02_02.mp4", frames: ["holeimg/gz98e17/fin2_1.jpg", "holeimg/gz98e17/fin2_2.jpg", "holeimg/gz98e17/fin2_3.jpg"], elev: -16, tees: [{ name: "챔피언", m: 358 }, { name: "백", m: 339 }, { name: "프론트", m: 314 }, { name: "시니어", m: 279 }, { name: "레이디", m: 248 }], len: 358 },
         { no: 3, par: 3, img: "holeimg/gz98e17/2in3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_558_02_03.mp4", frames: ["holeimg/gz98e17/fin3_1.jpg", "holeimg/gz98e17/fin3_2.jpg"], elev: -6, tees: [{ name: "챔피언", m: 157 }, { name: "백", m: 137 }, { name: "프론트", m: 125 }, { name: "시니어", m: 103 }, { name: "레이디", m: 100 }], len: 157 },
@@ -3741,7 +3741,7 @@ const HOLEIMG_DB = {
     source: "골프존 코스 데이터 (홀맵·파·거리·고도차·홀 영상)",
     sourceUrl: "http://www.elichecc.co.kr/",
     courses: [
-      { name: "OUT", holes: [
+      { name: "SOUTH", holes: [
         { no: 1, par: 4, img: "holeimg/gz98fc2f/1out1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_347_01_01.mp4", frames: ["holeimg/gz98fc2f/fout1_1.jpg", "holeimg/gz98fc2f/fout1_2.jpg", "holeimg/gz98fc2f/fout1_3.jpg"], elev: -34, tees: [{ name: "챔피언", m: 368 }, { name: "백", m: 367 }, { name: "프론트", m: 355 }, { name: "시니어", m: 322 }, { name: "레이디", m: 321 }], len: 368 },
         { no: 2, par: 4, img: "holeimg/gz98fc2f/1out2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_347_01_02.mp4", frames: ["holeimg/gz98fc2f/fout2_1.jpg", "holeimg/gz98fc2f/fout2_2.jpg", "holeimg/gz98fc2f/fout2_3.jpg"], elev: 17, tees: [{ name: "챔피언", m: 309 }, { name: "백", m: 308 }, { name: "프론트", m: 291 }, { name: "시니어", m: 278 }], len: 309 },
         { no: 3, par: 3, img: "holeimg/gz98fc2f/1out3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_347_01_03.mp4", frames: ["holeimg/gz98fc2f/fout3_1.jpg", "holeimg/gz98fc2f/fout3_2.jpg"], elev: 7, tees: [{ name: "챔피언", m: 167 }, { name: "프론트", m: 131 }, { name: "시니어", m: 126 }], len: 167 },
@@ -3752,7 +3752,7 @@ const HOLEIMG_DB = {
         { no: 8, par: 4, img: "holeimg/gz98fc2f/1out8.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_347_01_08.mp4", frames: ["holeimg/gz98fc2f/fout8_1.jpg", "holeimg/gz98fc2f/fout8_2.jpg", "holeimg/gz98fc2f/fout8_3.jpg"], elev: -23, tees: [{ name: "챔피언", m: 351 }, { name: "프론트", m: 334 }, { name: "시니어", m: 286 }], len: 351 },
         { no: 9, par: 5, img: "holeimg/gz98fc2f/1out9.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_347_01_09.mp4", frames: ["holeimg/gz98fc2f/fout9_1.jpg", "holeimg/gz98fc2f/fout9_2.jpg", "holeimg/gz98fc2f/fout9_3.jpg"], elev: -16, tees: [{ name: "챔피언", m: 476 }, { name: "백", m: 475 }, { name: "프론트", m: 452 }, { name: "시니어", m: 375 }], len: 476 },
       ]},
-      { name: "IN", holes: [
+      { name: "EAST", holes: [
         { no: 1, par: 5, img: "holeimg/gz98fc2f/2in1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_347_02_01.mp4", frames: ["holeimg/gz98fc2f/fin1_1.jpg", "holeimg/gz98fc2f/fin1_2.jpg", "holeimg/gz98fc2f/fin1_3.jpg"], elev: 26, tees: [{ name: "챔피언", m: 484 }, { name: "백", m: 483 }, { name: "프론트", m: 454 }, { name: "시니어", m: 428 }], len: 484 },
         { no: 2, par: 4, img: "holeimg/gz98fc2f/2in2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_347_02_02.mp4", frames: ["holeimg/gz98fc2f/fin2_1.jpg", "holeimg/gz98fc2f/fin2_2.jpg", "holeimg/gz98fc2f/fin2_3.jpg"], elev: 10, tees: [{ name: "챔피언", m: 353 }, { name: "백", m: 352 }, { name: "프론트", m: 336 }, { name: "시니어", m: 291 }], len: 353 },
         { no: 3, par: 4, img: "holeimg/gz98fc2f/2in3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_347_02_03.mp4", frames: ["holeimg/gz98fc2f/fin3_1.jpg", "holeimg/gz98fc2f/fin3_2.jpg", "holeimg/gz98fc2f/fin3_3.jpg"], elev: -12, tees: [{ name: "챔피언", m: 383 }, { name: "프론트", m: 362 }, { name: "시니어", m: 311 }], len: 383 },
@@ -3769,7 +3769,7 @@ const HOLEIMG_DB = {
     source: "골프존 코스 데이터 (홀맵·파·거리·고도차·홀 영상)",
     sourceUrl: "https://as.4wellcc.com/",
     courses: [
-      { name: "OUT", holes: [
+      { name: "OAK HILL", holes: [
         { no: 1, par: 4, img: "holeimg/gz9901ca/1out1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_789_01_01.mp4", frames: ["holeimg/gz9901ca/fout1_1.jpg", "holeimg/gz9901ca/fout1_2.jpg", "holeimg/gz9901ca/fout1_3.jpg"], elev: 23, tees: [{ name: "챔피언", m: 306 }, { name: "프론트", m: 280 }, { name: "시니어", m: 205 }, { name: "레이디", m: 176 }], len: 306 },
         { no: 2, par: 5, img: "holeimg/gz9901ca/1out2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_789_01_02.mp4", frames: ["holeimg/gz9901ca/fout2_1.jpg", "holeimg/gz9901ca/fout2_2.jpg", "holeimg/gz9901ca/fout2_3.jpg"], elev: -30, tees: [{ name: "챔피언", m: 435 }, { name: "백", m: 434 }, { name: "프론트", m: 403 }, { name: "시니어", m: 326 }, { name: "레이디", m: 306 }], len: 435 },
         { no: 3, par: 4, img: "holeimg/gz9901ca/1out3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_789_01_03.mp4", frames: ["holeimg/gz9901ca/fout3_1.jpg", "holeimg/gz9901ca/fout3_2.jpg", "holeimg/gz9901ca/fout3_3.jpg"], elev: -4, tees: [{ name: "챔피언", m: 419 }, { name: "백", m: 418 }, { name: "프론트", m: 417 }, { name: "시니어", m: 357 }, { name: "레이디", m: 277 }], len: 419 },
@@ -3780,7 +3780,7 @@ const HOLEIMG_DB = {
         { no: 8, par: 3, img: "holeimg/gz9901ca/1out8.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_789_01_08.mp4", frames: ["holeimg/gz9901ca/fout8_1.jpg", "holeimg/gz9901ca/fout8_2.jpg"], elev: 5, tees: [{ name: "챔피언", m: 165 }, { name: "백", m: 164 }, { name: "프론트", m: 150 }, { name: "시니어", m: 127 }, { name: "레이디", m: 126 }], len: 165 },
         { no: 9, par: 4, img: "holeimg/gz9901ca/1out9.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_789_01_09.mp4", frames: ["holeimg/gz9901ca/fout9_1.jpg", "holeimg/gz9901ca/fout9_2.jpg", "holeimg/gz9901ca/fout9_3.jpg"], elev: -25, tees: [{ name: "챔피언", m: 332 }, { name: "백", m: 331 }, { name: "프론트", m: 313 }, { name: "시니어", m: 263 }, { name: "레이디", m: 224 }], len: 332 },
       ]},
-      { name: "IN", holes: [
+      { name: "BIRCH HILL", holes: [
         { no: 1, par: 4, img: "holeimg/gz9901ca/2in1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_789_02_01.mp4", frames: ["holeimg/gz9901ca/fin1_1.jpg", "holeimg/gz9901ca/fin1_2.jpg", "holeimg/gz9901ca/fin1_3.jpg"], elev: 9, tees: [{ name: "챔피언", m: 312 }, { name: "백", m: 311 }, { name: "시니어", m: 273 }, { name: "레이디", m: 239 }], len: 312 },
         { no: 2, par: 4, img: "holeimg/gz9901ca/2in2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_789_02_02.mp4", frames: ["holeimg/gz9901ca/fin2_1.jpg", "holeimg/gz9901ca/fin2_2.jpg"], elev: -11, tees: [{ name: "챔피언", m: 249 }, { name: "백", m: 248 }, { name: "프론트", m: 247 }, { name: "시니어", m: 218 }, { name: "레이디", m: 182 }], len: 249 },
         { no: 3, par: 5, img: "holeimg/gz9901ca/2in3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_789_02_03.mp4", frames: ["holeimg/gz9901ca/fin3_1.jpg", "holeimg/gz9901ca/fin3_2.jpg", "holeimg/gz9901ca/fin3_3.jpg"], elev: 6, tees: [{ name: "챔피언", m: 396 }, { name: "백", m: 395 }, { name: "프론트", m: 376 }, { name: "시니어", m: 324 }, { name: "레이디", m: 296 }], len: 396 },
@@ -3853,7 +3853,7 @@ const HOLEIMG_DB = {
     source: "골프존 코스 데이터 (홀맵·파·거리·고도차·홀 영상)",
     sourceUrl: "http://www.muancleanvalley.com/main.asp",
     courses: [
-      { name: "OUT", holes: [
+      { name: "클린", holes: [
         { no: 1, par: 5, img: "holeimg/gz9c93f8/1out1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_883_01_01.mp4", frames: ["holeimg/gz9c93f8/fout1_1.jpg", "holeimg/gz9c93f8/fout1_2.jpg", "holeimg/gz9c93f8/fout1_3.jpg"], elev: 4, tees: [{ name: "챔피언", m: 484 }, { name: "프론트", m: 465 }, { name: "시니어", m: 434 }, { name: "레이디", m: 415 }], len: 484 },
         { no: 2, par: 4, img: "holeimg/gz9c93f8/1out2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_883_01_02.mp4", frames: ["holeimg/gz9c93f8/fout2_1.jpg", "holeimg/gz9c93f8/fout2_2.jpg", "holeimg/gz9c93f8/fout2_3.jpg"], elev: -23, tees: [{ name: "챔피언", m: 335 }, { name: "프론트", m: 328 }, { name: "시니어", m: 243 }, { name: "레이디", m: 219 }], len: 335 },
         { no: 3, par: 3, img: "holeimg/gz9c93f8/1out3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_883_01_03.mp4", frames: ["holeimg/gz9c93f8/fout3_1.jpg", "holeimg/gz9c93f8/fout3_2.jpg"], tees: [{ name: "챔피언", m: 151 }, { name: "백", m: 150 }, { name: "프론트", m: 135 }, { name: "시니어", m: 120 }, { name: "레이디", m: 100 }], len: 151 },
@@ -3864,7 +3864,7 @@ const HOLEIMG_DB = {
         { no: 8, par: 5, img: "holeimg/gz9c93f8/1out8.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_883_01_08.mp4", frames: ["holeimg/gz9c93f8/fout8_1.jpg", "holeimg/gz9c93f8/fout8_2.jpg", "holeimg/gz9c93f8/fout8_3.jpg"], tees: [{ name: "챔피언", m: 516 }, { name: "백", m: 515 }, { name: "프론트", m: 507 }, { name: "시니어", m: 469 }, { name: "레이디", m: 448 }], len: 516 },
         { no: 9, par: 4, img: "holeimg/gz9c93f8/1out9.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_883_01_09.mp4", frames: ["holeimg/gz9c93f8/fout9_1.jpg", "holeimg/gz9c93f8/fout9_2.jpg", "holeimg/gz9c93f8/fout9_3.jpg"], elev: -5, tees: [{ name: "챔피언", m: 420 }, { name: "백", m: 419 }, { name: "프론트", m: 392 }, { name: "시니어", m: 344 }, { name: "레이디", m: 321 }], len: 420 },
       ]},
-      { name: "IN", holes: [
+      { name: "밸리", holes: [
         { no: 1, par: 4, img: "holeimg/gz9c93f8/2in1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_883_02_01.mp4", frames: ["holeimg/gz9c93f8/fin1_1.jpg", "holeimg/gz9c93f8/fin1_2.jpg", "holeimg/gz9c93f8/fin1_3.jpg"], elev: -15, tees: [{ name: "챔피언", m: 378 }, { name: "프론트", m: 353 }, { name: "시니어", m: 314 }, { name: "레이디", m: 289 }], len: 378 },
         { no: 2, par: 5, img: "holeimg/gz9c93f8/2in2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_883_02_02.mp4", frames: ["holeimg/gz9c93f8/fin2_1.jpg", "holeimg/gz9c93f8/fin2_2.jpg", "holeimg/gz9c93f8/fin2_3.jpg"], elev: -54, tees: [{ name: "챔피언", m: 474 }, { name: "프론트", m: 473 }, { name: "시니어", m: 372 }, { name: "레이디", m: 358 }], len: 474 },
         { no: 3, par: 3, img: "holeimg/gz9c93f8/2in3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_883_02_03.mp4", frames: ["holeimg/gz9c93f8/fin3_1.jpg", "holeimg/gz9c93f8/fin3_2.jpg"], elev: -11, tees: [{ name: "챔피언", m: 150 }, { name: "프론트", m: 138 }, { name: "시니어", m: 119 }, { name: "레이디", m: 110 }], len: 150 },
@@ -3909,7 +3909,7 @@ const HOLEIMG_DB = {
     source: "골프존 코스 데이터 (홀맵·파·거리·고도차·홀 영상)",
     sourceUrl: "https://www.haeundaebeachcc.com/intro/intro.do",
     courses: [
-      { name: "OUT", holes: [
+      { name: "마운틴", holes: [
         { no: 1, par: 5, img: "holeimg/gza1f2c3/1out1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_989_01_01.mp4", frames: ["holeimg/gza1f2c3/fout1_1.jpg", "holeimg/gza1f2c3/fout1_2.jpg", "holeimg/gza1f2c3/fout1_3.jpg"], tees: [{ name: "챔피언", m: 496 }, { name: "백", m: 477 }, { name: "프론트", m: 442 }, { name: "시니어", m: 417 }, { name: "레이디", m: 389 }], len: 496 },
         { no: 2, par: 4, img: "holeimg/gza1f2c3/1out2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_989_01_02.mp4", frames: ["holeimg/gza1f2c3/fout2_1.jpg", "holeimg/gza1f2c3/fout2_2.jpg", "holeimg/gza1f2c3/fout2_3.jpg"], elev: -13, tees: [{ name: "챔피언", m: 344 }, { name: "백", m: 318 }, { name: "프론트", m: 292 }, { name: "시니어", m: 266 }], len: 344 },
         { no: 3, par: 3, img: "holeimg/gza1f2c3/1out3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_989_01_03.mp4", frames: ["holeimg/gza1f2c3/fout3_1.jpg", "holeimg/gza1f2c3/fout3_2.jpg"], tees: [{ name: "챔피언", m: 188 }, { name: "백", m: 169 }, { name: "프론트", m: 151 }, { name: "시니어", m: 129 }, { name: "레이디", m: 109 }], len: 188 },
@@ -3920,7 +3920,7 @@ const HOLEIMG_DB = {
         { no: 8, par: 4, img: "holeimg/gza1f2c3/1out8.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_989_01_08.mp4", frames: ["holeimg/gza1f2c3/fout8_1.jpg", "holeimg/gza1f2c3/fout8_2.jpg", "holeimg/gza1f2c3/fout8_3.jpg"], elev: -12, tees: [{ name: "챔피언", m: 322 }, { name: "백", m: 314 }, { name: "프론트", m: 296 }, { name: "시니어", m: 274 }, { name: "레이디", m: 218 }], len: 322 },
         { no: 9, par: 4, img: "holeimg/gza1f2c3/1out9.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_989_01_09.mp4", frames: ["holeimg/gza1f2c3/fout9_1.jpg", "holeimg/gza1f2c3/fout9_2.jpg", "holeimg/gza1f2c3/fout9_3.jpg"], elev: 20, tees: [{ name: "챔피언", m: 337 }, { name: "백", m: 320 }, { name: "프론트", m: 298 }, { name: "시니어", m: 254 }, { name: "레이디", m: 238 }], len: 337 },
       ]},
-      { name: "IN", holes: [
+      { name: "오션", holes: [
         { no: 1, par: 4, img: "holeimg/gza1f2c3/2in1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_989_02_01.mp4", frames: ["holeimg/gza1f2c3/fin1_1.jpg", "holeimg/gza1f2c3/fin1_2.jpg", "holeimg/gza1f2c3/fin1_3.jpg"], elev: -12, tees: [{ name: "챔피언", m: 367 }, { name: "백", m: 342 }, { name: "프론트", m: 308 }, { name: "시니어", m: 282 }, { name: "레이디", m: 256 }], len: 367 },
         { no: 2, par: 3, img: "holeimg/gza1f2c3/2in2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_989_02_02.mp4", frames: ["holeimg/gza1f2c3/fin2_1.jpg", "holeimg/gza1f2c3/fin2_2.jpg"], elev: -19, tees: [{ name: "챔피언", m: 194 }, { name: "백", m: 167 }, { name: "프론트", m: 139 }, { name: "시니어", m: 107 }, { name: "레이디", m: 81 }], len: 194 },
         { no: 3, par: 5, img: "holeimg/gza1f2c3/2in3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_989_02_03.mp4", frames: ["holeimg/gza1f2c3/fin3_1.jpg", "holeimg/gza1f2c3/fin3_2.jpg", "holeimg/gza1f2c3/fin3_3.jpg"], elev: 4, tees: [{ name: "챔피언", m: 529 }, { name: "백", m: 502 }, { name: "프론트", m: 470 }, { name: "시니어", m: 449 }, { name: "레이디", m: 418 }], len: 529 },
@@ -3937,7 +3937,7 @@ const HOLEIMG_DB = {
     source: "골프존 코스 데이터 (홀맵·파·거리·고도차·홀 영상)",
     sourceUrl: "https://www.gunicc.co.kr/",
     courses: [
-      { name: "OUT", holes: [
+      { name: "west", holes: [
         { no: 1, par: 4, img: "holeimg/gza386be/1out1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_223_01_01.mp4", frames: ["holeimg/gza386be/fout1_1.jpg", "holeimg/gza386be/fout1_2.jpg", "holeimg/gza386be/fout1_3.jpg"], tees: [{ name: "챔피언", m: 367 }, { name: "프론트", m: 352 }, { name: "시니어", m: 332 }, { name: "레이디", m: 298 }], len: 367 },
         { no: 2, par: 4, img: "holeimg/gza386be/1out2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_223_01_02.mp4", frames: ["holeimg/gza386be/fout2_1.jpg", "holeimg/gza386be/fout2_2.jpg", "holeimg/gza386be/fout2_3.jpg"], elev: -27, tees: [{ name: "챔피언", m: 333 }, { name: "백", m: 302 }, { name: "프론트", m: 280 }, { name: "시니어", m: 255 }, { name: "레이디", m: 234 }], len: 333 },
         { no: 3, par: 4, img: "holeimg/gza386be/1out3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_223_01_03.mp4", frames: ["holeimg/gza386be/fout3_1.jpg", "holeimg/gza386be/fout3_2.jpg", "holeimg/gza386be/fout3_3.jpg"], tees: [{ name: "챔피언", m: 341 }, { name: "시니어", m: 319 }, { name: "레이디", m: 253 }], len: 341 },
@@ -3948,7 +3948,7 @@ const HOLEIMG_DB = {
         { no: 8, par: 5, img: "holeimg/gza386be/1out8.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_223_01_08.mp4", frames: ["holeimg/gza386be/fout8_1.jpg", "holeimg/gza386be/fout8_2.jpg", "holeimg/gza386be/fout8_3.jpg"], elev: -53, tees: [{ name: "챔피언", m: 509 }, { name: "백", m: 494 }, { name: "시니어", m: 463 }, { name: "레이디", m: 409 }], len: 509 },
         { no: 9, par: 4, img: "holeimg/gza386be/1out9.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_223_01_09.mp4", frames: ["holeimg/gza386be/fout9_1.jpg", "holeimg/gza386be/fout9_2.jpg", "holeimg/gza386be/fout9_3.jpg"], elev: 20, tees: [{ name: "챔피언", m: 378 }, { name: "백", m: 356 }, { name: "시니어", m: 311 }, { name: "레이디", m: 290 }], len: 378 },
       ]},
-      { name: "IN", holes: [
+      { name: "east", holes: [
         { no: 1, par: 4, img: "holeimg/gza386be/2in1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_223_02_01.mp4", frames: ["holeimg/gza386be/fin1_1.jpg", "holeimg/gza386be/fin1_2.jpg", "holeimg/gza386be/fin1_3.jpg"], elev: -19, tees: [{ name: "챔피언", m: 368 }, { name: "프론트", m: 342 }, { name: "시니어", m: 314 }, { name: "레이디", m: 288 }], len: 368 },
         { no: 2, par: 3, img: "holeimg/gza386be/2in2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_223_02_02.mp4", frames: ["holeimg/gza386be/fin2_1.jpg", "holeimg/gza386be/fin2_2.jpg"], elev: -10, tees: [{ name: "챔피언", m: 169 }, { name: "백", m: 152 }, { name: "프론트", m: 131 }, { name: "시니어", m: 120 }, { name: "레이디", m: 103 }], len: 169 },
         { no: 3, par: 4, img: "holeimg/gza386be/2in3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_223_02_03.mp4", frames: ["holeimg/gza386be/fin3_1.jpg", "holeimg/gza386be/fin3_2.jpg", "holeimg/gza386be/fin3_3.jpg"], elev: 4, tees: [{ name: "챔피언", m: 367 }, { name: "시니어", m: 346 }, { name: "레이디", m: 324 }], len: 367 },
@@ -3993,7 +3993,7 @@ const HOLEIMG_DB = {
     source: "골프존 코스 데이터 (홀맵·파·거리·고도차·홀 영상)",
     sourceUrl: "https://www.dongwonroyalcc.co.",
     courses: [
-      { name: "OUT", holes: [
+      { name: "VISTA", holes: [
         { no: 1, par: 4, img: "holeimg/gza648d3/1out1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_752_01_01.mp4", frames: ["holeimg/gza648d3/fout1_1.jpg", "holeimg/gza648d3/fout1_2.jpg", "holeimg/gza648d3/fout1_3.jpg"], elev: 9, tees: [{ name: "챔피언", m: 379 }, { name: "백", m: 360 }, { name: "프론트", m: 336 }, { name: "시니어", m: 315 }, { name: "레이디", m: 278 }], len: 379 },
         { no: 2, par: 4, img: "holeimg/gza648d3/1out2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_752_01_02.mp4", frames: ["holeimg/gza648d3/fout2_1.jpg", "holeimg/gza648d3/fout2_2.jpg", "holeimg/gza648d3/fout2_3.jpg"], elev: -23, tees: [{ name: "챔피언", m: 354 }, { name: "백", m: 336 }, { name: "프론트", m: 313 }, { name: "시니어", m: 292 }, { name: "레이디", m: 271 }], len: 354 },
         { no: 3, par: 5, img: "holeimg/gza648d3/1out3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_752_01_03.mp4", frames: ["holeimg/gza648d3/fout3_1.jpg", "holeimg/gza648d3/fout3_2.jpg", "holeimg/gza648d3/fout3_3.jpg"], elev: 28, tees: [{ name: "챔피언", m: 439 }, { name: "백", m: 395 }, { name: "프론트", m: 378 }, { name: "시니어", m: 347 }, { name: "레이디", m: 309 }], len: 439 },
@@ -4004,7 +4004,7 @@ const HOLEIMG_DB = {
         { no: 8, par: 3, img: "holeimg/gza648d3/1out8.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_752_01_08.mp4", frames: ["holeimg/gza648d3/fout8_1.jpg", "holeimg/gza648d3/fout8_2.jpg"], elev: -31, tees: [{ name: "챔피언", m: 117 }, { name: "백", m: 116 }, { name: "프론트", m: 101 }, { name: "시니어", m: 82 }, { name: "레이디", m: 81 }], len: 117 },
         { no: 9, par: 5, img: "holeimg/gza648d3/1out9.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_752_01_09.mp4", frames: ["holeimg/gza648d3/fout9_1.jpg", "holeimg/gza648d3/fout9_2.jpg", "holeimg/gza648d3/fout9_3.jpg"], elev: -38, tees: [{ name: "챔피언", m: 478 }, { name: "백", m: 459 }, { name: "프론트", m: 441 }, { name: "시니어", m: 404 }, { name: "레이디", m: 374 }], len: 478 },
       ]},
-      { name: "IN", holes: [
+      { name: "DUKE", holes: [
         { no: 1, par: 4, img: "holeimg/gza648d3/2in1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_752_02_01.mp4", frames: ["holeimg/gza648d3/fin1_1.jpg", "holeimg/gza648d3/fin1_2.jpg", "holeimg/gza648d3/fin1_3.jpg"], elev: -12, tees: [{ name: "챔피언", m: 359 }, { name: "백", m: 338 }, { name: "프론트", m: 329 }, { name: "시니어", m: 316 }, { name: "레이디", m: 284 }], len: 359 },
         { no: 2, par: 4, img: "holeimg/gza648d3/2in2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_752_02_02.mp4", frames: ["holeimg/gza648d3/fin2_1.jpg", "holeimg/gza648d3/fin2_2.jpg", "holeimg/gza648d3/fin2_3.jpg"], elev: 14, tees: [{ name: "챔피언", m: 339 }, { name: "백", m: 312 }, { name: "프론트", m: 277 }, { name: "시니어", m: 247 }, { name: "레이디", m: 246 }], len: 339 },
         { no: 3, par: 3, img: "holeimg/gza648d3/2in3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_752_02_03.mp4", frames: ["holeimg/gza648d3/fin3_1.jpg", "holeimg/gza648d3/fin3_2.jpg"], tees: [{ name: "챔피언", m: 171 }, { name: "백", m: 126 }, { name: "프론트", m: 116 }, { name: "시니어", m: 92 }, { name: "레이디", m: 91 }], len: 171 },
@@ -4049,7 +4049,7 @@ const HOLEIMG_DB = {
     source: "골프존 코스 데이터 (홀맵·파·거리·고도차·홀 영상)",
     sourceUrl: "http://www.sevenvalley.co.kr",
     courses: [
-      { name: "OUT", holes: [
+      { name: "SEVEN", holes: [
         { no: 1, par: 4, img: "holeimg/gza8b8cc/1out1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_508_01_01.mp4", frames: ["holeimg/gza8b8cc/fout1_1.jpg", "holeimg/gza8b8cc/fout1_2.jpg", "holeimg/gza8b8cc/fout1_3.jpg"], elev: -16, tees: [{ name: "챔피언", m: 418 }, { name: "백", m: 417 }, { name: "프론트", m: 387 }, { name: "시니어", m: 340 }, { name: "레이디", m: 301 }], len: 418 },
         { no: 2, par: 4, img: "holeimg/gza8b8cc/1out2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_508_01_02.mp4", frames: ["holeimg/gza8b8cc/fout2_1.jpg", "holeimg/gza8b8cc/fout2_2.jpg", "holeimg/gza8b8cc/fout2_3.jpg"], tees: [{ name: "챔피언", m: 431 }, { name: "백", m: 430 }, { name: "프론트", m: 396 }, { name: "시니어", m: 342 }, { name: "레이디", m: 300 }], len: 431 },
         { no: 3, par: 4, img: "holeimg/gza8b8cc/1out3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_508_01_03.mp4", frames: ["holeimg/gza8b8cc/fout3_1.jpg", "holeimg/gza8b8cc/fout3_2.jpg", "holeimg/gza8b8cc/fout3_3.jpg"], elev: 36, tees: [{ name: "챔피언", m: 276 }, { name: "프론트", m: 256 }, { name: "시니어", m: 243 }, { name: "레이디", m: 194 }], len: 276 },
@@ -4060,7 +4060,7 @@ const HOLEIMG_DB = {
         { no: 8, par: 3, img: "holeimg/gza8b8cc/1out8.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_508_01_08.mp4", frames: ["holeimg/gza8b8cc/fout8_1.jpg", "holeimg/gza8b8cc/fout8_2.jpg"], elev: -5, tees: [{ name: "챔피언", m: 182 }, { name: "백", m: 181 }, { name: "프론트", m: 165 }, { name: "시니어", m: 132 }, { name: "레이디", m: 94 }], len: 182 },
         { no: 9, par: 4, img: "holeimg/gza8b8cc/1out9.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_508_01_09.mp4", frames: ["holeimg/gza8b8cc/fout9_1.jpg", "holeimg/gza8b8cc/fout9_2.jpg", "holeimg/gza8b8cc/fout9_3.jpg"], elev: 21, tees: [{ name: "챔피언", m: 429 }, { name: "프론트", m: 320 }, { name: "시니어", m: 291 }, { name: "레이디", m: 290 }], len: 429 },
       ]},
-      { name: "IN", holes: [
+      { name: "VALLEY", holes: [
         { no: 1, par: 5, img: "holeimg/gza8b8cc/2in1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_508_02_01.mp4", frames: ["holeimg/gza8b8cc/fin1_1.jpg", "holeimg/gza8b8cc/fin1_2.jpg", "holeimg/gza8b8cc/fin1_3.jpg"], elev: 11, tees: [{ name: "챔피언", m: 430 }, { name: "백", m: 429 }, { name: "프론트", m: 425 }, { name: "시니어", m: 375 }], len: 430 },
         { no: 2, par: 4, img: "holeimg/gza8b8cc/2in2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_508_02_02.mp4", frames: ["holeimg/gza8b8cc/fin2_1.jpg", "holeimg/gza8b8cc/fin2_2.jpg", "holeimg/gza8b8cc/fin2_3.jpg"], elev: 24, tees: [{ name: "챔피언", m: 360 }, { name: "백", m: 346 }, { name: "프론트", m: 315 }, { name: "시니어", m: 278 }, { name: "레이디", m: 245 }], len: 360 },
         { no: 3, par: 3, img: "holeimg/gza8b8cc/2in3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_508_02_03.mp4", frames: ["holeimg/gza8b8cc/fin3_1.jpg", "holeimg/gza8b8cc/fin3_2.jpg"], tees: [{ name: "챔피언", m: 122 }, { name: "프론트", m: 117 }, { name: "시니어", m: 89 }, { name: "레이디", m: 88 }], len: 122 },
@@ -4077,7 +4077,7 @@ const HOLEIMG_DB = {
     source: "골프존 코스 데이터 (홀맵·파·거리·고도차·홀 영상)",
     sourceUrl: "http://www.muangc.co.kr/",
     courses: [
-      { name: "OUT", holes: [
+      { name: "EAST A", holes: [
         { no: 1, par: 5, img: "holeimg/gzab668a/1out1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_279_04_01.mp4", frames: ["holeimg/gzab668a/fout1_1.jpg", "holeimg/gzab668a/fout1_2.jpg", "holeimg/gzab668a/fout1_3.jpg"], tees: [{ name: "챔피언", m: 486 }, { name: "프론트", m: 459 }, { name: "시니어", m: 433 }, { name: "레이디", m: 404 }], len: 486 },
         { no: 2, par: 4, img: "holeimg/gzab668a/1out2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_279_04_02.mp4", frames: ["holeimg/gzab668a/fout2_1.jpg", "holeimg/gzab668a/fout2_2.jpg", "holeimg/gzab668a/fout2_3.jpg"], elev: 16, tees: [{ name: "챔피언", m: 380 }, { name: "프론트", m: 373 }, { name: "시니어", m: 346 }, { name: "레이디", m: 328 }], len: 380 },
         { no: 3, par: 3, img: "holeimg/gzab668a/1out3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_279_04_03.mp4", frames: ["holeimg/gzab668a/fout3_1.jpg", "holeimg/gzab668a/fout3_2.jpg"], elev: -11, tees: [{ name: "챔피언", m: 181 }, { name: "프론트", m: 159 }, { name: "시니어", m: 136 }, { name: "레이디", m: 128 }], len: 181 },
@@ -4088,7 +4088,7 @@ const HOLEIMG_DB = {
         { no: 8, par: 4, img: "holeimg/gzab668a/1out8.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_279_04_08.mp4", frames: ["holeimg/gzab668a/fout8_1.jpg", "holeimg/gzab668a/fout8_2.jpg", "holeimg/gzab668a/fout8_3.jpg"], tees: [{ name: "챔피언", m: 406 }, { name: "프론트", m: 393 }, { name: "시니어", m: 348 }, { name: "레이디", m: 306 }], len: 406 },
         { no: 9, par: 5, img: "holeimg/gzab668a/1out9.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_279_04_09.mp4", frames: ["holeimg/gzab668a/fout9_1.jpg", "holeimg/gzab668a/fout9_2.jpg", "holeimg/gzab668a/fout9_3.jpg"], tees: [{ name: "챔피언", m: 498 }, { name: "프론트", m: 469 }, { name: "시니어", m: 447 }, { name: "레이디", m: 407 }], len: 498 },
       ]},
-      { name: "IN", holes: [
+      { name: "EAST B", holes: [
         { no: 1, par: 4, img: "holeimg/gzab668a/2in1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_279_08_01.mp4", frames: ["holeimg/gzab668a/fin1_1.jpg", "holeimg/gzab668a/fin1_2.jpg", "holeimg/gzab668a/fin1_3.jpg"], tees: [{ name: "챔피언", m: 410 }, { name: "프론트", m: 406 }, { name: "시니어", m: 382 }, { name: "레이디", m: 352 }], len: 410 },
         { no: 2, par: 3, img: "holeimg/gzab668a/2in2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_279_08_02.mp4", frames: ["holeimg/gzab668a/fin2_1.jpg", "holeimg/gzab668a/fin2_2.jpg"], tees: [{ name: "챔피언", m: 179 }, { name: "프론트", m: 164 }, { name: "시니어", m: 150 }, { name: "레이디", m: 129 }], len: 179 },
         { no: 3, par: 5, img: "holeimg/gzab668a/2in3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_279_08_03.mp4", frames: ["holeimg/gzab668a/fin3_1.jpg", "holeimg/gzab668a/fin3_2.jpg", "holeimg/gzab668a/fin3_3.jpg"], tees: [{ name: "챔피언", m: 515 }, { name: "프론트", m: 481 }, { name: "시니어", m: 474 }, { name: "레이디", m: 442 }], len: 515 },
@@ -4105,7 +4105,7 @@ const HOLEIMG_DB = {
     source: "골프존 코스 데이터 (홀맵·파·거리·고도차·홀 영상)",
     sourceUrl: "http://www.evendale.co.kr/",
     courses: [
-      { name: "OUT", holes: [
+      { name: "EVEN", holes: [
         { no: 1, par: 4, img: "holeimg/gzac4518/1out1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_126_01_01.mp4", frames: ["holeimg/gzac4518/fout1_1.jpg", "holeimg/gzac4518/fout1_2.jpg", "holeimg/gzac4518/fout1_3.jpg"], elev: 5, tees: [{ name: "챔피언", m: 364 }, { name: "백", m: 334 }, { name: "프론트", m: 309 }, { name: "시니어", m: 268 }], len: 364 },
         { no: 2, par: 3, img: "holeimg/gzac4518/1out2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_126_01_02.mp4", frames: ["holeimg/gzac4518/fout2_1.jpg", "holeimg/gzac4518/fout2_2.jpg"], tees: [{ name: "챔피언", m: 175 }, { name: "백", m: 149 }, { name: "프론트", m: 134 }, { name: "시니어", m: 103 }], len: 175 },
         { no: 3, par: 4, img: "holeimg/gzac4518/1out3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_126_01_03.mp4", frames: ["holeimg/gzac4518/fout3_1.jpg", "holeimg/gzac4518/fout3_2.jpg", "holeimg/gzac4518/fout3_3.jpg"], elev: 6, tees: [{ name: "챔피언", m: 401 }, { name: "백", m: 378 }, { name: "프론트", m: 371 }, { name: "시니어", m: 298 }], len: 401 },
@@ -4116,7 +4116,7 @@ const HOLEIMG_DB = {
         { no: 8, par: 5, img: "holeimg/gzac4518/1out8.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_126_01_08.mp4", frames: ["holeimg/gzac4518/fout8_1.jpg", "holeimg/gzac4518/fout8_2.jpg", "holeimg/gzac4518/fout8_3.jpg"], elev: -4, tees: [{ name: "챔피언", m: 486 }, { name: "백", m: 455 }, { name: "프론트", m: 414 }, { name: "시니어", m: 363 }], len: 486 },
         { no: 9, par: 4, img: "holeimg/gzac4518/1out9.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_126_01_09.mp4", frames: ["holeimg/gzac4518/fout9_1.jpg", "holeimg/gzac4518/fout9_2.jpg", "holeimg/gzac4518/fout9_3.jpg"], elev: -5, tees: [{ name: "챔피언", m: 376 }, { name: "백", m: 337 }, { name: "프론트", m: 305 }, { name: "시니어", m: 269 }], len: 376 },
       ]},
-      { name: "IN", holes: [
+      { name: "DALE", holes: [
         { no: 1, par: 4, img: "holeimg/gzac4518/2in1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_126_02_01.mp4", frames: ["holeimg/gzac4518/fin1_1.jpg", "holeimg/gzac4518/fin1_2.jpg", "holeimg/gzac4518/fin1_3.jpg"], elev: 8, tees: [{ name: "챔피언", m: 327 }, { name: "백", m: 298 }, { name: "프론트", m: 271 }, { name: "시니어", m: 245 }, { name: "레이디", m: 244 }], len: 327 },
         { no: 2, par: 4, img: "holeimg/gzac4518/2in2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_126_02_02.mp4", frames: ["holeimg/gzac4518/fin2_1.jpg", "holeimg/gzac4518/fin2_2.jpg", "holeimg/gzac4518/fin2_3.jpg"], elev: -12, tees: [{ name: "챔피언", m: 410 }, { name: "백", m: 379 }, { name: "프론트", m: 339 }, { name: "시니어", m: 306 }], len: 410 },
         { no: 3, par: 5, img: "holeimg/gzac4518/2in3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_126_02_03.mp4", frames: ["holeimg/gzac4518/fin3_1.jpg", "holeimg/gzac4518/fin3_2.jpg", "holeimg/gzac4518/fin3_3.jpg"], elev: 8, tees: [{ name: "챔피언", m: 527 }, { name: "백", m: 440 }, { name: "프론트", m: 414 }, { name: "시니어", m: 399 }], len: 527 },
@@ -4133,7 +4133,7 @@ const HOLEIMG_DB = {
     source: "골프존 코스 데이터 (홀맵·파·거리·고도차·홀 영상)",
     sourceUrl: "https://www.dreamparkcc.or.kr/index.asp",
     courses: [
-      { name: "OUT", holes: [
+      { name: "드림OUT", holes: [
         { no: 1, par: 4, img: "holeimg/gzadaa91/1out1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_648_01_01.mp4", frames: ["holeimg/gzadaa91/fout1_1.jpg", "holeimg/gzadaa91/fout1_2.jpg", "holeimg/gzadaa91/fout1_3.jpg"], tees: [{ name: "챔피언", m: 351 }, { name: "프론트", m: 325 }, { name: "시니어", m: 285 }, { name: "레이디", m: 253 }], len: 351 },
         { no: 2, par: 4, img: "holeimg/gzadaa91/1out2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_648_01_02.mp4", frames: ["holeimg/gzadaa91/fout2_1.jpg", "holeimg/gzadaa91/fout2_2.jpg", "holeimg/gzadaa91/fout2_3.jpg"], tees: [{ name: "챔피언", m: 355 }, { name: "프론트", m: 328 }, { name: "시니어", m: 298 }, { name: "레이디", m: 270 }], len: 355 },
         { no: 3, par: 4, img: "holeimg/gzadaa91/1out3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_648_01_03.mp4", frames: ["holeimg/gzadaa91/fout3_1.jpg", "holeimg/gzadaa91/fout3_2.jpg", "holeimg/gzadaa91/fout3_3.jpg"], tees: [{ name: "챔피언", m: 321 }, { name: "프론트", m: 275 }, { name: "시니어", m: 246 }, { name: "레이디", m: 213 }], len: 321 },
@@ -4144,7 +4144,7 @@ const HOLEIMG_DB = {
         { no: 8, par: 3, img: "holeimg/gzadaa91/1out8.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_648_01_08.mp4", frames: ["holeimg/gzadaa91/fout8_1.jpg", "holeimg/gzadaa91/fout8_2.jpg"], tees: [{ name: "챔피언", m: 195 }, { name: "프론트", m: 149 }, { name: "시니어", m: 134 }, { name: "레이디", m: 106 }], len: 195 },
         { no: 9, par: 5, img: "holeimg/gzadaa91/1out9.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_648_01_09.mp4", frames: ["holeimg/gzadaa91/fout9_1.jpg", "holeimg/gzadaa91/fout9_2.jpg", "holeimg/gzadaa91/fout9_3.jpg"], elev: -3, tees: [{ name: "챔피언", m: 495 }, { name: "백", m: 469 }, { name: "프론트", m: 442 }, { name: "시니어", m: 421 }, { name: "레이디", m: 390 }], len: 495 },
       ]},
-      { name: "IN", holes: [
+      { name: "드림IN", holes: [
         { no: 1, par: 4, img: "holeimg/gzadaa91/2in1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_648_02_01.mp4", frames: ["holeimg/gzadaa91/fin1_1.jpg", "holeimg/gzadaa91/fin1_2.jpg", "holeimg/gzadaa91/fin1_3.jpg"], tees: [{ name: "챔피언", m: 375 }, { name: "프론트", m: 352 }, { name: "시니어", m: 321 }, { name: "레이디", m: 298 }], len: 375 },
         { no: 2, par: 4, img: "holeimg/gzadaa91/2in2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_648_02_02.mp4", frames: ["holeimg/gzadaa91/fin2_1.jpg", "holeimg/gzadaa91/fin2_2.jpg", "holeimg/gzadaa91/fin2_3.jpg"], tees: [{ name: "챔피언", m: 385 }, { name: "프론트", m: 354 }, { name: "시니어", m: 302 }, { name: "레이디", m: 257 }], len: 385 },
         { no: 3, par: 5, img: "holeimg/gzadaa91/2in3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_648_02_03.mp4", frames: ["holeimg/gzadaa91/fin3_1.jpg", "holeimg/gzadaa91/fin3_2.jpg", "holeimg/gzadaa91/fin3_3.jpg"], elev: -4, tees: [{ name: "챔피언", m: 499 }, { name: "프론트", m: 475 }, { name: "시니어", m: 433 }, { name: "레이디", m: 391 }], len: 499 },
@@ -4161,7 +4161,7 @@ const HOLEIMG_DB = {
     source: "골프존 코스 데이터 (홀맵·파·거리·고도차·홀 영상)",
     sourceUrl: "http://www.santehill.com/",
     courses: [
-      { name: "OUT", holes: [
+      { name: "EAST", holes: [
         { no: 1, par: 4, img: "holeimg/gzafcfe0/1out1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_244_01_01.mp4", frames: ["holeimg/gzafcfe0/fout1_1.jpg", "holeimg/gzafcfe0/fout1_2.jpg", "holeimg/gzafcfe0/fout1_3.jpg"], elev: -5, tees: [{ name: "챔피언", m: 339 }, { name: "프론트", m: 315 }, { name: "시니어", m: 278 }, { name: "레이디", m: 277 }], len: 339 },
         { no: 2, par: 5, img: "holeimg/gzafcfe0/1out2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_244_01_02.mp4", frames: ["holeimg/gzafcfe0/fout2_1.jpg", "holeimg/gzafcfe0/fout2_2.jpg", "holeimg/gzafcfe0/fout2_3.jpg"], elev: -6, tees: [{ name: "챔피언", m: 493 }, { name: "프론트", m: 472 }, { name: "시니어", m: 428 }, { name: "레이디", m: 427 }], len: 493 },
         { no: 3, par: 4, img: "holeimg/gzafcfe0/1out3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_244_01_03.mp4", frames: ["holeimg/gzafcfe0/fout3_1.jpg", "holeimg/gzafcfe0/fout3_2.jpg", "holeimg/gzafcfe0/fout3_3.jpg"], elev: 7, tees: [{ name: "챔피언", m: 375 }, { name: "백", m: 374 }, { name: "프론트", m: 351 }, { name: "시니어", m: 302 }], len: 375 },
@@ -4172,7 +4172,7 @@ const HOLEIMG_DB = {
         { no: 8, par: 3, img: "holeimg/gzafcfe0/1out8.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_244_01_08.mp4", frames: ["holeimg/gzafcfe0/fout8_1.jpg", "holeimg/gzafcfe0/fout8_2.jpg"], elev: 4, tees: [{ name: "챔피언", m: 185 }, { name: "백", m: 184 }, { name: "프론트", m: 165 }, { name: "시니어", m: 141 }], len: 185 },
         { no: 9, par: 4, img: "holeimg/gzafcfe0/1out9.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_244_01_09.mp4", frames: ["holeimg/gzafcfe0/fout9_1.jpg", "holeimg/gzafcfe0/fout9_2.jpg", "holeimg/gzafcfe0/fout9_3.jpg"], elev: 4, tees: [{ name: "챔피언", m: 333 }, { name: "백", m: 332 }, { name: "프론트", m: 312 }, { name: "시니어", m: 276 }, { name: "레이디", m: 275 }], len: 333 },
       ]},
-      { name: "IN", holes: [
+      { name: "WEST", holes: [
         { no: 1, par: 5, img: "holeimg/gzafcfe0/2in1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_244_02_01.mp4", frames: ["holeimg/gzafcfe0/fin1_1.jpg", "holeimg/gzafcfe0/fin1_2.jpg", "holeimg/gzafcfe0/fin1_3.jpg"], elev: -3, tees: [{ name: "챔피언", m: 506 }, { name: "프론트", m: 483 }, { name: "시니어", m: 459 }], len: 506 },
         { no: 2, par: 4, img: "holeimg/gzafcfe0/2in2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_244_02_02.mp4", frames: ["holeimg/gzafcfe0/fin2_1.jpg", "holeimg/gzafcfe0/fin2_2.jpg", "holeimg/gzafcfe0/fin2_3.jpg"], tees: [{ name: "챔피언", m: 367 }, { name: "프론트", m: 359 }, { name: "시니어", m: 333 }], len: 367 },
         { no: 3, par: 4, img: "holeimg/gzafcfe0/2in3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_244_02_03.mp4", frames: ["holeimg/gzafcfe0/fin3_1.jpg", "holeimg/gzafcfe0/fin3_2.jpg", "holeimg/gzafcfe0/fin3_3.jpg"], elev: -5, tees: [{ name: "챔피언", m: 366 }, { name: "프론트", m: 349 }, { name: "시니어", m: 319 }, { name: "레이디", m: 318 }], len: 366 },
@@ -4245,7 +4245,7 @@ const HOLEIMG_DB = {
     source: "골프존 코스 데이터 (홀맵·파·거리·고도차·홀 영상)",
     sourceUrl: "https://www.spahillscc.co.kr/",
     courses: [
-      { name: "OUT", holes: [
+      { name: "스파", holes: [
         { no: 1, par: 4, img: "holeimg/gzb21aa1/1out1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1284_01_01.mp4", frames: ["holeimg/gzb21aa1/fout1_1.jpg", "holeimg/gzb21aa1/fout1_2.jpg", "holeimg/gzb21aa1/fout1_3.jpg"], tees: [{ name: "챔피언", m: 356 }, { name: "백", m: 355 }, { name: "프론트", m: 344 }, { name: "시니어", m: 294 }, { name: "레이디", m: 271 }], len: 356 },
         { no: 2, par: 4, img: "holeimg/gzb21aa1/1out2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1284_01_02.mp4", frames: ["holeimg/gzb21aa1/fout2_1.jpg", "holeimg/gzb21aa1/fout2_2.jpg", "holeimg/gzb21aa1/fout2_3.jpg"], tees: [{ name: "챔피언", m: 380 }, { name: "프론트", m: 360 }, { name: "시니어", m: 335 }, { name: "레이디", m: 308 }], len: 380 },
         { no: 3, par: 3, img: "holeimg/gzb21aa1/1out3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1284_01_03.mp4", frames: ["holeimg/gzb21aa1/fout3_1.jpg", "holeimg/gzb21aa1/fout3_2.jpg"], elev: 4, tees: [{ name: "챔피언", m: 178 }, { name: "백", m: 177 }, { name: "프론트", m: 158 }, { name: "시니어", m: 132 }, { name: "레이디", m: 106 }], len: 178 },
@@ -4256,7 +4256,7 @@ const HOLEIMG_DB = {
         { no: 8, par: 4, img: "holeimg/gzb21aa1/1out8.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1284_01_08.mp4", frames: ["holeimg/gzb21aa1/fout8_1.jpg", "holeimg/gzb21aa1/fout8_2.jpg", "holeimg/gzb21aa1/fout8_3.jpg"], elev: 7, tees: [{ name: "챔피언", m: 320 }, { name: "프론트", m: 298 }, { name: "시니어", m: 265 }, { name: "레이디", m: 229 }], len: 320 },
         { no: 9, par: 5, img: "holeimg/gzb21aa1/1out9.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1284_01_09.mp4", frames: ["holeimg/gzb21aa1/fout9_1.jpg", "holeimg/gzb21aa1/fout9_2.jpg", "holeimg/gzb21aa1/fout9_3.jpg"], tees: [{ name: "챔피언", m: 445 }, { name: "백", m: 435 }, { name: "프론트", m: 407 }, { name: "시니어", m: 377 }, { name: "레이디", m: 355 }], len: 445 },
       ]},
-      { name: "IN", holes: [
+      { name: "힐스", holes: [
         { no: 1, par: 5, img: "holeimg/gzb21aa1/2in1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1284_02_01.mp4", frames: ["holeimg/gzb21aa1/fin1_1.jpg", "holeimg/gzb21aa1/fin1_2.jpg", "holeimg/gzb21aa1/fin1_3.jpg"], tees: [{ name: "챔피언", m: 480 }, { name: "프론트", m: 467 }, { name: "시니어", m: 438 }, { name: "레이디", m: 411 }], len: 480 },
         { no: 2, par: 4, img: "holeimg/gzb21aa1/2in2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1284_02_02.mp4", frames: ["holeimg/gzb21aa1/fin2_1.jpg", "holeimg/gzb21aa1/fin2_2.jpg", "holeimg/gzb21aa1/fin2_3.jpg"], elev: -8, tees: [{ name: "챔피언", m: 322 }, { name: "백", m: 321 }, { name: "프론트", m: 313 }, { name: "시니어", m: 290 }, { name: "레이디", m: 261 }], len: 322 },
         { no: 3, par: 3, img: "holeimg/gzb21aa1/2in3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1284_02_03.mp4", frames: ["holeimg/gzb21aa1/fin3_1.jpg", "holeimg/gzb21aa1/fin3_2.jpg"], elev: 3, tees: [{ name: "챔피언", m: 164 }, { name: "백", m: 163 }, { name: "프론트", m: 150 }, { name: "레이디", m: 129 }], len: 164 },
@@ -4273,7 +4273,7 @@ const HOLEIMG_DB = {
     source: "골프존 코스 데이터 (홀맵·파·거리·고도차·홀 영상)",
     sourceUrl: "http://www.citypark.co.kr/",
     courses: [
-      { name: "OUT", holes: [
+      { name: "PARK", holes: [
         { no: 1, par: 4, img: "holeimg/gzb26241/1out1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_200_01_01.mp4", frames: ["holeimg/gzb26241/fout1_1.jpg", "holeimg/gzb26241/fout1_2.jpg", "holeimg/gzb26241/fout1_3.jpg"], elev: -4, tees: [{ name: "챔피언", m: 332 }, { name: "백", m: 310 }, { name: "프론트", m: 290 }, { name: "시니어", m: 269 }, { name: "레이디", m: 243 }], len: 332 },
         { no: 2, par: 4, img: "holeimg/gzb26241/1out2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_200_01_02.mp4", frames: ["holeimg/gzb26241/fout2_1.jpg", "holeimg/gzb26241/fout2_2.jpg", "holeimg/gzb26241/fout2_3.jpg"], elev: -51, tees: [{ name: "챔피언", m: 406 }, { name: "백", m: 376 }, { name: "프론트", m: 345 }, { name: "시니어", m: 317 }, { name: "레이디", m: 292 }], len: 406 },
         { no: 3, par: 3, img: "holeimg/gzb26241/1out3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_200_01_03.mp4", frames: ["holeimg/gzb26241/fout3_1.jpg", "holeimg/gzb26241/fout3_2.jpg"], elev: -8, tees: [{ name: "챔피언", m: 190 }, { name: "백", m: 166 }, { name: "프론트", m: 154 }, { name: "시니어", m: 124 }], len: 190 },
@@ -4284,7 +4284,7 @@ const HOLEIMG_DB = {
         { no: 8, par: 5, img: "holeimg/gzb26241/1out8.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_200_01_08.mp4", frames: ["holeimg/gzb26241/fout8_1.jpg", "holeimg/gzb26241/fout8_2.jpg", "holeimg/gzb26241/fout8_3.jpg"], elev: 12, tees: [{ name: "챔피언", m: 511 }, { name: "백", m: 491 }, { name: "프론트", m: 458 }, { name: "시니어", m: 376 }], len: 511 },
         { no: 9, par: 4, img: "holeimg/gzb26241/1out9.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_200_01_09.mp4", frames: ["holeimg/gzb26241/fout9_1.jpg", "holeimg/gzb26241/fout9_2.jpg", "holeimg/gzb26241/fout9_3.jpg"], elev: -10, tees: [{ name: "챔피언", m: 336 }, { name: "백", m: 315 }, { name: "프론트", m: 312 }, { name: "시니어", m: 274 }, { name: "레이디", m: 252 }], len: 336 },
       ]},
-      { name: "IN", holes: [
+      { name: "CITY", holes: [
         { no: 1, par: 4, img: "holeimg/gzb26241/2in1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_200_02_01.mp4", frames: ["holeimg/gzb26241/fin1_1.jpg", "holeimg/gzb26241/fin1_2.jpg", "holeimg/gzb26241/fin1_3.jpg"], elev: -27, tees: [{ name: "챔피언", m: 353 }, { name: "백", m: 332 }, { name: "프론트", m: 296 }, { name: "시니어", m: 278 }], len: 353 },
         { no: 2, par: 3, img: "holeimg/gzb26241/2in2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_200_02_02.mp4", frames: ["holeimg/gzb26241/fin2_1.jpg", "holeimg/gzb26241/fin2_2.jpg"], elev: 3, tees: [{ name: "챔피언", m: 151 }, { name: "백", m: 129 }, { name: "프론트", m: 112 }, { name: "시니어", m: 111 }], len: 151 },
         { no: 3, par: 4, img: "holeimg/gzb26241/2in3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_200_02_03.mp4", frames: ["holeimg/gzb26241/fin3_1.jpg", "holeimg/gzb26241/fin3_2.jpg", "holeimg/gzb26241/fin3_3.jpg"], elev: 5, tees: [{ name: "챔피언", m: 351 }, { name: "백", m: 335 }, { name: "프론트", m: 283 }, { name: "시니어", m: 241 }, { name: "레이디", m: 240 }], len: 351 },
@@ -4301,7 +4301,7 @@ const HOLEIMG_DB = {
     source: "골프존 코스 데이터 (홀맵·파·거리·고도차·홀 영상)",
     sourceUrl: "https://www.mgle.co.kr/",
     courses: [
-      { name: "OUT", holes: [
+      { name: "문희", holes: [
         { no: 1, par: 5, img: "holeimg/gzb3c8df/1out1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_276_01_01.mp4", frames: ["holeimg/gzb3c8df/fout1_1.jpg", "holeimg/gzb3c8df/fout1_2.jpg", "holeimg/gzb3c8df/fout1_3.jpg"], elev: -9, tees: [{ name: "챔피언", m: 485 }, { name: "백", m: 460 }, { name: "프론트", m: 435 }, { name: "시니어", m: 402 }, { name: "레이디", m: 396 }], len: 485 },
         { no: 2, par: 4, img: "holeimg/gzb3c8df/1out2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_276_01_02.mp4", frames: ["holeimg/gzb3c8df/fout2_1.jpg", "holeimg/gzb3c8df/fout2_2.jpg", "holeimg/gzb3c8df/fout2_3.jpg"], elev: -5, tees: [{ name: "챔피언", m: 350 }, { name: "백", m: 335 }, { name: "프론트", m: 305 }, { name: "시니어", m: 276 }, { name: "레이디", m: 274 }], len: 350 },
         { no: 3, par: 4, img: "holeimg/gzb3c8df/1out3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_276_01_03.mp4", frames: ["holeimg/gzb3c8df/fout3_1.jpg", "holeimg/gzb3c8df/fout3_2.jpg", "holeimg/gzb3c8df/fout3_3.jpg"], elev: 16, tees: [{ name: "챔피언", m: 351 }, { name: "백", m: 315 }, { name: "프론트", m: 254 }, { name: "시니어", m: 244 }, { name: "레이디", m: 213 }], len: 351 },
@@ -4312,7 +4312,7 @@ const HOLEIMG_DB = {
         { no: 8, par: 4, img: "holeimg/gzb3c8df/1out8.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_276_01_08.mp4", frames: ["holeimg/gzb3c8df/fout8_1.jpg", "holeimg/gzb3c8df/fout8_2.jpg", "holeimg/gzb3c8df/fout8_3.jpg"], elev: 26, tees: [{ name: "챔피언", m: 384 }, { name: "백", m: 354 }, { name: "프론트", m: 308 }, { name: "시니어", m: 301 }, { name: "레이디", m: 275 }], len: 384 },
         { no: 9, par: 5, img: "holeimg/gzb3c8df/1out9.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_276_01_09.mp4", frames: ["holeimg/gzb3c8df/fout9_1.jpg", "holeimg/gzb3c8df/fout9_2.jpg", "holeimg/gzb3c8df/fout9_3.jpg"], elev: 6, tees: [{ name: "챔피언", m: 504 }, { name: "백", m: 479 }, { name: "프론트", m: 458 }, { name: "시니어", m: 451 }, { name: "레이디", m: 424 }], len: 504 },
       ]},
-      { name: "IN", holes: [
+      { name: "경서", holes: [
         { no: 1, par: 4, img: "holeimg/gzb3c8df/2in1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_276_02_01.mp4", frames: ["holeimg/gzb3c8df/fin1_1.jpg", "holeimg/gzb3c8df/fin1_2.jpg", "holeimg/gzb3c8df/fin1_3.jpg"], elev: -46, tees: [{ name: "챔피언", m: 341 }, { name: "백", m: 316 }, { name: "프론트", m: 287 }, { name: "시니어", m: 260 }, { name: "레이디", m: 256 }], len: 341 },
         { no: 2, par: 4, img: "holeimg/gzb3c8df/2in2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_276_02_02.mp4", frames: ["holeimg/gzb3c8df/fin2_1.jpg", "holeimg/gzb3c8df/fin2_2.jpg", "holeimg/gzb3c8df/fin2_3.jpg"], elev: 3, tees: [{ name: "챔피언", m: 430 }, { name: "백", m: 420 }, { name: "프론트", m: 395 }, { name: "시니어", m: 360 }, { name: "레이디", m: 300 }], len: 430 },
         { no: 3, par: 5, img: "holeimg/gzb3c8df/2in3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_276_02_03.mp4", frames: ["holeimg/gzb3c8df/fin3_1.jpg", "holeimg/gzb3c8df/fin3_2.jpg", "holeimg/gzb3c8df/fin3_3.jpg"], elev: -7, tees: [{ name: "챔피언", m: 529 }, { name: "백", m: 509 }, { name: "프론트", m: 483 }, { name: "시니어", m: 477 }, { name: "레이디", m: 414 }], len: 529 },
@@ -4357,7 +4357,7 @@ const HOLEIMG_DB = {
     source: "골프존 코스 데이터 (홀맵·파·거리·고도차·홀 영상)",
     sourceUrl: "http://www.seorakplazacc.co.kr/",
     courses: [
-      { name: "OUT", holes: [
+      { name: "SUN Rise", holes: [
         { no: 1, par: 4, img: "holeimg/gzbd52b9/1out1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_232_01_01.mp4", frames: ["holeimg/gzbd52b9/fout1_1.jpg", "holeimg/gzbd52b9/fout1_2.jpg", "holeimg/gzbd52b9/fout1_3.jpg"], elev: -12, tees: [{ name: "챔피언", m: 349 }, { name: "프론트", m: 332 }, { name: "시니어", m: 306 }, { name: "레이디", m: 270 }], len: 349 },
         { no: 2, par: 4, img: "holeimg/gzbd52b9/1out2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_232_01_02.mp4", frames: ["holeimg/gzbd52b9/fout2_1.jpg", "holeimg/gzbd52b9/fout2_2.jpg", "holeimg/gzbd52b9/fout2_3.jpg"], elev: -15, tees: [{ name: "챔피언", m: 375 }, { name: "프론트", m: 338 }, { name: "시니어", m: 327 }, { name: "레이디", m: 320 }], len: 375 },
         { no: 3, par: 4, img: "holeimg/gzbd52b9/1out3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_232_01_03.mp4", frames: ["holeimg/gzbd52b9/fout3_1.jpg", "holeimg/gzbd52b9/fout3_2.jpg", "holeimg/gzbd52b9/fout3_3.jpg"], elev: 15, tees: [{ name: "챔피언", m: 389 }, { name: "프론트", m: 363 }, { name: "시니어", m: 325 }, { name: "레이디", m: 295 }], len: 389 },
@@ -4368,7 +4368,7 @@ const HOLEIMG_DB = {
         { no: 8, par: 4, img: "holeimg/gzbd52b9/1out8.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_232_01_08.mp4", frames: ["holeimg/gzbd52b9/fout8_1.jpg", "holeimg/gzbd52b9/fout8_2.jpg", "holeimg/gzbd52b9/fout8_3.jpg"], elev: 9, tees: [{ name: "챔피언", m: 388 }, { name: "프론트", m: 375 }, { name: "시니어", m: 362 }, { name: "레이디", m: 314 }], len: 388 },
         { no: 9, par: 5, img: "holeimg/gzbd52b9/1out9.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_232_01_09.mp4", frames: ["holeimg/gzbd52b9/fout9_1.jpg", "holeimg/gzbd52b9/fout9_2.jpg", "holeimg/gzbd52b9/fout9_3.jpg"], elev: -7, tees: [{ name: "챔피언", m: 507 }, { name: "프론트", m: 489 }, { name: "시니어", m: 464 }, { name: "레이디", m: 436 }], len: 507 },
       ]},
-      { name: "IN", holes: [
+      { name: "Mountain View", holes: [
         { no: 1, par: 4, img: "holeimg/gzbd52b9/2in1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_232_02_01.mp4", frames: ["holeimg/gzbd52b9/fin1_1.jpg", "holeimg/gzbd52b9/fin1_2.jpg", "holeimg/gzbd52b9/fin1_3.jpg"], tees: [{ name: "챔피언", m: 321 }, { name: "프론트", m: 305 }, { name: "시니어", m: 287 }, { name: "레이디", m: 273 }], len: 321 },
         { no: 2, par: 3, img: "holeimg/gzbd52b9/2in2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_232_02_02.mp4", frames: ["holeimg/gzbd52b9/fin2_1.jpg", "holeimg/gzbd52b9/fin2_2.jpg"], elev: -11, tees: [{ name: "챔피언", m: 120 }, { name: "프론트", m: 112 }, { name: "레이디", m: 81 }], len: 120 },
         { no: 3, par: 5, img: "holeimg/gzbd52b9/2in3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_232_02_03.mp4", frames: ["holeimg/gzbd52b9/fin3_1.jpg", "holeimg/gzbd52b9/fin3_2.jpg", "holeimg/gzbd52b9/fin3_3.jpg"], elev: -5, tees: [{ name: "챔피언", m: 515 }, { name: "백", m: 514 }, { name: "프론트", m: 495 }, { name: "시니어", m: 471 }, { name: "레이디", m: 426 }], len: 515 },
@@ -4385,7 +4385,7 @@ const HOLEIMG_DB = {
     source: "골프존 코스 데이터 (홀맵·파·거리·고도차·홀 영상)",
     sourceUrl: "https://www.lotteskyhill.com/",
     courses: [
-      { name: "OUT", holes: [
+      { name: "SKY", holes: [
         { no: 1, par: 4, img: "holeimg/gzc0618d/1out1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_898_01_01.mp4", frames: ["holeimg/gzc0618d/fout1_1.jpg", "holeimg/gzc0618d/fout1_2.jpg", "holeimg/gzc0618d/fout1_3.jpg"], elev: 14, tees: [{ name: "챔피언", m: 372 }, { name: "백", m: 364 }, { name: "프론트", m: 329 }, { name: "시니어", m: 297 }], len: 372 },
         { no: 2, par: 4, img: "holeimg/gzc0618d/1out2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_898_01_02.mp4", frames: ["holeimg/gzc0618d/fout2_1.jpg", "holeimg/gzc0618d/fout2_2.jpg", "holeimg/gzc0618d/fout2_3.jpg"], elev: -5, tees: [{ name: "챔피언", m: 349 }, { name: "백", m: 333 }, { name: "프론트", m: 332 }, { name: "시니어", m: 280 }, { name: "레이디", m: 279 }], len: 349 },
         { no: 3, par: 4, img: "holeimg/gzc0618d/1out3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_898_01_03.mp4", frames: ["holeimg/gzc0618d/fout3_1.jpg", "holeimg/gzc0618d/fout3_2.jpg", "holeimg/gzc0618d/fout3_3.jpg"], elev: 18, tees: [{ name: "챔피언", m: 332 }, { name: "백", m: 300 }, { name: "프론트", m: 299 }, { name: "시니어", m: 259 }], len: 332 },
@@ -4396,7 +4396,7 @@ const HOLEIMG_DB = {
         { no: 8, par: 3, img: "holeimg/gzc0618d/1out8.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_898_01_08.mp4", frames: ["holeimg/gzc0618d/fout8_1.jpg", "holeimg/gzc0618d/fout8_2.jpg"], elev: -20, tees: [{ name: "챔피언", m: 159 }, { name: "백", m: 146 }, { name: "프론트", m: 145 }, { name: "시니어", m: 114 }, { name: "레이디", m: 113 }], len: 159 },
         { no: 9, par: 5, img: "holeimg/gzc0618d/1out9.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_898_01_09.mp4", frames: ["holeimg/gzc0618d/fout9_1.jpg", "holeimg/gzc0618d/fout9_2.jpg", "holeimg/gzc0618d/fout9_3.jpg"], tees: [{ name: "챔피언", m: 475 }, { name: "백", m: 455 }, { name: "프론트", m: 436 }, { name: "시니어", m: 355 }, { name: "레이디", m: 354 }], len: 475 },
       ]},
-      { name: "IN", holes: [
+      { name: "HILL", holes: [
         { no: 1, par: 4, img: "holeimg/gzc0618d/2in1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_898_02_01.mp4", frames: ["holeimg/gzc0618d/fin1_1.jpg", "holeimg/gzc0618d/fin1_2.jpg", "holeimg/gzc0618d/fin1_3.jpg"], elev: 18, tees: [{ name: "챔피언", m: 307 }, { name: "백", m: 304 }, { name: "프론트", m: 303 }, { name: "시니어", m: 281 }, { name: "레이디", m: 280 }], len: 307 },
         { no: 2, par: 4, img: "holeimg/gzc0618d/2in2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_898_02_02.mp4", frames: ["holeimg/gzc0618d/fin2_1.jpg", "holeimg/gzc0618d/fin2_2.jpg", "holeimg/gzc0618d/fin2_3.jpg"], tees: [{ name: "챔피언", m: 363 }, { name: "백", m: 341 }, { name: "프론트", m: 325 }, { name: "시니어", m: 283 }, { name: "레이디", m: 282 }], len: 363 },
         { no: 3, par: 3, img: "holeimg/gzc0618d/2in3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_898_02_03.mp4", frames: ["holeimg/gzc0618d/fin3_1.jpg", "holeimg/gzc0618d/fin3_2.jpg"], tees: [{ name: "챔피언", m: 158 }, { name: "백", m: 151 }, { name: "프론트", m: 132 }, { name: "시니어", m: 96 }, { name: "레이디", m: 95 }], len: 158 },
@@ -4413,7 +4413,7 @@ const HOLEIMG_DB = {
     source: "골프존 코스 데이터 (홀맵·파·거리·고도차·홀 영상)",
     sourceUrl: "https://www.sunvalley.co.kr/iljuk/golf/intro",
     courses: [
-      { name: "OUT", holes: [
+      { name: "SUN", holes: [
         { no: 1, par: 4, img: "holeimg/gzc22072/1out1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1310_01_01.mp4", frames: ["holeimg/gzc22072/fout1_1.jpg", "holeimg/gzc22072/fout1_2.jpg", "holeimg/gzc22072/fout1_3.jpg"], elev: -6, tees: [{ name: "챔피언", m: 351 }, { name: "백", m: 338 }, { name: "프론트", m: 335 }, { name: "시니어", m: 322 }, { name: "레이디", m: 258 }], len: 351 },
         { no: 2, par: 3, img: "holeimg/gzc22072/1out2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1310_01_02.mp4", frames: ["holeimg/gzc22072/fout2_1.jpg", "holeimg/gzc22072/fout2_2.jpg"], elev: -6, tees: [{ name: "챔피언", m: 190 }, { name: "백", m: 163 }, { name: "프론트", m: 156 }, { name: "시니어", m: 148 }, { name: "레이디", m: 117 }], len: 190 },
         { no: 3, par: 4, img: "holeimg/gzc22072/1out3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1310_01_03.mp4", frames: ["holeimg/gzc22072/fout3_1.jpg", "holeimg/gzc22072/fout3_2.jpg", "holeimg/gzc22072/fout3_3.jpg"], elev: -4, tees: [{ name: "챔피언", m: 353 }, { name: "백", m: 331 }, { name: "프론트", m: 315 }, { name: "시니어", m: 311 }, { name: "레이디", m: 287 }], len: 353 },
@@ -4424,7 +4424,7 @@ const HOLEIMG_DB = {
         { no: 8, par: 3, img: "holeimg/gzc22072/1out8.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1310_01_08.mp4", frames: ["holeimg/gzc22072/fout8_1.jpg", "holeimg/gzc22072/fout8_2.jpg"], tees: [{ name: "챔피언", m: 126 }, { name: "백", m: 107 }, { name: "프론트", m: 102 }, { name: "시니어", m: 85 }, { name: "레이디", m: 79 }], len: 126 },
         { no: 9, par: 5, img: "holeimg/gzc22072/1out9.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1310_01_09.mp4", frames: ["holeimg/gzc22072/fout9_1.jpg", "holeimg/gzc22072/fout9_2.jpg", "holeimg/gzc22072/fout9_3.jpg"], elev: 12, tees: [{ name: "챔피언", m: 482 }, { name: "백", m: 462 }, { name: "프론트", m: 453 }, { name: "시니어", m: 419 }, { name: "레이디", m: 403 }], len: 482 },
       ]},
-      { name: "IN", holes: [
+      { name: "VALLEY", holes: [
         { no: 1, par: 5, img: "holeimg/gzc22072/2in1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1310_02_01.mp4", frames: ["holeimg/gzc22072/fin1_1.jpg", "holeimg/gzc22072/fin1_2.jpg", "holeimg/gzc22072/fin1_3.jpg"], tees: [{ name: "챔피언", m: 557 }, { name: "백", m: 543 }, { name: "프론트", m: 526 }, { name: "시니어", m: 522 }, { name: "레이디", m: 509 }], len: 557 },
         { no: 2, par: 4, img: "holeimg/gzc22072/2in2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1310_02_02.mp4", frames: ["holeimg/gzc22072/fin2_1.jpg", "holeimg/gzc22072/fin2_2.jpg", "holeimg/gzc22072/fin2_3.jpg"], tees: [{ name: "챔피언", m: 326 }, { name: "백", m: 301 }, { name: "프론트", m: 291 }, { name: "시니어", m: 274 }, { name: "레이디", m: 229 }], len: 326 },
         { no: 3, par: 4, img: "holeimg/gzc22072/2in3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1310_02_03.mp4", frames: ["holeimg/gzc22072/fin3_1.jpg", "holeimg/gzc22072/fin3_2.jpg", "holeimg/gzc22072/fin3_3.jpg"], tees: [{ name: "챔피언", m: 306 }, { name: "백", m: 290 }, { name: "프론트", m: 283 }, { name: "시니어", m: 267 }, { name: "레이디", m: 218 }], len: 306 },
@@ -4441,7 +4441,7 @@ const HOLEIMG_DB = {
     source: "골프존 코스 데이터 (홀맵·파·거리·고도차·홀 영상)",
     sourceUrl: "http://www.golfzoncounty.com/",
     courses: [
-      { name: "OUT", holes: [
+      { name: "제이드", holes: [
         { no: 1, par: 4, img: "holeimg/gzc4882/1out1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_300_01_01.mp4", frames: ["holeimg/gzc4882/fout1_1.jpg", "holeimg/gzc4882/fout1_2.jpg", "holeimg/gzc4882/fout1_3.jpg"], elev: -32, tees: [{ name: "챔피언", m: 333 }, { name: "백", m: 309 }, { name: "프론트", m: 286 }, { name: "시니어", m: 267 }], len: 333 },
         { no: 2, par: 4, img: "holeimg/gzc4882/1out2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_300_01_02.mp4", frames: ["holeimg/gzc4882/fout2_1.jpg", "holeimg/gzc4882/fout2_2.jpg", "holeimg/gzc4882/fout2_3.jpg"], elev: 28, tees: [{ name: "챔피언", m: 349 }, { name: "백", m: 275 }, { name: "프론트", m: 254 }, { name: "시니어", m: 240 }], len: 349 },
         { no: 3, par: 3, img: "holeimg/gzc4882/1out3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_300_01_03.mp4", frames: ["holeimg/gzc4882/fout3_1.jpg", "holeimg/gzc4882/fout3_2.jpg"], elev: -19, tees: [{ name: "챔피언", m: 145 }, { name: "백", m: 144 }, { name: "프론트", m: 112 }, { name: "시니어", m: 92 }], len: 145 },
@@ -4452,7 +4452,7 @@ const HOLEIMG_DB = {
         { no: 8, par: 4, img: "holeimg/gzc4882/1out8.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_300_01_08.mp4", frames: ["holeimg/gzc4882/fout8_1.jpg", "holeimg/gzc4882/fout8_2.jpg", "holeimg/gzc4882/fout8_3.jpg"], elev: -29, tees: [{ name: "챔피언", m: 407 }, { name: "백", m: 375 }, { name: "프론트", m: 352 }, { name: "시니어", m: 331 }, { name: "레이디", m: 296 }], len: 407 },
         { no: 9, par: 4, img: "holeimg/gzc4882/1out9.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_300_01_09.mp4", frames: ["holeimg/gzc4882/fout9_1.jpg", "holeimg/gzc4882/fout9_2.jpg", "holeimg/gzc4882/fout9_3.jpg"], elev: -19, tees: [{ name: "챔피언", m: 309 }, { name: "백", m: 287 }, { name: "프론트", m: 264 }, { name: "시니어", m: 244 }], len: 309 },
       ]},
-      { name: "IN", holes: [
+      { name: "페리돗", holes: [
         { no: 1, par: 4, img: "holeimg/gzc4882/2in1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_300_02_01.mp4", frames: ["holeimg/gzc4882/fin1_1.jpg", "holeimg/gzc4882/fin1_2.jpg", "holeimg/gzc4882/fin1_3.jpg"], elev: -49, tees: [{ name: "챔피언", m: 354 }, { name: "백", m: 337 }, { name: "프론트", m: 320 }, { name: "시니어", m: 304 }], len: 354 },
         { no: 2, par: 3, img: "holeimg/gzc4882/2in2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_300_02_02.mp4", frames: ["holeimg/gzc4882/fin2_1.jpg", "holeimg/gzc4882/fin2_2.jpg"], elev: -5, tees: [{ name: "챔피언", m: 172 }, { name: "백", m: 152 }, { name: "프론트", m: 132 }, { name: "시니어", m: 115 }, { name: "레이디", m: 114 }], len: 172 },
         { no: 3, par: 4, img: "holeimg/gzc4882/2in3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_300_02_03.mp4", frames: ["holeimg/gzc4882/fin3_1.jpg", "holeimg/gzc4882/fin3_2.jpg", "holeimg/gzc4882/fin3_3.jpg"], elev: -7, tees: [{ name: "챔피언", m: 360 }, { name: "백", m: 344 }, { name: "프론트", m: 335 }, { name: "시니어", m: 318 }, { name: "레이디", m: 302 }], len: 360 },
@@ -4525,7 +4525,7 @@ const HOLEIMG_DB = {
     source: "골프존 코스 데이터 (홀맵·파·거리·고도차·홀 영상)",
     sourceUrl: "http://www.skyhill.co.kr/htmlCC/seongju/main/main.jsp",
     courses: [
-      { name: "OUT", holes: [
+      { name: "HILL", holes: [
         { no: 1, par: 5, img: "holeimg/gzc542f2/1out1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_292_01_01.mp4", frames: ["holeimg/gzc542f2/fout1_1.jpg", "holeimg/gzc542f2/fout1_2.jpg", "holeimg/gzc542f2/fout1_3.jpg"], elev: -28, tees: [{ name: "챔피언", m: 515 }, { name: "백", m: 489 }, { name: "프론트", m: 470 }, { name: "시니어", m: 445 }, { name: "레이디", m: 424 }], len: 515 },
         { no: 2, par: 4, img: "holeimg/gzc542f2/1out2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_292_01_02.mp4", frames: ["holeimg/gzc542f2/fout2_1.jpg", "holeimg/gzc542f2/fout2_2.jpg", "holeimg/gzc542f2/fout2_3.jpg"], elev: -44, tees: [{ name: "챔피언", m: 374 }, { name: "백", m: 345 }, { name: "시니어", m: 322 }], len: 374 },
         { no: 3, par: 4, img: "holeimg/gzc542f2/1out3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_292_01_03.mp4", frames: ["holeimg/gzc542f2/fout3_1.jpg", "holeimg/gzc542f2/fout3_2.jpg", "holeimg/gzc542f2/fout3_3.jpg"], elev: 6, tees: [{ name: "챔피언", m: 364 }, { name: "백", m: 333 }, { name: "프론트", m: 312 }, { name: "시니어", m: 293 }, { name: "레이디", m: 273 }], len: 364 },
@@ -4536,7 +4536,7 @@ const HOLEIMG_DB = {
         { no: 8, par: 3, img: "holeimg/gzc542f2/1out8.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_292_01_08.mp4", frames: ["holeimg/gzc542f2/fout8_1.jpg", "holeimg/gzc542f2/fout8_2.jpg"], tees: [{ name: "챔피언", m: 124 }, { name: "프론트", m: 108 }, { name: "시니어", m: 88 }], len: 124 },
         { no: 9, par: 4, img: "holeimg/gzc542f2/1out9.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_292_01_09.mp4", frames: ["holeimg/gzc542f2/fout9_1.jpg", "holeimg/gzc542f2/fout9_2.jpg", "holeimg/gzc542f2/fout9_3.jpg"], elev: 13, tees: [{ name: "챔피언", m: 375 }, { name: "백", m: 350 }, { name: "프론트", m: 330 }, { name: "시니어", m: 304 }], len: 375 },
       ]},
-      { name: "IN", holes: [
+      { name: "SKY", holes: [
         { no: 1, par: 4, img: "holeimg/gzc542f2/2in1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_292_02_01.mp4", frames: ["holeimg/gzc542f2/fin1_1.jpg", "holeimg/gzc542f2/fin1_2.jpg", "holeimg/gzc542f2/fin1_3.jpg"], elev: 7, tees: [{ name: "챔피언", m: 388 }, { name: "백", m: 365 }, { name: "프론트", m: 342 }, { name: "시니어", m: 303 }, { name: "레이디", m: 301 }], len: 388 },
         { no: 2, par: 3, img: "holeimg/gzc542f2/2in2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_292_02_02.mp4", frames: ["holeimg/gzc542f2/fin2_1.jpg", "holeimg/gzc542f2/fin2_2.jpg"], tees: [{ name: "챔피언", m: 195 }, { name: "백", m: 179 }, { name: "프론트", m: 140 }, { name: "시니어", m: 113 }], len: 195 },
         { no: 3, par: 5, img: "holeimg/gzc542f2/2in3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_292_02_03.mp4", frames: ["holeimg/gzc542f2/fin3_1.jpg", "holeimg/gzc542f2/fin3_2.jpg", "holeimg/gzc542f2/fin3_3.jpg"], elev: -38, tees: [{ name: "챔피언", m: 560 }, { name: "백", m: 539 }, { name: "프론트", m: 512 }, { name: "시니어", m: 483 }, { name: "레이디", m: 462 }], len: 560 },
@@ -4581,7 +4581,7 @@ const HOLEIMG_DB = {
     source: "골프존 코스 데이터 (홀맵·파·거리·고도차·홀 영상)",
     sourceUrl: "https://www.acrogolf.co.kr/index.html",
     courses: [
-      { name: "OUT", holes: [
+      { name: "CHALLENGE", holes: [
         { no: 1, par: 5, img: "holeimg/gzc72073/1out1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_185_01_01.mp4", frames: ["holeimg/gzc72073/fout1_1.jpg", "holeimg/gzc72073/fout1_2.jpg", "holeimg/gzc72073/fout1_3.jpg"], elev: -34, tees: [{ name: "챔피언", m: 515 }, { name: "백", m: 491 }, { name: "프론트", m: 464 }, { name: "시니어", m: 430 }, { name: "레이디", m: 417 }], len: 515 },
         { no: 2, par: 4, img: "holeimg/gzc72073/1out2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_185_01_02.mp4", frames: ["holeimg/gzc72073/fout2_1.jpg", "holeimg/gzc72073/fout2_2.jpg", "holeimg/gzc72073/fout2_3.jpg"], elev: -7, tees: [{ name: "챔피언", m: 435 }, { name: "백", m: 404 }, { name: "프론트", m: 367 }, { name: "시니어", m: 360 }, { name: "레이디", m: 264 }], len: 435 },
         { no: 3, par: 4, img: "holeimg/gzc72073/1out3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_185_01_03.mp4", frames: ["holeimg/gzc72073/fout3_1.jpg", "holeimg/gzc72073/fout3_2.jpg", "holeimg/gzc72073/fout3_3.jpg"], elev: -10, tees: [{ name: "챔피언", m: 409 }, { name: "백", m: 394 }, { name: "프론트", m: 376 }, { name: "시니어", m: 353 }, { name: "레이디", m: 317 }], len: 409 },
@@ -4592,7 +4592,7 @@ const HOLEIMG_DB = {
         { no: 8, par: 4, img: "holeimg/gzc72073/1out8.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_185_01_08.mp4", frames: ["holeimg/gzc72073/fout8_1.jpg", "holeimg/gzc72073/fout8_2.jpg", "holeimg/gzc72073/fout8_3.jpg"], elev: 11, tees: [{ name: "챔피언", m: 392 }, { name: "백", m: 346 }, { name: "프론트", m: 321 }, { name: "시니어", m: 305 }, { name: "레이디", m: 264 }], len: 392 },
         { no: 9, par: 5, img: "holeimg/gzc72073/1out9.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_185_01_09.mp4", frames: ["holeimg/gzc72073/fout9_1.jpg", "holeimg/gzc72073/fout9_2.jpg", "holeimg/gzc72073/fout9_3.jpg"], elev: 4, tees: [{ name: "챔피언", m: 554 }, { name: "백", m: 518 }, { name: "프론트", m: 482 }, { name: "시니어", m: 457 }, { name: "레이디", m: 423 }], len: 554 },
       ]},
-      { name: "IN", holes: [
+      { name: "SKY", holes: [
         { no: 1, par: 4, img: "holeimg/gzc72073/2in1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_185_02_01.mp4", frames: ["holeimg/gzc72073/fin1_1.jpg", "holeimg/gzc72073/fin1_2.jpg", "holeimg/gzc72073/fin1_3.jpg"], elev: -35, tees: [{ name: "챔피언", m: 411 }, { name: "백", m: 390 }, { name: "프론트", m: 367 }, { name: "시니어", m: 340 }, { name: "레이디", m: 317 }], len: 411 },
         { no: 2, par: 5, img: "holeimg/gzc72073/2in2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_185_02_02.mp4", frames: ["holeimg/gzc72073/fin2_1.jpg", "holeimg/gzc72073/fin2_2.jpg", "holeimg/gzc72073/fin2_3.jpg"], elev: -8, tees: [{ name: "챔피언", m: 503 }, { name: "백", m: 458 }, { name: "프론트", m: 434 }, { name: "시니어", m: 388 }, { name: "레이디", m: 375 }], len: 503 },
         { no: 3, par: 4, img: "holeimg/gzc72073/2in3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_185_02_03.mp4", frames: ["holeimg/gzc72073/fin3_1.jpg", "holeimg/gzc72073/fin3_2.jpg", "holeimg/gzc72073/fin3_3.jpg"], elev: 9, tees: [{ name: "챔피언", m: 394 }, { name: "백", m: 371 }, { name: "프론트", m: 338 }, { name: "시니어", m: 317 }, { name: "레이디", m: 254 }], len: 394 },
@@ -4637,7 +4637,7 @@ const HOLEIMG_DB = {
     source: "골프존 코스 데이터 (홀맵·파·거리·고도차·홀 영상)",
     sourceUrl: "https://stonebeach-cc.com/index.do",
     courses: [
-      { name: "OUT", holes: [
+      { name: "스톤", holes: [
         { no: 1, par: 5, img: "holeimg/gzc8d54a/1out1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_65_01_01.mp4", frames: ["holeimg/gzc8d54a/fout1_1.jpg", "holeimg/gzc8d54a/fout1_2.jpg", "holeimg/gzc8d54a/fout1_3.jpg"], tees: [{ name: "챔피언", m: 543 }, { name: "백", m: 524 }, { name: "프론트", m: 497 }, { name: "시니어", m: 463 }, { name: "레이디", m: 430 }], len: 543 },
         { no: 2, par: 4, img: "holeimg/gzc8d54a/1out2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_65_01_02.mp4", frames: ["holeimg/gzc8d54a/fout2_1.jpg", "holeimg/gzc8d54a/fout2_2.jpg"], tees: [{ name: "챔피언", m: 364 }, { name: "백", m: 362 }, { name: "프론트", m: 335 }, { name: "시니어", m: 274 }, { name: "레이디", m: 240 }], len: 364 },
         { no: 3, par: 3, img: "holeimg/gzc8d54a/1out3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_65_01_03.mp4", frames: ["holeimg/gzc8d54a/fout3_1.jpg", "holeimg/gzc8d54a/fout3_2.jpg"], tees: [{ name: "챔피언", m: 207 }, { name: "프론트", m: 184 }, { name: "시니어", m: 163 }, { name: "레이디", m: 130 }], len: 207 },
@@ -4648,7 +4648,7 @@ const HOLEIMG_DB = {
         { no: 8, par: 4, img: "holeimg/gzc8d54a/1out8.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_65_01_08.mp4", frames: ["holeimg/gzc8d54a/fout8_1.jpg", "holeimg/gzc8d54a/fout8_2.jpg"], tees: [{ name: "챔피언", m: 346 }, { name: "백", m: 338 }, { name: "프론트", m: 301 }, { name: "시니어", m: 262 }, { name: "레이디", m: 213 }], len: 346 },
         { no: 9, par: 4, img: "holeimg/gzc8d54a/1out9.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_65_01_09.mp4", frames: ["holeimg/gzc8d54a/fout9_1.jpg", "holeimg/gzc8d54a/fout9_2.jpg"], tees: [{ name: "챔피언", m: 338 }, { name: "백", m: 331 }, { name: "프론트", m: 299 }, { name: "시니어", m: 262 }, { name: "레이디", m: 232 }], len: 338 },
       ]},
-      { name: "IN", holes: [
+      { name: "비치", holes: [
         { no: 1, par: 4, img: "holeimg/gzc8d54a/2in1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_65_02_01.mp4", frames: ["holeimg/gzc8d54a/fin1_1.jpg", "holeimg/gzc8d54a/fin1_2.jpg"], tees: [{ name: "챔피언", m: 366 }, { name: "프론트", m: 337 }, { name: "시니어", m: 310 }, { name: "레이디", m: 279 }], len: 366 },
         { no: 2, par: 5, img: "holeimg/gzc8d54a/2in2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_65_02_02.mp4", frames: ["holeimg/gzc8d54a/fin2_1.jpg", "holeimg/gzc8d54a/fin2_2.jpg", "holeimg/gzc8d54a/fin2_3.jpg"], tees: [{ name: "챔피언", m: 540 }, { name: "프론트", m: 521 }, { name: "시니어", m: 491 }, { name: "레이디", m: 462 }], len: 540 },
         { no: 3, par: 4, img: "holeimg/gzc8d54a/2in3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_65_02_03.mp4", frames: ["holeimg/gzc8d54a/fin3_1.jpg", "holeimg/gzc8d54a/fin3_2.jpg", "holeimg/gzc8d54a/fin3_3.jpg"], tees: [{ name: "챔피언", m: 392 }, { name: "백", m: 391 }, { name: "프론트", m: 368 }, { name: "시니어", m: 334 }, { name: "레이디", m: 301 }], len: 392 },
@@ -4693,7 +4693,7 @@ const HOLEIMG_DB = {
     source: "골프존 코스 데이터 (홀맵·파·거리·고도차·홀 영상)",
     sourceUrl: "https://www.masterpiecegc.com/",
     courses: [
-      { name: "OUT", holes: [
+      { name: "PIECE", holes: [
         { no: 1, par: 5, img: "holeimg/gzca3064/1out1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_975_01_01.mp4", frames: ["holeimg/gzca3064/fout1_1.jpg", "holeimg/gzca3064/fout1_2.jpg", "holeimg/gzca3064/fout1_3.jpg"], elev: -21, tees: [{ name: "챔피언", m: 507 }, { name: "백", m: 506 }, { name: "프론트", m: 485 }, { name: "시니어", m: 453 }, { name: "레이디", m: 431 }], len: 507 },
         { no: 2, par: 4, img: "holeimg/gzca3064/1out2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_975_01_02.mp4", frames: ["holeimg/gzca3064/fout2_1.jpg", "holeimg/gzca3064/fout2_2.jpg", "holeimg/gzca3064/fout2_3.jpg"], elev: 10, tees: [{ name: "챔피언", m: 362 }, { name: "백", m: 361 }, { name: "프론트", m: 326 }, { name: "시니어", m: 320 }, { name: "레이디", m: 292 }], len: 362 },
         { no: 3, par: 4, img: "holeimg/gzca3064/1out3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_975_01_03.mp4", frames: ["holeimg/gzca3064/fout3_1.jpg", "holeimg/gzca3064/fout3_2.jpg", "holeimg/gzca3064/fout3_3.jpg"], elev: 16, tees: [{ name: "챔피언", m: 302 }, { name: "프론트", m: 289 }, { name: "시니어", m: 273 }, { name: "레이디", m: 249 }], len: 302 },
@@ -4704,7 +4704,7 @@ const HOLEIMG_DB = {
         { no: 8, par: 3, img: "holeimg/gzca3064/1out8.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_975_01_08.mp4", frames: ["holeimg/gzca3064/fout8_1.jpg", "holeimg/gzca3064/fout8_2.jpg"], elev: -24, tees: [{ name: "챔피언", m: 198 }, { name: "프론트", m: 173 }, { name: "시니어", m: 172 }, { name: "레이디", m: 144 }], len: 198 },
         { no: 9, par: 4, img: "holeimg/gzca3064/1out9.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_975_01_09.mp4", frames: ["holeimg/gzca3064/fout9_1.jpg", "holeimg/gzca3064/fout9_2.jpg", "holeimg/gzca3064/fout9_3.jpg"], elev: 26, tees: [{ name: "챔피언", m: 339 }, { name: "백", m: 338 }, { name: "프론트", m: 294 }, { name: "시니어", m: 280 }, { name: "레이디", m: 266 }], len: 339 },
       ]},
-      { name: "IN", holes: [
+      { name: "MASTER", holes: [
         { no: 1, par: 4, img: "holeimg/gzca3064/2in1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_975_02_01.mp4", frames: ["holeimg/gzca3064/fin1_1.jpg", "holeimg/gzca3064/fin1_2.jpg", "holeimg/gzca3064/fin1_3.jpg"], elev: -16, tees: [{ name: "챔피언", m: 430 }, { name: "백", m: 429 }, { name: "프론트", m: 358 }, { name: "시니어", m: 317 }, { name: "레이디", m: 290 }], len: 430 },
         { no: 2, par: 4, img: "holeimg/gzca3064/2in2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_975_02_02.mp4", frames: ["holeimg/gzca3064/fin2_1.jpg", "holeimg/gzca3064/fin2_2.jpg", "holeimg/gzca3064/fin2_3.jpg"], elev: -17, tees: [{ name: "챔피언", m: 406 }, { name: "프론트", m: 380 }, { name: "시니어", m: 355 }, { name: "레이디", m: 339 }], len: 406 },
         { no: 3, par: 5, img: "holeimg/gzca3064/2in3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_975_02_03.mp4", frames: ["holeimg/gzca3064/fin3_1.jpg", "holeimg/gzca3064/fin3_2.jpg", "holeimg/gzca3064/fin3_3.jpg"], elev: -7, tees: [{ name: "챔피언", m: 473 }, { name: "프론트", m: 445 }, { name: "시니어", m: 424 }, { name: "레이디", m: 399 }], len: 473 },
@@ -4777,7 +4777,7 @@ const HOLEIMG_DB = {
     source: "골프존 코스 데이터 (홀맵·파·거리·고도차·홀 영상)",
     sourceUrl: "https://www.marinecc.co.kr/",
     courses: [
-      { name: "OUT", holes: [
+      { name: "MARINE", holes: [
         { no: 1, par: 4, img: "holeimg/gzcb8dc1/1out1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1264_01_01.mp4", frames: ["holeimg/gzcb8dc1/fout1_1.jpg", "holeimg/gzcb8dc1/fout1_2.jpg", "holeimg/gzcb8dc1/fout1_3.jpg"], tees: [{ name: "챔피언", m: 374 }, { name: "프론트", m: 339 }, { name: "시니어", m: 294 }, { name: "레이디", m: 275 }], len: 374 },
         { no: 2, par: 5, img: "holeimg/gzcb8dc1/1out2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1264_01_02.mp4", frames: ["holeimg/gzcb8dc1/fout2_1.jpg", "holeimg/gzcb8dc1/fout2_2.jpg", "holeimg/gzcb8dc1/fout2_3.jpg"], elev: 6, tees: [{ name: "챔피언", m: 485 }, { name: "백", m: 484 }, { name: "프론트", m: 472 }, { name: "시니어", m: 469 }, { name: "레이디", m: 450 }], len: 485 },
         { no: 3, par: 4, img: "holeimg/gzcb8dc1/1out3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1264_01_03.mp4", frames: ["holeimg/gzcb8dc1/fout3_1.jpg", "holeimg/gzcb8dc1/fout3_2.jpg", "holeimg/gzcb8dc1/fout3_3.jpg"], elev: 13, tees: [{ name: "챔피언", m: 361 }, { name: "프론트", m: 342 }, { name: "시니어", m: 311 }, { name: "레이디", m: 267 }], len: 361 },
@@ -4788,7 +4788,7 @@ const HOLEIMG_DB = {
         { no: 8, par: 3, img: "holeimg/gzcb8dc1/1out8.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1264_01_08.mp4", frames: ["holeimg/gzcb8dc1/fout8_1.jpg", "holeimg/gzcb8dc1/fout8_2.jpg", "holeimg/gzcb8dc1/fout8_3.jpg"], elev: -9, tees: [{ name: "챔피언", m: 191 }, { name: "백", m: 190 }, { name: "프론트", m: 168 }, { name: "시니어", m: 143 }, { name: "레이디", m: 120 }], len: 191 },
         { no: 9, par: 4, img: "holeimg/gzcb8dc1/1out9.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1264_01_09.mp4", frames: ["holeimg/gzcb8dc1/fout9_1.jpg", "holeimg/gzcb8dc1/fout9_2.jpg", "holeimg/gzcb8dc1/fout9_3.jpg"], elev: -34, tees: [{ name: "챔피언", m: 390 }, { name: "프론트", m: 369 }, { name: "시니어", m: 336 }, { name: "레이디", m: 293 }], len: 390 },
       ]},
-      { name: "IN", holes: [
+      { name: "HEALING", holes: [
         { no: 1, par: 4, img: "holeimg/gzcb8dc1/2in1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1264_02_01.mp4", frames: ["holeimg/gzcb8dc1/fin1_1.jpg", "holeimg/gzcb8dc1/fin1_2.jpg", "holeimg/gzcb8dc1/fin1_3.jpg"], elev: -45, tees: [{ name: "챔피언", m: 377 }, { name: "프론트", m: 359 }, { name: "시니어", m: 338 }, { name: "레이디", m: 302 }], len: 377 },
         { no: 2, par: 4, img: "holeimg/gzcb8dc1/2in2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1264_02_02.mp4", frames: ["holeimg/gzcb8dc1/fin2_1.jpg", "holeimg/gzcb8dc1/fin2_2.jpg", "holeimg/gzcb8dc1/fin2_3.jpg"], elev: 18, tees: [{ name: "챔피언", m: 357 }, { name: "백", m: 356 }, { name: "프론트", m: 287 }, { name: "시니어", m: 263 }, { name: "레이디", m: 262 }], len: 357 },
         { no: 3, par: 3, img: "holeimg/gzcb8dc1/2in3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1264_02_03.mp4", frames: ["holeimg/gzcb8dc1/fin3_1.jpg", "holeimg/gzcb8dc1/fin3_2.jpg", "holeimg/gzcb8dc1/fin3_3.jpg"], elev: -4, tees: [{ name: "챔피언", m: 145 }, { name: "백", m: 144 }, { name: "프론트", m: 125 }, { name: "시니어", m: 124 }, { name: "레이디", m: 109 }], len: 145 },
@@ -4889,7 +4889,7 @@ const HOLEIMG_DB = {
     source: "골프존 코스 데이터 (홀맵·파·거리·고도차·홀 영상)",
     sourceUrl: "http://www.castlepine.co.kr/",
     courses: [
-      { name: "OUT", holes: [
+      { name: "LAKE", holes: [
         { no: 1, par: 4, img: "holeimg/gzd18a1a/1out1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_81_01_01.mp4", frames: ["holeimg/gzd18a1a/fout1_1.jpg", "holeimg/gzd18a1a/fout1_2.jpg", "holeimg/gzd18a1a/fout1_3.jpg"], tees: [{ name: "챔피언", m: 371 }, { name: "백", m: 353 }, { name: "프론트", m: 313 }, { name: "시니어", m: 298 }, { name: "레이디", m: 270 }], len: 371 },
         { no: 2, par: 4, img: "holeimg/gzd18a1a/1out2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_81_01_02.mp4", frames: ["holeimg/gzd18a1a/fout2_1.jpg", "holeimg/gzd18a1a/fout2_2.jpg", "holeimg/gzd18a1a/fout2_3.jpg"], tees: [{ name: "챔피언", m: 379 }, { name: "백", m: 366 }, { name: "프론트", m: 312 }, { name: "시니어", m: 282 }, { name: "레이디", m: 268 }], len: 379 },
         { no: 3, par: 4, img: "holeimg/gzd18a1a/1out3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_81_01_03.mp4", frames: ["holeimg/gzd18a1a/fout3_1.jpg", "holeimg/gzd18a1a/fout3_2.jpg", "holeimg/gzd18a1a/fout3_3.jpg"], elev: 9, tees: [{ name: "챔피언", m: 331 }, { name: "백", m: 329 }, { name: "프론트", m: 295 }, { name: "시니어", m: 259 }, { name: "레이디", m: 244 }], len: 331 },
@@ -4900,7 +4900,7 @@ const HOLEIMG_DB = {
         { no: 8, par: 3, img: "holeimg/gzd18a1a/1out8.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_81_01_08.mp4", frames: ["holeimg/gzd18a1a/fout8_1.jpg", "holeimg/gzd18a1a/fout8_2.jpg"], tees: [{ name: "챔피언", m: 170 }, { name: "백", m: 153 }, { name: "프론트", m: 142 }, { name: "시니어", m: 127 }, { name: "레이디", m: 115 }], len: 170 },
         { no: 9, par: 5, img: "holeimg/gzd18a1a/1out9.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_81_01_09.mp4", frames: ["holeimg/gzd18a1a/fout9_1.jpg", "holeimg/gzd18a1a/fout9_2.jpg", "holeimg/gzd18a1a/fout9_3.jpg"], tees: [{ name: "챔피언", m: 483 }, { name: "백", m: 453 }, { name: "프론트", m: 430 }, { name: "시니어", m: 413 }, { name: "레이디", m: 334 }], len: 483 },
       ]},
-      { name: "IN", holes: [
+      { name: "VALLEY", holes: [
         { no: 1, par: 4, img: "holeimg/gzd18a1a/2in1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_81_02_01.mp4", frames: ["holeimg/gzd18a1a/fin1_1.jpg", "holeimg/gzd18a1a/fin1_2.jpg", "holeimg/gzd18a1a/fin1_3.jpg"], tees: [{ name: "챔피언", m: 366 }, { name: "백", m: 362 }, { name: "프론트", m: 347 }, { name: "시니어", m: 294 }, { name: "레이디", m: 260 }], len: 366 },
         { no: 2, par: 4, img: "holeimg/gzd18a1a/2in2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_81_02_02.mp4", frames: ["holeimg/gzd18a1a/fin2_1.jpg", "holeimg/gzd18a1a/fin2_2.jpg", "holeimg/gzd18a1a/fin2_3.jpg"], elev: -12, tees: [{ name: "챔피언", m: 359 }, { name: "백", m: 339 }, { name: "프론트", m: 324 }, { name: "시니어", m: 312 }, { name: "레이디", m: 288 }], len: 359 },
         { no: 3, par: 4, img: "holeimg/gzd18a1a/2in3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_81_02_03.mp4", frames: ["holeimg/gzd18a1a/fin3_1.jpg", "holeimg/gzd18a1a/fin3_2.jpg", "holeimg/gzd18a1a/fin3_3.jpg"], elev: -20, tees: [{ name: "챔피언", m: 360 }, { name: "백", m: 340 }, { name: "프론트", m: 325 }, { name: "시니어", m: 313 }, { name: "레이디", m: 280 }], len: 360 },
@@ -4945,7 +4945,7 @@ const HOLEIMG_DB = {
     source: "골프존 코스 데이터 (홀맵·파·거리·고도차·홀 영상)",
     sourceUrl: "https://auroragolfnresort.co.kr/",
     courses: [
-      { name: "OUT", holes: [
+      { name: "레이크", holes: [
         { no: 1, par: 4, img: "holeimg/gzd2f17e/1out1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1319_01_01.mp4", frames: ["holeimg/gzd2f17e/fout1_1.jpg", "holeimg/gzd2f17e/fout1_2.jpg", "holeimg/gzd2f17e/fout1_3.jpg"], elev: -16, tees: [{ name: "챔피언", m: 377 }, { name: "백", m: 352 }, { name: "시니어", m: 284 }, { name: "레이디", m: 265 }], len: 377 },
         { no: 2, par: 5, img: "holeimg/gzd2f17e/1out2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1319_01_02.mp4", frames: ["holeimg/gzd2f17e/fout2_1.jpg", "holeimg/gzd2f17e/fout2_2.jpg", "holeimg/gzd2f17e/fout2_3.jpg"], elev: -50, tees: [{ name: "챔피언", m: 521 }, { name: "백", m: 490 }, { name: "시니어", m: 422 }], len: 521 },
         { no: 3, par: 3, img: "holeimg/gzd2f17e/1out3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1319_01_03.mp4", frames: ["holeimg/gzd2f17e/fout3_1.jpg", "holeimg/gzd2f17e/fout3_2.jpg"], elev: 7, tees: [{ name: "챔피언", m: 154 }, { name: "백", m: 135 }, { name: "시니어", m: 117 }], len: 154 },
@@ -4956,7 +4956,7 @@ const HOLEIMG_DB = {
         { no: 8, par: 3, img: "holeimg/gzd2f17e/1out8.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1319_01_08.mp4", frames: ["holeimg/gzd2f17e/fout8_1.jpg", "holeimg/gzd2f17e/fout8_2.jpg"], elev: -5, tees: [{ name: "챔피언", m: 169 }, { name: "백", m: 142 }, { name: "시니어", m: 112 }], len: 169 },
         { no: 9, par: 4, img: "holeimg/gzd2f17e/1out9.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1319_01_09.mp4", frames: ["holeimg/gzd2f17e/fout9_1.jpg", "holeimg/gzd2f17e/fout9_2.jpg", "holeimg/gzd2f17e/fout9_3.jpg"], tees: [{ name: "챔피언", m: 385 }, { name: "백", m: 350 }, { name: "시니어", m: 312 }, { name: "레이디", m: 252 }], len: 385 },
       ]},
-      { name: "IN", holes: [
+      { name: "마운틴", holes: [
         { no: 1, par: 5, img: "holeimg/gzd2f17e/2in1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1319_02_01.mp4", frames: ["holeimg/gzd2f17e/fin1_1.jpg", "holeimg/gzd2f17e/fin1_2.jpg", "holeimg/gzd2f17e/fin1_3.jpg"], elev: -9, tees: [{ name: "챔피언", m: 447 }, { name: "백", m: 431 }, { name: "프론트", m: 410 }, { name: "시니어", m: 382 }, { name: "레이디", m: 353 }], len: 447 },
         { no: 2, par: 4, img: "holeimg/gzd2f17e/2in2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1319_02_02.mp4", frames: ["holeimg/gzd2f17e/fin2_1.jpg", "holeimg/gzd2f17e/fin2_2.jpg", "holeimg/gzd2f17e/fin2_3.jpg"], elev: -11, tees: [{ name: "챔피언", m: 342 }, { name: "백", m: 314 }, { name: "시니어", m: 259 }], len: 342 },
         { no: 3, par: 4, img: "holeimg/gzd2f17e/2in3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1319_02_03.mp4", frames: ["holeimg/gzd2f17e/fin3_1.jpg", "holeimg/gzd2f17e/fin3_2.jpg", "holeimg/gzd2f17e/fin3_3.jpg"], elev: 8, tees: [{ name: "챔피언", m: 349 }, { name: "백", m: 329 }, { name: "프론트", m: 303 }, { name: "시니어", m: 281 }, { name: "레이디", m: 254 }], len: 349 },
@@ -5001,7 +5001,7 @@ const HOLEIMG_DB = {
     source: "골프존 코스 데이터 (홀맵·파·거리·고도차·홀 영상)",
     sourceUrl: "http://www.ilcc.co.kr/",
     courses: [
-      { name: "OUT", holes: [
+      { name: "PINE", holes: [
         { no: 1, par: 4, img: "holeimg/gzd50294/1out1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_115_01_01.mp4", frames: ["holeimg/gzd50294/fout1_1.jpg", "holeimg/gzd50294/fout1_2.jpg", "holeimg/gzd50294/fout1_3.jpg"], tees: [{ name: "챔피언", m: 337 }, { name: "프론트", m: 317 }, { name: "시니어", m: 298 }], len: 337 },
         { no: 2, par: 4, img: "holeimg/gzd50294/1out2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_115_01_02.mp4", frames: ["holeimg/gzd50294/fout2_1.jpg", "holeimg/gzd50294/fout2_2.jpg", "holeimg/gzd50294/fout2_3.jpg"], tees: [{ name: "챔피언", m: 355 }, { name: "프론트", m: 329 }, { name: "시니어", m: 304 }], len: 355 },
         { no: 3, par: 4, img: "holeimg/gzd50294/1out3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_115_01_03.mp4", frames: ["holeimg/gzd50294/fout3_1.jpg", "holeimg/gzd50294/fout3_2.jpg", "holeimg/gzd50294/fout3_3.jpg"], elev: -7, tees: [{ name: "챔피언", m: 366 }, { name: "백", m: 365 }, { name: "프론트", m: 352 }, { name: "시니어", m: 335 }], len: 366 },
@@ -5012,7 +5012,7 @@ const HOLEIMG_DB = {
         { no: 8, par: 4, img: "holeimg/gzd50294/1out8.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_115_01_08.mp4", frames: ["holeimg/gzd50294/fout8_1.jpg", "holeimg/gzd50294/fout8_2.jpg", "holeimg/gzd50294/fout8_3.jpg"], elev: -5, tees: [{ name: "챔피언", m: 382 }, { name: "프론트", m: 367 }, { name: "시니어", m: 351 }], len: 382 },
         { no: 9, par: 4, img: "holeimg/gzd50294/1out9.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_115_01_09.mp4", frames: ["holeimg/gzd50294/fout9_1.jpg", "holeimg/gzd50294/fout9_2.jpg", "holeimg/gzd50294/fout9_3.jpg"], elev: -11, tees: [{ name: "챔피언", m: 353 }, { name: "프론트", m: 337 }, { name: "시니어", m: 326 }], len: 353 },
       ]},
-      { name: "IN", holes: [
+      { name: "LAKE", holes: [
         { no: 1, par: 4, img: "holeimg/gzd50294/2in1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_115_02_01.mp4", frames: ["holeimg/gzd50294/fin1_1.jpg", "holeimg/gzd50294/fin1_2.jpg", "holeimg/gzd50294/fin1_3.jpg"], elev: 5, tees: [{ name: "챔피언", m: 352 }, { name: "프론트", m: 331 }, { name: "시니어", m: 306 }], len: 352 },
         { no: 2, par: 3, img: "holeimg/gzd50294/2in2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_115_02_02.mp4", frames: ["holeimg/gzd50294/fin2_1.jpg", "holeimg/gzd50294/fin2_2.jpg"], elev: -9, tees: [{ name: "챔피언", m: 119 }, { name: "프론트", m: 118 }, { name: "시니어", m: 115 }], len: 119 },
         { no: 3, par: 4, img: "holeimg/gzd50294/2in3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_115_02_03.mp4", frames: ["holeimg/gzd50294/fin3_1.jpg", "holeimg/gzd50294/fin3_2.jpg", "holeimg/gzd50294/fin3_3.jpg"], elev: 13, tees: [{ name: "챔피언", m: 370 }, { name: "프론트", m: 361 }, { name: "시니어", m: 354 }], len: 370 },
@@ -5029,7 +5029,7 @@ const HOLEIMG_DB = {
     source: "골프존 코스 데이터 (홀맵·파·거리·고도차·홀 영상)",
     sourceUrl: "https://www.tops10.co.kr/tops10_04_01.html",
     courses: [
-      { name: "OUT", holes: [
+      { name: "영월", holes: [
         { no: 1, par: 4, img: "holeimg/gzd515f4/1out1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1340_01_01.mp4", frames: ["holeimg/gzd515f4/fout1_1.jpg", "holeimg/gzd515f4/fout1_2.jpg", "holeimg/gzd515f4/fout1_3.jpg"], elev: 17, tees: [{ name: "챔피언", m: 282 }, { name: "백", m: 255 }, { name: "프론트", m: 240 }, { name: "시니어", m: 224 }, { name: "레이디", m: 171 }], len: 282 },
         { no: 2, par: 4, img: "holeimg/gzd515f4/1out2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1340_01_02.mp4", frames: ["holeimg/gzd515f4/fout2_1.jpg", "holeimg/gzd515f4/fout2_2.jpg", "holeimg/gzd515f4/fout2_3.jpg"], elev: -4, tees: [{ name: "챔피언", m: 300 }, { name: "백", m: 281 }, { name: "프론트", m: 279 }, { name: "시니어", m: 246 }, { name: "레이디", m: 221 }], len: 300 },
         { no: 3, par: 3, img: "holeimg/gzd515f4/1out3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1340_01_03.mp4", frames: ["holeimg/gzd515f4/fout3_1.jpg", "holeimg/gzd515f4/fout3_2.jpg"], elev: -9, tees: [{ name: "챔피언", m: 182 }, { name: "백", m: 161 }, { name: "프론트", m: 136 }, { name: "시니어", m: 121 }, { name: "레이디", m: 108 }], len: 182 },
@@ -5040,7 +5040,7 @@ const HOLEIMG_DB = {
         { no: 8, par: 5, img: "holeimg/gzd515f4/1out8.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1340_01_08.mp4", frames: ["holeimg/gzd515f4/fout8_1.jpg", "holeimg/gzd515f4/fout8_2.jpg", "holeimg/gzd515f4/fout8_3.jpg"], elev: -9, tees: [{ name: "챔피언", m: 403 }, { name: "백", m: 382 }, { name: "프론트", m: 334 }, { name: "시니어", m: 310 }, { name: "레이디", m: 288 }], len: 403 },
         { no: 9, par: 4, img: "holeimg/gzd515f4/1out9.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1340_01_09.mp4", frames: ["holeimg/gzd515f4/fout9_1.jpg", "holeimg/gzd515f4/fout9_2.jpg", "holeimg/gzd515f4/fout9_3.jpg"], elev: -24, tees: [{ name: "챔피언", m: 344 }, { name: "백", m: 319 }, { name: "프론트", m: 300 }, { name: "레이디", m: 233 }], len: 344 },
       ]},
-      { name: "IN", holes: [
+      { name: "동강", holes: [
         { no: 1, par: 5, img: "holeimg/gzd515f4/2in1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1340_02_01.mp4", frames: ["holeimg/gzd515f4/fin1_1.jpg", "holeimg/gzd515f4/fin1_2.jpg", "holeimg/gzd515f4/fin1_3.jpg"], elev: 24, tees: [{ name: "챔피언", m: 399 }, { name: "백", m: 374 }, { name: "프론트", m: 369 }, { name: "시니어", m: 349 }, { name: "레이디", m: 332 }], len: 399 },
         { no: 2, par: 4, img: "holeimg/gzd515f4/2in2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1340_02_02.mp4", frames: ["holeimg/gzd515f4/fin2_1.jpg", "holeimg/gzd515f4/fin2_2.jpg", "holeimg/gzd515f4/fin2_3.jpg"], elev: 5, tees: [{ name: "챔피언", m: 319 }, { name: "백", m: 302 }, { name: "프론트", m: 272 }, { name: "시니어", m: 241 }, { name: "레이디", m: 220 }], len: 319 },
         { no: 3, par: 4, img: "holeimg/gzd515f4/2in3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1340_02_03.mp4", frames: ["holeimg/gzd515f4/fin3_1.jpg", "holeimg/gzd515f4/fin3_2.jpg"], elev: -9, tees: [{ name: "챔피언", m: 271 }, { name: "백", m: 269 }, { name: "프론트", m: 222 }, { name: "레이디", m: 183 }], len: 271 },
@@ -5057,7 +5057,7 @@ const HOLEIMG_DB = {
     source: "골프존 코스 데이터 (홀맵·파·거리·고도차·홀 영상)",
     sourceUrl: "http://www.hillcc.com/",
     courses: [
-      { name: "OUT", holes: [
+      { name: "MOUNTAIN", holes: [
         { no: 1, par: 4, img: "holeimg/gzd592d0/1out1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_540_01_01.mp4", frames: ["holeimg/gzd592d0/fout1_1.jpg", "holeimg/gzd592d0/fout1_2.jpg"], elev: -6, tees: [{ name: "챔피언", m: 296 }, { name: "백", m: 295 }, { name: "프론트", m: 282 }, { name: "시니어", m: 247 }, { name: "레이디", m: 214 }], len: 296 },
         { no: 2, par: 5, img: "holeimg/gzd592d0/1out2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_540_01_02.mp4", frames: ["holeimg/gzd592d0/fout2_1.jpg", "holeimg/gzd592d0/fout2_2.jpg", "holeimg/gzd592d0/fout2_3.jpg"], elev: -25, tees: [{ name: "챔피언", m: 445 }, { name: "프론트", m: 424 }, { name: "시니어", m: 356 }], len: 445 },
         { no: 3, par: 4, img: "holeimg/gzd592d0/1out3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_540_01_03.mp4", frames: ["holeimg/gzd592d0/fout3_1.jpg", "holeimg/gzd592d0/fout3_2.jpg", "holeimg/gzd592d0/fout3_3.jpg"], elev: 25, tees: [{ name: "챔피언", m: 341 }, { name: "프론트", m: 340 }, { name: "시니어", m: 280 }, { name: "레이디", m: 243 }], len: 341 },
@@ -5068,7 +5068,7 @@ const HOLEIMG_DB = {
         { no: 8, par: 4, img: "holeimg/gzd592d0/1out8.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_540_01_08.mp4", frames: ["holeimg/gzd592d0/fout8_1.jpg", "holeimg/gzd592d0/fout8_2.jpg", "holeimg/gzd592d0/fout8_3.jpg"], elev: 24, tees: [{ name: "챔피언", m: 294 }, { name: "백", m: 293 }, { name: "시니어", m: 226 }], len: 294 },
         { no: 9, par: 4, img: "holeimg/gzd592d0/1out9.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_540_01_09.mp4", frames: ["holeimg/gzd592d0/fout9_1.jpg", "holeimg/gzd592d0/fout9_2.jpg"], elev: -27, tees: [{ name: "챔피언", m: 294 }, { name: "백", m: 293 }, { name: "시니어", m: 253 }, { name: "레이디", m: 225 }], len: 294 },
       ]},
-      { name: "IN", holes: [
+      { name: "LAKE", holes: [
         { no: 1, par: 4, img: "holeimg/gzd592d0/2in1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_540_02_01.mp4", frames: ["holeimg/gzd592d0/fin1_1.jpg", "holeimg/gzd592d0/fin1_2.jpg", "holeimg/gzd592d0/fin1_3.jpg"], elev: -13, tees: [{ name: "챔피언", m: 354 }, { name: "백", m: 353 }, { name: "프론트", m: 340 }, { name: "시니어", m: 314 }, { name: "레이디", m: 286 }], len: 354 },
         { no: 2, par: 4, img: "holeimg/gzd592d0/2in2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_540_02_02.mp4", frames: ["holeimg/gzd592d0/fin2_1.jpg", "holeimg/gzd592d0/fin2_2.jpg"], elev: 7, tees: [{ name: "챔피언", m: 320 }, { name: "시니어", m: 260 }, { name: "레이디", m: 259 }], len: 320 },
         { no: 3, par: 4, img: "holeimg/gzd592d0/2in3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_540_02_03.mp4", frames: ["holeimg/gzd592d0/fin3_1.jpg", "holeimg/gzd592d0/fin3_2.jpg"], elev: -3, tees: [{ name: "챔피언", m: 348 }, { name: "시니어", m: 284 }, { name: "레이디", m: 244 }], len: 348 },
@@ -5085,7 +5085,7 @@ const HOLEIMG_DB = {
     source: "골프존 코스 데이터 (홀맵·파·거리·고도차·홀 영상)",
     sourceUrl: "https://www.easyskycc.co.kr",
     courses: [
-      { name: "OUT", holes: [
+      { name: "이지", holes: [
         { no: 1, par: 4, img: "holeimg/gzd5ab03/1out1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_963_01_01.mp4", frames: ["holeimg/gzd5ab03/fout1_1.jpg", "holeimg/gzd5ab03/fout1_2.jpg", "holeimg/gzd5ab03/fout1_3.jpg"], tees: [{ name: "챔피언", m: 331 }, { name: "시니어", m: 194 }, { name: "레이디", m: 193 }], len: 331 },
         { no: 2, par: 5, img: "holeimg/gzd5ab03/1out2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_963_01_02.mp4", frames: ["holeimg/gzd5ab03/fout2_1.jpg", "holeimg/gzd5ab03/fout2_2.jpg", "holeimg/gzd5ab03/fout2_3.jpg"], elev: 29, tees: [{ name: "챔피언", m: 413 }, { name: "시니어", m: 339 }], len: 413 },
         { no: 3, par: 4, img: "holeimg/gzd5ab03/1out3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_963_01_03.mp4", frames: ["holeimg/gzd5ab03/fout3_1.jpg", "holeimg/gzd5ab03/fout3_2.jpg", "holeimg/gzd5ab03/fout3_3.jpg"], elev: 9, tees: [{ name: "챔피언", m: 368 }, { name: "시니어", m: 202 }, { name: "레이디", m: 201 }], len: 368 },
@@ -5096,7 +5096,7 @@ const HOLEIMG_DB = {
         { no: 8, par: 4, img: "holeimg/gzd5ab03/1out8.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_963_01_08.mp4", frames: ["holeimg/gzd5ab03/fout8_1.jpg", "holeimg/gzd5ab03/fout8_2.jpg", "holeimg/gzd5ab03/fout8_3.jpg"], elev: 10, tees: [{ name: "챔피언", m: 275 }, { name: "시니어", m: 150 }, { name: "레이디", m: 149 }], len: 275 },
         { no: 9, par: 4, img: "holeimg/gzd5ab03/1out9.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_963_01_09.mp4", frames: ["holeimg/gzd5ab03/fout9_1.jpg", "holeimg/gzd5ab03/fout9_2.jpg", "holeimg/gzd5ab03/fout9_3.jpg"], elev: -18, tees: [{ name: "챔피언", m: 275 }, { name: "시니어", m: 222 }], len: 275 },
       ]},
-      { name: "IN", holes: [
+      { name: "스카이", holes: [
         { no: 1, par: 4, img: "holeimg/gzd5ab03/2in1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_963_02_01.mp4", frames: ["holeimg/gzd5ab03/fin1_1.jpg", "holeimg/gzd5ab03/fin1_2.jpg", "holeimg/gzd5ab03/fin1_3.jpg"], elev: -4, tees: [{ name: "챔피언", m: 308 }, { name: "프론트", m: 302 }, { name: "시니어", m: 240 }], len: 308 },
         { no: 2, par: 4, img: "holeimg/gzd5ab03/2in2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_963_02_02.mp4", frames: ["holeimg/gzd5ab03/fin2_1.jpg", "holeimg/gzd5ab03/fin2_2.jpg"], tees: [{ name: "챔피언", m: 254 }, { name: "프론트", m: 250 }, { name: "시니어", m: 212 }], len: 254 },
         { no: 3, par: 3, img: "holeimg/gzd5ab03/2in3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_963_02_03.mp4", frames: ["holeimg/gzd5ab03/fin3_1.jpg", "holeimg/gzd5ab03/fin3_2.jpg"], tees: [{ name: "챔피언", m: 178 }, { name: "프론트", m: 160 }, { name: "시니어", m: 122 }], len: 178 },
@@ -5141,7 +5141,7 @@ const HOLEIMG_DB = {
     source: "골프존 코스 데이터 (홀맵·파·거리·고도차·홀 영상)",
     sourceUrl: "http://www.royalforet.com/",
     courses: [
-      { name: "OUT", holes: [
+      { name: "ROYAL", holes: [
         { no: 1, par: 4, img: "holeimg/gzdef110/1out1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_505_01_01.mp4", frames: ["holeimg/gzdef110/fout1_1.jpg", "holeimg/gzdef110/fout1_2.jpg", "holeimg/gzdef110/fout1_3.jpg"], elev: -13, tees: [{ name: "챔피언", m: 393 }, { name: "프론트", m: 362 }, { name: "시니어", m: 336 }, { name: "레이디", m: 305 }], len: 393 },
         { no: 2, par: 4, img: "holeimg/gzdef110/1out2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_505_01_02.mp4", frames: ["holeimg/gzdef110/fout2_1.jpg", "holeimg/gzdef110/fout2_2.jpg", "holeimg/gzdef110/fout2_3.jpg"], elev: -4, tees: [{ name: "챔피언", m: 371 }, { name: "프론트", m: 345 }, { name: "시니어", m: 314 }, { name: "레이디", m: 275 }], len: 371 },
         { no: 3, par: 3, img: "holeimg/gzdef110/1out3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_505_01_03.mp4", frames: ["holeimg/gzdef110/fout3_1.jpg", "holeimg/gzdef110/fout3_2.jpg"], tees: [{ name: "챔피언", m: 151 }, { name: "백", m: 150 }, { name: "프론트", m: 125 }, { name: "시니어", m: 113 }, { name: "레이디", m: 91 }], len: 151 },
@@ -5152,7 +5152,7 @@ const HOLEIMG_DB = {
         { no: 8, par: 5, img: "holeimg/gzdef110/1out8.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_505_01_08.mp4", frames: ["holeimg/gzdef110/fout8_1.jpg", "holeimg/gzdef110/fout8_2.jpg", "holeimg/gzdef110/fout8_3.jpg"], elev: -35, tees: [{ name: "챔피언", m: 523 }, { name: "프론트", m: 496 }, { name: "시니어", m: 466 }, { name: "레이디", m: 437 }], len: 523 },
         { no: 9, par: 4, img: "holeimg/gzdef110/1out9.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_505_01_09.mp4", frames: ["holeimg/gzdef110/fout9_1.jpg", "holeimg/gzdef110/fout9_2.jpg", "holeimg/gzdef110/fout9_3.jpg"], elev: -41, tees: [{ name: "챔피언", m: 370 }, { name: "백", m: 369 }, { name: "프론트", m: 341 }, { name: "시니어", m: 313 }, { name: "레이디", m: 285 }], len: 370 },
       ]},
-      { name: "IN", holes: [
+      { name: "FORET", holes: [
         { no: 1, par: 4, img: "holeimg/gzdef110/2in1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_505_02_01.mp4", frames: ["holeimg/gzdef110/fin1_1.jpg", "holeimg/gzdef110/fin1_2.jpg", "holeimg/gzdef110/fin1_3.jpg"], elev: 22, tees: [{ name: "챔피언", m: 358 }, { name: "프론트", m: 321 }, { name: "시니어", m: 303 }, { name: "레이디", m: 260 }], len: 358 },
         { no: 2, par: 4, img: "holeimg/gzdef110/2in2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_505_02_02.mp4", frames: ["holeimg/gzdef110/fin2_1.jpg", "holeimg/gzdef110/fin2_2.jpg", "holeimg/gzdef110/fin2_3.jpg"], elev: 7, tees: [{ name: "챔피언", m: 380 }, { name: "프론트", m: 351 }, { name: "시니어", m: 333 }, { name: "레이디", m: 272 }], len: 380 },
         { no: 3, par: 3, img: "holeimg/gzdef110/2in3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_505_02_03.mp4", frames: ["holeimg/gzdef110/fin3_1.jpg", "holeimg/gzdef110/fin3_2.jpg"], elev: -4, tees: [{ name: "챔피언", m: 194 }, { name: "프론트", m: 171 }, { name: "시니어", m: 146 }, { name: "레이디", m: 123 }], len: 194 },
@@ -5253,7 +5253,7 @@ const HOLEIMG_DB = {
     source: "골프존 코스 데이터 (홀맵·파·거리·고도차·홀 영상)",
     sourceUrl: "http://www.daehocc.co.kr/",
     courses: [
-      { name: "OUT", holes: [
+      { name: "MOUNTAIN", holes: [
         { no: 1, par: 4, img: "holeimg/gze2fdc9/1out1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_150_02_01.mp4", frames: ["holeimg/gze2fdc9/fout1_1.jpg", "holeimg/gze2fdc9/fout1_2.jpg", "holeimg/gze2fdc9/fout1_3.jpg"], elev: -16, tees: [{ name: "챔피언", m: 343 }, { name: "백", m: 324 }, { name: "프론트", m: 307 }, { name: "시니어", m: 258 }], len: 343 },
         { no: 2, par: 5, img: "holeimg/gze2fdc9/1out2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_150_02_02.mp4", frames: ["holeimg/gze2fdc9/fout2_1.jpg", "holeimg/gze2fdc9/fout2_2.jpg", "holeimg/gze2fdc9/fout2_3.jpg"], tees: [{ name: "챔피언", m: 500 }, { name: "백", m: 473 }, { name: "프론트", m: 428 }, { name: "시니어", m: 360 }], len: 500 },
         { no: 3, par: 4, img: "holeimg/gze2fdc9/1out3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_150_02_03.mp4", frames: ["holeimg/gze2fdc9/fout3_1.jpg", "holeimg/gze2fdc9/fout3_2.jpg", "holeimg/gze2fdc9/fout3_3.jpg"], elev: -16, tees: [{ name: "챔피언", m: 320 }, { name: "백", m: 288 }, { name: "프론트", m: 270 }, { name: "시니어", m: 231 }], len: 320 },
@@ -5264,7 +5264,7 @@ const HOLEIMG_DB = {
         { no: 8, par: 4, img: "holeimg/gze2fdc9/1out8.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_150_02_08.mp4", frames: ["holeimg/gze2fdc9/fout8_1.jpg", "holeimg/gze2fdc9/fout8_2.jpg", "holeimg/gze2fdc9/fout8_3.jpg"], elev: -16, tees: [{ name: "챔피언", m: 379 }, { name: "백", m: 350 }, { name: "프론트", m: 320 }, { name: "시니어", m: 279 }], len: 379 },
         { no: 9, par: 5, img: "holeimg/gze2fdc9/1out9.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_150_02_09.mp4", frames: ["holeimg/gze2fdc9/fout9_1.jpg", "holeimg/gze2fdc9/fout9_2.jpg", "holeimg/gze2fdc9/fout9_3.jpg"], elev: -20, tees: [{ name: "챔피언", m: 493 }, { name: "백", m: 467 }, { name: "프론트", m: 453 }, { name: "시니어", m: 381 }], len: 493 },
       ]},
-      { name: "IN", holes: [
+      { name: "LAKE", holes: [
         { no: 1, par: 5, img: "holeimg/gze2fdc9/2in1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_150_01_01.mp4", frames: ["holeimg/gze2fdc9/fin1_1.jpg", "holeimg/gze2fdc9/fin1_2.jpg", "holeimg/gze2fdc9/fin1_3.jpg"], tees: [{ name: "챔피언", m: 508 }, { name: "백", m: 478 }, { name: "프론트", m: 448 }, { name: "시니어", m: 384 }, { name: "레이디", m: 383 }], len: 508 },
         { no: 2, par: 4, img: "holeimg/gze2fdc9/2in2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_150_01_02.mp4", frames: ["holeimg/gze2fdc9/fin2_1.jpg", "holeimg/gze2fdc9/fin2_2.jpg", "holeimg/gze2fdc9/fin2_3.jpg"], elev: -9, tees: [{ name: "챔피언", m: 380 }, { name: "백", m: 351 }, { name: "프론트", m: 317 }, { name: "시니어", m: 294 }], len: 380 },
         { no: 3, par: 4, img: "holeimg/gze2fdc9/2in3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_150_01_03.mp4", frames: ["holeimg/gze2fdc9/fin3_1.jpg", "holeimg/gze2fdc9/fin3_2.jpg", "holeimg/gze2fdc9/fin3_3.jpg"], elev: 6, tees: [{ name: "챔피언", m: 361 }, { name: "백", m: 334 }, { name: "프론트", m: 317 }, { name: "시니어", m: 247 }], len: 361 },
@@ -5281,7 +5281,7 @@ const HOLEIMG_DB = {
     source: "골프존 코스 데이터 (홀맵·파·거리·고도차·홀 영상)",
     sourceUrl: "https://www.teecloud.co.kr/",
     courses: [
-      { name: "OUT", holes: [
+      { name: "해밀", holes: [
         { no: 1, par: 4, img: "holeimg/gze31623/1out1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_331_01_01.mp4", frames: ["holeimg/gze31623/fout1_1.jpg", "holeimg/gze31623/fout1_2.jpg", "holeimg/gze31623/fout1_3.jpg"], elev: 19, tees: [{ name: "챔피언", m: 303 }, { name: "프론트", m: 277 }, { name: "시니어", m: 251 }, { name: "레이디", m: 250 }], len: 303 },
         { no: 2, par: 4, img: "holeimg/gze31623/1out2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_331_01_02.mp4", frames: ["holeimg/gze31623/fout2_1.jpg", "holeimg/gze31623/fout2_2.jpg", "holeimg/gze31623/fout2_3.jpg"], elev: 3, tees: [{ name: "챔피언", m: 393 }, { name: "프론트", m: 317 }, { name: "시니어", m: 294 }], len: 393 },
         { no: 3, par: 5, img: "holeimg/gze31623/1out3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_331_01_03.mp4", frames: ["holeimg/gze31623/fout3_1.jpg", "holeimg/gze31623/fout3_2.jpg", "holeimg/gze31623/fout3_3.jpg"], elev: -21, tees: [{ name: "챔피언", m: 480 }, { name: "백", m: 479 }, { name: "프론트", m: 449 }, { name: "시니어", m: 432 }, { name: "레이디", m: 431 }], len: 480 },
@@ -5292,7 +5292,7 @@ const HOLEIMG_DB = {
         { no: 8, par: 3, img: "holeimg/gze31623/1out8.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_331_01_08.mp4", frames: ["holeimg/gze31623/fout8_1.jpg", "holeimg/gze31623/fout8_2.jpg"], tees: [{ name: "챔피언", m: 215 }, { name: "프론트", m: 193 }, { name: "시니어", m: 109 }], len: 215 },
         { no: 9, par: 4, img: "holeimg/gze31623/1out9.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_331_01_09.mp4", frames: ["holeimg/gze31623/fout9_1.jpg", "holeimg/gze31623/fout9_2.jpg", "holeimg/gze31623/fout9_3.jpg"], elev: 26, tees: [{ name: "챔피언", m: 391 }, { name: "프론트", m: 356 }, { name: "시니어", m: 334 }], len: 391 },
       ]},
-      { name: "IN", holes: [
+      { name: "비체", holes: [
         { no: 1, par: 4, img: "holeimg/gze31623/2in1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_331_02_01.mp4", frames: ["holeimg/gze31623/fin1_1.jpg", "holeimg/gze31623/fin1_2.jpg", "holeimg/gze31623/fin1_3.jpg"], elev: -11, tees: [{ name: "챔피언", m: 410 }, { name: "프론트", m: 395 }, { name: "시니어", m: 360 }], len: 410 },
         { no: 2, par: 3, img: "holeimg/gze31623/2in2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_331_02_02.mp4", frames: ["holeimg/gze31623/fin2_1.jpg", "holeimg/gze31623/fin2_2.jpg"], tees: [{ name: "챔피언", m: 153 }, { name: "프론트", m: 132 }, { name: "시니어", m: 115 }], len: 153 },
         { no: 3, par: 4, img: "holeimg/gze31623/2in3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_331_02_03.mp4", frames: ["holeimg/gze31623/fin3_1.jpg", "holeimg/gze31623/fin3_2.jpg", "holeimg/gze31623/fin3_3.jpg"], elev: 23, tees: [{ name: "챔피언", m: 360 }, { name: "프론트", m: 323 }, { name: "시니어", m: 249 }, { name: "레이디", m: 248 }], len: 360 },
@@ -5337,7 +5337,7 @@ const HOLEIMG_DB = {
     source: "골프존 코스 데이터 (홀맵·파·거리·고도차·홀 영상)",
     sourceUrl: "http://www.bosungcc.co.kr/",
     courses: [
-      { name: "OUT", holes: [
+      { name: "MOUNTAIN", holes: [
         { no: 1, par: 4, img: "holeimg/gze43b73/1out1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_262_02_01.mp4", frames: ["holeimg/gze43b73/fout1_1.jpg", "holeimg/gze43b73/fout1_2.jpg", "holeimg/gze43b73/fout1_3.jpg"], elev: 18, tees: [{ name: "챔피언", m: 368 }, { name: "백", m: 367 }, { name: "프론트", m: 361 }, { name: "시니어", m: 333 }, { name: "레이디", m: 311 }], len: 368 },
         { no: 2, par: 5, img: "holeimg/gze43b73/1out2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_262_02_02.mp4", frames: ["holeimg/gze43b73/fout2_1.jpg", "holeimg/gze43b73/fout2_2.jpg", "holeimg/gze43b73/fout2_3.jpg"], elev: 17, tees: [{ name: "챔피언", m: 478 }, { name: "백", m: 477 }, { name: "프론트", m: 453 }, { name: "시니어", m: 407 }, { name: "레이디", m: 376 }], len: 478 },
         { no: 3, par: 3, img: "holeimg/gze43b73/1out3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_262_02_03.mp4", frames: ["holeimg/gze43b73/fout3_1.jpg", "holeimg/gze43b73/fout3_2.jpg"], elev: -7, tees: [{ name: "챔피언", m: 142 }, { name: "백", m: 141 }, { name: "프론트", m: 122 }, { name: "시니어", m: 111 }, { name: "레이디", m: 105 }], len: 142 },
@@ -5348,7 +5348,7 @@ const HOLEIMG_DB = {
         { no: 8, par: 4, img: "holeimg/gze43b73/1out8.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_262_02_08.mp4", frames: ["holeimg/gze43b73/fout8_1.jpg", "holeimg/gze43b73/fout8_2.jpg", "holeimg/gze43b73/fout8_3.jpg"], elev: -11, tees: [{ name: "챔피언", m: 352 }, { name: "프론트", m: 316 }, { name: "시니어", m: 271 }, { name: "레이디", m: 262 }], len: 352 },
         { no: 9, par: 4, img: "holeimg/gze43b73/1out9.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_262_02_09.mp4", frames: ["holeimg/gze43b73/fout9_1.jpg", "holeimg/gze43b73/fout9_2.jpg", "holeimg/gze43b73/fout9_3.jpg"], elev: -27, tees: [{ name: "챔피언", m: 370 }, { name: "백", m: 369 }, { name: "프론트", m: 353 }, { name: "시니어", m: 339 }, { name: "레이디", m: 323 }], len: 370 },
       ]},
-      { name: "IN", holes: [
+      { name: "LAKE", holes: [
         { no: 1, par: 5, img: "holeimg/gze43b73/2in1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_262_01_01.mp4", frames: ["holeimg/gze43b73/fin1_1.jpg", "holeimg/gze43b73/fin1_2.jpg", "holeimg/gze43b73/fin1_3.jpg"], elev: 7, tees: [{ name: "챔피언", m: 494 }, { name: "백", m: 493 }, { name: "프론트", m: 471 }, { name: "시니어", m: 449 }, { name: "레이디", m: 442 }], len: 494 },
         { no: 2, par: 4, img: "holeimg/gze43b73/2in2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_262_01_02.mp4", frames: ["holeimg/gze43b73/fin2_1.jpg", "holeimg/gze43b73/fin2_2.jpg", "holeimg/gze43b73/fin2_3.jpg"], elev: 19, tees: [{ name: "챔피언", m: 350 }, { name: "프론트", m: 340 }, { name: "시니어", m: 310 }, { name: "레이디", m: 264 }], len: 350 },
         { no: 3, par: 3, img: "holeimg/gze43b73/2in3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_262_01_03.mp4", frames: ["holeimg/gze43b73/fin3_1.jpg", "holeimg/gze43b73/fin3_2.jpg"], elev: -25, tees: [{ name: "챔피언", m: 170 }, { name: "프론트", m: 146 }, { name: "시니어", m: 127 }, { name: "레이디", m: 108 }], len: 170 },
@@ -5533,7 +5533,7 @@ const HOLEIMG_DB = {
     source: "골프존 코스 데이터 (홀맵·파·거리·고도차·홀 영상)",
     sourceUrl: "http://www.easthills.co.kr/index.asp",
     courses: [
-      { name: "OUT", holes: [
+      { name: "LAKE", holes: [
         { no: 1, par: 4, img: "holeimg/gzecbf5e/1out1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_486_01_01.mp4", frames: ["holeimg/gzecbf5e/fout1_1.jpg", "holeimg/gzecbf5e/fout1_2.jpg", "holeimg/gzecbf5e/fout1_3.jpg"], elev: 14, tees: [{ name: "챔피언", m: 301 }, { name: "프론트", m: 293 }, { name: "시니어", m: 202 }], len: 301 },
         { no: 2, par: 3, img: "holeimg/gzecbf5e/1out2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_486_01_02.mp4", frames: ["holeimg/gzecbf5e/fout2_1.jpg", "holeimg/gzecbf5e/fout2_2.jpg"], tees: [{ name: "챔피언", m: 194 }, { name: "프론트", m: 179 }, { name: "시니어", m: 146 }], len: 194 },
         { no: 3, par: 5, img: "holeimg/gzecbf5e/1out3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_486_01_03.mp4", frames: ["holeimg/gzecbf5e/fout3_1.jpg", "holeimg/gzecbf5e/fout3_2.jpg", "holeimg/gzecbf5e/fout3_3.jpg"], elev: -22, tees: [{ name: "챔피언", m: 511 }, { name: "프론트", m: 490 }, { name: "시니어", m: 347 }], len: 511 },
@@ -5544,7 +5544,7 @@ const HOLEIMG_DB = {
         { no: 8, par: 4, img: "holeimg/gzecbf5e/1out8.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_486_01_08.mp4", frames: ["holeimg/gzecbf5e/fout8_1.jpg", "holeimg/gzecbf5e/fout8_2.jpg", "holeimg/gzecbf5e/fout8_3.jpg"], elev: 10, tees: [{ name: "챔피언", m: 368 }, { name: "시니어", m: 231 }], len: 368 },
         { no: 9, par: 5, img: "holeimg/gzecbf5e/1out9.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_486_01_09.mp4", frames: ["holeimg/gzecbf5e/fout9_1.jpg", "holeimg/gzecbf5e/fout9_2.jpg", "holeimg/gzecbf5e/fout9_3.jpg"], elev: -37, tees: [{ name: "챔피언", m: 538 }, { name: "백", m: 537 }, { name: "시니어", m: 422 }], len: 538 },
       ]},
-      { name: "IN", holes: [
+      { name: "VALLEY", holes: [
         { no: 1, par: 4, img: "holeimg/gzecbf5e/2in1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_486_02_01.mp4", frames: ["holeimg/gzecbf5e/fin1_1.jpg", "holeimg/gzecbf5e/fin1_2.jpg", "holeimg/gzecbf5e/fin1_3.jpg"], elev: 21, tees: [{ name: "챔피언", m: 346 }, { name: "프론트", m: 332 }, { name: "시니어", m: 295 }, { name: "레이디", m: 294 }], len: 346 },
         { no: 2, par: 3, img: "holeimg/gzecbf5e/2in2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_486_02_02.mp4", frames: ["holeimg/gzecbf5e/fin2_1.jpg", "holeimg/gzecbf5e/fin2_2.jpg"], elev: 6, tees: [{ name: "챔피언", m: 152 }, { name: "프론트", m: 105 }], len: 152 },
         { no: 3, par: 4, img: "holeimg/gzecbf5e/2in3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_486_02_03.mp4", frames: ["holeimg/gzecbf5e/fin3_1.jpg", "holeimg/gzecbf5e/fin3_2.jpg", "holeimg/gzecbf5e/fin3_3.jpg"], elev: -7, tees: [{ name: "챔피언", m: 299 }, { name: "프론트", m: 258 }, { name: "시니어", m: 233 }], len: 299 },
@@ -5561,7 +5561,7 @@ const HOLEIMG_DB = {
     source: "골프존 코스 데이터 (홀맵·파·거리·고도차·홀 영상)",
     sourceUrl: "http://www.lareine.co.kr/",
     courses: [
-      { name: "OUT", holes: [
+      { name: "LAKE", holes: [
         { no: 1, par: 4, img: "holeimg/gzed7647/1out1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_304_01_01.mp4", frames: ["holeimg/gzed7647/fout1_1.jpg", "holeimg/gzed7647/fout1_2.jpg", "holeimg/gzed7647/fout1_3.jpg"], elev: -19, tees: [{ name: "챔피언", m: 414 }, { name: "백", m: 411 }, { name: "프론트", m: 343 }, { name: "시니어", m: 320 }, { name: "레이디", m: 303 }], len: 414 },
         { no: 2, par: 4, img: "holeimg/gzed7647/1out2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_304_01_02.mp4", frames: ["holeimg/gzed7647/fout2_1.jpg", "holeimg/gzed7647/fout2_2.jpg", "holeimg/gzed7647/fout2_3.jpg"], elev: 6, tees: [{ name: "챔피언", m: 302 }, { name: "백", m: 296 }, { name: "프론트", m: 268 }, { name: "시니어", m: 254 }, { name: "레이디", m: 248 }], len: 302 },
         { no: 3, par: 5, img: "holeimg/gzed7647/1out3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_304_01_03.mp4", frames: ["holeimg/gzed7647/fout3_1.jpg", "holeimg/gzed7647/fout3_2.jpg", "holeimg/gzed7647/fout3_3.jpg"], elev: -24, tees: [{ name: "챔피언", m: 477 }, { name: "백", m: 459 }, { name: "프론트", m: 439 }, { name: "시니어", m: 415 }, { name: "레이디", m: 297 }], len: 477 },
@@ -5572,7 +5572,7 @@ const HOLEIMG_DB = {
         { no: 8, par: 5, img: "holeimg/gzed7647/1out8.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_304_01_08.mp4", frames: ["holeimg/gzed7647/fout8_1.jpg", "holeimg/gzed7647/fout8_2.jpg", "holeimg/gzed7647/fout8_3.jpg"], elev: 26, tees: [{ name: "챔피언", m: 518 }, { name: "백", m: 491 }, { name: "프론트", m: 473 }, { name: "시니어", m: 454 }, { name: "레이디", m: 416 }], len: 518 },
         { no: 9, par: 4, img: "holeimg/gzed7647/1out9.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_304_01_09.mp4", frames: ["holeimg/gzed7647/fout9_1.jpg", "holeimg/gzed7647/fout9_2.jpg", "holeimg/gzed7647/fout9_3.jpg"], elev: 14, tees: [{ name: "챔피언", m: 413 }, { name: "백", m: 384 }, { name: "프론트", m: 369 }, { name: "시니어", m: 336 }, { name: "레이디", m: 306 }], len: 413 },
       ]},
-      { name: "IN", holes: [
+      { name: "OCEAN", holes: [
         { no: 1, par: 4, img: "holeimg/gzed7647/2in1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_304_02_01.mp4", frames: ["holeimg/gzed7647/fin1_1.jpg", "holeimg/gzed7647/fin1_2.jpg", "holeimg/gzed7647/fin1_3.jpg"], elev: -17, tees: [{ name: "챔피언", m: 389 }, { name: "백", m: 360 }, { name: "프론트", m: 338 }, { name: "시니어", m: 300 }, { name: "레이디", m: 266 }], len: 389 },
         { no: 2, par: 5, img: "holeimg/gzed7647/2in2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_304_02_02.mp4", frames: ["holeimg/gzed7647/fin2_1.jpg", "holeimg/gzed7647/fin2_2.jpg", "holeimg/gzed7647/fin2_3.jpg"], elev: -34, tees: [{ name: "챔피언", m: 524 }, { name: "백", m: 513 }, { name: "프론트", m: 489 }, { name: "시니어", m: 469 }, { name: "레이디", m: 448 }], len: 524 },
         { no: 3, par: 3, img: "holeimg/gzed7647/2in3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_304_02_03.mp4", frames: ["holeimg/gzed7647/fin3_1.jpg", "holeimg/gzed7647/fin3_2.jpg"], elev: -3, tees: [{ name: "챔피언", m: 200 }, { name: "백", m: 177 }, { name: "프론트", m: 156 }, { name: "시니어", m: 143 }, { name: "레이디", m: 128 }], len: 200 },
@@ -5617,7 +5617,7 @@ const HOLEIMG_DB = {
     source: "골프존 코스 데이터 (홀맵·파·거리·고도차·홀 영상)",
     sourceUrl: "https://www.gochangcc.co.kr/",
     courses: [
-      { name: "OUT", holes: [
+      { name: "BEACH", holes: [
         { no: 1, par: 5, img: "holeimg/gzf0bab6/1out1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_384_01_01.mp4", frames: ["holeimg/gzf0bab6/fout1_1.jpg", "holeimg/gzf0bab6/fout1_2.jpg", "holeimg/gzf0bab6/fout1_3.jpg"], tees: [{ name: "챔피언", m: 494 }, { name: "프론트", m: 473 }, { name: "시니어", m: 449 }, { name: "레이디", m: 404 }], len: 494 },
         { no: 2, par: 4, img: "holeimg/gzf0bab6/1out2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_384_01_02.mp4", frames: ["holeimg/gzf0bab6/fout2_1.jpg", "holeimg/gzf0bab6/fout2_2.jpg", "holeimg/gzf0bab6/fout2_3.jpg"], tees: [{ name: "챔피언", m: 330 }, { name: "프론트", m: 304 }, { name: "시니어", m: 277 }, { name: "레이디", m: 243 }], len: 330 },
         { no: 3, par: 4, img: "holeimg/gzf0bab6/1out3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_384_01_03.mp4", frames: ["holeimg/gzf0bab6/fout3_1.jpg", "holeimg/gzf0bab6/fout3_2.jpg", "holeimg/gzf0bab6/fout3_3.jpg"], elev: -3, tees: [{ name: "챔피언", m: 356 }, { name: "프론트", m: 334 }, { name: "시니어", m: 309 }, { name: "레이디", m: 281 }], len: 356 },
@@ -5628,7 +5628,7 @@ const HOLEIMG_DB = {
         { no: 8, par: 4, img: "holeimg/gzf0bab6/1out8.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_384_01_08.mp4", frames: ["holeimg/gzf0bab6/fout8_1.jpg", "holeimg/gzf0bab6/fout8_2.jpg", "holeimg/gzf0bab6/fout8_3.jpg"], tees: [{ name: "챔피언", m: 395 }, { name: "프론트", m: 374 }, { name: "시니어", m: 341 }, { name: "레이디", m: 309 }], len: 395 },
         { no: 9, par: 4, img: "holeimg/gzf0bab6/1out9.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_384_01_09.mp4", frames: ["holeimg/gzf0bab6/fout9_1.jpg", "holeimg/gzf0bab6/fout9_2.jpg", "holeimg/gzf0bab6/fout9_3.jpg"], tees: [{ name: "챔피언", m: 401 }, { name: "백", m: 400 }, { name: "프론트", m: 375 }, { name: "시니어", m: 353 }, { name: "레이디", m: 336 }], len: 401 },
       ]},
-      { name: "IN", holes: [
+      { name: "BLUE", holes: [
         { no: 1, par: 4, img: "holeimg/gzf0bab6/2in1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_384_02_01.mp4", frames: ["holeimg/gzf0bab6/fin1_1.jpg", "holeimg/gzf0bab6/fin1_2.jpg", "holeimg/gzf0bab6/fin1_3.jpg"], tees: [{ name: "챔피언", m: 387 }, { name: "백", m: 386 }, { name: "프론트", m: 363 }, { name: "시니어", m: 344 }, { name: "레이디", m: 312 }], len: 387 },
         { no: 2, par: 3, img: "holeimg/gzf0bab6/2in2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_384_02_02.mp4", frames: ["holeimg/gzf0bab6/fin2_1.jpg", "holeimg/gzf0bab6/fin2_2.jpg"], tees: [{ name: "챔피언", m: 150 }, { name: "프론트", m: 122 }, { name: "시니어", m: 86 }], len: 150 },
         { no: 3, par: 4, img: "holeimg/gzf0bab6/2in3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_384_02_03.mp4", frames: ["holeimg/gzf0bab6/fin3_1.jpg", "holeimg/gzf0bab6/fin3_2.jpg", "holeimg/gzf0bab6/fin3_3.jpg"], tees: [{ name: "챔피언", m: 321 }, { name: "백", m: 320 }, { name: "프론트", m: 294 }, { name: "시니어", m: 268 }, { name: "레이디", m: 242 }], len: 321 },
@@ -5645,7 +5645,7 @@ const HOLEIMG_DB = {
     source: "골프존 코스 데이터 (홀맵·파·거리·고도차·홀 영상)",
     sourceUrl: "http://www.golfzoncounty.com/",
     courses: [
-      { name: "OUT", holes: [
+      { name: "원화랑", holes: [
         { no: 1, par: 4, img: "holeimg/gzf20c43/1out1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_488_01_01.mp4", frames: ["holeimg/gzf20c43/fout1_1.jpg", "holeimg/gzf20c43/fout1_2.jpg", "holeimg/gzf20c43/fout1_3.jpg"], tees: [{ name: "챔피언", m: 379 }, { name: "백", m: 339 }, { name: "프론트", m: 318 }, { name: "시니어", m: 295 }, { name: "레이디", m: 272 }], len: 379 },
         { no: 2, par: 3, img: "holeimg/gzf20c43/1out2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_488_01_02.mp4", frames: ["holeimg/gzf20c43/fout2_1.jpg", "holeimg/gzf20c43/fout2_2.jpg"], elev: -13, tees: [{ name: "챔피언", m: 175 }, { name: "백", m: 155 }, { name: "프론트", m: 132 }, { name: "시니어", m: 124 }, { name: "레이디", m: 101 }], len: 175 },
         { no: 3, par: 5, img: "holeimg/gzf20c43/1out3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_488_01_03.mp4", frames: ["holeimg/gzf20c43/fout3_1.jpg", "holeimg/gzf20c43/fout3_2.jpg", "holeimg/gzf20c43/fout3_3.jpg"], elev: 13, tees: [{ name: "챔피언", m: 479 }, { name: "백", m: 461 }, { name: "시니어", m: 417 }, { name: "레이디", m: 402 }], len: 479 },
@@ -5656,7 +5656,7 @@ const HOLEIMG_DB = {
         { no: 8, par: 3, img: "holeimg/gzf20c43/1out8.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_488_01_08.mp4", frames: ["holeimg/gzf20c43/fout8_1.jpg", "holeimg/gzf20c43/fout8_2.jpg"], elev: -12, tees: [{ name: "챔피언", m: 161 }, { name: "백", m: 148 }, { name: "프론트", m: 143 }, { name: "시니어", m: 121 }, { name: "레이디", m: 118 }], len: 161 },
         { no: 9, par: 4, img: "holeimg/gzf20c43/1out9.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_488_01_09.mp4", frames: ["holeimg/gzf20c43/fout9_1.jpg", "holeimg/gzf20c43/fout9_2.jpg", "holeimg/gzf20c43/fout9_3.jpg"], elev: -9, tees: [{ name: "챔피언", m: 331 }, { name: "백", m: 312 }, { name: "프론트", m: 283 }, { name: "시니어", m: 255 }, { name: "레이디", m: 231 }], len: 331 },
       ]},
-      { name: "IN", holes: [
+      { name: "원낭자", holes: [
         { no: 1, par: 5, img: "holeimg/gzf20c43/2in1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_488_02_01.mp4", frames: ["holeimg/gzf20c43/fin1_1.jpg", "holeimg/gzf20c43/fin1_2.jpg", "holeimg/gzf20c43/fin1_3.jpg"], elev: 12, tees: [{ name: "챔피언", m: 586 }, { name: "백", m: 545 }, { name: "프론트", m: 480 }, { name: "시니어", m: 459 }, { name: "레이디", m: 424 }], len: 586 },
         { no: 2, par: 3, img: "holeimg/gzf20c43/2in2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_488_02_02.mp4", frames: ["holeimg/gzf20c43/fin2_1.jpg", "holeimg/gzf20c43/fin2_2.jpg"], elev: -49, tees: [{ name: "챔피언", m: 191 }, { name: "백", m: 175 }, { name: "프론트", m: 137 }, { name: "시니어", m: 136 }], len: 191 },
         { no: 3, par: 4, img: "holeimg/gzf20c43/2in3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_488_02_03.mp4", frames: ["holeimg/gzf20c43/fin3_1.jpg", "holeimg/gzf20c43/fin3_2.jpg", "holeimg/gzf20c43/fin3_3.jpg"], elev: 20, tees: [{ name: "챔피언", m: 363 }, { name: "백", m: 331 }, { name: "프론트", m: 316 }, { name: "시니어", m: 304 }, { name: "레이디", m: 258 }], len: 363 },
@@ -5701,7 +5701,7 @@ const HOLEIMG_DB = {
     source: "골프존 코스 데이터 (홀맵·파·거리·고도차·홀 영상)",
     sourceUrl: "http://www.shineville.com/",
     courses: [
-      { name: "OUT", holes: [
+      { name: "RIVER", holes: [
         { no: 1, par: 4, img: "holeimg/gzf456f7/1out1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_582_01_01.mp4", frames: ["holeimg/gzf456f7/fout1_1.jpg", "holeimg/gzf456f7/fout1_2.jpg", "holeimg/gzf456f7/fout1_3.jpg"], tees: [{ name: "챔피언", m: 412 }, { name: "프론트", m: 382 }, { name: "시니어", m: 293 }], len: 412 },
         { no: 2, par: 4, img: "holeimg/gzf456f7/1out2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_582_01_02.mp4", frames: ["holeimg/gzf456f7/fout2_1.jpg", "holeimg/gzf456f7/fout2_2.jpg", "holeimg/gzf456f7/fout2_3.jpg"], elev: -3, tees: [{ name: "챔피언", m: 394 }, { name: "프론트", m: 364 }, { name: "시니어", m: 314 }], len: 394 },
         { no: 3, par: 5, img: "holeimg/gzf456f7/1out3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_582_01_03.mp4", frames: ["holeimg/gzf456f7/fout3_1.jpg", "holeimg/gzf456f7/fout3_2.jpg", "holeimg/gzf456f7/fout3_3.jpg"], tees: [{ name: "챔피언", m: 488 }, { name: "프론트", m: 451 }, { name: "시니어", m: 375 }], len: 488 },
@@ -5712,7 +5712,7 @@ const HOLEIMG_DB = {
         { no: 8, par: 3, img: "holeimg/gzf456f7/1out8.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_582_01_08.mp4", frames: ["holeimg/gzf456f7/fout8_1.jpg", "holeimg/gzf456f7/fout8_2.jpg"], tees: [{ name: "챔피언", m: 183 }, { name: "시니어", m: 143 }], len: 183 },
         { no: 9, par: 4, img: "holeimg/gzf456f7/1out9.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_582_01_09.mp4", frames: ["holeimg/gzf456f7/fout9_1.jpg", "holeimg/gzf456f7/fout9_2.jpg", "holeimg/gzf456f7/fout9_3.jpg"], tees: [{ name: "챔피언", m: 347 }, { name: "프론트", m: 338 }, { name: "시니어", m: 285 }], len: 347 },
       ]},
-      { name: "IN", holes: [
+      { name: "PALM", holes: [
         { no: 1, par: 4, img: "holeimg/gzf456f7/2in1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_582_02_01.mp4", frames: ["holeimg/gzf456f7/fin1_1.jpg", "holeimg/gzf456f7/fin1_2.jpg", "holeimg/gzf456f7/fin1_3.jpg"], tees: [{ name: "챔피언", m: 327 }, { name: "프론트", m: 309 }, { name: "시니어", m: 257 }, { name: "레이디", m: 256 }], len: 327 },
         { no: 2, par: 4, img: "holeimg/gzf456f7/2in2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_582_02_02.mp4", frames: ["holeimg/gzf456f7/fin2_1.jpg", "holeimg/gzf456f7/fin2_2.jpg", "holeimg/gzf456f7/fin2_3.jpg"], elev: 4, tees: [{ name: "챔피언", m: 343 }, { name: "프론트", m: 328 }, { name: "시니어", m: 267 }, { name: "레이디", m: 266 }], len: 343 },
         { no: 3, par: 4, img: "holeimg/gzf456f7/2in3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_582_02_03.mp4", frames: ["holeimg/gzf456f7/fin3_1.jpg", "holeimg/gzf456f7/fin3_2.jpg", "holeimg/gzf456f7/fin3_3.jpg"], elev: -5, tees: [{ name: "챔피언", m: 321 }, { name: "프론트", m: 300 }, { name: "시니어", m: 278 }], len: 321 },
@@ -5729,7 +5729,7 @@ const HOLEIMG_DB = {
     source: "골프존 코스 데이터 (홀맵·파·거리·고도차·홀 영상)",
     sourceUrl: "http://www.shineville.com/",
     courses: [
-      { name: "OUT", holes: [
+      { name: "RIVER", holes: [
         { no: 1, par: 4, img: "holeimg/gzf456f7/1out1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_582_01_01.mp4", frames: ["holeimg/gzf456f7/fout1_1.jpg", "holeimg/gzf456f7/fout1_2.jpg", "holeimg/gzf456f7/fout1_3.jpg"], tees: [{ name: "챔피언", m: 412 }, { name: "프론트", m: 382 }, { name: "시니어", m: 293 }], len: 412 },
         { no: 2, par: 4, img: "holeimg/gzf456f7/1out2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_582_01_02.mp4", frames: ["holeimg/gzf456f7/fout2_1.jpg", "holeimg/gzf456f7/fout2_2.jpg", "holeimg/gzf456f7/fout2_3.jpg"], elev: -3, tees: [{ name: "챔피언", m: 394 }, { name: "프론트", m: 364 }, { name: "시니어", m: 314 }], len: 394 },
         { no: 3, par: 5, img: "holeimg/gzf456f7/1out3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_582_01_03.mp4", frames: ["holeimg/gzf456f7/fout3_1.jpg", "holeimg/gzf456f7/fout3_2.jpg", "holeimg/gzf456f7/fout3_3.jpg"], tees: [{ name: "챔피언", m: 488 }, { name: "프론트", m: 451 }, { name: "시니어", m: 375 }], len: 488 },
@@ -5740,7 +5740,7 @@ const HOLEIMG_DB = {
         { no: 8, par: 3, img: "holeimg/gzf456f7/1out8.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_582_01_08.mp4", frames: ["holeimg/gzf456f7/fout8_1.jpg", "holeimg/gzf456f7/fout8_2.jpg"], tees: [{ name: "챔피언", m: 183 }, { name: "시니어", m: 143 }], len: 183 },
         { no: 9, par: 4, img: "holeimg/gzf456f7/1out9.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_582_01_09.mp4", frames: ["holeimg/gzf456f7/fout9_1.jpg", "holeimg/gzf456f7/fout9_2.jpg", "holeimg/gzf456f7/fout9_3.jpg"], tees: [{ name: "챔피언", m: 347 }, { name: "프론트", m: 338 }, { name: "시니어", m: 285 }], len: 347 },
       ]},
-      { name: "IN", holes: [
+      { name: "PALM", holes: [
         { no: 1, par: 4, img: "holeimg/gzf456f7/2in1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_582_02_01.mp4", frames: ["holeimg/gzf456f7/fin1_1.jpg", "holeimg/gzf456f7/fin1_2.jpg", "holeimg/gzf456f7/fin1_3.jpg"], tees: [{ name: "챔피언", m: 327 }, { name: "프론트", m: 309 }, { name: "시니어", m: 257 }, { name: "레이디", m: 256 }], len: 327 },
         { no: 2, par: 4, img: "holeimg/gzf456f7/2in2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_582_02_02.mp4", frames: ["holeimg/gzf456f7/fin2_1.jpg", "holeimg/gzf456f7/fin2_2.jpg", "holeimg/gzf456f7/fin2_3.jpg"], elev: 4, tees: [{ name: "챔피언", m: 343 }, { name: "프론트", m: 328 }, { name: "시니어", m: 267 }, { name: "레이디", m: 266 }], len: 343 },
         { no: 3, par: 4, img: "holeimg/gzf456f7/2in3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_582_02_03.mp4", frames: ["holeimg/gzf456f7/fin3_1.jpg", "holeimg/gzf456f7/fin3_2.jpg", "holeimg/gzf456f7/fin3_3.jpg"], elev: -5, tees: [{ name: "챔피언", m: 321 }, { name: "프론트", m: 300 }, { name: "시니어", m: 278 }], len: 321 },
@@ -5757,7 +5757,7 @@ const HOLEIMG_DB = {
     source: "골프존 코스 데이터 (홀맵·파·거리·고도차·홀 영상)",
     sourceUrl: "https://www.callaitecc.com",
     courses: [
-      { name: "OUT", holes: [
+      { name: "사파이어", holes: [
         { no: 1, par: 4, img: "holeimg/gzf46161/1out1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1215_01_01.mp4", frames: ["holeimg/gzf46161/fout1_1.jpg", "holeimg/gzf46161/fout1_2.jpg"], tees: [{ name: "챔피언", m: 358 }, { name: "프론트", m: 334 }, { name: "시니어", m: 312 }, { name: "레이디", m: 264 }], len: 358 },
         { no: 2, par: 5, img: "holeimg/gzf46161/1out2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1215_01_02.mp4", frames: ["holeimg/gzf46161/fout2_1.jpg", "holeimg/gzf46161/fout2_2.jpg", "holeimg/gzf46161/fout2_3.jpg"], elev: 20, tees: [{ name: "챔피언", m: 498 }, { name: "프론트", m: 484 }, { name: "시니어", m: 430 }, { name: "레이디", m: 385 }], len: 498 },
         { no: 3, par: 3, img: "holeimg/gzf46161/1out3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1215_01_03.mp4", frames: ["holeimg/gzf46161/fout3_1.jpg", "holeimg/gzf46161/fout3_2.jpg"], tees: [{ name: "챔피언", m: 193 }, { name: "프론트", m: 155 }, { name: "레이디", m: 128 }], len: 193 },
@@ -5768,7 +5768,7 @@ const HOLEIMG_DB = {
         { no: 8, par: 4, img: "holeimg/gzf46161/1out8.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1215_01_08.mp4", frames: ["holeimg/gzf46161/fout8_1.jpg", "holeimg/gzf46161/fout8_2.jpg"], elev: 11, tees: [{ name: "챔피언", m: 303 }, { name: "시니어", m: 279 }, { name: "레이디", m: 222 }], len: 303 },
         { no: 9, par: 4, img: "holeimg/gzf46161/1out9.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1215_01_09.mp4", frames: ["holeimg/gzf46161/fout9_1.jpg", "holeimg/gzf46161/fout9_2.jpg"], elev: -57, tees: [{ name: "챔피언", m: 384 }, { name: "프론트", m: 367 }, { name: "시니어", m: 349 }, { name: "레이디", m: 318 }], len: 384 },
       ]},
-      { name: "IN", holes: [
+      { name: "루비", holes: [
         { no: 1, par: 4, img: "holeimg/gzf46161/2in1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1215_02_01.mp4", frames: ["holeimg/gzf46161/fin1_1.jpg", "holeimg/gzf46161/fin1_2.jpg"], elev: -16, tees: [{ name: "챔피언", m: 393 }, { name: "프론트", m: 351 }, { name: "시니어", m: 325 }, { name: "레이디", m: 291 }], len: 393 },
         { no: 2, par: 4, img: "holeimg/gzf46161/2in2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1215_02_02.mp4", frames: ["holeimg/gzf46161/fin2_1.jpg", "holeimg/gzf46161/fin2_2.jpg"], elev: 4, tees: [{ name: "챔피언", m: 345 }, { name: "백", m: 344 }, { name: "프론트", m: 321 }, { name: "시니어", m: 310 }, { name: "레이디", m: 285 }], len: 345 },
         { no: 3, par: 5, img: "holeimg/gzf46161/2in3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1215_02_03.mp4", frames: ["holeimg/gzf46161/fin3_1.jpg", "holeimg/gzf46161/fin3_2.jpg", "holeimg/gzf46161/fin3_3.jpg"], elev: -30, tees: [{ name: "챔피언", m: 497 }, { name: "프론트", m: 485 }, { name: "시니어", m: 424 }, { name: "레이디", m: 380 }], len: 497 },
@@ -5813,7 +5813,7 @@ const HOLEIMG_DB = {
     source: "골프존 코스 데이터 (홀맵·파·거리·고도차·홀 영상)",
     sourceUrl: "https://www.midasgolf.co.kr/CP/ClubInfo",
     courses: [
-      { name: "OUT", holes: [
+      { name: "밸리", holes: [
         { no: 1, par: 4, img: "holeimg/gzf55111/1out1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1253_01_01.mp4", frames: ["holeimg/gzf55111/fout1_1.jpg", "holeimg/gzf55111/fout1_2.jpg", "holeimg/gzf55111/fout1_3.jpg"], elev: 6, tees: [{ name: "챔피언", m: 361 }, { name: "백", m: 357 }, { name: "프론트", m: 333 }, { name: "시니어", m: 303 }, { name: "레이디", m: 263 }], len: 361 },
         { no: 2, par: 3, img: "holeimg/gzf55111/1out2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1253_01_02.mp4", frames: ["holeimg/gzf55111/fout2_1.jpg", "holeimg/gzf55111/fout2_2.jpg", "holeimg/gzf55111/fout2_3.jpg"], elev: -8, tees: [{ name: "챔피언", m: 207 }, { name: "백", m: 191 }, { name: "프론트", m: 171 }, { name: "시니어", m: 147 }, { name: "레이디", m: 107 }], len: 207 },
         { no: 3, par: 4, img: "holeimg/gzf55111/1out3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1253_01_03.mp4", frames: ["holeimg/gzf55111/fout3_1.jpg", "holeimg/gzf55111/fout3_2.jpg", "holeimg/gzf55111/fout3_3.jpg"], elev: 15, tees: [{ name: "챔피언", m: 360 }, { name: "백", m: 336 }, { name: "프론트", m: 313 }, { name: "시니어", m: 310 }, { name: "레이디", m: 299 }], len: 360 },
@@ -5824,7 +5824,7 @@ const HOLEIMG_DB = {
         { no: 8, par: 5, img: "holeimg/gzf55111/1out8.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1253_01_08.mp4", frames: ["holeimg/gzf55111/fout8_1.jpg", "holeimg/gzf55111/fout8_2.jpg", "holeimg/gzf55111/fout8_3.jpg"], elev: -10, tees: [{ name: "챔피언", m: 505 }, { name: "백", m: 486 }, { name: "프론트", m: 466 }, { name: "시니어", m: 456 }, { name: "레이디", m: 429 }], len: 505 },
         { no: 9, par: 4, img: "holeimg/gzf55111/1out9.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1253_01_09.mp4", frames: ["holeimg/gzf55111/fout9_1.jpg", "holeimg/gzf55111/fout9_2.jpg", "holeimg/gzf55111/fout9_3.jpg"], elev: -18, tees: [{ name: "챔피언", m: 381 }, { name: "백", m: 370 }, { name: "프론트", m: 349 }, { name: "시니어", m: 322 }, { name: "레이디", m: 294 }], len: 381 },
       ]},
-      { name: "IN", holes: [
+      { name: "마이다스", holes: [
         { no: 1, par: 4, img: "holeimg/gzf55111/2in1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1253_02_01.mp4", frames: ["holeimg/gzf55111/fin1_1.jpg", "holeimg/gzf55111/fin1_2.jpg", "holeimg/gzf55111/fin1_3.jpg"], elev: -23, tees: [{ name: "챔피언", m: 385 }, { name: "백", m: 365 }, { name: "프론트", m: 345 }, { name: "시니어", m: 332 }, { name: "레이디", m: 309 }], len: 385 },
         { no: 2, par: 5, img: "holeimg/gzf55111/2in2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1253_02_02.mp4", frames: ["holeimg/gzf55111/fin2_1.jpg", "holeimg/gzf55111/fin2_2.jpg", "holeimg/gzf55111/fin2_3.jpg"], elev: 8, tees: [{ name: "챔피언", m: 499 }, { name: "백", m: 478 }, { name: "프론트", m: 459 }, { name: "시니어", m: 435 }, { name: "레이디", m: 414 }], len: 499 },
         { no: 3, par: 3, img: "holeimg/gzf55111/2in3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1253_02_03.mp4", frames: ["holeimg/gzf55111/fin3_1.jpg", "holeimg/gzf55111/fin3_2.jpg", "holeimg/gzf55111/fin3_3.jpg"], elev: -30, tees: [{ name: "챔피언", m: 169 }, { name: "백", m: 163 }, { name: "프론트", m: 156 }, { name: "시니어", m: 145 }, { name: "레이디", m: 143 }], len: 169 },
@@ -5925,7 +5925,7 @@ const HOLEIMG_DB = {
     source: "골프존 코스 데이터 (홀맵·파·거리·고도차·홀 영상)",
     sourceUrl: "https://monarchcc.co.kr/",
     courses: [
-      { name: "OUT", holes: [
+      { name: "마운틴", holes: [
         { no: 1, par: 4, img: "holeimg/gzffd706/1out1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1211_01_01.mp4", frames: ["holeimg/gzffd706/fout1_1.jpg", "holeimg/gzffd706/fout1_2.jpg", "holeimg/gzffd706/fout1_3.jpg"], elev: -20, tees: [{ name: "챔피언", m: 385 }, { name: "백", m: 369 }, { name: "프론트", m: 351 }, { name: "시니어", m: 320 }, { name: "레이디", m: 290 }], len: 385 },
         { no: 2, par: 4, img: "holeimg/gzffd706/1out2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1211_01_02.mp4", frames: ["holeimg/gzffd706/fout2_1.jpg", "holeimg/gzffd706/fout2_2.jpg", "holeimg/gzffd706/fout2_3.jpg"], elev: -8, tees: [{ name: "챔피언", m: 377 }, { name: "백", m: 358 }, { name: "프론트", m: 327 }, { name: "시니어", m: 294 }, { name: "레이디", m: 266 }], len: 377 },
         { no: 3, par: 3, img: "holeimg/gzffd706/1out3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1211_01_03.mp4", frames: ["holeimg/gzffd706/fout3_1.jpg", "holeimg/gzffd706/fout3_2.jpg"], tees: [{ name: "챔피언", m: 180 }, { name: "백", m: 164 }, { name: "프론트", m: 147 }, { name: "시니어", m: 129 }, { name: "레이디", m: 116 }], len: 180 },
@@ -5936,7 +5936,7 @@ const HOLEIMG_DB = {
         { no: 8, par: 5, img: "holeimg/gzffd706/1out8.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1211_01_08.mp4", frames: ["holeimg/gzffd706/fout8_1.jpg", "holeimg/gzffd706/fout8_2.jpg", "holeimg/gzffd706/fout8_3.jpg"], tees: [{ name: "챔피언", m: 514 }, { name: "백", m: 493 }, { name: "프론트", m: 462 }, { name: "시니어", m: 434 }, { name: "레이디", m: 410 }], len: 514 },
         { no: 9, par: 4, img: "holeimg/gzffd706/1out9.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1211_01_09.mp4", frames: ["holeimg/gzffd706/fout9_1.jpg", "holeimg/gzffd706/fout9_2.jpg", "holeimg/gzffd706/fout9_3.jpg"], elev: 7, tees: [{ name: "챔피언", m: 366 }, { name: "백", m: 350 }, { name: "프론트", m: 332 }, { name: "시니어", m: 301 }, { name: "레이디", m: 279 }], len: 366 },
       ]},
-      { name: "IN", holes: [
+      { name: "그랜드", holes: [
         { no: 1, par: 4, img: "holeimg/gzffd706/2in1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1211_02_01.mp4", frames: ["holeimg/gzffd706/fin1_1.jpg", "holeimg/gzffd706/fin1_2.jpg", "holeimg/gzffd706/fin1_3.jpg"], elev: 7, tees: [{ name: "챔피언", m: 362 }, { name: "백", m: 344 }, { name: "프론트", m: 321 }, { name: "시니어", m: 298 }, { name: "레이디", m: 261 }], len: 362 },
         { no: 2, par: 3, img: "holeimg/gzffd706/2in2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1211_02_02.mp4", frames: ["holeimg/gzffd706/fin2_1.jpg", "holeimg/gzffd706/fin2_2.jpg"], elev: -23, tees: [{ name: "챔피언", m: 189 }, { name: "백", m: 164 }, { name: "프론트", m: 150 }, { name: "시니어", m: 129 }, { name: "레이디", m: 114 }], len: 189 },
         { no: 3, par: 4, img: "holeimg/gzffd706/2in3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_1211_02_03.mp4", frames: ["holeimg/gzffd706/fin3_1.jpg", "holeimg/gzffd706/fin3_2.jpg", "holeimg/gzffd706/fin3_3.jpg"], elev: -14, tees: [{ name: "챔피언", m: 384 }, { name: "프론트", m: 371 }, { name: "시니어", m: 343 }, { name: "레이디", m: 319 }], len: 384 },
@@ -5953,7 +5953,7 @@ const HOLEIMG_DB = {
     source: "골프존 코스 데이터 (홀맵·파·거리·고도차·홀 영상)",
     sourceUrl: "http://www.edenvalley.co.kr/",
     courses: [
-      { name: "OUT", holes: [
+      { name: "EDEN", holes: [
         { no: 1, par: 4, img: "holeimg/gzffdaf3/1out1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_171_01_01.mp4", frames: ["holeimg/gzffdaf3/fout1_1.jpg", "holeimg/gzffdaf3/fout1_2.jpg", "holeimg/gzffdaf3/fout1_3.jpg"], elev: 4, tees: [{ name: "챔피언", m: 306 }, { name: "백", m: 273 }, { name: "프론트", m: 231 }, { name: "시니어", m: 180 }], len: 306 },
         { no: 2, par: 5, img: "holeimg/gzffdaf3/1out2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_171_01_02.mp4", frames: ["holeimg/gzffdaf3/fout2_1.jpg", "holeimg/gzffdaf3/fout2_2.jpg", "holeimg/gzffdaf3/fout2_3.jpg"], tees: [{ name: "챔피언", m: 485 }, { name: "프론트", m: 467 }, { name: "시니어", m: 392 }], len: 485 },
         { no: 3, par: 4, img: "holeimg/gzffdaf3/1out3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_171_01_03.mp4", frames: ["holeimg/gzffdaf3/fout3_1.jpg", "holeimg/gzffdaf3/fout3_2.jpg", "holeimg/gzffdaf3/fout3_3.jpg"], elev: -34, tees: [{ name: "챔피언", m: 343 }, { name: "백", m: 318 }, { name: "프론트", m: 268 }, { name: "시니어", m: 248 }], len: 343 },
@@ -5964,7 +5964,7 @@ const HOLEIMG_DB = {
         { no: 8, par: 5, img: "holeimg/gzffdaf3/1out8.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_171_01_08.mp4", frames: ["holeimg/gzffdaf3/fout8_1.jpg", "holeimg/gzffdaf3/fout8_2.jpg", "holeimg/gzffdaf3/fout8_3.jpg"], elev: 28, tees: [{ name: "챔피언", m: 505 }, { name: "백", m: 478 }, { name: "프론트", m: 425 }, { name: "시니어", m: 393 }, { name: "레이디", m: 392 }], len: 505 },
         { no: 9, par: 4, img: "holeimg/gzffdaf3/1out9.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_171_01_09.mp4", frames: ["holeimg/gzffdaf3/fout9_1.jpg", "holeimg/gzffdaf3/fout9_2.jpg", "holeimg/gzffdaf3/fout9_3.jpg"], elev: 9, tees: [{ name: "챔피언", m: 394 }, { name: "백", m: 363 }, { name: "프론트", m: 320 }, { name: "시니어", m: 285 }], len: 394 },
       ]},
-      { name: "IN", holes: [
+      { name: "VALLEY", holes: [
         { no: 1, par: 4, img: "holeimg/gzffdaf3/2in1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_171_02_01.mp4", frames: ["holeimg/gzffdaf3/fin1_1.jpg", "holeimg/gzffdaf3/fin1_2.jpg", "holeimg/gzffdaf3/fin1_3.jpg"], elev: -25, tees: [{ name: "챔피언", m: 366 }, { name: "백", m: 342 }, { name: "프론트", m: 308 }, { name: "시니어", m: 282 }], len: 366 },
         { no: 2, par: 5, img: "holeimg/gzffdaf3/2in2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_171_02_02.mp4", frames: ["holeimg/gzffdaf3/fin2_1.jpg", "holeimg/gzffdaf3/fin2_2.jpg", "holeimg/gzffdaf3/fin2_3.jpg"], elev: -36, tees: [{ name: "챔피언", m: 495 }, { name: "백", m: 491 }, { name: "프론트", m: 476 }, { name: "시니어", m: 452 }], len: 495 },
         { no: 3, par: 3, img: "holeimg/gzffdaf3/2in3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_171_02_03.mp4", frames: ["holeimg/gzffdaf3/fin3_1.jpg", "holeimg/gzffdaf3/fin3_2.jpg"], tees: [{ name: "챔피언", m: 201 }, { name: "백", m: 176 }, { name: "프론트", m: 156 }, { name: "시니어", m: 99 }], len: 201 },
@@ -5981,7 +5981,7 @@ const HOLEIMG_DB = {
     source: "골프존 코스 데이터 (홀맵·파·거리·고도차·홀 영상)",
     sourceUrl: "http://www.dpcc.co.kr/",
     courses: [
-      { name: "OUT", holes: [
+      { name: "MOUNTAIN", holes: [
         { no: 1, par: 4, img: "holeimg/gzh1club_9555a4/1out1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_321_01_01.mp4", frames: ["holeimg/gzh1club_9555a4/fout1_1.jpg", "holeimg/gzh1club_9555a4/fout1_2.jpg", "holeimg/gzh1club_9555a4/fout1_3.jpg"], elev: -16, tees: [{ name: "챔피언", m: 304 }, { name: "프론트", m: 289 }, { name: "시니어", m: 236 }], len: 304 },
         { no: 2, par: 5, img: "holeimg/gzh1club_9555a4/1out2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_321_01_02.mp4", frames: ["holeimg/gzh1club_9555a4/fout2_1.jpg", "holeimg/gzh1club_9555a4/fout2_2.jpg", "holeimg/gzh1club_9555a4/fout2_3.jpg"], elev: 43, tees: [{ name: "챔피언", m: 471 }, { name: "프론트", m: 425 }, { name: "시니어", m: 358 }], len: 471 },
         { no: 3, par: 4, img: "holeimg/gzh1club_9555a4/1out3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_321_01_03.mp4", frames: ["holeimg/gzh1club_9555a4/fout3_1.jpg", "holeimg/gzh1club_9555a4/fout3_2.jpg", "holeimg/gzh1club_9555a4/fout3_3.jpg"], elev: -35, tees: [{ name: "챔피언", m: 362 }, { name: "프론트", m: 324 }, { name: "시니어", m: 298 }], len: 362 },
@@ -5992,7 +5992,7 @@ const HOLEIMG_DB = {
         { no: 8, par: 3, img: "holeimg/gzh1club_9555a4/1out8.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_321_01_08.mp4", frames: ["holeimg/gzh1club_9555a4/fout8_1.jpg", "holeimg/gzh1club_9555a4/fout8_2.jpg"], elev: -4, tees: [{ name: "챔피언", m: 185 }, { name: "백", m: 184 }, { name: "프론트", m: 175 }, { name: "시니어", m: 154 }, { name: "레이디", m: 153 }], len: 185 },
         { no: 9, par: 4, img: "holeimg/gzh1club_9555a4/1out9.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_321_01_09.mp4", frames: ["holeimg/gzh1club_9555a4/fout9_1.jpg", "holeimg/gzh1club_9555a4/fout9_2.jpg", "holeimg/gzh1club_9555a4/fout9_3.jpg"], tees: [{ name: "챔피언", m: 316 }, { name: "프론트", m: 295 }, { name: "시니어", m: 265 }], len: 316 },
       ]},
-      { name: "IN", holes: [
+      { name: "LAKE", holes: [
         { no: 1, par: 4, img: "holeimg/gzh1club_9555a4/2in1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_321_02_01.mp4", frames: ["holeimg/gzh1club_9555a4/fin1_1.jpg", "holeimg/gzh1club_9555a4/fin1_2.jpg", "holeimg/gzh1club_9555a4/fin1_3.jpg"], elev: -32, tees: [{ name: "챔피언", m: 365 }, { name: "프론트", m: 340 }, { name: "시니어", m: 314 }], len: 365 },
         { no: 2, par: 5, img: "holeimg/gzh1club_9555a4/2in2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_321_02_02.mp4", frames: ["holeimg/gzh1club_9555a4/fin2_1.jpg", "holeimg/gzh1club_9555a4/fin2_2.jpg", "holeimg/gzh1club_9555a4/fin2_3.jpg"], elev: -10, tees: [{ name: "챔피언", m: 456 }, { name: "백", m: 455 }, { name: "프론트", m: 445 }, { name: "시니어", m: 392 }], len: 456 },
         { no: 3, par: 4, img: "holeimg/gzh1club_9555a4/2in3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_321_02_03.mp4", frames: ["holeimg/gzh1club_9555a4/fin3_1.jpg", "holeimg/gzh1club_9555a4/fin3_2.jpg", "holeimg/gzh1club_9555a4/fin3_3.jpg"], elev: 26, tees: [{ name: "챔피언", m: 320 }, { name: "프론트", m: 285 }, { name: "시니어", m: 244 }], len: 320 },
@@ -6009,7 +6009,7 @@ const HOLEIMG_DB = {
     source: "골프존 코스 데이터 (홀맵·파·거리·고도차·홀 영상)",
     sourceUrl: "http://www.golfzoncounty.com/",
     courses: [
-      { name: "OUT", holes: [
+      { name: "HILL", holes: [
         { no: 1, par: 4, img: "holeimg/gzh_49ce60/1out1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_489_01_01.mp4", frames: ["holeimg/gzh_49ce60/fout1_1.jpg", "holeimg/gzh_49ce60/fout1_2.jpg", "holeimg/gzh_49ce60/fout1_3.jpg"], elev: 13, tees: [{ name: "챔피언", m: 383 }, { name: "백", m: 371 }, { name: "프론트", m: 350 }, { name: "시니어", m: 270 }, { name: "레이디", m: 255 }], len: 383 },
         { no: 2, par: 4, img: "holeimg/gzh_49ce60/1out2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_489_01_02.mp4", frames: ["holeimg/gzh_49ce60/fout2_1.jpg", "holeimg/gzh_49ce60/fout2_2.jpg", "holeimg/gzh_49ce60/fout2_3.jpg"], elev: -11, tees: [{ name: "챔피언", m: 370 }, { name: "백", m: 366 }, { name: "프론트", m: 339 }, { name: "시니어", m: 308 }, { name: "레이디", m: 307 }], len: 370 },
         { no: 3, par: 4, img: "holeimg/gzh_49ce60/1out3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_489_01_03.mp4", frames: ["holeimg/gzh_49ce60/fout3_1.jpg", "holeimg/gzh_49ce60/fout3_2.jpg", "holeimg/gzh_49ce60/fout3_3.jpg"], elev: 20, tees: [{ name: "챔피언", m: 349 }, { name: "백", m: 346 }, { name: "프론트", m: 308 }, { name: "시니어", m: 290 }, { name: "레이디", m: 265 }], len: 349 },
@@ -6020,7 +6020,7 @@ const HOLEIMG_DB = {
         { no: 8, par: 5, img: "holeimg/gzh_49ce60/1out8.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_489_01_08.mp4", frames: ["holeimg/gzh_49ce60/fout8_1.jpg", "holeimg/gzh_49ce60/fout8_2.jpg", "holeimg/gzh_49ce60/fout8_3.jpg"], elev: 12, tees: [{ name: "챔피언", m: 560 }, { name: "백", m: 538 }, { name: "프론트", m: 525 }, { name: "시니어", m: 371 }, { name: "레이디", m: 365 }], len: 560 },
         { no: 9, par: 4, img: "holeimg/gzh_49ce60/1out9.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_489_01_09.mp4", frames: ["holeimg/gzh_49ce60/fout9_1.jpg", "holeimg/gzh_49ce60/fout9_2.jpg", "holeimg/gzh_49ce60/fout9_3.jpg"], elev: -22, tees: [{ name: "챔피언", m: 382 }, { name: "백", m: 378 }, { name: "프론트", m: 330 }, { name: "시니어", m: 279 }, { name: "레이디", m: 256 }], len: 382 },
       ]},
-      { name: "IN", holes: [
+      { name: "LAKE", holes: [
         { no: 1, par: 4, img: "holeimg/gzh_49ce60/2in1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_489_02_01.mp4", frames: ["holeimg/gzh_49ce60/fin1_1.jpg", "holeimg/gzh_49ce60/fin1_2.jpg", "holeimg/gzh_49ce60/fin1_3.jpg"], elev: -10, tees: [{ name: "챔피언", m: 401 }, { name: "백", m: 391 }, { name: "프론트", m: 359 }, { name: "시니어", m: 275 }, { name: "레이디", m: 269 }], len: 401 },
         { no: 2, par: 5, img: "holeimg/gzh_49ce60/2in2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_489_02_02.mp4", frames: ["holeimg/gzh_49ce60/fin2_1.jpg", "holeimg/gzh_49ce60/fin2_2.jpg", "holeimg/gzh_49ce60/fin2_3.jpg"], elev: -19, tees: [{ name: "챔피언", m: 487 }, { name: "백", m: 483 }, { name: "프론트", m: 449 }, { name: "시니어", m: 357 }, { name: "레이디", m: 326 }], len: 487 },
         { no: 3, par: 3, img: "holeimg/gzh_49ce60/2in3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_489_02_03.mp4", frames: ["holeimg/gzh_49ce60/fin3_1.jpg", "holeimg/gzh_49ce60/fin3_2.jpg"], elev: -4, tees: [{ name: "챔피언", m: 140 }, { name: "백", m: 139 }, { name: "프론트", m: 138 }, { name: "시니어", m: 102 }], len: 140 },
@@ -6065,7 +6065,7 @@ const HOLEIMG_DB = {
     source: "골프존 코스 데이터 (홀맵·파·거리·고도차·홀 영상)",
     sourceUrl: "https://www.golfclubq.com/",
     courses: [
-      { name: "OUT", holes: [
+      { name: "PAMPAS", holes: [
         { no: 1, par: 4, img: "holeimg/gzq_575900/1out1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_374_01_01.mp4", frames: ["holeimg/gzq_575900/fout1_1.jpg", "holeimg/gzq_575900/fout1_2.jpg", "holeimg/gzq_575900/fout1_3.jpg"], elev: 23, tees: [{ name: "챔피언", m: 352 }, { name: "백", m: 327 }, { name: "프론트", m: 299 }, { name: "시니어", m: 250 }, { name: "레이디", m: 202 }], len: 352 },
         { no: 2, par: 5, img: "holeimg/gzq_575900/1out2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_374_01_02.mp4", frames: ["holeimg/gzq_575900/fout2_1.jpg", "holeimg/gzq_575900/fout2_2.jpg", "holeimg/gzq_575900/fout2_3.jpg"], elev: -7, tees: [{ name: "챔피언", m: 553 }, { name: "백", m: 545 }, { name: "프론트", m: 481 }, { name: "시니어", m: 465 }, { name: "레이디", m: 443 }], len: 553 },
         { no: 3, par: 4, img: "holeimg/gzq_575900/1out3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_374_01_03.mp4", frames: ["holeimg/gzq_575900/fout3_1.jpg", "holeimg/gzq_575900/fout3_2.jpg", "holeimg/gzq_575900/fout3_3.jpg"], elev: -12, tees: [{ name: "챔피언", m: 468 }, { name: "백", m: 438 }, { name: "프론트", m: 413 }, { name: "시니어", m: 390 }, { name: "레이디", m: 340 }], len: 468 },
@@ -6076,7 +6076,7 @@ const HOLEIMG_DB = {
         { no: 8, par: 4, img: "holeimg/gzq_575900/1out8.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_374_01_08.mp4", frames: ["holeimg/gzq_575900/fout8_1.jpg", "holeimg/gzq_575900/fout8_2.jpg", "holeimg/gzq_575900/fout8_3.jpg"], elev: 13, tees: [{ name: "챔피언", m: 329 }, { name: "프론트", m: 308 }, { name: "시니어", m: 281 }, { name: "레이디", m: 245 }], len: 329 },
         { no: 9, par: 4, img: "holeimg/gzq_575900/1out9.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_374_01_09.mp4", frames: ["holeimg/gzq_575900/fout9_1.jpg", "holeimg/gzq_575900/fout9_2.jpg", "holeimg/gzq_575900/fout9_3.jpg"], elev: -37, tees: [{ name: "챔피언", m: 376 }, { name: "백", m: 361 }, { name: "프론트", m: 349 }, { name: "시니어", m: 327 }, { name: "레이디", m: 292 }], len: 376 },
       ]},
-      { name: "IN", holes: [
+      { name: "VALLEY", holes: [
         { no: 1, par: 5, img: "holeimg/gzq_575900/2in1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_374_02_01.mp4", frames: ["holeimg/gzq_575900/fin1_1.jpg", "holeimg/gzq_575900/fin1_2.jpg", "holeimg/gzq_575900/fin1_3.jpg"], elev: -34, tees: [{ name: "챔피언", m: 526 }, { name: "백", m: 501 }, { name: "프론트", m: 461 }, { name: "시니어", m: 426 }], len: 526 },
         { no: 2, par: 4, img: "holeimg/gzq_575900/2in2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_374_02_02.mp4", frames: ["holeimg/gzq_575900/fin2_1.jpg", "holeimg/gzq_575900/fin2_2.jpg", "holeimg/gzq_575900/fin2_3.jpg"], elev: 18, tees: [{ name: "챔피언", m: 360 }, { name: "백", m: 341 }, { name: "프론트", m: 317 }, { name: "시니어", m: 289 }, { name: "레이디", m: 246 }], len: 360 },
         { no: 3, par: 4, img: "holeimg/gzq_575900/2in3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_374_02_03.mp4", frames: ["holeimg/gzq_575900/fin3_1.jpg", "holeimg/gzq_575900/fin3_2.jpg", "holeimg/gzq_575900/fin3_3.jpg"], elev: -31, tees: [{ name: "챔피언", m: 354 }, { name: "백", m: 318 }, { name: "프론트", m: 310 }, { name: "시니어", m: 288 }, { name: "레이디", m: 287 }], len: 354 },
@@ -6093,7 +6093,7 @@ const HOLEIMG_DB = {
     source: "골프존 코스 데이터 (홀맵·파·거리·고도차·홀 영상)",
     sourceUrl: "http://www.gimpocc.co.kr/",
     courses: [
-      { name: "OUT", holes: [
+      { name: "서코스", holes: [
         { no: 1, par: 4, img: "holeimg/gzseaside_7bf3b6/1out1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_354_02_01.mp4", frames: ["holeimg/gzseaside_7bf3b6/fout1_1.jpg", "holeimg/gzseaside_7bf3b6/fout1_2.jpg", "holeimg/gzseaside_7bf3b6/fout1_3.jpg"], elev: -39, tees: [{ name: "챔피언", m: 340 }, { name: "프론트", m: 326 }, { name: "시니어", m: 306 }, { name: "레이디", m: 305 }], len: 340 },
         { no: 2, par: 3, img: "holeimg/gzseaside_7bf3b6/1out2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_354_02_02.mp4", frames: ["holeimg/gzseaside_7bf3b6/fout2_1.jpg", "holeimg/gzseaside_7bf3b6/fout2_2.jpg"], elev: -4, tees: [{ name: "챔피언", m: 171 }, { name: "프론트", m: 137 }, { name: "시니어", m: 116 }], len: 171 },
         { no: 3, par: 4, img: "holeimg/gzseaside_7bf3b6/1out3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_354_02_03.mp4", frames: ["holeimg/gzseaside_7bf3b6/fout3_1.jpg", "holeimg/gzseaside_7bf3b6/fout3_2.jpg", "holeimg/gzseaside_7bf3b6/fout3_3.jpg"], elev: 3, tees: [{ name: "챔피언", m: 351 }, { name: "백", m: 350 }, { name: "프론트", m: 323 }, { name: "시니어", m: 302 }], len: 351 },
@@ -6104,7 +6104,7 @@ const HOLEIMG_DB = {
         { no: 8, par: 5, img: "holeimg/gzseaside_7bf3b6/1out8.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_354_02_08.mp4", frames: ["holeimg/gzseaside_7bf3b6/fout8_1.jpg", "holeimg/gzseaside_7bf3b6/fout8_2.jpg", "holeimg/gzseaside_7bf3b6/fout8_3.jpg"], elev: -13, tees: [{ name: "챔피언", m: 489 }, { name: "프론트", m: 467 }, { name: "시니어", m: 449 }], len: 489 },
         { no: 9, par: 4, img: "holeimg/gzseaside_7bf3b6/1out9.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_354_02_09.mp4", frames: ["holeimg/gzseaside_7bf3b6/fout9_1.jpg", "holeimg/gzseaside_7bf3b6/fout9_2.jpg", "holeimg/gzseaside_7bf3b6/fout9_3.jpg"], tees: [{ name: "챔피언", m: 400 }, { name: "프론트", m: 380 }, { name: "시니어", m: 344 }], len: 400 },
       ]},
-      { name: "IN", holes: [
+      { name: "남코스", holes: [
         { no: 1, par: 5, img: "holeimg/gzseaside_7bf3b6/2in1.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_354_01_01.mp4", frames: ["holeimg/gzseaside_7bf3b6/fin1_1.jpg", "holeimg/gzseaside_7bf3b6/fin1_2.jpg", "holeimg/gzseaside_7bf3b6/fin1_3.jpg"], elev: -19, tees: [{ name: "챔피언", m: 488 }, { name: "백", m: 487 }, { name: "프론트", m: 467 }, { name: "시니어", m: 440 }], len: 488 },
         { no: 2, par: 4, img: "holeimg/gzseaside_7bf3b6/2in2.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_354_01_02.mp4", frames: ["holeimg/gzseaside_7bf3b6/fin2_1.jpg", "holeimg/gzseaside_7bf3b6/fin2_2.jpg", "holeimg/gzseaside_7bf3b6/fin2_3.jpg"], elev: 10, tees: [{ name: "챔피언", m: 362 }, { name: "프론트", m: 346 }, { name: "시니어", m: 327 }], len: 362 },
         { no: 3, par: 3, img: "holeimg/gzseaside_7bf3b6/2in3.jpg", video: "https://mediathumbnail.golfzon.com/media/cc/hole3d/hole3D_354_01_03.mp4", frames: ["holeimg/gzseaside_7bf3b6/fin3_1.jpg", "holeimg/gzseaside_7bf3b6/fin3_2.jpg"], tees: [{ name: "챔피언", m: 195 }, { name: "백", m: 194 }, { name: "프론트", m: 170 }, { name: "시니어", m: 126 }], len: 195 },
@@ -6340,26 +6340,26 @@ const HOLEIMG_DB = {
     sourceUrl: "https://www.pinevalley.co.kr/index_pinevalley.asp",
     courses: [
       { name: "파인", holes: [
-        { no: 1, par: 5, img: "holeimg/pinevalley/파인1.jpg", tip: "[좌측 O.B구역 · 우측 O.B구역]", hdcp: 6 },
-        { no: 2, par: 4, img: "holeimg/pinevalley/파인2.jpg", tip: "[좌측 O.B구역 · 우측 O.B구역]", hdcp: 7 },
-        { no: 3, par: 4, img: "holeimg/pinevalley/파인3.jpg", tip: "[좌측 페널티구역 · 우측 O.B구역]", hdcp: 5 },
-        { no: 4, par: 3, img: "holeimg/pinevalley/파인4.jpg", tip: "[좌측 페널티구역 · 우측 페널티구역]", hdcp: 8 },
-        { no: 5, par: 5, img: "holeimg/pinevalley/파인5.jpg", tip: "[좌측 O.B구역 · 우측 페널티구역]", hdcp: 4 },
-        { no: 6, par: 4, img: "holeimg/pinevalley/파인6.jpg", tip: "[좌측 페널티구역 · 우측 O.B구역]", hdcp: 9 },
-        { no: 7, par: 3, img: "holeimg/pinevalley/파인7.jpg", tip: "[좌측 페널티구역 · 우측 페널티구역]", hdcp: 3 },
-        { no: 8, par: 4, img: "holeimg/pinevalley/파인8.jpg", tip: "[좌측 O.B구역 · 우측 O.B구역]", hdcp: 1 },
-        { no: 9, par: 4, img: "holeimg/pinevalley/파인9.jpg", tip: "[좌측 페널티구역 · 우측 O.B구역]", hdcp: 2 },
+        { no: 1, par: 5, img: "holeimg/pinevalley/파인1.jpg", hdcp: 6 },
+        { no: 2, par: 4, img: "holeimg/pinevalley/파인2.jpg", hdcp: 7 },
+        { no: 3, par: 4, img: "holeimg/pinevalley/파인3.jpg", hdcp: 5 },
+        { no: 4, par: 3, img: "holeimg/pinevalley/파인4.jpg", hdcp: 8 },
+        { no: 5, par: 5, img: "holeimg/pinevalley/파인5.jpg", hdcp: 4 },
+        { no: 6, par: 4, img: "holeimg/pinevalley/파인6.jpg", hdcp: 9 },
+        { no: 7, par: 3, img: "holeimg/pinevalley/파인7.jpg", hdcp: 3 },
+        { no: 8, par: 4, img: "holeimg/pinevalley/파인8.jpg", hdcp: 1 },
+        { no: 9, par: 4, img: "holeimg/pinevalley/파인9.jpg", hdcp: 2 },
       ]},
       { name: "밸리", holes: [
-        { no: 1, par: 3, img: "holeimg/pinevalley/밸리1.jpg", tip: "[좌측 페널티구역 · 우측 페널티구역]", hdcp: 2 },
-        { no: 2, par: 6, img: "holeimg/pinevalley/밸리2.jpg", tip: "[좌측 페널티구역 · 우측 O.B구역]", hdcp: 8 },
-        { no: 3, par: 3, img: "holeimg/pinevalley/밸리3.jpg", tip: "[좌측 페널티구역 · 우측 페널티구역]", hdcp: 4 },
-        { no: 4, par: 4, img: "holeimg/pinevalley/밸리4.jpg", tip: "[좌측 O.B구역 · 우측 O.B구역]", hdcp: 1 },
-        { no: 5, par: 4, img: "holeimg/pinevalley/밸리5.jpg", tip: "[좌측 페널티구역 · 우측 O.B구역]", hdcp: 5 },
-        { no: 6, par: 4, img: "holeimg/pinevalley/밸리6.jpg", tip: "[좌측 O.B구역 · 우측 O.B구역]", hdcp: 9 },
-        { no: 7, par: 5, img: "holeimg/pinevalley/밸리7.jpg", tip: "[좌측 O.B구역 · 우측 페널티구역]", hdcp: 3 },
-        { no: 8, par: 3, img: "holeimg/pinevalley/밸리8.jpg", tip: "[좌측 페널티구역 · 우측 페널티구역]", hdcp: 6 },
-        { no: 9, par: 5, img: "holeimg/pinevalley/밸리9.jpg", tip: "[좌측 O.B구역 · 우측 O.B구역]", hdcp: 7 },
+        { no: 1, par: 3, img: "holeimg/pinevalley/밸리1.jpg", hdcp: 2 },
+        { no: 2, par: 6, img: "holeimg/pinevalley/밸리2.jpg", hdcp: 8 },
+        { no: 3, par: 3, img: "holeimg/pinevalley/밸리3.jpg", hdcp: 4 },
+        { no: 4, par: 4, img: "holeimg/pinevalley/밸리4.jpg", hdcp: 1 },
+        { no: 5, par: 4, img: "holeimg/pinevalley/밸리5.jpg", hdcp: 5 },
+        { no: 6, par: 4, img: "holeimg/pinevalley/밸리6.jpg", hdcp: 9 },
+        { no: 7, par: 5, img: "holeimg/pinevalley/밸리7.jpg", hdcp: 3 },
+        { no: 8, par: 3, img: "holeimg/pinevalley/밸리8.jpg", hdcp: 6 },
+        { no: 9, par: 5, img: "holeimg/pinevalley/밸리9.jpg", hdcp: 7 },
       ]},
     ],
   },
@@ -6396,20 +6396,20 @@ const HOLEIMG_DB = {
     sourceUrl: "https://www.onetheclub.com/shilla/course",
     courses: [
       { name: "동", holes: [
-        { no: 1, par: 4, img: "holeimg/shilla/east1.jpg", tip: "황금화우(黃金花雨) 모감주나무 홀 황금빛 모감주 꽃이 비처럼 쏟아지는 진경 1번 홀은 모감주나무가 인상적입니다.  이 나무는 세계적인 희귀식물로 우리나라의 자생지는 천연기념물로 지정되어 있습니다.  6-7월에 노란 꽃이 가득 피어 바람에 나부끼는 장면은 장관입니다. 영어로 이 꽃을 ‘골드레인 트리 (gold-rain tree)'라 부르죠. 황금화우 속에서 황홀한 굿샷을!", hdcp: 2 },
+        { no: 1, par: 4, img: "holeimg/shilla/east1.jpg", tip: "황금화우(黃金花雨) 모감주나무 홀 황금빛 모감주 꽃이 비처럼 쏟아지는 진경 1번 홀은 모감주나무가 인상적입니다. 이 나무는 세계적인 희귀식물로 우리나라의 자생지는 천연기념물로 지정되어 있습니다. 6-7월에 노란 꽃이 가득 피어 바람에 나부끼는 장면은 장관입니다. 영어로 이 꽃을 ‘골드레인 트리 (gold-rain tree)'라 부르죠. 황금화우 속에서 황홀한 굿샷을!", hdcp: 2 },
         { no: 2, par: 4, img: "holeimg/shilla/east2.jpg", tip: "낙상홍추(落霜紅秋) 홀 서리 내린 뒤에 붉은 열매, 도전하는 자만이 열매 얻나니 낙상홍은 여름에 자줏빛 꽃을 피운 뒤 작은 구슬같은 붉은 열매를 맺습니다. 잎 진 뒤 매달린 붉은 열매의 모습이 아름다워 나무 이름이 ‘서리 내린 다음의 붉음’이란 뜻의 낙상홍이죠. 우측 공략은 전략적이지만 2벌타를 각오로 샷을 해야 합니다. 우측 능선엔 개나리, 그린 우측엔 홍매화도 황홀합니다.", hdcp: 8 },
         { no: 3, par: 5, img: "holeimg/shilla/east3.jpg", tip: "보보근천(步步近天) 거꾸리 홀 걸음걸음마다 하늘에 가까워지는 것 같네! 가파른 오르막 홀로 걸어가기엔 다소 힘겨움을 느끼는 홀입니다. 한 걸음 한 걸음... 힘겨울수록 목표는 가까워져 있을 것입니다. 그리고, 뜻밖의 선물 하나, 200m 지점에서 티그라운드 쪽으로 거꾸로 보면 아주 아름다운 홀 하나가 가만히 올려다보며 웃고 있을 것입니다.", hdcp: 3 },
         { no: 4, par: 3, img: "holeimg/shilla/east4.jpg", tip: "오색앵심(五色櫻心) 단풍나무 홀 여인의 옷고름 같은 오색단풍, 앵두가 익어가는 홀 짧은 파 3홀로 그린 쪽 카트도로 우측에서 앵두를 따먹을 수 있는 홀이죠. 이 홀은 어쩌면 ‘짧은 사랑의 비가’처럼 아름다운 풍광과 새콤달콤한 열매를 선사합니다. 아쉽게 지나친 러브스토리 같은 홀의 기억을 맛보십시오.", hdcp: 9 },
         { no: 5, par: 4, img: "holeimg/shilla/east5.jpg", tip: "연리지송(連理枝松) 홀 연리지 소나무 한 그루 앞에서 사랑의 합일을 생각하다 연리지는 두 그루 나무가 한 몸처럼 서로 사랑하다가 결국 가지가 이어져 붙어버린 나무입니다. 옛 시인은 인간의 사랑 또한 지상의 연리지처럼 아름답다고 노래하기도 하였습니다. 연리지 중에서도 소나무는 귀합니다. 연리지송 홀에서, 사랑의 원샷을 날려 보십시오.", hdcp: 4 },
-        { no: 6, par: 4, img: "holeimg/shilla/east6.jpg", tip: "화풍장장(花相長長)  꽃과 단풍이 아름다운 홀 꽃 좋고 단풍 고운데, 홀로 멀리 있는 홀 긴 파 4홀로 장타자가 아니면 투 온하기 쉽지 않은 홀입니다. 하지만 그 ‘쉽지 않음’을 극복하는 것이 즐거움이 아니겠습니까. 더구나 가을 단풍과 야생화를 감상하며 거니는 길은 쾌적하고 아름답습니다.", hdcp: 5 },
+        { no: 6, par: 4, img: "holeimg/shilla/east6.jpg", tip: "화풍장장(花相長長) 꽃과 단풍이 아름다운 홀 꽃 좋고 단풍 고운데, 홀로 멀리 있는 홀 긴 파 4홀로 장타자가 아니면 투 온하기 쉽지 않은 홀입니다. 하지만 그 ‘쉽지 않음’을 극복하는 것이 즐거움이 아니겠습니까. 더구나 가을 단풍과 야생화를 감상하며 거니는 길은 쾌적하고 아름답습니다.", hdcp: 5 },
         { no: 7, par: 3, img: "holeimg/shilla/east7.jpg", tip: "영송가도(靈松街道) 소나무 홀 퇴계 이황은 34세 때 소나무를 본 뒤 이렇게 노래했습니다. “바위 위에 돋아 천년을 늙지않는 저 소나무/울끈불끈 푸른 비늘, 기세는 날아오르는 용 같네” 소나무는 곧 퇴계의 우렁찬 내공이며 저력이기도 합니다. 쩌렁쩌렁한 솔숲 기운을 받아, 나이스 샷!", hdcp: 7 },
-        { no: 8, par: 5, img: "holeimg/shilla/east8.jpg", tip: "앵앵낙원(櫻櫻落園) 벚나무 홀 벚꽃 떨어지는 아름다운 뜨락에서 날리는 굿 샷의 추억 도심에도 벚꽃은 많이 피지만, 신라CC에서 보는 왕벚나무 벚꽃은 잊지 못할 것입니다. 초록 풀밭과 푸른 하늘 사이에 하늘거리는 흰 꽃들이 비처럼 흩날리는 광경은, 무릉도원을 방불케 합니다. 그대를 향해 꽃들은 소리칠 것입니다.  “굿 샷!”", hdcp: 6 },
+        { no: 8, par: 5, img: "holeimg/shilla/east8.jpg", tip: "앵앵낙원(櫻櫻落園) 벚나무 홀 벚꽃 떨어지는 아름다운 뜨락에서 날리는 굿 샷의 추억 도심에도 벚꽃은 많이 피지만, 신라CC에서 보는 왕벚나무 벚꽃은 잊지 못할 것입니다. 초록 풀밭과 푸른 하늘 사이에 하늘거리는 흰 꽃들이 비처럼 흩날리는 광경은, 무릉도원을 방불케 합니다. 그대를 향해 꽃들은 소리칠 것입니다. “굿 샷!”", hdcp: 6 },
         { no: 9, par: 4, img: "holeimg/shilla/east9.jpg", tip: "귀거래원(歸去來願) 다시 오고픈 홀 그대는 늘 귀거래사를 부르며 이곳으로 돌아오길 원하리. 코스 난이도가 높아 희로애락의 절정을 경험하는 홀입니다. 마음이 뛰고 주저앉는 가운데 내려다보는 저 아래 풍경. 맑은 날엔 여주, 이천까지 다 내려다 보입니다. “다시 돌아오고 싶다”는 귀거래사를 부르며 그대는 신라CC 귀거래원 마지막 홀을 떠올릴 것입니다.", hdcp: 1 },
       ]},
       { name: "남", holes: [
-        { no: 1, par: 4, img: "holeimg/shilla/south1.jpg", tip: "허심입석(虛心立石) 겸손의 홀 그대는 늘 귀거래사를 부르며 이곳으로 돌아오길 원하리. 코스 난이도가 높아 희로애락의 절정을 경험하는 홀입니다. 마음이 뛰고 주저앉는 가운데 내려다보는 저 아래 풍경. 맑은 날엔 여주, 이천까지 다 내려다 보입니다. “다시 돌아오고 싶다”는 귀거래사를 부르며 그대는 신라CC 귀거래원 마지막 홀을 떠올릴 것입니다.", hdcp: 1 },
+        { no: 1, par: 4, img: "holeimg/shilla/south1.jpg", hdcp: 1 },
         { no: 2, par: 5, img: "holeimg/shilla/south2.jpg", tip: "투온투혼(投溫鬪魂) 도전 홀 온기를 쏟아 투온에 도전하는 투혼의 홀 짧은 파 5홀 좌도그랙 홀로, 투온을 노릴 수 있는 도전적인 코스입니다. 가을엔 오색 단풍이 고와서 서정적인 분위기를 더합니다.", hdcp: 6 },
-        { no: 3, par: 4, img: "holeimg/shilla/south3.jpg", tip: "섬모지훈(蟾母之訓) 엄마는 훈시중 홀 두꺼비 엄마가 말씀하시길 “역두구심(力頭球心) 하라” 티박스 오른쪽에 두꺼비 모자(母子) 바위가 있습니다. 전통적으로 우리는 두꺼비를 길한 동물로 여겨왔습니다. 두꺼비 어미가 자식에게 무엇을 저렇게 열심히 가르치는 걸까요. “힘은 빼고,  머리는 숙이고, 공을 보고, 마음은 비워야 하느니라.” 이른바 역두구심(力頭球心)을 코치하는 게 아닐까요.", hdcp: 9 },
+        { no: 3, par: 4, img: "holeimg/shilla/south3.jpg", tip: "섬모지훈(蟾母之訓) 엄마는 훈시중 홀 두꺼비 엄마가 말씀하시길 “역두구심(力頭球心) 하라” 티박스 오른쪽에 두꺼비 모자(母子) 바위가 있습니다. 전통적으로 우리는 두꺼비를 길한 동물로 여겨왔습니다. 두꺼비 어미가 자식에게 무엇을 저렇게 열심히 가르치는 걸까요. “힘은 빼고, 머리는 숙이고, 공을 보고, 마음은 비워야 하느니라.” 이른바 역두구심(力頭球心)을 코치하는 게 아닐까요.", hdcp: 9 },
         { no: 4, par: 4, img: "holeimg/shilla/south4.jpg", tip: "목전천하(目前天下) 전망대 홀 눈 앞에 천하가 펼쳐지나니 속이 후련 하구나! 전망이 좋으면 희망이 생깁니다. T/G 뒤쪽에서 클럽하우스를 내려다보면서 주변 경관을 한눈에 보이죠. 포토존 홀이기도 합니다. 멀리 양평과 여주의 경계선을 이루는 고래산(바다), 매봉산(하늘), 우두산(육지)이 한눈에 펼쳐지는 장쾌한 절경입니다.", hdcp: 5 },
         { no: 5, par: 3, img: "holeimg/shilla/south5.jpg", tip: "화영만폭(花影萬幅) 철쭉 홀 철쭉꽃 그림자가 겹겹이 연못에 비치듯, 마음의 압박이 어른거리네 철쭉꽃은 연못을 물들이며 끝없이 꽃빛의 파문을 만들어냅니다. 그린에서 Tee Box를 돌아보면 연못의 경관이 참 아름답습니다.", hdcp: 3 },
         { no: 6, par: 4, img: "holeimg/shilla/south6.jpg", tip: "진달래군(眞達來群) 병풍바위 홀 진실한 마음으로 이곳에 온 이들, ‘진달래 갤러리’를 환영합니다. 왼쪽 병풍 바위에 진달래 꽃이 아름다운 홀입니다. 꽃행렬을 옆구리에 끼고, 푸른 초원을 느긋하게 거니는 마음이 흥겹습니다. 나의 굿샷에 진달래 갤러리에서 환호성을 지르는 모습을 상상합시다", hdcp: 7 },
@@ -6419,13 +6419,13 @@ const HOLEIMG_DB = {
       ]},
       { name: "서", holes: [
         { no: 1, par: 5, img: "holeimg/shilla/west1.jpg", tip: "사천송학(射天松鶴) 솔향기 홀 공을 솔숲 하늘로 쏘아 올릴 때 학(버디)이 나는구나 ! 4,000 그루 소나무 향기가 가득한 홀이 첫 관문처럼 열려 있습니다. 짧은 파5의 홀로, '버디 출발' 을 노려볼만합니다.", hdcp: 7 },
-        { no: 2, par: 4, img: "holeimg/shilla/west2.jpg", tip: "일타삼매(一打三梅) 매화나무 홀 샷 한번 휘두르니 세 줄기 매화향기가 감도네! 신라CC에서 가장 먼저 봄이 찾아드는 곳.  매화가 가득한 곳입니다. 7월에는 매실 또한 가득하니  땀의 결실이 아름답다는 걸 보여줍니다. 일타삼매는 한 타 한 타 삼매경에 빠진다는  일타삼매(一打三昧)이기도 합니다.", hdcp: 3 },
-        { no: 3, par: 4, img: "holeimg/shilla/west3.jpg", tip: "오소리연(五小利淵) 청정연못 홀 나는 이익을 조금만 취해도 좋으니,  함께 즐기는 인연의 연못 그린 왼쪽을 보십시오.  맑은 연못이 있습니다.  오소리, 야생오리가 찾아오는 쉼터죠.  ‘물 좋은 홀’입니다. 금슬 좋은 부부가 라운딩 할 땐 은백색의 오소리 부부가 가끔 마중 나오죠.  그런 행운을 누리십시오. [오소리 찾기 이벤트홀] 오소리 인증샷 찍어 프론트에 제출하면 당일 그린피 4인 면제", hdcp: 5 },
+        { no: 2, par: 4, img: "holeimg/shilla/west2.jpg", tip: "일타삼매(一打三梅) 매화나무 홀 샷 한번 휘두르니 세 줄기 매화향기가 감도네! 신라CC에서 가장 먼저 봄이 찾아드는 곳. 매화가 가득한 곳입니다. 7월에는 매실 또한 가득하니 땀의 결실이 아름답다는 걸 보여줍니다. 일타삼매는 한 타 한 타 삼매경에 빠진다는 일타삼매(一打三昧)이기도 합니다.", hdcp: 3 },
+        { no: 3, par: 4, img: "holeimg/shilla/west3.jpg", tip: "오소리연(五小利淵) 청정연못 홀 나는 이익을 조금만 취해도 좋으니, 함께 즐기는 인연의 연못 그린 왼쪽을 보십시오. 맑은 연못이 있습니다. 오소리, 야생오리가 찾아오는 쉼터죠. ‘물 좋은 홀’입니다. 금슬 좋은 부부가 라운딩 할 땐 은백색의 오소리 부부가 가끔 마중 나오죠. 그런 행운을 누리십시오.", hdcp: 5 },
         { no: 4, par: 4, img: "holeimg/shilla/west4.jpg", tip: "화타동심(花打同心) 아그배나무 홀 꽃이 송이송이 피우는 마음과 사람이 한타 한타 치는 마음이 같구나 짧은 파 4 홀로 온그린은 비교적 쉽습니다만, 2퍼트로 마무리하기는 쉽지 않은 홀이랍니다. 봄날엔 하얗게 핀 아그배나무 꽃을 보며 마음을 추스르시기를. 오늘의 샷이 나중엔 아름다운 아그배(붉고 노란 빛이 도는 작은 배처럼 생긴 열매)처럼 결실을 맺을 것입니다.", hdcp: 8 },
         { no: 5, par: 3, img: "holeimg/shilla/west5.jpg", tip: "삼삼기운(杉杉運雲) 삼나무 홀 삼나무숲 사이에서 행운이 솟아오르네 ! 삼나무는 일본에서 시작된 나무로 높이가 40m까지 치솟으며 3000년까지도 산다는 장수나무입니다. 한반도에선 주로 남부 지방에서만 자라는 이 나무를 신라CC가 어렵게 옮겨 심어 숲을 만들었지요. 삼나무의 기운을 받아서 행운아가 되어 보십시오.", hdcp: 6 },
-        { no: 6, par: 4, img: "holeimg/shilla/west6.jpg", tip: "향원익정(向遠益精) 미산딸나무 홀 멀리를 향할수록 더욱 정교함을 요하느니 미국 산딸나무가 멀리 보이는 아름다운 코스죠.  봄날 노란 빛이 도는 녹색의 꽃과 가을의 붉은 단풍이 눈을 붙듭니다. 하지만 널찍한 코스엔 피를 말리는 장애가 기다릴지 모릅니다. 거리도 길고 오른쪽에 해저드가 있어 온그린이 쉽지 않고, 그린도 까다로운 난코스죠.", hdcp: 2 },
-        { no: 7, par: 4, img: "holeimg/shilla/west7.jpg", tip: "개벽대길(開闢大吉) 스카이 홀 탁 트인 하늘에 황금빛 행운이 찾아 드는구나 ! 페어웨이에서 그린 쪽을 한번 보십시오.  탁 트인 하늘이 시원한 홀입니다. 숨을 한번 크게 쉬고 호연지기를 누리십시오. 초여름날엔 T/G 주변 모감주나무 황금색 꽃이 눈부시죠.", hdcp: 4 },
-        { no: 8, par: 3, img: "holeimg/shilla/west8.jpg", tip: "두견일심(杜絹一心) 백철쭉 홀 두견새 우는 봄, 오롯한 한 마음으로 퍼팅 하리! T/G, 그린 주변에 하얀 백철쭉이 피는 봄날.  옛 사람들은 철쭉이나 진달래를 두견화라 했죠. 두견새는 못잊을 옛 짝을 향해 울고, 골퍼는 쉽게 마음을 내주지 않은 ‘홀’ 때문에 웁니다. 온그린은 쉽지만 그린이 어려워 퍼트에 집중해야 하는 곳이죠.", hdcp: 9 },
+        { no: 6, par: 4, img: "holeimg/shilla/west6.jpg", tip: "향원익정(向遠益精) 미산딸나무 홀 멀리를 향할수록 더욱 정교함을 요하느니 미국 산딸나무가 멀리 보이는 아름다운 코스죠. 봄날 노란 빛이 도는 녹색의 꽃과 가을의 붉은 단풍이 눈을 붙듭니다. 하지만 널찍한 코스엔 피를 말리는 장애가 기다릴지 모릅니다. 거리도 길고 오른쪽에 해저드가 있어 온그린이 쉽지 않고, 그린도 까다로운 난코스죠.", hdcp: 2 },
+        { no: 7, par: 4, img: "holeimg/shilla/west7.jpg", tip: "개벽대길(開闢大吉) 스카이 홀 탁 트인 하늘에 황금빛 행운이 찾아 드는구나 ! 페어웨이에서 그린 쪽을 한번 보십시오. 탁 트인 하늘이 시원한 홀입니다. 숨을 한번 크게 쉬고 호연지기를 누리십시오. 초여름날엔 T/G 주변 모감주나무 황금색 꽃이 눈부시죠.", hdcp: 4 },
+        { no: 8, par: 3, img: "holeimg/shilla/west8.jpg", tip: "두견일심(杜絹一心) 백철쭉 홀 두견새 우는 봄, 오롯한 한 마음으로 퍼팅 하리! T/G, 그린 주변에 하얀 백철쭉이 피는 봄날. 옛 사람들은 철쭉이나 진달래를 두견화라 했죠. 두견새는 못잊을 옛 짝을 향해 울고, 골퍼는 쉽게 마음을 내주지 않은 ‘홀’ 때문에 웁니다. 온그린은 쉽지만 그린이 어려워 퍼트에 집중해야 하는 곳이죠.", hdcp: 9 },
         { no: 9, par: 5, img: "holeimg/shilla/west9.jpg", tip: "장쾌귀환(長快歸還) 롱기 도전 홀 길고 호쾌한 일타로 기분 좋게 귀환하리라! 자, 신라CC의 스토리가 있는 오디세이를 마무리하실 차례입니다. 클럽하우스를 겨냥해 시원하게 드라이브를 쳐보십시오. 오늘의 롱기스트가 그대를 기다리고 있을 것입니다.", hdcp: 1 },
       ]},
     ],
@@ -6463,15 +6463,15 @@ const HOLEIMG_DB = {
     sourceUrl: "https://theninegc.co.kr/mobile/course_01.asp",
     courses: [
       { name: "OUT", holes: [
-        { no: 1, par: 4, img: "holeimg/theninegc/out1.jpg", tip: "골짜기 중앙에 위치한 홀이며, 양 옆의 사면으로 인해 편안한 느낌을 갖게 하는 홀로 티잉그라운드에서 그린까지 시원한 드라이버 샷이 가능한 홀이다" },
-        { no: 2, par: 4, img: "holeimg/theninegc/out2.jpg", tip: "골짜기 중앙에 위치한 홀이며, 양 옆의 사면으로 인해 편안한 느낌을 갖게 하는 홀로 티잉그라운드에서 그린까지 시원한 드라이버 샷이 가능한 홀이다" },
-        { no: 3, par: 3, img: "holeimg/theninegc/out3.jpg", tip: "아일랜드 그린이며, 폰드와 어울린 그린 형상, 그리고 주변에 초화류 등의 배치로 THE NINE 골프장의 대표적인 홀이다", len: 170 },
-        { no: 4, par: 5, img: "holeimg/theninegc/out4.jpg", tip: "하다. 페어웨이 좌측과 우측에 해저드와 OB가 배치되어 페어웨이 중앙으로 공략하고, 어프로치 거리를 감안해서 2nd SHOT의 공략점을 선정해야 한다" },
-        { no: 5, par: 5, img: "holeimg/theninegc/out5.jpg", tip: "하다. 페어웨이 좌측과 우측에 해저드와 OB가 배치되어 페어웨이 중앙으로 공략하고, 어프로치 거리를 감안해서 2nd SHOT의 공략점을 선정해야 한다" },
-        { no: 6, par: 4, img: "holeimg/theninegc/out6.jpg", tip: "슬라이스가 나도 홀의 우측에 배치된 법면으로 볼이 살아 나올 경우가 많으며, 좌측에는 CREEK의 배치로 우측으로 공략하는 것이 편하다" },
-        { no: 7, par: 3, img: "holeimg/theninegc/out7.jpg", tip: "코스공략법 전체 코스의 배치가 주변 지형의 형상이 그대로 그린까지 이어져 있어, 경관미가 있고, 하향 홀로써 그린면을 한눈에 볼수있는 홀이다" },
-        { no: 8, par: 3, img: "holeimg/theninegc/out8.jpg", tip: "코스공략법 전체 코스의 배치가 주변 지형의 형상이 그대로 그린까지 이어져 있어, 경관미가 있고, 하향 홀로써 그린면을 한눈에 볼수있는 홀이다" },
-        { no: 9, par: 4, img: "holeimg/theninegc/out9.jpg", tip: "코스공략법 낙구지점 마다 공략점이 변화되어야 하는 홀로, 1st SHOT의 낙구지점에 따라 2nd 공략점이 달라진다" },
+        { no: 1, par: 4, img: "holeimg/theninegc/out1.jpg", tip: "티잉그라운드에서 시원한 티 샷이 가능한 홀이다. 골짜기 중앙에 위치한 홀이며, 양 옆의 사면으로 인해 편안한 느낌을 갖게 하는 홀로 티잉그라운드에서 그린까지 시원한 드라이버 샷이 가능한 홀이다." },
+        { no: 2, par: 4, img: "holeimg/theninegc/out2.jpg", tip: "해저드를 건너야 하는 홀로 1번 홀과 확연히 다른 중압감을 준다. 하지만 보이는 모습보다, 페어웨이 공략이 어렵지 않은 홀이며, 오히려 그린공략을 위한 2nd SHOT이 난해한 홀이다." },
+        { no: 3, par: 3, img: "holeimg/theninegc/out3.jpg", tip: "“THE NINE Golf Club”의 Signature Hole이다. 아일랜드 그린이며, 폰드와 어울린 그린 형상, 그리고 주변에 초화류 등의 배치로 THE NINE 골프장의 대표적인 홀이다." },
+        { no: 4, par: 5, img: "holeimg/theninegc/out4.jpg", tip: "페어웨이는 넓으나, 공략 지점을 정확히 공략하는 것이 중요하다. 페어웨이 좌측과 우측에 해저드와 OB가 배치되어 페어웨이 중앙으로 공략하고, 어프로치 거리를 감안해서 2nd SHOT의 공략점을 선정해야 한다. PAR5 홀로 비거리 보다는 공략지점의 선정이 중요하다." },
+        { no: 5, par: 4, img: "holeimg/theninegc/out5.jpg", tip: "해저드를 넘기는 티 샷을 해야 하며, 140m의 거리에 페어웨이가 배치되므로 홀 공략에 어려움이 없다. 슬라이스가 나도 홀의 우측에 배치된 법면으로 볼이 살아 나올 경우가 많으며, 좌측에는 CREEK의 배치로 우측으로 공략하는 것이 편하다. 그린은 One Green으로 좌, 우 그린을 합해놓은 형상이다." },
+        { no: 6, par: 4, img: "holeimg/theninegc/out6.jpg", tip: "폰드를 바라보면서 약 15m의 하향으로 공략하는 홀이기 때문에 시원한 샷을 날릴 수 있는 홀이다. 그러나 골바람의 방향과 세기, 우측의 해저드는 슬라이스의 위험을 숨기고 있는 홀이다. 오히려 페어웨이 좌측의 법면을 이용한 공략이 유효할 수 있는 홀이다." },
+        { no: 7, par: 3, img: "holeimg/theninegc/out7.jpg", tip: "전체 코스의 배치가 주변 지형의 형상이 그대로 그린까지 이어져 있어, 경관미가 있고, 하향 홀로써 그린면을 한눈에 볼수있는 홀이다." },
+        { no: 8, par: 5, img: "holeimg/theninegc/out8.jpg", tip: "낙구지점 마다 공략점이 변화되어야 하는 홀로, 1st SHOT의 낙구지점에 따라 2nd 공략점이 달라진다." },
+        { no: 9, par: 4, img: "holeimg/theninegc/out9.jpg", tip: "마지막 역전을 노려야 하는 홀로 페어웨이까지 이르는 샷의 어려움은 없는 홀이다. 클럽하우스가 뒤에 배치되어 건축의 형상미를 느끼는 홀이다.", len: 407 },
       ]},
     ],
   },
@@ -6508,26 +6508,26 @@ const HOLEIMG_DB = {
     sourceUrl: "https://www.tigercc.co.kr/index.asp",
     courses: [
       { name: "가온", holes: [
-        { no: 1, par: 4, img: "holeimg/tigercc/가온1.jpg", tip: "파란 호수와 넓은 페어웨이가 가슴을 탁 트이게 해주는 Par4홀 입니다. 좌측 도그렉 홀로써 그린 우측에 보이는 벙커를 공략하면 좋습니다. 특징 : 좌측 병행 워터 해저드 / 우측 OB / 좌,우 2단 그린", tees: [{ name: "블루", m: 355 }, { name: "화이트", m: 327 }, { name: "옐로", m: 303 }, { name: "레드", m: 250 }], len: 355, hdcp: 7 },
-        { no: 2, par: 4, img: "holeimg/tigercc/가온2.jpg", tip: "호수가 내려다 보이는 아일랜드 형태의 페어웨이에 안착시키는 즐거움을 느낄 수 있는 홀입니다. 그린 좌측 벙커를 공략하시면 좋습니다. 특징 : 좌측 병행 워터 해저드 / 우측 OB", tees: [{ name: "블루", m: 343 }, { name: "화이트", m: 314 }, { name: "옐로", m: 303 }, { name: "레드", m: 256 }], len: 343, hdcp: 8 },
-        { no: 3, par: 3, img: "holeimg/tigercc/가온3.jpg", tip: "그린 뒤쪽의 짙푸른 숲과 그린 앞 트리플 벙커가 대비되어 산뜻하게 시야에 들어오는 그린을 볼 수 있는 홀입니다.경사는 거의 느껴지지 않지만 오르막 홀이므로 평소보다 1클럽 길게 잡고 치는 것이 좋습니다. 특징 : 좌측 병행 워터 해저드 / 우측 OB", tees: [{ name: "블루", m: 160 }, { name: "화이트", m: 138 }, { name: "옐로", m: 130 }, { name: "레드", m: 121 }], len: 160, hdcp: 6 },
-        { no: 4, par: 5, img: "holeimg/tigercc/가온4.jpg", tip: "우측 암벽을 따라 길게 뻗은 Par5홀 입니다. 랜딩존이 넓고 장애물이 많지 않아 욕심을 부리지 않는다면 좋은 스코어를 기록할 수 있습니다. 좌측은 낭떠러지의 OB지역이므로 페어웨이 중앙을 공략하면 좋습니다. 특징 : 좌측 OB / 우측 병행 워터 해저드", tees: [{ name: "블루", m: 480 }, { name: "화이트", m: 438 }, { name: "옐로", m: 418 }, { name: "레드", m: 392 }], len: 480, hdcp: 2 },
-        { no: 5, par: 4, img: "holeimg/tigercc/가온5.jpg", tip: "홀 우측에 병풍처럼 전개되는 거대한 암반아래 파란 잔디가 어우러져 아름다운 홀입니다. 18H중 유일하게 두 개의 그린을 가진 홀로써 그린 앞에 보이는 쌍둥이 벙커를 공략하는 것이 좋습니다. 특징 : 좌측 OB / 우측 병행 워터 해저드 / 2단 페어 웨이, 2 그린", hdcp: 4 },
-        { no: 6, par: 3, img: "holeimg/tigercc/가온6.jpg", tip: "티잉 그라운드 옆으로 조각처럼 깎인 암반이 전개되어 있고 그린 뒤쪽으로는 시원한 자연 폭포가 쏟아지는 경관이 뛰어난 홀입니다. 살짝 오르막이지만 그린 중앙을 바로 공략하면 큰 부담은 느껴지지 않을 것 입니다. 특징 : 좌측 병행 워터 해저드 / 우측 OB", tees: [{ name: "블루", m: 155 }, { name: "화이트", m: 140 }, { name: "옐로", m: 125 }, { name: "레드", m: 107 }], len: 155, hdcp: 3 },
-        { no: 7, par: 5, img: "holeimg/tigercc/가온7.jpg", tip: "18H중 가장 높은 곳에 위치하여 모든 코스를 한눈에 볼 수 있는 홀입니다. 내리막 Par5홀로써 페어 웨이 폭이 넓지 않아 정교함이 요구됩니다.멀리 보고 욕심을 부리지 않아야 파 온을 노릴 수 있습니다. 특징 : 좌측 OB / 우측 병행 워터 해저드", tees: [{ name: "블루", m: 545 }, { name: "화이트", m: 498 }, { name: "옐로", m: 471 }, { name: "레드", m: 435 }], len: 545, hdcp: 1 },
-        { no: 8, par: 4, img: "holeimg/tigercc/가온8.jpg", tip: "비교적 짧은 길이의 Par4홀이나 은근한 오르막 경사로 인해 길이의 착각을 불러일으킵니다. 페어 웨이 중앙을 공략하면 좋습니다. 특징 : 좌측 병행 워터 해저드 / 우측 OB", tees: [{ name: "블루", m: 370 }, { name: "화이트", m: 330 }, { name: "옐로", m: 317 }, { name: "레드", m: 296 }], len: 370, hdcp: 5 },
-        { no: 9, par: 4, img: "holeimg/tigercc/가온9.jpg", tip: "좌측에 길게 뻗은 메타 세콰이어가 멋진 조경을 자랑하는 내리막 홀입니다. 과도한 욕심만 버린다면 마지막 홀은 멋지게 마무리할 수 있습니다. 특징 : 좌측 OB / 우측 OB", tees: [{ name: "블루", m: 355 }, { name: "화이트", m: 314 }, { name: "옐로", m: 289 }, { name: "레드", m: 268 }], len: 355, hdcp: 9 },
+        { no: 1, par: 4, img: "holeimg/tigercc/가온1.jpg", tip: "파란 호수와 넓은 페어웨이가 가슴을 탁 트이게 해주는 Par4홀 입니다. 좌측 도그렉 홀로써 그린 우측에 보이는 벙커를 공략하면 좋습니다.", tees: [{ name: "블루", m: 355 }, { name: "화이트", m: 327 }, { name: "옐로", m: 303 }, { name: "레드", m: 250 }], len: 355, hdcp: 7 },
+        { no: 2, par: 4, img: "holeimg/tigercc/가온2.jpg", tip: "호수가 내려다 보이는 아일랜드 형태의 페어웨이에 안착시키는 즐거움을 느낄 수 있는 홀입니다. 그린 좌측 벙커를 공략하시면 좋습니다.", tees: [{ name: "블루", m: 343 }, { name: "화이트", m: 314 }, { name: "옐로", m: 303 }, { name: "레드", m: 256 }], len: 343, hdcp: 8 },
+        { no: 3, par: 3, img: "holeimg/tigercc/가온3.jpg", tip: "그린 뒤쪽의 짙푸른 숲과 그린 앞 트리플 벙커가 대비되어 산뜻하게 시야에 들어오는 그린을 볼 수 있는 홀입니다.경사는 거의 느껴지지 않지만 오르막 홀이므로 평소보다 1클럽 길게 잡고 치는 것이 좋습니다.", tees: [{ name: "블루", m: 160 }, { name: "화이트", m: 138 }, { name: "옐로", m: 130 }, { name: "레드", m: 121 }], len: 160, hdcp: 6 },
+        { no: 4, par: 5, img: "holeimg/tigercc/가온4.jpg", tip: "우측 암벽을 따라 길게 뻗은 Par5홀 입니다. 랜딩존이 넓고 장애물이 많지 않아 욕심을 부리지 않는다면 좋은 스코어를 기록할 수 있습니다. 좌측은 낭떠러지의 OB지역이므로 페어웨이 중앙을 공략하면 좋습니다.", tees: [{ name: "블루", m: 480 }, { name: "화이트", m: 438 }, { name: "옐로", m: 418 }, { name: "레드", m: 392 }], len: 480, hdcp: 2 },
+        { no: 5, par: 4, img: "holeimg/tigercc/가온5.jpg", tip: "홀 우측에 병풍처럼 전개되는 거대한 암반아래 파란 잔디가 어우러져 아름다운 홀입니다. 18H중 유일하게 두 개의 그린을 가진 홀로써 그린 앞에 보이는 쌍둥이 벙커를 공략하는 것이 좋습니다.", hdcp: 4 },
+        { no: 6, par: 3, img: "holeimg/tigercc/가온6.jpg", tip: "티잉 그라운드 옆으로 조각처럼 깎인 암반이 전개되어 있고 그린 뒤쪽으로는 시원한 자연 폭포가 쏟아지는 경관이 뛰어난 홀입니다. 살짝 오르막이지만 그린 중앙을 바로 공략하면 큰 부담은 느껴지지 않을 것 입니다.", tees: [{ name: "블루", m: 155 }, { name: "화이트", m: 140 }, { name: "옐로", m: 125 }, { name: "레드", m: 107 }], len: 155, hdcp: 3 },
+        { no: 7, par: 5, img: "holeimg/tigercc/가온7.jpg", tip: "18H중 가장 높은 곳에 위치하여 모든 코스를 한눈에 볼 수 있는 홀입니다. 내리막 Par5홀로써 페어 웨이 폭이 넓지 않아 정교함이 요구됩니다.멀리 보고 욕심을 부리지 않아야 파 온을 노릴 수 있습니다.", tees: [{ name: "블루", m: 545 }, { name: "화이트", m: 498 }, { name: "옐로", m: 471 }, { name: "레드", m: 435 }], len: 545, hdcp: 1 },
+        { no: 8, par: 4, img: "holeimg/tigercc/가온8.jpg", tip: "비교적 짧은 길이의 Par4홀이나 은근한 오르막 경사로 인해 길이의 착각을 불러일으킵니다. 페어 웨이 중앙을 공략하면 좋습니다.", tees: [{ name: "블루", m: 370 }, { name: "화이트", m: 330 }, { name: "옐로", m: 317 }, { name: "레드", m: 296 }], len: 370, hdcp: 5 },
+        { no: 9, par: 4, img: "holeimg/tigercc/가온9.jpg", tip: "좌측에 길게 뻗은 메타 세콰이어가 멋진 조경을 자랑하는 내리막 홀입니다. 과도한 욕심만 버린다면 마지막 홀은 멋지게 마무리할 수 있습니다.", tees: [{ name: "블루", m: 355 }, { name: "화이트", m: 314 }, { name: "옐로", m: 289 }, { name: "레드", m: 268 }], len: 355, hdcp: 9 },
       ]},
       { name: "누리", holes: [
-        { no: 10, par: 5, img: "holeimg/tigercc/누리10.jpg", tip: "홀 좌측으로 성벽을 연상하게 하는 암벽이 병풍처럼 쌓여있어 독특한 경관을 연출하는 Par5홀입니다. 오르막 경사 홀로써 페어 웨이 중앙을 공략하시면 좋습니다. 특징 : 좌측 OB / 우측 OB", tees: [{ name: "블루", m: 515 }, { name: "화이트", m: 486 }, { name: "옐로", m: 449 }, { name: "레드", m: 376 }], len: 515, hdcp: 1 },
-        { no: 11, par: 4, img: "holeimg/tigercc/누리11.jpg", tip: "티잉 그라운드에서 바라보는 홀은 편안해 보이는 종단구조이므로 쉬운 느낌을 주지만 페어 웨이 폭이 넓지 않아 티 샷 시 신중함을 요하는 홀입니다. 특징 : 좌측 OB / 우측 OB", tees: [{ name: "블루", m: 355 }, { name: "화이트", m: 334 }, { name: "옐로", m: 316 }, { name: "레드", m: 288 }], len: 355, hdcp: 8 },
-        { no: 12, par: 4, img: "holeimg/tigercc/누리12.jpg", tip: "티잉 그라운드에서 홀 전체를 파악할 수 있고 그린까지도 쉽게 공략할 수 있을듯하지만 약간의 오르막 경사가 있으므로 세컨 샷 시 정교함이 요구됩니다. 특징 : 좌측 OB / 우측 OB", tees: [{ name: "블루", m: 355 }, { name: "화이트", m: 325 }, { name: "옐로", m: 307 }, { name: "레드", m: 266 }], len: 355, hdcp: 7 },
-        { no: 13, par: 4, img: "holeimg/tigercc/누리13.jpg", tip: "거대한 암반을 배경으로 놓인 코스의 경관이 아름다운 홀입니다. 그린 어프로치 주변이 까다로우므로 티 샷의 페어 웨이 안착이 필수인 홀입니다. 특징 : 좌측 OB / 우측 병행 워터 해저드", tees: [{ name: "블루", m: 346 }, { name: "화이트", m: 319 }, { name: "옐로", m: 299 }, { name: "레드", m: 255 }], len: 346, hdcp: 5 },
-        { no: 14, par: 3, img: "holeimg/tigercc/누리14.jpg", tip: "티잉 그라운드 앞에서부터 전개되는 연못을 따라 그린까지 벙커가 휘감고 있어 마치 용이 승천하는 듯한 형상을 하고 있는 홀입니다. 조경은 아름답지만 214m의 Par3홀은 골퍼에게 큰 부담으로 다가올 것입니다. 과감한 티 샷이 요구됩니다. 특징 : 좌측 OB / 우측 병행 워터 해저드", tees: [{ name: "블루", m: 170 }, { name: "화이트", m: 150 }, { name: "옐로", m: 140 }, { name: "레드", m: 130 }], len: 170, hdcp: 3 },
-        { no: 15, par: 4, img: "holeimg/tigercc/누리15.jpg", tip: "Par4홀 중 가장 긴 제원을 가지고 있는 홀입니다. 그린 앞이 2단 페어 웨이로 되어 있고 그린 좌측 앞에 커다란 벙커가 입을 벌리고 있어 세컨 샷에 신중을 기해야 합니다. 특징 : 좌측 OB / 우측 OB", tees: [{ name: "블루", m: 430 }, { name: "화이트", m: 400 }, { name: "옐로", m: 375 }, { name: "레드", m: 326 }], len: 430, hdcp: 2 },
-        { no: 16, par: 5, img: "holeimg/tigercc/누리16.jpg", tip: "약간 오르막 경사인 Par5홀입니다. 티 샷은 편안히 할 수 있고 물소리와 폭포를 감상하며 그린 앞까지 도달할 수 있지만 그린 주변에 깊게 패인 벙커들은 빠지면 탈출이 어렵습니다. 그린 주변에 끝없이 펼쳐진 갈대 숲 사이로 불어오는 바람이 피로를 씻겨 줄 것입니다. 특징 : 좌측 OB / 우측 병행 워터 해저드", tees: [{ name: "블루", m: 488 }, { name: "화이트", m: 465 }, { name: "옐로", m: 455 }, { name: "레드", m: 428 }], len: 488, hdcp: 4 },
-        { no: 17, par: 3, img: "holeimg/tigercc/누리17.jpg", tip: "폭포의 끝자락에 매달린 그린이 아름다운 홀입니다. 홀 오른쪽으로 흐르는 잔잔한 호수는 플레이어의 마음을 편안하게 해 줍니다. 그린 중앙을 바로 공략한다면 좋은 스코어를 기록할 것입니다. 특징 : 좌측 병행 워터 해저드 / 우측 병행 워터 해저드", tees: [{ name: "블루", m: 160 }, { name: "화이트", m: 133 }, { name: "옐로", m: 109 }, { name: "레드", m: 85 }], len: 160, hdcp: 6 },
-        { no: 18, par: 4, img: "holeimg/tigercc/누리18.jpg", tip: "페어 웨이 시작점부터 그린까지 연결되는 비치 벙커가 깊은 인상을 주는 홀입니다. 넓은 페어 웨이로 마음이 편안해 지는 홀이나 세컨 샷 미스 시 그린 주변 벙커로 인해 자칫 스코어를 잃을 수 있으므로 끝까지 집중해야 합니다.그린 좌측 벙커 방향을 공략하시는 것이 좋습니다. 특징 : 좌측 OB / 우측 병행 워터 해저드", tees: [{ name: "블루", m: 345 }, { name: "화이트", m: 320 }, { name: "옐로", m: 302 }, { name: "레드", m: 246 }], len: 345, hdcp: 9 },
+        { no: 10, par: 5, img: "holeimg/tigercc/누리10.jpg", tip: "홀 좌측으로 성벽을 연상하게 하는 암벽이 병풍처럼 쌓여있어 독특한 경관을 연출하는 Par5홀입니다. 오르막 경사 홀로써 페어 웨이 중앙을 공략하시면 좋습니다.", tees: [{ name: "블루", m: 515 }, { name: "화이트", m: 486 }, { name: "옐로", m: 449 }, { name: "레드", m: 376 }], len: 515, hdcp: 1 },
+        { no: 11, par: 4, img: "holeimg/tigercc/누리11.jpg", tip: "티잉 그라운드에서 바라보는 홀은 편안해 보이는 종단구조이므로 쉬운 느낌을 주지만 페어 웨이 폭이 넓지 않아 티 샷 시 신중함을 요하는 홀입니다.", tees: [{ name: "블루", m: 355 }, { name: "화이트", m: 334 }, { name: "옐로", m: 316 }, { name: "레드", m: 288 }], len: 355, hdcp: 8 },
+        { no: 12, par: 4, img: "holeimg/tigercc/누리12.jpg", tip: "티잉 그라운드에서 홀 전체를 파악할 수 있고 그린까지도 쉽게 공략할 수 있을듯하지만 약간의 오르막 경사가 있으므로 세컨 샷 시 정교함이 요구됩니다.", tees: [{ name: "블루", m: 355 }, { name: "화이트", m: 325 }, { name: "옐로", m: 307 }, { name: "레드", m: 266 }], len: 355, hdcp: 7 },
+        { no: 13, par: 4, img: "holeimg/tigercc/누리13.jpg", tip: "거대한 암반을 배경으로 놓인 코스의 경관이 아름다운 홀입니다. 그린 어프로치 주변이 까다로우므로 티 샷의 페어 웨이 안착이 필수인 홀입니다.", tees: [{ name: "블루", m: 346 }, { name: "화이트", m: 319 }, { name: "옐로", m: 299 }, { name: "레드", m: 255 }], len: 346, hdcp: 5 },
+        { no: 14, par: 3, img: "holeimg/tigercc/누리14.jpg", tip: "티잉 그라운드 앞에서부터 전개되는 연못을 따라 그린까지 벙커가 휘감고 있어 마치 용이 승천하는 듯한 형상을 하고 있는 홀입니다. 조경은 아름답지만 214m의 Par3홀은 골퍼에게 큰 부담으로 다가올 것입니다. 과감한 티 샷이 요구됩니다.", tees: [{ name: "블루", m: 170 }, { name: "화이트", m: 150 }, { name: "옐로", m: 140 }, { name: "레드", m: 130 }], len: 170, hdcp: 3 },
+        { no: 15, par: 4, img: "holeimg/tigercc/누리15.jpg", tip: "Par4홀 중 가장 긴 제원을 가지고 있는 홀입니다. 그린 앞이 2단 페어 웨이로 되어 있고 그린 좌측 앞에 커다란 벙커가 입을 벌리고 있어 세컨 샷에 신중을 기해야 합니다.", tees: [{ name: "블루", m: 430 }, { name: "화이트", m: 400 }, { name: "옐로", m: 375 }, { name: "레드", m: 326 }], len: 430, hdcp: 2 },
+        { no: 16, par: 5, img: "holeimg/tigercc/누리16.jpg", tip: "약간 오르막 경사인 Par5홀입니다. 티 샷은 편안히 할 수 있고 물소리와 폭포를 감상하며 그린 앞까지 도달할 수 있지만 그린 주변에 깊게 패인 벙커들은 빠지면 탈출이 어렵습니다. 그린 주변에 끝없이 펼쳐진 갈대 숲 사이로 불어오는 바람이 피로를 씻겨 줄 것입니다.", tees: [{ name: "블루", m: 488 }, { name: "화이트", m: 465 }, { name: "옐로", m: 455 }, { name: "레드", m: 428 }], len: 488, hdcp: 4 },
+        { no: 17, par: 3, img: "holeimg/tigercc/누리17.jpg", tip: "폭포의 끝자락에 매달린 그린이 아름다운 홀입니다. 홀 오른쪽으로 흐르는 잔잔한 호수는 플레이어의 마음을 편안하게 해 줍니다. 그린 중앙을 바로 공략한다면 좋은 스코어를 기록할 것입니다.", tees: [{ name: "블루", m: 160 }, { name: "화이트", m: 133 }, { name: "옐로", m: 109 }, { name: "레드", m: 85 }], len: 160, hdcp: 6 },
+        { no: 18, par: 4, img: "holeimg/tigercc/누리18.jpg", tip: "페어 웨이 시작점부터 그린까지 연결되는 비치 벙커가 깊은 인상을 주는 홀입니다. 넓은 페어 웨이로 마음이 편안해 지는 홀이나 세컨 샷 미스 시 그린 주변 벙커로 인해 자칫 스코어를 잃을 수 있으므로 끝까지 집중해야 합니다.그린 좌측 벙커 방향을 공략하시는 것이 좋습니다.", tees: [{ name: "블루", m: 345 }, { name: "화이트", m: 320 }, { name: "옐로", m: 302 }, { name: "레드", m: 246 }], len: 345, hdcp: 9 },
       ]},
     ],
   },

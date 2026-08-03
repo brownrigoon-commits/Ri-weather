@@ -64,7 +64,13 @@ def registered_names():
     return s
 
 def course_names_from(ccname, n):
-    """'자유로 CC - 대한/민국' → ['대한','민국']; 없으면 OUT/IN/A·B·C"""
+    """'자유로 CC - 대한/민국' → ['대한','민국']; 없으면 OUT/IN/A·B·C
+
+    ⚠️ 이 폴백은 **마지막 수단**이다. 같은 JSON 안 holeInfo.courseTypes 에 진짜 코스명이
+    들어 있는데도 이 함수만 쓰는 바람에 107구장 1,953홀이 'OUT/IN' 으로 등록됐다
+    (2026-08-03 감사: 태인CC 는 LAKE·MOUNTAIN, 마론CC 는 DREAM·VISION 이 실제 이름이다).
+    build_club() 은 courseTypes 를 먼저 본다.
+    """
     if " - " in ccname:
         part = ccname.split(" - ", 1)[1]
         names = [x.strip() for x in re.split(r"[/·]", part) if x.strip()]
@@ -86,6 +92,17 @@ def build_club(f):
     if not nines:
         return None
     names = course_names_from(j.get("ccName", ""), len(nines))
+    # 원본이 알려 주는 진짜 코스명이 있으면 그것을 쓴다(ciNum → courseName)
+    ctypes = {c.get("ciNum"): (c.get("courseName") or "").strip()
+              for c in (j.get("holeInfo", {}).get("courseTypes") or [])}
+    if ctypes:
+        real = []
+        for idx, nine in enumerate(nines):
+            cis = {h.get("ciNum") for h in nine if h.get("ciNum")}
+            nm = ctypes.get(list(cis)[0]) if len(cis) == 1 else ""
+            real.append(nm or (names[idx] if idx < len(names) else chr(ord("A") + idx)))
+        if len(set(real)) == len(real):        # 이름이 겹치면 폴백을 쓴다
+            names = real
     courses = []
     for idx, nine in enumerate(nines):
         holes = []

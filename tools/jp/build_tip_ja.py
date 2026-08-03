@@ -189,6 +189,8 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--extract", action="store_true")
     ap.add_argument("--translate", nargs="?", const=0, type=int)
+    ap.add_argument("--rebuild", action="store_true",
+                    help="번역하지 않고 캐시에 있는 것만으로 오버레이를 다시 만든다")
     a = ap.parse_args()
 
     good, bad = load_tips()
@@ -198,6 +200,31 @@ def main():
             print(f"    제외: {v:3d}건  {k}")
     courses = sorted({g[0] for g in good})
     print(f"■ 대상 구장 {len(courses)}곳")
+
+    # ── 다시 만들기 전용 (번역 없음) ────────────────────────────────
+    # 왜 필요한가: 2026-08-03 한국 원본을 대거 수리했더니, 오버레이가 **옛 원본**을
+    # 번역한 채 남아 일본어 화면에만 틀린 공략이 69홀 나갔다(전수 감사에서 확인).
+    # 캐시는 한국어 문장을 열쇠로 쓰므로, 고쳐진 문장은 캐시에 없어 자동으로 빠진다
+    # = 일본어가 사라지고 한국어 원문으로 떨어진다(사실은 맞다). 번역은 배치 키가 있는
+    # 곳에서 `--translate` 로 채우면 된다.
+    if a.rebuild:
+        cache = json.load(open(CACHE, encoding="utf-8")) if os.path.exists(CACHE) else {}
+        tree = defaultdict(lambda: defaultdict(dict))
+        n = dropped = 0
+        for cc, cs, no, tip, _ in good:
+            ja = cache.get(tip)
+            if not ja:
+                continue
+            # 번역이 도중에 끊긴 것은 담지 않는다(한국어의 30% 미만 길이)
+            if len(ja) < max(12, len(tip) * 0.3):
+                dropped += 1
+                continue
+            tree[cc][cs or ""][str(no)] = ja
+            n += 1
+        write_overlay(tree, n)
+        print(f"   (한국어 원문이 바뀌어 빠진 홀 {len(good) - n - dropped}개 · "
+              f"번역이 잘려 뺀 홀 {dropped}개 — 그 홀들은 일본어 화면에서 한국어 원문이 보입니다)")
+        return 0
 
     if a.extract or a.translate is None:
         for c in courses:
@@ -259,6 +286,11 @@ def main():
         print(f"\n(표본 실행이라 오버레이 파일은 아직 쓰지 않습니다 — {n}/{len(good)})")
         return 0
 
+    write_overlay(tree, n)
+    return 0
+
+
+def write_overlay(tree, n):
     def js(s):
         return '"' + str(s).replace("\\", "\\\\").replace('"', '\\"').replace("\n", " ") + '"'
 
@@ -266,7 +298,11 @@ def main():
         w.write("/* 투어리스트 — 한국 구장 홀 공략의 일본어 오버레이 (일본인 방한 골퍼용)\n"
                 "   ⚠️ 생성물입니다. tools/jp/build_tip_ja.py 가 다시 씁니다.\n"
                 "   ⚠️ 한국 원본(holeimgdb.js)은 손대지 않습니다 — 이 파일은 ja 화면에서만 얹습니다.\n"
-                "   ⚠️ 네이티브 검수 전에는 앱에서 읽지 않습니다. */\n")
+                "   ⚠️ 앱은 이 파일을 **실제로 읽습니다**(jppack.js tipJa → app.js). 예전 주석의\n"
+                "      '검수 전에는 읽지 않는다'는 사실과 달랐습니다(2026-08-03 감사에서 확인).\n"
+                "      그래서 한국 원본이 바뀌면 여기도 반드시 다시 만들어야 합니다:\n"
+                "        python tools/jp/build_tip_ja.py --rebuild     (캐시에 있는 것만·번역 없음)\n"
+                "        python tools/jp/build_tip_ja.py --translate   (배치 키가 있는 곳에서 채우기) */\n")
         w.write("const HOLETIP_JA = {\n")
         for cc in sorted(tree):
             w.write(f"  {js(cc)}: {{\n")

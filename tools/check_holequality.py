@@ -101,6 +101,47 @@ def check_menu(rows):
     return bad
 
 
+JA_DB = os.path.join(ROOT, "js", "holeimgdb_ja.js")
+JA_CACHE = os.path.join(ROOT, "coursedata", "homepages_jp", "_stats", "tip_ja_cache.json")
+
+
+def check_ja(rows):
+    """일본어 오버레이가 지금 한국어 원문에서 나온 것인지 (2026-08-03 신설).
+
+    일본어 화면은 한국어 tip 대신 이 파일을 우선 보여 준다(jppack.js → app.js).
+    한국 원문을 고치고 이 파일을 다시 만들지 않으면, **일본어 화면에만 옛 오류가 남는다**
+    — 실제로 69홀이 그랬다(웰링턴CC 메뉴 글이 일본어로 번역돼 있었다).
+
+    판정: 오버레이의 각 항목은 (a) 지금 그 홀에 한국어 공략이 있고
+          (b) 번역 캐시에서 그 한국어 문장의 번역과 정확히 같아야 한다.
+    """
+    if not (os.path.exists(JA_DB) and os.path.exists(JA_CACHE)):
+        return []
+    src = open(JA_DB, encoding="utf-8").read()
+    cache = json.load(open(JA_CACHE, encoding="utf-8"))
+    ko = {(r["course"], r["sub"], r["no"]): r["tip"] for r in rows}
+    bad, course, sub = [], None, None
+    for line in src.splitlines():
+        m = re.match(r'\s{2}"(.+?)":\s*\{', line)
+        if m:
+            course = m.group(1)
+            continue
+        m = re.match(r'\s{4}"(.*?)":\s*\{\s*(.*?)\s*\},?$', line)
+        if not (m and course):
+            continue
+        sub = m.group(1)
+        for hm in re.finditer(r'"(\d+)":\s*"((?:[^"\\]|\\.)*)"', m.group(2)):
+            no, ja = int(hm.group(1)), hm.group(2)
+            k = (course, sub, no)
+            src_ko = ko.get(k)
+            row = {"course": course, "sub": sub, "no": no, "tip": "", "img": "", "par": 0}
+            if not src_ko:
+                bad.append((row, "한국어 공략이 없어진 홀인데 일본어만 남아 있습니다"))
+            elif cache.get(src_ko) != ja:
+                bad.append((row, "한국어 원문이 바뀌었는데 일본어가 옛 번역 그대로입니다"))
+    return bad
+
+
 def check_img(rows):
     from PIL import Image, ImageStat
     bad, seen = [], {}
@@ -134,11 +175,13 @@ def main():
     rows = holes_from_db()
     tips = check_tip(rows)
     menus = check_menu(rows)
+    jas = check_ja(rows)
     imgs = check_img(rows)
     print(f"■ 홀 {len(rows)}개 검사 (공략 있는 홀 {sum(1 for r in rows if r['tip'])} · "
           f"이미지 있는 홀 {sum(1 for r in rows if r['img'])})")
 
-    for title, bad in (("남의 홀 공략", tips), ("메뉴 글이 공략 자리에", menus), ("백지 홀맵", imgs)):
+    for title, bad in (("남의 홀 공략", tips), ("메뉴 글이 공략 자리에", menus),
+                       ("일본어가 옛 원문 번역", jas), ("백지 홀맵", imgs)):
         if not bad:
             print(f"  ✅ {title} 0건")
             continue
@@ -147,12 +190,13 @@ def main():
             print(f'     {r["course"]} {r["sub"]} {r["no"]}번 — {why}')
         if not a.list and len(bad) > 12:
             print(f"     … 그 외 {len(bad) - 12}건 (--list 로 전부)")
-    if tips or menus or imgs:
+    if tips or menus or jas or imgs:
         print("\n고치는 길")
         print("  · 공략: coursedata/homepages/<slug>/parsed.json 의 tip 을 바로잡거나 비운다")
         print("    (같은 템플릿 구장은 python tools/reparse_holetitle.py --write)")
-        print("  · 이미지: 원본에서 다시 만들거나(reparse_holetitle.py --images),")
+        print("  · 이미지: 원본에서 다시 만들거나(reparse_holes.py --images),")
         print("    쓸 수 없으면 img 를 빼서 위성 뷰로 넘긴다")
+        print("  · 일본어: python tools/jp/build_tip_ja.py --rebuild (번역 없이 맞추기)")
         print("  · 고친 뒤 python tools/build_holeimgdb.py 로 재조립")
         return 1
     return 0
