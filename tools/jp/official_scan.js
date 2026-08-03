@@ -5,8 +5,12 @@
  * (슬라이더·모달·지연로드). 실제로 렌더링해서 DOM 의 이미지를 본다.
  *
  *   node tools/jp/official_scan.js            씨앗 전체
+ *   node tools/jp/official_scan.js --new      아직 안 훑은 곳만 (기존 결과에 이어붙인다)
  *   node tools/jp/official_scan.js --limit 20 앞 20곳만
  *   node tools/jp/official_scan.js --only 相模 특정 구장
+ *
+ * ⚠ --new 없이 돌리면 이미 훑은 구장도 다시 두드린다. 남의 서버에 같은 요청을
+ *   두 번 보내지 않도록, 씨앗을 늘린 뒤에는 --new 로 돌린다(2026-08-03 씨앗 243→563).
  *
  * 결과: coursedata/homepages_jp/_scan/official_dom.json
  *       (여기까지가 '긁기'. 홀맵 판정·내려받기·등록은 official_collect.py 가 한다)
@@ -30,12 +34,22 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
   const limit = args.includes("--limit") ? +args[args.indexOf("--limit") + 1] : 0;
   const only = args.includes("--only") ? args[args.indexOf("--only") + 1] : null;
 
+  const onlyNew = args.includes("--new");
+
   let seeds = JSON.parse(fs.readFileSync(SEEDS, "utf-8"));
-  if (only) seeds = seeds.filter((s) => s.golfdb.includes(only) || s.osm.includes(only));
+  if (only) seeds = seeds.filter((s) => s.golfdb.includes(only) || (s.osm || "").includes(only));
+
+  // --new: 이미 훑은 것은 건드리지 않고, 기존 결과 뒤에 이어붙인다
+  const out = onlyNew && fs.existsSync(OUT) ? JSON.parse(fs.readFileSync(OUT, "utf-8")) : [];
+  if (onlyNew) {
+    const done = new Set(out.map((r) => r.golfdb));
+    const before = seeds.length;
+    seeds = seeds.filter((s) => !done.has(s.golfdb));
+    console.log(`이미 훑은 ${before - seeds.length}곳은 건너뜁니다 — 남은 ${seeds.length}곳`);
+  }
   if (limit) seeds = seeds.slice(0, limit);
 
   const browser = await chromium.launch({ executablePath: CHROME, headless: true });
-  const out = [];
 
   for (let i = 0; i < seeds.length; i++) {
     const s = seeds[i];
