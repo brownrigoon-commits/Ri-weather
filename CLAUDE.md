@@ -19,15 +19,18 @@
 
 ### 1. 세션을 시작하면 무조건 먼저 실행
 ```
-python tools/sync.py --start "이번에 할 작업"
-python tools/sync.py
+.\tourist.cmd tools\sync.py --start "이번에 할 작업"
+.\tourist.cmd tools\sync.py
 ```
 상대 PC 작업을 받아오고, 내가 뭘 하는지 상대에게 알립니다.
 **이걸 건너뛰고 파일을 수정하면 안 됩니다.**
 
+이 명령은 Git뿐 아니라 Google Drive의 비공개 홀맵 원본 보관소도 함께 받습니다.
+원본 보관소 설계와 새 PC 준비는 docs/홀맵_다중PC_작업환경.md를 따릅니다.
+
 ### 2. 작업이 한 덩어리 끝날 때마다 저장 (30~60분마다)
 ```
-python tools/sync.py "무엇을 했는지 한 줄"
+.\tourist.cmd tools\sync.py "무엇을 했는지 한 줄"
 ```
 커밋 → 상대 작업 받기 → 충돌 자동 해결 → 보내기를 한 번에 처리합니다.
 **오래 쥐고 있지 말 것.** 자주 저장할수록 충돌이 작아집니다.
@@ -56,15 +59,29 @@ const 진짜눌림 = (hit === el || el.contains(hit));
 
 ### 4. 상대가 뭘 하는지 확인
 ```
-python tools/sync.py --status
+.\tourist.cmd tools\sync.py --status
 ```
 
-### 충돌은 자동 해결됩니다 (사람이 손대지 않음)
+### 새 PC에서 처음 한 번
+
+Google Drive for desktop에 같은 계정으로 로그인하고 파일 스트리밍을 선택한 뒤:
+
+    powershell -ExecutionPolicy Bypass -File tools/setup_tourist_pc.ps1
+
+설치 후 투어리스트 Python 명령은 시스템 `python` 대신 항상 저장소의 래퍼를 쓴다.
+
+    .\tourist.cmd tools\sync.py
+    .\tourist.cmd tools\collect_v2_selenium.py --help
+
+홀맵 원본과 무관한 코드 또는 Ri_Stock 작업만 의도적으로 처리할 때만
+sync.py의 --no-artifacts 옵션을 쓸 수 있습니다. 홀맵 수집 중에는 금지합니다.
+
+### 충돌은 안전하다고 증명된 경우만 자동 해결됩니다
 | 파일 | 처리 |
 |---|---|
 | `js/holeimgdb.js` | 조립 산출물 → 자동 재생성 |
 | `js/app.js` APP_VER · `sw.js` 캐시 | 두 버전 중 큰 값 자동 채택 |
-| `holeimg/`, `coursedata/` | 서로 다른 구장이므로 양쪽 모두 보존 |
+| `holeimg/`, `coursedata/` | 서로 다른 파일은 Git이 병합. 같은 파일 충돌은 자동 선택하지 않고 중단 |
 | `ristock/data/` | **자동 생성물** → 손으로 고치지 말 것. 충돌 시 재생성이 답 (아래 참고) |
 | 그 외 같은 줄 동시 수정 | 자동 해결 불가 → 사람에게 보고 |
 
@@ -119,6 +136,10 @@ python tools/sync.py --status
 | 도구 | 역할 |
 |---|---|
 | `tools/sync.py` | **동시 작업 동기화** (받기/저장/현황) |
+| `tools/artifact_sync.py` | Git 제외 홀맵 원본을 Google Drive에 SHA-256 동기화 |
+| `tools/setup_tourist_pc.ps1` | 새 PC 의존성 설치 + 원본 복원 |
+| `tools/check_tourist_environment.py` | Python·Node·키·원본 보관소 환경 점검 |
+| `tourist.cmd` | 항상 `.venv-tourist` Python으로 실행하는 공통 래퍼 |
 | `tools/release_courses.py` | 조립 + 무결성 검사 + 버전업 + 배포 |
 | `tools/universal_build.py` | 사이트 유형 자동판별 구장 등록 (`--batch --grades ABCD --write`) |
 | `tools/analyze_registrable.py` | 수집 자산 → 등급 A~E 판정 |
